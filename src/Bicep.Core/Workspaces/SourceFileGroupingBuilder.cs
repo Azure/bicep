@@ -71,21 +71,21 @@ namespace Bicep.Core.Workspaces
             var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, current);
             var artifactsToRestore = current.GetArtifactsToRestore();
 
-            foreach (var artifact in artifactsToRestore)
-            {
-                if (artifact.Syntax is {})
-                {
-                    builder.artifactLookup.Remove(artifact.Syntax);
-                }
-                else
-                {
-                    builder.implicitArtifacts.Remove(artifact);
-                }
-            }
-
             // Rebuild source files that contain external artifact references restored during the initial build.
             var sourceFilesToRebuild = artifactsToRestore
-                .Select(artifact => artifact.Origin)
+                .Select(artifact =>
+                {
+                    if (artifact.Syntax is {})
+                    {
+                        builder.artifactLookup.Remove(artifact.Syntax);
+                    }
+                    else
+                    {
+                        builder.implicitArtifacts.Remove(artifact);
+                    }
+
+                    return artifact.Origin;
+                })
                 .Distinct()
                 .SelectMany(current.GetFilesDependingOn)
                 .ToImmutableHashSet();

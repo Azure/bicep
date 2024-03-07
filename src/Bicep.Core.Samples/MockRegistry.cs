@@ -28,7 +28,7 @@ public class MockRegistry
 
     private static async Task<IContainerRegistryClientFactory> CreateMockBicepRegistry(bool publishSource)
     {
-        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true);
+        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
         var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryIndex>();
 
         var modules = new Dictionary<string, DataSet.ExternalModuleInfo>();
@@ -47,7 +47,7 @@ public class MockRegistry
 
     private static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRegistry(bool enablePublishSource)
     {
-        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true);
+        var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
         var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryIndex>();
 
         var modules = new Dictionary<string, DataSet.ExternalModuleInfo>();

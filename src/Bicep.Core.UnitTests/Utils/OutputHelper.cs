@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         private static Func<int, string> GetPaddingFunc(IEnumerable<int> integers)
         {
-            var padding = integers.Any() ? CountDigits(integers.Max()) : 0;
+            var padding = CountDigits(integers.DefaultIfEmpty(0).Max());
 
             return x => x.ToInvariantString().PadLeft(padding, '0');
         }

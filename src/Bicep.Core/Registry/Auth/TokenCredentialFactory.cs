@@ -11,14 +11,11 @@ namespace Bicep.Core.Registry.Auth
     {
         public TokenCredential CreateChain(IEnumerable<CredentialType> credentialPrecedence, CredentialOptions? credentialOptions, Uri authorityUri)
         {
-            if (!credentialPrecedence.Any())
-            {
-                throw new ArgumentException("At least one credential type must be provided.");
-            }
-
             var tokenCredentials = credentialPrecedence.Select(credentialType => CreateSingle(credentialType, credentialOptions, authorityUri)).ToArray();
 
-            return new ChainedTokenCredential(tokenCredentials);
+            return tokenCredentials.Length == 0
+                ? throw new ArgumentException("At least one credential type must be provided.")
+                : new ChainedTokenCredential(tokenCredentials);
         }
 
         public TokenCredential CreateSingle(CredentialType credentialType, CredentialOptions? credentialOptions, Uri authorityUri)

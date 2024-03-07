@@ -50,17 +50,17 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static string PrintWithAnnotations(BicepSourceFile bicepFile, IEnumerable<Annotation> annotations, int context, bool includeLineNumbers)
         {
-            if (!annotations.Any())
+            var annotationPositions = annotations.ToDictionary(
+                x => x,
+                x => TextCoordinateConverter.GetPosition(bicepFile.LineStarts, x.Span.Position));
+
+            if (annotationPositions.Count == 0)
             {
                 return "";
             }
 
             var output = new StringBuilder();
             var programLines = GetProgramTextLines(bicepFile);
-
-            var annotationPositions = annotations.ToDictionary(
-                x => x,
-                x => TextCoordinateConverter.GetPosition(bicepFile.LineStarts, x.Span.Position));
 
             var annotationsByLine = annotationPositions.ToLookup(x => x.Value.line, x => x.Key);
 

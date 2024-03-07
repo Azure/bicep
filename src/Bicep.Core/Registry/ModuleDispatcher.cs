@@ -180,15 +180,15 @@ namespace Bicep.Core.Registry
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
+            // many module declarations can point to the same module
+            var uniqueReferences = references.Distinct().ToArray();
+
             if (!forceRestore &&
-                references.All(module => this.GetArtifactRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
+                uniqueReferences.All(module => this.GetArtifactRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything
                 return false;
             }
-
-            // many module declarations can point to the same module
-            var uniqueReferences = references.Distinct();
 
             // split modules refs by registry
             var referencesByRegistry = uniqueReferences.ToLookup(@ref => Registries(@ref.ParentModuleUri)[@ref.Scheme]);

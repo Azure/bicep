@@ -397,8 +397,8 @@ namespace Bicep.Core.Semantics
 
             if (!isFunctionCall)
             {
-                var foundTypes = namespaceResolver.ResolveUnqualifiedTypeSymbol(identifierSyntax);
-                if (foundTypes.Count() > 1)
+                var foundTypes = namespaceResolver.ResolveUnqualifiedTypeSymbol(identifierSyntax).ToArray();
+                if (foundTypes.Length > 1)
                 {
                     return AmbiguousSymbol(identifierSyntax, foundTypes, x => x.DeclaringNamespace.Name);
                 }
@@ -409,8 +409,8 @@ namespace Bicep.Core.Semantics
             }
 
             // attempt to find function in all imported namespaces
-            var foundSymbols = namespaceResolver.ResolveUnqualifiedFunction(identifierSyntax, includeDecorators: allowedFlags.HasAnyDecoratorFlag());
-            if (foundSymbols.Count() > 1)
+            var foundSymbols = namespaceResolver.ResolveUnqualifiedFunction(identifierSyntax, includeDecorators: allowedFlags.HasAnyDecoratorFlag()).ToArray();
+            if (foundSymbols.Length > 1)
             {
                 return AmbiguousSymbol(identifierSyntax, foundSymbols.OfType<FunctionSymbol>(), x => x.DeclaringObject.Name);
             }
@@ -418,7 +418,7 @@ namespace Bicep.Core.Semantics
             return SymbolValidator.ResolveUnqualifiedFunction(allowedFlags, foundSymbols.FirstOrDefault(), identifierSyntax, namespaceResolver);
         }
 
-        private ErrorSymbol AmbiguousSymbol<S>(IdentifierSyntax signifier, IEnumerable<S> foundSymbols, Func<S, string> namespaceSelector)
+        private static ErrorSymbol AmbiguousSymbol<S>(IdentifierSyntax signifier, IEnumerable<S> foundSymbols, Func<S, string> namespaceSelector)
         {
             var ambiguousNamespaces = foundSymbols.Select(namespaceSelector);
 

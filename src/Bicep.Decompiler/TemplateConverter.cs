@@ -1691,7 +1691,7 @@ namespace Bicep.Decompiler
                 }
             }
 
-            if (syntaxesToAdd.Any())
+            if (syntaxesToAddArray.Any())
             {
                 // always add a new line after a block
                 syntaxes.Add(SyntaxFactory.NewlineToken);
@@ -1700,13 +1700,14 @@ namespace Bicep.Decompiler
 
         private static IEnumerable<(string name, JToken value, bool isCopyVariable)> GetVariables(IEnumerable<JProperty> variables)
         {
-            var nonCopyVariables = variables.Where(x => !StringComparer.OrdinalIgnoreCase.Equals(x.Name, LanguageConstants.CopyLoopIdentifier));
+            var variablesArray = variables.ToArray();
+            var nonCopyVariables = variablesArray.Where(x => !StringComparer.OrdinalIgnoreCase.Equals(x.Name, LanguageConstants.CopyLoopIdentifier));
             foreach (var nonCopyVariable in nonCopyVariables)
             {
                 yield return (nonCopyVariable.Name, nonCopyVariable.Value, false);
             }
 
-            var copyVariables = variables.FirstOrDefault(x => StringComparer.OrdinalIgnoreCase.Equals(x.Name, LanguageConstants.CopyLoopIdentifier))?.Value as JArray;
+            var copyVariables = variablesArray.FirstOrDefault(x => StringComparer.OrdinalIgnoreCase.Equals(x.Name, LanguageConstants.CopyLoopIdentifier))?.Value as JArray;
             foreach (var copyVariable in copyVariables ?? Enumerable.Empty<JToken>())
             {
                 if (copyVariable is not JObject variableObject)

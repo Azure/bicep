@@ -51,11 +51,11 @@ namespace Bicep.LangServer.UnitTests.Telemetry
 }";
             (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
 
-            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide);
+            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide).ToArray();
 
-            telemetryEvents.Count().Should().Be(1);
+            telemetryEvents.Should().HaveCount(1);
 
-            var telemetryEvent = telemetryEvents.First();
+            var telemetryEvent = telemetryEvents[0];
             telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
 
             var properties = new Dictionary<string, string>
@@ -133,11 +133,11 @@ namespace Bicep.LangServer.UnitTests.Telemetry
 }";
             (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
 
-            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide);
+            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide).ToArray();
 
-            telemetryEvents.Count().Should().Be(1);
+            telemetryEvents.Should().HaveCount(1);
 
-            var telemetryEvent = telemetryEvents.First();
+            var telemetryEvent = telemetryEvents[0];
             telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
 
             var properties = new Dictionary<string, string>
@@ -179,11 +179,11 @@ namespace Bicep.LangServer.UnitTests.Telemetry
 }";
             (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
 
-            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide);
+            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide).ToArray();
 
-            telemetryEvents.Count().Should().Be(1);
+            telemetryEvents.Should().HaveCount(1);
 
-            var telemetryEvent = telemetryEvents.First();
+            var telemetryEvent = telemetryEvents[0];
             telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
 
             var properties = new Dictionary<string, string>
@@ -284,11 +284,11 @@ namespace Bicep.LangServer.UnitTests.Telemetry
 
             (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
 
-            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide);
+            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide).ToArray();
 
-            telemetryEvents.Count().Should().Be(1);
+            telemetryEvents.Should().HaveCount(1);
 
-            var telemetryEvent = telemetryEvents.First();
+            var telemetryEvent = telemetryEvents[0];
             telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
 
             var properties = new Dictionary<string, string>
@@ -322,7 +322,7 @@ namespace Bicep.LangServer.UnitTests.Telemetry
 
             var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide);
 
-            telemetryEvents.Count().Should().Be(1);
+            telemetryEvents.Should().HaveCount(1);
 
             var telemetryEvent = telemetryEvents.First();
             telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
@@ -424,9 +424,9 @@ namespace Bicep.LangServer.UnitTests.Telemetry
 
             (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
 
-            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide);
+            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide).ToArray();
 
-            telemetryEvents.Count().Should().Be(2);
+            telemetryEvents.Should().HaveCount(2);
 
             var telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-params");
             telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);
@@ -482,9 +482,9 @@ namespace Bicep.LangServer.UnitTests.Telemetry
 }";
             (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
 
-            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide);
+            var telemetryEvents = TelemetryHelper.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration, LinterRulesProvide).ToArray();
 
-            telemetryEvents.Count().Should().Be(2);
+            telemetryEvents.Should().HaveCount(2);
 
             var telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-params");
             telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);

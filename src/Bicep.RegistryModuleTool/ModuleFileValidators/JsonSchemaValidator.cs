@@ -47,8 +47,8 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
             if (!results.IsValid)
             {
 
-                IEnumerable<EvaluationResults> invalidResults = results.Details.Count == 0 ? new[] { results } : results.Details;
-                invalidResults = invalidResults.Where(x => !x.IsValid && x.HasErrors);
+                IReadOnlyList<EvaluationResults> invalidResults = results.Details.Count == 0 ? [results] : results.Details;
+                invalidResults = invalidResults.Where(x => !x.IsValid && x.HasErrors).ToArray();
 
                 var shouldSkipAdditionalPropertyError = invalidResults.Any(x => !IsAdditionalPropertyError(x));
 

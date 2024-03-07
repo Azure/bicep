@@ -271,9 +271,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        private static string? TryGetResourceTypeFromResource(ResourceMetadata resourceMetadata)
+        private static string? TryGetResourceTypeFromResourceMetadata(ResourceMetadata? resourceMetadata)
         {
-            if (resourceMetadata.IsAzResource)
+            if (resourceMetadata is { IsAzResource: true })
             {
                 return resourceMetadata.TypeReference.FormatType();
             }
@@ -281,16 +281,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        private static string? TryGetResourceTypeIfResourceName(SemanticModel model, SyntaxBase resourceNameExpression)
-        {
-            var foundResources = LinterExpressionHelper.TryFindResourceByNameExpression(model, resourceNameExpression);
-            if (foundResources.Any())
-            {
-                return TryGetResourceTypeFromResource(foundResources.First());
-            }
-
-            return null;
-        }
+        private static string? TryGetResourceTypeIfResourceName(SemanticModel model, SyntaxBase resourceNameExpression) =>
+            TryGetResourceTypeFromResourceMetadata(LinterExpressionHelper
+                .TryFindResourceByNameExpression(model, resourceNameExpression)
+                .FirstOrDefault());
 
         private static string GetResourceTypeFromResourceId(SemanticModel model, string resourceId)
         {
@@ -511,13 +505,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     codeReplacement);
             }
 
-            return new Failure(errorSpan, message, acceptableVersionsSorted, fix is null ? Array.Empty<CodeFix>() : new CodeFix[] { fix });
+            return new Failure(errorSpan, message, acceptableVersionsSorted, fix is null ? [] : [fix]);
         }
 
-        private static DateOnly? GetNewestDateOrNull(IEnumerable<AzureResourceApiVersion> apiVersions)
-        {
-            return apiVersions.Any() ? apiVersions.Max(v => v.Date) : null;
-        }
+        private static DateOnly? GetNewestDateOrNull(IEnumerable<AzureResourceApiVersion> apiVersions) => apiVersions.Max(x => (DateOnly?)x.Date);
 
         // Retrieves the most recent API version (this could be more than one if there are multiple apiVersions
         //   with the same, most recent date, but different suffixes)
@@ -529,7 +520,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return FilterByDateEquals(apiVersions, mostRecentDate.Value);
             }
 
-            return Array.Empty<AzureResourceApiVersion>();
+            return [];
         }
 
         private static IEnumerable<AzureResourceApiVersion> FilterByDateEquals(IEnumerable<AzureResourceApiVersion> apiVersions, DateOnly date)

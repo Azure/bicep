@@ -26,11 +26,11 @@ public class TypedLambdaSyntax : ExpressionSyntax
 
     public SyntaxBase Body { get; }
 
-    public IEnumerable<TypedLocalVariableSyntax> GetLocalVariables()
+    public ImmutableArray<TypedLocalVariableSyntax> GetLocalVariables()
         => VariableSection switch
         {
             TypedVariableBlockSyntax vars => vars.Arguments,
-            _ => Enumerable.Empty<TypedLocalVariableSyntax>(),
+            _ => [],
         };
 
     public override TextSpan Span => TextSpan.Between(this.VariableSection, this.Body);

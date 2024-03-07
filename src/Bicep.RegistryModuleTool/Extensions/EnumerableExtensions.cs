@@ -20,7 +20,8 @@ namespace Bicep.RegistryModuleTool.Extensions
             }
 
             var columnNames = properties.Select(x => x.Name).ToArray();
-            var maximumColumnWidths = enumerable
+            var enumerableArray = enumerable.ToArray();
+            var maximumColumnWidths = enumerableArray
                 .Select(item => properties.Select(property => property.GetValue(item)?.ToString()?.Length ?? 0))
                 .Union(new[] { properties.Select(property => property.Name.Length) })
                 .Aggregate(new int[properties.Length].AsEnumerable(), (maximumWidths, widths) => maximumWidths.Zip(widths, Math.Max))
@@ -53,7 +54,7 @@ namespace Bicep.RegistryModuleTool.Extensions
             builder.AppendLine("|");
 
             // Build data lines.
-            foreach (var item in enumerable)
+            foreach (var item in enumerableArray)
             {
                 for (int i = 0; i < columnNames.Length; i++)
                 {

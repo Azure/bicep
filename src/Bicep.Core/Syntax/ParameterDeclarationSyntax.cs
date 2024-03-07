@@ -60,7 +60,7 @@ namespace Bicep.Core.Syntax
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(allowedSyntax).AllowedMustContainItems());
             }
 
-            var allowedItemTypes = allowedSyntax?.Items.Select(typeManager.GetTypeInfo);
+            var allowedItemTypes = allowedSyntax?.Items.Select(typeManager.GetTypeInfo).ToArray();
 
             if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.String))
             {

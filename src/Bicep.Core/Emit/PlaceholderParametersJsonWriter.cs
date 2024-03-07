@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -81,9 +82,13 @@ namespace Bicep.Core.Emit
 
             var allParameterDeclarations = this.Context.SemanticModel.Root.ParameterDeclarations;
 
-            var filteredParameterDeclarations = this.IncludeParams == IncludeParamsOption.All ? allParameterDeclarations : allParameterDeclarations.Where(e => e.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax);
+            var filteredParameterDeclarations = this.IncludeParams == IncludeParamsOption.All
+                ? allParameterDeclarations
+                : allParameterDeclarations
+                    .Where(e => e.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax)
+                    .ToImmutableArray();
 
-            if (filteredParameterDeclarations.Count() > 0)
+            if (filteredParameterDeclarations.Length > 0)
             {
                 jsonWriter.WritePropertyName("parameters");
                 jsonWriter.WriteStartObject();

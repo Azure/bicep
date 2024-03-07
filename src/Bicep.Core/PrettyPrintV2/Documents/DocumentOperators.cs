@@ -78,12 +78,12 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
         public static IEnumerable<Document> TrimNewlines(this IEnumerable<Document> documents)
         {
-            if (!documents.Any())
-            {
-                return documents;
-            }
-
             var documentArray = documents.ToArray();
+
+            if (documentArray.Length == 0)
+            {
+                return documentArray;
+            }
 
             var start = 0;
             var end = documentArray.Length - 1;
