@@ -95,8 +95,6 @@ namespace Bicep.Core.Emit
 
                 foreach (var parameterSymbol in filteredParameterDeclarations)
                 {
-                    if (parameterSymbol.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax)
-                    {
                         jsonWriter.WritePropertyName(parameterSymbol.Name);
 
                         jsonWriter.WriteStartObject();
@@ -119,7 +117,6 @@ namespace Bicep.Core.Emit
                                 break;
                         }
                         jsonWriter.WriteEndObject();
-                    }
                 }
 
                 jsonWriter.WriteEndObject();
