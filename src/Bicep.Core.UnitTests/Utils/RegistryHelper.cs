@@ -51,7 +51,7 @@ public static class RegistryHelper
         var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Module, target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
             : throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
 
-        var result = CompilationHelper.Compile(moduleSource);
+        var result = await CompilationHelper.RestoreAndCompile(moduleSource);
         if (result.Template is null)
         {
             throw new InvalidOperationException($"Module {moduleName} failed to produce a template.");
@@ -81,7 +81,7 @@ public static class RegistryHelper
     //    ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
     //    ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: false),
     // ]);
-    public static async Task<IContainerRegistryClientFactory> PublishMultipleModulesToRegistryAsync(params (string target, string source, bool withSource)[] modules)
+    public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientWithPublishedModulesAsync(params (string target, string source, bool withSource)[] modules)
     {
         var repos = new List<(string registry, string repo)>();
 
@@ -89,7 +89,7 @@ public static class RegistryHelper
         {
             var (registry, repo) = module.target.ExtractRegexGroups(
                 "^br:(?<registry>.+?)/(?<repo>.+?)[:@](?<tag>.+?)$",
-                [ "registry", "repo" ]);
+                ["registry", "repo"]);
 
             if (!repos.Contains((registry, repo)))
             {

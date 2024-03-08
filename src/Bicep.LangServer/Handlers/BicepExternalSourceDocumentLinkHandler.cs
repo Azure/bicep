@@ -39,7 +39,7 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// This handles the case where the document is a source file from an external module, and we've been asked to return nested links within it (to files local to that module or to other external modules)
     /// </summary>
-    public class BicepExternalSourceDocumentLinkHandler(IModuleDispatcher ModuleDispatcher, ILanguageServerFacade server)
+    public class BicepExternalSourceDocumentLinkHandler(IModuleDispatcher ModuleDispatcher, ILanguageServerFacade Server)
         : DocumentLinkHandlerBase<ExternalSourceDocumentLinkData>
     {
         protected override Task<DocumentLinkContainer<ExternalSourceDocumentLinkData>> HandleParams(DocumentLinkParams request, CancellationToken cancellationToken)
@@ -52,7 +52,9 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override async Task<DocumentLink<ExternalSourceDocumentLinkData>> HandleResolve(DocumentLink<ExternalSourceDocumentLinkData> request, CancellationToken cancellationToken)
         {
-            return await ResolveDocumentLink(request, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return await ResolveDocumentLink(request, ModuleDispatcher, Server);
         }
 
         protected override DocumentLinkRegistrationOptions CreateRegistrationOptions(DocumentLinkCapability capability, ClientCapabilities clientCapabilities) => new()
@@ -128,7 +130,10 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        public async Task<DocumentLink<ExternalSourceDocumentLinkData>> ResolveDocumentLink(DocumentLink<ExternalSourceDocumentLinkData> request, CancellationToken cancellationToken)
+        public static async Task<DocumentLink<ExternalSourceDocumentLinkData>> ResolveDocumentLink(
+            DocumentLink<ExternalSourceDocumentLinkData> request,
+            IModuleDispatcher moduleDispatcher,
+            ILanguageServerFacade server)
         {
             Trace.WriteLine($"{nameof(BicepExternalSourceDocumentLinkHandler)}: Resolving external source document link: {request.Data.TargetArtifactId}");
 
@@ -136,11 +141,11 @@ namespace Bicep.LanguageServer.Handlers
 
             if (!OciArtifactReference.TryParseModule(data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
             {
-                ShowMessage($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");
+                server.Window.ShowWarning($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");
                 return GetAlternateLink();
             }
 
-            var restoreStatus = ModuleDispatcher.GetArtifactRestoreStatus(targetArtifactReference, out var errorBuilder);
+            var restoreStatus = moduleDispatcher.GetArtifactRestoreStatus(targetArtifactReference, out var errorBuilder);
             var errorMessage = errorBuilder?.Invoke(DiagnosticBuilder.ForDocumentStart()).Message;
             Trace.WriteLineIf(errorMessage is { }, $"Restore status: {errorMessage})");
             if (restoreStatus == ArtifactRestoreStatus.Unknown)
@@ -148,11 +153,11 @@ namespace Bicep.LanguageServer.Handlers
                 // We haven't tried restoring this module yet. Let's try it now.
 
                 Trace.WriteLine($"Attempting to restore module {targetArtifactReference.FullyQualifiedReference}");
-                if (!await ModuleDispatcher.RestoreArtifacts(new[] { targetArtifactReference }, forceRestore: false))
+                if (!await moduleDispatcher.RestoreArtifacts(new[] { targetArtifactReference }, forceRestore: false))
                 {
-                    ModuleDispatcher.GetArtifactRestoreStatus(targetArtifactReference, out errorBuilder);
+                    moduleDispatcher.GetArtifactRestoreStatus(targetArtifactReference, out errorBuilder);
                     var restoreMessage = errorBuilder?.Invoke(DiagnosticBuilder.ForDocumentStart()).Message ?? "Unknown error";
-                    ShowMessage($"Unable to restore module {targetArtifactReference.FullyQualifiedReference}: {errorMessage}");
+                    server.Window.ShowWarning($"Unable to restore module {targetArtifactReference.FullyQualifiedReference}: {errorMessage}");
                     return GetAlternateLink();
                 }
             }
@@ -163,9 +168,9 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // If we get here, the module *should* have sources available (since we are going through delayed resolution), so show a message if we can't for some reason
-            if (!ModuleDispatcher.TryGetModuleSources(targetArtifactReference).IsSuccess(out var sourceArchive, out var ex))
+            if (!moduleDispatcher.TryGetModuleSources(targetArtifactReference).IsSuccess(out var sourceArchive, out var ex))
             {
-                ShowMessage($"Unable to retrieve source code for module {targetArtifactReference.FullyQualifiedReference}. {ex.Message}");
+                server.Window.ShowWarning($"Unable to retrieve source code for module {targetArtifactReference.FullyQualifiedReference}. {ex.Message}");
                 return GetAlternateLink();
             }
 
@@ -178,11 +183,6 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     Target = data.CompiledJsonLink
                 };
-        }
-
-        private void ShowMessage(string message)
-        {
-            server.Window.ShowWarning(message);
         }
     }
 }

@@ -1003,7 +1003,7 @@ Source port ranges.
             var compilationContext = new CompilationContext(compilation);
             var compilationManager = GetBicepCompilationManager(documentUri, compilationContext);
 
-            var moduleDispatcher = GetModuleDispatcher(
+            var moduleDispatcher = CreateModuleDispatcher(
                 compilationContext.ProgramSyntax,
                 parentModuleUri,
                 bicepFileContents,
@@ -1046,7 +1046,7 @@ Source port ranges.
             return featureProviderFactory.Object;
         }
 
-        private IModuleDispatcher GetModuleDispatcher(
+        private IModuleDispatcher CreateModuleDispatcher(
             ProgramSyntax programSyntax,
             Uri parentModuleUri,
             string bicepFileContents,

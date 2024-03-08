@@ -26,7 +26,7 @@ namespace Bicep.Core.IntegrationTests
         #region Helpers
 
         [NotNull]
-        private string? CacheRoot { get; set; }
+        private string? CacheRoot { get; set; } //asdfg todo is this needed?
 
         [TestInitialize]
         public void TestInitialize()
@@ -45,7 +45,7 @@ namespace Bicep.Core.IntegrationTests
             return services;
         }
 
-        private IModuleDispatcher GetModuleDispatcher(IContainerRegistryClientFactory clientFactory)
+        private IModuleDispatcher CreateModuleDispatcher(IContainerRegistryClientFactory clientFactory)
         {
             var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: true, CacheRootDirectory: CacheRoot));
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
@@ -76,8 +76,8 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForLocalModules_ShouldBeNull()
         {
-            var clientFactory = await RegistryHelper.PublishMultipleModulesToRegistryAsync([]);
-            var moduleDispatcher = GetModuleDispatcher(clientFactory);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([]);
+            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -110,10 +110,10 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForExternalModulesWithoutSource_ShouldBeNull()
         {
-            var clientFactory = await RegistryHelper.PublishMultipleModulesToRegistryAsync([
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
                 ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: false),
             ]);
-            var moduleDispatcher = GetModuleDispatcher(clientFactory);
+            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -136,10 +136,10 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForExternalModulesWithSource_ShouldBeTheArtifactId()
         {
-            var clientFactory = await RegistryHelper.PublishMultipleModulesToRegistryAsync([
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
                 ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
             ]);
-            var moduleDispatcher = GetModuleDispatcher(clientFactory);
+            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -163,12 +163,12 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ShouldHandleMultipleRefsToSameModule()
         {
-            var clientFactory = await RegistryHelper.PublishMultipleModulesToRegistryAsync([                
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([                
                 ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
                 ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
                 ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: true),
             ]);
-            var moduleDispatcher = GetModuleDispatcher(clientFactory);
+            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -239,10 +239,10 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ShouldIgnoreModuleRefsWithErrors()
         {
-            var clientFactory = await RegistryHelper.PublishMultipleModulesToRegistryAsync([
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
                 ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
             ]);
-            var moduleDispatcher = GetModuleDispatcher(clientFactory);
+            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """

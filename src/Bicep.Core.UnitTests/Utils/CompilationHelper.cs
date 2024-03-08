@@ -11,6 +11,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
+using FluentAssertions.Common;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.Utils
@@ -38,8 +39,14 @@ namespace Bicep.Core.UnitTests.Utils
             Symbol Symbol,
             TypeSymbol Type);
 
+        public static Task<CompilationResult> RestoreAndCompile(string fileContents)
+            => RestoreAndCompile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides), ("main.bicep", fileContents));
+
         public static Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, string fileContents)
             => RestoreAndCompile(services, ("main.bicep", fileContents));
+
+        public static Task<CompilationResult> RestoreAndCompile(params (string fileName, string fileContents)[] files)
+            => RestoreAndCompile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides), files);
 
         public static async Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, params (string fileName, string fileContents)[] files)
         {
