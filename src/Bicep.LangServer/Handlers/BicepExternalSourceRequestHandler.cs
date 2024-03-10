@@ -60,14 +60,14 @@ namespace Bicep.LanguageServer.Handlers
             if (!moduleReference.IsExternal)
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure("localNotSupported"));
-                return Task.FromResult(new BicepExternalSourceResponse(null, 
+                return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
             }
 
             if (!moduleDispatcher.TryGetLocalArtifactEntryPointUri(moduleReference).IsSuccess(out var compiledJsonUri))
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetLocalArtifactEntryPointUri)));
-                return Task.FromResult(new BicepExternalSourceResponse(null, 
+                return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));
             }
 

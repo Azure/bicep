@@ -58,7 +58,7 @@ namespace Bicep.Core.Registry
 
         public string? GetDocumentationUri(ArtifactReference reference) => this.TryGetDocumentationUri(ConvertReference(reference));
 
-        public async Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference reference) => 
+        public async Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference reference) =>
             await this.TryGetModuleDescription(module, ConvertReference(reference));
 
         public ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
