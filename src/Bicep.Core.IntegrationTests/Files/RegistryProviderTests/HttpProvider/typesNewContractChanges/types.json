@@ -1,34 +1,37 @@
 [
-    {
-        "2": {
-            "Name": "config",
-            "Properties": {
-                "configProp": {
-                    "Type": 0,
-                    "Flags": 1,
-                    "Description": "Config property"
-                }
-            }
-        }
-    },
-    {
-        "2": {
-            "Name": "fallback body",
-            "Properties": {
-                "bodyProp": {
-                    "Type": 0,
-                    "Flags": 1,
-                    "Description": "Body property"
-                }
-            }
-        }
-    },
-    {
-        "4": {
-            "Name": "fallback",
-            "ScopeType": 0,
-            "Body": 1,
-            "Flags": 0
-        }
+  {
+    "$type": "ObjectType",
+    "name": "config",
+    "properties": {
+      "configProp": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 1,
+        "description": "Config property"
+      }
     }
+  },
+  {
+    "$type": "ObjectType",
+    "name": "fallback body",
+    "properties": {
+      "bodyProp": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 1,
+        "description": "Body property"
+      }
+    }
+  },
+  {
+    "$type": "ResourceType",
+    "name": "fallback",
+    "scopeType": 0,
+    "body": {
+      "$ref": "#/1"
+    },
+    "flags": 0
+  }
 ]

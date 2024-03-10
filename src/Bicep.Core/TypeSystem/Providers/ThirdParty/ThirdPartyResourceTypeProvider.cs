@@ -122,7 +122,16 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 
         //TODO - We're not ready to add fallback types, as this requires a change to the types.json package first
         public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
+            {
+            return null;
+        }
+
+        public ObjectType? GetConfigurationType()
         {
+            if (resourceTypeLoader.ConfigurationType != null)
+            {
+                return resourceTypeLoader.ConfigurationType;
+            }
             return null;
         }
 

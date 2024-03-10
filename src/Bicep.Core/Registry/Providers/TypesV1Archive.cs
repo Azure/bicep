@@ -23,13 +23,13 @@ public static class TypesV1Archive
             await AddFileToTar(tarWriter, "index.json", indexJson);
 
             var indexJsonParentPath = Path.GetDirectoryName(indexJsonPath);
-            /*var rootTypesPath = indexJsonParentPath != null ? Path.Combine(indexJsonParentPath, "types.json") : null;
+            var rootTypesPath = indexJsonParentPath != null ? Path.Combine(indexJsonParentPath, "types.json") : null;
 
             if (fileSystem.File.Exists(rootTypesPath))
             {
                 var rootTypesJson = await fileSystem.File.ReadAllTextAsync(rootTypesPath);
                 await AddFileToTar(tarWriter, "types.json", rootTypesJson);
-            }*/
+            }
 
             var uniqueTypePaths = GetAllUniqueTypePaths(indexJsonPath, fileSystem);
 

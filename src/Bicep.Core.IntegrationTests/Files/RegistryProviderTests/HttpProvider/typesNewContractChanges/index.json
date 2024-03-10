@@ -1,22 +1,19 @@
 {
-    "Resources": {
-        "request@v1": {
-            "RelativePath": "v1/types.json",
-            "Index": 7
-        }
-    },
-    "ResourceFunctions": {},
-    "Settings": {
-        "Name": "ThirdPartyProvider",
-        "Version": "1.0.0",
-        "IsSingleton": false,
-        "ConfigurationType": {
-            "Index": 0,
-            "RelativePath": "types.json"
-        }
-    },
-    "FallbackResourceType": {
-        "Index": 2,
-        "RelativePath": "types.json"
+  "resources": {
+    "request@v1": {
+      "$ref": "v1/types.json#/7"
     }
+  },
+  "resourceFunctions": {},
+  "settings": {
+    "name": "ThirdPartyProvider",
+    "version": "1.0.0",
+    "isSingleton": false,
+    "configurationType": {
+      "$ref": "types.json#/0"
+    }
+  },
+  "fallbackResourceType": {
+    "$ref": "types.json#/2"
+  }
 }
