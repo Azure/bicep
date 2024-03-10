@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.TypeSystem.Types;
@@ -25,6 +26,15 @@ namespace Bicep.Core.IntegrationTests
 
         private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
             .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
+            .WithConfigurationPatch(c => c.WithProvidersConfiguration("""
+            {
+              "az": "builtin:",
+              "kubernetes": "builtin:",
+              "microsoftGraph": "builtin:",
+              "foo": "builtin:",
+              "bar": "builtin:"
+            }
+            """))
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
 
         [TestMethod]
@@ -225,7 +235,7 @@ output out resource = resource
         {
             var result = CompilationHelper.Compile(ServicesWithExtensibility,
             """
-            provider 'bar@1.0.0' with {
+            provider bar with {
                 connectionString: 'asdf'
             } as stg
 
@@ -236,7 +246,7 @@ output out resource = resource
             output out resource = container
             """);
 
-            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
             });

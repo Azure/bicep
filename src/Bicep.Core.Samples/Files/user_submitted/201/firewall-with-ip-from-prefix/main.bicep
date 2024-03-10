@@ -1,6 +1,4 @@
-@description(
-  'Specifies the Azure location where the key vault should be created.'
-)
+@description('Specifies the Azure location where the key vault should be created.')
 param location string = resourceGroup().location
 
 @description('Specifies the name of the VNet.')

@@ -23,12 +23,12 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.5.0-2.final" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
-		<PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.9.34607.119" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+		<PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.9.34701.34" />
 		<PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.7.40" />
 		<PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.2.3194" />
 		<PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.2.32505.113" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.2.0" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.2.2" />
 		<PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
 	</ItemGroup>
 

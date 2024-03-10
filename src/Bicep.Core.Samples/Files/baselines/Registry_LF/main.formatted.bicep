@@ -96,9 +96,7 @@ module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'
   }
 ]
 
-output siteUrls array = [
-  for (site, i) in websites: siteDeploy[i].outputs.siteUrl
-]
+output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUrl]
 
 module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
   scope: rg

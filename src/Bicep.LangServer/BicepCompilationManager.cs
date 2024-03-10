@@ -7,6 +7,7 @@ using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
@@ -378,7 +379,8 @@ namespace Bicep.LanguageServer
                         }
 
                         // this completes immediately
-                        this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.GetExplicitArtifactsToRestore().OfType<ArtifactResolutionInfo>());
+                        var artifactsToRestore = ArtifactHelper.GetValidArtifactReferences(context.Compilation.SourceFileGrouping.GetArtifactsToRestore());
+                        this.scheduler.RequestModuleRestore(this, documentUri, artifactsToRestore);
 
                         var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;
                         var output = workspace.UpsertSourceFiles(sourceFiles);
@@ -472,9 +474,10 @@ namespace Bicep.LanguageServer
 
             properties.Add("CharCount", bicepFile.GetOriginalSource().Length.ToString());
 
+            var (errorsCount, warningsCount) = CountErrorsAndWarnings(diagnostics);
             properties.Add("LineCount", bicepFile.LineStarts.Length.ToString());
-            properties.Add("Errors", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Error).ToString());
-            properties.Add("Warnings", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Warning).ToString());
+            properties.Add("Errors", errorsCount.ToString());
+            properties.Add("Warnings", warningsCount.ToString());
 
             var disableNextLineDirectiveEndPositionAndCodes = bicepFile.DisabledDiagnosticsCache.GetDisableNextLineDiagnosticDirectivesCache().Values;
             properties.Add("DisableNextLineCount", disableNextLineDirectiveEndPositionAndCodes.Count().ToString());
@@ -482,6 +485,26 @@ namespace Bicep.LanguageServer
             properties.Add("ExperimentalFeatures", string.Join(',', sematicModel.Features.EnabledFeatureMetadata.Select(x => x.name)));
 
             return properties;
+
+            static (int ErrorCount, int WarningCount) CountErrorsAndWarnings(IEnumerable<Diagnostic> diagnostics)
+            {
+                int errorsCount = 0;
+                int warningsCount = 0;
+
+                foreach (var diagnostic in diagnostics)
+                {
+                    if (diagnostic.Severity == DiagnosticSeverity.Error)
+                    {
+                        errorsCount++;
+                    }
+                    else if (diagnostic.Severity == DiagnosticSeverity.Warning)
+                    {
+                        warningsCount++;
+                    }
+                }
+
+                return (errorsCount, warningsCount);
+            }
         }
 
         private string GetDiagnosticCodesWithCount(IEnumerable<DisableNextLineDirectiveEndPositionAndCodes> disableNextLineDirectiveEndPositionAndCodes)

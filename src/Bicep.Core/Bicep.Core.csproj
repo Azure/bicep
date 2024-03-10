@@ -3,6 +3,8 @@
     <AssemblyName>Azure.Bicep.Core</AssemblyName>
     <RootNamespace>Bicep.Core</RootNamespace>
     <EnableNuget>true</EnableNuget>
+    <!-- Disable CS1591 Missing XML comment for publicly visible type or member for generated code -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
     <Description>
       Bicep compiler core functionality.
@@ -24,7 +26,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.1" />
     <PackageReference Include="Azure.Identity" Version="1.10.4" />
-    <PackageReference Include="Azure.ResourceManager.Resources" Version="1.6.0" />
+    <PackageReference Include="Azure.ResourceManager.Resources" Version="1.7.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2023.3.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

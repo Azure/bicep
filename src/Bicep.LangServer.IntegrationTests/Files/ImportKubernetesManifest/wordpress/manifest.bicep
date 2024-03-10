@@ -1,7 +1,7 @@
 @secure()
 param kubeConfig string
 
-provider 'kubernetes@1.0.0' with {
+provider kubernetes with {
   namespace: 'default'
   kubeConfig: kubeConfig
 }
@@ -14,7 +14,9 @@ resource corePersistentVolume_wordpressPv1 'core/PersistentVolume@v1' = {
     capacity: {
       storage: '20Gi'
     }
-    accessModes: ['ReadWriteOnce']
+    accessModes: [
+      'ReadWriteOnce'
+    ]
     gcePersistentDisk: {
       pdName: 'wordpress-1'
       fsType: 'ext4'
@@ -30,7 +32,9 @@ resource corePersistentVolume_wordpressPv2 'core/PersistentVolume@v1' = {
     capacity: {
       storage: '20Gi'
     }
-    accessModes: ['ReadWriteOnce']
+    accessModes: [
+      'ReadWriteOnce'
+    ]
     gcePersistentDisk: {
       pdName: 'wordpress-2'
       fsType: 'ext4'
@@ -49,7 +53,9 @@ resource corePersistentVolume_localPv1 'core/PersistentVolume@v1' = {
     capacity: {
       storage: '20Gi'
     }
-    accessModes: ['ReadWriteOnce']
+    accessModes: [
+      'ReadWriteOnce'
+    ]
     hostPath: {
       path: '/tmp/data/pv-1'
     }
@@ -67,7 +73,9 @@ resource corePersistentVolume_localPv2 'core/PersistentVolume@v1' = {
     capacity: {
       storage: '20Gi'
     }
-    accessModes: ['ReadWriteOnce']
+    accessModes: [
+      'ReadWriteOnce'
+    ]
     hostPath: {
       path: '/tmp/data/pv-2'
     }
@@ -103,7 +111,9 @@ resource corePersistentVolumeClaim_mysqlPvClaim 'core/PersistentVolumeClaim@v1' 
     }
   }
   spec: {
-    accessModes: ['ReadWriteOnce']
+    accessModes: [
+      'ReadWriteOnce'
+    ]
     resources: {
       requests: {
         storage: '20Gi'
@@ -213,7 +223,9 @@ resource corePersistentVolumeClaim_wpPvClaim 'core/PersistentVolumeClaim@v1' = {
     }
   }
   spec: {
-    accessModes: ['ReadWriteOnce']
+    accessModes: [
+      'ReadWriteOnce'
+    ]
     resources: {
       requests: {
         storage: '20Gi'

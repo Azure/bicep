@@ -177,7 +177,14 @@ var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
 })
 
 var multiLine = reduce(['abc', 'def', 'ghi'], '', (
-//@    "multiLine": "[reduce(createArray('abc', 'def', 'ghi'), '', lambda('cur', 'next', concat(lambdaVariables('cur'), lambdaVariables('next'))))]"
+//@    "multiLine": "[reduce(createArray('abc', 'def', 'ghi'), '', lambda('cur', 'next', concat(lambdaVariables('cur'), lambdaVariables('next'))))]",
+  cur,
+  next
+) => concat(cur, next))
+
+var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
+//@    "multiLineWithComment": "[reduce(createArray('abc', 'def', 'ghi'), '', lambda('cur', 'next', concat(lambdaVariables('cur'), lambdaVariables('next'))))]"
+  // comment
   cur,
   next
 ) => concat(cur, next))

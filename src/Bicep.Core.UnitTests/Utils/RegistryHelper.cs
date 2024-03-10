@@ -54,7 +54,7 @@ public static class RegistryHelper
         }
 
         var features = featureProviderFactory.GetFeatureProvider(result.BicepFile.FileUri);
-        BinaryData? sourcesStream = publishSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
+        BinaryData? sourcesStream = publishSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(dispatcher, result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
         await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, documentationUri);
     }
 

@@ -128,15 +128,12 @@ namespace Bicep.Decompiler
             {
                 var nameString = ExpressionsEngine.SerializeExpression(nameExpression);
                 var resourceKeySuffix = EscapeIdentifier($"_{nameString}", isGenerated: true);
+                var matchingResources = assignedResourceNames
+                    .Where(kvp => kvp.Key.EndsWith(resourceKeySuffix, StringComparison.OrdinalIgnoreCase))
+                    .Select(x => x.Value)
+                    .SingleOrDefault();
 
-                var matchingResources = assignedResourceNames.Where(kvp => kvp.Key.EndsWith(resourceKeySuffix, StringComparison.OrdinalIgnoreCase));
-                if (matchingResources.Count() == 1)
-                {
-                    // only return a value if we're sure about the match
-                    return matchingResources.First().Value;
-                }
-
-                return null;
+                return matchingResources;
             }
 
             // it's valid to include a trailing slash, so we need to normalize it

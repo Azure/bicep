@@ -17,7 +17,7 @@ var w38__ = concat('xxxxxx', 'xxxxxx')
 var w39__ = concat('xxxxxx', 'xxxxxxx') // suffix
 var w40__ = concat('xxxxxx', 'xxxxxxxx') // suffix
 
-var w41__ = concat('xxxxx' /* xxxxxxx */)
+var w41__ = concat('xxxxx', 'xxxxxxxxxx')
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 
 var w38___ = true ? 'xxxxx' : 'xxxxxx'
@@ -85,6 +85,10 @@ var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+var forceBreak0 = [
+  1
+]
+
 var forceBreak1 = {
   foo: true
 }

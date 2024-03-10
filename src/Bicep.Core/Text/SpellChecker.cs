@@ -8,11 +8,6 @@ namespace Bicep.Core.Text
     {
         public static string? GetSpellingSuggestion(string name, IEnumerable<string> candidates)
         {
-            if (candidates.Any() != true)
-            {
-                return null;
-            }
-
             // 0.34 allows 1 insertion/deletion/substitution for every 3 characters.
             int maxLengthDifference = Min((int)Math.Floor(name.Length * 0.34), 2);
             int maxDistance = (int)Math.Floor(name.Length * 0.34) + 1;

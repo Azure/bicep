@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics.Namespaces;
@@ -21,6 +22,7 @@ namespace Bicep.Core.Semantics
 
         public Binder(
             INamespaceProvider namespaceProvider,
+            RootConfiguration configuration,
             IFeatureProvider features,
             IArtifactFileLookup sourceFileLookup,
             ISemanticModelLookup modelLookup,
@@ -32,6 +34,7 @@ namespace Bicep.Core.Semantics
             this.TargetScope = SyntaxHelper.GetTargetScope(sourceFile);
             var fileScope = DeclarationVisitor.GetDeclarations(
                 namespaceProvider,
+                configuration,
                 features,
                 sourceFileLookup,
                 modelLookup,

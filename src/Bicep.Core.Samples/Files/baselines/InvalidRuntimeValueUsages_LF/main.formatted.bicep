@@ -166,9 +166,7 @@ var varForBodyInvalidRuntimeUsages = [
     case121: foos[intParam]
   }
 ]
-var varForBodyInvalidRuntimeUsageExpression = [
-  for i in range(0, 2): foo.properties
-]
+var varForBodyInvalidRuntimeUsageExpression = [for i in range(0, 2): foo.properties]
 var varForBodyInvalidRuntimeUsageInterpolatedKey = [
   for i in range(0, 2): {
     '${foos[i].properties.accessTier}': 'accessTier'

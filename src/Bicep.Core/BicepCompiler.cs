@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -70,32 +69,29 @@ public class BicepCompiler
         // however we still want to surface as many errors as we can for the module refs that are valid
         // so we will try to restore modules with valid refs and skip everything else
         // (the diagnostics will be collected during compilation)
-        var artifactsToRestore = moduleDispatcher.GetValidArtifactReferences(
-            sourceFileGrouping.GetExplicitArtifactsToRestore()).Concat(
-                sourceFileGrouping.GetImplicitArtifactsToRestore());
+        var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(forceRestore);
 
-        if (await moduleDispatcher.RestoreArtifacts(artifactsToRestore, forceRestore: forceRestore))
+        if (await moduleDispatcher.RestoreArtifacts(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore: forceRestore))
         {
             // modules had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, ConfigurationManager, workspace, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileResolver, featureProviderFactory, moduleDispatcher, ConfigurationManager, workspace, sourceFileGrouping);
         }
         return Create(sourceFileGrouping);
     }
 
-    public async Task<ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>> Restore(Compilation compilation, bool forceArtifactRestore)
+    public async Task<ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>> Restore(Compilation compilation, bool forceRestore)
     {
         var workspace = new Workspace();
         var sourceFileGrouping = compilation.SourceFileGrouping;
-        var artifactResolutionInfoList = sourceFileGrouping.GetExplicitArtifactsToRestore(forceArtifactRestore);
-        var explicitArtifactReferencesToRestore = moduleDispatcher.GetValidArtifactReferences(artifactResolutionInfoList);
-        var originalArtifactReferencesToRestore = sourceFileGrouping.GetImplicitArtifactsToRestore().Concat(explicitArtifactReferencesToRestore);
-        if (await moduleDispatcher.RestoreArtifacts(originalArtifactReferencesToRestore, forceArtifactRestore))
+        var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(forceRestore);
+
+        if (await moduleDispatcher.RestoreArtifacts(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore))
         {
             // artifacts had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, ConfigurationManager, workspace, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileResolver, featureProviderFactory, moduleDispatcher, ConfigurationManager, workspace, sourceFileGrouping);
         }
 
-        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, artifactResolutionInfoList.ToImmutableHashSet(), forceArtifactRestore);
+        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, artifactsToRestore.ToImmutableHashSet(), forceRestore);
     }
 
     private Compilation Create(SourceFileGrouping sourceFileGrouping)
@@ -117,13 +113,12 @@ public class BicepCompiler
 
         static IEnumerable<(BicepSourceFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ArtifactResolutionInfo> originalArtifactsToRestore)
         {
-            var originalModulesToRestore = originalArtifactsToRestore.OfType<ArtifactResolutionInfo>();
-            foreach (var (module, sourceFile) in originalModulesToRestore)
+            foreach (var artifact in originalArtifactsToRestore)
             {
-                if (sourceFile is BicepSourceFile bicepFile &&
-                    DiagnosticForModule(grouping, module) is { } diagnostic)
+                if (artifact.Syntax is {} &&
+                    DiagnosticForModule(grouping, artifact.Syntax) is { } diagnostic)
                 {
-                    yield return (bicepFile, diagnostic);
+                    yield return (artifact.Origin, diagnostic);
                 }
             }
         }

@@ -74,9 +74,9 @@ namespace Bicep.Core.Parsing
         /// <summary>
         /// Calculates the span for a sequence of positionables, returning a 0-length span at a fallback position if the sequence is empty.
         /// </summary>
-        public static TextSpan SafeBetween(IEnumerable<IPositionable> positionables, int fallbackPosition) => positionables.Any() ?
-            Between(positionables.First(), positionables.Last()) :
-            new TextSpan(fallbackPosition, 0);
+        public static TextSpan SafeBetween(IReadOnlyList<IPositionable> positionables, int fallbackPosition) => positionables.Count > 0
+            ? Between(positionables[0], positionables[^1])
+            : new TextSpan(fallbackPosition, 0);
 
         /// <summary>
         /// Calculates the span from the beginning of the first object to the end of the 2nd one.

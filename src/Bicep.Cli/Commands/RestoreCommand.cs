@@ -24,7 +24,7 @@ namespace Bicep.Cli.Commands
             var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
 
             var compilation = compiler.CreateCompilationWithoutRestore(inputUri, markAllForRestore: args.ForceModulesRestore);
-            var restoreDiagnostics = await this.compiler.Restore(compilation, forceArtifactRestore: args.ForceModulesRestore);
+            var restoreDiagnostics = await this.compiler.Restore(compilation, forceRestore: args.ForceModulesRestore);
 
             var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, restoreDiagnostics);
 

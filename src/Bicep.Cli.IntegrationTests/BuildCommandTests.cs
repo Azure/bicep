@@ -194,7 +194,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 // 7. assert the provider files were restored to the cache directory
                 Directory.Exists(settings.FeatureOverrides!.CacheRootDirectory).Should().BeTrue();
-                var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ModuleReferenceSchemes.Oci, containingFolder, "bicep$providers$az", "2.0.0$");
+                var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ArtifactReferenceSchemes.Oci, containingFolder, "bicep$providers$az", "2.0.0$");
                 Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });
             }
         }

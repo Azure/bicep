@@ -37,11 +37,6 @@ namespace Bicep.Core.PrettyPrintV2.Documents
         /// </summary>
         public static readonly LineDocument LineOrCommaSpace = new(", ");
 
-        /// <summary>
-        /// Prints a comma and newline and indent the next line. If the enclosing group fits on one line, the newline will be replaced with a whitespace.
-        /// </summary>
-        public static readonly Document CommaLineOrCommaSpace = Glue(",", LineOrSpace);
-
         public static Document Glue(params Document[] documents) => new GlueDocument(documents);
 
         public static Document Glue(this IEnumerable<Document> documents) => documents is Document single ? single : new GlueDocument(documents);
@@ -83,12 +78,12 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
         public static IEnumerable<Document> TrimNewlines(this IEnumerable<Document> documents)
         {
-            if (!documents.Any())
-            {
-                return documents;
-            }
-
             var documentArray = documents.ToArray();
+
+            if (documentArray.Length == 0)
+            {
+                return documentArray;
+            }
 
             var start = 0;
             var end = documentArray.Length - 1;

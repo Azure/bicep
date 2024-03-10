@@ -187,8 +187,10 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   }
 }
 
-var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosDb.account)
+var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts',
 //@    "cosmosDbResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDb').account)]",
+// comment
+cosmosDb.account)
 var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 
 // this variable is not accessed anywhere in this template and depends on a run-time reference

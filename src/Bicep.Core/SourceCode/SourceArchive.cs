@@ -9,7 +9,12 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
+using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
+using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -26,10 +31,9 @@ namespace Bicep.Core.SourceCode
     // Contains the individual source code files for a Bicep file and all of its dependencies.
     public partial class SourceArchive // Partial required for serialization
     {
-        // Attributes of this archive instance
         #region Attributes of this archive instance
 
-        private ArchiveMetadata InstanceMetadata { get; init; }
+        private ArchiveMetadataDto InstanceMetadata { get; init; }
 
         public ImmutableArray<SourceFileInfo> SourceFiles { get; init; }
 
@@ -46,11 +50,14 @@ namespace Bicep.Core.SourceCode
 
         #endregion
 
-        #region Constants
+        public static class SourceKind
+        {
+            public const string Bicep = "bicep";
+            public const string ArmTemplate = "armTemplate";
+            public const string TemplateSpec = "templateSpec";
+        }
 
-        public const string SourceKind_Bicep = "bicep";
-        public const string SourceKind_ArmTemplate = "armTemplate";
-        public const string SourceKind_TemplateSpec = "templateSpec";
+        #region Constants
 
         private const string MetadataFileName = "__metadata.json";
         private const string FilesFolderName = "files";
@@ -64,7 +71,53 @@ namespace Bicep.Core.SourceCode
         private const int MaxLegalPathLength = 260; // Limit for Windows
         private const int MaxArchivePathLength = MaxLegalPathLength - 10; // ... this gives us some extra room to deduplicate paths
 
-        /* Example __metadata.json:
+        // NOTE: Only change this value if there is a breaking change such that old versions of Bicep should fail on reading new source archives
+        public const int CurrentMetadataVersion = 1;
+        private static readonly string CurrentBicepVersion = ThisAssembly.AssemblyVersion;
+
+        #endregion
+
+        // This is the info we expose via SourceFiles
+        public record SourceFileInfo(
+            // Note: Path is also used as the key for source file retrieval
+            string Path,        // The location, relative to the main.bicep file's folder or one of the other roots.
+            string ArchivePath, // The location (relative to root) of where the file is stored in the archive (munged from Path, e.g. in case Path starts with "../")
+            string Kind,        // Kind of source (SourceKind)
+            string Contents,    // File contents
+            IOciArtifactReference? SourceArtifact // Points to an external artifact that contains the source for this module (e.g. "br:contoso.io/test/module1:v1"), appears in v0.26 and higher
+        );
+
+        public record SourceFileWithArtifactReference(
+            ISourceFile SourceFile,
+            ArtifactReference? SourceArtifact);
+
+        #region Serialization
+
+        [JsonSerializable(typeof(ArchiveMetadataDto))]
+        [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+        private partial class MetadataSerializationContext : JsonSerializerContext { }
+
+        // Metadata for the entire archive (stored in __metadata.json file in archive)
+        private record ArchiveMetadataDto(
+            int MetadataVersion,
+            string? BicepVersion,
+            string EntryPoint, // Path of the entrypoint file
+            IEnumerable<SourceFileInfoDto> SourceFiles,
+            IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? DocumentLinks = null // Maps source file path -> array of document links inside that file
+        );
+
+        // A single SourceFiles entry in the metadata.json file
+        private partial record SourceFileInfoDto(
+            // IF ADDING TO THIS: Remember both forwards and backwards compatibility.
+            // E.g., previous versions must be able to deal with unrecognized source kinds.
+            // (but see CurrentMetadataVersion for breaking changes)
+            string Path,        // the location, relative to the main.bicep file's folder, for the file that will be shown to the end user (required in all Bicep versions)
+            string ArchivePath, // the location (relative to root) of where the file is stored in the archive
+            string Kind,        // kind of source (SourceKind)
+            string? SourceArtifactId = null // Points to an external artifact that contains the source for this module (e.g. "br:contoso.io/test/module1:v1"), appears in v0.26 and higher
+        );
+
+        /* Example __metadata.json (ArchiveMetadataDto):
         {
             "metadataVersion": 0,
             "entryPoint": "my entrypoint.bicep",
@@ -79,63 +132,37 @@ namespace Bicep.Core.SourceCode
                     "sourcePath": "modules/main.bicep",
                     "archivePath": "files/modules/main.bicep",
                     "kind": "bicep"
-                }
+                },
+                {
+                  "path": "\u003Ccache\u003E/br/mcr.microsoft.com/bicep$app$app-configuration/1.0.1$/main.json",
+                  "archivePath": "files/_cache_/br/mcr.microsoft.com/bicep$app$app-configuration/1.0.1$/main.json",
+                  "kind": "armTemplate",
+                  "sourceArtifactId": "br:contoso.io/test/module1:v1"
+                },
             ],
             "DocumentLinks": { ... }
         }
         */
 
-        // NOTE: Only change this value if there is a breaking change such that old versions of Bicep should fail on reading new source archives
-        public const int CurrentMetadataVersion = 1;
-        private static readonly string CurrentBicepVersion = ThisAssembly.AssemblyVersion;
-
-        #endregion
-
-        #region Serialization
-
-        public partial record SourceFileInfo(
-            // Note: Path is also used as the key for source file retrieval
-            string Path,        // The location, relative to the main.bicep file's folder or one of the other roots.
-
-            string ArchivePath, // The location (relative to root) of where the file is stored in the archive (munged from Path, e.g. in case Path starts with "../")
-            string Kind,        // Kind of source
-            string Contents     // File contents
-        );
-
-        [JsonSerializable(typeof(ArchiveMetadata))]
-        [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-        private partial class MetadataSerializationContext : JsonSerializerContext { }
-
-        // Metadata for the entire archive (stored in __metadata.json file in archive)
-        private record ArchiveMetadata(
-            int MetadataVersion,
-            string? BicepVersion,
-            string EntryPoint, // Path of the entrypoint file
-            IEnumerable<SourceFileInfoEntry> SourceFiles,
-            IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? DocumentLinks = null // Maps source file path -> array of document links inside that file
-        );
-
-        private partial record SourceFileInfoEntry(
-            // IF ADDING TO THIS: Remember both forwards and backwards compatibility.
-            // E.g., previous versions must be able to deal with unrecognized source kinds.
-            // (but see CurrentMetadataVersion for breaking changes)
-            string Path,        // the location, relative to the main.bicep file's folder, for the file that will be shown to the end user (required in all Bicep versions)
-            string ArchivePath, // the location (relative to root) of where the file is stored in the archive
-            string Kind         // kind of source
-        );
-
         #endregion
 
         public static ResultWithException<SourceArchive> UnpackFromStream(Stream stream)
         {
-            var archive = new SourceArchive(stream);
-            if (archive.GetRequiredBicepVersionMessage() is string message)
+            try
             {
-                return new(new Exception(message));
+                var archive = new SourceArchive(stream);
+                if (archive.GetRequiredBicepVersionMessage() is string message)
+                {
+                    return new(new Exception(message));
+                }
+                else
+                {
+                    return new(archive);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return new(archive);
+                return new(ex);
             }
         }
 
@@ -143,25 +170,45 @@ namespace Bicep.Core.SourceCode
         /// Bundles all the sources from a compilation group (thus source for a bicep file and all its dependencies
         /// in JSON form) into an archive (as a stream)
         /// </summary>
-        /// <returns>A .tar.gz file as a binary stream</returns>
-        public static Stream PackSourcesIntoStream(SourceFileGrouping sourceFileGrouping, string? cacheRoot)
+        /// <returns>A .tgz file as a binary stream</returns>
+        public static Stream PackSourcesIntoStream(IModuleDispatcher moduleDispatcher, SourceFileGrouping sourceFileGrouping, string? cacheRoot)
         {
+            // Find the artifact reference for each source file of an external module that was published with sources
+            Dictionary<Uri, OciArtifactReference> uriToArtifactReference = new();
+            foreach (var artifact in sourceFileGrouping.ArtifactLookup.Values)
+            {
+                if (artifact.Syntax is not ModuleDeclarationSyntax module ||
+                    artifact.Reference is not OciArtifactReference artifactReference ||
+                    !artifact.Result.IsSuccess(out var uri) ||
+                    uriToArtifactReference.ContainsKey(uri) ||
+                    // Only those that were published with source
+                    !moduleDispatcher.TryGetModuleSources(artifact.Reference).IsSuccess(out var archive))
+                {
+                    continue;
+                }
+
+                uriToArtifactReference[uri] = artifactReference;
+            }
+
+            var sourceFilesWithArtifactReference =
+                sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.FileUri, out var reference) ? reference : null));
+
             var documentLinks = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(sourceFileGrouping);
-            return PackSourcesIntoStream(sourceFileGrouping.EntryFileUri, cacheRoot, documentLinks, sourceFileGrouping.SourceFiles.ToArray());
+            return PackSourcesIntoStream(sourceFileGrouping.EntryPoint.FileUri, cacheRoot, documentLinks, sourceFilesWithArtifactReference.ToArray());
         }
 
-        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, params ISourceFile[] sourceFiles)
+        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, params SourceFileWithArtifactReference[] sourceFiles)
         {
             return PackSourcesIntoStream(entrypointFileUri, cacheRoot, documentLinks: null, sourceFiles);
         }
 
-        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params ISourceFile[] sourceFiles)
+        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params SourceFileWithArtifactReference[] sourceFiles)
         {
             // Don't package template spec files - they don't appear in the compiled JSON so we shouldn't expose them
-            sourceFiles = sourceFiles.Where(sf => sf is not TemplateSpecFile).ToArray();
+            sourceFiles = sourceFiles.Where(sf => sf.SourceFile is not TemplateSpecFile).ToArray();
 
             // Filter out any links where the source or target is not in our list of files to package
-            var sourceFileUris = sourceFiles.Select(sf => sf.FileUri).ToArray();
+            var sourceFileUris = sourceFiles.Select(sf => sf.SourceFile.FileUri).ToArray();
             documentLinks = documentLinks?
                 .Where(kvp => sourceFileUris.Contains(kvp.Key))
                 .Select(uriAndLink => (uriAndLink.Key, uriAndLink.Value.Where(link => sourceFileUris.Contains(link.Target)).ToArray()))
@@ -172,26 +219,29 @@ namespace Bicep.Core.SourceCode
             {
                 using (var tarWriter = new TarWriter(gz, leaveOpen: true))
                 {
-                    var filesMetadata = new List<SourceFileInfoEntry>();
+                    var filesMetadata = new List<SourceFileInfoDto>();
                     string? entryPointPath = null;
 
-                    var paths = sourceFiles.Select(f => GetPath(f.FileUri)).ToArray();
+                    var paths = sourceFiles.Select(f => GetPath(f.SourceFile.FileUri)).ToArray();
                     var mapPathToRootPath = SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, paths);
                     var entrypointRootPath = mapPathToRootPath[GetPath(entrypointFileUri)];
                     var mapRootPathToRootNewName = NameRoots(mapPathToRootPath, entrypointRootPath, cacheRoot);
 
                     var sourceUriToRelativePathMap = new Dictionary<Uri, string>();
 
-                    foreach (var file in sourceFiles)
+                    foreach (var (file, artifactReference) in sourceFiles)
                     {
                         string source = file.GetOriginalSource();
                         string kind = file switch
                         {
-                            BicepFile bicepFile => SourceKind_Bicep,
-                            ArmTemplateFile armTemplateFile => SourceKind_ArmTemplate,
-                            TemplateSpecFile => SourceKind_TemplateSpec,
-                            _ => throw new ArgumentException($"Unexpected source file type {file.GetType().Name}"),
+                            BicepFile bicepFile => SourceKind.Bicep,
+                            ArmTemplateFile armTemplateFile => SourceKind.ArmTemplate,
+                            TemplateSpecFile => SourceKind.TemplateSpec,
+                            _ => throw new ArgumentException($"Unexpected input source file type {file.GetType().Name}"),
                         };
+
+                        Debug.Assert(artifactReference is null || artifactReference is OciArtifactReference ociArtifactReference && ociArtifactReference.Type == ArtifactType.Module,
+                            "Artifact reference must be null or an OCI module reference");
 
                         var path = GetPath(file.FileUri);
                         var root = mapPathToRootPath[path];
@@ -209,7 +259,12 @@ namespace Bicep.Core.SourceCode
                         archivePath = UniquifyArchivePath(filesMetadata, archivePath);
 
                         WriteNewFileEntry(tarWriter, archivePath, source);
-                        filesMetadata.Add(new SourceFileInfoEntry(relativePath, archivePath, kind));
+                        filesMetadata.Add(
+                            new SourceFileInfoDto(
+                                relativePath,
+                                archivePath,
+                                kind,
+                                artifactReference?.FullyQualifiedReference));
 
                         if (PathHelper.PathComparer.Equals(file.FileUri, entrypointFileUri))
                         {
@@ -267,7 +322,7 @@ namespace Bicep.Core.SourceCode
             return SourceCodePathHelper.NormalizeSlashes(uri.LocalPath);
         }
 
-        private static string UniquifyArchivePath(IList<SourceFileInfoEntry> filesMetadata, string archivePath)
+        private static string UniquifyArchivePath(IList<SourceFileInfoDto> filesMetadata, string archivePath)
         {
             int suffix = 1;
             string tryPath = archivePath;
@@ -363,7 +418,7 @@ namespace Bicep.Core.SourceCode
 
             var metadataJson = dictionary[MetadataFileName]
                 ?? throw new BicepException("Incorrectly formatted source file: No {MetadataArchivedFileName} entry");
-            var metadata = JsonSerializer.Deserialize(metadataJson, MetadataSerializationContext.Default.ArchiveMetadata)
+            var metadata = JsonSerializer.Deserialize(metadataJson, MetadataSerializationContext.Default.ArchiveMetadataDto)
                 ?? throw new BicepException("Source archive has invalid metadata entry");
 
             var infos = new List<SourceFileInfo>();
@@ -371,21 +426,34 @@ namespace Bicep.Core.SourceCode
             {
                 var contents = dictionary[info.ArchivePath]
                     ?? throw new BicepException("Incorrectly formatted source file: File entry not found: \"{info.ArchivePath}\"");
-                infos.Add(new SourceFileInfo(info.Path, info.ArchivePath, info.Kind, contents));
+                var artifactId = TrimScheme(info.SourceArtifactId ?? string.Empty);
+                var artifactReference = artifactId is { } ? OciArtifactReference.TryParseModule(artifactId).TryUnwrap() : null;
+                infos.Add(new SourceFileInfo(info.Path, info.ArchivePath, info.Kind, contents, artifactReference));
             }
 
             this.InstanceMetadata = metadata;
             this.SourceFiles = infos.ToImmutableArray();
         }
 
+        private string? TrimScheme(string artifactId)
+        {
+            if (artifactId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
+            {
+                return artifactId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
+            }
+
+            // Skip unknown schemes for possible future compatibility
+            return null;
+        }
+
         private static string CreateMetadataFileContents(
             string entrypointPath,
-            IEnumerable<SourceFileInfoEntry> files,
+            IEnumerable<SourceFileInfoDto> files,
             IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? documentLinks
         )
         {
-            var metadata = new ArchiveMetadata(CurrentMetadataVersion, CurrentBicepVersion, entrypointPath, files, documentLinks);
-            return JsonSerializer.Serialize(metadata, MetadataSerializationContext.Default.ArchiveMetadata);
+            var metadata = new ArchiveMetadataDto(CurrentMetadataVersion, CurrentBicepVersion, entrypointPath, files, documentLinks);
+            return JsonSerializer.Serialize(metadata, MetadataSerializationContext.Default.ArchiveMetadataDto);
         }
 
         private static IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? UriDocumentLinksToPathBasedLinks(

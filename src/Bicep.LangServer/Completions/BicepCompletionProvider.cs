@@ -2047,8 +2047,7 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (var setting in availableNamespaceSettingsList.OrderBy(x => x.BicepProviderName, LanguageConstants.IdentifierComparer))
                 {
-                    var completionText = $"'{setting.BicepProviderName}@{setting.ArmTemplateProviderVersion}'";
-
+                    var completionText = setting.BicepProviderName;
                     yield return CompletionItemBuilder.Create(CompletionItemKind.Folder, completionText)
                         .WithSortText(GetSortText(completionText, CompletionPriority.High))
                         .WithDetail(completionText)

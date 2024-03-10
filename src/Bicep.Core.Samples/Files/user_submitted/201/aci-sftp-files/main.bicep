@@ -9,10 +9,7 @@ param location string = resourceGroup().location
 
 var scriptName = 'createFileShare'
 var identityName = 'scratch'
-var roleDefinitionId = resourceId(
-  'Microsoft.Authorization/roleDefinitions',
-  'b24988ac-6180-42a0-ab88-20f7382dd24c'
-)
+var roleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 var roleAssignmentName = guid(identityName, roleDefinitionId)
 var sftpContainerName = 'sftp'
 var sftpContainerGroupName = 'sftp-group'

@@ -68,8 +68,7 @@ module modANoNameWithCondition './modulea.bicep' =
 module modWithReferenceInCondition './main.bicep' =
   if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {}
 
-module modWithListKeysInCondition './main.bicep' =
-  if (listKeys('foo', '2020-05-01').bar == true) {}
+module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-01').bar == true) {}
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {}
 
@@ -79,7 +78,9 @@ module modANoInputs './modulea.bicep' = {
 }
 
 module modANoInputsWithCondition './modulea.bicep' =
-  if (length(['foo']) == 1) {
+  if (length([
+    'foo'
+  ]) == 1) {
     name: 'modANoInputs'
     // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
   }
@@ -178,10 +179,7 @@ resource runtimeValidRes1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 }
 
 module runtimeValidModule1 'empty.bicep' = {
-  name: concat(
-    concat(runtimeValidRes1.id, runtimeValidRes1.name),
-    runtimeValidRes1.type
-  )
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
 }
 
 module runtimeInvalidModule1 'empty.bicep' = {
@@ -231,10 +229,7 @@ module moduleLoopForRuntimeCheck2 'modulea.bicep' = [
 
 module moduleLoopForRuntimeCheck3 'modulea.bicep' = [
   for thing in []: {
-    name: concat(
-      moduleLoopForRuntimeCheck[1].outputs.stringOutputB,
-      moduleLoopForRuntimeCheck[1].outputs.stringOutputA
-    )
+    name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA)
   }
 ]
 
@@ -333,9 +328,7 @@ module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {}]
-module missingLoopBodyProperties2 'modulea.bicep' = [
-  for (x, i) in emptyArray: {}
-]
+module missingLoopBodyProperties2 'modulea.bicep' = [for (x, i) in emptyArray: {}]
 
 // wrong array type
 var notAnArray = true
@@ -380,7 +373,9 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [
   for (x, i) in emptyArray: {
     name: 'hello-${x}'
     params: {
-      arrayParam: [i]
+      arrayParam: [
+        i
+      ]
       objParam: {}
       stringParamA: 'test'
       stringParamB: 'test'
@@ -453,7 +448,9 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [
       arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
       objParam: {}
       stringParamB: ''
-      dependsOn: [nonexistentArrays]
+      dependsOn: [
+        nonexistentArrays
+      ]
     }
     dependsOn: []
   }
@@ -466,21 +463,27 @@ module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 
 module anyTypeInScope 'empty.bicep' = {
-  dependsOn: [any('s')]
+  dependsOn: [
+    any('s')
+  ]
 
   scope: any(42)
 }
 
 module anyTypeInScopeConditional 'empty.bicep' =
   if (false) {
-    dependsOn: [any('s')]
+    dependsOn: [
+      any('s')
+    ]
 
     scope: any(42)
   }
 
 module anyTypeInScopeLoop 'empty.bicep' = [
   for thing in []: {
-    dependsOn: [any('s')]
+    dependsOn: [
+      any('s')
+    ]
 
     scope: any(42)
   }
@@ -523,8 +526,14 @@ module issue3000 'empty.bicep' = {
   sku: {}
   kind: 'V1'
   managedBy: 'string'
-  mangedByExtended: ['str1', 'str2']
-  zones: ['str1', 'str2']
+  mangedByExtended: [
+    'str1'
+    'str2'
+  ]
+  zones: [
+    'str1'
+    'str2'
+  ]
   plan: {}
   eTag: ''
   scale: {}

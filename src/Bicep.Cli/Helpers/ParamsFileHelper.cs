@@ -60,8 +60,8 @@ public static class ParamsFileHelper
         });
 
         // parameters that aren't explicitly in the .bicepparam file (e.g. parameters with default values)
-        var additionalParams = parameters.Keys.Where(x => !replacedParameters.Contains(x));
-        if (additionalParams.Any())
+        var additionalParams = parameters.Keys.Where(x => !replacedParameters.Contains(x)).ToArray();
+        if (additionalParams.Length != 0)
         {
             var children = newProgramSyntax.Children.ToList();
             foreach (var paramName in additionalParams)

@@ -142,10 +142,7 @@ resource virtualMachines 'Microsoft.Compute/virtualMachines@2020-06-01' = [
       networkProfile: {
         networkInterfaces: [
           {
-            id: resourceId(
-              'Microsoft.Network/networkInterfaces',
-              '${virtualMachineNamePrefix}${i + 1}-NIC1'
-            )
+            id: resourceId('Microsoft.Network/networkInterfaces', '${virtualMachineNamePrefix}${i + 1}-NIC1')
           }
         ]
       }
@@ -173,10 +170,7 @@ resource networkInterfaces 'Microsoft.Network/networkInterfaces@2020-06-01' = [
           properties: {
             privateIPAllocationMethod: 'Dynamic'
             publicIPAddress: {
-              id: resourceId(
-                'Microsoft.Network/publicIPAddresses',
-                '${virtualMachineNamePrefix}${i + 1}-PIP1'
-              )
+              id: resourceId('Microsoft.Network/publicIPAddresses', '${virtualMachineNamePrefix}${i + 1}-PIP1')
             }
             subnet: {
               id: subNet.id

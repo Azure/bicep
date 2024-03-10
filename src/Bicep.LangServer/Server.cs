@@ -33,7 +33,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDeploymentGraphHandler>()
                     .WithHandler<GetDeploymentDataHandler>()
                     .WithHandler<BicepReferencesHandler>()
-                    .WithHandler<BicepDocumentLinkHandler>()
+                    .WithHandler<BicepExternalSourceDocumentLinkHandler>()
                     .WithHandler<BicepDocumentHighlightHandler>()
                     .WithHandler<BicepDocumentFormattingHandler>()
                     .WithHandler<BicepRenameHandler>()
@@ -88,7 +88,9 @@ namespace Bicep.LanguageServer
                 var scheduler = server.GetRequiredService<IModuleRestoreScheduler>();
                 scheduler.Start();
 
+#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
                 await server.WaitForExit;
+#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
             }
         }
 

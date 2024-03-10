@@ -92,6 +92,33 @@ namespace Bicep.Core.Extensions
                 next = getNextElement(next);
             }
         }
+
+        // Enables this usage:
+        // var (first) = new[] { 1, 2, 3 };
+        public static void Deconstruct<T>(this IEnumerable<T> items, out T t1)
+        {
+            using var enumerator = items.GetEnumerator();
+            t1 = enumerator.MoveNext() ? enumerator.Current : throw new InvalidOperationException("Sequence contains no elements");
+        }
+
+        // Enables this usage:
+        // var (first, second) = new[] { 1, 2, 3 };
+        public static void Deconstruct<T>(this IEnumerable<T> items, out T t1, out T t2)
+        {
+            using var enumerator = items.GetEnumerator();
+            t1 = enumerator.MoveNext() ? enumerator.Current : throw new InvalidOperationException("Sequence contains no elements");
+            t2 = enumerator.MoveNext() ? enumerator.Current : throw new InvalidOperationException("Sequence contains no more elements");
+        }
+
+        // Enables this usage:
+        // var (first, second, third) = new[] { 1, 2, 3 };
+        public static void Deconstruct<T>(this IEnumerable<T> items, out T t1, out T t2, out T t3)
+        {
+            using var enumerator = items.GetEnumerator();
+            t1 = enumerator.MoveNext() ? enumerator.Current : throw new InvalidOperationException("Sequence contains no elements");
+            t2 = enumerator.MoveNext() ? enumerator.Current : throw new InvalidOperationException("Sequence contains no more elements");
+            t3 = enumerator.MoveNext() ? enumerator.Current : throw new InvalidOperationException("Sequence contains no more elements");
+        }
     }
 }
 

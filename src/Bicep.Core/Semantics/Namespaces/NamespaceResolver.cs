@@ -39,8 +39,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 var descriptor = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
                     @namespace,
-                    ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
-                    sourceFile.FileUri);
+                    ResourceTypesProviderDescriptor.LegacyVersionPlaceholder);
                 if (!namespaceProvider.TryGetNamespace(descriptor, targetScope, features, sourceFile.FileKind).IsSuccess(out var namespaceType))
                 {
                     // this namespace doesn't match a known built-in namespace

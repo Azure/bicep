@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.Syntax;
@@ -24,6 +25,15 @@ namespace Bicep.Core.IntegrationTests
 
         private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
             .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
+            .WithConfigurationPatch(c => c.WithProvidersConfiguration("""
+            {
+              "az": "builtin:",
+              "kubernetes": "builtin:",
+              "microsoftGraph": "builtin:",
+              "foo": "builtin:",
+              "bar": "builtin:"
+            }
+            """))
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
 
         [TestMethod]
@@ -167,14 +177,14 @@ output id string = p.id
         public void Parameter_cannot_use_extensibility_resource_type()
         {
             var result = CompilationHelper.Compile(ServicesWithExtensibility, """
-            provider 'bar@1.0.0' with {
+            provider bar with {
             connectionString: 'asdf'
             } as stg
 
             param container resource 'stg:container'
             output name string = container.name // silence unused params warning
             """);
-            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"container\" is not valid."),

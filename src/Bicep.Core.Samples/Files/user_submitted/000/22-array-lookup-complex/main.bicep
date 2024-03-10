@@ -1,12 +1,5 @@
 //Array Lookup of a complex object
-var subnetArray = [
-  'GatewaySubnet'
-  'AzureBastionSubnet'
-  'AzureFirewallSubnet'
-  'websubnet'
-  'appsubnet'
-  'sqlsubnet'
-]
+var subnetArray = ['GatewaySubnet', 'AzureBastionSubnet', 'AzureFirewallSubnet', 'websubnet', 'appsubnet', 'sqlsubnet']
 
 //This complex object is used for lookups.
 var subnetObj = {

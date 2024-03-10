@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Text;
+using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
@@ -81,7 +82,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 case ProviderNamespaceSymbol provider:
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
-                        $"import {provider.Name}", TryGetDescription(result, provider)));
+                        $"{LanguageConstants.ProviderKeyword} {provider.Name}", TryGetDescription(result, provider)));
 
                 case MetadataSymbol metadata:
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
@@ -192,7 +193,7 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     try
                     {
-                        descriptionLines.Add(await registry.TryGetDescription(moduleReference));
+                        descriptionLines.Add(await registry.TryGetModuleDescription(module, moduleReference));
                     }
                     catch
                     {

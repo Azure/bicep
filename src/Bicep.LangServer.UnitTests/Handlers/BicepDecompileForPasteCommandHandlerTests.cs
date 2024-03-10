@@ -544,14 +544,7 @@ name: 'Premium_LRS'
                     expectedBicep: """
                     resource name 'Microsoft.Storage/storageAccounts@2021-02-01' = {
                       name: 'name'
-                      location: concat(
-                        location,
-                        location_var,
-                        location_var,
-                        location_var_var,
-                        location_param,
-                        location_param_var
-                      )
+                      location: concat(location, location_var, location_var, location_var_var, location_param, location_param_var)
                       kind: location_var
                       sku: {
                         name: 'Premium_LRS'
@@ -1302,7 +1295,11 @@ name: 'Premium_LRS'
         )]
         [DataRow(
             @"[""[resourceGroup().location]""]",
-            @"[resourceGroup().location]",
+            """
+            [
+              resourceGroup().location
+            ]
+            """,
             DisplayName = "Array with string expression"
         )]
         [DataRow(
@@ -1370,7 +1367,13 @@ name: 'Premium_LRS'
     1, 2,
     3
 ]",
-            @"[1, 2, 3]",
+            """
+            [
+              1
+              2
+              3
+            ]
+            """,
             DisplayName = "Multiline array"
         )]
         [DataRow(
@@ -1488,11 +1491,18 @@ name: 'Premium_LRS'
         [DataRow(
             "[1]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
-            @"[1]")]
+            @"[
+              1
+            ]")]
         [DataRow(
             "[1, 1]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
-            @"[1, 1]")]
+            """
+            [
+              1
+              1
+            ]
+            """)]
         [DataRow(
             "[      /* */  ]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
@@ -1506,7 +1516,11 @@ name: 'Premium_LRS'
             @"[
   1]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
-            @"[1]")]
+            """
+            [
+              1
+            ]
+            """)]
         [DataRow(
             "null",
             PasteType.BicepValue, // Valid json and valid Bicep expression

@@ -64,17 +64,9 @@ module sqlLogicalServer 'sql-logical-server.bicep' = [
   for (sqlLogicalServer, index) in sqlLogicalServers: {
     name: 'sqlLogicalServer-${index}'
     params: {
-      sqlLogicalServer: union(
-        defaultSqlLogicalServerProperties,
-        sqlLogicalServer
-      )
-      password: sqlPassKeyVaults[index].getSecret(
-        sqlLogicalServer.passwordFromKeyVault.secretName
-      )
-      tags: union(
-        tags,
-        union(defaultSqlLogicalServerProperties, sqlLogicalServer).tags
-      )
+      sqlLogicalServer: union(defaultSqlLogicalServerProperties, sqlLogicalServer)
+      password: sqlPassKeyVaults[index].getSecret(sqlLogicalServer.passwordFromKeyVault.secretName)
+      tags: union(tags, union(defaultSqlLogicalServerProperties, sqlLogicalServer).tags)
     }
   }
 ]

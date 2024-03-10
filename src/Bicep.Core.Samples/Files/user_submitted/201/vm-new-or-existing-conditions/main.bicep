@@ -18,9 +18,7 @@ param adminPasswordOrKey string
 @description('Size for the Virtual Machine.')
 param vmSize string = 'Standard_A2_v2'
 
-@description(
-  'Determines whether or not a new storage account should be provisioned.'
-)
+@description('Determines whether or not a new storage account should be provisioned.')
 param createNewStorageAccount bool = true
 
 @description('Name of the storage account')
@@ -32,9 +30,7 @@ param storageAccountType string = 'Standard_LRS'
 @description('Name of the resource group for the existing storage account')
 param storageAccountResourceGroupName string = resourceGroup().name
 
-@description(
-  'Determines whether or not a new virtual network should be provisioned.'
-)
+@description('Determines whether or not a new virtual network should be provisioned.')
 param createNewVnet bool = true
 
 @description('Name of the virtual network')
@@ -66,26 +62,13 @@ param publicIPResourceGroupName string = resourceGroup().name
 
 var storageAccountId = createNewStorageAccount
   ? storageAccount.id
-  : resourceId(
-      storageAccountResourceGroupName,
-      'Microsoft.Storage/storageAccounts/',
-      storageAccountName
-    )
+  : resourceId(storageAccountResourceGroupName, 'Microsoft.Storage/storageAccounts/', storageAccountName)
 var subnetId = createNewVnet
   ? subnet.id
-  : resourceId(
-      vnetResourceGroupName,
-      'Microsoft.Network/virtualNetworks/subnets',
-      vnetName,
-      subnetName
-    )
+  : resourceId(vnetResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', vnetName, subnetName)
 var publicIPId = createNewPublicIP
   ? publicIP.id
-  : resourceId(
-      publicIPResourceGroupName,
-      'Microsoft.Network/publicIPAddresses',
-      publicIPName
-    )
+  : resourceId(publicIPResourceGroupName, 'Microsoft.Network/publicIPAddresses', publicIPName)
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2017-06-01' =
   if (createNewStorageAccount) {
@@ -186,21 +169,19 @@ resource vm 'Microsoft.Compute/virtualMachines@2017-03-30' = {
       computerName: vmName
       adminUsername: adminUsername
       adminPassword: adminPasswordOrKey
-      linuxConfiguration: any(
-        authenticationType != 'password'
-          ? {
-              disablePasswordAuthentication: true
-              ssh: {
-                publicKeys: [
-                  {
-                    path: '/home/${adminUsername}/.ssh/authorized_keys'
-                    keyData: adminPasswordOrKey
-                  }
-                ]
-              }
+      linuxConfiguration: any(authenticationType != 'password'
+        ? {
+            disablePasswordAuthentication: true
+            ssh: {
+              publicKeys: [
+                {
+                  path: '/home/${adminUsername}/.ssh/authorized_keys'
+                  keyData: adminPasswordOrKey
+                }
+              ]
             }
-          : null
-      )
+          }
+        : null)
     }
     storageProfile: {
       imageReference: {

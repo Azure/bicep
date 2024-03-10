@@ -489,7 +489,7 @@ namespace Bicep.Core.Parsing
             var rewritten = expressionsOrCommas.Select(item => item switch
             {
                 VariableAccessSyntax varAccess => new LocalVariableSyntax(varAccess.Name),
-                Token { Type: TokenType.Comma } => item,
+                Token { Type: TokenType.Comma or TokenType.NewLine } => item,
                 SkippedTriviaSyntax => item,
                 _ => new SkippedTriviaSyntax(item.Span, item.AsEnumerable()),
             });
@@ -1345,7 +1345,7 @@ namespace Bicep.Core.Parsing
             // Generally we don't want the error span to include the terminating token, so synchronize with and without if required.
             // The skipped trivia returned should always include the full span
             Synchronize(false, expectedTypes);
-            var skippedTokens = reader.Slice(startReaderPosition, reader.Position - startReaderPosition);
+            var skippedTokens = reader.Slice(startReaderPosition, reader.Position - startReaderPosition).ToArray();
             var skippedSpan = TextSpan.SafeBetween(skippedTokens, startToken.Span.Position);
             var errorSpan = skippedSpan;
 
@@ -1353,13 +1353,13 @@ namespace Bicep.Core.Parsing
             {
                 Synchronize(true, expectedTypes);
 
-                skippedTokens = reader.Slice(startReaderPosition, reader.Position - startReaderPosition);
+                skippedTokens = reader.Slice(startReaderPosition, reader.Position - startReaderPosition).ToArray();
                 skippedSpan = TextSpan.SafeBetween(skippedTokens, startToken.Span.Position);
             }
 
             var errors = flags.HasFlag(RecoveryFlags.SuppressDiagnostics)
                 ? ImmutableArray<ErrorDiagnostic>.Empty
-                : ImmutableArray.Create(errorFunc(DiagnosticBuilder.ForPosition(errorSpan)));
+                : [errorFunc(DiagnosticBuilder.ForPosition(errorSpan))];
 
             return new SkippedTriviaSyntax(skippedSpan, skippedTokens, errors);
         }

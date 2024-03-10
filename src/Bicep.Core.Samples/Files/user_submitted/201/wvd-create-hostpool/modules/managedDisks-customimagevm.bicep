@@ -1,6 +1,4 @@
-@description(
-  'The base URI where artifacts required by this template are located.'
-)
+@description('The base URI where artifacts required by this template are located.')
 param artifactsLocation string = 'https://raw.githubusercontent.com/Azure/RDS-Templates/master/ARM-wvd-templates/DSC/Configuration.zip'
 
 @allowed(['None', 'AvailabilitySet', 'AvailabilityZone'])
@@ -14,9 +12,7 @@ param availabilitySetName string = ''
 @description('The number of availability zone to be used when create the VMs.')
 param availabilityZone int = 1
 
-@description(
-  'URI of the sysprepped image vhd file to be used to create the session host VMs. For example, https://rdsstorage.blob.core.windows.net/vhds/sessionhostimage.vhd'
-)
+@description('URI of the sysprepped image vhd file to be used to create the session host VMs. For example, https://rdsstorage.blob.core.windows.net/vhds/sessionhostimage.vhd')
 param vmImageVhdUri string
 
 @description('The storage account containing the custom VHD.')
@@ -31,14 +27,10 @@ param vmGalleryImagePublisher string = ''
 @description('(Required when vmImageType = Gallery) Gallery image SKU.')
 param vmGalleryImageSKU string = ''
 
-@description(
-  'This prefix will be used in combination with the VM number to create the VM name. This value includes the dash, so if using “rdsh” as the prefix, VMs would be named “rdsh-0”, “rdsh-1”, etc. You should use a unique prefix to reduce name collisions in Active Directory.'
-)
+@description('This prefix will be used in combination with the VM number to create the VM name. This value includes the dash, so if using “rdsh” as the prefix, VMs would be named “rdsh-0”, “rdsh-1”, etc. You should use a unique prefix to reduce name collisions in Active Directory.')
 param rdshPrefix string = take(toLower(resourceGroup().name), 10)
 
-@description(
-  'Number of session hosts that will be created and added to the hostpool.'
-)
+@description('Number of session hosts that will be created and added to the hostpool.')
 param rdshNumberOfInstances int
 
 @allowed(['Premium_LRS', 'StandardSSD_LRS', 'Standard_LRS'])
@@ -48,9 +40,7 @@ param rdshVMDiskType string
 @description('The size of the session host VMs.')
 param rdshVmSize string = 'Standard_A2'
 
-@description(
-  'Enables Accelerated Networking feature, notice that VM size must support it, this is supported in most of general purpose and compute-optimized instances with 2 or more vCPUs, on instances that supports hyperthreading it is required minimum of 4 vCPUs.'
-)
+@description('Enables Accelerated Networking feature, notice that VM size must support it, this is supported in most of general purpose and compute-optimized instances with 2 or more vCPUs, on instances that supports hyperthreading it is required minimum of 4 vCPUs.')
 param enableAcceleratedNetworking bool = false
 
 @description('The username for the domain admin.')
@@ -60,14 +50,10 @@ param administratorAccountUsername string
 @secure()
 param administratorAccountPassword string
 
-@description(
-  'A username to be used as the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used.'
-)
+@description('A username to be used as the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used.')
 param vmAdministratorAccountUsername string = ''
 
-@description(
-  'The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used.'
-)
+@description('The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used.')
 @secure()
 param vmAdministratorAccountPassword string = ''
 
@@ -83,9 +69,7 @@ param rdshImageSourceId string = ''
 @description('Location for all resources to be created in.')
 param location string = ''
 
-@description(
-  'Whether to create a new network security group or use an existing one'
-)
+@description('Whether to create a new network security group or use an existing one')
 param createNetworkSecurityGroup bool = false
 
 @description('The resource id of an existing network security group')
@@ -122,20 +106,14 @@ param ouPath string = ''
 @description('Domain to join')
 param domain string = ''
 
-@description(
-  'IMPORTANT: Please don\'t use this parameter as AAD Join is not supported yet. True if AAD Join, false if AD join'
-)
+@description('IMPORTANT: Please don\'t use this parameter as AAD Join is not supported yet. True if AAD Join, false if AD join')
 param aadJoin bool = false
 
-@description(
-  'IMPORTANT: Please don\'t use this parameter as intune enrollment is not supported yet. True if intune enrollment is selected.  False otherwise'
-)
+@description('IMPORTANT: Please don\'t use this parameter as intune enrollment is not supported yet. True if intune enrollment is selected.  False otherwise')
 param intune bool = false
 
 var emptyArray = []
-var domain_var = ((domain == '')
-  ? last(split(administratorAccountUsername, '@'))!
-  : domain)
+var domain_var = ((domain == '') ? last(split(administratorAccountUsername, '@'))! : domain)
 var storageAccountType = rdshVMDiskType
 var newNsgName = '${rdshPrefix}nsg-${guidValue}'
 var nsgId = (createNetworkSecurityGroup
@@ -181,9 +159,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2018-11-01' = [
         }
       ]
       enableAcceleratedNetworking: enableAcceleratedNetworking
-      networkSecurityGroup: (empty(networkSecurityGroupId)
-        ? null
-        : json('{"id": "${nsgId}"}'))
+      networkSecurityGroup: (empty(networkSecurityGroupId) ? null : json('{"id": "${nsgId}"}'))
     }
     dependsOn: [NSG]
   }
@@ -201,9 +177,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2018-10-01' = [
       hardwareProfile: {
         vmSize: rdshVmSize
       }
-      availabilitySet: ((availabilityOption == 'AvailabilitySet')
-        ? vmAvailabilitySetResourceId
-        : null)
+      availabilitySet: ((availabilityOption == 'AvailabilitySet') ? vmAvailabilitySetResourceId : null)
       osProfile: {
         computerName: concat(rdshPrefix, (i + vmInitialNumber))
         adminUsername: vmAdministratorUsername
@@ -223,10 +197,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2018-10-01' = [
       networkProfile: {
         networkInterfaces: [
           {
-            id: resourceId(
-              'Microsoft.Network/networkInterfaces',
-              '${rdshPrefix}${(i + vmInitialNumber)}-nic'
-            )
+            id: resourceId('Microsoft.Network/networkInterfaces', '${rdshPrefix}${(i + vmInitialNumber)}-nic')
           }
         ]
       }
@@ -237,9 +208,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2018-10-01' = [
       }
       licenseType: 'Windows_Client'
     }
-    zones: ((availabilityOption == 'AvailabilityZone')
-      ? array(availabilityZone)
-      : emptyArray)
+    zones: ((availabilityOption == 'AvailabilityZone') ? array(availabilityZone) : emptyArray)
     dependsOn: [nic]
   }
 ]

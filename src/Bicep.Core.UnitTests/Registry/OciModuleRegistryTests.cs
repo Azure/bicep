@@ -9,7 +9,6 @@ using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -171,7 +170,7 @@ namespace Bicep.Core.UnitTests.Registry
             var documentation = OciArtifactRegistry.TryGetDocumentationUri(OciArtifactReference);
             documentation.Should().BeNull();
 
-            var description = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var description = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
             description.Should().BeNull();
         }
 
@@ -210,7 +209,7 @@ namespace Bicep.Core.UnitTests.Registry
             var documentation = OciArtifactRegistry.TryGetDocumentationUri(OciArtifactReference);
             documentation.Should().BeNull();
 
-            var description = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var description = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
             description.Should().BeNull();
         }
 
@@ -330,7 +329,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 digest: "sha:12345");
 
-            var result = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var result = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             result.Should().BeNull();
         }
@@ -363,7 +362,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var result = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             result.Should().BeNull();
         }
@@ -398,7 +397,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var result = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             result.Should().BeNull();
         }
@@ -435,7 +434,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var result = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(description);
@@ -474,7 +473,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var result = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             result.Should().BeNull();
         }
@@ -518,7 +517,7 @@ namespace Bicep.Core.UnitTests.Registry
             actualDocumentationUri.Should().NotBeNull();
             actualDocumentationUri.Should().BeEquivalentTo(documentationUri);
 
-            var actualDescription = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var actualDescription = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             actualDescription.Should().NotBeNull();
             actualDescription.Should().BeEquivalentTo(description.Replace("\\", "")); // unencode json
@@ -662,8 +661,9 @@ namespace Bicep.Core.UnitTests.Registry
             if (publishSource)
             {
                 var uri = new Uri("file://path/to/bicep.bicep", UriKind.Absolute);
-                var stream = SourceArchive.PackSourcesIntoStream(uri, cacheRoot: null, new ISourceFile[] { SourceFileFactory.CreateBicepFile(uri, "// contents") });
-                sources = BinaryData.FromStream(stream);
+                sources = new SourceArchiveBuilder()
+                    .WithBicepFile(uri, "// contents")
+                    .BuildBinaryData();
             }
 
             await ociRegistry.PublishModule(moduleReference, template, sources, "http://documentation", "description");

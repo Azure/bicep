@@ -756,11 +756,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 {
                     foreach (string typeName in RealApiVersionProvider.GetResourceTypeNames(scope).Take(maxResourcesToTest))
                     {
-                        var apiVersionDates = RealApiVersionProvider.GetApiVersions(scope, typeName).Select(v => v.Date);
+                        var apiVersionDates = RealApiVersionProvider.GetApiVersions(scope, typeName).Select(v => v.Date).ToArray();
 
                         var datesToTest = new List<DateOnly>();
                         if (Exhaustive)
-
                         {
                             foreach (var dt in apiVersionDates)
                             {
@@ -770,18 +769,22 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             }
                         }
 
-                        datesToTest.Add(apiVersionDates.Min().AddDays(-(maxAgeInDays - 1)));
+                        var minApiVersionDate = apiVersionDates.Min();
+                        datesToTest.Add(minApiVersionDate.AddDays(-(maxAgeInDays - 1)));
+
                         if (Exhaustive)
                         {
                             datesToTest.Add(apiVersionDates.Min().AddDays(-maxAgeInDays));
                             datesToTest.Add(apiVersionDates.Min().AddDays(-(maxAgeInDays + 1)));
                         }
 
-                        datesToTest.Add(apiVersionDates.Max().AddDays(maxAgeInDays - 1));
+                        var maxApiVersionDate = apiVersionDates.Max();
+                        datesToTest.Add(maxApiVersionDate.AddDays(maxAgeInDays - 1));
+
                         if (Exhaustive)
                         {
-                            datesToTest.Add(apiVersionDates.Max().AddDays(maxAgeInDays));
-                            datesToTest.Add(apiVersionDates.Max().AddDays(maxAgeInDays + 1));
+                            datesToTest.Add(maxApiVersionDate.AddDays(maxAgeInDays));
+                            datesToTest.Add(maxApiVersionDate.AddDays(maxAgeInDays + 1));
                         }
 
                         datesToTest = datesToTest.Distinct().ToList();
@@ -1891,7 +1894,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             public void LinterIgnoresNotAzureResources()
             {
                 CompileAndTestWithFakeDateAndTypes(@"
-                        provider 'kubernetes@1.0.0' with {
+                        provider kubernetes with {
                           namespace: 'default'
                           kubeConfig: ''
                         }

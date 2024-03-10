@@ -46,12 +46,12 @@ namespace Bicep.Core.Registry
             {
                 case 1:
                     // local path reference
-                    if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
+                    if (registries.TryGetValue(ArtifactReferenceSchemes.Local, out var localRegistry))
                     {
                         return localRegistry.TryParseArtifactReference(artifactType, null, parts[0]);
                     }
 
-                    return new(x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes(parentModuleUri)));
+                    return new(x => x.UnknownModuleReferenceScheme(ArtifactReferenceSchemes.Local, this.AvailableSchemes(parentModuleUri)));
 
                 case 2:
                     string scheme = parts[0];
@@ -117,7 +117,7 @@ namespace Bicep.Core.Registry
             {
                 return new(x => x.InvalidProviderSpecification());
             }
-            
+
             var config = configurationManager.GetConfiguration(parentModuleUri);
             switch (providerDeclarationSyntax.Specification)
             {
@@ -128,7 +128,7 @@ namespace Bicep.Core.Registry
                     {
                         return new(errorBuilder);
                     }
-                    return new($"br:{providerSource.Source}:{providerSource.Version}");
+                    return new($"{providerSource.Scheme}:{providerSource.Path}");
             }
         }
 
@@ -180,15 +180,15 @@ namespace Bicep.Core.Registry
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
+            // many module declarations can point to the same module
+            var uniqueReferences = references.Distinct().ToArray();
+
             if (!forceRestore &&
-                references.All(module => this.GetArtifactRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
+                uniqueReferences.All(module => this.GetArtifactRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything
                 return false;
             }
-
-            // many module declarations can point to the same module
-            var uniqueReferences = references.Distinct();
 
             // split modules refs by registry
             var referencesByRegistry = uniqueReferences.ToLookup(@ref => Registries(@ref.ParentModuleUri)[@ref.Scheme]);
@@ -292,7 +292,7 @@ namespace Bicep.Core.Registry
             // as the user is typing, the modules will keep getting recompiled
             // we can't keep retrying syntactically correct references to non-existent modules on every key press
             // absolute expiration here will ensure that the next retry is delayed until the specified interval passes
-            // we're not not doing sliding expiration because we want a retry to happen eventually
+            // we're not doing sliding expiration because we want a retry to happen eventually
             // (we may consider adding an ability to immediately retry to the UX in the future as well)
             var expiration = DateTime.UtcNow.Add(FailureExpirationInterval);
             this.restoreFailures.TryAdd(new(configuration.Cloud, reference), new RestoreFailureInfo(reference, failureBuilder, expiration));

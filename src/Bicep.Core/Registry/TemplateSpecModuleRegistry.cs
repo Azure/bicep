@@ -35,7 +35,7 @@ namespace Bicep.Core.Registry
             this.parentModuleUri = parentModuleUri;
         }
 
-        public override string Scheme => ModuleReferenceSchemes.TemplateSpecs;
+        public override string Scheme => ArtifactReferenceSchemes.TemplateSpecs;
 
         public override RegistryCapabilities GetCapabilities(TemplateSpecModuleReference reference) => RegistryCapabilities.Default;
 
@@ -131,20 +131,11 @@ namespace Bicep.Core.Registry
 
         public override string? TryGetDocumentationUri(TemplateSpecModuleReference moduleReference) => null;
 
-        public override Task<string?> TryGetDescription(TemplateSpecModuleReference moduleReference)
+        public override Task<string?> TryGetModuleDescription(ModuleSymbol module, TemplateSpecModuleReference moduleReference)
         {
-            try
+            if (module.TryGetSemanticModel().TryUnwrap() is {} model)
             {
-                string entrypointPath = this.GetModuleEntryPointPath(moduleReference);
-                if (File.Exists(entrypointPath))
-                {
-                    using var stream = fileSystem.File.OpenRead(entrypointPath);
-                    return Task.FromResult(DescriptionHelper.TryGetFromTemplateSpec(stream));
-                }
-            }
-            catch
-            {
-                // ignore
+                return Task.FromResult(DescriptionHelper.TryGetFromSemanticModel(model));
             }
 
             return Task.FromResult<string?>(null);

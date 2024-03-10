@@ -33,7 +33,9 @@ resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [
     properties: {
       displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 1) (index ${index})'
     }
-    dependsOn: [manyGroups]
+    dependsOn: [
+      manyGroups
+    ]
   }
 ]
 
@@ -43,7 +45,9 @@ resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [
     properties: {
       displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 2)'
     }
-    dependsOn: [anotherSet[0]]
+    dependsOn: [
+      anotherSet[0]
+    ]
   }
 ]
 

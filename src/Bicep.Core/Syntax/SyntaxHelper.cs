@@ -31,7 +31,7 @@ namespace Bicep.Core.Syntax
         }
 
         public static ResultWithDiagnostic<string> TryGetForeignTemplatePath(
-            IArtifactReferenceSyntax foreignTemplateReference, 
+            IArtifactReferenceSyntax foreignTemplateReference,
             DiagnosticBuilder.ErrorBuilderDelegate onUnspecifiedPath)
         {
             if (foreignTemplateReference.Path is not StringSyntax pathSyntax)
@@ -46,7 +46,7 @@ namespace Bicep.Core.Syntax
 
             return new(pathValue);
         }
-        
+
         public static ResourceScope GetTargetScope(TargetScopeSyntax targetScopeSyntax)
         {
             // TODO: Revisit when adding support for multiple target scopes

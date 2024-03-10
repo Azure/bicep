@@ -1,5 +1,8 @@
 @description('Storage account type')
-@allowed(['Standard_LRS', 'Standard_GRS'])
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+])
 param storageAccountType string = 'Standard_LRS'
 
 @description('Name of file share to be created')
@@ -17,10 +20,7 @@ param location string = resourceGroup().location
 
 var scriptName = 'createFileShare'
 var identityName = 'scratch'
-var roleDefinitionId = resourceId(
-  'Microsoft.Authorization/roleDefinitions',
-  'b24988ac-6180-42a0-ab88-20f7382dd24c'
-)
+var roleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 var roleDefinitionName = guid(identityName, roleDefinitionId)
 var sftpContainerName = 'sftp'
 var sftpContainerGroupName = 'sftp-group'
@@ -52,7 +52,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   }
   kind: 'StorageV2'
   properties: {}
-  dependsOn: [roleDefinition]
+  dependsOn: [
+    roleDefinition
+  ]
 }
 
 resource script 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
@@ -74,7 +76,9 @@ resource script 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'
   }
-  dependsOn: [storageAccount]
+  dependsOn: [
+    storageAccount
+  ]
 }
 
 resource sftpContainerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12-01' = {
@@ -136,7 +140,9 @@ resource sftpContainerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12
       }
     ]
   }
-  dependsOn: [script]
+  dependsOn: [
+    script
+  ]
 }
 
 output containerIPv4Address string = sftpContainerGroup.properties.ipAddress.ip

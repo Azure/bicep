@@ -60,7 +60,9 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   sku: {
     name: 'Standard_LRS'
   }
-  dependsOn: [myStorageAccount]
+  dependsOn: [
+    myStorageAccount
+  ]
 }
 
 param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
@@ -86,6 +88,7 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
 
 var cosmosDbResourceId = resourceId(
   'Microsoft.DocumentDB/databaseAccounts',
+  // comment
   cosmosDb.account
 )
 var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
@@ -183,7 +186,9 @@ var varARuntime = {
   aKind: resourceA.kind
 }
 
-var varBRuntime = [varARuntime]
+var varBRuntime = [
+  varARuntime
+]
 
 var resourceCRef = {
   id: resourceC.id
@@ -430,7 +435,9 @@ resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'myVnet'
   properties: {
     addressSpace: {
-      addressPrefixes: ['10.0.0.0/20']
+      addressPrefixes: [
+        '10.0.0.0/20'
+      ]
     }
   }
 }

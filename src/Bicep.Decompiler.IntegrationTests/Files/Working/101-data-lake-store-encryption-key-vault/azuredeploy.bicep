@@ -24,11 +24,7 @@ resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
     encryptionConfig: {
       type: 'UserManaged'
       keyVaultMetaInfo: {
-        keyVaultResourceId: resourceId(
-          keyVaultResourceGroupName,
-          'Microsoft.KeyVault/vaults',
-          keyVaultName
-        )
+        keyVaultResourceId: resourceId(keyVaultResourceGroupName, 'Microsoft.KeyVault/vaults', keyVaultName)
         encryptionKeyName: keyName
         encryptionKeyVersion: keyVersion
       }
@@ -66,6 +62,8 @@ module updateAdlsAccount './nested_updateAdlsAccount.bicep' = {
     keyName: keyName
     keyVersion: keyVersion
   }
-  dependsOn: [addAccessPolicy]
+  dependsOn: [
+    addAccessPolicy
+  ]
 }
 

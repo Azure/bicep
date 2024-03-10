@@ -52,9 +52,12 @@ namespace Bicep.LanguageServer.Deploy
                 var updatedParametersFileWithoutSecureParams = updatedParametersFile;
 
                 var jObject = GetParametersObjectValue(updatedParametersFile, out bool isArmStyleTemplate);
+                var hasUpdatedDeploymentParameter = false;
 
                 foreach (var updatedDeploymentParameter in updatedDeploymentParameters.Reverse())
                 {
+                    hasUpdatedDeploymentParameter = true;
+
                     var name = updatedDeploymentParameter.name;
 
                     // Check to make sure parameters mentioned in parameters file are not overwritten
@@ -98,7 +101,7 @@ namespace Bicep.LanguageServer.Deploy
                     }
                 }
 
-                if (updatedDeploymentParameters.Any())
+                if (hasUpdatedDeploymentParameter)
                 {
                     if (updateOrCreateParametersFile == ParametersFileUpdateOption.Update)
                     {

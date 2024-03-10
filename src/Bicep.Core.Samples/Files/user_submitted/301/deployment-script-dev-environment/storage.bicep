@@ -1,22 +1,18 @@
 param name string
 
-@allowed(
-  [
-    'Standard_LRS'
-    'Standard_GRS'
-    'Standard_RAGRS'
-    'Standard_ZRS'
-    'Premium_LRS'
-    'Premium_ZRS'
-    'Standard_GZRS'
-    'Standard_RAGZRS'
-  ]
-)
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+  'Standard_RAGRS'
+  'Standard_ZRS'
+  'Premium_LRS'
+  'Premium_ZRS'
+  'Standard_GZRS'
+  'Standard_RAGZRS'
+])
 param sku string = 'Standard_LRS'
 
-@allowed(
-  ['Storage', 'StorageV2', 'BlobStorage', 'FileStorage', 'BlockBlobStorage']
-)
+@allowed(['Storage', 'StorageV2', 'BlobStorage', 'FileStorage', 'BlockBlobStorage'])
 param kind string = 'StorageV2'
 
 @allowed(['Hot', 'Cool'])

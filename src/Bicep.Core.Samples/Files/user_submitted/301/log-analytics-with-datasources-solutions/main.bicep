@@ -27,14 +27,10 @@ param enableDeleteLock bool = false
 @description('Enable diagnostic logs')
 param enableDiagnostics bool = false
 
-@description(
-  'Storage account name. Only required if enableDiagnostics is set to true.'
-)
+@description('Storage account name. Only required if enableDiagnostics is set to true.')
 param diagnosticStorageAccountName string = ''
 
-@description(
-  'Storage account resource group. Only required if enableDiagnostics is set to true.'
-)
+@description('Storage account resource group. Only required if enableDiagnostics is set to true.')
 param diagnosticStorageAccountResourceGroup string = ''
 
 var lockName = '${logAnalyticsWorkspace.name}-lck'
@@ -72,10 +68,7 @@ resource logAnalyticsAutomation 'Microsoft.OperationalInsights/workspaces/linked
     parent: logAnalyticsWorkspace
     name: 'Automation'
     properties: {
-      resourceId: resourceId(
-        'Microsoft.Automation/automationAccounts',
-        automationAccountName
-      )
+      resourceId: resourceId('Microsoft.Automation/automationAccounts', automationAccountName)
     }
   }
 

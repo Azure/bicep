@@ -8,10 +8,7 @@ param testBool = bool('sdf')
 param testConcat = concat(['abc'], { foo: 'bar' })
 param testContains = contains('foo/bar', {})
 param testDataUriToString = dataUriToString(concat(dataUri('abc'), '@'))
-param testDateTimeAdd = dateTimeAdd(
-  dateTimeFromEpoch(1680224438),
-  'PTASDIONS1D'
-)
+param testDateTimeAdd = dateTimeAdd(dateTimeFromEpoch(1680224438), 'PTASDIONS1D')
 param testDateTimeToEpoch = dateTimeToEpoch(dateTimeFromEpoch('adfasdf'))
 param testEmpty = empty([])
 param testEndsWith = endsWith('foo', [])

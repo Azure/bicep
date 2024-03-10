@@ -1,9 +1,7 @@
 @description('Name for the container group')
 param name string = 'acilinuxpublicipcontainergroup'
 
-@description(
-  'Container image to deploy. Should be of the form repoName/imagename:tag for images stored in public Docker Hub, or a fully qualified URI for other registries. Images from private registries require additional registry credentials.'
-)
+@description('Container image to deploy. Should be of the form repoName/imagename:tag for images stored in public Docker Hub, or a fully qualified URI for other registries. Images from private registries require additional registry credentials.')
 param image string = 'mcr.microsoft.com/azuredocs/aci-helloworld'
 
 @description('Port to open on the container and the public IP address.')

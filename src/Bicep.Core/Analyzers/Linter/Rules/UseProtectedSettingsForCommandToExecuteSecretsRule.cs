@@ -79,9 +79,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                 {
                                     // Does it contain any possible secrets?
                                     var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(semanticModel, commandToExecuteSyntax.Value);
-                                    if (secrets.Any())
+
+                                    if (secrets.FirstOrDefault() is { } secret)
                                     {
-                                        diagnostics.Add(CreateDiagnosticForSpan(diagnosticLevel, commandToExecuteSyntax.Key.Span, secrets.First().FoundMessage));
+                                        diagnostics.Add(CreateDiagnosticForSpan(diagnosticLevel, commandToExecuteSyntax.Key.Span, secret.FoundMessage));
                                     }
                                 }
                             }

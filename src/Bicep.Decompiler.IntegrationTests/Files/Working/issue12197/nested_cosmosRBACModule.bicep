@@ -32,10 +32,7 @@ resource databaseAccountName_roleAssignmentId 'Microsoft.DocumentDB/databaseAcco
     principalId: principalId
     roleDefinitionId: '/${subscription().id}/resourceGroups/${databaseAccountResourceGroup}/providers/Microsoft.DocumentDB/databaseAccounts/${databaseAccountName}/sqlRoleDefinitions/${roleDefinitionId}'
 //@[4:20) [use-resource-id-functions (Warning)] If property "roleDefinitionId" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-resource-id-functions)) |roleDefinitionId|
-    scope: resourceId(
-      'Microsoft.DocumentDB/databaseAccounts',
-      databaseAccountName
-    )
+    scope: resourceId('Microsoft.DocumentDB/databaseAccounts', databaseAccountName)
   }
 }
 

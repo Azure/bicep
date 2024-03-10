@@ -9,9 +9,7 @@ param managementGroupDisplayName string
 @description('Management group id of the parent management group')
 param parentManagementGroupId string = ''
 
-@description(
-  'Subscription id of the subscription(s) to add to the management group'
-)
+@description('Subscription id of the subscription(s) to add to the management group')
 param subscriptionIds array
 
 resource managementGroup 'Microsoft.Management/managementGroups@2020-05-01' = {

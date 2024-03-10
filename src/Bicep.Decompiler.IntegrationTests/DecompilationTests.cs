@@ -146,7 +146,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("equals(toLower(variables('a')),toLower(variables('b')))", "boolean", "(a =~ b)")]
         [DataRow("not(equals(variables('a'),variables('b')))", "boolean", "(a != b)")]
         [DataRow("not(equals(toLower(variables('a')),toLower(variables('b'))))", "boolean", "(a !~ b)")]
-        [DataRow("createArray(1, 2, 3)", "array", "[1, 2, 3]")]
+        [DataRow("createArray(1, 2, 3)", "array", "[\n  1\n  2\n  3\n]")]
         [DataRow("createObject('key', 'value')", "object", "{\n  key: 'value'\n}")]
         [DataRow("tryGet(parameters('z'), 'y')", "int", "(z.?y)")]
         [DataRow("tryGet(parameters('z'), 'y', 'x', 'w')", "int", "(z.?y.x.w)")]

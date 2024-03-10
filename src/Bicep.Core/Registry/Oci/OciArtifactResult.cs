@@ -26,7 +26,7 @@ namespace Bicep.Core.Registry.Oci
 
         public string ManifestDigest { get; init; }
 
-        public IEnumerable<OciArtifactLayer> Layers { get; init; }
+        public ImmutableArray<OciArtifactLayer> Layers { get; init; }
 
         public BinaryData? TryGetSingleLayerByMediaType(string mediaType)
         {

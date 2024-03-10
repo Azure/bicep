@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
@@ -24,7 +25,7 @@ namespace Bicep.Core.Registry
             this.bicepCompiler = bicepCompiler;
         }
 
-        public override string Scheme => ModuleReferenceSchemes.Local;
+        public override string Scheme => ArtifactReferenceSchemes.Local;
 
         public override RegistryCapabilities GetCapabilities(LocalModuleReference reference) => RegistryCapabilities.Default;
 
@@ -80,27 +81,14 @@ namespace Bicep.Core.Registry
 
         public override string? TryGetDocumentationUri(LocalModuleReference moduleReference) => null;
 
-        public override async Task<string?> TryGetDescription(LocalModuleReference moduleReference)
+        public override Task<string?> TryGetModuleDescription(ModuleSymbol module, LocalModuleReference moduleReference)
         {
-            try
+            if (module.TryGetSemanticModel().TryUnwrap() is {} model)
             {
-                if (this.TryGetLocalArtifactEntryPointUri(moduleReference).IsSuccess(out var localUri) && this.bicepCompiler is not null)
-                {
-                    var compilation = await this.bicepCompiler.CreateCompilation(localUri, skipRestore: true);
-                    if (compilation.SourceFileGrouping.FileResultByUri.TryGetValue(localUri, out var result) &&
-                        result.IsSuccess(out var source) &&
-                        compilation.GetSemanticModel(source) is { } semanticModel)
-                    {
-                        return DescriptionHelper.TryGetFromSemanticModel(semanticModel);
-                    }
-                }
-            }
-            catch
-            {
-                // ignore
+                return Task.FromResult(DescriptionHelper.TryGetFromSemanticModel(model));
             }
 
-            return null;
+            return Task.FromResult<string?>(null);
         }
 
         public override ResultWithException<SourceArchive> TryGetSource(LocalModuleReference reference)

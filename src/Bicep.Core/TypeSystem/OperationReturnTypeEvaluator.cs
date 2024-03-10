@@ -282,11 +282,7 @@ public static class OperationReturnTypeEvaluator
     {
         IntegerLiteralType literal => literal.Value,
         IntegerType @int => @int.MinValue,
-        UnionType union => union.Members.Select(m => MinValue(m.Type)) switch
-        {
-            IEnumerable<long?> minOfEachMember when minOfEachMember.All(m => m.HasValue) => minOfEachMember.Min(),
-            _ => null,
-        },
+        UnionType union => union.Members.Select(m => MinValue(m.Type)).Min(),
         _ => null,
     };
 
@@ -294,11 +290,7 @@ public static class OperationReturnTypeEvaluator
     {
         IntegerLiteralType literal => literal.Value,
         IntegerType @int => @int.MaxValue,
-        UnionType union => union.Members.Select(m => MaxValue(m.Type)) switch
-        {
-            IEnumerable<long?> maxOfEachMember when maxOfEachMember.All(m => m.HasValue) => maxOfEachMember.Max(),
-            _ => null,
-        },
+        UnionType union => union.Members.Select(m => MaxValue(m.Type)).Max(),
         _ => null,
     };
 

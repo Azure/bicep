@@ -4,9 +4,7 @@ param location string
 @description('Base name that will appear for all resources.')
 param baseName string = 'adecosmosapp2'
 
-@description(
-  'Three letter environment abreviation to denote environment that will appear in all resource names'
-)
+@description('Three letter environment abreviation to denote environment that will appear in all resource names')
 param environmentName string = 'cicd'
 
 @description('App Service Plan Sku')

@@ -24,23 +24,23 @@ namespace Bicep.LanguageServer.Completions
         private static readonly CompositeSyntaxPattern ExpectingImportSpecification = CompositeSyntaxPattern.Create(
             cursor: '|',
             "provider |",
-            "provider |'kuber'",
-            "provider 'kuber|'");
+            "provider |kuber",
+            "provider kuber|");
 
         private static readonly CompositeSyntaxPattern ExpectingImportWithOrAsKeyword = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "provider 'kubernetes@1.0.0' |",
-            "provider 'kubernetes@1.0.0' a|",
-            "provider 'kubernetes@1.0.0' |b");
+            "provider kubernetes |",
+            "provider kubernetes a|",
+            "provider kubernetes |b");
 
         private static readonly CompositeSyntaxPattern ExpectingImportConfig = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "provider 'kubernetes@1.0.0' with |",
-            "provider 'kubernetes@1.0.0' with | as foo");
+            "provider kubernetes with |",
+            "provider kubernetes with | as foo");
 
         private static readonly SyntaxPattern ExpectingImportAsKeyword = SyntaxPattern.Create(
             cursor: '|',
-            "provider 'kubernetes@1.0.0' with { foo: true } |");
+            "provider kubernetes with { foo: true } |");
 
         // completions will replace only these token types
         // all others will result in an insertion upon completion commit
@@ -1308,7 +1308,7 @@ namespace Bicep.LanguageServer.Completions
                 return true;
             }
 
-            var nodes = objectSyntax.OpenBrace.AsEnumerable().Concat(objectSyntax.Children).Concat(objectSyntax.CloseBrace);
+            var nodes = objectSyntax.Children.Prepend(objectSyntax.OpenBrace).Append(objectSyntax.CloseBrace).ToArray();
             var lastNodeBeforeOffset = nodes.LastOrDefault(node => node.GetEndPosition() <= offset);
             var firstNodeAfterOffset = nodes.FirstOrDefault(node => node.GetPosition() >= offset);
 

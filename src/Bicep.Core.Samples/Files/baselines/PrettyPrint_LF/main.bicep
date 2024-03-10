@@ -4,8 +4,8 @@
 var w38 = [true, /* xxxxx */ true, 12]      // suffix
 var w39 = [true, true
     true, true, 123]
-var w40 =[
-    true, true, 1234/* xxxxx */]  // suffix
+var w40 =[true
+    true, 1234/* xxxxx */]  // suffix
 var w41 =[ true, true, true, true, 12345 ]
 var w42 =[true, /* xxx */ 12 /* xx */, 1]
 
@@ -24,7 +24,7 @@ var w39__ = concat('xxxxxx', 'xxxxxxx'
 var w40__ = concat('xxxxxx',
 'xxxxxxxx') // suffix
 
-var        w41__= concat('xxxxx'/* xxxxxxx */)
+var        w41__= concat('xxxxx', 'xxxxxxxxxx')
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 
 var w38___ = true? 'xxxxx' : 'xxxxxx'
@@ -37,8 +37,7 @@ var w42___ = true ? 'xxxxxxx':'xxxxxxxx'
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// Baselines for width 80 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-var w78 = [
-    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
+var w78 = [true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
 var w79 = [true
     { /* xxxx */ foo: 'object width: 38' }
     'xxxxxxxxxxxxxxxxxx' ]
@@ -49,8 +48,8 @@ var w82 = [  true, concat(/* function width: 41 */123, 456) /* xxxxxxxxxxxxxxxx 
 
 var w78_ ={ foo: 123, /* xxxx */ baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxx'] }
 var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
-var w80_ = { foo: 123, bar: true, baz: [
-    'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx'] } // suffix
+var w80_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx'
+'xxxxxxxxxxxxxxxxxxxx'] } // suffix
 var w81_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxxx'] }
 var w82_ = { foo: 123, bar: true, baz: ['array length: 41', 'xxxxxxxxxxxxxxxxx'] }
 
@@ -75,6 +74,9 @@ var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 12345678
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+var forceBreak0 = [
+  1 ]
+
 var forceBreak1 = {
     foo: true
 }
@@ -115,4 +117,3 @@ var forceBreak14 = true ? {
 } : false
 var forceBreak15 = true ? { foo: 0 } : {
     bar: 1}
-

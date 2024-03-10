@@ -44,25 +44,24 @@ public static partial class ProviderSpecificationFactory
                 legacyMatch.Groups["name"].Value,
                 legacyMatch.Groups["version"].Value,
                 IsValid: true,
-                stringSyntax.GetInnerSpan());
+                stringSyntax.Span);
         }
-    
+
         var registryMatch = InlinedSpecificationPattern().Match(value);
         if (!registryMatch.Success)
         {
             return null;
         }
-    
+
         // The regex for the registry pattern is intentionally loose since it will be validated by the module resolver.
         var address = registryMatch.Groups["address"].Value;
         var version = registryMatch.Groups["version"].Value;
-    
-        var span = stringSyntax.GetInnerSpan();
+
         // We normalize the artifact address to the way we represent module addresses, see https://github.com/Azure/bicep/issues/12202
         var unexpandedArtifactAddress = $"{address}:{version}";
         var name = RepositoryNamePattern().Match(address).Groups["name"].Value;
-    
-        return new InlinedProviderSpecification(name, version, unexpandedArtifactAddress, IsValid: true, span);
+
+        return new InlinedProviderSpecification(name, version, unexpandedArtifactAddress, IsValid: true, stringSyntax.Span);
     }
 }
 

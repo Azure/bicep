@@ -58,7 +58,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.CoreUtility" Version="17.2.3194" />
+    <PackageReference Include="Microsoft.VisualStudio.CoreUtility" Version="17.9.187" />
   </ItemGroup>
   <ItemGroup>
     <None Include="main.bicep" />

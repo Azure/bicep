@@ -162,9 +162,7 @@ namespace Bicep.LangServer.IntegrationTests
                 resource myRes 'myRp/provider@2019-01-01' = {
                   name: 'test'
                 }
-                @description(
-                  'Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName'
-                )
+                @description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName')
                 resource myName 'My.Rp/myTypes@2020-01-01' = {
                   name: 'myName'
                   properties: {
@@ -221,9 +219,7 @@ namespace Bicep.LangServer.IntegrationTests
             var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
             replacedFile.Should().BeEquivalentToIgnoringNewlines("""
 
-                @description(
-                  'Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName'
-                )
+                @description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName')
                 resource myName 'My.Rp/myTypes@2020-01-01' = {
                   name: 'myName'
                   properties: {}
@@ -286,9 +282,7 @@ namespace Bicep.LangServer.IntegrationTests
                 resource myRes 'myRp/provider@2019-01-01' = {
                   name: 'test'
                 }
-                @description(
-                  'Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg'
-                )
+                @description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg')
                 resource myRg 'Microsoft.Resources/resourceGroups@2020-01-01' = {
                   name: 'myRg'
                   properties: {
@@ -361,9 +355,7 @@ namespace Bicep.LangServer.IntegrationTests
                 resource myRes 'myRp/provider@2019-01-01' = {
                   name: 'test'
                 }
-                @description(
-                  'Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName/childType/childName'
-                )
+                @description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName/childType/childName')
                 resource childName 'My.Rp/myTypes/childType@2020-01-01' = {
                   name: 'myName/childName'
                   properties: {
@@ -516,9 +508,7 @@ output myOutput string = 'myOutput'
                 resource myRes 'myRp/provider@2019-01-01' = {
                   name: 'test'
                 }
-                @description(
-                  'Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName'
-                )
+                @description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName')
                 resource myName 'My.Rp/myTypes@2020-01-01' = {
                   name: 'myName'
                   properties: {

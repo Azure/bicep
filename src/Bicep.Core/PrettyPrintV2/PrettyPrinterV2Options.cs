@@ -7,7 +7,7 @@ namespace Bicep.Core.PrettyPrintV2
         IndentKind IndentKind = IndentKind.Space,
         NewlineKind NewlineKind = NewlineKind.LF,
         int IndentSize = 2,
-        int Width = 80,
+        int Width = 120,
         bool InsertFinalNewline = true)
     {
         public static readonly PrettyPrinterV2Options Default = new();

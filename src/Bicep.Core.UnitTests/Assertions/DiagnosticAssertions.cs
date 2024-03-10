@@ -98,12 +98,15 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<DiagnosticAssertions>(this);
         }
 
+        // "*abc" means the message should end with "abc"
+        // "abc*" means the message should start with "abc"
+        // "*abc*" means the message should contain "abc"
         public AndConstraint<DiagnosticAssertions> HaveMessage(string message, string because = "", params object[] becauseArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .Given<string>(() => Subject.Message)
-                .ForCondition(x => x == message)
+                .ForCondition(x => DiagnosticMessageMatches(x, message))
                 .FailWith("Expected message to be {0}{reason} but it was {1}", _ => message, x => x);
 
             return new AndConstraint<DiagnosticAssertions>(this);
@@ -119,5 +122,26 @@ namespace Bicep.Core.UnitTests.Assertions
 
             return new AndConstraint<DiagnosticAssertions>(this);
         }
+
+        public static bool DiagnosticMessageMatches(string message, string expectedMessage)
+        {
+            if (expectedMessage.StartsWith('*') && expectedMessage.EndsWith('*'))
+            {
+                return message.Contains(message.Substring(1, message.Length - 2));
+            }
+            else if (expectedMessage.StartsWith('*'))
+            {
+                return message.EndsWith(expectedMessage.Substring(1));
+            }
+            else if (expectedMessage.EndsWith('*'))
+            {
+                return message.StartsWith(expectedMessage.Substring(0, expectedMessage.Length - 1));
+            }
+            else
+            {
+                return message == expectedMessage;
+            }
+        }
+
     }
 }

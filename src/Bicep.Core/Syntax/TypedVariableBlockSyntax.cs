@@ -15,7 +15,7 @@ public class TypedVariableBlockSyntax : SyntaxBase
         this.OpenParen = openParen;
         this.Children = children.ToImmutableArray();
         this.CloseParen = closeParen;
-        this.Arguments = Children.OfType<TypedLocalVariableSyntax>().ToImmutableArray();
+        this.Arguments = this.Children.OfType<TypedLocalVariableSyntax>().ToImmutableArray();
     }
 
     public Token OpenParen { get; }

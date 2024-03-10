@@ -9,7 +9,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 {
     public class AzResourceTypeFactory
     {
-        private readonly ConcurrentDictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol> typeCache;
+        private readonly ConcurrentDictionary<(Azure.Bicep.Types.Concrete.TypeBase definedType, bool isResourceBodyType, bool isResourceBodyTopLevelPropertyType), TypeSymbol> typeCache;
 
         public AzResourceTypeFactory()
         {
@@ -57,7 +57,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         }
 
         private TypeSymbol GetTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase serializedType, bool isResourceBodyType, bool isResourceBodyTopLevelPropertyType)
-            => typeCache.GetOrAdd(serializedType, serializedType => ToTypeSymbol(serializedType, isResourceBodyType, isResourceBodyTopLevelPropertyType));
+            // The cache key should always include *all* arguments passed to this function
+            => typeCache.GetOrAdd((serializedType, isResourceBodyType, isResourceBodyTopLevelPropertyType),
+                t => ToTypeSymbol(t.definedType, t.isResourceBodyType, t.isResourceBodyTopLevelPropertyType));
 
         private ITypeReference GetTypeReference(Azure.Bicep.Types.Concrete.ITypeReference input, bool isResourceBodyType, bool isResourceBodyTopLevelPropertyType)
             => new DeferredTypeReference(() => GetTypeSymbol(input.Type, isResourceBodyType, isResourceBodyTopLevelPropertyType));

@@ -78,8 +78,8 @@ namespace Bicep.Core.Registry
 
             _ = await blobClient.UploadBlobAsync(config.Data);
 
-            var layerDescriptors = new List<OciDescriptor>(layers.Count());
-            foreach (var layer in layers)
+            var layerDescriptors = layers.ToImmutableArray();
+            foreach (var layer in layerDescriptors)
             {
                 layerDescriptors.Add(layer);
                 _ = await blobClient.UploadBlobAsync(layer.Data);
@@ -108,7 +108,7 @@ namespace Bicep.Core.Registry
                 }
              */
 
-            var manifest = new OciManifest(2, mediaType, artifactType, config, layerDescriptors.ToImmutableArray(), annotations.Build());
+            var manifest = new OciManifest(2, mediaType, artifactType, config, layerDescriptors, annotations.Build());
 
             var manifestBinaryData = BinaryData.FromObjectAsJson(manifest, OciManifestSerializationContext.Default.Options);
             _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
@@ -157,7 +157,7 @@ namespace Bicep.Core.Registry
 
             return deserializedManifest.ArtifactType switch
             {
-                BicepModuleMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
+                BicepMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
                 BicepMediaTypes.BicepProviderArtifactType => new OciProviderArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
                 _ => throw new InvalidArtifactException($"artifacts of type: \'{deserializedManifest.ArtifactType}\' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}")
             };

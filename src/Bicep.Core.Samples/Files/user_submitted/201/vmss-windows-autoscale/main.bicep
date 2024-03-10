@@ -1,13 +1,6 @@
 param vmSku string = 'Standard_A1_v2'
 
-@allowed(
-  [
-    '2019-Datacenter'
-    '2016-Datacenter'
-    '2012-R2-Datacenter'
-    '2012-Datacenter'
-  ]
-)
+@allowed(['2019-Datacenter', '2016-Datacenter', '2012-R2-Datacenter', '2012-Datacenter'])
 param windowsOSVersion string = '2019-Datacenter'
 
 @maxLength(61)
@@ -24,9 +17,7 @@ param adminPassword string
 
 param location string = resourceGroup().location
 
-var namingInfix = toLower(
-  substring('${vmssName}${uniqueString(resourceGroup().id)}', 0, 9)
-)
+var namingInfix = toLower(substring('${vmssName}${uniqueString(resourceGroup().id)}', 0, 9))
 var longNamingInfix = toLower(vmssName)
 var addressPrefix = '10.0.0.0/16'
 var subnetPrefix = '10.0.0.0/24'

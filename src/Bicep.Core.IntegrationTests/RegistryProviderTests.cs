@@ -155,6 +155,47 @@ output baz string = fooRes.convertBarToBaz('bar')
     }
 
     [TestMethod]
+    [Ignore("Not yet supported")]
+    public async Task Implicit_providers_are_permitted_through_3p_type_registry()
+    {
+        var registry = "example.azurecr.io";
+        var repository = $"providers/foo";
+
+        var fileSystem = new MockFileSystem();
+        var services = GetServiceBuilder(fileSystem, registry, repository, true, true, false);
+
+        var tgzData = ThirdPartyTypeHelper.GetTestTypesTgz();
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
+
+        fileSystem.File.WriteAllText("/bicepconfig.json", """
+{
+  "providers": {
+    "foo": {
+      "source": "example.azurecr.io/providers/foo",
+      "version": "1.2.3"
+    }
+  },
+  "implicitProviders": ["foo"],
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "providerRegistry": true
+  }
+}
+""");
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+resource fooRes 'fooType@v1' existing = {
+  identifier: 'foo'
+}
+
+output baz string = fooRes.convertBarToBaz('bar')
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("$.outputs['baz'].value", "[invokeResourceMethod('fooRes', 'convertBarToBaz', createArray('bar'))]");
+    }
+
+    [TestMethod]
     public async Task Third_party_imports_are_enabled_when_feature_is_enabled()
     {
         var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(

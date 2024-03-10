@@ -25,13 +25,11 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
             id: subnetId
           }
           // pip looks to be optional
-          publicIPAddress: any(
-            (pipId == '')
-              ? null
-              : {
-                  id: pipId
-                }
-          )
+          publicIPAddress: any((pipId == '')
+            ? null
+            : {
+                id: pipId
+              })
         }
       }
     ]

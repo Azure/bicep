@@ -205,14 +205,10 @@ type discriminatorInlineAdditionalPropsBadType3 = {
 }
 
 @discriminator('type')
-type discriminatedUnionDuplicateMemberInsensitive =
-  | { type: 'a', value: string }
-  | { type: 'A', value: int }
+type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | { type: 'A', value: int }
 
 @discriminator('TYPE')
-type discriminatedUnionCaseSensitiveDiscriminator =
-  | { type: 'a', value: string }
-  | { type: 'b', value: int }
+type discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string } | { type: 'b', value: int }
 
 @discriminator('type')
 param discriminatorParamBadType1 typeA

@@ -1,5 +1,5 @@
 /*
-//@[000:3137) ProgramSyntax
+//@[000:3162) ProgramSyntax
   This is a block comment.
 */
 //@[002:0004) ├─Token(NewLine) |\n\n|
@@ -890,18 +890,22 @@ param stringLiteral string
 //@[020:0026) |     └─Token(Identifier) |string|
 //@[026:0028) ├─Token(NewLine) |\n\n|
 
-@allowed([
-//@[000:0105) ├─ParameterDeclarationSyntax
-//@[000:0037) | ├─DecoratorSyntax
+@allowed(
+//@[000:0130) ├─ParameterDeclarationSyntax
+//@[000:0062) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
-//@[001:0037) | | └─FunctionCallSyntax
+//@[001:0062) | | └─FunctionCallSyntax
 //@[001:0008) | |   ├─IdentifierSyntax
 //@[001:0008) | |   | └─Token(Identifier) |allowed|
 //@[008:0009) | |   ├─Token(LeftParen) |(|
-//@[009:0036) | |   ├─FunctionArgumentSyntax
-//@[009:0036) | |   | └─ArraySyntax
-//@[009:0010) | |   |   ├─Token(LeftSquare) |[|
-//@[010:0011) | |   |   ├─Token(NewLine) |\n|
+//@[009:0010) | |   ├─Token(NewLine) |\n|
+    // some comment
+//@[019:0020) | |   ├─Token(NewLine) |\n|
+    [
+//@[004:0031) | |   ├─FunctionArgumentSyntax
+//@[004:0031) | |   | └─ArraySyntax
+//@[004:0005) | |   |   ├─Token(LeftSquare) |[|
+//@[005:0006) | |   |   ├─Token(NewLine) |\n|
   'abc'
 //@[002:0007) | |   |   ├─ArrayItemSyntax
 //@[002:0007) | |   |   | └─StringSyntax

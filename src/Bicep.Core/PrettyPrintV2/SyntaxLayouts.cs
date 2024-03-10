@@ -33,7 +33,11 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Children,
                 syntax.CloseBracket,
                 separator: LineOrCommaSpace,
-                padding: LineOrEmpty);
+                padding: LineOrEmpty,
+                forceBreak:
+                    // If the array contains a newline before the first item, always break the array.
+                    StartsWithNewline(syntax.Children) &&
+                    syntax.Items.Any());
 
         private IEnumerable<Document> LayoutArrayTypeSyntax(ArrayTypeSyntax syntax) =>
             this.Glue(
@@ -83,15 +87,18 @@ namespace Bicep.Core.PrettyPrintV2
                 padding: LineOrEmpty);
         }
 
-        private IEnumerable<Document> LayoutFunctionCallSyntax(FunctionCallSyntax syntax) =>
-            this.Glue(
+        private IEnumerable<Document> LayoutFunctionCallSyntax(FunctionCallSyntax syntax)
+        {
+            return this.Glue(
                 syntax.Name,
                 this.Bracket(
                     syntax.OpenParen,
-                    syntax.Children,
+                    () => LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments),
                     syntax.CloseParen,
-                    separator: CommaLineOrCommaSpace,
-                    padding: LineOrEmpty));
+                    separator: LineOrSpace,
+                    padding: LineOrEmpty,
+                    indentSingleItem: false));
+        }
 
         private IEnumerable<Document> LayoutIfConditionSyntax(IfConditionSyntax syntax) =>
             this.Spread(
@@ -124,10 +131,11 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Name,
                 this.Bracket(
                     syntax.OpenParen,
-                    syntax.Children,
+                    () => this.LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments),
                     syntax.CloseParen,
-                    separator: CommaLineOrCommaSpace,
-                    padding: LineOrEmpty));
+                    separator: LineOrSpace,
+                    padding: LineOrEmpty,
+                    indentSingleItem: false));
 
         private IEnumerable<Document> LayoutLambdaSyntax(LambdaSyntax syntax)
         {
@@ -204,7 +212,7 @@ namespace Bicep.Core.PrettyPrintV2
                 padding: LineOrSpace,
                 forceBreak:
                     // Special case for objects: if the object contains a newline before
-                    // the first property, always break the the object.
+                    // the first property, always break the object.
                     StartsWithNewline(syntax.Children) &&
                     syntax.Properties.Any());
 
@@ -447,9 +455,9 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutVariableBlockSyntax(VariableBlockSyntax syntax) =>
             this.Bracket(
                 syntax.OpenParen,
-                syntax.Children,
+                () => this.LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments),
                 syntax.CloseParen,
-                separator: CommaLineOrCommaSpace,
+                separator: LineOrSpace,
                 padding: LineOrEmpty);
 
         private IEnumerable<Document> LayoutVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
@@ -471,9 +479,9 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax) =>
             this.Bracket(
                 syntax.OpenParen,
-                syntax.Children,
+                () => this.LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments),
                 syntax.CloseParen,
-                separator: CommaLineOrCommaSpace,
+                separator: LineOrSpace,
                 padding: LineOrEmpty);
 
         public IEnumerable<Document> LayoutTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax) =>
@@ -545,9 +553,9 @@ namespace Bicep.Core.PrettyPrintV2
         {
             var tail = this.Bracket(
                 syntax.OpenChevron,
-                syntax.Children,
+                () => this.LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments),
                 syntax.CloseChevron,
-                separator: CommaLineOrCommaSpace,
+                separator: LineOrSpace,
                 padding: LineOrEmpty,
                 forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any());
 
@@ -566,9 +574,9 @@ namespace Bicep.Core.PrettyPrintV2
         {
             var tail = this.Bracket(
                 syntax.OpenChevron,
-                syntax.Children,
+                () => this.LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments),
                 syntax.CloseChevron,
-                separator: CommaLineOrCommaSpace,
+                separator: LineOrSpace,
                 padding: LineOrEmpty,
                 forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any());
 
@@ -598,6 +606,29 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutLeadingNodes(IEnumerable<SyntaxBase> leadingNodes) =>
             this.LayoutMany(leadingNodes)
                 .Where(x => x != HardLine); // Remove empty lines between decorators.
+
+        private IEnumerable<Document> LayoutCommaSeparatedArguments<T>(ImmutableArray<SyntaxBase> children, ImmutableArray<T> arguments)
+            where T : SyntaxBase
+        {
+            foreach (var child in children)
+            {
+                if (child is T argument)
+                {
+                    var argumentDocument = this.LayoutSingle(argument);
+
+                    yield return argument != arguments[^1]
+                        ? DocumentOperators.Glue(argumentDocument, TextDocument.From(","))
+                        : argumentDocument;
+                }
+                else
+                {
+                    foreach (var document in this.Layout(child))
+                    {
+                        yield return document;
+                    }
+                }
+            }
+        }
 
         private IEnumerable<Document> LayoutToken(Token token)
         {
@@ -684,7 +715,7 @@ namespace Bicep.Core.PrettyPrintV2
             return suffix is not null ? DocumentOperators.Glue(text, suffix) : text;
         }
 
-        private IEnumerable<Document> LayoutLeadingTrivia(ImmutableArray<SyntaxTrivia> trivia)
+        private IEnumerable<TextDocument> LayoutLeadingTrivia(ImmutableArray<SyntaxTrivia> trivia)
         {
             foreach (var triviaItem in trivia)
             {

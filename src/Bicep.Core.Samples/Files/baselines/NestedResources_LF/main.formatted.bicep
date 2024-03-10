@@ -71,7 +71,10 @@ resource conditionParent 'My.Rp/parentType@2020-12-01' =
       }
   }
 
-var items = ['a', 'b']
+var items = [
+  'a'
+  'b'
+]
 resource loopParent 'My.Rp/parentType@2020-12-01' = {
   name: 'loopParent'
 

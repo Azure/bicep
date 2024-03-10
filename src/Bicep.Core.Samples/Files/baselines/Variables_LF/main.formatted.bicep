@@ -52,7 +52,9 @@ var myObj = {
     'a' =~ 'b'
   ]
   obj: {
-    nested: ['hello']
+    nested: [
+      'hello'
+    ]
   }
 }
 
@@ -64,7 +66,11 @@ var objWithInterp = {
 }
 
 // array
-var myArr = ['pirates', 'say', 'arr']
+var myArr = [
+  'pirates'
+  'say'
+  'arr'
+]
 
 // array with objects
 var myArrWithObjects = [
@@ -94,17 +100,21 @@ var namedPropertyIndexer = {
   foo: 's'
 }['foo']
 
-var intIndexer = ['s'][0]
+var intIndexer = [
+  's'
+][0]
 
-var functionOnIndexer1 = concat(['s'][0], 's')
+var functionOnIndexer1 = concat(
+  [
+    's'
+  ][0],
+  's'
+)
 
 var singleQuote = '\''
 var myPropertyName = '${singleQuote}foo${singleQuote}'
 
-var unusedIntermediate = listKeys(
-  resourceId('Mock.RP/type', 'steve'),
-  '2020-01-01'
-)
+var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
 
 // previously this was not possible to emit correctly
@@ -114,10 +124,22 @@ var previousEmitLimit = [
   {
     a: {
       b: base64('s')
-      c: concat([12 + 3], [!true, 'hello'])
+      c: concat(
+        [
+          12 + 3
+        ],
+        [
+          !true
+          'hello'
+        ]
+      )
       d: az.resourceGroup().location
-      e: concat([true])
-      f: concat(['s' == 12])
+      e: concat([
+        true
+      ])
+      f: concat([
+        's' == 12
+      ])
     }
   }
 ]
@@ -161,25 +183,24 @@ var previousEmitLimit3 = {
     b: {
       a: az.resourceGroup().location
     } == 2
-    c: concat([], [true])
+    c: concat(
+      [],
+      [
+        true
+      ]
+    )
   }
 }
 
 // #completionTest(0) -> declarations
 
 var myVar = 'hello'
-var myVar2 = any(
-  {
-    something: myVar
-  }
-)
-var myVar3 = any(
-  any(
-    {
-      something: myVar
-    }
-  )
-)
+var myVar2 = any({
+  something: myVar
+})
+var myVar3 = any(any({
+  something: myVar
+}))
 var myVar4 = length(any(concat('s', 'a')))
 
 // verify that unqualified banned function identifiers can be used as declaration identifiers
@@ -221,10 +242,7 @@ var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
 // Bicep functions that cannot be converted into ARM functions
 var scopesWithoutArmRepresentation = {
   subscription: subscription('10b57a01-6350-4ce2-972a-6a13642f00bf')
-  resourceGroup: az.resourceGroup(
-    '10b57a01-6350-4ce2-972a-6a13642f00bf',
-    'myRgName'
-  )
+  resourceGroup: az.resourceGroup('10b57a01-6350-4ce2-972a-6a13642f00bf', 'myRgName')
 }
 
 var scopesWithArmRepresentation = {
@@ -268,7 +286,10 @@ var forceLineBreaks3 = [
   /* force line breaks */
 ]
 
-var loopInput = ['one', 'two']
+var loopInput = [
+  'one'
+  'two'
+]
 var arrayOfStringsViaLoop = [for (name, i) in loopInput: 'prefix-${i}-${name}']
 var arrayOfObjectsViaLoop = [
   for (name, i) in loopInput: {
@@ -278,7 +299,11 @@ var arrayOfObjectsViaLoop = [
   }
 ]
 var arrayOfArraysViaLoop = [
-  for (name, i) in loopInput: [i, name, 'prefix-${i}-${name}-suffix']
+  for (name, i) in loopInput: [
+    i
+    name
+    'prefix-${i}-${name}-suffix'
+  ]
 ]
 var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
 var arrayOfHardCodedNumbers = [for i in range(0, 10): 3]
