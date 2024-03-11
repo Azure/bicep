@@ -119,7 +119,7 @@ namespace Bicep.Core.IntegrationTests
                 .UnwrapOrThrow();
         }
 
-#endregion
+        #endregion
 
         [TestMethod]
         public async Task SourceArtifactId_ForLocalModules_ShouldBeNull()
@@ -313,7 +313,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().OnlyContainDiagnostic("BCP192", Diagnostics.DiagnosticLevel.Error, "Unable to restore the artifact with reference \"br:mockregistry.io/test/module2:v1\"*");
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher,result);
+            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
             sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.FullyQualifiedReference))
                 .Should().BeEquivalentTo(new[] {

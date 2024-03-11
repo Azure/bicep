@@ -75,7 +75,7 @@ namespace Bicep.Core.Workspaces
             var sourceFilesToRebuild = artifactsToRestore
                 .Select(artifact =>
                 {
-                    if (artifact.Syntax is {})
+                    if (artifact.Syntax is { })
                     {
                         builder.artifactLookup.Remove(artifact.Syntax);
                     }
@@ -177,7 +177,8 @@ namespace Bicep.Core.Workspaces
             {
                 if (restorable is ProviderDeclarationSyntax providerDeclaration)
                 {
-                    var isBuiltInProvider = providerDeclaration.Specification switch {
+                    var isBuiltInProvider = providerDeclaration.Specification switch
+                    {
                         LegacyProviderSpecification => true,
                         ConfigurationManagedProviderSpecification configSpec => config.ProvidersConfig.IsSysOrBuiltIn(configSpec.NamespaceIdentifier),
                         _ => false,
@@ -303,7 +304,8 @@ namespace Bicep.Core.Workspaces
                     fileResultByUri[fileUri].IsSuccess(out var sourceFile) &&
                     cycles.TryGetValue(sourceFile, out var cycle))
                 {
-                    ResultWithDiagnostic<Uri> result = cycle switch {
+                    ResultWithDiagnostic<Uri> result = cycle switch
+                    {
                         { Length: 1 } when cycle[0] is BicepParamFile paramFile => new(x => x.CyclicParametersSelfReference()),
                         { Length: 1 } => new(x => x.CyclicModuleSelfReference()),
                         // the error message is generic so it should work for either bicep module or params

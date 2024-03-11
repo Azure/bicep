@@ -83,7 +83,7 @@ namespace Bicep.Core.Registry
 
         public override Task<string?> TryGetModuleDescription(ModuleSymbol module, LocalModuleReference moduleReference)
         {
-            if (module.TryGetSemanticModel().TryUnwrap() is {} model)
+            if (module.TryGetSemanticModel().TryUnwrap() is { } model)
             {
                 return Task.FromResult(DescriptionHelper.TryGetFromSemanticModel(model));
             }

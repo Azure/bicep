@@ -170,14 +170,14 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             return request with
-                {
-                    Target = new ExternalSourceReference(targetArtifactReference, sourceArchive).ToUri().ToString()
-                };
+            {
+                Target = new ExternalSourceReference(targetArtifactReference, sourceArchive).ToUri().ToString()
+            };
 
             DocumentLink<ExternalSourceDocumentLinkData> GetAlternateLink() => request with
-                {
-                    Target = data.CompiledJsonLink
-                };
+            {
+                Target = data.CompiledJsonLink
+            };
         }
 
         private void ShowMessage(string message)
