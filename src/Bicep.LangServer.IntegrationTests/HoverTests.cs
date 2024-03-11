@@ -927,17 +927,17 @@ param foo|bar = true
         {
             // https://github.com/Azure/bicep/issues/12412
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
-type foo = {
-  @description('''Source port ranges.
-    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
-    When a wildcard is used, that needs to be the only value.''')
-  sourcePortRanges: string[]
-}
+                type foo = {
+                  @description('''Source port ranges.
+                    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
+                    When a wildcard is used, that needs to be the only value.''')
+                  sourcePortRanges: string[]
+                }
 
-param foo1 foo = {
-  sourceP|ortRanges:
-}
-""");
+                param foo1 foo = {
+                  sourceP|ortRanges:
+                }
+                """);
 
             var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
@@ -953,6 +953,70 @@ Source port ranges.
 ");
         }
 
+        [TestMethod]
+        public async Task Description_markdown_is_shown_when_hovering_over_type_property_declaration()
+        {
+            // https://github.com/Azure/bicep/issues/13398
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+                type foo = {
+                  @description('''Source port ranges.
+                    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
+                    When a wildcard is used, that needs to be the only value.''')
+                  sourcePortR|anges: string[]
+                }
+                """);
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var hover = await file.RequestHover(cursor);
+            hover!.Contents!.MarkupContent!.Value
+                .Should().BeEquivalentToIgnoringNewlines(
+                    @"```bicep
+sourcePortRanges: string[]
+```  " + @"
+Source port ranges.
+    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
+    When a wildcard is used, that needs to be the only value.  " + @"
+");
+        }
+
+        [TestMethod]
+        public async Task Hovers_are_displayed_on_type_property_access()
+        {
+            var (text, cursors) = ParserHelper.GetFileWithCursors("""
+                type t = {
+                    @description('A named property')
+                    property: string
+                    *: int
+                }
+                param foo t
+                param bar t.pro|perty
+                param baz t.|*
+
+                param fizz t = {
+                    pro|perty: 'property'
+                    another|Property: 10
+                }
+
+                output a string = foo.pro|perty
+                output b ing = foo.another|Property
+                """);
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), text);
+
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, text, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperty: string\n```  \nA named property  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperty: string\n```  \nA named property  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperty: string\n```  \nA named property  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n  \n"));
+        }
 
         private string GetManifestFileContents(string? documentationUri, string? description)
         {
