@@ -243,11 +243,11 @@ public static class ArmTemplateTypeLoader
             return new DiscriminatedObjectType(string.Join(" | ", TypeHelper.GetOrderedTypeNames(variants)), flags, discriminator.PropertyName.Value, variants);
         }
 
-        return GetObjectType(context, schemaNode.Properties.CoalesceEnumerable(), schemaNode.Required?.Value, schemaNode.AdditionalProperties, flags);
+        return GetObjectType(context, schemaNode.Properties, schemaNode.Required?.Value, schemaNode.AdditionalProperties, flags);
     }
 
     private static TypeSymbol GetObjectType(SchemaValidationContext context,
-        IEnumerable<KeyValuePair<string, TemplateTypeDefinition>> properties,
+        IEnumerable<KeyValuePair<string, TemplateTypeDefinition>>? properties,
         IEnumerable<string>? requiredProperties,
         TemplateBooleanOrSchemaNode? additionalProperties,
         TypeSymbolValidationFlags flags)
@@ -255,26 +255,30 @@ public static class ArmTemplateTypeLoader
         var requiredProps = requiredProperties is not null ? ImmutableHashSet.CreateRange(requiredProperties) : null;
 
         ObjectTypeNameBuilder nameBuilder = new();
-        List<TypeProperty> propertyList = new();
+        List<TypeProperty>? propertyList = null;
         ITypeReference? additionalPropertiesType = LanguageConstants.Any;
         TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.FallbackProperty;
 
-        foreach (var (propertyName, schema) in properties)
+        if (properties is not null)
         {
-            // depending on the language version, either only properties included in schemaNode.Required are required,
-            // or all of them are (but some may be nullable)
-            var required = context.TemplateLanguageVersion?.HasFeature(TemplateLanguageFeature.NullableParameters) == true
-                || (requiredProps?.Contains(propertyName) ?? false);
-            var propertyFlags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
-            var description = schema.Metadata?.Value is JObject metadataObject &&
-                metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
-                descriptionToken is JValue { Value: string descriptionString }
-                    ? descriptionString
-                    : null;
+            propertyList = new();
+            foreach (var (propertyName, schema) in properties)
+            {
+                // depending on the language version, either only properties included in schemaNode.Required are required,
+                // or all of them are (but some may be nullable)
+                var required = context.TemplateLanguageVersion?.HasFeature(TemplateLanguageFeature.NullableParameters) == true
+                    || (requiredProps?.Contains(propertyName) ?? false);
+                var propertyFlags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
+                var description = schema.Metadata?.Value is JObject metadataObject &&
+                    metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
+                    descriptionToken is JValue { Value: string descriptionString }
+                        ? descriptionString
+                        : null;
 
-            var (type, typeName) = GetDeferrableTypeInfo(context, schema);
-            propertyList.Add(new(propertyName, type, propertyFlags, description));
-            nameBuilder.AppendProperty(propertyName, typeName);
+                var (type, typeName) = GetDeferrableTypeInfo(context, schema);
+                propertyList.Add(new(propertyName, type, propertyFlags, description));
+                nameBuilder.AppendProperty(propertyName, typeName);
+            }
         }
 
         if (additionalProperties is not null)
@@ -293,12 +297,12 @@ public static class ArmTemplateTypeLoader
             }
         }
 
-        if (propertyList.Count == 0 && additionalProperties is null)
+        if (propertyList is null && additionalProperties is null)
         {
             return flags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? LanguageConstants.SecureObject : LanguageConstants.Object;
         }
 
-        return new ObjectType(nameBuilder.ToString(), flags, propertyList, additionalPropertiesType, additionalPropertiesFlags);
+        return new ObjectType(nameBuilder.ToString(), flags, propertyList.CoalesceEnumerable(), additionalPropertiesType, additionalPropertiesFlags);
     }
 
     private class SansMetadata : ITemplateSchemaNode
