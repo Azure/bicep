@@ -5724,6 +5724,23 @@ param foo2 string[]
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
+    // https://github.com/Azure/bicep/issues/13607
+    [TestMethod]
+    public void Test_Issue13607()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param endpoint = 'management.core.windows.net'
+"""),
+            ("main.bicep", """
+param endpoint string
+"""));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
     // https://github.com/Azure/bicep/issues/13250
     [TestMethod]
     public void Test_Issue13250()
