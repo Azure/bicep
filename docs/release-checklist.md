@@ -48,7 +48,7 @@
     2. You can also download all the files from the published release into a separate folder and run the script using that folder. (The script looks for files ending in *.nupkg)
 1. Update homebrew by going here [here](https://github.com/Azure/homebrew-bicep/actions/workflows/update-homebrew.yml) and clicking on `Run workflow`
     * A PR will be auto created by this action (example [here](https://github.com/Azure/homebrew-bicep/pull/40)). Approve and merge it.
-    * The above is not true anymore. The workflow will create the branch and add a commit, but you have to manually create a PR by going to the [branch](https://github.com/Azure/homebrew-bicep/tree/update-homebrew).
+    * The above about PR auto creation is not true anymore. The workflow will create the branch and add a commit, but you have to manually create a PR by going to the [branch](https://github.com/Azure/homebrew-bicep/tree/update-homebrew). Get the PR approved then merge it.
 1. [PM Task] Post a twitter/X thread on BicepLang twitter account, which the following individual tweets/posts:
   * Hightlights from Release Notes with link to full release 
   * Link to the most recent community call
