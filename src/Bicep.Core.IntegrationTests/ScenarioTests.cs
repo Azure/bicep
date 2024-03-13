@@ -5898,4 +5898,39 @@ var startAndEndBracketInString = 'x[]y'
              ("BCP036", DiagnosticLevel.Warning, """The property "gateway" expected a value of type "string" but the provided value is of type "object"."""),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/13556
+    [TestMethod]
+    public void Distinction_between_empty_and_untyped_objects_should_survive_compilation_to_JSON()
+    {
+        var originalTypesTemplate = """
+            @export()
+            type emptyObject = {}
+
+            @export()
+            type untypedObject = object
+            """;
+
+        var compiledTypesTemplate = CompilationHelper.Compile(originalTypesTemplate).Template;
+        compiledTypesTemplate.Should().NotBeNull();
+
+        var result = CompilationHelper.Compile(
+            ("types.bicep", originalTypesTemplate),
+            ("types.json", compiledTypesTemplate!.ToString()),
+            ("main.bicep", """
+                import * as fromBicep from 'types.bicep'
+                import * as fromJson from 'types.json'
+
+                param a fromBicep.emptyObject = {fizz: 'buzz'}
+                param b fromBicep.untypedObject = {foo: 'bar'}
+                param c fromJson.emptyObject = {snap: 'crackle'}
+                param d fromJson.untypedObject = {wishy: 'washy'}
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+             ("BCP037", DiagnosticLevel.Warning, """The property "fizz" is not allowed on objects of type "{ }". No other properties are allowed."""),
+             ("BCP037", DiagnosticLevel.Warning, """The property "snap" is not allowed on objects of type "{ }". No other properties are allowed."""),
+        });
+    }
 }

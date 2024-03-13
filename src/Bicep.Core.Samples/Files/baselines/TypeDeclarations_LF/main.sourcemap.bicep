@@ -305,6 +305,7 @@ type tupleSecondItem = tuple[1]
 type stringStringDictionary = {
 //@    "stringStringDictionary": {
 //@      "type": "object",
+//@      "properties": {},
 //@    },
     *: string
 //@      "additionalProperties": {
@@ -903,6 +904,7 @@ type discriminatorUnionAsPropertyType = {
 type discriminatedUnionInlineAdditionalProps1 = {
 //@    "discriminatedUnionInlineAdditionalProps1": {
 //@      "type": "object",
+//@      "properties": {},
 //@    },
   @discriminator('type')
   *: typeA | typeB
@@ -925,6 +927,7 @@ type discriminatedUnionInlineAdditionalProps1 = {
 type discriminatedUnionInlineAdditionalProps2 = {
 //@    "discriminatedUnionInlineAdditionalProps2": {
 //@      "type": "object",
+//@      "properties": {},
 //@    },
   @discriminator('type')
   *: (typeA | typeB)?

@@ -514,6 +514,30 @@ public class ArmTemplateSemanticModelTests
         fallbackType.Properties["name"].TypeReference.Type.Should().Be(TypeFactory.CreateStringLiteralType("default"));
     }
 
+    [TestMethod]
+    public void Empty_properties_constraint_causes_loaded_object_to_use_FallbackProperty_flag_on_additional_properties()
+    {
+        var parameterType = GetLoadedParameterType("""
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "languageVersion": "2.0",
+              "resources": {},
+              "parameters": {
+                "emptyObject": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+            """,
+            "emptyObject");
+
+        var objectParameterType = parameterType.Should().BeAssignableTo<ObjectType>().Subject;
+        objectParameterType.AdditionalPropertiesType.Should().Be(LanguageConstants.Any);
+        objectParameterType.AdditionalPropertiesFlags.Should().HaveFlag(TypePropertyFlags.FallbackProperty);
+    }
+
     private static TypeSymbol GetLoadedParameterType(string jsonTemplate, string parameterName)
     {
         var model = LoadModel(jsonTemplate);
