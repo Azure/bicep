@@ -451,6 +451,18 @@ param anotherObject object = {prop: 'someVal'}
     }
 
     [TestMethod]
+    public void Empty_object_should_be_distinguishable_from_untyped_object_in_compiled_JSON()
+    {
+        var result = CompilationHelper.Compile("""
+            type emptyObject = {}
+            type untypedObect = object
+            """);
+
+        result.Template.Should().HaveValueAtPath("definitions.emptyObject.properties", new JObject());
+        result.Template.Should().NotHaveValueAtPath("definitions.untypedObject.properties");
+    }
+
+    [TestMethod]
     public void Error_should_be_shown_when_setting_unknown_properties_that_do_not_match_additional_properties_type()
     {
         var result = CompilationHelper.Compile(@"

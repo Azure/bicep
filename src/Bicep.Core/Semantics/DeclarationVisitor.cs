@@ -486,7 +486,7 @@ namespace Bicep.Core.Semantics
                 return new(x => x.ExpectedProviderSpecification());
             }
 
-            if (syntax.Specification is ConfigurationManagedProviderSpecification configSpec && 
+            if (syntax.Specification is ConfigurationManagedProviderSpecification configSpec &&
                 configuration.ProvidersConfig.IsSysOrBuiltIn(configSpec.NamespaceIdentifier))
             {
                 return new(ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(

@@ -485,7 +485,7 @@ provider 'bar@1.0.0' with {
             result.Should().HaveDiagnostics(new[] {
                 ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
             });
-            
+
             var diagnostic = result.Diagnostics.OfType<IFixable>().Single();
             var fix = diagnostic.Fixes.Single();
 

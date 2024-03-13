@@ -745,10 +745,7 @@ namespace Bicep.Core.Emit
                 propertySchemata.Add(ExpressionFactory.CreateObjectProperty(property.PropertyName, propertySchema, property.SourceSyntax));
             }
 
-            if (propertySchemata.Any())
-            {
-                properties.Add(ExpressionFactory.CreateObjectProperty("properties", ExpressionFactory.CreateObject(propertySchemata, expression.SourceSyntax)));
-            }
+            properties.Add(ExpressionFactory.CreateObjectProperty("properties", ExpressionFactory.CreateObject(propertySchemata, expression.SourceSyntax)));
 
             if (expression.AdditionalPropertiesExpression is { } addlPropsType)
             {

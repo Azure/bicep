@@ -317,7 +317,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = PathHelper.FilePathToFileUrl(Root("foo/bar/entrypoint.bicep"));
             var sourceArchive = new SourceArchiveBuilder().WithBicepFile(bicepUri, bicepSource).Build();
-            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new ResultWithException<SourceArchive>(sourceArchive ));
+            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new ResultWithException<SourceArchive>(sourceArchive));
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));

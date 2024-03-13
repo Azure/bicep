@@ -16,7 +16,7 @@ public record ProviderConfigEntry
 
     public string Path { get; }
 
-    public string Scheme {get;}
+    public string Scheme { get; }
 
     public ProviderConfigEntry(string providerConfigEntry)
     {
@@ -29,7 +29,7 @@ public record ProviderConfigEntry
 
     public override string ToString()
     {
-        return  $"{this.Scheme}:{this.Path}";
+        return $"{this.Scheme}:{this.Path}";
     }
 }
 

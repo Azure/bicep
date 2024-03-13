@@ -39,7 +39,7 @@ public static class SourceCodeDocumentLinkHelper
 
             foreach (var artifact in grouping)
             {
-                if (artifact.Syntax is {} syntax &&
+                if (artifact.Syntax is { } syntax &&
                     syntax.Path is { } &&
                     artifact.Result.IsSuccess(out var uri))
                 {

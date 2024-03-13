@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7210691896706139249"
+      "templateHash": "8162009081861809153"
     }
   },
   "definitions": {
@@ -194,6 +194,7 @@
     },
     "stringStringDictionary": {
       "type": "object",
+      "properties": {},
       "additionalProperties": {
         "type": "string"
       }
@@ -665,6 +666,7 @@
     },
     "discriminatedUnionInlineAdditionalProps1": {
       "type": "object",
+      "properties": {},
       "additionalProperties": {
         "type": "object",
         "discriminator": {
@@ -682,6 +684,7 @@
     },
     "discriminatedUnionInlineAdditionalProps2": {
       "type": "object",
+      "properties": {},
       "additionalProperties": {
         "type": "object",
         "discriminator": {

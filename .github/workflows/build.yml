@@ -715,7 +715,7 @@ jobs:
         run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
       - name: Az CLI login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           environment: ${{ (matrix.environment == 'prod' && 'AzureCloud') || 'AzureUSGovernment' }}
           client-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_CLIENT_ID_PROD) || secrets.LIVE_TEST_CLIENT_ID_FF }}
@@ -761,7 +761,7 @@ jobs:
         run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
       - name: Az CLI login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           environment: ${{ (matrix.environment == 'prod' && 'AzureCloud') || 'AzureUSGovernment' }}
           client-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_CLIENT_ID_PROD) || secrets.LIVE_TEST_CLIENT_ID_FF }}
