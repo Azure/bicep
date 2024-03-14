@@ -15,6 +15,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
@@ -104,7 +105,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         [TestMethod]
-        public async Task IfNotShowingExternalSourceCode_ThenReturnNoLinks()
+        public async Task IfNotShowingExternalModuleSourceCode_ThenReturnNoLinks()
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
                 ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
@@ -123,6 +124,135 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var links = await GetLinksForDisplayedDocument(moduleDispatcher, new TextDocumentIdentifier("file:///main.bicep"));
 
             links.Should().HaveCount(0);
+        }
+
+        [TestMethod]
+        public async Task NestedExternalSource_ShouldGetCorrectLink()
+        {
+            // Setup: 
+            //   module1 is published with source
+            //   module2 references module1 and is published with source
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
+                ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                ("br:mockregistry.io/test/module2:v2", """
+                    module m1 'br:mockregistry.io/test/module1:v1' = {
+                        name: 'm1'
+                        params: {
+                            p1: true
+                      }
+                    }
+                    """, withSource: true)
+                ]);
+
+            //asdfg comment
+            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
+            var result = await CompilationHelper.RestoreAndCompile(
+                GetServices(clientFactory),
+                ("main.bicep", """
+                    module m2 'br:mockregistry.io/test/module2:v2' = {
+                        name: 'm2'
+                    }
+                    """));
+
+            // Get a URI for displaying module2's source
+            var module2Uri = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module2:v2");
+
+            // Act: Get all links inside module2's source display
+            var links = await GetLinksForDisplayedDocument(moduleDispatcher, module2Uri);
+
+            var link = links.Should().HaveCount(1).And.Subject.First();
+            link.Range.Should().HaveRange((0, 10), (0, 46));
+            link.Target.Should().NotBeNull();
+            var target = new ExternalSourceReference(link.Target!);
+            target.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1/main.bicep (module1:v1)");
+            target.RequestedFile.Should().Be("main.bicep");
+            target.ToArtifactReference().Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
+        }
+
+        [TestMethod]
+        public async Task DoublyNestedExternalSource_ShouldGetCorrectLink()
+        {
+            // Setup: 
+            //   module1 is published with source
+            //   module2 references module1 and is published with source
+            //   module3 references module1 and module2 and is published with source
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
+                ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                ("br:mockregistry.io/test/module1:v2", """
+                    module m1 'br:mockregistry.io/test/module1:v1' = {
+                        name: 'm1'
+                        params: {
+                            p1: true
+                      }
+                    }
+                    """, withSource: true),
+                ("br:mockregistry.io/test/module1:v3", """
+                    module m1 'br:mockregistry.io/test/module1:v1' = {
+                        name: 'm1'
+                        params: {
+                            p1: true
+                      }
+                    }
+                    module m1v2 'br:mockregistry.io/test/module1:v2' = {
+                        name: 'm1v2'
+                    }
+                    """, withSource: true)
+                ]);
+
+            //asdfgf?
+            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
+            var result = await CompilationHelper.RestoreAndCompile(
+                GetServices(clientFactory),
+                ("main.bicep", """
+                    module m1v3 'br:mockregistry.io/test/module1:v3' = {
+                        name: 'm1v3'
+                    }
+                    """));
+
+            // Get a URI for displaying module1:v3's source
+            var module2Uri = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module2:v2");
+
+            // Act: Get all nested links (one for m1:v1 and one for m1:v2)
+            var links = await GetLinksForDisplayedDocument(moduleDispatcher, module2Uri);
+
+            var link1 = links.Should().HaveCount(2).And.Subject.First();
+            link1.Range.Should().HaveRange((0, 10), (0, 46));
+            link1.Target.Should().NotBeNull();
+            var target1 = new ExternalSourceReference(link1.Target!);
+            target1.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1/main.bicep (module1:v1)");
+            target1.RequestedFile.Should().Be("main.bicep");
+            target1.ToArtifactReference().Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
+
+            var link2 = links.Skip(1).First();
+            link2.Range.Should().HaveRange((0, 10), (0, 46));
+            link2.Target.Should().NotBeNull();
+            var target2 = new ExternalSourceReference(link2.Target!);
+            target2.FullTitle.Should().Be("br:mockregistry.io/test/module1:v2/main.bicep (module1:v2)");
+            target2.RequestedFile.Should().Be("main.bicep");
+            target2.ToArtifactReference().Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v2");
+
+            //asdfg
+            //// Get a URI for displaying module1:v3's source
+            //var module2Uri = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module2:v2");
+
+            //// Act: Get all nested links (one for m1:v1 and one for m1:v2)
+            //var links = await GetLinksForDisplayedDocument(moduleDispatcher, module2Uri);
+
+            //var link1 = links.Should().HaveCount(2).And.Subject.First();
+            //link1.Range.Should().HaveRange((0, 10), (0, 46));
+            //link1.Target.Should().NotBeNull();
+            //var target1 = new ExternalSourceReference(link1.Target!);
+            //target1.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1/main.bicep (module1:v1)");
+            //target1.RequestedFile.Should().Be("main.bicep");
+            //target1.ToArtifactReference().Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
+
+            //var link2 = links.Skip(1).First();
+            //link2.Range.Should().HaveRange((0, 10), (0, 46));
+            //link2.Target.Should().NotBeNull();
+            //var target2 = new ExternalSourceReference(link2.Target!);
+            //target2.FullTitle.Should().Be("br:mockregistry.io/test/module1:v2/main.bicep (module1:v2)");
+            //target2.RequestedFile.Should().Be("main.bicep");
+            //target2.ToArtifactReference().Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v2");
         }
 
         [TestMethod]
@@ -151,82 +281,89 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     }
                     """));
 
-            // Get a URI for displaying the soure of module2
-            var moduleDocId = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module2:v2");
+            // Get a URI for displaying module2
+            var module2Uri = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module2:v2");
 
-            // Act: Get all links inside module2's source display
-            var links = await GetLinksForDisplayedDocument(moduleDispatcher, moduleDocId);
+            // Act: Get all nested links inside module2
+            var links = await GetLinksForDisplayedDocument(moduleDispatcher, module2Uri);
 
-            links.Should().HaveCount(1);
-
-            // Act: Resolve the links
-            //var resolvedLinks = links.Select(l => BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink()
-
-            //var messageListener = new MultipleMessageListener<ShowMessageParams>();
-            //var telemetryEventsListener = new MultipleMessageListener<TelemetryEventParams>();
-
-            //using var helper = await LanguageServerHelper.StartServer(
-            //    this.TestContext,
-            //    options => options
-            //        .OnShowMessage(messageListener.AddMessage)
-            //        //.OnTelemetryEvent(telemetryEventsListener.AddMessage)
-            //);
-            //var client = helper.Client;
-
-
-            //var response = await client.SendRequest(new ImportKubernetesManifestRequest(manifestFile), default);
-            //response.BicepFilePath.Should().BeNull();
-
-            //var telemetry = await telemetryEventsListener.WaitForAll();
-            //telemetry.Should().ContainEvent("ImportKubernetesManifest/failure", new JObject
-            //{
-            //    ["failureType"] = "DeserializeYamlFailed",
-            //});
-
-
-
-
-            //ShowDocumentParams? showDocumentParams = null;
-            //server.WindowMock.OnShowDocument(
-            //    p =>
-            //    {
-            //        showDocumentParams = p;
-            //        onShowDocument(p);
-            //    },
-            //    enableClientCapability: enableShowDocumentCapability);
-
-            //server.Mock
-            //    .Setup(m => m.SendNotification("bicep/triggerEditorCompletion"))
-            //    .Callback((string notification) =>
-            //    {
-            //        if (showDocumentParams == null)
-            //        {
-            //            throw new Exception("Completion was triggered but no show document call was made");
-            //        }
-            //        else if (showDocumentParams.Selection == null)
-            //        {
-            //            throw new Exception("No selection was given in the show document call");
-            //        }
-            //        else if (showDocumentParams.Selection.Start != showDocumentParams.Selection.End)
-            //        {
-            //            throw new Exception("Completion was triggered on a non-empty selection");
-            //        }
-
-            //        string? stringTriggeredForCompletion = GetStringContentsAtDocumentPosition(showDocumentParams.Uri, showDocumentParams.Selection.Start);
-            //        onTriggerCompletion(stringTriggeredForCompletion);
-            //    });
-
-            //return server;
-
-            //var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(links[0], moduleDispatcher, server.Mock.Object);
-            //var a = resolvedLink;
-
-            //var message = await messageListener.WaitNext();
-            //message.Should().HaveMessageAndType(
-            //    "Failed to deserialize kubernetes manifest YAML: (Lin: 1, Col: 4, Chr: 5) - (Lin: 1, Col: 25, Chr: 26): Expected dictionary node.",
-            //    MessageType.Error);
-
-
+            var link = links.Should().HaveCount(1).And.Subject.First();
+            link.Range.Should().HaveRange((0, 10), (0, 46));
+            link.Target.Should().NotBeNull();
+            var target = new ExternalSourceReference(link.Target!);
+            target.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1/main.bicep (module1:v1)");
+            target.RequestedFile.Should().Be("main.bicep");
+            target.ToArtifactReference().Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
         }
+
+
+        // Act: Resolve the links
+        //var resolvedLinks = links.Select(l => BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink()
+
+        //var messageListener = new MultipleMessageListener<ShowMessageParams>();
+        //var telemetryEventsListener = new MultipleMessageListener<TelemetryEventParams>();
+
+        //using var helper = await LanguageServerHelper.StartServer(
+        //    this.TestContext,
+        //    options => options
+        //        .OnShowMessage(messageListener.AddMessage)
+        //        //.OnTelemetryEvent(telemetryEventsListener.AddMessage)
+        //);
+        //var client = helper.Client;
+
+
+        //var response = await client.SendRequest(new ImportKubernetesManifestRequest(manifestFile), default);
+        //response.BicepFilePath.Should().BeNull();
+
+        //var telemetry = await telemetryEventsListener.WaitForAll();
+        //telemetry.Should().ContainEvent("ImportKubernetesManifest/failure", new JObject
+        //{
+        //    ["failureType"] = "DeserializeYamlFailed",
+        //});
+
+
+
+
+        //ShowDocumentParams? showDocumentParams = null;
+        //server.WindowMock.OnShowDocument(
+        //    p =>
+        //    {
+        //        showDocumentParams = p;
+        //        onShowDocument(p);
+        //    },
+        //    enableClientCapability: enableShowDocumentCapability);
+
+        //server.Mock
+        //    .Setup(m => m.SendNotification("bicep/triggerEditorCompletion"))
+        //    .Callback((string notification) =>
+        //    {
+        //        if (showDocumentParams == null)
+        //        {
+        //            throw new Exception("Completion was triggered but no show document call was made");
+        //        }
+        //        else if (showDocumentParams.Selection == null)
+        //        {
+        //            throw new Exception("No selection was given in the show document call");
+        //        }
+        //        else if (showDocumentParams.Selection.Start != showDocumentParams.Selection.End)
+        //        {
+        //            throw new Exception("Completion was triggered on a non-empty selection");
+        //        }
+
+        //        string? stringTriggeredForCompletion = GetStringContentsAtDocumentPosition(showDocumentParams.Uri, showDocumentParams.Selection.Start);
+        //        onTriggerCompletion(stringTriggeredForCompletion);
+        //    });
+
+        //return server;
+
+        //var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(links[0], moduleDispatcher, server.Mock.Object);
+        //var a = resolvedLink;
+
+        //var message = await messageListener.WaitNext();
+        //message.Should().HaveMessageAndType(
+        //    "Failed to deserialize kubernetes manifest YAML: (Lin: 1, Col: 4, Chr: 5) - (Lin: 1, Col: 25, Chr: 26): Expected dictionary node.",
+        //    MessageType.Error);
+
+
     }
 }
