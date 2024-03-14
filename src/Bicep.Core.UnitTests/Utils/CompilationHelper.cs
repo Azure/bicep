@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Utils
             TypeSymbol Type);
 
         public static Task<CompilationResult> RestoreAndCompile(string fileContents)
-            => RestoreAndCompile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides), ("main.bicep", fileContents));
+            => RestoreAndCompile(("main.bicep", fileContents));
 
         public static Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, string fileContents)
             => RestoreAndCompile(services, ("main.bicep", fileContents));

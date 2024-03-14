@@ -51,7 +51,8 @@ public static class RegistryHelper
         var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Module, target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
             : throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
 
-        var result = await CompilationHelper.RestoreAndCompile(moduleSource);
+        var services = new ServiceBuilder().WithContainerRegistryClientFactory(clientFactory);
+        var result = await CompilationHelper.RestoreAndCompile(services, moduleSource);
         if (result.Template is null)
         {
             throw new InvalidOperationException($"Module {moduleName} failed to produce a template.");

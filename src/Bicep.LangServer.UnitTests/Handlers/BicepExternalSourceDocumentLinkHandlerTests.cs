@@ -46,8 +46,65 @@ namespace Bicep.LangServer.UnitTests.Handlers
             return dispatcher;
         }
 
+        private async Task<DocumentLink<ExternalSourceDocumentLinkData>[]> GetLinksForDisplayedDocument(IModuleDispatcher moduleDispatcher, TextDocumentIdentifier documentId)
+        {
+            var links = BicepExternalSourceDocumentLinkHandler.GetDocumentLinks(
+                moduleDispatcher,
+                new DocumentLinkParams() { TextDocument = documentId },
+                CancellationToken.None)
+            .ToArray();
+
+            var server = new LanguageServerMock();
+            ShowDocumentParams? showDocumentParams = null;
+            server.WindowMock.OnShowDocument(
+                p =>
+                {
+                    showDocumentParams = p;
+                    //asdfg onShowDocument(p);
+                },
+                enableClientCapability: true/*asdfg*/);
+
+            server.Mock
+                .Setup(m => m.SendNotification("bicep/triggerEditorCompletion"))
+                .Callback((string notification) =>
+                {
+                    if (showDocumentParams == null)
+                    {
+                        throw new Exception("Completion was triggered but no show document call was made");
+                    }
+                    else if (showDocumentParams.Selection == null)
+                    {
+                        throw new Exception("No selection was given in the show document call");
+                    }
+                    else if (showDocumentParams.Selection.Start != showDocumentParams.Selection.End)
+                    {
+                        throw new Exception("Completion was triggered on a non-empty selection");
+                    }
+
+                    //asdfg string stringTriggeredForCompletion = GetStringContentsAtDocumentPosition(showDocumentParams.Uri, showDocumentParams.Selection.Start);
+                    //asdfg onTriggerCompletion(stringTriggeredForCompletion);
+                });
+
+            var resolvedLinks = new List<DocumentLink<ExternalSourceDocumentLinkData>>();
+            foreach (var link in links)
+            {
+                var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(link, moduleDispatcher, server.Mock.Object);
+                resolvedLinks.Add(resolvedLink);
+            }
+            return resolvedLinks.ToArray();
+        }
+
+        /// <param name="displayedModuleTarget">E.g. mockregistry.io/test/module1:v1</param>
+        private TextDocumentIdentifier GetDocumentIdForExternalModuleSource(IModuleDispatcher moduleDispatcher, string displayedModuleTarget)
+        {
+            var moduleRef = OciArtifactReference.TryParseModule(displayedModuleTarget).Unwrap();
+            var moduleExtRef = new ExternalSourceReference(moduleRef, null).WithRequestForSourceFile("main.bicep");
+            var moduleId = new TextDocumentIdentifier(moduleExtRef.ToUri());
+            return moduleId;
+        }
+
         [TestMethod]
-        public async Task IfNotShowingExternalSources_ThenReturnNoLinks()
+        public async Task IfNotShowingExternalSourceCode_ThenReturnNoLinks()
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
                 ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
@@ -63,11 +120,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     }
                     """));
 
-            var links = BicepExternalSourceDocumentLinkHandler.GetDocumentLinks(
-                moduleDispatcher,
-                new DocumentLinkParams() { TextDocument = new TextDocumentIdentifier("file:///main.bicep") },
-                CancellationToken.None)
-            .ToArray();
+            var links = await GetLinksForDisplayedDocument(moduleDispatcher, new TextDocumentIdentifier("file:///main.bicep"));
 
             links.Should().HaveCount(0);
         }
@@ -75,6 +128,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public async Task Asdfg()
         {
+            // Setup: 
+            //   module1 is published with source
+            //   module2 references module1 and is published with source
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
                 ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
                 ("br:mockregistry.io/test/module2:v2", """
@@ -84,8 +140,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
                             p1: true
                       }
                     }
-                    """, withSource: true),
-            ]);
+                    """, withSource: true)
+                ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
@@ -95,20 +151,18 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     }
                     """));
 
-            var module2Ref = OciArtifactReference.TryParseModule("mockregistry.io/test/module2:v2").Unwrap();
-            var module2ExtRef = new ExternalSourceReference(module2Ref, null).WithRequestForSourceFile("main.bicep");
+            // Get a URI for displaying the soure of module2
+            var moduleDocId = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module2:v2");
 
-            var links = BicepExternalSourceDocumentLinkHandler.GetDocumentLinks(
-                moduleDispatcher,
-                new DocumentLinkParams() { TextDocument = new TextDocumentIdentifier(module2ExtRef.ToUri()) },
-                CancellationToken.None)
-            .ToArray();
+            // Act: Get all links inside module2's source display
+            var links = await GetLinksForDisplayedDocument(moduleDispatcher, moduleDocId);
 
             links.Should().HaveCount(1);
 
-            var server = new LanguageServerMock();
+            // Act: Resolve the links
+            //var resolvedLinks = links.Select(l => BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink()
 
-            var messageListener = new MultipleMessageListener<ShowMessageParams>();
+            //var messageListener = new MultipleMessageListener<ShowMessageParams>();
             //var telemetryEventsListener = new MultipleMessageListener<TelemetryEventParams>();
 
             //using var helper = await LanguageServerHelper.StartServer(
@@ -119,7 +173,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //);
             //var client = helper.Client;
 
-            
+
             //var response = await client.SendRequest(new ImportKubernetesManifestRequest(manifestFile), default);
             //response.BicepFilePath.Should().BeNull();
 
@@ -164,8 +218,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             //return server;
 
-            var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(links[0], moduleDispatcher, server.Mock.Object);
-            var a = resolvedLink;
+            //var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(links[0], moduleDispatcher, server.Mock.Object);
+            //var a = resolvedLink;
 
             //var message = await messageListener.WaitNext();
             //message.Should().HaveMessageAndType(
