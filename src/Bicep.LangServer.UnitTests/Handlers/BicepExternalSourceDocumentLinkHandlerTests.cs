@@ -158,7 +158,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                         """, withSource: true)
                     ]);
 
-            //asdfg comment
+            // Compile some code to force restoration of module2
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
@@ -171,7 +171,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             // Get a URI for displaying module2's source
             var module2Uri = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module2:v2");
 
-            // Act: Get all links inside module2's source display
+            // ACT: Get all links inside module2's source display
             var links = await GetLinksForDisplayedDocument(moduleDispatcher, module2Uri);
 
             var link = links.Should().HaveCount(1).And.Subject.First();
@@ -216,18 +216,18 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             //asdfgf?
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
-            var result = await CompilationHelper.RestoreAndCompile(
-                GetServices(clientFactory),
-                ("main.bicep", """
-                    module m1v3 'br:mockregistry.io/test/module1:v3' = {
-                        name: 'm1v3'
-                    }
-                    """));
+            //var result = await CompilationHelper.RestoreAndCompile(
+            //    GetServices(clientFactory),
+            //    ("main.bicep", """
+            //        module m1v3 'br:mockregistry.io/test/module1:v3' = {
+            //            name: 'm1v3'
+            //        }
+            //        """));
 
             // Get a URI for displaying module1:v3's source
             var module2Uri = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module1:v3");
 
-            // Act: Get all nested links (one for m1:v1 and one for m1:v2)
+            // ACT: Get all nested links (one for m1:v1 and one for m1:v2)
             var links = await GetLinksForDisplayedDocument(moduleDispatcher, module2Uri);
 
             var link1 = links.Should().HaveCount(2).And.Subject.First();
@@ -250,7 +250,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //// Get a URI for displaying module1:v3's source
             //var module2Uri = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module2:v2");
 
-            //// Act: Get all nested links (one for m1:v1 and one for m1:v2)
+            //// ACT: Get all nested links (one for m1:v1 and one for m1:v2)
             //var links = await GetLinksForDisplayedDocument(moduleDispatcher, module2Uri);
 
             //var link1 = links.Should().HaveCount(2).And.Subject.First();
@@ -300,7 +300,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             // Get a URI for displaying module2
             var module2Uri = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module2:v2");
 
-            // Act: Get all nested links inside module2
+            // ACT: Get all nested links inside module2
             var links = await GetLinksForDisplayedDocument(moduleDispatcher, module2Uri);
 
             var link = links.Should().HaveCount(1).And.Subject.First();
