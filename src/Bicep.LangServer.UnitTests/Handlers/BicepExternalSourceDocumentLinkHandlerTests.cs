@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
@@ -27,11 +29,22 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+        private Dictionary<string, MockFileData> MockFiles = new();
+        [NotNull]
+        private MockFileSystem? MockFileSystem { get; set; }
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            MockFileSystem = new(MockFiles);
+        }
+
         private ServiceBuilder GetServices(IContainerRegistryClientFactory clientFactory)
         {
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(OptionalModuleNamesEnabled: true))
-                .WithContainerRegistryClientFactory(clientFactory);
+                .WithContainerRegistryClientFactory(clientFactory)
+                .WithFileSystem(MockFileSystem);
 
             return services;
         }
@@ -39,12 +52,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
         private IModuleDispatcher CreateModuleDispatcher(IContainerRegistryClientFactory clientFactory)
         {
             var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: true));
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
-                .AddSingleton(clientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                .AddSingleton(featureProviderFactory)
-                ).Construct<IModuleDispatcher>();
-            return dispatcher;
+            return GetServices(clientFactory)
+                .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
+                .WithFeatureProviderFactory(featureProviderFactory)
+                .Build()
+                .Construct<IModuleDispatcher>();
         }
 
         private async Task<DocumentLink<ExternalSourceDocumentLinkData>[]> GetLinksForDisplayedDocument(IModuleDispatcher moduleDispatcher, TextDocumentIdentifier documentId)
@@ -107,9 +119,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public async Task IfNotShowingExternalModuleSourceCode_ThenReturnNoLinks()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
-                ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-            ]);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                MockFileSystem, [
+                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
@@ -132,17 +145,18 @@ namespace Bicep.LangServer.UnitTests.Handlers
             // Setup: 
             //   module1 is published with source
             //   module2 references module1 and is published with source
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
-                ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-                ("br:mockregistry.io/test/module2:v2", """
-                    module m1 'br:mockregistry.io/test/module1:v1' = {
-                        name: 'm1'
-                        params: {
-                            p1: true
-                      }
-                    }
-                    """, withSource: true)
-                ]);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                MockFileSystem, [
+                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                    ("br:mockregistry.io/test/module2:v2", """
+                        module m1 'br:mockregistry.io/test/module1:v1' = {
+                            name: 'm1'
+                            params: {
+                                p1: true
+                          }
+                        }
+                        """, withSource: true)
+                    ]);
 
             //asdfg comment
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
@@ -176,28 +190,29 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //   module1 is published with source
             //   module2 references module1 and is published with source
             //   module3 references module1 and module2 and is published with source
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
-                ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-                ("br:mockregistry.io/test/module1:v2", """
-                    module m1 'br:mockregistry.io/test/module1:v1' = {
-                        name: 'm1'
-                        params: {
-                            p1: true
-                      }
-                    }
-                    """, withSource: true),
-                ("br:mockregistry.io/test/module1:v3", """
-                    module m1 'br:mockregistry.io/test/module1:v1' = {
-                        name: 'm1'
-                        params: {
-                            p1: true
-                      }
-                    }
-                    module m1v2 'br:mockregistry.io/test/module1:v2' = {
-                        name: 'm1v2'
-                    }
-                    """, withSource: true)
-                ]);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                MockFileSystem, [
+                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                    ("br:mockregistry.io/test/module1:v2", """
+                        module m1 'br:mockregistry.io/test/module1:v1' = {
+                            name: 'm1'
+                            params: {
+                                p1: true
+                          }
+                        }
+                        """, withSource: true),
+                    ("br:mockregistry.io/test/module1:v3", """
+                        module m1 'br:mockregistry.io/test/module1:v1' = {
+                            name: 'm1'
+                            params: {
+                                p1: true
+                          }
+                        }
+                        module m1v2 'br:mockregistry.io/test/module1:v2' = {
+                            name: 'm1v2'
+                        }
+                        """, withSource: true)
+                    ]);
 
             //asdfgf?
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
@@ -210,7 +225,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     """));
 
             // Get a URI for displaying module1:v3's source
-            var module2Uri = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module2:v2");
+            var module2Uri = GetDocumentIdForExternalModuleSource(moduleDispatcher, "mockregistry.io/test/module1:v3");
 
             // Act: Get all nested links (one for m1:v1 and one for m1:v2)
             var links = await GetLinksForDisplayedDocument(moduleDispatcher, module2Uri);
@@ -261,17 +276,18 @@ namespace Bicep.LangServer.UnitTests.Handlers
             // Setup: 
             //   module1 is published with source
             //   module2 references module1 and is published with source
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
-                ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-                ("br:mockregistry.io/test/module2:v2", """
-                    module m1 'br:mockregistry.io/test/module1:v1' = {
-                        name: 'm1'
-                        params: {
-                            p1: true
-                      }
-                    }
-                    """, withSource: true)
-                ]);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                MockFileSystem, [
+                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                    ("br:mockregistry.io/test/module2:v2", """
+                        module m1 'br:mockregistry.io/test/module1:v1' = {
+                            name: 'm1'
+                            params: {
+                                p1: true
+                          }
+                        }
+                        """, withSource: true)
+                    ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),

@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
@@ -23,20 +26,25 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class SourceArchiveTests : TestBase
     {
+        private Dictionary<string, MockFileData> MockFiles = new();
+        [NotNull]
+        private MockFileSystem? MockFileSystem { get; set; }
+
         #region Helpers
 
         [NotNull]
-        private string? CacheRoot { get; set; } //asdfg todo is this needed?
+        private string? CacheRoot { get; set; }
 
         [TestInitialize]
         public void TestInitialize()
         {
             CacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
+            MockFileSystem = new(MockFiles);
         }
 
         private ServiceBuilder GetServices(IContainerRegistryClientFactory clientFactory)
         {
-            Directory.CreateDirectory(CacheRoot);
+            //asdfg? MockFileSystem.Directory.CreateDirectory(CacheRoot);
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(CacheRootDirectory: CacheRoot, OptionalModuleNamesEnabled: true))
@@ -71,12 +79,12 @@ namespace Bicep.Core.IntegrationTests
                 .UnwrapOrThrow();
         }
 
-#endregion
+        #endregion
 
         [TestMethod]
         public async Task SourceArtifactId_ForLocalModules_ShouldBeNull()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([]);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(MockFileSystem, []);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
@@ -110,9 +118,11 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForExternalModulesWithoutSource_ShouldBeNull()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
-                ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: false),
-            ]);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                MockFileSystem,
+                [
+                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: false),
+                ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
@@ -136,9 +146,11 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForExternalModulesWithSource_ShouldBeTheArtifactId()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
-                ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-            ]);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                MockFileSystem,
+                [
+                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
@@ -163,11 +175,13 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ShouldHandleMultipleRefsToSameModule()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([                
-                ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-                ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
-                ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: true),
-            ]);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                MockFileSystem,
+                [
+                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                    ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
+                    ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: true),
+                ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
@@ -239,9 +253,11 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ShouldIgnoreModuleRefsWithErrors()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync([
-                ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-            ]);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                MockFileSystem,
+                [
+                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
@@ -261,7 +277,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().OnlyContainDiagnostic("BCP192", Diagnostics.DiagnosticLevel.Error, "Unable to restore the artifact with reference \"br:mockregistry.io/test/module2:v1\"*");
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher,result);
+            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
             sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.FullyQualifiedReference))
                 .Should().BeEquivalentTo(new[] {

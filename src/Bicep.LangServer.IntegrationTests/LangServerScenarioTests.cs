@@ -68,6 +68,7 @@ param foo: string
         async Task publish(string source)
             => await RegistryHelper.PublishModuleToRegistryAsync(
                 clientFactory,
+                BicepTestConstants.FileSystem,
                 "modulename",
                 "br:mockregistry.io/test/foo:1.1",
                 source,

@@ -39,19 +39,29 @@ public static class RegistryHelper
     }
 
     // Example target: br:mockregistry.io/test/module1:v1
-    public static async Task PublishModuleToRegistryAsync(IContainerRegistryClientFactory clientFactory, string moduleName, string target, string moduleSource, bool publishSource, string? documentationUri = null)
+    public static async Task PublishModuleToRegistryAsync(
+        IContainerRegistryClientFactory clientFactory,
+        IFileSystem fileSystem,
+        string moduleName,
+        string target,
+        string moduleSource,
+        bool publishSource,
+        string? documentationUri = null)
     {
         var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: publishSource));
-        var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
-            .AddSingleton(clientFactory)
-            .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-            .AddSingleton(featureProviderFactory)
-            ).Construct<IModuleDispatcher>();
+
+        var services = new ServiceBuilder()
+            .WithDisabledAnalyzersConfiguration()
+            .WithContainerRegistryClientFactory(clientFactory)
+            .WithFileSystem(fileSystem)
+            .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
+            .WithFeatureProviderFactory(featureProviderFactory);
+
+        var dispatcher = services.Build().Construct<IModuleDispatcher>();
 
         var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Module, target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
             : throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
 
-        var services = new ServiceBuilder().WithContainerRegistryClientFactory(clientFactory);
         var result = await CompilationHelper.RestoreAndCompile(services, moduleSource);
         if (result.Template is null)
         {
@@ -65,10 +75,11 @@ public static class RegistryHelper
 
     // Example target: br:mockregistry.io/test/module1:v1
     // Module name is automatically extracted from target (in this case, "module1")
-    public static async Task PublishModuleToRegistryAsync(IContainerRegistryClientFactory clientFactory, string target, string source, bool withSource)
+    public static async Task PublishModuleToRegistryAsync(IContainerRegistryClientFactory clientFactory, IFileSystem fileSystem, string target, string source, bool withSource)
     {
         await PublishModuleToRegistryAsync(
               clientFactory,
+              fileSystem,
               target.Substring(target.LastIndexOf('/')),
               target,
               source,
@@ -82,7 +93,9 @@ public static class RegistryHelper
     //    ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
     //    ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: false),
     // ]);
-    public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientWithPublishedModulesAsync(params (string target, string source, bool withSource)[] modules)
+    public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientWithPublishedModulesAsync(
+        IFileSystem fileSystem,
+        params (string target, string source, bool withSource)[] modules)
     {
         var repos = new List<(string registry, string repo)>();
 
@@ -104,6 +117,7 @@ public static class RegistryHelper
         {
             await PublishModuleToRegistryAsync(
                   clientFactory,
+                  fileSystem,
                   module.target,
                   module.source,
                   module.withSource);

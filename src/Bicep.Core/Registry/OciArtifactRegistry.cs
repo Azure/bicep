@@ -494,12 +494,12 @@ namespace Bicep.Core.Registry
         public override ResultWithException<SourceArchive> TryGetSource(OciArtifactReference reference)
         {
             var zipPath = GetArtifactFilePath(reference, ArtifactFileType.Source);
-            if (File.Exists(zipPath))
+            if (fileSystem.File.Exists(zipPath))
             {
-                return SourceArchive.UnpackFromStream(File.OpenRead(zipPath));
+                return SourceArchive.UnpackFromStream(fileSystem.File.OpenRead(zipPath));
             }
 
-            // No sources available (presumably they weren't published)
+            // No sources available (presumably they weren't published) asdfg
             return new(new SourceNotAvailableException());
         }
 

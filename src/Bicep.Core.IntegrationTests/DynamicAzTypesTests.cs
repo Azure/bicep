@@ -173,6 +173,7 @@ namespace Bicep.Core.IntegrationTests
 
             await RegistryHelper.PublishModuleToRegistryAsync(
                 clientFactory,
+                BicepTestConstants.FileSystem,
                 moduleName: "az",
                 target: testArtifact.ToSpecificationString(':'),
                 moduleSource: "",
