@@ -239,7 +239,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             target1.ToArtifactReference().Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
 
             var link2 = links.Skip(1).First();
-            link2.Range.Should().HaveRange((0, 10), (0, 46));
+            link2.Range.Should().HaveRange((6, 12), (6, 48));
             link2.Target.Should().NotBeNull();
             var target2 = new ExternalSourceReference(link2.Target!);
             target2.FullTitle.Should().Be("br:mockregistry.io/test/module1:v2/main.bicep (module1:v2)");
