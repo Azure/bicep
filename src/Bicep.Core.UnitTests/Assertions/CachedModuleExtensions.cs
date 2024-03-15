@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.IO.Abstractions;
 using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;

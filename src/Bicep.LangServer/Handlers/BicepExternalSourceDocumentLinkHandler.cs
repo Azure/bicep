@@ -141,7 +141,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (!OciArtifactReference.TryParseModule(data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
             {
-                server.Window.ShowWarning($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");
+                server.Window.ShowWarning($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");//asdfg testpoint
                 return GetAlternateLink();
             }
 
@@ -152,25 +152,25 @@ namespace Bicep.LanguageServer.Handlers
             {
                 // We haven't tried restoring this module yet. Let's try it now.
 
-                Trace.WriteLine($"Attempting to restore module {targetArtifactReference.FullyQualifiedReference}");
+                Trace.WriteLine($"Attempting to restore module {targetArtifactReference.FullyQualifiedReference}"); //asdfgtestpoint
                 if (!await moduleDispatcher.RestoreArtifacts(new[] { targetArtifactReference }, forceRestore: false))
                 {
                     moduleDispatcher.GetArtifactRestoreStatus(targetArtifactReference, out errorBuilder);
                     var restoreMessage = errorBuilder?.Invoke(DiagnosticBuilder.ForDocumentStart()).Message ?? "Unknown error";
-                    server.Window.ShowWarning($"Unable to restore module {targetArtifactReference.FullyQualifiedReference}: {errorMessage}");
+                    server.Window.ShowWarning($"Unable to restore module {targetArtifactReference.FullyQualifiedReference}: {errorMessage}");//asdfg testpoint
                     return GetAlternateLink();
                 }
             }
             else if (restoreStatus == ArtifactRestoreStatus.Failed)
             {
-                Trace.WriteLine("Restore previously failed. Force module restore or restart to try again.");
+                server.Window.ShowWarning("Restore previously failed. Force module restore or restart to try again."); //asdfgtestpoint    real testpoint
                 return GetAlternateLink();
             }
 
             // If we get here, the module *should* have sources available (since we are going through delayed resolution), so show a message if we can't for some reason
             if (!moduleDispatcher.TryGetModuleSources(targetArtifactReference).IsSuccess(out var sourceArchive, out var ex))
             {
-                server.Window.ShowWarning($"Unable to retrieve source code for module {targetArtifactReference.FullyQualifiedReference}. {ex.Message}");
+                server.Window.ShowWarning($"Unable to retrieve source code for module {targetArtifactReference.FullyQualifiedReference}. {ex.Message}");//asdfg testpoint
                 return GetAlternateLink();
             }
 

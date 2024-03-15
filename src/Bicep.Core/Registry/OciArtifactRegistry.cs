@@ -41,7 +41,7 @@ namespace Bicep.Core.Registry
             Uri parentModuleUri)
             : base(FileResolver, fileSystem)
         {
-            this.cachePath = fileSystem.Path.Combine(features.CacheRootDirectory, ArtifactReferenceSchemes.Oci);
+            this.cachePath = FileSystem.Path.Combine(features.CacheRootDirectory, ArtifactReferenceSchemes.Oci);
             this.client = new AzureContainerRegistryManager(clientFactory);
             this.configuration = configuration;
             this.features = features;
@@ -187,7 +187,7 @@ namespace Bicep.Core.Registry
 
             try
             {
-                string manifestFileContents = fileSystem.File.ReadAllText(manifestFilePath);
+                string manifestFileContents = FileSystem.File.ReadAllText(manifestFilePath);
                 var manifest = JsonSerializer.Deserialize(manifestFileContents, OciManifestSerializationContext.Default.OciManifest);
                 return manifest ?? throw new Exception($"Deserialization of cached manifest \"{manifestFilePath}\" failed");
             }
@@ -424,7 +424,7 @@ namespace Bicep.Core.Registry
                 throw new InvalidOperationException("Module reference is missing both tag and digest.");
             }
 
-            return fileSystem.Path.Combine(this.cachePath, registry, repository, tagOrDigest);
+            return FileSystem.Path.Combine(this.cachePath, registry, repository, tagOrDigest);
         }
 
         protected override Uri GetArtifactLockFileUri(OciArtifactReference reference) => this.GetArtifactFileUri(reference, ArtifactFileType.Lock);
@@ -488,15 +488,15 @@ namespace Bicep.Core.Registry
                 _ => throw new NotImplementedException($"Unexpected artifact file type '{fileType}'.")
             };
 
-            return fileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), fileName);
+            return FileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), fileName);
         }
 
         public override ResultWithException<SourceArchive> TryGetSource(OciArtifactReference reference)
         {
             var zipPath = GetArtifactFilePath(reference, ArtifactFileType.Source);
-            if (fileSystem.File.Exists(zipPath))
+            if (FileSystem.File.Exists(zipPath))
             {
-                return SourceArchive.UnpackFromStream(fileSystem.File.OpenRead(zipPath));
+                return SourceArchive.UnpackFromStream(FileSystem.File.OpenRead(zipPath));
             }
 
             // No sources available (presumably they weren't published) asdfg

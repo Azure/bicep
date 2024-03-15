@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Configuration;
@@ -222,7 +223,7 @@ namespace Bicep.Cli.IntegrationTests
 
             if (dataSet.HasExternalModules)
             {
-                CachedModules.GetCachedRegistryModules(settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                CachedModules.GetCachedRegistryModules(new FileSystem(), settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                     .And.AllSatisfy(m => m.Should().HaveSource());
             }
 

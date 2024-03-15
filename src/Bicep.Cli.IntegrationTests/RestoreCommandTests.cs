@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
@@ -68,7 +69,7 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                CachedModules.GetCachedRegistryModules(settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                CachedModules.GetCachedRegistryModules(new FileSystem(), settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                     .And.AllSatisfy(m => m.Should().HaveSource(publishSource));
             }
         }
@@ -87,7 +88,7 @@ namespace Bicep.Cli.IntegrationTests
             result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
 
             // ensure something got restored
-            CachedModules.GetCachedRegistryModules(settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+            CachedModules.GetCachedRegistryModules(new FileSystem(), settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                 .And.AllSatisfy(m => m.Should().NotHaveSource());
         }
 
@@ -136,7 +137,7 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                CachedModules.GetCachedRegistryModules(settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                CachedModules.GetCachedRegistryModules(new FileSystem(), settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                     .And.AllSatisfy(m => m.Should().HaveSource(publishSource));
             }
         }
