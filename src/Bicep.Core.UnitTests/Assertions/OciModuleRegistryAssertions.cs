@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
@@ -28,21 +29,21 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModules(bool? withSource = null)
         {
-            ShouldHaveValidCachedModules(Subject.CacheRootDirectory, withSource);
+            ShouldHaveValidCachedModules(Subject.FileSystem, Subject.CacheRootDirectory, withSource);
             return new(this);
         }
 
-        public static void ShouldOnlyHaveValidModules(string cacheRootDirectory)
+        public static void ShouldOnlyHaveValidModules(IFileSystem fileSystem, string cacheRootDirectory)
         {
-            foreach (var module in CachedModules.GetCachedRegistryModules(cacheRootDirectory))
+            foreach (var module in CachedModules.GetCachedRegistryModules(fileSystem, cacheRootDirectory))
             {
                 module.Should().BeValid();
             }
         }
 
-        private static void ShouldHaveValidCachedModules(string cacheRootDirectory, bool? withSource = null)
+        private static void ShouldHaveValidCachedModules(IFileSystem fileSystem, string cacheRootDirectory, bool? withSource = null)
         {
-            var modules = CachedModules.GetCachedRegistryModules(cacheRootDirectory);
+            var modules = CachedModules.GetCachedRegistryModules(fileSystem, cacheRootDirectory);
             modules.Should().HaveCountGreaterThan(0);
             if (withSource.HasValue)
             {

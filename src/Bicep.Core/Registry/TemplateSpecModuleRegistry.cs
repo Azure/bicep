@@ -108,9 +108,9 @@ namespace Bicep.Core.Registry
         }
 
         protected override void WriteArtifactContentToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
-            fileSystem.File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.Content);
+            FileSystem.File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.Content);
 
-        protected override string GetArtifactDirectoryPath(TemplateSpecModuleReference reference) => fileSystem.Path.Combine(
+        protected override string GetArtifactDirectoryPath(TemplateSpecModuleReference reference) => FileSystem.Path.Combine(
             this.featureProvider.CacheRootDirectory,
             this.Scheme,
             reference.SubscriptionId.ToLowerInvariant(),
@@ -118,9 +118,9 @@ namespace Bicep.Core.Registry
             reference.TemplateSpecName.ToLowerInvariant(),
             reference.Version.ToLowerInvariant());
 
-        protected override Uri GetArtifactLockFileUri(TemplateSpecModuleReference reference) => new(fileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), "lock"), UriKind.Absolute);
+        protected override Uri GetArtifactLockFileUri(TemplateSpecModuleReference reference) => new(FileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), "lock"), UriKind.Absolute);
 
-        private string GetModuleEntryPointPath(TemplateSpecModuleReference reference) => fileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), "main.json");
+        private string GetModuleEntryPointPath(TemplateSpecModuleReference reference) => FileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), "main.json");
 
         private Uri GetModuleEntryPointUri(TemplateSpecModuleReference reference) => new(this.GetModuleEntryPointPath(reference), UriKind.Absolute);
 
