@@ -51,7 +51,7 @@ public class DeclaredFunctionSymbol : DeclaredSymbol, IFunctionSymbol
         var localVariables = lambdaSyntax.GetLocalVariables().ToImmutableArray();
         for (var i = 0; i < localVariables.Length; i++)
         {
-            builder.WithRequiredParameter(localVariables[i].Name.IdentifierName, lambdaType.ArgumentTypes[i].Type, "");
+            builder.WithRequiredParameter(localVariables[i].Name.IdentifierName, lambdaType.GetArgumentType(i).Type, "");
         }
 
         builder.WithReturnType(lambdaType.ReturnType.Type);

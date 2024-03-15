@@ -1,5 +1,5 @@
 var doggos = [
-//@[000:3053) ProgramExpression
+//@[000:3935) ProgramExpression
 //@[000:0054) ├─DeclaredVariableExpression { Name = doggos }
 //@[013:0054) | └─ArrayExpression
   'Evie'
@@ -11,6 +11,17 @@ var doggos = [
   'Kira'
 //@[002:0008) |   └─StringLiteralExpression { Value = Kira }
 ]
+
+func isEven(i int) bool => i % 2 == 0
+//@[000:0037) ├─DeclaredFunctionExpression { Name = isEven }
+//@[011:0037) | └─LambdaExpression
+//@[014:0017) |   ├─AmbientTypeReferenceExpression { Name = int }
+//@[027:0037) |   ├─BinaryExpression { Operator = Equals }
+//@[027:0032) |   | ├─BinaryExpression { Operator = Modulo }
+//@[027:0028) |   | | ├─LambdaVariableReferenceExpression { Variable = i }
+//@[031:0032) |   | | └─IntegerLiteralExpression { Value = 2 }
+//@[036:0037) |   | └─IntegerLiteralExpression { Value = 0 }
+//@[019:0023) |   └─AmbientTypeReferenceExpression { Name = bool }
 
 var numbers = range(0, 4)
 //@[000:0025) ├─DeclaredVariableExpression { Name = numbers }
@@ -25,17 +36,39 @@ var sayHello = map(doggos, i => 'Hello ${i}!')
 //@[027:0045) |   └─LambdaExpression
 //@[032:0045) |     └─InterpolatedStringExpression
 //@[041:0042) |       └─LambdaVariableReferenceExpression { Variable = i }
+// optional index parameter for map lambda
+var sayHello2 = map(doggos, (dog, i) => '${isEven(i) ? 'Hi' : 'Ahoy'} ${dog}!')
+//@[000:0079) ├─DeclaredVariableExpression { Name = sayHello2 }
+//@[016:0079) | └─FunctionCallExpression { Name = map }
+//@[020:0026) |   ├─VariableReferenceExpression { Variable = doggos }
+//@[028:0078) |   └─LambdaExpression
+//@[040:0078) |     └─InterpolatedStringExpression
+//@[043:0068) |       ├─TernaryExpression
+//@[043:0052) |       | ├─UserDefinedFunctionCallExpression { Name = isEven }
+//@[050:0051) |       | | └─LambdaVariableReferenceExpression { Variable = i }
+//@[055:0059) |       | ├─StringLiteralExpression { Value = Hi }
+//@[062:0068) |       | └─StringLiteralExpression { Value = Ahoy }
+//@[072:0075) |       └─LambdaVariableReferenceExpression { Variable = dog }
 
-var isEven = filter(numbers, i => 0 == i % 2)
-//@[000:0045) ├─DeclaredVariableExpression { Name = isEven }
-//@[013:0045) | └─FunctionCallExpression { Name = filter }
-//@[020:0027) |   ├─VariableReferenceExpression { Variable = numbers }
-//@[029:0044) |   └─LambdaExpression
-//@[034:0044) |     └─BinaryExpression { Operator = Equals }
-//@[034:0035) |       ├─IntegerLiteralExpression { Value = 0 }
-//@[039:0044) |       └─BinaryExpression { Operator = Modulo }
-//@[039:0040) |         ├─LambdaVariableReferenceExpression { Variable = i }
-//@[043:0044) |         └─IntegerLiteralExpression { Value = 2 }
+var evenNumbers = filter(numbers, i => isEven(i))
+//@[000:0049) ├─DeclaredVariableExpression { Name = evenNumbers }
+//@[018:0049) | └─FunctionCallExpression { Name = filter }
+//@[025:0032) |   ├─VariableReferenceExpression { Variable = numbers }
+//@[034:0048) |   └─LambdaExpression
+//@[039:0048) |     └─UserDefinedFunctionCallExpression { Name = isEven }
+//@[046:0047) |       └─LambdaVariableReferenceExpression { Variable = i }
+// optional index parameter for filter lambda
+var evenEntries = filter(['a', 'b', 'c', 'd'], (item, i) => isEven(i))
+//@[000:0070) ├─DeclaredVariableExpression { Name = evenEntries }
+//@[018:0070) | └─FunctionCallExpression { Name = filter }
+//@[025:0045) |   ├─ArrayExpression
+//@[026:0029) |   | ├─StringLiteralExpression { Value = a }
+//@[031:0034) |   | ├─StringLiteralExpression { Value = b }
+//@[036:0039) |   | ├─StringLiteralExpression { Value = c }
+//@[041:0044) |   | └─StringLiteralExpression { Value = d }
+//@[047:0069) |   └─LambdaExpression
+//@[060:0069) |     └─UserDefinedFunctionCallExpression { Name = isEven }
+//@[067:0068) |       └─LambdaVariableReferenceExpression { Variable = i }
 
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
 //@[000:0118) ├─DeclaredVariableExpression { Name = evenDoggosNestedLambdas }
@@ -287,6 +320,22 @@ var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat
 //@[074:0091) |     └─FunctionCallExpression { Name = concat }
 //@[081:0084) |       ├─LambdaVariableReferenceExpression { Variable = cur }
 //@[086:0090) |       └─LambdaVariableReferenceExpression { Variable = next }
+var reduceStringConcatEven = reduce(['abc', 'def', 'ghi'], '', (cur, next, i) => isEven(i) ? concat(cur, next) : cur)
+//@[000:0117) ├─DeclaredVariableExpression { Name = reduceStringConcatEven }
+//@[029:0117) | └─FunctionCallExpression { Name = reduce }
+//@[036:0057) |   ├─ArrayExpression
+//@[037:0042) |   | ├─StringLiteralExpression { Value = abc }
+//@[044:0049) |   | ├─StringLiteralExpression { Value = def }
+//@[051:0056) |   | └─StringLiteralExpression { Value = ghi }
+//@[059:0061) |   ├─StringLiteralExpression { Value =  }
+//@[063:0116) |   └─LambdaExpression
+//@[081:0116) |     └─TernaryExpression
+//@[081:0090) |       ├─UserDefinedFunctionCallExpression { Name = isEven }
+//@[088:0089) |       | └─LambdaVariableReferenceExpression { Variable = i }
+//@[093:0110) |       ├─FunctionCallExpression { Name = concat }
+//@[100:0103) |       | ├─LambdaVariableReferenceExpression { Variable = cur }
+//@[105:0109) |       | └─LambdaVariableReferenceExpression { Variable = next }
+//@[113:0116) |       └─LambdaVariableReferenceExpression { Variable = cur }
 var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
 //@[000:0071) ├─DeclaredVariableExpression { Name = reduceFactorial }
 //@[022:0071) | └─FunctionCallExpression { Name = reduce }
@@ -519,4 +568,122 @@ var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
 //@[005:0022) |     └─FunctionCallExpression { Name = concat }
 //@[012:0015) |       ├─LambdaVariableReferenceExpression { Variable = cur }
 //@[017:0021) |       └─LambdaVariableReferenceExpression { Variable = next }
+
+var mapVals = mapValues({
+//@[000:0062) ├─DeclaredVariableExpression { Name = mapVals }
+//@[014:0062) | └─FunctionCallExpression { Name = mapValues }
+//@[024:0045) |   ├─ObjectExpression
+  a: 123
+//@[002:0008) |   | ├─ObjectPropertyExpression
+//@[002:0003) |   | | ├─StringLiteralExpression { Value = a }
+//@[005:0008) |   | | └─IntegerLiteralExpression { Value = 123 }
+  b: 456
+//@[002:0008) |   | └─ObjectPropertyExpression
+//@[002:0003) |   |   ├─StringLiteralExpression { Value = b }
+//@[005:0008) |   |   └─IntegerLiteralExpression { Value = 456 }
+}, val => val * 2)
+//@[003:0017) |   └─LambdaExpression
+//@[010:0017) |     └─BinaryExpression { Operator = Multiply }
+//@[010:0013) |       ├─LambdaVariableReferenceExpression { Variable = val }
+//@[016:0017) |       └─IntegerLiteralExpression { Value = 2 }
+
+var objectKeysTest = objectKeys({
+//@[000:0054) ├─DeclaredVariableExpression { Name = objectKeysTest }
+//@[021:0054) | └─FunctionCallExpression { Name = objectKeys }
+//@[032:0053) |   └─ObjectExpression
+  a: 123
+//@[002:0008) |     ├─ObjectPropertyExpression
+//@[002:0003) |     | ├─StringLiteralExpression { Value = a }
+//@[005:0008) |     | └─IntegerLiteralExpression { Value = 123 }
+  b: 456
+//@[002:0008) |     └─ObjectPropertyExpression
+//@[002:0003) |       ├─StringLiteralExpression { Value = b }
+//@[005:0008) |       └─IntegerLiteralExpression { Value = 456 }
+})
+
+var shallowMergeTest = shallowMerge([{
+//@[000:0065) ├─DeclaredVariableExpression { Name = shallowMergeTest }
+//@[023:0065) | └─FunctionCallExpression { Name = shallowMerge }
+//@[036:0064) |   └─ArrayExpression
+//@[037:0049) |     ├─ObjectExpression
+  a: 123
+//@[002:0008) |     | └─ObjectPropertyExpression
+//@[002:0003) |     |   ├─StringLiteralExpression { Value = a }
+//@[005:0008) |     |   └─IntegerLiteralExpression { Value = 123 }
+}, {
+//@[003:0015) |     └─ObjectExpression
+  b: 456
+//@[002:0008) |       └─ObjectPropertyExpression
+//@[002:0003) |         ├─StringLiteralExpression { Value = b }
+//@[005:0008) |         └─IntegerLiteralExpression { Value = 456 }
+}])
+
+var groupByTest = groupBy([
+//@[000:0131) ├─DeclaredVariableExpression { Name = groupByTest }
+//@[018:0131) | └─FunctionCallExpression { Name = groupBy }
+//@[026:0113) |   ├─ArrayExpression
+  { type: 'a', value: 123 }
+//@[002:0027) |   | ├─ObjectExpression
+//@[004:0013) |   | | ├─ObjectPropertyExpression
+//@[004:0008) |   | | | ├─StringLiteralExpression { Value = type }
+//@[010:0013) |   | | | └─StringLiteralExpression { Value = a }
+//@[015:0025) |   | | └─ObjectPropertyExpression
+//@[015:0020) |   | |   ├─StringLiteralExpression { Value = value }
+//@[022:0025) |   | |   └─IntegerLiteralExpression { Value = 123 }
+  { type: 'b', value: 456 }
+//@[002:0027) |   | ├─ObjectExpression
+//@[004:0013) |   | | ├─ObjectPropertyExpression
+//@[004:0008) |   | | | ├─StringLiteralExpression { Value = type }
+//@[010:0013) |   | | | └─StringLiteralExpression { Value = b }
+//@[015:0025) |   | | └─ObjectPropertyExpression
+//@[015:0020) |   | |   ├─StringLiteralExpression { Value = value }
+//@[022:0025) |   | |   └─IntegerLiteralExpression { Value = 456 }
+  { type: 'a', value: 789 }
+//@[002:0027) |   | └─ObjectExpression
+//@[004:0013) |   |   ├─ObjectPropertyExpression
+//@[004:0008) |   |   | ├─StringLiteralExpression { Value = type }
+//@[010:0013) |   |   | └─StringLiteralExpression { Value = a }
+//@[015:0025) |   |   └─ObjectPropertyExpression
+//@[015:0020) |   |     ├─StringLiteralExpression { Value = value }
+//@[022:0025) |   |     └─IntegerLiteralExpression { Value = 789 }
+], arg => arg.type)
+//@[003:0018) |   └─LambdaExpression
+//@[010:0018) |     └─PropertyAccessExpression { PropertyName = type }
+//@[010:0013) |       └─LambdaVariableReferenceExpression { Variable = arg }
+
+var groupByWithValMapTest = groupBy([
+//@[000:0159) ├─DeclaredVariableExpression { Name = groupByWithValMapTest }
+//@[028:0159) | └─FunctionCallExpression { Name = groupBy }
+//@[036:0123) |   ├─ArrayExpression
+  { type: 'a', value: 123 }
+//@[002:0027) |   | ├─ObjectExpression
+//@[004:0013) |   | | ├─ObjectPropertyExpression
+//@[004:0008) |   | | | ├─StringLiteralExpression { Value = type }
+//@[010:0013) |   | | | └─StringLiteralExpression { Value = a }
+//@[015:0025) |   | | └─ObjectPropertyExpression
+//@[015:0020) |   | |   ├─StringLiteralExpression { Value = value }
+//@[022:0025) |   | |   └─IntegerLiteralExpression { Value = 123 }
+  { type: 'b', value: 456 }
+//@[002:0027) |   | ├─ObjectExpression
+//@[004:0013) |   | | ├─ObjectPropertyExpression
+//@[004:0008) |   | | | ├─StringLiteralExpression { Value = type }
+//@[010:0013) |   | | | └─StringLiteralExpression { Value = b }
+//@[015:0025) |   | | └─ObjectPropertyExpression
+//@[015:0020) |   | |   ├─StringLiteralExpression { Value = value }
+//@[022:0025) |   | |   └─IntegerLiteralExpression { Value = 456 }
+  { type: 'a', value: 789 }
+//@[002:0027) |   | └─ObjectExpression
+//@[004:0013) |   |   ├─ObjectPropertyExpression
+//@[004:0008) |   |   | ├─StringLiteralExpression { Value = type }
+//@[010:0013) |   |   | └─StringLiteralExpression { Value = a }
+//@[015:0025) |   |   └─ObjectPropertyExpression
+//@[015:0020) |   |     ├─StringLiteralExpression { Value = value }
+//@[022:0025) |   |     └─IntegerLiteralExpression { Value = 789 }
+], arg => arg.type, arg => arg.value)
+//@[003:0018) |   ├─LambdaExpression
+//@[010:0018) |   | └─PropertyAccessExpression { PropertyName = type }
+//@[010:0013) |   |   └─LambdaVariableReferenceExpression { Variable = arg }
+//@[020:0036) |   └─LambdaExpression
+//@[027:0036) |     └─PropertyAccessExpression { PropertyName = value }
+//@[027:0030) |       └─LambdaVariableReferenceExpression { Variable = arg }
 

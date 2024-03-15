@@ -252,9 +252,10 @@ public class ResourceDerivedTypeResolver
         var resolvedParameterTypes = ImmutableArray.CreateBuilder<ITypeReference>(unresolved.ArgumentTypes.Length);
         var hasChanges = false;
 
-        for (int i = 0; i < unresolved.ArgumentTypes.Length; i++)
+        for (int i = 0; i < unresolved.MaximumArgCount; i++)
         {
-            var unboundParameterType = unresolved.ArgumentTypes[i].Type;
+            var unboundParameterType = unresolved.GetArgumentType(i).Type;
+
             if (currentlyResolving.Contains(unboundParameterType))
             {
                 resolvedParameterTypes.Add(new DeferredTypeReference(() => resolvedTypes[unboundParameterType]));
@@ -271,7 +272,10 @@ public class ResourceDerivedTypeResolver
         hasChanges = hasChanges || !ReferenceEquals(resolvedReturnType, unresolved.ReturnType.Type);
 
         return hasChanges
-            ? new(resolvedParameterTypes.ToImmutable(), resolvedReturnType)
+            ? new(
+                resolvedParameterTypes.Take(unresolved.ArgumentTypes.Length).ToImmutableArray(),
+                resolvedParameterTypes.Skip(unresolved.ArgumentTypes.Length).ToImmutableArray(),
+                resolvedReturnType)
             : unresolved;
     }
 

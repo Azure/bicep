@@ -205,9 +205,9 @@ namespace Bicep.Core.TypeSystem
 
                         if (binder.GetParent(lambda) is { } lambdaParent &&
                             typeManager.GetDeclaredType(lambdaParent) is LambdaType lambdaType &&
-                            argumentIndex < lambdaType.ArgumentTypes.Length)
+                            argumentIndex < lambdaType.MaximumArgCount)
                         {
-                            return lambdaType.ArgumentTypes[argumentIndex];
+                            return lambdaType.GetArgumentType(argumentIndex);
                         }
 
                         return LanguageConstants.Any;
@@ -1740,7 +1740,7 @@ namespace Bicep.Core.TypeSystem
                 var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
                 var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, LanguageConstants.Any);
 
-                return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), returnType);
+                return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), ImmutableArray<ITypeReference>.Empty, returnType);
             });
 
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
@@ -1753,8 +1753,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var errors = new List<ErrorDiagnostic>();
-                var argumentTypes = new List<TypeSymbol>();
-                foreach (var argumentType in declaredLambdaType.ArgumentTypes)
+                foreach (var argumentType in declaredLambdaType.ArgumentTypes.Concat(declaredLambdaType.OptionalArgumentTypes))
                 {
                     CollectErrors(errors, argumentType.Type);
                 }
@@ -1762,12 +1761,7 @@ namespace Bicep.Core.TypeSystem
                 var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, declaredLambdaType.ReturnType.Type);
                 CollectErrors(errors, returnType);
 
-                if (PropagateErrorType(errors, argumentTypes))
-                {
-                    return ErrorType.Create(errors);
-                }
-
-                return new LambdaType(declaredLambdaType.ArgumentTypes, returnType);
+                return new LambdaType(declaredLambdaType.ArgumentTypes, declaredLambdaType.OptionalArgumentTypes, returnType);
             });
 
         private Symbol? GetSymbolForDecorator(DecoratorSyntax decorator)

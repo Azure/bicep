@@ -15,10 +15,13 @@ var map2 = map('abc', 'def')
 //@[15:20) [BCP070 (Error)] Argument of type "'abc'" is not assignable to parameter of type "array". (CodeDescription: none) |'abc'|
 var map3 = map(range(0, 10), 'def')
 //@[04:08) [no-unused-vars (Warning)] Variable "map3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |map3|
-//@[29:34) [BCP070 (Error)] Argument of type "'def'" is not assignable to parameter of type "any => any". (CodeDescription: none) |'def'|
+//@[29:34) [BCP070 (Error)] Argument of type "'def'" is not assignable to parameter of type "(any[, int]) => any". (CodeDescription: none) |'def'|
 var map4 = map(range(0, 10), () => null)
 //@[04:08) [no-unused-vars (Warning)] Variable "map4" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |map4|
-//@[29:39) [BCP070 (Error)] Argument of type "() => null" is not assignable to parameter of type "any => any". (CodeDescription: none) |() => null|
+//@[29:39) [BCP070 (Error)] Argument of type "() => null" is not assignable to parameter of type "(any[, int]) => any". (CodeDescription: none) |() => null|
+var map5 = map(range(0, 10), (a, b, c) => a)
+//@[04:08) [no-unused-vars (Warning)] Variable "map5" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |map5|
+//@[29:43) [BCP070 (Error)] Argument of type "(any, int, any) => any" is not assignable to parameter of type "(any[, int]) => any". (CodeDescription: none) |(a, b, c) => a|
 
 var filter1 = filter('abc')
 //@[04:11) [no-unused-vars (Warning)] Variable "filter1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |filter1|
@@ -28,16 +31,17 @@ var filter2 = filter('abc', 'def')
 //@[21:26) [BCP070 (Error)] Argument of type "'abc'" is not assignable to parameter of type "array". (CodeDescription: none) |'abc'|
 var filter3 = filter(range(0, 10), 'def')
 //@[04:11) [no-unused-vars (Warning)] Variable "filter3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |filter3|
-//@[35:40) [BCP070 (Error)] Argument of type "'def'" is not assignable to parameter of type "any => bool". (CodeDescription: none) |'def'|
+//@[35:40) [BCP070 (Error)] Argument of type "'def'" is not assignable to parameter of type "(any[, int]) => bool". (CodeDescription: none) |'def'|
 var filter4 = filter(range(0, 10), () => null)
 //@[04:11) [no-unused-vars (Warning)] Variable "filter4" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |filter4|
-//@[35:45) [BCP070 (Error)] Argument of type "() => null" is not assignable to parameter of type "any => bool". (CodeDescription: none) |() => null|
+//@[35:45) [BCP070 (Error)] Argument of type "() => null" is not assignable to parameter of type "(any[, int]) => bool". (CodeDescription: none) |() => null|
 var filter5 = filter(range(0, 10), i => i)
 //@[04:11) [no-unused-vars (Warning)] Variable "filter5" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |filter5|
-//@[35:41) [BCP070 (Error)] Argument of type "int => int" is not assignable to parameter of type "any => bool". (CodeDescription: none) |i => i|
 var filter6 = filter([true, 'hello!'], i => i)
 //@[04:11) [no-unused-vars (Warning)] Variable "filter6" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |filter6|
-//@[39:45) [BCP070 (Error)] Argument of type "('hello!' | true) => ('hello!' | true)" is not assignable to parameter of type "any => bool". (CodeDescription: none) |i => i|
+var filter7 = filter(range(0, 10), (a, b, c) => true)
+//@[04:11) [no-unused-vars (Warning)] Variable "filter7" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |filter7|
+//@[35:52) [BCP070 (Error)] Argument of type "(any, int, any) => true" is not assignable to parameter of type "(any[, int]) => bool". (CodeDescription: none) |(a, b, c) => true|
 
 var sort1 = sort('abc')
 //@[04:09) [no-unused-vars (Warning)] Variable "sort1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sort1|
@@ -53,10 +57,9 @@ var sort4 = sort(range(0, 10), () => null)
 //@[31:41) [BCP070 (Error)] Argument of type "() => null" is not assignable to parameter of type "(any, any) => bool". (CodeDescription: none) |() => null|
 var sort5 = sort(range(0, 10), i => i)
 //@[04:09) [no-unused-vars (Warning)] Variable "sort5" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sort5|
-//@[31:37) [BCP070 (Error)] Argument of type "int => int" is not assignable to parameter of type "(any, any) => bool". (CodeDescription: none) |i => i|
+//@[31:37) [BCP070 (Error)] Argument of type "any => any" is not assignable to parameter of type "(any, any) => bool". (CodeDescription: none) |i => i|
 var sort6 = sort(range(0, 10), (i, j) => i)
 //@[04:09) [no-unused-vars (Warning)] Variable "sort6" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sort6|
-//@[31:42) [BCP070 (Error)] Argument of type "(int, int) => int" is not assignable to parameter of type "(any, any) => bool". (CodeDescription: none) |(i, j) => i|
 
 var reduce1 = reduce('abc')
 //@[04:11) [no-unused-vars (Warning)] Variable "reduce1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |reduce1|
@@ -66,13 +69,16 @@ var reduce2 = reduce('abc', 'def', 'ghi')
 //@[21:26) [BCP070 (Error)] Argument of type "'abc'" is not assignable to parameter of type "array". (CodeDescription: none) |'abc'|
 var reduce3 = reduce(range(0, 10), 0, 'def')
 //@[04:11) [no-unused-vars (Warning)] Variable "reduce3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |reduce3|
-//@[38:43) [BCP070 (Error)] Argument of type "'def'" is not assignable to parameter of type "(any, any) => any". (CodeDescription: none) |'def'|
+//@[38:43) [BCP070 (Error)] Argument of type "'def'" is not assignable to parameter of type "(any, any[, int]) => any". (CodeDescription: none) |'def'|
 var reduce4 = reduce(range(0, 10), 0, () => null)
 //@[04:11) [no-unused-vars (Warning)] Variable "reduce4" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |reduce4|
-//@[38:48) [BCP070 (Error)] Argument of type "() => null" is not assignable to parameter of type "(any, any) => any". (CodeDescription: none) |() => null|
+//@[38:48) [BCP070 (Error)] Argument of type "() => null" is not assignable to parameter of type "(any, any[, int]) => any". (CodeDescription: none) |() => null|
 var reduce5 = reduce(range(0, 10), 0, i => i)
 //@[04:11) [no-unused-vars (Warning)] Variable "reduce5" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |reduce5|
-//@[38:44) [BCP070 (Error)] Argument of type "int => int" is not assignable to parameter of type "(any, any) => any". (CodeDescription: none) |i => i|
+//@[38:44) [BCP070 (Error)] Argument of type "any => any" is not assignable to parameter of type "(any, any[, int]) => any". (CodeDescription: none) |i => i|
+var reduce6 = reduce(range(0, 10), 0, (a, b, c, d) => a)
+//@[04:11) [no-unused-vars (Warning)] Variable "reduce6" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |reduce6|
+//@[38:55) [BCP070 (Error)] Argument of type "(any, any, int, any) => any" is not assignable to parameter of type "(any, any[, int]) => any". (CodeDescription: none) |(a, b, c, d) => a|
 
 var toObject1 = toObject('abc')
 //@[04:13) [no-unused-vars (Warning)] Variable "toObject1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |toObject1|
@@ -88,7 +94,6 @@ var toObject4 = toObject(range(0, 10), () => null)
 //@[39:49) [BCP070 (Error)] Argument of type "() => null" is not assignable to parameter of type "any => string". (CodeDescription: none) |() => null|
 var toObject5 = toObject(range(0, 10), i => i)
 //@[04:13) [no-unused-vars (Warning)] Variable "toObject5" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |toObject5|
-//@[39:45) [BCP070 (Error)] Argument of type "int => int" is not assignable to parameter of type "any => string". (CodeDescription: none) |i => i|
 var toObject6 = toObject(range(0, 10), i => '${i}', 'def')
 //@[04:13) [no-unused-vars (Warning)] Variable "toObject6" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |toObject6|
 //@[52:57) [BCP070 (Error)] Argument of type "'def'" is not assignable to parameter of type "any => any". (CodeDescription: none) |'def'|
@@ -164,7 +169,7 @@ output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
 
 var onlyComma = map([0], (,) => 'foo')
 //@[04:13) [no-unused-vars (Warning)] Variable "onlyComma" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |onlyComma|
-//@[25:37) [BCP070 (Error)] Argument of type "() => 'foo'" is not assignable to parameter of type "any => any". (CodeDescription: none) |(,) => 'foo'|
+//@[25:37) [BCP070 (Error)] Argument of type "() => 'foo'" is not assignable to parameter of type "(any[, int]) => any". (CodeDescription: none) |(,) => 'foo'|
 //@[26:27) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |,|
 var trailingCommas = map([0], (a,,) => 'foo')
 //@[04:18) [no-unused-vars (Warning)] Variable "trailingCommas" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |trailingCommas|

@@ -1437,10 +1437,12 @@ namespace Bicep.Core.Diagnostics
                 "BCP243",
                 "Parentheses must contain exactly one expression.");
 
-            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new(
+            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int minArgCount, int maxArgCount, int actualArgCount) => new(
                 TextSpan,
                 "BCP244",
-                $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
+                minArgCount == maxArgCount ?
+                    $"Expected lambda expression of type \"{lambdaType}\" with {minArgCount} arguments but received {actualArgCount} arguments." :
+                    $"Expected lambda expression of type \"{lambdaType}\" with between {minArgCount} and {maxArgCount} arguments but received {actualArgCount} arguments.");
 
             public Diagnostic ResourceTypeIsReadonly(ResourceTypeReference resourceTypeReference) => new(
                 TextSpan,

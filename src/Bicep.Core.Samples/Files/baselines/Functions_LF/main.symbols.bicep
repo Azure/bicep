@@ -12,7 +12,7 @@ func sayHello(name string) string => 'Hi ${name}!'
 //@[05:013) Function sayHello. Type: string => string. Declaration start char: 0, length: 50
 
 output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
-//@[46:050) Local name. Type: 'Casper' | 'Evie'. Declaration start char: 46, length: 4
+//@[46:050) Local name. Type: any. Declaration start char: 46, length: 4
 //@[07:013) Output hellos. Type: array. Declaration start char: 0, length: 69
 
 func objReturnType(name string) object => {

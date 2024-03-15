@@ -384,7 +384,8 @@ namespace Bicep.Core.TypeSystem
 
         private static bool AreLambdaTypesAssignable(LambdaType source, LambdaType target)
         {
-            if (source.ArgumentTypes.Length != target.ArgumentTypes.Length)
+            if (source.MaximumArgCount < target.MinimumArgCount ||
+                source.MinimumArgCount > target.MaximumArgCount)
             {
                 return false;
             }
@@ -394,10 +395,12 @@ namespace Bicep.Core.TypeSystem
                 return false;
             }
 
-            var pairs = source.ArgumentTypes.Select((x, i) => (source: x, target: target.ArgumentTypes[i]));
-            if (pairs.Any(x => !AreTypesAssignable(x.source.Type, x.target.Type)))
+            for (var i = 0; i < Math.Min(source.MaximumArgCount, target.MaximumArgCount); i++)
             {
-                return false;
+                if (!AreTypesAssignable(source.GetArgumentType(i).Type, target.GetArgumentType(i).Type))
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -720,19 +723,19 @@ namespace Bicep.Core.TypeSystem
             var returnType = NarrowType(config, lambdaSyntax.Body, targetType.ReturnType.Type);
 
             var variables = lambdaSyntax.GetLocalVariables().ToImmutableArray();
-            if (variables.Length != targetType.ArgumentTypes.Length)
+            if (variables.Length < targetType.MinimumArgCount || variables.Length > targetType.MaximumArgCount)
             {
-                diagnosticWriter.Write(lambdaSyntax.VariableSection, x => x.LambdaExpectedArgCountMismatch(targetType, targetType.ArgumentTypes.Length, variables.Length));
+                diagnosticWriter.Write(lambdaSyntax.VariableSection, x => x.LambdaExpectedArgCountMismatch(targetType, targetType.MinimumArgCount, targetType.MaximumArgCount, variables.Length));
                 return targetType;
             }
 
             var narrowedVariables = new ITypeReference[variables.Length];
             for (var i = 0; i < variables.Length; i++)
             {
-                narrowedVariables[i] = NarrowType(config, variables[i], targetType.ArgumentTypes[i].Type);
+                narrowedVariables[i] = NarrowType(config, variables[i], targetType.GetArgumentType(i).Type);
             }
 
-            return new LambdaType(narrowedVariables.ToImmutableArray(), returnType);
+            return new LambdaType(narrowedVariables.ToImmutableArray(), ImmutableArray<ITypeReference>.Empty, returnType);
         }
 
         private TypeSymbol NarrowVariableAccessType(TypeValidatorConfig config, VariableAccessSyntax variableAccess, TypeSymbol targetType)
