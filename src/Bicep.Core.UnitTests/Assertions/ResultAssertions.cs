@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel.Syndication;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Utils;
@@ -42,7 +43,7 @@ public static class ResultExtensions
             return new AndConstraint<ResultAssertions<TSuccess,TError>>(this);
 
         }
-        public AndConstraint<ResultAssertions<TSuccess, TError>> BeFailure(TError expectedError, string because = "", params object[] becauseArgs)
+        public AndConstraint<ResultAssertions<TSuccess, TError>> BeFailureWithValue(TError expectedError, string because = "", params object[] becauseArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
@@ -54,12 +55,38 @@ public static class ResultExtensions
                 .FailWith("Expected result to be a failure with value {0}{reason}, but the failure had value {1}", _ => expectedError, x => GetFailure(x));
 
             return new AndConstraint<ResultAssertions<TSuccess, TError>>(this);
-
-            TError? GetFailure(Result<TSuccess, TError> result)
-            {
-                result.IsSuccess(out var _, out var failure);
-                return failure;
-            }
         }
+
+        public AndConstraint<ResultAssertions<TSuccess, TError>> BeSuccess(string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .Given<Result<TSuccess, TError>>(() => Subject)
+                .ForCondition(x => x.IsSuccess())
+                .FailWith("Expected result to be a success{reason}, but it was a failure with value {0}", x => GetFailure(x));
+
+            return new AndConstraint<ResultAssertions<TSuccess, TError>>(this);
+
+        }
+        public AndConstraint<ResultAssertions<TSuccess, TError>> BeSuccessWithValue(TSuccess expectedValue, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .Given<Result<TSuccess, TError>>(() => Subject)
+                .ForCondition(x => x.IsSuccess())
+                .FailWith("Expected result to be a success with value {0}{reason}, but it was a failure with value {1}", _ => expectedValue, x => GetFailure(x))
+                .Then
+                .ForCondition(x => x.IsSuccess(out var value) && value.Equals(expectedValue))
+                .FailWith("Expected result to be a success with value {0}{reason}, but the actual value was {1}", _ => expectedValue, x => x.TryUnwrap());
+
+            return new AndConstraint<ResultAssertions<TSuccess, TError>>(this);
+        }
+
+        private static TError? GetFailure(Result<TSuccess, TError> result)
+        {
+            result.IsSuccess(out var _, out var failure);
+            return failure;
+        }
+
     }
 }

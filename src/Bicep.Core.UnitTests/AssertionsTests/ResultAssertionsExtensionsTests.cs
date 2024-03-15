@@ -19,10 +19,10 @@ public class ResultAssertionsExtensionsTests
     }
 
     [TestMethod]
-    public void ShouldBeFailure_WithError()
+    public void ShouldBeFailureWithValue()
     {
         var result = new Result<string, int>(404);
-        result.Should().BeFailure(404, "Simon didn't say");
+        result.Should().BeFailureWithValue(404, "Simon didn't say");
     }
 
     [TestMethod]
@@ -34,19 +34,56 @@ public class ResultAssertionsExtensionsTests
     }
 
     [TestMethod]
-    public void ShouldBeFailure_WithError_ButIsSuccess()
+    public void ShouldBeFailureWithValue_ButIsSuccess()
     {
         var result = new Result<string, int>("my success");
-        var func = () => result.Should().BeFailure(501, "Simon didn't say");
+        var func = () => result.Should().BeFailureWithValue(501, "Simon didn't say");
         func.Should().Throw<AssertFailedException>().WithMessage("Expected result to be a failure with value 501 because Simon didn't say, but it was a success with value \"my success\"");
     }
 
     [TestMethod]
-    public void ShouldBeFailure_WithWrongError()
+    public void ShouldBeFailureWithValue_WithWrongValue()
     {
         var result = new Result<string, int>(404);
-        var func = () => result.Should().BeFailure(501, "Simon didn't say");
+        var func = () => result.Should().BeFailureWithValue(501, "Simon didn't say");
         func.Should().Throw<AssertFailedException>().WithMessage("Expected result to be a failure with value 501 because Simon didn't say, but the failure had value 404");
     }
 
+    [TestMethod]
+    public void ShouldBeSuccess()
+    {
+        var result = new Result<string, int>("my success");
+        result.Should().BeSuccess("Simon said");
+    }
+
+    [TestMethod]
+    public void ShouldBeSuccessWithValue()
+    {
+        var result = new Result<string, int>("my success");
+        result.Should().BeSuccessWithValue("my success", "Simon said");
+    }
+
+    [TestMethod]
+    public void ShouldBeSuccess_ButIsFailure()
+    {
+        var result = new Result<string, int>(404);
+        var func = () => result.Should().BeSuccess("Simon said");
+        func.Should().Throw<AssertFailedException>().WithMessage("Expected result to be a success because Simon said, but it was a failure with value 404");
+    }
+
+    [TestMethod]
+    public void ShouldBeSuccessWithValue_ButIsFailure()
+    {
+        var result = new Result<string, int>(404);
+        var func = () => result.Should().BeSuccessWithValue("my success", "Simon said");
+        func.Should().Throw<AssertFailedException>().WithMessage("Expected result to be a success with value \"my success\" because Simon said, but it was a failure with value 404");
+    }
+
+    [TestMethod]
+    public void ShouldBeSuccessWithValue_WithWrongValue()
+    {
+        var result = new Result<string, int>("your success");
+        var func = () => result.Should().BeSuccessWithValue("my success", "Red Rover should come over");
+        func.Should().Throw<AssertFailedException>().WithMessage("Expected result to be a success with value \"my success\" because Red Rover should come over, but the actual value was \"your success\"");
+    }
 }
