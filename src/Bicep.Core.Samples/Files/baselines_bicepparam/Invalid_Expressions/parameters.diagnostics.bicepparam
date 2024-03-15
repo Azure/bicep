@@ -31,7 +31,6 @@ param testEndsWith = endsWith('foo', [])
 param testFilter = filter([1, 2], i => i < 'foo')
 //@[19:49) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "(1 | 2)[]". (CodeDescription: none) |filter([1, 2], i => i < 'foo')|
 //@[19:49) [BCP338 (Error)] Failed to evaluate parameter "testFilter": The template language function 'less' expects two parameters of matching types. The function was invoked with values of type 'Integer' and 'String' that do not match. (CodeDescription: none) |filter([1, 2], i => i < 'foo')|
-//@[39:48) [BCP045 (Error)] Cannot apply operator "<" to operands of type "1 | 2" and "'foo'". (CodeDescription: none) |i < 'foo'|
 param testFirst = first('asdfds')
 //@[18:33) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "'a'". (CodeDescription: none) |first('asdfds')|
 param testFlatten = flatten({foo: 'bar'})
@@ -84,9 +83,7 @@ param testReplace = replace('abc', 'b', {})
 param testSkip = skip([1, 2, 3], '1')
 //@[33:36) [BCP070 (Error)] Argument of type "'1'" is not assignable to parameter of type "int". (CodeDescription: none) |'1'|
 param testSort = sort(['c', 'd', 'a'], (a, b) => a + b)
-//@[17:55) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "('a' | 'c' | 'd')[]". (CodeDescription: none) |sort(['c', 'd', 'a'], (a, b) => a + b)|
-//@[17:55) [BCP338 (Error)] Failed to evaluate parameter "testSort": Unhandled exception during evaluating template language function 'sort' is not handled. (CodeDescription: none) |sort(['c', 'd', 'a'], (a, b) => a + b)|
-//@[49:54) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'a' | 'c' | 'd'" and "'a' | 'c' | 'd'". Use string interpolation instead. (CodeDescription: none) |a + b|
+//@[39:54) [BCP070 (Error)] Argument of type "(any, any) => int" is not assignable to parameter of type "(any, any) => bool". (CodeDescription: none) |(a, b) => a + b|
 param testSplit = split('a/b/c', 1 + 2)
 //@[33:38) [BCP070 (Error)] Argument of type "3" is not assignable to parameter of type "array | string". (CodeDescription: none) |1 + 2|
 param testStartsWith = startsWith('abc', {})
@@ -100,7 +97,7 @@ param testTake = take([1, 2, 3], '2')
 param testToLower = toLower(123)
 //@[28:31) [BCP070 (Error)] Argument of type "123" is not assignable to parameter of type "string". (CodeDescription: none) |123|
 param testToObject = toObject(['a', 'b', 'c'], x => {x: x}, x => 'Hi ${x}!')
-//@[47:58) [BCP070 (Error)] Argument of type "('a' | 'b' | 'c') => object" is not assignable to parameter of type "any => string". (CodeDescription: none) |x => {x: x}|
+//@[47:58) [BCP070 (Error)] Argument of type "any => object" is not assignable to parameter of type "any => string". (CodeDescription: none) |x => {x: x}|
 param testToUpper = toUpper([123])
 //@[28:33) [BCP070 (Error)] Argument of type "[123]" is not assignable to parameter of type "string". (CodeDescription: none) |[123]|
 param testTrim = trim(123)

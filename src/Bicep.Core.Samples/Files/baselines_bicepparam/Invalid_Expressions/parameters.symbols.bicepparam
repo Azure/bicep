@@ -73,7 +73,7 @@ param testReplace = replace('abc', 'b', {})
 param testSkip = skip([1, 2, 3], '1')
 //@[6:14) ParameterAssignment testSkip. Type: error. Declaration start char: 0, length: 37
 param testSort = sort(['c', 'd', 'a'], (a, b) => a + b)
-//@[6:14) ParameterAssignment testSort. Type: ('a' | 'c' | 'd')[]. Declaration start char: 0, length: 55
+//@[6:14) ParameterAssignment testSort. Type: error. Declaration start char: 0, length: 55
 param testSplit = split('a/b/c', 1 + 2)
 //@[6:15) ParameterAssignment testSplit. Type: error. Declaration start char: 0, length: 39
 param testStartsWith = startsWith('abc', {})

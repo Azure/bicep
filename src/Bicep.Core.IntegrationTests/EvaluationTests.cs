@@ -1161,4 +1161,126 @@ output sayHiWithLambdas string = replaceMultiple('Hi, $firstName $lastName!', {
             evaluated.Should().HaveValueAtPath("$.outputs['sayHiWithLambdas'].value", "Hi, Anthony Martin!");
         }
     }
+
+    [TestMethod]
+    public void New_functions_are_evaluated_correctly()
+    {
+        var bicepFile = @"
+func isEven(i int) bool => i % 2 == 0
+
+output sayHello string[] = map(
+  ['Evie', 'Casper', 'Lady Lechuga'],
+  (dog, i) => '${isEven(i) ? 'Hi' : 'Ahoy'} ${dog}!')
+
+output evenEntries string[] = filter(['a', 'b', 'c', 'd'], (item, i) => isEven(i))
+
+output concatIfEven string = reduce(['abc', 'def', 'ghi'], '', (cur, next, i) => isEven(i) ? concat(cur, next) : cur)
+
+output mapValuesTest object = mapValues({
+  a: 123
+  b: 456
+}, val => val * 2)
+
+output objectKeysTest string[] = objectKeys({
+  a: 123
+  b: 456
+})
+
+output shallowMergeTest object = shallowMerge([{
+  a: 123
+}, {
+  b: 456
+}])
+
+output groupByTest object = groupBy([
+  { type: 'a', value: 123 }
+  { type: 'b', value: 456 }
+  { type: 'a', value: 789 }
+], arg => arg.type)
+
+output groupByWithValMapTest object = groupBy([
+  { type: 'a', value: 123 }
+  { type: 'b', value: 456 }
+  { type: 'a', value: 789 }
+], arg => arg.type, arg => arg.value)
+";
+
+        var (template, _, _) = CompilationHelper.Compile(bicepFile);
+
+        using (new AssertionScope())
+        {
+            var evaluated = TemplateEvaluator.Evaluate(template);
+
+            evaluated.Should().HaveValueAtPath("$.outputs['sayHello'].value", JToken.Parse("""
+[
+  "Hi Evie!",
+  "Ahoy Casper!",
+  "Hi Lady Lechuga!"
+]
+"""));
+
+            evaluated.Should().HaveValueAtPath("$.outputs['evenEntries'].value", JToken.Parse("""
+[
+  "a",
+  "c"
+]
+"""));
+
+            evaluated.Should().HaveValueAtPath("$.outputs['concatIfEven'].value", "abcghi");
+
+            evaluated.Should().HaveValueAtPath("$.outputs['mapValuesTest'].value", JToken.Parse("""
+{
+  "a": 246,
+  "b": 912
+}
+"""));
+
+            evaluated.Should().HaveValueAtPath("$.outputs['objectKeysTest'].value", JToken.Parse("""
+[
+  "a",
+  "b"
+]
+"""));
+
+            evaluated.Should().HaveValueAtPath("$.outputs['shallowMergeTest'].value", JToken.Parse("""
+{
+  "a": 123,
+  "b": 456
+}
+"""));
+
+            evaluated.Should().HaveValueAtPath("$.outputs['groupByTest'].value", JToken.Parse("""
+{
+  "a": [
+    {
+      "type": "a",
+      "value": 123
+    },
+    {
+      "type": "a",
+      "value": 789
+    }
+  ],
+  "b": [
+    {
+      "type": "b",
+      "value": 456
+    }
+  ]
+}
+"""));
+
+            evaluated.Should().HaveValueAtPath("$.outputs['groupByWithValMapTest'].value", JToken.Parse("""
+{
+  "a": [
+    123,
+    789
+  ],
+  "b": [
+    456
+  ]
+}
+"""));
+        }
+    }
 }

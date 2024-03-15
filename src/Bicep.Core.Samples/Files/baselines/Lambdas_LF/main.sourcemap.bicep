@@ -11,14 +11,34 @@ var doggos = [
 //@      "Kira"
 ]
 
+func isEven(i int) bool => i % 2 == 0
+//@        "isEven": {
+//@          "parameters": [
+//@            {
+//@              "type": "int",
+//@              "name": "i"
+//@            }
+//@          ],
+//@          "output": {
+//@            "type": "bool",
+//@            "value": "[equals(mod(parameters('i'), 2), 0)]"
+//@          }
+//@        }
+
 var numbers = range(0, 4)
 //@    "numbers": "[range(0, 4)]",
 
 var sayHello = map(doggos, i => 'Hello ${i}!')
 //@    "sayHello": "[map(variables('doggos'), lambda('i', format('Hello {0}!', lambdaVariables('i'))))]",
+// optional index parameter for map lambda
+var sayHello2 = map(doggos, (dog, i) => '${isEven(i) ? 'Hi' : 'Ahoy'} ${dog}!')
+//@    "sayHello2": "[map(variables('doggos'), lambda('dog', 'i', format('{0} {1}!', if(__bicep.isEven(lambdaVariables('i')), 'Hi', 'Ahoy'), lambdaVariables('dog'))))]",
 
-var isEven = filter(numbers, i => 0 == i % 2)
-//@    "isEven": "[filter(variables('numbers'), lambda('i', equals(0, mod(lambdaVariables('i'), 2))))]",
+var evenNumbers = filter(numbers, i => isEven(i))
+//@    "evenNumbers": "[filter(variables('numbers'), lambda('i', __bicep.isEven(lambdaVariables('i'))))]",
+// optional index parameter for filter lambda
+var evenEntries = filter(['a', 'b', 'c', 'd'], (item, i) => isEven(i))
+//@    "evenEntries": "[filter(createArray('a', 'b', 'c', 'd'), lambda('item', 'i', __bicep.isEven(lambdaVariables('i'))))]",
 
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
 //@    "evenDoggosNestedLambdas": "[map(filter(variables('numbers'), lambda('i', contains(filter(variables('numbers'), lambda('j', equals(0, mod(lambdaVariables('j'), 2)))), lambdaVariables('i')))), lambda('x', variables('doggos')[lambdaVariables('x')]))]",
@@ -70,6 +90,8 @@ var sortEmpty = sort([], (x, y) => int(x) < int(y))
 
 var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat(cur, next))
 //@    "reduceStringConcat": "[reduce(createArray('abc', 'def', 'ghi'), '', lambda('cur', 'next', concat(lambdaVariables('cur'), lambdaVariables('next'))))]",
+var reduceStringConcatEven = reduce(['abc', 'def', 'ghi'], '', (cur, next, i) => isEven(i) ? concat(cur, next) : cur)
+//@    "reduceStringConcatEven": "[reduce(createArray('abc', 'def', 'ghi'), '', lambda('cur', 'next', 'i', if(__bicep.isEven(lambdaVariables('i')), concat(lambdaVariables('cur'), lambdaVariables('next')), lambdaVariables('cur'))))]",
 var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
 //@    "reduceFactorial": "[reduce(range(1, 5), 1, lambda('cur', 'next', mul(lambdaVariables('cur'), lambdaVariables('next'))))]",
 var reduceObjectUnion = reduce([
@@ -100,12 +122,18 @@ output doggoGreetings array = [for item in mapObject: item.greeting]
 //@    }
 
 resource storageAcc 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
+//@    "storageAcc": {
+//@      "existing": true,
+//@      "type": "Microsoft.Storage/storageAccounts",
+//@      "apiVersion": "2021-09-01",
+//@      "name": "asdfsadf"
+//@    },
   name: 'asdfsadf'
 }
 var mappedResProps = map(items(storageAcc.properties.secondaryEndpoints), item => item.value)
 
 module myMod './test.bicep' = {
-//@    {
+//@    "myMod": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -183,9 +211,42 @@ var multiLine = reduce(['abc', 'def', 'ghi'], '', (
 ) => concat(cur, next))
 
 var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
-//@    "multiLineWithComment": "[reduce(createArray('abc', 'def', 'ghi'), '', lambda('cur', 'next', concat(lambdaVariables('cur'), lambdaVariables('next'))))]"
+//@    "multiLineWithComment": "[reduce(createArray('abc', 'def', 'ghi'), '', lambda('cur', 'next', concat(lambdaVariables('cur'), lambdaVariables('next'))))]",
   // comment
   cur,
   next
 ) => concat(cur, next))
+
+var mapVals = mapValues({
+//@    "mapVals": "[mapValues(createObject('a', 123, 'b', 456), lambda('val', mul(lambdaVariables('val'), 2)))]",
+  a: 123
+  b: 456
+}, val => val * 2)
+
+var objectKeysTest = objectKeys({
+//@    "objectKeysTest": "[objectKeys(createObject('a', 123, 'b', 456))]",
+  a: 123
+  b: 456
+})
+
+var shallowMergeTest = shallowMerge([{
+//@    "shallowMergeTest": "[shallowMerge(createArray(createObject('a', 123), createObject('b', 456)))]",
+  a: 123
+}, {
+  b: 456
+}])
+
+var groupByTest = groupBy([
+//@    "groupByTest": "[groupBy(createArray(createObject('type', 'a', 'value', 123), createObject('type', 'b', 'value', 456), createObject('type', 'a', 'value', 789)), lambda('arg', lambdaVariables('arg').type))]",
+  { type: 'a', value: 123 }
+  { type: 'b', value: 456 }
+  { type: 'a', value: 789 }
+], arg => arg.type)
+
+var groupByWithValMapTest = groupBy([
+//@    "groupByWithValMapTest": "[groupBy(createArray(createObject('type', 'a', 'value', 123), createObject('type', 'b', 'value', 456), createObject('type', 'a', 'value', 789)), lambda('arg', lambdaVariables('arg').type), lambda('arg', lambdaVariables('arg').value))]"
+  { type: 'a', value: 123 }
+  { type: 'b', value: 456 }
+  { type: 'a', value: 789 }
+], arg => arg.type, arg => arg.value)
 
