@@ -220,7 +220,8 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsImportedSymbolListItemContext(matchingNodes, offset), BicepCompletionContextKind.ImportedSymbolIdentifier) |
                        ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportAsKeyword) |
                        ConvertFlag(ExpectingContextualFromKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportFromKeyword) |
-                       ConvertFlag(IsImportTargetContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath);
+                       ConvertFlag(IsImportTargetContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath) |
+                       ConvertFlag(IsAfterSpreadTokenContext(matchingNodes, offset), BicepCompletionContextKind.Expression);
 
             if (featureProvider.ExtensibilityEnabled)
             {
@@ -792,6 +793,13 @@ namespace Bicep.LanguageServer.Completions
             // | below indicates cursor position
             // output foo type |
             SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => offset > output.Type.GetEndPosition() && offset <= output.Assignment.Span.Position);
+
+        private static bool IsAfterSpreadTokenContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // ... |
+            SyntaxMatcher.IsTailMatch<SpreadExpressionSyntax>(matchingNodes, spread => spread.Expression is not SkippedTriviaSyntax && offset >= spread.Expression.GetEndPosition()) ||
+            // ...|
+            SyntaxMatcher.IsTailMatch<SpreadExpressionSyntax, Token>(matchingNodes, (spread, token) => spread.Ellipsis == token && offset == token.GetEndPosition());
+
 
         private static bool IsVariableValueContext(List<SyntaxBase> matchingNodes, int offset) =>
             // | below indicates cursor position

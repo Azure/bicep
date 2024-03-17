@@ -454,5 +454,10 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.BaseExpression);
         }
+
+        public override void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax)
+        {
+            this.Visit(syntax.Expression);
+        }
     }
 }

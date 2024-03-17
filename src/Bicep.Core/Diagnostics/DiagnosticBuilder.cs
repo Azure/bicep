@@ -2166,6 +2166,22 @@ namespace Bicep.Core.Diagnostics
                     DiagnosticStyling.Default,
                     codeFix);
             }
+
+            public ErrorDiagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => new(
+                TextSpan,
+                "BCP396",
+                $"The spread operator \"{spread.Ellipsis.Text}\" is not permitted in this location.");
+
+            public ErrorDiagnostic SpreadOperatorRequiresAssignableValue(SpreadExpressionSyntax spread, TypeSymbol requiredType) => new(
+                TextSpan,
+                "BCP397",
+                $"The spread operator \"{spread.Ellipsis.Text}\" can only be used in this context for an expression assignable to type \"{requiredType}\".");
+
+            public Diagnostic ArrayTypeMismatchSpread(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => new(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP398",
+                $"The enclosing array expects elements of type \"{expectedType}\", but the array being spread contains elements of incompatible type \"{actualType}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

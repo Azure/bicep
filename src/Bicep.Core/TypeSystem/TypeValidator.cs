@@ -27,30 +27,13 @@ namespace Bicep.Core.TypeSystem
 
         private readonly IDiagnosticWriter diagnosticWriter;
 
-        private class TypeValidatorConfig
-        {
-            public TypeValidatorConfig(bool skipTypeErrors, bool skipConstantCheck, bool disallowAny, SyntaxBase? originSyntax, TypeMismatchDiagnosticWriter? onTypeMismatch, bool isResourceDeclaration)
-            {
-                this.SkipTypeErrors = skipTypeErrors;
-                this.SkipConstantCheck = skipConstantCheck;
-                this.DisallowAny = disallowAny;
-                this.OriginSyntax = originSyntax;
-                this.OnTypeMismatch = onTypeMismatch;
-                this.IsResourceDeclaration = isResourceDeclaration;
-            }
-
-            public bool SkipTypeErrors { get; }
-
-            public bool SkipConstantCheck { get; }
-
-            public bool DisallowAny { get; }
-
-            public SyntaxBase? OriginSyntax { get; }
-
-            public TypeMismatchDiagnosticWriter? OnTypeMismatch { get; }
-
-            public bool IsResourceDeclaration { get; }
-        }
+        private record TypeValidatorConfig(
+            bool SkipTypeErrors,
+            bool SkipConstantCheck,
+            bool DisallowAny,
+            SyntaxBase? OriginSyntax,
+            TypeMismatchDiagnosticWriter? OnTypeMismatch,
+            bool IsResourceDeclaration);
 
         private TypeValidator(ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
         {
@@ -220,12 +203,12 @@ namespace Bicep.Core.TypeSystem
         public static TypeSymbol NarrowTypeAndCollectDiagnostics(ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter, SyntaxBase expression, TypeSymbol targetType, bool isResourceDeclaration = false)
         {
             var config = new TypeValidatorConfig(
-                skipTypeErrors: false,
-                skipConstantCheck: false,
-                disallowAny: false,
-                originSyntax: null,
-                onTypeMismatch: null,
-                isResourceDeclaration: isResourceDeclaration);
+                SkipTypeErrors: false,
+                SkipConstantCheck: false,
+                DisallowAny: false,
+                OriginSyntax: null,
+                OnTypeMismatch: null,
+                IsResourceDeclaration: isResourceDeclaration);
 
             var validator = new TypeValidator(typeManager, binder, parsingErrorLookup, diagnosticWriter);
 
@@ -596,13 +579,7 @@ namespace Bicep.Core.TypeSystem
                 case ArraySyntax arrayValue:
                     return NarrowArrayAssignmentType(config, arrayValue, targetType);
                 case VariableAccessSyntax variableAccess when DeclaringSyntax(variableAccess) is SyntaxBase declaringSyntax:
-                    var newConfig = new TypeValidatorConfig(
-                        skipConstantCheck: config.SkipConstantCheck,
-                        skipTypeErrors: config.SkipTypeErrors,
-                        disallowAny: config.DisallowAny,
-                        originSyntax: variableAccess,
-                        onTypeMismatch: config.OnTypeMismatch,
-                        isResourceDeclaration: config.IsResourceDeclaration);
+                    var newConfig = config with { OriginSyntax = variableAccess };
                     return NarrowType(newConfig, declaringSyntax, targetType);
             }
 
@@ -679,43 +656,69 @@ namespace Bicep.Core.TypeSystem
                 return targetType;
             }
 
-            var arrayProperties = new List<ITypeReference>();
-            foreach (var (idx, arrayItemSyntax) in expression.Items.Select((item, i) => (i, item)))
+            var childTypes = new List<(ITypeReference type, bool isSpread)>();
+            var hasSpread = false;
+            foreach (var child in expression.Children)
             {
-                var newConfig = new TypeValidatorConfig(
-                    skipConstantCheck: config.SkipConstantCheck,
-                    skipTypeErrors: true,
-                    disallowAny: config.DisallowAny,
-                    originSyntax: config.OriginSyntax,
-                    onTypeMismatch: (expected, actual, position) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatch(ShouldWarn(targetType), expected, actual)),
-                    isResourceDeclaration: config.IsResourceDeclaration);
-
-                var narrowedType = NarrowType(newConfig, arrayItemSyntax.Value, targetType switch
+                if (child is ArrayItemSyntax item)
                 {
-                    // if the target is a tuple, find the correct target type by index. If we walk off the end of the tuple schema, just use `any` and report a length violation
-                    TupleType tt => tt.Items.Skip(idx).FirstOrDefault()?.Type ?? LanguageConstants.Any,
-                    _ => targetType.Item.Type,
-                });
+                    var itemTarget = targetType switch
+                    {
+                        // If the target is a tuple, find the correct target type by index.
+                        // If we've already encountered a spread expression, the index cannot be relied upon.
+                        // If we walk off the end of the tuple schema, just use `any` and report a length violation.
+                        TupleType tt when !hasSpread => tt.Items.Skip(childTypes.Count).FirstOrDefault()?.Type ?? LanguageConstants.Any,
+                        _ => targetType.Item.Type,
+                    };
 
-                arrayProperties.Add(narrowedType);
+                    var newConfig = config with { 
+                        SkipTypeErrors = true,
+                        OnTypeMismatch = (expected, actual, position) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatch(ShouldWarn(targetType), expected, actual)),
+                    };
+
+                    var narrowedItem = NarrowType(newConfig, item.Value, itemTarget);
+                    childTypes.Add((narrowedItem, isSpread: false));
+                }
+                else if (child is SpreadExpressionSyntax spread)
+                {
+                    hasSpread = true;
+                    var spreadTarget = new TypedArrayType(targetType.Item, targetType.ValidationFlags);
+
+                    var newConfig = config with { 
+                        SkipTypeErrors = true,
+                        OnTypeMismatch = (expected, actual, position) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatchSpread(ShouldWarn(targetType), expected, actual)),
+                    };
+
+                    var narrowedSpread = NarrowType(newConfig, spread.Expression, spreadTarget);
+                    childTypes.Add((narrowedSpread, isSpread: true));
+                    // TODO could further optimize accuracy here if the spread returns a tuple type
+                }
             }
 
-            if (targetType.MaxLength.HasValue && targetType.MaxLength.Value < arrayProperties.Count)
+            if (!hasSpread && targetType.MaxLength.HasValue && targetType.MaxLength.Value < childTypes.Count)
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
                     config.IsResourceDeclaration || ShouldWarn(targetType),
-                    arrayProperties.Count,
+                    childTypes.Count,
                     targetType.MaxLength.Value));
             }
-            else if (targetType.MinLength.HasValue && targetType.MinLength.Value > arrayProperties.Count)
+            else if (!hasSpread && targetType.MinLength.HasValue && targetType.MinLength.Value > childTypes.Count)
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(
                     config.IsResourceDeclaration || ShouldWarn(targetType),
-                    arrayProperties.Count,
+                    childTypes.Count,
                     targetType.MinLength.Value));
             }
 
-            return new TupleType(arrayProperties.ToImmutableArray(), targetType.ValidationFlags);
+            var itemProps = childTypes.Select((t, i) => t switch {
+                (type: {} itemType, isSpread: false) => itemType,
+                (type: ArrayType arrayType, isSpread: true) => arrayType.Item,
+                _ => LanguageConstants.Any,
+            });
+
+            return hasSpread ?
+                new TypedArrayType(TypeHelper.CreateTypeUnion(itemProps), targetType.ValidationFlags) :
+                new TupleType(itemProps.ToImmutableArray(), targetType.ValidationFlags);
         }
 
         private TypeSymbol NarrowLambdaType(TypeValidatorConfig config, LambdaSyntax lambdaSyntax, LambdaType targetType)
@@ -742,13 +745,7 @@ namespace Bicep.Core.TypeSystem
         {
             if (DeclaringSyntax(variableAccess) is SyntaxBase declaringSyntax)
             {
-                var newConfig = new TypeValidatorConfig(
-                    skipConstantCheck: config.SkipConstantCheck,
-                    skipTypeErrors: config.SkipTypeErrors,
-                    disallowAny: config.DisallowAny,
-                    originSyntax: variableAccess,
-                    onTypeMismatch: config.OnTypeMismatch,
-                    isResourceDeclaration: config.IsResourceDeclaration);
+                var newConfig = config with { OriginSyntax = variableAccess };
                 return NarrowType(newConfig, declaringSyntax, targetType);
             }
 
@@ -1039,13 +1036,7 @@ namespace Bicep.Core.TypeSystem
 
             if (expression is VariableAccessSyntax variableAccess && DeclaringSyntax(variableAccess) is SyntaxBase declaringSyntax)
             {
-                TypeValidatorConfig newConfig = new(
-                    skipConstantCheck: config.SkipConstantCheck,
-                    skipTypeErrors: config.SkipTypeErrors,
-                    disallowAny: config.DisallowAny,
-                    originSyntax: variableAccess,
-                    onTypeMismatch: config.OnTypeMismatch,
-                    isResourceDeclaration: config.IsResourceDeclaration);
+                var newConfig = config with { OriginSyntax = variableAccess };
                 return NarrowObjectAssignmentType(newConfig, declaringSyntax, expressionType, targetType);
             }
 
@@ -1138,16 +1129,16 @@ namespace Bicep.Core.TypeSystem
                         }
 
                         var newConfig = new TypeValidatorConfig(
-                            skipConstantCheck: skipConstantCheckForProperty,
-                            skipTypeErrors: true,
-                            disallowAny: declaredProperty.Flags.HasFlag(TypePropertyFlags.DisallowAny),
-                            originSyntax: config.OriginSyntax,
-                            onTypeMismatch: GetPropertyMismatchDiagnosticWriter(
+                            SkipConstantCheck: skipConstantCheckForProperty,
+                            SkipTypeErrors: true,
+                            DisallowAny: declaredProperty.Flags.HasFlag(TypePropertyFlags.DisallowAny),
+                            OriginSyntax: config.OriginSyntax,
+                            OnTypeMismatch: GetPropertyMismatchDiagnosticWriter(
                                 config: config,
                                 shouldWarn: (config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(declaredProperty.TypeReference.Type),
                                 propertyName: declaredProperty.Name,
                                 showTypeInaccuracyClause: config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)),
-                            isResourceDeclaration: config.IsResourceDeclaration);
+                            IsResourceDeclaration: config.IsResourceDeclaration);
 
                         // append "| null" to the property type for non-required properties
                         var (propertyAssignmentType, typeWasPreserved) = AddImplicitNull(declaredProperty.TypeReference.Type, declaredProperty.Flags);
@@ -1225,12 +1216,12 @@ namespace Bicep.Core.TypeSystem
                         }
 
                         var newConfig = new TypeValidatorConfig(
-                            skipConstantCheck: skipConstantCheckForProperty,
-                            skipTypeErrors: true,
-                            disallowAny: targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.DisallowAny),
-                            originSyntax: config.OriginSyntax,
-                            onTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType.AdditionalPropertiesType.Type), extraProperty.Key, false),
-                            isResourceDeclaration: config.IsResourceDeclaration);
+                            SkipConstantCheck: skipConstantCheckForProperty,
+                            SkipTypeErrors: true,
+                            DisallowAny: targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.DisallowAny),
+                            OriginSyntax: config.OriginSyntax,
+                            OnTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType.AdditionalPropertiesType.Type), extraProperty.Key, false),
+                            IsResourceDeclaration: config.IsResourceDeclaration);
 
                         // append "| null" to the type on non-required properties
                         var (additionalPropertiesAssignmentType, _) = AddImplicitNull(targetType.AdditionalPropertiesType.Type, targetType.AdditionalPropertiesFlags);

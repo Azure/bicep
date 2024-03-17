@@ -4054,6 +4054,32 @@ var arr6 = [
         }
 
         [TestMethod]
+        public async Task Spread_operator_supports_expression_completions()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+param bar object
+
+var foo = {
+  prop: 'bar'
+  ...|
+}
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+
+            var updatedFile = file.ApplyCompletion(completions, "bar");
+            updatedFile.Should().HaveSourceText("""
+param bar object
+
+var foo = {
+  prop: 'bar'
+  ...bar|
+}
+""");
+        }
+
+        [TestMethod]
         public async Task Compile_time_imports_offer_target_path_completions()
         {
             var mainContent = """

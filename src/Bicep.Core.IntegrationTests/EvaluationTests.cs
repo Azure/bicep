@@ -1211,45 +1211,45 @@ output groupByWithValMapTest object = groupBy([
         {
             var evaluated = TemplateEvaluator.Evaluate(template);
 
-            evaluated.Should().HaveValueAtPath("$.outputs['sayHello'].value", JToken.Parse("""
+            evaluated.Should().HaveJsonAtPath("$.outputs['sayHello'].value", """
 [
   "Hi Evie!",
   "Ahoy Casper!",
   "Hi Lady Lechuga!"
 ]
-"""));
+""");
 
-            evaluated.Should().HaveValueAtPath("$.outputs['evenEntries'].value", JToken.Parse("""
+            evaluated.Should().HaveJsonAtPath("$.outputs['evenEntries'].value", """
 [
   "a",
   "c"
 ]
-"""));
+""");
 
             evaluated.Should().HaveValueAtPath("$.outputs['concatIfEven'].value", "abcghi");
 
-            evaluated.Should().HaveValueAtPath("$.outputs['mapValuesTest'].value", JToken.Parse("""
+            evaluated.Should().HaveJsonAtPath("$.outputs['mapValuesTest'].value", """
 {
   "a": 246,
   "b": 912
 }
-"""));
+""");
 
-            evaluated.Should().HaveValueAtPath("$.outputs['objectKeysTest'].value", JToken.Parse("""
+            evaluated.Should().HaveJsonAtPath("$.outputs['objectKeysTest'].value", """
 [
   "a",
   "b"
 ]
-"""));
+""");
 
-            evaluated.Should().HaveValueAtPath("$.outputs['shallowMergeTest'].value", JToken.Parse("""
+            evaluated.Should().HaveJsonAtPath("$.outputs['shallowMergeTest'].value", """
 {
   "a": 123,
   "b": 456
 }
-"""));
+""");
 
-            evaluated.Should().HaveValueAtPath("$.outputs['groupByTest'].value", JToken.Parse("""
+            evaluated.Should().HaveJsonAtPath("$.outputs['groupByTest'].value", """
 {
   "a": [
     {
@@ -1268,9 +1268,9 @@ output groupByWithValMapTest object = groupBy([
     }
   ]
 }
-"""));
+""");
 
-            evaluated.Should().HaveValueAtPath("$.outputs['groupByWithValMapTest'].value", JToken.Parse("""
+            evaluated.Should().HaveJsonAtPath("$.outputs['groupByWithValMapTest'].value", """
 {
   "a": [
     123,
@@ -1280,7 +1280,7 @@ output groupByWithValMapTest object = groupBy([
     456
   ]
 }
-"""));
+""");
         }
     }
 }

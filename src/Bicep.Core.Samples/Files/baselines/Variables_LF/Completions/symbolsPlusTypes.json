@@ -266,6 +266,20 @@
     }
   },
   {
+    "label": "arraySpread",
+    "kind": "variable",
+    "detail": "arraySpread",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arraySpread",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "arraySpread"
+    }
+  },
+  {
     "label": "az",
     "kind": "folder",
     "detail": "az",
@@ -2850,6 +2864,20 @@
     }
   },
   {
+    "label": "spread",
+    "kind": "variable",
+    "detail": "spread",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_spread",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "spread"
+    }
+  },
+  {
     "label": "startsWith",
     "kind": "function",
     "documentation": {
@@ -3085,6 +3113,20 @@
     "command": {
       "title": "signature help",
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "test",
+    "kind": "variable",
+    "detail": "test",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_test",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "test"
     }
   },
   {
