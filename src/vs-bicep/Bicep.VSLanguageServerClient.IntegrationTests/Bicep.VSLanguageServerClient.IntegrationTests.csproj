@@ -27,7 +27,7 @@
 		<PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.9.34701.34" />
 		<PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.7.40" />
 		<PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.2.3194" />
-		<PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.2.32505.113" />
+		<PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.9.37000" />
 		<PackageReference Include="MSTest.TestAdapter" Version="3.2.2" />
 		<PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
 	</ItemGroup>
