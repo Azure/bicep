@@ -10,9 +10,9 @@
       },
       "Microsoft.CodeAnalysis.CSharp.CodeStyle": {
         "type": "Direct",
-        "requested": "[4.5.0, )",
-        "resolved": "4.5.0",
-        "contentHash": "cJtiKSEuTIKdazIZDepu85+vO7TLtcFqR2HCYUyz8MkqBLfbZ4CqWDrqgLKeh4UlbQJoermhK8ZOML9Am+TSMw=="
+        "requested": "[4.9.2, )",
+        "resolved": "4.9.2",
+        "contentHash": "qHpTHDod/KBt6tkSlWh/RVfkVcwpGkabQpi5g8YsjLK5qhEoAkv70mckbmntzo9HA4vMPkIKd7ZtNGn2CCbQVg=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
