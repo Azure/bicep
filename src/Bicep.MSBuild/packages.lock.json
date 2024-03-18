@@ -10,9 +10,9 @@
       },
       "Microsoft.Build.Framework": {
         "type": "Direct",
-        "requested": "[17.8.3, )",
-        "resolved": "17.8.3",
-        "contentHash": "NrQZJW8TlKVPx72yltGb8SVz3P5mNRk9fNiD/ao8jRSk48WqIIdCn99q4IjlVmPcruuQ+yLdjNQLL8Rb4c916g==",
+        "requested": "[17.9.5, )",
+        "resolved": "17.9.5",
+        "contentHash": "CjRmqu9Wv2fyC1d7NKOuBDXcNMI8+GiXGM6izygB+skGGu4Vf0cBcoPq7AFqZCcMpn5DtZ+y7RpaLpB2qrzanQ==",
         "dependencies": {
           "Microsoft.Win32.Registry": "5.0.0",
           "System.Memory": "4.5.5",
