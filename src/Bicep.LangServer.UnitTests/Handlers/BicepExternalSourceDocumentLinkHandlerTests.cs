@@ -144,7 +144,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                         name: 'm'
                     }
                     """));
-            result.Diagnostics.Should().BeEmpty();
+            result.Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -152,7 +152,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
-                    ("br:mockregistry.io/test/module1:v1", "metadata m string = ", withSource: true),
+                    ("br:mockregistry.io/test/module1:v1", "metadata m = ''", withSource: true)
                 ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             await RestoreModuleViaLocalCode(clientFactory, "module1", "v1");
