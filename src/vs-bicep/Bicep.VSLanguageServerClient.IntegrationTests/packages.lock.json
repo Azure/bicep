@@ -26,9 +26,9 @@
       },
       "Microsoft.Net.Compilers.Toolset": {
         "type": "Direct",
-        "requested": "[4.5.0-2.final, )",
-        "resolved": "4.5.0-2.final",
-        "contentHash": "5AKgCibYDYbiRdTdkNtBZnKZ5leEAJsbXl5bDPflqYNtrbdZcAW5GX/6kbmkUiqDiXwRxEf9x4tHgq1BsJUd+A=="
+        "requested": "[4.9.2, )",
+        "resolved": "4.9.2",
+        "contentHash": "2j3UDVESH3nVyOr3EF3Om0nSfbZ70dRfiSxmFEoCMar9fApOsns+Odv6g3bMH8rZriY6G4x3LCsnsDl+CEt5KQ=="
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
