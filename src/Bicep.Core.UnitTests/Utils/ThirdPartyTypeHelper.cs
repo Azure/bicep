@@ -72,18 +72,10 @@ public static class ThirdPartyTypeHelper
         //Do we need to make a new string type, test
         var stringTypeRoot = rootFactory.Create(() => new StringType());
 
-        var fooBodyPropertiesType = factory.Create(() => new ObjectType("fooBody", new Dictionary<string, ObjectTypeProperty>
-        {
-            ["readwrite"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.None, "This is a property which supports reading AND writing!"),
-            ["readonly"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.ReadOnly, "This is a property which only supports reading."),
-            ["writeonly"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.WriteOnly, "This is a property which only supports writing."),
-            ["required"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required, "This is a property which is required."),
-        }, null));
-
         var fooBodyType = factory.Create(() => new ObjectType("fooBody", new Dictionary<string, ObjectTypeProperty>
         {
             ["identifier"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required | ObjectTypePropertyFlags.Identifier, "The resource identifier"),
-            ["properties"] = new(factory.GetReference(fooBodyPropertiesType), ObjectTypePropertyFlags.Required, "Resource properties"),
+            ["joke"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required | ObjectTypePropertyFlags.Identifier, "The foo body")
         }, null));
 
         var barFunctionType = factory.Create(() => new FunctionType([
@@ -120,7 +112,9 @@ public static class ThirdPartyTypeHelper
         //setup configuration
         var configurationType = rootFactory.Create(() => new ObjectType("config", new Dictionary<string, ObjectTypeProperty>
         {
-            ["configProp"] = new(rootFactory.GetReference(stringTypeRoot), ObjectTypePropertyFlags.Required, "Config property"),
+            ["namespace"] = new(rootFactory.GetReference(stringTypeRoot), ObjectTypePropertyFlags.Required, "The default ThirdParty namespace to deploy resources to."),
+            ["config"] = new(rootFactory.GetReference(stringTypeRoot), ObjectTypePropertyFlags.Required, "Path to some configuration file."),
+            ["context"] = new(rootFactory.GetReference(stringTypeRoot), ObjectTypePropertyFlags.None, "Not required context property.")
         }, null));
 
         var settings = new TypeSettings(name: "ThirdPartyProvider", version: "1.0.0", isSingleton: false, configurationType: new CrossFileTypeReference("types.json", rootFactory.GetIndex(configurationType)));
