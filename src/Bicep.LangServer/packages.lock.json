@@ -81,9 +81,9 @@
       },
       "SharpYaml": {
         "type": "Direct",
-        "requested": "[2.1.0, )",
-        "resolved": "2.1.0",
-        "contentHash": "2jBenJ6QN0mj8G3ohrNO/uNhA92OJYsQFuI5dJ4zM/HauVoC/oJzK1sCVlUaVUpuXpHUa/k1waXVkkBR2luP/w=="
+        "requested": "[2.1.1, )",
+        "resolved": "2.1.1",
+        "contentHash": "BISoFuW2AwZYXxrZGaBnedo21BvrdgC4kkWd6QYrOdhOGSsZB0RSqcBw09l9caUE1g3sykJoRfSbtSzZS6tYig=="
       },
       "Azure.Bicep.Types": {
         "type": "Transitive",
@@ -1950,7 +1950,7 @@
           "Microsoft.Graph.Bicep.Types": "[0.1.3-preview, )",
           "Microsoft.PowerPlatform.ResourceStack": "[6.0.0.1485, )",
           "Newtonsoft.Json": "[13.0.3, )",
-          "SharpYaml": "[2.1.0, )",
+          "SharpYaml": "[2.1.1, )",
           "System.IO.Abstractions": "[20.0.15, )"
         }
       },

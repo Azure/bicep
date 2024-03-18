@@ -240,9 +240,9 @@
       },
       "SharpYaml": {
         "type": "Direct",
-        "requested": "[2.1.0, )",
-        "resolved": "2.1.0",
-        "contentHash": "2jBenJ6QN0mj8G3ohrNO/uNhA92OJYsQFuI5dJ4zM/HauVoC/oJzK1sCVlUaVUpuXpHUa/k1waXVkkBR2luP/w=="
+        "requested": "[2.1.1, )",
+        "resolved": "2.1.1",
+        "contentHash": "BISoFuW2AwZYXxrZGaBnedo21BvrdgC4kkWd6QYrOdhOGSsZB0RSqcBw09l9caUE1g3sykJoRfSbtSzZS6tYig=="
       },
       "System.IO.Abstractions": {
         "type": "Direct",
