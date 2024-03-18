@@ -1,23 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Text;
+using Bicep.Core.Workspaces;
+
 namespace Bicep.Core.Syntax
 {
     public class SyntaxHierarchy : ISyntaxHierarchy
     {
+        private readonly BicepSourceFile? sourceFile;
         private readonly IReadOnlyDictionary<SyntaxBase, SyntaxBase?> parentMap;
 
-        private SyntaxHierarchy(IReadOnlyDictionary<SyntaxBase, SyntaxBase?> parentMap)
+        private SyntaxHierarchy(BicepSourceFile? sourceFile, IReadOnlyDictionary<SyntaxBase, SyntaxBase?> parentMap)
         {
+            this.sourceFile = sourceFile;
             this.parentMap = parentMap;
         }
 
-        public static ISyntaxHierarchy Build(SyntaxBase root)
+        public static ISyntaxHierarchy Build(SyntaxBase root, BicepSourceFile? sourceFile = null)
         {
             var parentMap = new Dictionary<SyntaxBase, SyntaxBase?>();
             var visitor = new ParentTrackingVisitor(parentMap);
             visitor.Visit(root);
 
-            return new SyntaxHierarchy(parentMap);
+            return new SyntaxHierarchy(sourceFile, parentMap);
         }
 
         /// <summary>
@@ -28,7 +33,14 @@ namespace Bicep.Core.Syntax
         {
             if (this.parentMap.TryGetValue(node, out var parent) == false)
             {
-                throw new ArgumentException($"Unable to determine parent of specified node of type '{node.GetType().Name}' at span '{node.Span}' because it has not been indexed.");
+                var additionalInfo = "";
+                if (sourceFile is {})
+                {
+                    var position = TextCoordinateConverter.GetPosition(sourceFile.LineStarts, node.Span.Position);
+                    additionalInfo = $" Source file: {sourceFile.FileUri}, line: {position.line}, char: {position.character}. Node contents: {node.ToString()}.";
+                }
+
+                throw new ArgumentException($"Unable to determine parent of specified node of type '{node.GetType().Name}' at span '{node.Span}' because it has not been indexed.{additionalInfo}");
             }
 
             return parent;

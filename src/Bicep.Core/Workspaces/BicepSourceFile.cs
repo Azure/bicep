@@ -14,7 +14,7 @@ namespace Bicep.Core.Workspaces
             LineStarts = lineStarts;
             ProgramSyntax = programSyntax;
             FileUri = fileUri;
-            Hierarchy = SyntaxHierarchy.Build(ProgramSyntax);
+            Hierarchy = SyntaxHierarchy.Build(ProgramSyntax, this);
             LexingErrorLookup = lexingErrorLookup;
             ParsingErrorLookup = parsingErrorLookup;
             DisabledDiagnosticsCache = new DisabledDiagnosticsCache(ProgramSyntax, lineStarts);
