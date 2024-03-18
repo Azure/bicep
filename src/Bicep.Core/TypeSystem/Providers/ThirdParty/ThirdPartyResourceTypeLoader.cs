@@ -13,9 +13,13 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 {
     public class ThirdPartyResourceTypeLoader : IResourceTypeLoader
     {
+        public record NamespaceConfiguration(string Name, string Version, bool IsSingleton, TypeSymbol? ConfigurationObject);
+
         private readonly ITypeLoader typeLoader;
         private readonly ExtensibilityResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, CrossFileTypeReference> availableTypes;
+        private readonly TypeSettings? typeSettings;
+        private readonly CrossFileTypeReference? fallbackResourceType;
 
         public ThirdPartyResourceTypeLoader(ITypeLoader typeLoader)
         {
@@ -25,33 +29,8 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);
-            //Where did functions go?
-
-            if (indexedTypes.Settings != null)
-            {
-                Settings = indexedTypes.Settings;
-
-                if (indexedTypes.Settings.ConfigurationType != null)
-                {
-                    //Find a way to avoid calling this again
-                    var reference = indexedTypes.Settings.ConfigurationType;
-                    //this part can be made it's own function
-                    if (typeLoader.LoadType(reference) is not ObjectType objectType)
-                    {
-                        throw new ArgumentException($"Unable to locate resource object type at index {reference.Index} in \"{reference.RelativePath}\" resource");
-                    }
-
-                    ConfigurationType = objectType;
-                }
-            }
-
-            //And this?
-            if (indexedTypes.FallbackResourceType != null)
-            {
-                var serializedResourceType = typeLoader.LoadResourceType(indexedTypes.FallbackResourceType);
-
-                FallbackResourceType = resourceTypeFactory.GetResourceType(serializedResourceType);
-            }
+            typeSettings = indexedTypes.Settings;
+            fallbackResourceType = indexedTypes.FallbackResourceType;
         }
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
@@ -66,10 +45,53 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             return resourceTypeFactory.GetResourceType(serializedResourceType);
         }
 
-        public TypeSettings? Settings { get; }
+        public ResourceTypeComponents? LoadFallbackResourceType()
+        {
+            if (fallbackResourceType != null)
+            {
+                var serializedResourceType = typeLoader.LoadResourceType(fallbackResourceType);
+                //how to convert
+                return resourceTypeFactory.GetResourceType(serializedResourceType);
+            }
 
-        public ResourceTypeComponents? FallbackResourceType { get; }
+            return null;
+        }
 
-        public ObjectType? ConfigurationType { get; }
+        public NamespaceConfiguration? LoadNamespaceConfiguration()
+        {
+            if (typeSettings == null)
+            {
+                return null;
+            }
+
+            var name = typeSettings.Name;
+            var version = typeSettings.Version;
+            var isSingleton = typeSettings.IsSingleton;
+
+            TypeSymbol? configurationType = null;
+
+            if (typeSettings != null)
+            {
+                //Need to handle all cases here, what happens if ConfigurationType is null, then the name, version and issingleton will not be set
+                if (typeSettings.ConfigurationType != null)
+                {
+                    //Find a way to avoid calling this again
+                    var reference = typeSettings.ConfigurationType;
+                    //this part can be made it's own function
+                    if (typeLoader.LoadType(reference) is not ObjectType objectType)
+                    {
+                        throw new ArgumentException($"Unable to locate resource object type at index {reference.Index} in \"{reference.RelativePath}\" resource");
+                    }
+
+                    //Return everything in typeSettings
+                    var bodyType = resourceTypeFactory.GetObjectType(objectType);
+
+                    //Change chek name & change bodyType Name above
+                    configurationType = bodyType;
+                }
+            }
+
+            return new NamespaceConfiguration(name, version, isSingleton, configurationType);
+        }
     }
 }

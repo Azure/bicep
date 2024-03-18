@@ -5,8 +5,10 @@ using System.Diagnostics;
 using System.Formats.Tar;
 using System.IO.Abstractions;
 using System.IO.Compression;
+using System.Text;
 using Azure.Bicep.Types;
 using Bicep.Core.Registry;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -62,6 +64,16 @@ namespace Bicep.Core.TypeSystem
             }
 
             var typesCache = typesCacheBuilder.ToImmutableDictionary();
+            foreach (var entry in typesCache)
+            {
+                string jsonString = System.Text.Encoding.UTF8.GetString(entry.Value);
+
+
+
+                // Parse string into JSON object
+                //JObject jsonObject = JObject.Parse(jsonString);
+            }
+
             return new OciTypeLoader(typesCache);
         }
 
