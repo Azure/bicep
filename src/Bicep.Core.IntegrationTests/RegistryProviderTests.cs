@@ -462,4 +462,59 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
             ("BCP089", DiagnosticLevel.Error, "The property \"contex\" is not allowed on objects of type \"config\". Did you mean \"context\"?")
         });
     }
+
+    [TestMethod]
+    public async Task FallbackTypeWorks()
+    {
+        var registry = "example.azurecr.io";
+        var repository = $"test/provider/foo";
+
+        var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true, true);
+
+        var tgzData = ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration();
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+        provider 'br:example.azurecr.io/test/provider/foo@1.2.3' with {
+            namespace: 'ThirdPartyNamespace'
+            config: 'Some path to config file'
+        }
+
+        resource dadJoke 'test@v1' = {
+            bodyProp: 'fallback body'
+        }
+
+        output joke string = dadJoke.bodyProp
+        """);
+
+        result.Should().GenerateATemplate();
+        result.Should().HaveDiagnostics(new[]{
+            ("BCP081", DiagnosticLevel.Warning, "Resource type \"type@v1\" does not have types available.")
+        });
+    }
+
+    [TestMethod]
+    public async Task AzDummmyDeleteLater()
+    {
+        var registry = "example.azurecr.io";
+        var repository = $"test/provider/foo";
+
+        var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true, true);
+
+        var tgzData = ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration();
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+        resource fallbackResource 'az:example.namespace/resourceType@2024-03-19-preview' = {
+            name: 'fall back resource test name'
+        }
+
+        output joke string = fallbackResource.name
+        """);
+
+        result.Should().GenerateATemplate();
+        result.Should().HaveDiagnostics(new[]{
+            ("BCP081", DiagnosticLevel.Warning, "Resource type \"example.namespace/resourceType@2024-03-19-preview\" does not have types available.")
+        });
+    }
 }

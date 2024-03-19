@@ -122,12 +122,17 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 
         public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
-            var resourceType = resourceTypeLoader.LoadFallbackResourceType();
+            var loadedFallbackType = resourceTypeLoader.LoadFallbackResourceType();
 
-            if (resourceType == null)
+            if (loadedFallbackType == null)
             {
                 return null;
             }
+
+            var resourceType = generatedTypeCache.GetOrAdd(flags, typeReference, () =>
+            {
+                return loadedFallbackType;
+            });
 
             return new(
                 declaringNamespace,
