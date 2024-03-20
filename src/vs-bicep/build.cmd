@@ -15,4 +15,4 @@ if "%MSBUILD%"=="" (
 
 echo Found msbuild at %MSBUILD%
 
-"%MSBUILD%" BicepInVisualStudio.sln /restore /p:Configuration=Release /v:m /bl:bicep_in_visual_studio_build.binlog
+"%MSBUILD%" BicepInVisualStudio.sln /restore /p:Configuration=Release /v:m -p:RestorePackagesPath=packages /bl:bicep_in_visual_studio_build.binlog

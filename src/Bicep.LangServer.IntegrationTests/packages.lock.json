@@ -103,8 +103,8 @@
       },
       "Azure.Bicep.Types": {
         "type": "Transitive",
-        "resolved": "0.5.6",
-        "contentHash": "WIzhG/oveD4cVE1jR9/F/jQWfzQu4QMlkPHhojzVIAEBf7eZEOj2d4c+yFBwUzHNOSlNE7T8M+Wuhs+svKdlHg==",
+        "resolved": "0.5.9",
+        "contentHash": "Wh1q5ul+OTMtDCuTOjDQffEH9aW4+952IuIMTWZgzJPOPPLvwPxBOJhvNLoAS0omlxKtToslQ49td/RkKYWuhQ==",
         "dependencies": {
           "System.Text.Json": "8.0.2"
         }
@@ -150,8 +150,8 @@
       },
       "Azure.Deployments.Core": {
         "type": "Transitive",
-        "resolved": "1.0.1158",
-        "contentHash": "9nvI3KZ0w0FMY4uGh42rK/z8fss5/+uK99vkR5+cwT4sjHp5QuJPRYbVoBTIjBSqwS03skkM3nsgT+GQCNJ75A==",
+        "resolved": "1.0.1229",
+        "contentHash": "1ToCdBKIGUTQ2St8KHqmw+SnFqeZLwul58BqDPdXctCEDS4oJ3IjmQ3Tm5hP8Tu3wLtRkgh5O+eVwChfsk+DvQ==",
         "dependencies": {
           "Microsoft.PowerPlatform.ResourceStack": "6.0.0.1482",
           "Newtonsoft.Json": "13.0.2",
@@ -161,22 +161,22 @@
       },
       "Azure.Deployments.Expression": {
         "type": "Transitive",
-        "resolved": "1.0.1158",
-        "contentHash": "fM56jLdHcSIrQ2oEpKrZNzyogRUg46+w7Rt8XJIeOpUCZkeBLXjL3PIoK1bOdcO7lYgmxmZCLXqwhhYquRUB2Q==",
+        "resolved": "1.0.1229",
+        "contentHash": "uzVxhCPb3WlN2ugixhrjD+1dCctkrbna1FSwUDA3lOv3l7rauPW6x1lw+KvpMTZYW2jN9S2hWtY+P6xPugCtXA==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.1158",
+          "Azure.Deployments.Core": "1.0.1229",
           "IPNetwork2": "2.6.598",
           "Newtonsoft.Json": "13.0.2"
         }
       },
       "Azure.Deployments.Templates": {
         "type": "Transitive",
-        "resolved": "1.0.1158",
-        "contentHash": "mMC/6GMQDMLzKFJu69MluA8BBm80VPUDCyd2nqTbUeDAOLNqtsqFBu8H3ruznLmFSiU78PpOcqPl7JTO/kYJJQ==",
+        "resolved": "1.0.1229",
+        "contentHash": "n2dtD6gfnQRHlbF4/73gPTpRff4up/iTlI3M2TZHtBzQD5T5+tGUhZG7+3/xDBx5+SySIZhIYA2vxbptOr1tDA==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.3.181",
-          "Azure.Deployments.Core": "1.0.1158",
-          "Azure.Deployments.Expression": "1.0.1158",
+          "Azure.Bicep.Types": "0.5.9",
+          "Azure.Deployments.Core": "1.0.1229",
+          "Azure.Deployments.Expression": "1.0.1229",
           "Microsoft.Automata.SRM": "1.2.2",
           "Newtonsoft.Json": "13.0.2"
         }
@@ -936,8 +936,8 @@
       },
       "SharpYaml": {
         "type": "Transitive",
-        "resolved": "2.1.0",
-        "contentHash": "2jBenJ6QN0mj8G3ohrNO/uNhA92OJYsQFuI5dJ4zM/HauVoC/oJzK1sCVlUaVUpuXpHUa/k1waXVkkBR2luP/w=="
+        "resolved": "2.1.1",
+        "contentHash": "BISoFuW2AwZYXxrZGaBnedo21BvrdgC4kkWd6QYrOdhOGSsZB0RSqcBw09l9caUE1g3sykJoRfSbtSzZS6tYig=="
       },
       "System.AppContext": {
         "type": "Transitive",
@@ -2053,13 +2053,11 @@
       "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Types": "[0.5.6, )",
+          "Azure.Bicep.Types": "[0.5.9, )",
           "Azure.Bicep.Types.Az": "[0.2.677, )",
           "Azure.Bicep.Types.K8s": "[0.1.626, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
-          "Azure.Deployments.Core": "[1.0.1158, )",
-          "Azure.Deployments.Expression": "[1.0.1158, )",
-          "Azure.Deployments.Templates": "[1.0.1158, )",
+          "Azure.Deployments.Templates": "[1.0.1229, )",
           "Azure.Identity": "[1.10.4, )",
           "Azure.ResourceManager.Resources": "[1.7.0, )",
           "JsonPatch.Net": "[2.1.0, )",
@@ -2071,7 +2069,7 @@
           "Microsoft.Graph.Bicep.Types": "[0.1.3-preview, )",
           "Microsoft.PowerPlatform.ResourceStack": "[6.0.0.1485, )",
           "Newtonsoft.Json": "[13.0.3, )",
-          "SharpYaml": "[2.1.0, )",
+          "SharpYaml": "[2.1.1, )",
           "System.IO.Abstractions": "[20.0.15, )"
         }
       },
@@ -2117,7 +2115,7 @@
           "CommandLineParser": "[2.9.1, )",
           "Microsoft.Extensions.Http": "[8.0.0, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.9, )",
-          "SharpYaml": "[2.1.0, )"
+          "SharpYaml": "[2.1.1, )"
         }
       }
     },

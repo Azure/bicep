@@ -5950,4 +5950,37 @@ var startAndEndBracketInString = 'x[]y'
              ("BCP037", DiagnosticLevel.Warning, """The property "snap" is not allowed on objects of type "{ }". No other properties are allowed."""),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/13663
+    [TestMethod]
+    public void Test_Issue13663()
+    {
+        var moduleResult = CompilationHelper.Compile("""
+type moduleTags = {
+  *: string
+}
+
+@export()
+func genModuleTags(moduleName string) moduleTags => {
+  '${contains(moduleName, 'name') ? 'name' : 'noName '} name': moduleName
+}
+""");
+
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+import * as sharedTypes from 'compiled.json'
+
+var moduleTags = sharedTypes.genModuleTags('name')
+
+output moduleTags object = moduleTags
+"""),
+            ("compiled.json", moduleResult.Template!.ToString()));
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+
+        evaluated.Should().HaveValueAtPath("$.outputs['moduleTags'].value", new JObject
+        {
+            ["name name"] = "name",
+        });
+    }
 }

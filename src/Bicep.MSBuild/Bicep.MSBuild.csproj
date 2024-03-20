@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <!-- do not upgrade these packages - we need to support msbuild 16 -->
-    <PackageReference Include="Microsoft.Build.Framework" Version="17.8.3" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="17.9.5" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.8.3" PrivateAssets="All" />
   </ItemGroup>
 </Project>
