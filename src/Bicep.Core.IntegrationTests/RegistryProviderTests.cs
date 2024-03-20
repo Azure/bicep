@@ -514,10 +514,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-        provider 'br:example.azurecr.io/test/provider/foo@1.2.3' with {
-            namespace: 'ThirdPartyNamespace'
-            config: 'Some path to config file'
-        }
+        provider 'br:example.azurecr.io/test/provider/foo@1.2.3'
 
         resource dadJoke 'test@v1' = {
             bodyProp: 'fallback body'
