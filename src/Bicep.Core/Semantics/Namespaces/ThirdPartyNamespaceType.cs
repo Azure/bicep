@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.ThirdParty;
 using Bicep.Core.TypeSystem.Types;
+using static Bicep.Core.TypeSystem.Providers.ThirdParty.ThirdPartyResourceTypeLoader;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -18,37 +19,27 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public static NamespaceType Create(string name, string aliasName, IResourceTypeProvider resourceTypeProvider)
         {
-            var namespaceSettings = new NamespaceSettings(
-                    IsSingleton: true,
-                    BicepProviderName: name,
-                    ConfigurationType: null,
-                    ArmTemplateProviderName: name,
-                    ArmTemplateProviderVersion: resourceTypeProvider.Version);
-
-            if (resourceTypeProvider is ThirdPartyResourceTypeProvider thirdPartyProvider)
+            // NamespaceConfig is not null
+            if (resourceTypeProvider is ThirdPartyResourceTypeProvider thirdPartyProvider && thirdPartyProvider.GetNamespaceConfiguration() is NamespaceConfiguration namespaceConfig && namespaceConfig != null)
             {
-                var namespaceConfig = thirdPartyProvider.GetNamespaceConfiguration();
-
-                if (namespaceConfig is not null)
-                {
-                    namespaceSettings = new NamespaceSettings(
-                        IsSingleton: namespaceConfig.IsSingleton,
-                        BicepProviderName: namespaceConfig.Name,
-                        ConfigurationType: (ObjectType?)namespaceConfig.ConfigurationObject,
-                        ArmTemplateProviderName: namespaceConfig.Name,
-                        ArmTemplateProviderVersion: namespaceConfig.Version);
-
-                }
+                    return new NamespaceType(
+                        aliasName,
+                        new NamespaceSettings(
+                            IsSingleton: namespaceConfig.IsSingleton,
+                            BicepProviderName: namespaceConfig.Name,
+                            ConfigurationType: (ObjectType?)namespaceConfig.ConfigurationObject,
+                            ArmTemplateProviderName: namespaceConfig.Name,
+                            ArmTemplateProviderVersion: namespaceConfig.Version),
+                        ImmutableArray<TypeProperty>.Empty,
+                        ImmutableArray<FunctionOverload>.Empty,
+                        ImmutableArray<BannedFunction>.Empty,
+                        ImmutableArray<Decorator>.Empty,
+                        resourceTypeProvider);
             }
 
-            return new NamespaceType(
-                aliasName,
-                namespaceSettings,
-                ImmutableArray<TypeProperty>.Empty,
-                ImmutableArray<FunctionOverload>.Empty,
-                ImmutableArray<BannedFunction>.Empty,
-                ImmutableArray<Decorator>.Empty,
-                resourceTypeProvider);
+            // NamespaceConfig is required to be set for 3PProviders
+            throw new ArgumentException($"Please provide the following required Settings properties: Name, Version, & IsSingleton.");
+
         }
     }
 }

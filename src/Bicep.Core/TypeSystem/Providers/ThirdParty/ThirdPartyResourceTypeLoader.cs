@@ -59,32 +59,30 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 
         public NamespaceConfiguration? LoadNamespaceConfiguration()
         {
-            if (typeSettings != null)
+            if (typeSettings == null)
             {
-                var name = typeSettings.Name;
-                var version = typeSettings.Version;
-                var isSingleton = typeSettings.IsSingleton;
-
-                TypeSymbol? configurationType = null;
-
-                if (typeSettings.ConfigurationType != null)
-                {
-                    var reference = typeSettings.ConfigurationType;
-
-                    if (typeLoader.LoadType(reference) is not ObjectType objectType)
-                    {
-                        throw new ArgumentException($"Unable to locate resource object type at index {reference.Index} in \"{reference.RelativePath}\" resource");
-                    }
-
-                    var bodyType = resourceTypeFactory.GetObjectType(objectType);
-                    configurationType = bodyType;
-                }
-
-                return new NamespaceConfiguration(name, version, isSingleton, configurationType);
+                throw new ArgumentException($"Please provide the following Settings properties: Name, Version, & IsSingleton.");
             }
 
-            // No configuration provided in JSON
-            return null;
+            TypeSymbol? configurationType = null;
+
+            if (typeSettings.ConfigurationType is {} reference)
+            {
+
+                if (typeLoader.LoadType(reference) is not ObjectType objectType)
+                {
+                    throw new ArgumentException($"Unable to locate resource object type at index {reference.Index} in \"{reference.RelativePath}\" resource");
+                }
+
+                var bodyType = resourceTypeFactory.GetObjectType(objectType);
+                configurationType = bodyType;
+            }
+
+            return new(
+                typeSettings.Name,
+                typeSettings.Version,
+                typeSettings.IsSingleton,
+                configurationType);
         }
     }
 }

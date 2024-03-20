@@ -19,6 +19,7 @@ public static class ThirdPartyTypeHelper
     public static BinaryData GetTestTypesTgz()
     {
         var factory = new TypeFactory(Enumerable.Empty<TypeBase>());
+        var rootFactory = new TypeFactory(Enumerable.Empty<TypeBase>());
 
         var stringType = factory.Create(() => new StringType());
 
@@ -51,11 +52,13 @@ public static class ThirdPartyTypeHelper
                 ["convertBarToBaz"] = new(factory.GetReference(barFunctionType), "Converts a bar into a baz!")
             }));
 
+        var settings = new TypeSettings(name: "ThirdPartyProvider", version: "1.0.0", isSingleton: false, configurationType: null!);
+
         var index = new TypeIndex(new Dictionary<string, CrossFileTypeReference>
         {
             [fooType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(fooType)),
         }, new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
-            null!,
+            settings,
             null!);
 
         return GetTypesTgzBytesFromFiles(
@@ -131,50 +134,6 @@ public static class ThirdPartyTypeHelper
             ("v1/types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))));
     }
 
-    public static BinaryData GetTestTypesTgzWithPartialProvidedTypeSettings()
-    {
-        var factory = new TypeFactory(Enumerable.Empty<TypeBase>());
-        var rootFactory = new TypeFactory(Enumerable.Empty<TypeBase>());
-
-        var stringType = factory.Create(() => new StringType());
-        var stringTypeRoot = rootFactory.Create(() => new StringType());
-
-        var fooBodyType = factory.Create(() => new ObjectType("fooBody", new Dictionary<string, ObjectTypeProperty>
-        {
-            ["identifier"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required | ObjectTypePropertyFlags.Identifier, "The resource identifier"),
-            ["joke"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required | ObjectTypePropertyFlags.Identifier, "The foo body")
-        }, null));
-
-        var barFunctionType = factory.Create(() => new FunctionType([
-            new FunctionParameter("bar", factory.GetReference(stringType), "The bar parameter"),
-        ], factory.GetReference(stringType)));
-
-        var fooType = factory.Create(() => new ResourceType(
-            "fooType@v1",
-            ScopeType.Unknown,
-            null,
-            factory.GetReference(fooBodyType),
-            ResourceFlags.None,
-            new Dictionary<string, ResourceTypeFunction>
-            {
-                ["convertBarToBaz"] = new(factory.GetReference(barFunctionType), "Converts a bar into a baz!")
-            }));
-
-        var settings = new TypeSettings(name: "ThirdPartyProvider", version: "1.0.0", isSingleton: false, configurationType: null!);
-
-        var index = new TypeIndex(new Dictionary<string, CrossFileTypeReference>
-        {
-            [fooType.Name] = new CrossFileTypeReference("v1/types.json", factory.GetIndex(fooType)),
-        }, new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
-            settings,
-            null);
-
-        return GetTypesTgzBytesFromFiles(
-            ("index.json", StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index))),
-            ("types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, rootFactory.GetTypes()))),
-            ("v1/types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))));
-    }
-
     public static BinaryData GetMockRadiusTypesTgz()
     {
         var factory = new TypeFactory(Enumerable.Empty<TypeBase>());
@@ -235,13 +194,15 @@ public static class ThirdPartyTypeHelper
             ResourceFlags.None,
             null));
 
+        var settings = new TypeSettings(name: "Radius", version: "1.0.0", isSingleton: false, configurationType: null!);
+
         var index = new TypeIndex(new Dictionary<string, CrossFileTypeReference>
         {
             [environmentsType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(environmentsType)),
             [applicationsType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(applicationsType)),
             [extendersType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(extendersType)),
         }, new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
-            null!,
+            settings,
             null!);
 
         return GetTypesTgzBytesFromFiles(

@@ -34,7 +34,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 
         public TypeSymbol GetObjectType(Azure.Bicep.Types.Concrete.ObjectType objectType)
         {
-            var bodyType = GetTypeSymbol(objectType, true);
+            var bodyType = GetTypeSymbol(objectType, false);
 
             return bodyType;
         }

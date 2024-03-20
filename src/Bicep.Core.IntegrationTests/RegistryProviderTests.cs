@@ -303,7 +303,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
     }
 
     [TestMethod]
-    public async Task Missing_configuration_throws_error()
+    public async Task Missing_required_provider_configuration_blocks_compilation()
     {
         var registry = "example.azurecr.io";
         var repository = $"test/provider/foo";
@@ -331,7 +331,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
     }
 
     [TestMethod]
-    public async Task Configuration_type_and_type_settings_green()
+    public async Task Correct_provider_configuration_result_in_successful_compilation()
     {
         var registry = "example.azurecr.io";
         var repository = $"test/provider/foo";
@@ -529,36 +529,5 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
             ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"dadJoke\" is not valid.")
 
         });
-    }
-
-    [TestMethod]
-    public async Task Provided_type_settings_but_not_config_type()
-    {
-        var registry = "example.azurecr.io";
-        var repository = $"test/provider/foo";
-
-        var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true, true);
-
-        // tgz data does has type settings (version, singleton, name) but not config type
-        var tgzData = ThirdPartyTypeHelper.GetTestTypesTgzWithPartialProvidedTypeSettings();
-        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
-
-        var result = await CompilationHelper.RestoreAndCompile(services, """
-        provider 'br:example.azurecr.io/test/provider/foo@1.2.3'
-
-        resource dadJoke 'fooType@v1' = {
-            identifier: 'foo'
-            joke: 'dad joke'
-        }
-
-        output joke string = dadJoke.joke
-        """);
-
-        result.Template.Should().NotBeNull();
-
-        result.Template.Should().HaveValueAtPath("$.imports['foo']['provider']", "ThirdPartyProvider");
-        result.Template.Should().HaveValueAtPath("$.imports['foo']['version']", "1.0.0");
-
-        result.Should().NotHaveAnyDiagnostics();
     }
 }
