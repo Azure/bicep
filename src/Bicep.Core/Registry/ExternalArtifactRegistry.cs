@@ -17,12 +17,12 @@ namespace Bicep.Core.Registry
 
         // interval at which we will retry acquiring the lock on the artifact directory in the cache
         private static readonly TimeSpan ArtifactDirectoryContentionRetryInterval = TimeSpan.FromMilliseconds(300);
-        protected readonly IFileSystem fileSystem;
+        public IFileSystem FileSystem { get; }
 
         protected ExternalArtifactRegistry(IFileResolver fileResolver, IFileSystem fileSystem)
         {
             this.FileResolver = fileResolver;
-            this.fileSystem = fileSystem;
+            this.FileSystem = fileSystem;
         }
 
         protected IFileResolver FileResolver { get; }
@@ -88,7 +88,7 @@ namespace Bicep.Core.Registry
             try
             {
                 // ensure that the directory exists
-                fileSystem.Directory.CreateDirectory(artifactDirectoryPath);
+                FileSystem.Directory.CreateDirectory(artifactDirectoryPath);
             }
             catch (Exception exception)
             {
@@ -101,7 +101,7 @@ namespace Bicep.Core.Registry
             try
             {
                 // recursively delete the directory
-                fileSystem.Directory.Delete(artifactDirectoryPath, true);
+                FileSystem.Directory.Delete(artifactDirectoryPath, true);
             }
             catch (Exception exception)
             {
@@ -141,7 +141,7 @@ namespace Bicep.Core.Registry
                         // saying there's a race condition on Linux with the DeleteOnClose flag on the FileStream.
                         // We will attempt to delete the file. If it throws, the lock is still open and will continue
                         // to wait until retry interval expires
-                        fileSystem.File.Delete(lockFileUri.LocalPath);
+                        FileSystem.File.Delete(lockFileUri.LocalPath);
                     }
                     catch (IOException) { break; }
                 }
@@ -165,7 +165,7 @@ namespace Bicep.Core.Registry
                 using var timer = new ExecutionTimer($"Delete artifact {reference.FullyQualifiedReference} from cache");
                 try
                 {
-                    if (fileSystem.Directory.Exists(GetArtifactDirectoryPath(reference)))
+                    if (FileSystem.Directory.Exists(GetArtifactDirectoryPath(reference)))
                     {
                         await this.TryDeleteArtifactDirectoryAsync(reference);
                     }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.IO.Abstractions;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -16,9 +17,9 @@ namespace Bicep.Core.UnitTests.Registry;
 public static class CachedModules
 {
     // Get all cached modules from the local on-disk registry cache
-    public static ImmutableArray<CachedModule> GetCachedRegistryModules(string cacheRootDirectory)
+    public static ImmutableArray<CachedModule> GetCachedRegistryModules(IFileSystem fileSystem, string cacheRootDirectory)
     {
-        var cacheDir = new DirectoryInfo(cacheRootDirectory);
+        var cacheDir = fileSystem.DirectoryInfo.New(cacheRootDirectory);
         if (!cacheDir.Exists)
         {
             return ImmutableArray<CachedModule>.Empty;
@@ -35,6 +36,7 @@ public static class CachedModules
 
         return moduleDirectories?
             .Select(moduleDirectory => new CachedModule(
+                fileSystem,
                 moduleDirectory.FullName,
                 UnobfuscateFolderName(moduleDirectory.Parent!.Parent!.Name),
                 UnobfuscateFolderName(moduleDirectory.Parent!.Name),
@@ -57,6 +59,7 @@ record Layer(string mediaType);
 
 // Represents a cached module in the local on-disk registry cache
 public record CachedModule(
+    IFileSystem FileSystem,
     string ModuleCacheFolder,
     string Registry,
     string Repository,
@@ -84,8 +87,8 @@ public record CachedModule(
 
     public ResultWithException<SourceArchive> TryGetSource()
     {
-        var sourceArchivePath = Path.Combine(ModuleCacheFolder, $"source.tgz");
-        if (File.Exists(sourceArchivePath))
+        var sourceArchivePath = FileSystem.Path.Combine(ModuleCacheFolder, $"source.tgz");
+        if (FileSystem.File.Exists(sourceArchivePath))
         {
             return SourceArchive.UnpackFromStream(File.OpenRead(sourceArchivePath));
         }
