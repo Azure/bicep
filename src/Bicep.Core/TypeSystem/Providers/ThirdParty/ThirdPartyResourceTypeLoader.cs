@@ -53,6 +53,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 return resourceTypeFactory.GetResourceType(serializedResourceType);
             }
 
+            // No fallback type provided in JSON
             return null;
         }
 
@@ -76,13 +77,13 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                     }
 
                     var bodyType = resourceTypeFactory.GetObjectType(objectType);
-
                     configurationType = bodyType;
                 }
 
                 return new NamespaceConfiguration(name, version, isSingleton, configurationType);
             }
 
+            // No configuration provided in JSON
             return null;
         }
     }

@@ -303,8 +303,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
     }
 
     [TestMethod]
-    //Change test name
-    public async Task ContractContainsConfigurationNotProvided()
+    public async Task Missing_configuration_throws_error()
     {
         var registry = "example.azurecr.io";
         var repository = $"test/provider/foo";
@@ -332,13 +331,14 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
     }
 
     [TestMethod]
-    public async Task ContractContainsConfigurationProvided()
+    public async Task Configuration_type_and_type_settings_green()
     {
         var registry = "example.azurecr.io";
         var repository = $"test/provider/foo";
 
         var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true, true);
 
+        // tgzData provideds configType with the properties namespace, config, and context
         var tgzData = ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration();
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
 
@@ -357,12 +357,20 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         output joke string = dadJoke.joke
         """);
 
-        result.Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
+
+        result.Template.Should().HaveValueAtPath("$.imports['foo']['provider']", "ThirdPartyProvider");
+        result.Template.Should().HaveValueAtPath("$.imports['foo']['version']", "1.0.0");
+
+        result.Template.Should().HaveValueAtPath("$.imports['foo']['config']['namespace']", "ThirdPartyNamespace");
+        result.Template.Should().HaveValueAtPath("$.imports['foo']['config']['config']", "Some path to config file");
+        result.Template.Should().HaveValueAtPath("$.imports['foo']['config']['context']", "Some ThirdParty context");
+
+        result.Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
-    public async Task ContractContainsConfigurationMissingProperty()
+    public async Task Missing_configuration_property_throws_errors()
     {
         var registry = "example.azurecr.io";
         var repository = $"test/provider/foo";
@@ -387,7 +395,6 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         output joke string = dadJoke.joke
         """);
 
-        //Why is a template being generated here, had to remove the null template
         result.Should().NotGenerateATemplate();
         result.Should().HaveDiagnostics(new[]{
             ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"namespace\".")
@@ -395,7 +402,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
     }
 
     [TestMethod]
-    public async Task ContractContainsConfigurationMispelledRequiredgProperty()
+    public async Task Mispelled_required_configuration_property_throws_error()
     {
         var registry = "example.azurecr.io";
         var repository = $"test/provider/foo";
@@ -421,7 +428,6 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         output joke string = dadJoke.joke
         """);
 
-        //Why is a template being generated here, had to remove the null template
         result.Should().NotGenerateATemplate();
         result.Should().HaveDiagnostics(new[]{
             ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"namespace\"."),
@@ -430,7 +436,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
     }
 
     [TestMethod]
-    public async Task ContractContainsConfigurationMispelledProperty()
+    public async Task Mispelled_optional_configuration_property_throws_error()
     {
         var registry = "example.azurecr.io";
         var repository = $"test/provider/foo";
@@ -440,7 +446,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         var tgzData = ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration();
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
 
-        // Mispelled the configuration property: context
+        // Mispelled the optional configuration property: context
         var result = await CompilationHelper.RestoreAndCompile(services, """
         provider 'br:example.azurecr.io/test/provider/foo@1.2.3' with {
             namespace: 'ThirdPartyNamespace'
@@ -449,14 +455,13 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         }
 
         resource dadJoke 'fooType@v1' = {
-        identifier: 'foo'
-        joke: 'dad joke'
+            identifier: 'foo'
+            joke: 'dad joke'
         }
 
         output joke string = dadJoke.joke
         """);
 
-        //Why is a template being generated here, had to remove the null template
         result.Should().NotGenerateATemplate();
         result.Should().HaveDiagnostics(new[]{
             ("BCP089", DiagnosticLevel.Error, "The property \"contex\" is not allowed on objects of type \"config\". Did you mean \"context\"?")
@@ -464,7 +469,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
     }
 
     [TestMethod]
-    public async Task FallbackTypeWorks()
+    public async Task Warning_generated_and_fallback_type_type_accepted()
     {
         var registry = "example.azurecr.io";
         var repository = $"test/provider/foo";
@@ -488,33 +493,75 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         """);
 
         result.Should().GenerateATemplate();
+
+        result.Template.Should().HaveValueAtPath("$.resources['dadJoke']['properties']['bodyProp']", "fallback body");
+
         result.Should().HaveDiagnostics(new[]{
             ("BCP081", DiagnosticLevel.Warning, "Resource type \"test@v1\" does not have types available.")
         });
     }
 
     [TestMethod]
-    public async Task AzDummmyDeleteLater()
+    public async Task Fallback_not_provided_in_json()
     {
         var registry = "example.azurecr.io";
         var repository = $"test/provider/foo";
 
         var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true, true);
 
-        var tgzData = ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration();
+        // tgzData does have fallback type
+        var tgzData = ThirdPartyTypeHelper.GetTestTypesTgz();
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-        resource fallbackResource 'az:example.namespace/resourceType@2024-03-19-preview' = {
-            name: 'fall back resource test name'
+        provider 'br:example.azurecr.io/test/provider/foo@1.2.3' with {
+            namespace: 'ThirdPartyNamespace'
+            config: 'Some path to config file'
         }
 
-        output joke string = fallbackResource.name
+        resource dadJoke 'test@v1' = {
+            bodyProp: 'fallback body'
+        }
+
+        output joke string = dadJoke.bodyProp
         """);
 
-        result.Should().GenerateATemplate();
+        result.Should().NotGenerateATemplate();
         result.Should().HaveDiagnostics(new[]{
-            ("BCP081", DiagnosticLevel.Warning, "Resource type \"example.namespace/resourceType@2024-03-19-preview\" does not have types available.")
+            ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"dadJoke\" is not valid.")
+
         });
+    }
+
+    [TestMethod]
+    public async Task Provided_type_settings_but_not_config_type()
+    {
+        var registry = "example.azurecr.io";
+        var repository = $"test/provider/foo";
+
+        var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true, true);
+
+        // tgz data does has type settings (version, singleton, name) but not config type
+        var tgzData = ThirdPartyTypeHelper.GetTestTypesTgzWithPartialProvidedTypeSettings();
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+        provider 'br:example.azurecr.io/test/provider/foo@1.2.3'
+
+        resource dadJoke 'fooType@v1' = {
+            identifier: 'foo'
+            joke: 'dad joke'
+        }
+
+        output joke string = dadJoke.joke
+        """);
+
+        result.Template.Should().NotBeNull();
+
+        result.Template.Should().HaveValueAtPath("$.imports['foo']['provider']", "ThirdPartyProvider");
+        result.Template.Should().HaveValueAtPath("$.imports['foo']['version']", "1.0.0");
+
+        result.Should().NotHaveAnyDiagnostics();
     }
 }
