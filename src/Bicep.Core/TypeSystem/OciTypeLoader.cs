@@ -5,10 +5,8 @@ using System.Diagnostics;
 using System.Formats.Tar;
 using System.IO.Abstractions;
 using System.IO.Compression;
-using System.Text;
 using Azure.Bicep.Types;
 using Bicep.Core.Registry;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
