@@ -28,6 +28,7 @@
   "scripts": {
     "build": "ts-node src/cmd/build.ts",
     "test": "jest",
+    "test:fix": "BASELINE_RECORD=true jest",
     "lint": "eslint src",
     "lint:fix": "eslint src"
   }

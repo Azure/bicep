@@ -10,6 +10,7 @@ import { grammarPath, BicepScope } from '../src/bicep';
 import { spawnSync } from 'child_process';
 import { escape } from 'html-escaper';
 import { env } from 'process';
+import { expectFileContents, baselineRecordEnabled } from './utils';
 
 async function createOnigLib(): Promise<IOnigLib> {
   const onigWasm = await readFile(`${path.dirname(require.resolve('vscode-oniguruma'))}/onig.wasm`);
@@ -81,16 +82,11 @@ async function getTokensByLine(content: string) {
   }));
 }
 
-async function writeBaseline(filePath: string) {
-  const baselineBaseName = basename(filePath, extname(filePath));
-  const baselineFilePath = path.join(dirname(filePath), `${baselineBaseName}.html`);
+async function generateBaseline(inputFilePath: string) {
+  const baselineBaseName = basename(inputFilePath, extname(inputFilePath));
+  const baselineFilePath = path.join(dirname(inputFilePath), `${baselineBaseName}.html`);
 
-  let diffBefore = '';
-  const bicepFile = await readFile(filePath, { encoding: 'utf-8' });
-  try {
-    diffBefore = await readFile(baselineFilePath, { encoding: 'utf-8' });
-  // eslint-disable-next-line no-empty
-  } catch {} // ignore and create the baseline file anyway
+  const bicepFile = await readFile(inputFilePath, { encoding: 'utf-8' });
 
   let html = '';
   const tokensByLine = await getTokensByLine(bicepFile);
@@ -125,7 +121,7 @@ async function writeBaseline(filePath: string) {
     html += '\n';
   }
 
-  const diffAfter = `
+  const expected = `
 <!--
   Preview this file by prepending http://htmlpreview.github.io/? to its URL
   e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/textmate/test/baselines/${baselineBaseName}.html
@@ -140,11 +136,9 @@ ${html}
     </pre>
   </body>
 </html>`;
-  await writeFile(baselineFilePath, diffAfter, { encoding: 'utf-8' });
 
   return {
-    diffBefore,
-    diffAfter,
+    expected: expected.replace(/\r\n/g, '\n'),
     baselineFilePath,
   };
 }
@@ -157,16 +151,6 @@ const baselineFiles = readdirSync(baselinesDir)
 
 for (const filePath of baselineFiles) {
   describe(`Baseline: ${filePath}`, () => {
-    let result = {
-      baselineFilePath: '',
-      diffBefore: '',
-      diffAfter: ''
-    };
-
-    beforeAll(async () => {
-      result = await writeBaseline(filePath);
-    });
-
     if (!basename(filePath).startsWith('invalid_')) {
       // skip the invalid files - we don't expect them to compile
 
@@ -190,8 +174,17 @@ for (const filePath of baselineFiles) {
       });
     }
 
-    it('baseline matches expected', () => {
-      expect(result.diffBefore).toStrictEqual(result.diffAfter);
+    it('baseline matches expected', async () => {
+      const { expected, baselineFilePath } = await generateBaseline(filePath);
+
+      await expectFileContents(baselineFilePath, expected);
     });
   });
 }
+
+describe('Test suite', () => {
+  it('should not succeed if BASELINE_RECORD is set to true', () => {
+    // This test just ensures the suite doesn't pass in 'record' mode
+    expect(baselineRecordEnabled).toBeFalsy();
+  });
+});

@@ -4,6 +4,7 @@
 import { existsSync } from "fs";
 import { readFile, rm } from "fs/promises";
 import { spawnSync } from "child_process";
+import { expectFileContents } from "./utils";
 
 const root = `${__dirname}/..`;
 
@@ -27,9 +28,8 @@ describe('grammar tests', () => {
   });
 
   it('should be up-to-date', async () => {
-    const savedGrammar = await readFile(grammarPath, { encoding: 'utf8' });
-
     const generatedGrammar = await generateGrammar();
-    expect(generatedGrammar).toStrictEqual(savedGrammar);
+
+    await expectFileContents(grammarPath, generatedGrammar);
   }, webpackTestTimeout);
 });

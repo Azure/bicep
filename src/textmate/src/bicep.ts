@@ -111,7 +111,7 @@ const stringVerbatim: BeginEndRule = {
   key: "string-verbatim",
   scope: "string.quoted.multi.bicep",
   begin: `'''`,
-  end: `'''`,
+  end: `'''${notBefore(`'`)}`,
   patterns: [],
 }
 

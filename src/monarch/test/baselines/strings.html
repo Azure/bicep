@@ -1,0 +1,25 @@
+
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/monarch/test/baselines/strings.html
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+<span class="hljs-comment">// evaluates to &#39;\&#39;abc\&#39;&#39;</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">multilineExtraQuotes</span> = <span class="hljs-string">&#39;&#39;&#39;</span><span class="hljs-string">&#39;abc</span>&#39;<span class="hljs-string">&#39;&#39;&#39;</span>
+
+<span class="hljs-comment">// evaluates to &#39;\&#39;\nabc\n\&#39;&#39;</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">multilineExtraQuotesNewlines</span> = <span class="hljs-string">&#39;&#39;&#39;</span>&#39;
+<span class="hljs-string">abc</span>
+&#39;<span class="hljs-string">&#39;&#39;&#39;</span>
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">multilineSingleLine</span> = <span class="hljs-string">&#39;&#39;&#39;</span><span class="hljs-string">hello!</span><span class="hljs-string">&#39;&#39;&#39;</span>
+
+
+    </pre>
+  </body>
+</html>
