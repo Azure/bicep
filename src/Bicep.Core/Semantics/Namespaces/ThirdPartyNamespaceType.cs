@@ -29,34 +29,21 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 var namespaceConfig = thirdPartyProvider.GetNamespaceConfiguration();
 
-                //1. Do we have to do a null check
-                //Do we have to return like this, is there a better way? 
-                if(namespaceConfig != null)
+                if (namespaceConfig is not null)
                 {
-                    return new NamespaceType(
-                    aliasName,
-                    new NamespaceSettings(
+                    namespaceSettings = new NamespaceSettings(
                         IsSingleton: namespaceConfig.IsSingleton,
                         BicepProviderName: namespaceConfig.Name,
                         ConfigurationType: (ObjectType?)namespaceConfig.ConfigurationObject,
                         ArmTemplateProviderName: namespaceConfig.Name,
-                        ArmTemplateProviderVersion: namespaceConfig.Version),
-                    ImmutableArray<TypeProperty>.Empty,
-                    ImmutableArray<FunctionOverload>.Empty,
-                    ImmutableArray<BannedFunction>.Empty,
-                    ImmutableArray<Decorator>.Empty,
-                    resourceTypeProvider);
+                        ArmTemplateProviderVersion: namespaceConfig.Version);
+
                 }
             }
 
             return new NamespaceType(
                 aliasName,
-                new NamespaceSettings(
-                    IsSingleton: true,
-                    BicepProviderName: name,
-                    ConfigurationType: null,
-                    ArmTemplateProviderName: name,
-                    ArmTemplateProviderVersion: resourceTypeProvider.Version),
+                namespaceSettings,
                 ImmutableArray<TypeProperty>.Empty,
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,

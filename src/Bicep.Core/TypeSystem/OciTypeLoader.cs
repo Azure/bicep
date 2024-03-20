@@ -64,15 +64,6 @@ namespace Bicep.Core.TypeSystem
             }
 
             var typesCache = typesCacheBuilder.ToImmutableDictionary();
-            foreach (var entry in typesCache)
-            {
-                string jsonString = System.Text.Encoding.UTF8.GetString(entry.Value);
-
-
-
-                // Parse string into JSON object
-                //JObject jsonObject = JObject.Parse(jsonString);
-            }
 
             return new OciTypeLoader(typesCache);
         }

@@ -489,7 +489,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 
         result.Should().GenerateATemplate();
         result.Should().HaveDiagnostics(new[]{
-            ("BCP081", DiagnosticLevel.Warning, "Resource type \"type@v1\" does not have types available.")
+            ("BCP081", DiagnosticLevel.Warning, "Resource type \"test@v1\" does not have types available.")
         });
     }
 

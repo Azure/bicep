@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using System.Security.Cryptography.Xml;
 using Azure.Bicep.Types;
-using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
@@ -29,6 +27,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);
+
             typeSettings = indexedTypes.Settings;
             fallbackResourceType = indexedTypes.FallbackResourceType;
         }
@@ -50,7 +49,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             if (fallbackResourceType != null)
             {
                 var serializedResourceType = typeLoader.LoadResourceType(fallbackResourceType);
-                //how to convert
+
                 return resourceTypeFactory.GetResourceType(serializedResourceType);
             }
 
@@ -59,39 +58,32 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 
         public NamespaceConfiguration? LoadNamespaceConfiguration()
         {
-            if (typeSettings == null)
-            {
-                return null;
-            }
-
-            var name = typeSettings.Name;
-            var version = typeSettings.Version;
-            var isSingleton = typeSettings.IsSingleton;
-
-            TypeSymbol? configurationType = null;
-
             if (typeSettings != null)
             {
-                //Need to handle all cases here, what happens if ConfigurationType is null, then the name, version and issingleton will not be set
+                var name = typeSettings.Name;
+                var version = typeSettings.Version;
+                var isSingleton = typeSettings.IsSingleton;
+
+                TypeSymbol? configurationType = null;
+
                 if (typeSettings.ConfigurationType != null)
                 {
-                    //Find a way to avoid calling this again
                     var reference = typeSettings.ConfigurationType;
-                    //this part can be made it's own function
+
                     if (typeLoader.LoadType(reference) is not ObjectType objectType)
                     {
                         throw new ArgumentException($"Unable to locate resource object type at index {reference.Index} in \"{reference.RelativePath}\" resource");
                     }
 
-                    //Return everything in typeSettings
                     var bodyType = resourceTypeFactory.GetObjectType(objectType);
 
-                    //Change chek name & change bodyType Name above
                     configurationType = bodyType;
                 }
+
+                return new NamespaceConfiguration(name, version, isSingleton, configurationType);
             }
 
-            return new NamespaceConfiguration(name, version, isSingleton, configurationType);
+            return null;
         }
     }
 }
