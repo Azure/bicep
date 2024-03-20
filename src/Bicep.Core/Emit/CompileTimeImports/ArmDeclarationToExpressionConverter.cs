@@ -409,6 +409,21 @@ internal class ArmDeclarationToExpressionConverter
 
     private Expression ConvertToExpression(IReadOnlyDictionary<JToken, LanguageExpression> parsedExpressions, JToken toConvert)
     {
+        ObjectPropertyExpression convertObjectProperty(JProperty property)
+        {
+            // The ExpressionsEngine.ParseLanguageExpressionsRecursive method represent key name lookups
+            // by storing the JProperty, rather than the key string.
+            var key = parsedExpressions.TryGetValue(property, out var keyExpression) ?
+                ConvertToExpression(keyExpression) :
+                ConvertToExpression(parsedExpressions, property.Name);
+
+            return new(
+                sourceSyntax,
+                key,
+                ConvertToExpression(parsedExpressions, property.Value));
+        }
+        
+
         if (parsedExpressions.TryGetValue(toConvert, out var armExpression))
         {
             return ConvertToExpression(armExpression);
@@ -417,9 +432,7 @@ internal class ArmDeclarationToExpressionConverter
         return toConvert switch
         {
             JObject objectToCovert => ExpressionFactory.CreateObject(
-                objectToCovert.Properties().Select(jProperty => new ObjectPropertyExpression(sourceSyntax,
-                    ConvertToExpression(parsedExpressions, jProperty.Name),
-                    ConvertToExpression(parsedExpressions, jProperty.Value))),
+                objectToCovert.Properties().Select(convertObjectProperty),
                 sourceSyntax),
             JArray arrayToConvert => ExpressionFactory.CreateArray(
                 arrayToConvert.Select(item => ConvertToExpression(parsedExpressions, item)),
