@@ -64,7 +64,6 @@ namespace Bicep.Core.TypeSystem
             }
 
             var typesCache = typesCacheBuilder.ToImmutableDictionary();
-
             return new OciTypeLoader(typesCache);
         }
 
