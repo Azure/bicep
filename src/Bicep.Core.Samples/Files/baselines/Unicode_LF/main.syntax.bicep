@@ -95,7 +95,7 @@ output concatUnicodeStrings string = concat('Θμ', '二头肌', 'α')
 //@[00:006) | ├─Token(Identifier) |output|
 //@[07:027) | ├─IdentifierSyntax
 //@[07:027) | | └─Token(Identifier) |concatUnicodeStrings|
-//@[28:034) | ├─VariableAccessSyntax
+//@[28:034) | ├─TypeVariableAccessSyntax
 //@[28:034) | | └─IdentifierSyntax
 //@[28:034) | |   └─Token(Identifier) |string|
 //@[35:036) | ├─Token(Assignment) |=|
@@ -121,7 +121,7 @@ output interpolateUnicodeStrings string = 'Θμ二${emojis}头肌${ninjaCat}α'
 //@[00:006) | ├─Token(Identifier) |output|
 //@[07:032) | ├─IdentifierSyntax
 //@[07:032) | | └─Token(Identifier) |interpolateUnicodeStrings|
-//@[33:039) | ├─VariableAccessSyntax
+//@[33:039) | ├─TypeVariableAccessSyntax
 //@[33:039) | | └─IdentifierSyntax
 //@[33:039) | |   └─Token(Identifier) |string|
 //@[40:041) | ├─Token(Assignment) |=|

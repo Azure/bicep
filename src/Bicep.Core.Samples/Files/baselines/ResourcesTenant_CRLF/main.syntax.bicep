@@ -427,7 +427,7 @@ output managementGroupIds array = [for i in range(0, length(managementGroups)): 
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0025) | ├─IdentifierSyntax
 //@[007:0025) | | └─Token(Identifier) |managementGroupIds|
-//@[026:0031) | ├─VariableAccessSyntax
+//@[026:0031) | ├─TypeVariableAccessSyntax
 //@[026:0031) | | └─IdentifierSyntax
 //@[026:0031) | |   └─Token(Identifier) |array|
 //@[032:0033) | ├─Token(Assignment) |=|

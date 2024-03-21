@@ -11,7 +11,7 @@ param myString string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0014) | ├─IdentifierSyntax
 //@[06:0014) | | └─Token(Identifier) |myString|
-//@[15:0021) | └─VariableAccessSyntax
+//@[15:0021) | └─TypeVariableAccessSyntax
 //@[15:0021) |   └─IdentifierSyntax
 //@[15:0021) |     └─Token(Identifier) |string|
 //@[21:0023) ├─Token(NewLine) |\r\n|
@@ -20,7 +20,7 @@ param myInt int
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0011) | ├─IdentifierSyntax
 //@[06:0011) | | └─Token(Identifier) |myInt|
-//@[12:0015) | └─VariableAccessSyntax
+//@[12:0015) | └─TypeVariableAccessSyntax
 //@[12:0015) |   └─IdentifierSyntax
 //@[12:0015) |     └─Token(Identifier) |int|
 //@[15:0017) ├─Token(NewLine) |\r\n|
@@ -29,7 +29,7 @@ param myBool bool
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0012) | ├─IdentifierSyntax
 //@[06:0012) | | └─Token(Identifier) |myBool|
-//@[13:0017) | └─VariableAccessSyntax
+//@[13:0017) | └─TypeVariableAccessSyntax
 //@[13:0017) |   └─IdentifierSyntax
 //@[13:0017) |     └─Token(Identifier) |bool|
 //@[17:0021) ├─Token(NewLine) |\r\n\r\n|
@@ -41,7 +41,7 @@ param myString2 string = 'string value'
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0015) | ├─IdentifierSyntax
 //@[06:0015) | | └─Token(Identifier) |myString2|
-//@[16:0022) | ├─VariableAccessSyntax
+//@[16:0022) | ├─TypeVariableAccessSyntax
 //@[16:0022) | | └─IdentifierSyntax
 //@[16:0022) | |   └─Token(Identifier) |string|
 //@[23:0039) | └─ParameterDefaultValueSyntax
@@ -54,7 +54,7 @@ param myInt2 int = 42
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0012) | ├─IdentifierSyntax
 //@[06:0012) | | └─Token(Identifier) |myInt2|
-//@[13:0016) | ├─VariableAccessSyntax
+//@[13:0016) | ├─TypeVariableAccessSyntax
 //@[13:0016) | | └─IdentifierSyntax
 //@[13:0016) | |   └─Token(Identifier) |int|
 //@[17:0021) | └─ParameterDefaultValueSyntax
@@ -67,7 +67,7 @@ param myTruth bool = true
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0013) | ├─IdentifierSyntax
 //@[06:0013) | | └─Token(Identifier) |myTruth|
-//@[14:0018) | ├─VariableAccessSyntax
+//@[14:0018) | ├─TypeVariableAccessSyntax
 //@[14:0018) | | └─IdentifierSyntax
 //@[14:0018) | |   └─Token(Identifier) |bool|
 //@[19:0025) | └─ParameterDefaultValueSyntax
@@ -80,7 +80,7 @@ param myFalsehood bool = false
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0017) | ├─IdentifierSyntax
 //@[06:0017) | | └─Token(Identifier) |myFalsehood|
-//@[18:0022) | ├─VariableAccessSyntax
+//@[18:0022) | ├─TypeVariableAccessSyntax
 //@[18:0022) | | └─IdentifierSyntax
 //@[18:0022) | |   └─Token(Identifier) |bool|
 //@[23:0030) | └─ParameterDefaultValueSyntax
@@ -93,7 +93,7 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0021) | ├─IdentifierSyntax
 //@[06:0021) | | └─Token(Identifier) |myEscapedString|
-//@[22:0028) | ├─VariableAccessSyntax
+//@[22:0028) | ├─TypeVariableAccessSyntax
 //@[22:0028) | | └─IdentifierSyntax
 //@[22:0028) | |   └─Token(Identifier) |string|
 //@[29:0067) | └─ParameterDefaultValueSyntax
@@ -109,7 +109,7 @@ param foo object = {
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0009) | ├─IdentifierSyntax
 //@[06:0009) | | └─Token(Identifier) |foo|
-//@[10:0016) | ├─VariableAccessSyntax
+//@[10:0016) | ├─TypeVariableAccessSyntax
 //@[10:0016) | | └─IdentifierSyntax
 //@[10:0016) | |   └─Token(Identifier) |object|
 //@[17:0253) | └─ParameterDefaultValueSyntax
@@ -242,7 +242,7 @@ param myArrayParam array = [
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0018) | ├─IdentifierSyntax
 //@[06:0018) | | └─Token(Identifier) |myArrayParam|
-//@[19:0024) | ├─VariableAccessSyntax
+//@[19:0024) | ├─TypeVariableAccessSyntax
 //@[19:0024) | | └─IdentifierSyntax
 //@[19:0024) | |   └─Token(Identifier) |array|
 //@[25:0052) | └─ParameterDefaultValueSyntax
@@ -285,7 +285,7 @@ param password string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0014) | ├─IdentifierSyntax
 //@[06:0014) | | └─Token(Identifier) |password|
-//@[15:0021) | └─VariableAccessSyntax
+//@[15:0021) | └─TypeVariableAccessSyntax
 //@[15:0021) |   └─IdentifierSyntax
 //@[15:0021) |     └─Token(Identifier) |string|
 //@[21:0025) ├─Token(NewLine) |\r\n\r\n|
@@ -306,7 +306,7 @@ param secretObject object
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0018) | ├─IdentifierSyntax
 //@[06:0018) | | └─Token(Identifier) |secretObject|
-//@[19:0025) | └─VariableAccessSyntax
+//@[19:0025) | └─TypeVariableAccessSyntax
 //@[19:0025) |   └─IdentifierSyntax
 //@[19:0025) |     └─Token(Identifier) |object|
 //@[25:0029) ├─Token(NewLine) |\r\n\r\n|
@@ -343,7 +343,7 @@ param storageSku string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0016) | ├─IdentifierSyntax
 //@[06:0016) | | └─Token(Identifier) |storageSku|
-//@[17:0023) | └─VariableAccessSyntax
+//@[17:0023) | └─TypeVariableAccessSyntax
 //@[17:0023) |   └─IdentifierSyntax
 //@[17:0023) |     └─Token(Identifier) |string|
 //@[23:0027) ├─Token(NewLine) |\r\n\r\n|
@@ -379,7 +379,7 @@ param storageName string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0017) | ├─IdentifierSyntax
 //@[06:0017) | | └─Token(Identifier) |storageName|
-//@[18:0024) | └─VariableAccessSyntax
+//@[18:0024) | └─TypeVariableAccessSyntax
 //@[18:0024) |   └─IdentifierSyntax
 //@[18:0024) |     └─Token(Identifier) |string|
 //@[24:0028) ├─Token(NewLine) |\r\n\r\n|
@@ -415,7 +415,7 @@ param someArray array
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0015) | ├─IdentifierSyntax
 //@[06:0015) | | └─Token(Identifier) |someArray|
-//@[16:0021) | └─VariableAccessSyntax
+//@[16:0021) | └─TypeVariableAccessSyntax
 //@[16:0021) |   └─IdentifierSyntax
 //@[16:0021) |     └─Token(Identifier) |array|
 //@[21:0025) ├─Token(NewLine) |\r\n\r\n|
@@ -440,7 +440,7 @@ param emptyMetadata string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0019) | ├─IdentifierSyntax
 //@[06:0019) | | └─Token(Identifier) |emptyMetadata|
-//@[20:0026) | └─VariableAccessSyntax
+//@[20:0026) | └─TypeVariableAccessSyntax
 //@[20:0026) |   └─IdentifierSyntax
 //@[20:0026) |     └─Token(Identifier) |string|
 //@[26:0030) ├─Token(NewLine) |\r\n\r\n|
@@ -475,7 +475,7 @@ param description string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0017) | ├─IdentifierSyntax
 //@[06:0017) | | └─Token(Identifier) |description|
-//@[18:0024) | └─VariableAccessSyntax
+//@[18:0024) | └─TypeVariableAccessSyntax
 //@[18:0024) |   └─IdentifierSyntax
 //@[18:0024) |     └─Token(Identifier) |string|
 //@[24:0028) ├─Token(NewLine) |\r\n\r\n|
@@ -501,7 +501,7 @@ param description2 string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0018) | ├─IdentifierSyntax
 //@[06:0018) | | └─Token(Identifier) |description2|
-//@[19:0025) | └─VariableAccessSyntax
+//@[19:0025) | └─TypeVariableAccessSyntax
 //@[19:0025) |   └─IdentifierSyntax
 //@[19:0025) |     └─Token(Identifier) |string|
 //@[25:0029) ├─Token(NewLine) |\r\n\r\n|
@@ -582,7 +582,7 @@ param additionalMetadata string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0024) | ├─IdentifierSyntax
 //@[06:0024) | | └─Token(Identifier) |additionalMetadata|
-//@[25:0031) | └─VariableAccessSyntax
+//@[25:0031) | └─TypeVariableAccessSyntax
 //@[25:0031) |   └─IdentifierSyntax
 //@[25:0031) |     └─Token(Identifier) |string|
 //@[31:0035) ├─Token(NewLine) |\r\n\r\n|
@@ -680,7 +680,7 @@ param someParameter string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0019) | ├─IdentifierSyntax
 //@[06:0019) | | └─Token(Identifier) |someParameter|
-//@[20:0026) | └─VariableAccessSyntax
+//@[20:0026) | └─TypeVariableAccessSyntax
 //@[20:0026) |   └─IdentifierSyntax
 //@[20:0026) |     └─Token(Identifier) |string|
 //@[26:0030) ├─Token(NewLine) |\r\n\r\n|
@@ -690,7 +690,7 @@ param defaultExpression bool = 18 != (true || false)
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0023) | ├─IdentifierSyntax
 //@[06:0023) | | └─Token(Identifier) |defaultExpression|
-//@[24:0028) | ├─VariableAccessSyntax
+//@[24:0028) | ├─TypeVariableAccessSyntax
 //@[24:0028) | | └─IdentifierSyntax
 //@[24:0028) | |   └─Token(Identifier) |bool|
 //@[29:0052) | └─ParameterDefaultValueSyntax
@@ -740,7 +740,7 @@ param stringLiteral string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0019) | ├─IdentifierSyntax
 //@[06:0019) | | └─Token(Identifier) |stringLiteral|
-//@[20:0026) | └─VariableAccessSyntax
+//@[20:0026) | └─TypeVariableAccessSyntax
 //@[20:0026) |   └─IdentifierSyntax
 //@[20:0026) |     └─Token(Identifier) |string|
 //@[26:0030) ├─Token(NewLine) |\r\n\r\n|
@@ -780,7 +780,7 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0044) | ├─IdentifierSyntax
 //@[06:0044) | | └─Token(Identifier) |stringLiteralWithAllowedValuesSuperset|
-//@[45:0051) | ├─VariableAccessSyntax
+//@[45:0051) | ├─TypeVariableAccessSyntax
 //@[45:0051) | | └─IdentifierSyntax
 //@[45:0051) | |   └─Token(Identifier) |string|
 //@[52:0067) | └─ParameterDefaultValueSyntax
@@ -853,7 +853,7 @@ param decoratedString string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0021) | ├─IdentifierSyntax
 //@[06:0021) | | └─Token(Identifier) |decoratedString|
-//@[22:0028) | └─VariableAccessSyntax
+//@[22:0028) | └─TypeVariableAccessSyntax
 //@[22:0028) |   └─IdentifierSyntax
 //@[22:0028) |     └─Token(Identifier) |string|
 //@[28:0032) ├─Token(NewLine) |\r\n\r\n|
@@ -875,7 +875,7 @@ param decoratedInt int = 123
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0018) | ├─IdentifierSyntax
 //@[06:0018) | | └─Token(Identifier) |decoratedInt|
-//@[19:0022) | ├─VariableAccessSyntax
+//@[19:0022) | ├─TypeVariableAccessSyntax
 //@[19:0022) | | └─IdentifierSyntax
 //@[19:0022) | |   └─Token(Identifier) |int|
 //@[23:0028) | └─ParameterDefaultValueSyntax
@@ -919,7 +919,7 @@ param negativeValues int
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0020) | ├─IdentifierSyntax
 //@[06:0020) | | └─Token(Identifier) |negativeValues|
-//@[21:0024) | └─VariableAccessSyntax
+//@[21:0024) | └─TypeVariableAccessSyntax
 //@[21:0024) |   └─IdentifierSyntax
 //@[21:0024) |     └─Token(Identifier) |int|
 //@[24:0028) ├─Token(NewLine) |\r\n\r\n|
@@ -1003,7 +1003,7 @@ param decoratedBool bool = (true && false) != true
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0019) | ├─IdentifierSyntax
 //@[06:0019) | | └─Token(Identifier) |decoratedBool|
-//@[20:0024) | ├─VariableAccessSyntax
+//@[20:0024) | ├─TypeVariableAccessSyntax
 //@[20:0024) | | └─IdentifierSyntax
 //@[20:0024) | |   └─Token(Identifier) |bool|
 //@[25:0050) | └─ParameterDefaultValueSyntax
@@ -1037,7 +1037,7 @@ param decoratedObject object = {
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0021) | ├─IdentifierSyntax
 //@[06:0021) | | └─Token(Identifier) |decoratedObject|
-//@[22:0028) | ├─VariableAccessSyntax
+//@[22:0028) | ├─TypeVariableAccessSyntax
 //@[22:0028) | | └─IdentifierSyntax
 //@[22:0028) | |   └─Token(Identifier) |object|
 //@[29:0265) | └─ParameterDefaultValueSyntax
@@ -1227,7 +1227,7 @@ param decoratedArray array = [
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0020) | ├─IdentifierSyntax
 //@[06:0020) | | └─Token(Identifier) |decoratedArray|
-//@[21:0026) | ├─VariableAccessSyntax
+//@[21:0026) | ├─TypeVariableAccessSyntax
 //@[21:0026) | | └─IdentifierSyntax
 //@[21:0026) | |   └─Token(Identifier) |array|
 //@[27:0062) | └─ParameterDefaultValueSyntax

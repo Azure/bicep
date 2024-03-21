@@ -100,7 +100,7 @@ type fizzes = fizz[]
 //@[12:013) | ├─Token(Assignment) |=|
 //@[14:020) | └─ArrayTypeSyntax
 //@[14:018) |   ├─ArrayTypeMemberSyntax
-//@[14:018) |   | └─VariableAccessSyntax
+//@[14:018) |   | └─TypeVariableAccessSyntax
 //@[14:018) |   |   └─IdentifierSyntax
 //@[14:018) |   |     └─Token(Identifier) |fizz|
 //@[18:019) |   ├─Token(LeftSquare) |[|
@@ -113,7 +113,7 @@ param fizzParam mod2.fizz
 //@[06:015) | ├─IdentifierSyntax
 //@[06:015) | | └─Token(Identifier) |fizzParam|
 //@[16:025) | └─TypePropertyAccessSyntax
-//@[16:020) |   ├─VariableAccessSyntax
+//@[16:020) |   ├─TypeVariableAccessSyntax
 //@[16:020) |   | └─IdentifierSyntax
 //@[16:020) |   |   └─Token(Identifier) |mod2|
 //@[20:021) |   ├─Token(Dot) |.|
@@ -125,7 +125,7 @@ output magicWord pop = refersToCopyVariable[3].value
 //@[00:006) | ├─Token(Identifier) |output|
 //@[07:016) | ├─IdentifierSyntax
 //@[07:016) | | └─Token(Identifier) |magicWord|
-//@[17:020) | ├─VariableAccessSyntax
+//@[17:020) | ├─TypeVariableAccessSyntax
 //@[17:020) | | └─IdentifierSyntax
 //@[17:020) | |   └─Token(Identifier) |pop|
 //@[21:022) | ├─Token(Assignment) |=|
@@ -148,7 +148,7 @@ output greeting string = greet('friend')
 //@[00:006) | ├─Token(Identifier) |output|
 //@[07:015) | ├─IdentifierSyntax
 //@[07:015) | | └─Token(Identifier) |greeting|
-//@[16:022) | ├─VariableAccessSyntax
+//@[16:022) | ├─TypeVariableAccessSyntax
 //@[16:022) | | └─IdentifierSyntax
 //@[16:022) | |   └─Token(Identifier) |string|
 //@[23:024) | ├─Token(Assignment) |=|

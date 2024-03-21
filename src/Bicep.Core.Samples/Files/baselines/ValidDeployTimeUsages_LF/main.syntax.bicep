@@ -190,7 +190,7 @@ param cond bool = false
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0010) | ├─IdentifierSyntax
 //@[06:0010) | | └─Token(Identifier) |cond|
-//@[11:0015) | ├─VariableAccessSyntax
+//@[11:0015) | ├─TypeVariableAccessSyntax
 //@[11:0015) | | └─IdentifierSyntax
 //@[11:0015) | |   └─Token(Identifier) |bool|
 //@[16:0023) | └─ParameterDefaultValueSyntax

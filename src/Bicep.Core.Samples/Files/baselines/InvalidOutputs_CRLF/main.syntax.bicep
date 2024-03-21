@@ -49,7 +49,7 @@ output missingValue string =
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0019) | ├─IdentifierSyntax
 //@[007:0019) | | └─Token(Identifier) |missingValue|
-//@[020:0026) | ├─VariableAccessSyntax
+//@[020:0026) | ├─TypeVariableAccessSyntax
 //@[020:0026) | | └─IdentifierSyntax
 //@[020:0026) | |   └─Token(Identifier) |string|
 //@[027:0028) | ├─Token(Assignment) |=|
@@ -63,7 +63,7 @@ output arrayCompletions array =
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0023) | ├─IdentifierSyntax
 //@[007:0023) | | └─Token(Identifier) |arrayCompletions|
-//@[024:0029) | ├─VariableAccessSyntax
+//@[024:0029) | ├─TypeVariableAccessSyntax
 //@[024:0029) | | └─IdentifierSyntax
 //@[024:0029) | |   └─Token(Identifier) |array|
 //@[030:0031) | ├─Token(Assignment) |=|
@@ -77,7 +77,7 @@ output objectCompletions object =
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0024) | ├─IdentifierSyntax
 //@[007:0024) | | └─Token(Identifier) |objectCompletions|
-//@[025:0031) | ├─VariableAccessSyntax
+//@[025:0031) | ├─TypeVariableAccessSyntax
 //@[025:0031) | | └─IdentifierSyntax
 //@[025:0031) | |   └─Token(Identifier) |object|
 //@[032:0033) | ├─Token(Assignment) |=|
@@ -91,7 +91,7 @@ output boolCompletions bool =
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0022) | ├─IdentifierSyntax
 //@[007:0022) | | └─Token(Identifier) |boolCompletions|
-//@[023:0027) | ├─VariableAccessSyntax
+//@[023:0027) | ├─TypeVariableAccessSyntax
 //@[023:0027) | | └─IdentifierSyntax
 //@[023:0027) | |   └─Token(Identifier) |bool|
 //@[028:0029) | ├─Token(Assignment) |=|
@@ -139,7 +139,7 @@ output partialType obj
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0018) | ├─IdentifierSyntax
 //@[007:0018) | | └─Token(Identifier) |partialType|
-//@[019:0022) | ├─VariableAccessSyntax
+//@[019:0022) | ├─TypeVariableAccessSyntax
 //@[019:0022) | | └─IdentifierSyntax
 //@[019:0022) | |   └─Token(Identifier) |obj|
 //@[022:0022) | ├─SkippedTriviaSyntax
@@ -166,7 +166,7 @@ output malformedType 3
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0020) | ├─IdentifierSyntax
 //@[007:0020) | | └─Token(Identifier) |malformedType|
-//@[021:0022) | ├─IntegerLiteralSyntax
+//@[021:0022) | ├─IntegerTypeLiteralSyntax
 //@[021:0022) | | └─Token(Integer) |3|
 //@[022:0022) | ├─SkippedTriviaSyntax
 //@[022:0022) | └─SkippedTriviaSyntax
@@ -179,7 +179,7 @@ output malformedType2 3 = 2 + null
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0021) | ├─IdentifierSyntax
 //@[007:0021) | | └─Token(Identifier) |malformedType2|
-//@[022:0023) | ├─IntegerLiteralSyntax
+//@[022:0023) | ├─IntegerTypeLiteralSyntax
 //@[022:0023) | | └─Token(Integer) |3|
 //@[024:0025) | ├─Token(Assignment) |=|
 //@[026:0034) | └─BinaryOperationSyntax
@@ -197,7 +197,7 @@ output malformedAssignment 2 = 2
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0026) | ├─IdentifierSyntax
 //@[007:0026) | | └─Token(Identifier) |malformedAssignment|
-//@[027:0028) | ├─IntegerLiteralSyntax
+//@[027:0028) | ├─IntegerTypeLiteralSyntax
 //@[027:0028) | | └─Token(Integer) |2|
 //@[029:0030) | ├─Token(Assignment) |=|
 //@[031:0032) | └─IntegerLiteralSyntax
@@ -211,7 +211,7 @@ output lol 2 = true
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |lol|
-//@[011:0012) | ├─IntegerLiteralSyntax
+//@[011:0012) | ├─IntegerTypeLiteralSyntax
 //@[011:0012) | | └─Token(Integer) |2|
 //@[013:0014) | ├─Token(Assignment) |=|
 //@[015:0019) | └─BooleanLiteralSyntax
@@ -225,7 +225,7 @@ output foo fluffy
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |foo|
-//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | ├─TypeVariableAccessSyntax
 //@[011:0017) | | └─IdentifierSyntax
 //@[011:0017) | |   └─Token(Identifier) |fluffy|
 //@[017:0017) | ├─SkippedTriviaSyntax
@@ -239,7 +239,7 @@ output foo string
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |foo|
-//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | ├─TypeVariableAccessSyntax
 //@[011:0017) | | └─IdentifierSyntax
 //@[011:0017) | |   └─Token(Identifier) |string|
 //@[017:0017) | ├─SkippedTriviaSyntax
@@ -253,7 +253,7 @@ output foo string =
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |foo|
-//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | ├─TypeVariableAccessSyntax
 //@[011:0017) | | └─IdentifierSyntax
 //@[011:0017) | |   └─Token(Identifier) |string|
 //@[018:0019) | ├─Token(Assignment) |=|
@@ -267,7 +267,7 @@ output str string = true
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |str|
-//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | ├─TypeVariableAccessSyntax
 //@[011:0017) | | └─IdentifierSyntax
 //@[011:0017) | |   └─Token(Identifier) |string|
 //@[018:0019) | ├─Token(Assignment) |=|
@@ -279,7 +279,7 @@ output str string = false
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |str|
-//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | ├─TypeVariableAccessSyntax
 //@[011:0017) | | └─IdentifierSyntax
 //@[011:0017) | |   └─Token(Identifier) |string|
 //@[018:0019) | ├─Token(Assignment) |=|
@@ -291,7 +291,7 @@ output str string = [
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |str|
-//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | ├─TypeVariableAccessSyntax
 //@[011:0017) | | └─IdentifierSyntax
 //@[011:0017) | |   └─Token(Identifier) |string|
 //@[018:0019) | ├─Token(Assignment) |=|
@@ -306,7 +306,7 @@ output str string = {
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |str|
-//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | ├─TypeVariableAccessSyntax
 //@[011:0017) | | └─IdentifierSyntax
 //@[011:0017) | |   └─Token(Identifier) |string|
 //@[018:0019) | ├─Token(Assignment) |=|
@@ -321,7 +321,7 @@ output str string = 52
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |str|
-//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | ├─TypeVariableAccessSyntax
 //@[011:0017) | | └─IdentifierSyntax
 //@[011:0017) | |   └─Token(Identifier) |string|
 //@[018:0019) | ├─Token(Assignment) |=|
@@ -336,7 +336,7 @@ output i int = true
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |i|
-//@[009:0012) | ├─VariableAccessSyntax
+//@[009:0012) | ├─TypeVariableAccessSyntax
 //@[009:0012) | | └─IdentifierSyntax
 //@[009:0012) | |   └─Token(Identifier) |int|
 //@[013:0014) | ├─Token(Assignment) |=|
@@ -348,7 +348,7 @@ output i int = false
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |i|
-//@[009:0012) | ├─VariableAccessSyntax
+//@[009:0012) | ├─TypeVariableAccessSyntax
 //@[009:0012) | | └─IdentifierSyntax
 //@[009:0012) | |   └─Token(Identifier) |int|
 //@[013:0014) | ├─Token(Assignment) |=|
@@ -360,7 +360,7 @@ output i int = [
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |i|
-//@[009:0012) | ├─VariableAccessSyntax
+//@[009:0012) | ├─TypeVariableAccessSyntax
 //@[009:0012) | | └─IdentifierSyntax
 //@[009:0012) | |   └─Token(Identifier) |int|
 //@[013:0014) | ├─Token(Assignment) |=|
@@ -375,7 +375,7 @@ output i int = }
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |i|
-//@[009:0012) | ├─VariableAccessSyntax
+//@[009:0012) | ├─TypeVariableAccessSyntax
 //@[009:0012) | | └─IdentifierSyntax
 //@[009:0012) | |   └─Token(Identifier) |int|
 //@[013:0014) | ├─Token(Assignment) |=|
@@ -391,7 +391,7 @@ output i int = 'test'
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |i|
-//@[009:0012) | ├─VariableAccessSyntax
+//@[009:0012) | ├─TypeVariableAccessSyntax
 //@[009:0012) | | └─IdentifierSyntax
 //@[009:0012) | |   └─Token(Identifier) |int|
 //@[013:0014) | ├─Token(Assignment) |=|
@@ -406,7 +406,7 @@ output b bool = [
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |b|
-//@[009:0013) | ├─VariableAccessSyntax
+//@[009:0013) | ├─TypeVariableAccessSyntax
 //@[009:0013) | | └─IdentifierSyntax
 //@[009:0013) | |   └─Token(Identifier) |bool|
 //@[014:0015) | ├─Token(Assignment) |=|
@@ -421,7 +421,7 @@ output b bool = {
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |b|
-//@[009:0013) | ├─VariableAccessSyntax
+//@[009:0013) | ├─TypeVariableAccessSyntax
 //@[009:0013) | | └─IdentifierSyntax
 //@[009:0013) | |   └─Token(Identifier) |bool|
 //@[014:0015) | ├─Token(Assignment) |=|
@@ -436,7 +436,7 @@ output b bool = 32
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |b|
-//@[009:0013) | ├─VariableAccessSyntax
+//@[009:0013) | ├─TypeVariableAccessSyntax
 //@[009:0013) | | └─IdentifierSyntax
 //@[009:0013) | |   └─Token(Identifier) |bool|
 //@[014:0015) | ├─Token(Assignment) |=|
@@ -448,7 +448,7 @@ output b bool = 'str'
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |b|
-//@[009:0013) | ├─VariableAccessSyntax
+//@[009:0013) | ├─TypeVariableAccessSyntax
 //@[009:0013) | | └─IdentifierSyntax
 //@[009:0013) | |   └─Token(Identifier) |bool|
 //@[014:0015) | ├─Token(Assignment) |=|
@@ -463,7 +463,7 @@ output arr array = 32
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |arr|
-//@[011:0016) | ├─VariableAccessSyntax
+//@[011:0016) | ├─TypeVariableAccessSyntax
 //@[011:0016) | | └─IdentifierSyntax
 //@[011:0016) | |   └─Token(Identifier) |array|
 //@[017:0018) | ├─Token(Assignment) |=|
@@ -475,7 +475,7 @@ output arr array = true
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |arr|
-//@[011:0016) | ├─VariableAccessSyntax
+//@[011:0016) | ├─TypeVariableAccessSyntax
 //@[011:0016) | | └─IdentifierSyntax
 //@[011:0016) | |   └─Token(Identifier) |array|
 //@[017:0018) | ├─Token(Assignment) |=|
@@ -487,7 +487,7 @@ output arr array = false
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |arr|
-//@[011:0016) | ├─VariableAccessSyntax
+//@[011:0016) | ├─TypeVariableAccessSyntax
 //@[011:0016) | | └─IdentifierSyntax
 //@[011:0016) | |   └─Token(Identifier) |array|
 //@[017:0018) | ├─Token(Assignment) |=|
@@ -499,7 +499,7 @@ output arr array = {
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |arr|
-//@[011:0016) | ├─VariableAccessSyntax
+//@[011:0016) | ├─TypeVariableAccessSyntax
 //@[011:0016) | | └─IdentifierSyntax
 //@[011:0016) | |   └─Token(Identifier) |array|
 //@[017:0018) | ├─Token(Assignment) |=|
@@ -514,7 +514,7 @@ output arr array = 'str'
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |arr|
-//@[011:0016) | ├─VariableAccessSyntax
+//@[011:0016) | ├─TypeVariableAccessSyntax
 //@[011:0016) | | └─IdentifierSyntax
 //@[011:0016) | |   └─Token(Identifier) |array|
 //@[017:0018) | ├─Token(Assignment) |=|
@@ -529,7 +529,7 @@ output o object = 32
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |o|
-//@[009:0015) | ├─VariableAccessSyntax
+//@[009:0015) | ├─TypeVariableAccessSyntax
 //@[009:0015) | | └─IdentifierSyntax
 //@[009:0015) | |   └─Token(Identifier) |object|
 //@[016:0017) | ├─Token(Assignment) |=|
@@ -541,7 +541,7 @@ output o object = true
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |o|
-//@[009:0015) | ├─VariableAccessSyntax
+//@[009:0015) | ├─TypeVariableAccessSyntax
 //@[009:0015) | | └─IdentifierSyntax
 //@[009:0015) | |   └─Token(Identifier) |object|
 //@[016:0017) | ├─Token(Assignment) |=|
@@ -553,7 +553,7 @@ output o object = false
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |o|
-//@[009:0015) | ├─VariableAccessSyntax
+//@[009:0015) | ├─TypeVariableAccessSyntax
 //@[009:0015) | | └─IdentifierSyntax
 //@[009:0015) | |   └─Token(Identifier) |object|
 //@[016:0017) | ├─Token(Assignment) |=|
@@ -565,7 +565,7 @@ output o object = [
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |o|
-//@[009:0015) | ├─VariableAccessSyntax
+//@[009:0015) | ├─TypeVariableAccessSyntax
 //@[009:0015) | | └─IdentifierSyntax
 //@[009:0015) | |   └─Token(Identifier) |object|
 //@[016:0017) | ├─Token(Assignment) |=|
@@ -580,7 +580,7 @@ output o object = 'str'
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0008) | ├─IdentifierSyntax
 //@[007:0008) | | └─Token(Identifier) |o|
-//@[009:0015) | ├─VariableAccessSyntax
+//@[009:0015) | ├─TypeVariableAccessSyntax
 //@[009:0015) | | └─IdentifierSyntax
 //@[009:0015) | |   └─Token(Identifier) |object|
 //@[016:0017) | ├─Token(Assignment) |=|
@@ -595,7 +595,7 @@ output exp string = 2 + 3
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |exp|
-//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | ├─TypeVariableAccessSyntax
 //@[011:0017) | | └─IdentifierSyntax
 //@[011:0017) | |   └─Token(Identifier) |string|
 //@[018:0019) | ├─Token(Assignment) |=|
@@ -611,7 +611,7 @@ output union string = true ? 's' : 1
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0012) | ├─IdentifierSyntax
 //@[007:0012) | | └─Token(Identifier) |union|
-//@[013:0019) | ├─VariableAccessSyntax
+//@[013:0019) | ├─TypeVariableAccessSyntax
 //@[013:0019) | | └─IdentifierSyntax
 //@[013:0019) | |   └─Token(Identifier) |string|
 //@[020:0021) | ├─Token(Assignment) |=|
@@ -630,7 +630,7 @@ output bad int = true && !4
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |bad|
-//@[011:0014) | ├─VariableAccessSyntax
+//@[011:0014) | ├─TypeVariableAccessSyntax
 //@[011:0014) | | └─IdentifierSyntax
 //@[011:0014) | |   └─Token(Identifier) |int|
 //@[015:0016) | ├─Token(Assignment) |=|
@@ -648,7 +648,7 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0013) | ├─IdentifierSyntax
 //@[007:0013) | | └─Token(Identifier) |deeper|
-//@[014:0018) | ├─VariableAccessSyntax
+//@[014:0018) | ├─TypeVariableAccessSyntax
 //@[014:0018) | | └─IdentifierSyntax
 //@[014:0018) | |   └─Token(Identifier) |bool|
 //@[019:0020) | ├─Token(Assignment) |=|
@@ -681,7 +681,7 @@ output myOutput string = 'hello'
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0015) | ├─IdentifierSyntax
 //@[007:0015) | | └─Token(Identifier) |myOutput|
-//@[016:0022) | ├─VariableAccessSyntax
+//@[016:0022) | ├─TypeVariableAccessSyntax
 //@[016:0022) | | └─IdentifierSyntax
 //@[016:0022) | |   └─Token(Identifier) |string|
 //@[023:0024) | ├─Token(Assignment) |=|
@@ -732,7 +732,7 @@ output notAttachableDecorators int = 32
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0030) | ├─IdentifierSyntax
 //@[007:0030) | | └─Token(Identifier) |notAttachableDecorators|
-//@[031:0034) | ├─VariableAccessSyntax
+//@[031:0034) | ├─TypeVariableAccessSyntax
 //@[031:0034) | | └─IdentifierSyntax
 //@[031:0034) | |   └─Token(Identifier) |int|
 //@[035:0036) | ├─Token(Assignment) |=|
@@ -747,7 +747,7 @@ output noNestedLoops array = [for thing in things: {
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0020) | ├─IdentifierSyntax
 //@[007:0020) | | └─Token(Identifier) |noNestedLoops|
-//@[021:0026) | ├─VariableAccessSyntax
+//@[021:0026) | ├─TypeVariableAccessSyntax
 //@[021:0026) | | └─IdentifierSyntax
 //@[021:0026) | |   └─Token(Identifier) |array|
 //@[027:0028) | ├─Token(Assignment) |=|
@@ -805,7 +805,7 @@ output noInnerLoopsInOutputs object = {
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0028) | ├─IdentifierSyntax
 //@[007:0028) | | └─Token(Identifier) |noInnerLoopsInOutputs|
-//@[029:0035) | ├─VariableAccessSyntax
+//@[029:0035) | ├─TypeVariableAccessSyntax
 //@[029:0035) | | └─IdentifierSyntax
 //@[029:0035) | |   └─Token(Identifier) |object|
 //@[036:0037) | ├─Token(Assignment) |=|
@@ -850,7 +850,7 @@ output noInnerLoopsInOutputs2 object = {
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0029) | ├─IdentifierSyntax
 //@[007:0029) | | └─Token(Identifier) |noInnerLoopsInOutputs2|
-//@[030:0036) | ├─VariableAccessSyntax
+//@[030:0036) | ├─TypeVariableAccessSyntax
 //@[030:0036) | | └─IdentifierSyntax
 //@[030:0036) | |   └─Token(Identifier) |object|
 //@[037:0038) | ├─Token(Assignment) |=|
@@ -959,7 +959,7 @@ output keyVaultSecretOutput string = kv.getSecret('mySecret')
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0027) | ├─IdentifierSyntax
 //@[007:0027) | | └─Token(Identifier) |keyVaultSecretOutput|
-//@[028:0034) | ├─VariableAccessSyntax
+//@[028:0034) | ├─TypeVariableAccessSyntax
 //@[028:0034) | | └─IdentifierSyntax
 //@[028:0034) | |   └─Token(Identifier) |string|
 //@[035:0036) | ├─Token(Assignment) |=|
@@ -981,7 +981,7 @@ output keyVaultSecretInterpolatedOutput string = '${kv.getSecret('mySecret')}'
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0039) | ├─IdentifierSyntax
 //@[007:0039) | | └─Token(Identifier) |keyVaultSecretInterpolatedOutput|
-//@[040:0046) | ├─VariableAccessSyntax
+//@[040:0046) | ├─TypeVariableAccessSyntax
 //@[040:0046) | | └─IdentifierSyntax
 //@[040:0046) | |   └─Token(Identifier) |string|
 //@[047:0048) | ├─Token(Assignment) |=|
@@ -1006,7 +1006,7 @@ output keyVaultSecretObjectOutput object = {
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0033) | ├─IdentifierSyntax
 //@[007:0033) | | └─Token(Identifier) |keyVaultSecretObjectOutput|
-//@[034:0040) | ├─VariableAccessSyntax
+//@[034:0040) | ├─TypeVariableAccessSyntax
 //@[034:0040) | | └─IdentifierSyntax
 //@[034:0040) | |   └─Token(Identifier) |object|
 //@[041:0042) | ├─Token(Assignment) |=|
@@ -1039,7 +1039,7 @@ output keyVaultSecretArrayOutput array = [
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0032) | ├─IdentifierSyntax
 //@[007:0032) | | └─Token(Identifier) |keyVaultSecretArrayOutput|
-//@[033:0038) | ├─VariableAccessSyntax
+//@[033:0038) | ├─TypeVariableAccessSyntax
 //@[033:0038) | | └─IdentifierSyntax
 //@[033:0038) | |   └─Token(Identifier) |array|
 //@[039:0040) | ├─Token(Assignment) |=|
@@ -1069,7 +1069,7 @@ output keyVaultSecretArrayInterpolatedOutput array = [
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0044) | ├─IdentifierSyntax
 //@[007:0044) | | └─Token(Identifier) |keyVaultSecretArrayInterpolatedOutput|
-//@[045:0050) | ├─VariableAccessSyntax
+//@[045:0050) | ├─TypeVariableAccessSyntax
 //@[045:0050) | | └─IdentifierSyntax
 //@[045:0050) | |   └─Token(Identifier) |array|
 //@[051:0052) | ├─Token(Assignment) |=|

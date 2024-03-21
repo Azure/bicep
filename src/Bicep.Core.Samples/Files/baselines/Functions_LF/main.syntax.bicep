@@ -10,25 +10,25 @@ func buildUrl(https bool, hostname string, path string) string => '${https ? 'ht
 //@[014:0024) |   | ├─TypedLocalVariableSyntax
 //@[014:0019) |   | | ├─IdentifierSyntax
 //@[014:0019) |   | | | └─Token(Identifier) |https|
-//@[020:0024) |   | | └─VariableAccessSyntax
+//@[020:0024) |   | | └─TypeVariableAccessSyntax
 //@[020:0024) |   | |   └─IdentifierSyntax
 //@[020:0024) |   | |     └─Token(Identifier) |bool|
 //@[024:0025) |   | ├─Token(Comma) |,|
 //@[026:0041) |   | ├─TypedLocalVariableSyntax
 //@[026:0034) |   | | ├─IdentifierSyntax
 //@[026:0034) |   | | | └─Token(Identifier) |hostname|
-//@[035:0041) |   | | └─VariableAccessSyntax
+//@[035:0041) |   | | └─TypeVariableAccessSyntax
 //@[035:0041) |   | |   └─IdentifierSyntax
 //@[035:0041) |   | |     └─Token(Identifier) |string|
 //@[041:0042) |   | ├─Token(Comma) |,|
 //@[043:0054) |   | ├─TypedLocalVariableSyntax
 //@[043:0047) |   | | ├─IdentifierSyntax
 //@[043:0047) |   | | | └─Token(Identifier) |path|
-//@[048:0054) |   | | └─VariableAccessSyntax
+//@[048:0054) |   | | └─TypeVariableAccessSyntax
 //@[048:0054) |   | |   └─IdentifierSyntax
 //@[048:0054) |   | |     └─Token(Identifier) |string|
 //@[054:0055) |   | └─Token(RightParen) |)|
-//@[056:0062) |   ├─VariableAccessSyntax
+//@[056:0062) |   ├─TypeVariableAccessSyntax
 //@[056:0062) |   | └─IdentifierSyntax
 //@[056:0062) |   |   └─Token(Identifier) |string|
 //@[063:0065) |   ├─Token(Arrow) |=>|
@@ -77,7 +77,7 @@ output foo string = buildUrl(true, 'google.com', 'search')
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |foo|
-//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | ├─TypeVariableAccessSyntax
 //@[011:0017) | | └─IdentifierSyntax
 //@[011:0017) | |   └─Token(Identifier) |string|
 //@[018:0019) | ├─Token(Assignment) |=|
@@ -110,11 +110,11 @@ func sayHello(name string) string => 'Hi ${name}!'
 //@[014:0025) |   | ├─TypedLocalVariableSyntax
 //@[014:0018) |   | | ├─IdentifierSyntax
 //@[014:0018) |   | | | └─Token(Identifier) |name|
-//@[019:0025) |   | | └─VariableAccessSyntax
+//@[019:0025) |   | | └─TypeVariableAccessSyntax
 //@[019:0025) |   | |   └─IdentifierSyntax
 //@[019:0025) |   | |     └─Token(Identifier) |string|
 //@[025:0026) |   | └─Token(RightParen) |)|
-//@[027:0033) |   ├─VariableAccessSyntax
+//@[027:0033) |   ├─TypeVariableAccessSyntax
 //@[027:0033) |   | └─IdentifierSyntax
 //@[027:0033) |   |   └─Token(Identifier) |string|
 //@[034:0036) |   ├─Token(Arrow) |=>|
@@ -131,7 +131,7 @@ output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0013) | ├─IdentifierSyntax
 //@[007:0013) | | └─Token(Identifier) |hellos|
-//@[014:0019) | ├─VariableAccessSyntax
+//@[014:0019) | ├─TypeVariableAccessSyntax
 //@[014:0019) | | └─IdentifierSyntax
 //@[014:0019) | |   └─Token(Identifier) |array|
 //@[020:0021) | ├─Token(Assignment) |=|
@@ -180,11 +180,11 @@ func objReturnType(name string) object => {
 //@[019:0030) |   | ├─TypedLocalVariableSyntax
 //@[019:0023) |   | | ├─IdentifierSyntax
 //@[019:0023) |   | | | └─Token(Identifier) |name|
-//@[024:0030) |   | | └─VariableAccessSyntax
+//@[024:0030) |   | | └─TypeVariableAccessSyntax
 //@[024:0030) |   | |   └─IdentifierSyntax
 //@[024:0030) |   | |     └─Token(Identifier) |string|
 //@[030:0031) |   | └─Token(RightParen) |)|
-//@[032:0038) |   ├─VariableAccessSyntax
+//@[032:0038) |   ├─TypeVariableAccessSyntax
 //@[032:0038) |   | └─IdentifierSyntax
 //@[032:0038) |   |   └─Token(Identifier) |object|
 //@[039:0041) |   ├─Token(Arrow) |=>|
@@ -218,11 +218,11 @@ func arrayReturnType(name string) array => [
 //@[021:0032) |   | ├─TypedLocalVariableSyntax
 //@[021:0025) |   | | ├─IdentifierSyntax
 //@[021:0025) |   | | | └─Token(Identifier) |name|
-//@[026:0032) |   | | └─VariableAccessSyntax
+//@[026:0032) |   | | └─TypeVariableAccessSyntax
 //@[026:0032) |   | |   └─IdentifierSyntax
 //@[026:0032) |   | |     └─Token(Identifier) |string|
 //@[032:0033) |   | └─Token(RightParen) |)|
-//@[034:0039) |   ├─VariableAccessSyntax
+//@[034:0039) |   ├─TypeVariableAccessSyntax
 //@[034:0039) |   | └─IdentifierSyntax
 //@[034:0039) |   |   └─Token(Identifier) |array|
 //@[040:0042) |   ├─Token(Arrow) |=>|
@@ -250,11 +250,11 @@ func asdf(name string) array => [
 //@[010:0021) |   | ├─TypedLocalVariableSyntax
 //@[010:0014) |   | | ├─IdentifierSyntax
 //@[010:0014) |   | | | └─Token(Identifier) |name|
-//@[015:0021) |   | | └─VariableAccessSyntax
+//@[015:0021) |   | | └─TypeVariableAccessSyntax
 //@[015:0021) |   | |   └─IdentifierSyntax
 //@[015:0021) |   | |     └─Token(Identifier) |string|
 //@[021:0022) |   | └─Token(RightParen) |)|
-//@[023:0028) |   ├─VariableAccessSyntax
+//@[023:0028) |   ├─TypeVariableAccessSyntax
 //@[023:0028) |   | └─IdentifierSyntax
 //@[023:0028) |   |   └─Token(Identifier) |array|
 //@[029:0031) |   ├─Token(Arrow) |=>|
@@ -294,7 +294,7 @@ type positiveInt = int
 //@[005:0016) | ├─IdentifierSyntax
 //@[005:0016) | | └─Token(Identifier) |positiveInt|
 //@[017:0018) | ├─Token(Assignment) |=|
-//@[019:0022) | └─VariableAccessSyntax
+//@[019:0022) | └─TypeVariableAccessSyntax
 //@[019:0022) |   └─IdentifierSyntax
 //@[019:0022) |     └─Token(Identifier) |int|
 //@[022:0024) ├─Token(NewLine) |\n\n|
@@ -312,13 +312,13 @@ func typedArg(input string[]) positiveInt => length(input)
 //@[014:0019) |   | | | └─Token(Identifier) |input|
 //@[020:0028) |   | | └─ArrayTypeSyntax
 //@[020:0026) |   | |   ├─ArrayTypeMemberSyntax
-//@[020:0026) |   | |   | └─VariableAccessSyntax
+//@[020:0026) |   | |   | └─TypeVariableAccessSyntax
 //@[020:0026) |   | |   |   └─IdentifierSyntax
 //@[020:0026) |   | |   |     └─Token(Identifier) |string|
 //@[026:0027) |   | |   ├─Token(LeftSquare) |[|
 //@[027:0028) |   | |   └─Token(RightSquare) |]|
 //@[028:0029) |   | └─Token(RightParen) |)|
-//@[030:0041) |   ├─VariableAccessSyntax
+//@[030:0041) |   ├─TypeVariableAccessSyntax
 //@[030:0041) |   | └─IdentifierSyntax
 //@[030:0041) |   |   └─Token(Identifier) |positiveInt|
 //@[042:0044) |   ├─Token(Arrow) |=>|
@@ -342,7 +342,7 @@ func barTest() array => ['abc', 'def']
 //@[012:0014) |   ├─TypedVariableBlockSyntax
 //@[012:0013) |   | ├─Token(LeftParen) |(|
 //@[013:0014) |   | └─Token(RightParen) |)|
-//@[015:0020) |   ├─VariableAccessSyntax
+//@[015:0020) |   ├─TypeVariableAccessSyntax
 //@[015:0020) |   | └─IdentifierSyntax
 //@[015:0020) |   |   └─Token(Identifier) |array|
 //@[021:0023) |   ├─Token(Arrow) |=>|
@@ -366,7 +366,7 @@ func fooTest() array => map(barTest(), a => 'Hello ${a}!')
 //@[012:0014) |   ├─TypedVariableBlockSyntax
 //@[012:0013) |   | ├─Token(LeftParen) |(|
 //@[013:0014) |   | └─Token(RightParen) |)|
-//@[015:0020) |   ├─VariableAccessSyntax
+//@[015:0020) |   ├─TypeVariableAccessSyntax
 //@[015:0020) |   | └─IdentifierSyntax
 //@[015:0020) |   |   └─Token(Identifier) |array|
 //@[021:0023) |   ├─Token(Arrow) |=>|
@@ -401,7 +401,7 @@ output fooValue array = fooTest()
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0015) | ├─IdentifierSyntax
 //@[007:0015) | | └─Token(Identifier) |fooValue|
-//@[016:0021) | ├─VariableAccessSyntax
+//@[016:0021) | ├─TypeVariableAccessSyntax
 //@[016:0021) | | └─IdentifierSyntax
 //@[016:0021) | |   └─Token(Identifier) |array|
 //@[022:0023) | ├─Token(Assignment) |=|
@@ -421,7 +421,7 @@ func test() object => loadJsonContent('./repro-data.json')
 //@[009:0011) |   ├─TypedVariableBlockSyntax
 //@[009:0010) |   | ├─Token(LeftParen) |(|
 //@[010:0011) |   | └─Token(RightParen) |)|
-//@[012:0018) |   ├─VariableAccessSyntax
+//@[012:0018) |   ├─TypeVariableAccessSyntax
 //@[012:0018) |   | └─IdentifierSyntax
 //@[012:0018) |   |   └─Token(Identifier) |object|
 //@[019:0021) |   ├─Token(Arrow) |=>|
@@ -443,7 +443,7 @@ func test2() string => loadTextContent('./repro-data.json')
 //@[010:0012) |   ├─TypedVariableBlockSyntax
 //@[010:0011) |   | ├─Token(LeftParen) |(|
 //@[011:0012) |   | └─Token(RightParen) |)|
-//@[013:0019) |   ├─VariableAccessSyntax
+//@[013:0019) |   ├─TypeVariableAccessSyntax
 //@[013:0019) |   | └─IdentifierSyntax
 //@[013:0019) |   |   └─Token(Identifier) |string|
 //@[020:0022) |   ├─Token(Arrow) |=>|
@@ -465,7 +465,7 @@ func test3() object => loadYamlContent('./repro-data.json')
 //@[010:0012) |   ├─TypedVariableBlockSyntax
 //@[010:0011) |   | ├─Token(LeftParen) |(|
 //@[011:0012) |   | └─Token(RightParen) |)|
-//@[013:0019) |   ├─VariableAccessSyntax
+//@[013:0019) |   ├─TypeVariableAccessSyntax
 //@[013:0019) |   | └─IdentifierSyntax
 //@[013:0019) |   |   └─Token(Identifier) |object|
 //@[020:0022) |   ├─Token(Arrow) |=>|
@@ -487,7 +487,7 @@ func test4() string => loadFileAsBase64('./repro-data.json')
 //@[010:0012) |   ├─TypedVariableBlockSyntax
 //@[010:0011) |   | ├─Token(LeftParen) |(|
 //@[011:0012) |   | └─Token(RightParen) |)|
-//@[013:0019) |   ├─VariableAccessSyntax
+//@[013:0019) |   ├─TypeVariableAccessSyntax
 //@[013:0019) |   | └─IdentifierSyntax
 //@[013:0019) |   |   └─Token(Identifier) |string|
 //@[020:0022) |   ├─Token(Arrow) |=>|
@@ -514,11 +514,11 @@ func a(_________________________________________________________________________
 //@[007:0106) |   | ├─TypedLocalVariableSyntax
 //@[007:0099) |   | | ├─IdentifierSyntax
 //@[007:0099) |   | | | └─Token(Identifier) |____________________________________________________________________________________________|
-//@[100:0106) |   | | └─VariableAccessSyntax
+//@[100:0106) |   | | └─TypeVariableAccessSyntax
 //@[100:0106) |   | |   └─IdentifierSyntax
 //@[100:0106) |   | |     └─Token(Identifier) |string|
 //@[106:0107) |   | └─Token(RightParen) |)|
-//@[108:0114) |   ├─VariableAccessSyntax
+//@[108:0114) |   ├─TypeVariableAccessSyntax
 //@[108:0114) |   | └─IdentifierSyntax
 //@[108:0114) |   |   └─Token(Identifier) |string|
 //@[115:0117) |   ├─Token(Arrow) |=>|
@@ -536,32 +536,32 @@ func b(longParameterName1 string, longParameterName2 string, longParameterName3 
 //@[007:0032) |   | ├─TypedLocalVariableSyntax
 //@[007:0025) |   | | ├─IdentifierSyntax
 //@[007:0025) |   | | | └─Token(Identifier) |longParameterName1|
-//@[026:0032) |   | | └─VariableAccessSyntax
+//@[026:0032) |   | | └─TypeVariableAccessSyntax
 //@[026:0032) |   | |   └─IdentifierSyntax
 //@[026:0032) |   | |     └─Token(Identifier) |string|
 //@[032:0033) |   | ├─Token(Comma) |,|
 //@[034:0059) |   | ├─TypedLocalVariableSyntax
 //@[034:0052) |   | | ├─IdentifierSyntax
 //@[034:0052) |   | | | └─Token(Identifier) |longParameterName2|
-//@[053:0059) |   | | └─VariableAccessSyntax
+//@[053:0059) |   | | └─TypeVariableAccessSyntax
 //@[053:0059) |   | |   └─IdentifierSyntax
 //@[053:0059) |   | |     └─Token(Identifier) |string|
 //@[059:0060) |   | ├─Token(Comma) |,|
 //@[061:0086) |   | ├─TypedLocalVariableSyntax
 //@[061:0079) |   | | ├─IdentifierSyntax
 //@[061:0079) |   | | | └─Token(Identifier) |longParameterName3|
-//@[080:0086) |   | | └─VariableAccessSyntax
+//@[080:0086) |   | | └─TypeVariableAccessSyntax
 //@[080:0086) |   | |   └─IdentifierSyntax
 //@[080:0086) |   | |     └─Token(Identifier) |string|
 //@[086:0087) |   | ├─Token(Comma) |,|
 //@[088:0113) |   | ├─TypedLocalVariableSyntax
 //@[088:0106) |   | | ├─IdentifierSyntax
 //@[088:0106) |   | | | └─Token(Identifier) |longParameterName4|
-//@[107:0113) |   | | └─VariableAccessSyntax
+//@[107:0113) |   | | └─TypeVariableAccessSyntax
 //@[107:0113) |   | |   └─IdentifierSyntax
 //@[107:0113) |   | |     └─Token(Identifier) |string|
 //@[113:0114) |   | └─Token(RightParen) |)|
-//@[115:0121) |   ├─VariableAccessSyntax
+//@[115:0121) |   ├─TypeVariableAccessSyntax
 //@[115:0121) |   | └─IdentifierSyntax
 //@[115:0121) |   |   └─Token(Identifier) |string|
 //@[122:0124) |   ├─Token(Arrow) |=>|
@@ -582,7 +582,7 @@ func buildUrlMultiLine(
 //@[002:0012) |   | ├─TypedLocalVariableSyntax
 //@[002:0007) |   | | ├─IdentifierSyntax
 //@[002:0007) |   | | | └─Token(Identifier) |https|
-//@[008:0012) |   | | └─VariableAccessSyntax
+//@[008:0012) |   | | └─TypeVariableAccessSyntax
 //@[008:0012) |   | |   └─IdentifierSyntax
 //@[008:0012) |   | |     └─Token(Identifier) |bool|
 //@[012:0013) |   | ├─Token(Comma) |,|
@@ -591,7 +591,7 @@ func buildUrlMultiLine(
 //@[002:0017) |   | ├─TypedLocalVariableSyntax
 //@[002:0010) |   | | ├─IdentifierSyntax
 //@[002:0010) |   | | | └─Token(Identifier) |hostname|
-//@[011:0017) |   | | └─VariableAccessSyntax
+//@[011:0017) |   | | └─TypeVariableAccessSyntax
 //@[011:0017) |   | |   └─IdentifierSyntax
 //@[011:0017) |   | |     └─Token(Identifier) |string|
 //@[017:0018) |   | ├─Token(Comma) |,|
@@ -600,13 +600,13 @@ func buildUrlMultiLine(
 //@[002:0013) |   | ├─TypedLocalVariableSyntax
 //@[002:0006) |   | | ├─IdentifierSyntax
 //@[002:0006) |   | | | └─Token(Identifier) |path|
-//@[007:0013) |   | | └─VariableAccessSyntax
+//@[007:0013) |   | | └─TypeVariableAccessSyntax
 //@[007:0013) |   | |   └─IdentifierSyntax
 //@[007:0013) |   | |     └─Token(Identifier) |string|
 //@[013:0014) |   | ├─Token(NewLine) |\n|
 ) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 //@[000:0001) |   | └─Token(RightParen) |)|
-//@[002:0008) |   ├─VariableAccessSyntax
+//@[002:0008) |   ├─TypeVariableAccessSyntax
 //@[002:0008) |   | └─IdentifierSyntax
 //@[002:0008) |   |   └─Token(Identifier) |string|
 //@[009:0011) |   ├─Token(Arrow) |=>|

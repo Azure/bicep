@@ -3153,7 +3153,7 @@ output directRefToCollectionViaOutput array = nonexistentArrays
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00037) | ├─IdentifierSyntax
 //@[007:00037) | | └─Token(Identifier) |directRefToCollectionViaOutput|
-//@[038:00043) | ├─VariableAccessSyntax
+//@[038:00043) | ├─TypeVariableAccessSyntax
 //@[038:00043) | | └─IdentifierSyntax
 //@[038:00043) | |   └─Token(Identifier) |array|
 //@[044:00045) | ├─Token(Assignment) |=|

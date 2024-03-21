@@ -12,7 +12,7 @@ param prefix string = 'majastrz'
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:012) | ├─IdentifierSyntax
 //@[06:012) | | └─Token(Identifier) |prefix|
-//@[13:019) | ├─VariableAccessSyntax
+//@[13:019) | ├─TypeVariableAccessSyntax
 //@[13:019) | | └─IdentifierSyntax
 //@[13:019) | |   └─Token(Identifier) |string|
 //@[20:032) | └─ParameterDefaultValueSyntax
