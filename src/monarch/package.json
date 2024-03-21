@@ -24,6 +24,7 @@
   "scripts": {
     "build": "tsc -p ./",
     "test": "jest",
+    "test:fix": "BASELINE_RECORD=true jest",
     "lint": "eslint src",
     "lint:fix": "eslint src"
   },

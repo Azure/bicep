@@ -4,6 +4,7 @@
 import { languages } from 'monaco-editor-core';
 
 const bounded = (text: string) => `\\b${text}\\b`;
+const notBefore = (regex: string) => `(?!${regex})`;
 
 const identifierStart = "[_a-zA-Z]";
 const identifierContinue = "[_a-zA-Z0-9]";
@@ -67,7 +68,7 @@ export const BicepLanguage: languages.IMonarchLanguage = {
 
     stringVerbatim: [
       { regex: `(|'|'')[^']`, action: { token: 'string' } },
-      { regex: `'''`, action: { token: 'string.quote', next: '@pop' } },
+      { regex: `'''${notBefore(`'`)}`, action: { token: 'string.quote', next: '@pop' } },
     ],
 
     stringLiteral: [
@@ -98,7 +99,7 @@ export const BicepLanguage: languages.IMonarchLanguage = {
 
     expression: [
       { regex: `'''`, action: { token: 'string.quote', next: '@stringVerbatim' } },
-      { regex: `'`, action: { token: 'string.quote', next: '@stringLiteral' } },
+      { regex: `'${notBefore(`''`)}`, action: { token: 'string.quote', next: '@stringLiteral' } },
       { regex: numericLiteral, action: { token: 'number' } },
       { regex: identifier, action: {
         cases: {
