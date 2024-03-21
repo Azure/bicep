@@ -65,7 +65,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         public void Unary_operator_resolves_correct_type(UnaryOperationSyntax expression, TypeSymbol operandType, TypeSymbol expected, IEnumerable<DiagnosticMatcherData> expectedDiagnostics)
         {
             var diagnosticsWriter = ToListDiagnosticWriter.Create();
-            var actual = OperationReturnTypeEvaluator.TryFoldUnaryExpression(expression, operandType, diagnosticsWriter);
+            var actual = OperationReturnTypeEvaluator.TryFoldUnaryExpression(expression.Operator, operandType, diagnosticsWriter);
             actual.Should().Be(expected);
 
             if (diagnosticsWriter.GetDiagnostics().Any() || expectedDiagnostics.Any())

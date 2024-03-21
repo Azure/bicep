@@ -60,6 +60,18 @@ public sealed class CyclicTypeCheckVisitor : AstVisitor
         base.VisitVariableAccessSyntax(syntax);
     }
 
+    public override void VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax)
+    {
+        // If this reference is not nested within a type container, it would have been detected based on syntax alone in CyclicCheckVisitor.
+        // To avoid doubling up on diagnostics, skip recording cycles on top-level accesses
+        if (enteredTypeContainer)
+        {
+            declarationAccesses.Add(syntax);
+        }
+        
+        base.VisitTypeVariableAccessSyntax(syntax);
+    }
+
     public override void VisitArrayTypeSyntax(ArrayTypeSyntax syntax)
         => WithEnteredTypeContainerState(() => base.VisitArrayTypeSyntax(syntax), enteredTypeContainer: true);
 

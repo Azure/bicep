@@ -287,8 +287,8 @@ namespace Bicep.LanguageServer.Handlers
                 break;
             }
 
-            if (syntax is VariableAccessSyntax ancestor
-                && semanticModel.GetSymbolInfo(ancestor) is DeclaredSymbol ancestorSymbol)
+            if (syntax is VariableAccessSyntax or TypeVariableAccessSyntax
+                && semanticModel.GetSymbolInfo(syntax) is DeclaredSymbol ancestorSymbol)
             {
                 // If the symbol is a module, we need to redirect the user to the module file
                 // note: module.name doesn't follow this: it should refer to the declaration of the module in the current file, like regular variable and resource property accesses

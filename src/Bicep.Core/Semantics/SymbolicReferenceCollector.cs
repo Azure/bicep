@@ -43,4 +43,13 @@ internal class SymbolicReferenceCollector : AstVisitor
 
         base.VisitFunctionCallSyntax(syntax);
     }
+
+    public override void VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax)
+    {
+        if (binder.GetSymbolInfo(syntax) is DeclaredSymbol signified)
+        {
+            references.GetOrAdd(signified, _ => ImmutableSortedSet.CreateBuilder<SyntaxBase>(SyntaxSourceOrderComparer.Instance))
+                .Add(syntax);
+        }
+    }
 }

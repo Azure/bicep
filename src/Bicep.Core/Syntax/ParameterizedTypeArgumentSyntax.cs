@@ -4,7 +4,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public class ParameterizedTypeArgumentSyntax : ExpressionSyntax
+public class ParameterizedTypeArgumentSyntax : TypeSyntax
 {
     public ParameterizedTypeArgumentSyntax(SyntaxBase expression)
     {

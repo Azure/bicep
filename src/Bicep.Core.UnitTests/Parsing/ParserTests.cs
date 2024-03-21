@@ -376,18 +376,17 @@ type foo = {
     unionProp: 'several'|'string'|'literals'
 }";
 
-            var parsed = ParserHelper.Parse(typeDeclaration);
-            parsed.Should().BeOfType<ProgramSyntax>();
-            (parsed as ProgramSyntax).Declarations.Should().HaveCount(1);
-            (parsed as ProgramSyntax).Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>();
-            var declaration = (TypeDeclarationSyntax)(parsed as ProgramSyntax).Declarations.Single();
+            var parsed = ParserHelper.Parse(typeDeclaration).Should().BeOfType<ProgramSyntax>().Subject;
+            parsed.Declarations.Should().HaveCount(1);
+            parsed.Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>();
+            var declaration = (TypeDeclarationSyntax)parsed.Declarations.Single();
             declaration.Decorators.Should().HaveCount(2);
 
             declaration.Value.Should().BeOfType<ObjectTypeSyntax>();
             var declaredObject = (ObjectTypeSyntax)declaration.Value;
             declaredObject.Properties.Should().HaveCount(3);
             declaredObject.Properties.First().Decorators.Should().HaveCount(2);
-            declaredObject.Properties.First().Value.Should().BeOfType<VariableAccessSyntax>();
+            declaredObject.Properties.First().Value.Should().BeOfType<TypeVariableAccessSyntax>();
             declaredObject.Properties.Skip(1).First().Value.Should().BeOfType<ObjectTypeSyntax>();
 
             var objectProp = (ObjectTypeSyntax)declaredObject.Properties.Skip(1).First().Value;
@@ -399,7 +398,7 @@ type foo = {
             var intermediateArray = (ArrayTypeSyntax)arrayProp.Item.Value;
             intermediateArray.Item.Value.Should().BeOfType<ArrayTypeSyntax>();
             var innerArray = (ArrayTypeSyntax)intermediateArray.Item.Value;
-            innerArray.Item.Value.Should().BeOfType<VariableAccessSyntax>();
+            innerArray.Item.Value.Should().BeOfType<TypeVariableAccessSyntax>();
         }
 
         [TestMethod]
@@ -424,7 +423,7 @@ type aTuple = [
             var declaredTuple = (TupleTypeSyntax)declaration.Value;
             declaredTuple.Items.Should().HaveCount(2);
             declaredTuple.Items.First().Decorators.Should().HaveCount(2);
-            declaredTuple.Items.First().Value.Should().BeOfType<VariableAccessSyntax>();
+            declaredTuple.Items.First().Value.Should().BeOfType<TypeVariableAccessSyntax>();
             declaredTuple.Items.Last().Decorators.Should().HaveCount(1);
             declaredTuple.Items.Last().Value.Should().BeOfType<UnionTypeSyntax>();
         }
@@ -451,8 +450,9 @@ type multilineUnion = 'a'
 
             for (int i = 0; i < expectedMemberValues.Length; i++)
             {
-                actualMembers[i].Value.Should().BeOfType<StringSyntax>();
-                actualMembers[i].Value.As<StringSyntax>().TryGetLiteralValue().Should().Be(expectedMemberValues[i]);
+                var stringMember = actualMembers[i].Value.Should().BeOfType<StringTypeLiteralSyntax>().Subject;
+                stringMember.SegmentValues.Should().HaveCount(1);
+                stringMember.SegmentValues[0].Should().Be(expectedMemberValues[i]);
             }
         }
 
@@ -546,8 +546,9 @@ type multilineUnion = 'a'
             imported.Name.IdentifierName.Should().Be("resource");
             imported.Arguments.Should().HaveCount(1);
 
-            var singleParam = imported.Arguments.Single().Expression.Should().BeOfType<StringSyntax>().Subject;
-            singleParam.TryGetLiteralValue().Should().Be("Microsoft.Storage/storageAccounts@2022-09-01");
+            var singleParam = imported.Arguments.Single().Expression.Should().BeOfType<StringTypeLiteralSyntax>().Subject;
+            singleParam.SegmentValues.Should().HaveCount(1);
+            singleParam.SegmentValues[0].Should().Be("Microsoft.Storage/storageAccounts@2022-09-01");
         }
 
         [TestMethod]
@@ -562,8 +563,9 @@ type multilineUnion = 'a'
             imported.PropertyName.IdentifierName.Should().Be("resource");
             imported.Arguments.Should().HaveCount(1);
 
-            var singleParam = imported.Arguments.Single().Expression.Should().BeOfType<StringSyntax>().Subject;
-            singleParam.TryGetLiteralValue().Should().Be("Microsoft.Storage/storageAccounts@2022-09-01");
+            var singleParam = imported.Arguments.Single().Expression.Should().BeOfType<StringTypeLiteralSyntax>().Subject;
+            singleParam.SegmentValues.Should().HaveCount(1);
+            singleParam.SegmentValues[0].Should().Be("Microsoft.Storage/storageAccounts@2022-09-01");
         }
 
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)

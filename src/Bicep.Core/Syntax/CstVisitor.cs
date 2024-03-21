@@ -569,5 +569,52 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Asterisk);
             this.Visit(syntax.CloseSquare);
         }
+
+        public override void VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax)
+        {
+            this.Visit(syntax.Name);
+        }
+
+        public override void VisitStringTypeLiteralSyntax(StringTypeLiteralSyntax syntax)
+        {
+            for (int i = 0; i < syntax.StringTokens.Length + syntax.Expressions.Length; i++)
+            {
+                this.Visit(i % 2 == 0 ? syntax.StringTokens[i / 2] : syntax.Expressions[i / 2]);
+            }
+        }
+
+        public override void VisitIntegerTypeLiteralSyntax(IntegerTypeLiteralSyntax syntax)
+        {
+            this.Visit(syntax.Literal);
+        }
+
+        public override void VisitBooleanTypeLiteralSyntax(BooleanTypeLiteralSyntax syntax)
+        {
+            this.Visit(syntax.Literal);
+        }
+
+        public override void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax)
+        {
+            this.Visit(syntax.NullKeyword);
+        }
+
+        public override void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax)
+        {
+            this.Visit(syntax.OperatorToken);
+            this.Visit(syntax.Expression);
+        }
+
+        public override void VisitNonNullableTypeSyntax(NonNullableTypeSyntax syntax)
+        {
+            this.Visit(syntax.Base);
+            this.Visit(syntax.NonNullabilityMarker);
+        }
+
+        public override void VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax)
+        {
+            this.Visit(syntax.OpenParen);
+            this.Visit(syntax.Expression);
+            this.Visit(syntax.CloseParen);
+        }
     }
 }

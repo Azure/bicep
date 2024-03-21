@@ -454,5 +454,45 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.BaseExpression);
         }
+
+        public override void VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax)
+        {
+            this.Visit(syntax.Name);
+        }
+
+        public override void VisitStringTypeLiteralSyntax(StringTypeLiteralSyntax syntax)
+        {
+            for (int i = 0; i < syntax.StringTokens.Length + syntax.Expressions.Length; i++)
+            {
+                this.Visit(i % 2 == 0 ? syntax.StringTokens[i / 2] : syntax.Expressions[i / 2]);
+            }
+        }
+
+        public override void VisitIntegerTypeLiteralSyntax(IntegerTypeLiteralSyntax syntax)
+        {
+        }
+
+        public override void VisitBooleanTypeLiteralSyntax(BooleanTypeLiteralSyntax syntax)
+        {
+        }
+
+        public override void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax)
+        {
+        }
+
+        public override void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax)
+        {
+            this.Visit(syntax.Expression);
+        }
+
+        public override void VisitNonNullableTypeSyntax(NonNullableTypeSyntax syntax)
+        {
+            this.Visit(syntax.Base);
+        }
+
+        public override void VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax)
+        {
+            this.Visit(syntax.Expression);
+        }
     }
 }

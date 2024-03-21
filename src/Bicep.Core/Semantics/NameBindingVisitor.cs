@@ -295,6 +295,16 @@ namespace Bicep.Core.Semantics
             this.bindings.Add(syntax, symbol);
         }
 
+        public override void VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax)
+        {
+            base.VisitTypeVariableAccessSyntax(syntax);
+
+            var symbol = this.LookupSymbolByName(syntax.Name, false);
+
+            // bind what we got - the type checker will validate if it fits
+            this.bindings.Add(syntax, symbol);
+        }
+
         protected override void VisitInternal(SyntaxBase syntax)
         {
             // any node can be a binding scope
