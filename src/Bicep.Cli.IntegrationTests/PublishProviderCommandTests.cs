@@ -141,13 +141,13 @@ public class PublishProviderCommandTests : TestBase
 {
   "resources": {
     "Microsoft.Storage/storageAccounts@2022-05-01": {
-      "$ref": "types.json#/179"
+      "$ref": "v1/types.json#/179"
     }
   },
   "resourceFunctions": {}
 }
 """, outputDirectory);
-        FileHelper.SaveResultFile(TestContext, "types.json", "malformed", outputDirectory);
+        FileHelper.SaveResultFile(TestContext, "v1/types.json", "malformed", outputDirectory);
 
         var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
         result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: 'm' is an invalid start of a value.*");
@@ -161,13 +161,13 @@ public class PublishProviderCommandTests : TestBase
 {
   "resources": {
     "Microsoft.Storage/storageAccounts@2022-05-01": {
-      "$ref": "types.json#/179"
+      "$ref": "v1/types.json#/179"
     }
   },
   "resourceFunctions": {}
 }
 """, outputDirectory);
-        FileHelper.SaveResultFile(TestContext, "types.json", """
+        FileHelper.SaveResultFile(TestContext, "v1/types.json", """
 [
   {
     "$type": "StringType",

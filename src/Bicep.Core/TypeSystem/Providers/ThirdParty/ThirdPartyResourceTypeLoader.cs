@@ -2,16 +2,22 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Azure.Bicep.Types;
+using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
+using ObjectType = Azure.Bicep.Types.Concrete.ObjectType;
 
 namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 {
     public class ThirdPartyResourceTypeLoader : IResourceTypeLoader
     {
+        public record NamespaceConfiguration(string Name, string Version, bool IsSingleton, TypeSymbol? ConfigurationObject);
+
         private readonly ITypeLoader typeLoader;
         private readonly ExtensibilityResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, CrossFileTypeReference> availableTypes;
+        private readonly TypeSettings? typeSettings;
+        private readonly CrossFileTypeReference? fallbackResourceType;
 
         public ThirdPartyResourceTypeLoader(ITypeLoader typeLoader)
         {
@@ -21,6 +27,9 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);
+
+            typeSettings = indexedTypes.Settings;
+            fallbackResourceType = indexedTypes.FallbackResourceType;
         }
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
@@ -33,6 +42,47 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
 
             return resourceTypeFactory.GetResourceType(serializedResourceType);
+        }
+
+        public ResourceTypeComponents? LoadFallbackResourceType()
+        {
+            if (fallbackResourceType != null)
+            {
+                var serializedResourceType = typeLoader.LoadResourceType(fallbackResourceType);
+
+                return resourceTypeFactory.GetResourceType(serializedResourceType);
+            }
+
+            // No fallback type provided in JSON
+            return null;
+        }
+
+        public NamespaceConfiguration? LoadNamespaceConfiguration()
+        {
+            if (typeSettings == null)
+            {
+                throw new ArgumentException($"Please provide the following Settings properties: Name, Version, & IsSingleton.");
+            }
+
+            TypeSymbol? configurationType = null;
+
+            if (typeSettings.ConfigurationType is {} reference)
+            {
+
+                if (typeLoader.LoadType(reference) is not ObjectType objectType)
+                {
+                    throw new ArgumentException($"Unable to locate resource object type at index {reference.Index} in \"{reference.RelativePath}\" resource");
+                }
+
+                var bodyType = resourceTypeFactory.GetObjectType(objectType);
+                configurationType = bodyType;
+            }
+
+            return new(
+                typeSettings.Name,
+                typeSettings.Version,
+                typeSettings.IsSingleton,
+                configurationType);
         }
     }
 }

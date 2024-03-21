@@ -32,6 +32,13 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);
         }
 
+        public TypeSymbol GetObjectType(Azure.Bicep.Types.Concrete.ObjectType objectType)
+        {
+            var bodyType = GetTypeSymbol(objectType, false);
+
+            return bodyType;
+        }
+
         private IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceType resourceType)
         {
             if (resourceType.Functions is null)
