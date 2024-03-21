@@ -1031,8 +1031,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
             var namespaces = new[] {
-                TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInAzProviderDescriptor),
-                TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInSysProviderDescriptor)
+                TestTypeHelper.GetBuiltInNamespaceType("az"),
+                TestTypeHelper.GetBuiltInNamespaceType("sys"),
             };
             var matches = new List<FunctionOverload>();
 

@@ -22,8 +22,8 @@ namespace Bicep.Wasm;
 public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
+        .AddSingleton<INamespaceProvider, NamespaceProvider>()
         .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
-        .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
         .AddSingleton<IArtifactRegistryProvider, EmptyModuleRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()

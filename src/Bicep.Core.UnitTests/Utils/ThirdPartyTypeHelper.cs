@@ -13,6 +13,58 @@ namespace Bicep.Core.UnitTests.Utils;
 
 public static class ThirdPartyTypeHelper
 {
+    public static IReadOnlyDictionary<string, string> GetHttpProviderTypes()
+    {
+        var factory = new TypeFactory(Enumerable.Empty<TypeBase>());
+
+        var formatType = factory.Create(() => new UnionType([
+            factory.GetReference(factory.Create(() => new StringLiteralType("raw"))),
+            factory.GetReference(factory.Create(() => new StringLiteralType("json"))),
+        ]));
+
+        var stringType = factory.Create(() => new StringType());
+        var intType = factory.Create(() => new IntegerType());
+        var anyType = factory.Create(() => new AnyType());
+
+        var requestBodyType = factory.Create(() => new ObjectType("request@v1", new Dictionary<string, ObjectTypeProperty>
+        {
+            ["uri"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required, "The HTTP request URI to submit a GET request to."),
+            ["format"] = new(factory.GetReference(formatType), ObjectTypePropertyFlags.None, "How to deserialize the response body."),
+            ["method"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.None, "The HTTP method to submit request to the given URI."),
+            ["statusCode"] = new(factory.GetReference(intType), ObjectTypePropertyFlags.ReadOnly, "The status code of the HTTP request."),
+            ["body"] = new(factory.GetReference(anyType), ObjectTypePropertyFlags.ReadOnly, "The parsed request body.")
+        }, null));
+
+        var requestType = factory.Create(() => new ResourceType(
+            "request@v1",
+            ScopeType.Unknown,
+            null,
+            factory.GetReference(requestBodyType),
+            ResourceFlags.None,
+            null));
+
+        var settings = new TypeSettings(
+            name: "http",
+            version: "1.2.3",
+            isSingleton: false,
+            configurationType: null!);
+
+        var index = new TypeIndex(
+            new Dictionary<string, CrossFileTypeReference>
+            {
+                [requestType.Name] = new CrossFileTypeReference("v1/types.json", factory.GetIndex(requestType)),
+            },
+            new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            settings,
+            null);
+
+        return new Dictionary<string, string>
+        {
+            ["index.json"] = StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index)),
+            ["v1/types.json"] = StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))
+        };
+    }
+
     /// <summary>
     /// Returns a .tgz file containing a set of pre-defined types for testing purposes.
     /// </summary>

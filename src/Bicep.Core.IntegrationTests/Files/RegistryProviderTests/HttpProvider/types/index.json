@@ -8,6 +8,8 @@
   "settings": {
     "name": "http",
     "version": "1.2.3",
-    "isSingleton": false
-  }
+    "isSingleton": false,
+    "configurationType": null
+  },
+  "fallbackResourceType": null
 }
