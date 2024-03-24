@@ -22,19 +22,19 @@ namespace Bicep.Core.Semantics.Namespaces
             // NamespaceConfig is not null
             if (resourceTypeProvider is ThirdPartyResourceTypeProvider thirdPartyProvider && thirdPartyProvider.GetNamespaceConfiguration() is NamespaceConfiguration namespaceConfig && namespaceConfig != null)
             {
-                    return new NamespaceType(
-                        aliasName,
-                        new NamespaceSettings(
-                            IsSingleton: namespaceConfig.IsSingleton,
-                            BicepProviderName: namespaceConfig.Name,
-                            ConfigurationType: (ObjectType?)namespaceConfig.ConfigurationObject,
-                            ArmTemplateProviderName: namespaceConfig.Name,
-                            ArmTemplateProviderVersion: namespaceConfig.Version),
-                        ImmutableArray<TypeProperty>.Empty,
-                        ImmutableArray<FunctionOverload>.Empty,
-                        ImmutableArray<BannedFunction>.Empty,
-                        ImmutableArray<Decorator>.Empty,
-                        resourceTypeProvider);
+                return new NamespaceType(
+                    aliasName,
+                    new NamespaceSettings(
+                        IsSingleton: namespaceConfig.IsSingleton,
+                        BicepProviderName: namespaceConfig.Name,
+                        ConfigurationType: (ObjectType?)namespaceConfig.ConfigurationObject,
+                        ArmTemplateProviderName: namespaceConfig.Name,
+                        ArmTemplateProviderVersion: namespaceConfig.Version),
+                    ImmutableArray<TypeProperty>.Empty,
+                    ImmutableArray<FunctionOverload>.Empty,
+                    ImmutableArray<BannedFunction>.Empty,
+                    ImmutableArray<Decorator>.Empty,
+                    resourceTypeProvider);
             }
 
             // NamespaceConfig is required to be set for 3PProviders

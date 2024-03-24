@@ -422,7 +422,7 @@ internal class ArmDeclarationToExpressionConverter
                 key,
                 ConvertToExpression(parsedExpressions, property.Value));
         }
-        
+
 
         if (parsedExpressions.TryGetValue(toConvert, out var armExpression))
         {

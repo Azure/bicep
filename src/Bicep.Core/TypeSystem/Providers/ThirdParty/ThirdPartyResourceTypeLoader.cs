@@ -66,7 +66,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 
             TypeSymbol? configurationType = null;
 
-            if (typeSettings.ConfigurationType is {} reference)
+            if (typeSettings.ConfigurationType is { } reference)
             {
 
                 if (typeLoader.LoadType(reference) is not ObjectType objectType)

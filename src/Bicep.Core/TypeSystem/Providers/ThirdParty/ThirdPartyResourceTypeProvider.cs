@@ -124,7 +124,8 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         {
             var loadedFallbackType = resourceTypeLoader.LoadFallbackResourceType();
 
-            if (loadedFallbackType != null){
+            if (loadedFallbackType != null)
+            {
                 var resourceType = generatedTypeCache.GetOrAdd(flags, typeReference, () =>
                 {
                     var resourceType = new ResourceTypeComponents(
