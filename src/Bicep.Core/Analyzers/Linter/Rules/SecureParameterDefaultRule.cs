@@ -34,6 +34,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     // Empty string - okay
                     continue;
                 }
+                else if (defaultValue is VariableAccessSyntax variableAccessSyntax)
+                {
+                    // Variable - okay
+                    continue;
+                }
                 else if (defaultValue is ObjectSyntax objectSyntax && !objectSyntax.Properties.Any())
                 {
                     // Empty object - okay

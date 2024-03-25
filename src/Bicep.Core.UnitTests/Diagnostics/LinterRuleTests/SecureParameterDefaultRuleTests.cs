@@ -201,5 +201,18 @@ output sub int = sum
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount, new Options(OnCompileErrors.Ignore));
         }
 
+        [DataRow(0, @"
+@secure()
+output param1 string
+
+@secure()
+output param2 string = param1
+")]
+        [DataTestMethod]
+        public void VariableAssignment_TestPasses(int diagnosticCount, string text)
+        {
+            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
+        }
+
     }
 }
