@@ -655,10 +655,10 @@
       },
       "Microsoft.VisualStudio.RemoteControl": {
         "type": "Transitive",
-        "resolved": "16.3.44",
-        "contentHash": "hbc2FxReEyotRXM1dtQSZxt2ccNMBgPbcX6MylKp9UDbHsTPJ0dk5CEuZAqoqOFKUzFtorZL6A7BcRAjP9HU1g==",
+        "resolved": "16.3.52",
+        "contentHash": "+MgP1+Rtt1uJZyqhf7+H6KAQ57wc7v00ixuLhEgFggIbmW2/29YXfPK7gLvXw+vU7vimuM47cqAHrnB7RWYqtg==",
         "dependencies": {
-          "Microsoft.VisualStudio.Utilities.Internal": "16.3.36"
+          "Microsoft.VisualStudio.Utilities.Internal": "16.3.42"
         }
       },
       "Microsoft.VisualStudio.RpcContracts": {
@@ -786,14 +786,13 @@
       },
       "Microsoft.VisualStudio.Telemetry": {
         "type": "Transitive",
-        "resolved": "16.5.6",
-        "contentHash": "afyxTJBcntD92T9Ce8gZxOgEZBLZXFA7kxQLW1gnbnF5yGBkeF8vdwIlvJ/aw6+Of0cgfjgY9J/bLGZ976puAQ==",
+        "resolved": "17.9.305",
+        "contentHash": "dWQlTc3o1zvnr0dFD+ZpC04gZtP3pzAMEQBK2oqPZoMRm4n3cj5sSNSlSugDjWHAnVAKzses/ZTvR2SHTyCQNA==",
         "dependencies": {
           "Microsoft.CSharp": "4.7.0",
-          "Microsoft.VisualStudio.RemoteControl": "16.3.44",
-          "Microsoft.VisualStudio.Utilities.Internal": "16.3.36",
-          "Newtonsoft.Json": "13.0.1",
-          "System.Runtime.CompilerServices.Unsafe": "5.0.0"
+          "Microsoft.VisualStudio.RemoteControl": "16.3.52",
+          "Microsoft.VisualStudio.Utilities.Internal": "16.3.56",
+          "Newtonsoft.Json": "13.0.1"
         }
       },
       "Microsoft.VisualStudio.Text.Data": {
@@ -959,8 +958,8 @@
       },
       "Microsoft.VisualStudio.Utilities.Internal": {
         "type": "Transitive",
-        "resolved": "16.3.36",
-        "contentHash": "tVOE9DJbd4PETSgBW+9448jvRdhm/hNHJFaGyCq6Gtlg+ElELBmfMFxgp2rsrqzUkLjehwnrw6uX4Yj9krOfJQ=="
+        "resolved": "16.3.56",
+        "contentHash": "QX5UVVk4+/rPu3Xy3QRAntNBy/3VMl2whwSlt73Ksp6MRf5ersUopgmHbkEnWSTX6e/SZf+mfqTmvdk67URH2Q=="
       },
       "Microsoft.VisualStudio.Validation": {
         "type": "Transitive",
@@ -1469,7 +1468,7 @@
           "Microsoft.VisualStudio.Shell.Interop": "[17.9.37000, )",
           "Microsoft.VisualStudio.Utilities": "[17.2.32505.113, )",
           "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
-          "Microsoft.Visualstudio.Telemetry": "[16.5.6, )",
+          "Microsoft.Visualstudio.Telemetry": "[17.9.305, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.7, )"
         }
       }
