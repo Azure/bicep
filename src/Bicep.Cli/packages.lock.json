@@ -68,9 +68,9 @@
       },
       "StreamJsonRpc": {
         "type": "Direct",
-        "requested": "[2.17.8, )",
-        "resolved": "2.17.8",
-        "contentHash": "XxxYqGwcaH/3uBel6Ur54ldMIdW2sd80B0nbN4iqMyBXkiBoiVDmtyJv6ow3jaCkRmJLEFrX2/PEWvSsdBldlw==",
+        "requested": "[2.17.11, )",
+        "resolved": "2.17.11",
+        "contentHash": "fygZJqYer5WPBwDqT0TOsVRTlsCZV3Q8HQMkoja+jhC2KkCbUW038njK29pf8Hqv5/IfxWb72LCR49wq4nz3ow==",
         "dependencies": {
           "MessagePack": "2.5.108",
           "Microsoft.Bcl.AsyncInterfaces": "7.0.0",
