@@ -26,6 +26,8 @@ using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.UnitTests
 {
+    // See also Bicep.LangServer.IntegrationTests/CompletionTests.cs4
+
     [TestClass]
     public class BicepCompletionProviderTests
     {
