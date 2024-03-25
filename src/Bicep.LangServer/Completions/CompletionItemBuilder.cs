@@ -104,7 +104,7 @@ namespace Bicep.LanguageServer.Completions
             return this;
         }
 
-        public CompletionItemBuilder WithFilterText(string filterText)
+        public CompletionItemBuilder WithFilterText(string? filterText)
         {
             this.filterText = filterText;
             return this;
