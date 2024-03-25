@@ -163,9 +163,9 @@
       },
       "Microsoft.Graph.Bicep.Types": {
         "type": "Direct",
-        "requested": "[0.1.3-preview, )",
-        "resolved": "0.1.3-preview",
-        "contentHash": "GoB1xptBXqiJl2/aoC8V0sk4D7Hbt0Tq4DgeKDQ7WUF2IQIhFybsvc5uyuyChudLD0z4kDtObbUNlp18U6c64Q==",
+        "requested": "[0.1.4-preview, )",
+        "resolved": "0.1.4-preview",
+        "contentHash": "xKFWkpFUmimbuWB/zQva1e/AFTLlUiirRprqOCp1gWOVMMbF1ciyOl7XZ3rumYHvunSt/O+X2XHczA5sDxYgMQ==",
         "dependencies": {
           "Azure.Bicep.Types": "0.5.6"
         }
