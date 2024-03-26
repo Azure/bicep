@@ -1,5 +1,5 @@
 
-//@[000:7923) ProgramExpression
+//@[000:8106) ProgramExpression
 // int
 @sys.description('an int variable')
 //@[000:0050) ├─DeclaredVariableExpression { Name = myInt }
@@ -1079,8 +1079,42 @@ var prefix = take('food', 3)
 //@[018:0024) |   ├─StringLiteralExpression { Value = food }
 //@[026:0027) |   └─IntegerLiteralExpression { Value = 3 }
 var isPrefixed = startsWith('food', 'foo')
-//@[000:0042) └─DeclaredVariableExpression { Name = isPrefixed }
-//@[017:0042)   └─FunctionCallExpression { Name = startsWith }
-//@[028:0034)     ├─StringLiteralExpression { Value = food }
-//@[036:0041)     └─StringLiteralExpression { Value = foo }
+//@[000:0042) ├─DeclaredVariableExpression { Name = isPrefixed }
+//@[017:0042) | └─FunctionCallExpression { Name = startsWith }
+//@[028:0034) |   ├─StringLiteralExpression { Value = food }
+//@[036:0041) |   └─StringLiteralExpression { Value = foo }
+
+var spread = {
+//@[000:0044) ├─DeclaredVariableExpression { Name = spread }
+//@[013:0044) | └─FunctionCallExpression { Name = shallowMerge }
+//@[013:0044) |   └─ArrayExpression
+//@[013:0044) |     ├─ObjectExpression
+  foo: 'abc'
+//@[002:0012) |     | └─ObjectPropertyExpression
+//@[002:0005) |     |   ├─StringLiteralExpression { Value = foo }
+//@[007:0012) |     |   └─StringLiteralExpression { Value = abc }
+  ...issue1332
+//@[005:0014) |     └─VariableReferenceExpression { Variable = issue1332 }
+}
+
+var test = {
+//@[000:0039) ├─DeclaredVariableExpression { Name = test }
+//@[011:0039) | └─FunctionCallExpression { Name = shallowMerge }
+//@[011:0039) |   └─ArrayExpression
+//@[011:0039) |     └─ObjectExpression
+  ...spread
+//@[005:0011) |     ├─VariableReferenceExpression { Variable = spread }
+  bar: 'def'
+//@[002:0012) |       └─ObjectPropertyExpression
+//@[002:0005) |         ├─StringLiteralExpression { Value = bar }
+//@[007:0012) |         └─StringLiteralExpression { Value = def }
+}
+
+var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
+//@[000:0094) └─DeclaredVariableExpression { Name = arraySpread }
+//@[018:0094)   └─FunctionCallExpression { Name = flatten }
+//@[018:0094)     └─ArrayExpression
+//@[022:0037)       ├─VariableReferenceExpression { Variable = arrayOfBooleans }
+//@[042:0065)       ├─VariableReferenceExpression { Variable = arrayOfHardCodedNumbers }
+//@[070:0093)       └─VariableReferenceExpression { Variable = arrayOfHardCodedStrings }
 

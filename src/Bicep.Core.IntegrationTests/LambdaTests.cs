@@ -78,7 +78,7 @@ namespace Bicep.Core.IntegrationTests
 
             CompilationHelper.Compile("var asfsasdf = map([1], [i => i])")
                 .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP070", DiagnosticLevel.Error, "Argument of type \"[any => any]\" is not assignable to parameter of type \"any => any\"."),
+                    ("BCP070", DiagnosticLevel.Error, "Argument of type \"[any => any]\" is not assignable to parameter of type \"(any[, int]) => any\"."),
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 });
         }
@@ -147,15 +147,15 @@ var fo|o2 = map([any('foo')], a|bc => 'Hi ${abc}!')
         public void Map_function_blocks_incorrect_args()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
-var foo = map([123], (abc, def) => abc)
+var foo = map([123], (abc, def, ghi) => abc)
 var foo2 = map(['foo'], () => 'Hi!')
 ",
                 '|');
 
             var result = CompilationHelper.Compile(file);
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP070", DiagnosticLevel.Error, "Argument of type \"(123, any) => 123\" is not assignable to parameter of type \"any => any\"."),
-                ("BCP070", DiagnosticLevel.Error, "Argument of type \"() => 'Hi!'\" is not assignable to parameter of type \"any => any\"."),
+                ("BCP070", DiagnosticLevel.Error, """Argument of type "(123, int, any) => 123" is not assignable to parameter of type "(any[, int]) => any"."""),
+                ("BCP070", DiagnosticLevel.Error, """Argument of type "() => 'Hi!'" is not assignable to parameter of type "(any[, int]) => any"."""),
             });
         }
 

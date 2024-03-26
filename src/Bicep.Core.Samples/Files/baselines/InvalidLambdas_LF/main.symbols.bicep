@@ -14,6 +14,11 @@ var map3 = map(range(0, 10), 'def')
 //@[04:08) Variable map3. Type: error. Declaration start char: 0, length: 35
 var map4 = map(range(0, 10), () => null)
 //@[04:08) Variable map4. Type: error. Declaration start char: 0, length: 40
+var map5 = map(range(0, 10), (a, b, c) => a)
+//@[30:31) Local a. Type: int. Declaration start char: 30, length: 1
+//@[33:34) Local b. Type: int. Declaration start char: 33, length: 1
+//@[36:37) Local c. Type: any. Declaration start char: 36, length: 1
+//@[04:08) Variable map5. Type: error. Declaration start char: 0, length: 44
 
 var filter1 = filter('abc')
 //@[04:11) Variable filter1. Type: error. Declaration start char: 0, length: 27
@@ -29,6 +34,11 @@ var filter5 = filter(range(0, 10), i => i)
 var filter6 = filter([true, 'hello!'], i => i)
 //@[39:40) Local i. Type: 'hello!' | true. Declaration start char: 39, length: 1
 //@[04:11) Variable filter6. Type: error. Declaration start char: 0, length: 46
+var filter7 = filter(range(0, 10), (a, b, c) => true)
+//@[36:37) Local a. Type: int. Declaration start char: 36, length: 1
+//@[39:40) Local b. Type: int. Declaration start char: 39, length: 1
+//@[42:43) Local c. Type: any. Declaration start char: 42, length: 1
+//@[04:11) Variable filter7. Type: error. Declaration start char: 0, length: 53
 
 var sort1 = sort('abc')
 //@[04:09) Variable sort1. Type: error. Declaration start char: 0, length: 23
@@ -57,6 +67,12 @@ var reduce4 = reduce(range(0, 10), 0, () => null)
 var reduce5 = reduce(range(0, 10), 0, i => i)
 //@[38:39) Local i. Type: int. Declaration start char: 38, length: 1
 //@[04:11) Variable reduce5. Type: error. Declaration start char: 0, length: 45
+var reduce6 = reduce(range(0, 10), 0, (a, b, c, d) => a)
+//@[39:40) Local a. Type: int. Declaration start char: 39, length: 1
+//@[42:43) Local b. Type: int. Declaration start char: 42, length: 1
+//@[45:46) Local c. Type: int. Declaration start char: 45, length: 1
+//@[48:49) Local d. Type: any. Declaration start char: 48, length: 1
+//@[04:11) Variable reduce6. Type: error. Declaration start char: 0, length: 56
 
 var toObject1 = toObject('abc')
 //@[04:13) Variable toObject1. Type: error. Declaration start char: 0, length: 31

@@ -1992,6 +1992,60 @@ var isPrefixed = startsWith('food', 'foo')
 //@[034:035) Comma |,|
 //@[036:041) StringComplete |'foo'|
 //@[041:042) RightParen |)|
-//@[042:043) NewLine |\n|
+//@[042:044) NewLine |\n\n|
+
+var spread = {
+//@[000:003) Identifier |var|
+//@[004:010) Identifier |spread|
+//@[011:012) Assignment |=|
+//@[013:014) LeftBrace |{|
+//@[014:015) NewLine |\n|
+  foo: 'abc'
+//@[002:005) Identifier |foo|
+//@[005:006) Colon |:|
+//@[007:012) StringComplete |'abc'|
+//@[012:013) NewLine |\n|
+  ...issue1332
+//@[002:005) Ellipsis |...|
+//@[005:014) Identifier |issue1332|
+//@[014:015) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+var test = {
+//@[000:003) Identifier |var|
+//@[004:008) Identifier |test|
+//@[009:010) Assignment |=|
+//@[011:012) LeftBrace |{|
+//@[012:013) NewLine |\n|
+  ...spread
+//@[002:005) Ellipsis |...|
+//@[005:011) Identifier |spread|
+//@[011:012) NewLine |\n|
+  bar: 'def'
+//@[002:005) Identifier |bar|
+//@[005:006) Colon |:|
+//@[007:012) StringComplete |'def'|
+//@[012:013) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
+//@[000:003) Identifier |var|
+//@[004:015) Identifier |arraySpread|
+//@[016:017) Assignment |=|
+//@[018:019) LeftSquare |[|
+//@[019:022) Ellipsis |...|
+//@[022:037) Identifier |arrayOfBooleans|
+//@[037:038) Comma |,|
+//@[039:042) Ellipsis |...|
+//@[042:065) Identifier |arrayOfHardCodedNumbers|
+//@[065:066) Comma |,|
+//@[067:070) Ellipsis |...|
+//@[070:093) Identifier |arrayOfHardCodedStrings|
+//@[093:094) RightSquare |]|
+//@[094:095) NewLine |\n|
 
 //@[000:000) EndOfFile ||

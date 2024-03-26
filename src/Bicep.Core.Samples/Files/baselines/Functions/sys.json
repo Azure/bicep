@@ -451,17 +451,17 @@
       {
         "name": "predicate",
         "description": "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
-        "type": "any => bool",
+        "type": "(any[, int]) => bool",
         "required": true
       }
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(array: array, predicate: any => bool): array",
+    "typeSignature": "(array: array, predicate: (any[, int]) => bool): array",
     "parameterTypeSignatures": [
       "array: array",
-      "predicate: any => bool"
+      "predicate: (any[, int]) => bool"
     ]
   },
   {
@@ -544,6 +544,39 @@
     "parameterTypeSignatures": [
       "formatString: string",
       "... : any"
+    ]
+  },
+  {
+    "name": "groupBy",
+    "description": "Converts an array to an object containing a lookup from key to array values filtered by said key. Values can be optionally translated using a mapping function.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to map to an object.",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "keyPredicate",
+        "description": "The predicate applied to each input array element to return the object key.",
+        "type": "any => string",
+        "required": true
+      },
+      {
+        "name": "valuePredicate",
+        "description": "The optional predicate applied to each input array element to return the object value.",
+        "type": "any => any",
+        "required": false
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 3,
+    "flags": "default",
+    "typeSignature": "(array: array, keyPredicate: any => string, [valuePredicate: any => any]): object",
+    "parameterTypeSignatures": [
+      "array: array",
+      "keyPredicate: any => string",
+      "[valuePredicate: any => any]"
     ]
   },
   {
@@ -984,6 +1017,32 @@
       {
         "name": "predicate",
         "description": "The predicate applied to each input array element, in order to generate the output array.",
+        "type": "(any[, int]) => any",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(array: array, predicate: (any[, int]) => any): array",
+    "parameterTypeSignatures": [
+      "array: array",
+      "predicate: (any[, int]) => any"
+    ]
+  },
+  {
+    "name": "mapValues",
+    "description": "Applies a custom mapping function to the values of an object and returns the result object.",
+    "fixedParameters": [
+      {
+        "name": "object",
+        "description": "The object to map.",
+        "type": "object",
+        "required": true
+      },
+      {
+        "name": "predicate",
+        "description": "The predicate applied to each input object value, in order to generate the output object.",
         "type": "any => any",
         "required": true
       }
@@ -991,9 +1050,9 @@
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(array: array, predicate: any => any): array",
+    "typeSignature": "(object: object, predicate: any => any): array",
     "parameterTypeSignatures": [
-      "array: array",
+      "object: object",
       "predicate: any => any"
     ]
   },
@@ -1078,6 +1137,25 @@
     "flags": "paramDefaultsOnly",
     "typeSignature": "(): string",
     "parameterTypeSignatures": []
+  },
+  {
+    "name": "objectKeys",
+    "description": "Returns an array of object keys. Elements are consistently ordered alphabetically.",
+    "fixedParameters": [
+      {
+        "name": "object",
+        "description": "The object to return keys for",
+        "type": "object",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(object: object): string[]",
+    "parameterTypeSignatures": [
+      "object: object"
+    ]
   },
   {
     "name": "padLeft",
@@ -1176,18 +1254,18 @@
       {
         "name": "predicate",
         "description": "The predicate used to aggregate the current value and the next value. ",
-        "type": "(any, any) => any",
+        "type": "(any, any[, int]) => any",
         "required": true
       }
     ],
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
     "flags": "default",
-    "typeSignature": "(array: array, initialValue: any, predicate: (any, any) => any): array",
+    "typeSignature": "(array: array, initialValue: any, predicate: (any, any[, int]) => any): array",
     "parameterTypeSignatures": [
       "array: array",
       "initialValue: any",
-      "predicate: (any, any) => any"
+      "predicate: (any, any[, int]) => any"
     ]
   },
   {
@@ -1221,6 +1299,25 @@
       "originalString: string",
       "oldString: string",
       "newString: string"
+    ]
+  },
+  {
+    "name": "shallowMerge",
+    "description": "Returns a single object with all elements from the parameters. If there are duplicate keys, the last key wins.",
+    "fixedParameters": [
+      {
+        "name": "entries",
+        "description": "The array of objects to merge.",
+        "type": "object[]",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(entries: object[]): object",
+    "parameterTypeSignatures": [
+      "entries: object[]"
     ]
   },
   {

@@ -207,17 +207,24 @@ namespace Bicep.Core.Parsing
 
             var itemsOrTokens = HandleArrayOrObjectElements(
                 closingTokenType: TokenType.RightSquare,
-                parseChildElement: ArrayItem);
+                parseChildElement: ArrayElement);
 
             var closeBracket = Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
             return new ArraySyntax(openBracket, itemsOrTokens, closeBracket);
         }
 
-        private SyntaxBase ArrayItem()
+        private SyntaxBase ArrayElement()
         {
             return this.WithRecovery<SyntaxBase>(() =>
             {
+                var current = this.reader.Peek();
+
+                if (current.Type == TokenType.Ellipsis)
+                {
+                    return SpreadExpression([TokenType.NewLine, TokenType.RightSquare]);
+                }
+
                 var value = this.Expression(ExpressionFlags.AllowComplexLiterals);
 
                 return new ArrayItemSyntax(value);
@@ -1057,14 +1064,22 @@ namespace Bicep.Core.Parsing
 
             var itemsOrTokens = HandleArrayOrObjectElements(
                 closingTokenType: TokenType.RightBrace,
-                parseChildElement: () => ObjectProperty(expressionFlags));
+                parseChildElement: () => ObjectElement(expressionFlags));
 
             var closeBrace = Expect(TokenType.RightBrace, b => b.ExpectedCharacter("}"));
 
             return new ObjectSyntax(openBrace, itemsOrTokens, closeBrace);
         }
 
-        private SyntaxBase ObjectProperty(ExpressionFlags expressionFlags)
+        private SpreadExpressionSyntax SpreadExpression(TokenType[] terminatingTypes)
+        {
+            var ellipsis = this.Expect(TokenType.Ellipsis, b => b.ExpectedCharacter("..."));
+            var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(ellipsis), terminatingTypes);
+
+            return new SpreadExpressionSyntax(ellipsis, expression);
+        }
+
+        private SyntaxBase ObjectElement(ExpressionFlags expressionFlags)
         {
             return this.WithRecovery<SyntaxBase>(() =>
             {
@@ -1085,6 +1100,11 @@ namespace Bicep.Core.Parsing
                      Check(this.reader.PeekAhead(), TokenType.Identifier))))
                 {
                     return this.Declaration(LanguageConstants.ResourceKeyword);
+                }
+
+                if (current.Type == TokenType.Ellipsis)
+                {
+                    return SpreadExpression([TokenType.NewLine, TokenType.RightBrace]);
                 }
 
                 var key = this.WithRecovery(

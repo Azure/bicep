@@ -174,6 +174,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax) => this.Apply(syntax, LayoutTypeItemsAccessSyntax);
 
+        public void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax) => this.Apply(syntax, LayoutSpreadExpressionSyntax);
+
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {
             syntax.Accept(this);

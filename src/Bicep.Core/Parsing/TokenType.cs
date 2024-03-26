@@ -52,5 +52,6 @@ namespace Bicep.Core.Parsing
         Pipe,
         WithKeyword,
         AsKeyword,
+        Ellipsis,
     }
 }

@@ -614,6 +614,13 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithVariableParameter("object", LanguageConstants.Array, minimumCount: 2, "The first array to use for joining elements.")
                     .Build();
 
+                yield return new FunctionOverloadBuilder("shallowMerge")
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("shallowMerge", LanguageConstants.Object), LanguageConstants.Object)
+                    .WithGenericDescription(UnionDescription)
+                    .WithDescription("Returns a single object with all elements from the parameters. If there are duplicate keys, the last key wins.")
+                    .WithRequiredParameter("entries", new TypedArrayType(LanguageConstants.Object, TypeSymbolValidationFlags.Default), "The array of objects to merge.")
+                    .Build();
+
                 yield return new FunctionOverloadBuilder("first")
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => new(argumentTypes[0] switch
                     {
@@ -916,6 +923,12 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnResultBuilder(ItemsResultBuilder, GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any))
                     .Build();
 
+                yield return new FunctionOverloadBuilder("objectKeys")
+                    .WithGenericDescription("Returns an array of object keys. Elements are consistently ordered alphabetically.")
+                    .WithRequiredParameter("object", LanguageConstants.Object, "The object to return keys for")
+                    .WithReturnResultBuilder(ObjectKeysResultBuilder, new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default))
+                    .Build();
+
                 yield return new FunctionOverloadBuilder("flatten")
                     .WithGenericDescription("Takes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.")
                     .WithRequiredParameter("array", new TypedArrayType(LanguageConstants.Array, TypeSymbolValidationFlags.Default), "The array of sub-arrays to flatten.")
@@ -925,8 +938,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new FunctionOverloadBuilder("filter")
                     .WithGenericDescription("Filters an array with a custom filtering function.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to filter.")
-                    .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Bool), "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Bool)))
+                    .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Bool), "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
+                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t], [LanguageConstants.Int], LanguageConstants.Bool)))
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => new(argumentTypes[0] switch
                     {
                         // If a tuple is filtered, each member of the resulting array will be assignable to <input tuple>.Item, but information about specific indices and tuple length is no longer reliable.
@@ -941,8 +954,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new FunctionOverloadBuilder("map")
                     .WithGenericDescription("Applies a custom mapping function to each element of an array and returns the result array.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to map.")
-                    .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The predicate applied to each input array element, in order to generate the output array.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                    .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Any), "The predicate applied to each input array element, in order to generate the output array.",
+                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t], [LanguageConstants.Int],  LanguageConstants.Any)))
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => argumentTypes[1] switch
                     {
                         LambdaType lambdaType => new(new TypedArrayType(lambdaType.ReturnType.Type, TypeSymbolValidationFlags.Default)),
@@ -950,11 +963,23 @@ namespace Bicep.Core.Semantics.Namespaces
                     }, LanguageConstants.Array)
                     .Build();
 
+                yield return new FunctionOverloadBuilder("mapValues")
+                    .WithGenericDescription("Applies a custom mapping function to the values of an object and returns the result object.")
+                    .WithRequiredParameter("object", LanguageConstants.Object, "The object to map.")
+                    .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The predicate applied to each input object value, in order to generate the output object.",
+                        calculator: getArgumentType => CalculateLambdaFromObjectValues(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                    .WithReturnResultBuilder((_, _, _, argumentTypes) => argumentTypes[1] switch
+                    {
+                        LambdaType lambdaType => new(TypeHelper.CreateDictionaryType("object", TypeSymbolValidationFlags.Default, lambdaType.ReturnType.Type)),
+                        _ => new(LanguageConstants.Any),
+                    }, LanguageConstants.Array)
+                    .Build();
+
                 yield return new FunctionOverloadBuilder("sort")
                     .WithGenericDescription("Sorts an array with a custom sort function.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to sort.")
-                    .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Bool), "The predicate used to compare two array elements for ordering. If true, the second element will be ordered after the first in the output array.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Bool)))
+                    .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any, LanguageConstants.Any], [], LanguageConstants.Bool), "The predicate used to compare two array elements for ordering. If true, the second element will be ordered after the first in the output array.",
+                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t, t], [], LanguageConstants.Bool)))
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => new(argumentTypes[0] switch
                     {
                         // When a tuple is sorted, the resultant array will be of the same length as the input tuple, but the information about which member resides at which index can no longer be relied upon.
@@ -967,8 +992,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Reduces an array with a custom reduce function.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to reduce.")
                     .WithRequiredParameter("initialValue", LanguageConstants.Any, "The initial value.")
-                    .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Any), "The predicate used to aggregate the current value and the next value. ",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Any)))
+                    .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any, LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Any), "The predicate used to aggregate the current value and the next value. ",
+                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t, t], [LanguageConstants.Int], LanguageConstants.Any)))
                     .WithReturnType(LanguageConstants.Any)
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => argumentTypes[2] switch
                     {
@@ -989,12 +1014,38 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         if (argumentTypes.Length == 2 && argumentTypes[0] is ArrayType arrayArgType)
                         {
-                            return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, arrayArgType.Item));
+                            return new(TypeHelper.CreateDictionaryType("object", TypeSymbolValidationFlags.Default, arrayArgType.Item));
                         }
 
                         if (argumentTypes.Length == 3 && argumentTypes[2] is LambdaType valueLambdaType)
                         {
-                            return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, valueLambdaType.ReturnType));
+                            return new(TypeHelper.CreateDictionaryType("object", TypeSymbolValidationFlags.Default, valueLambdaType.ReturnType));
+                        }
+
+                        return new(LanguageConstants.Object);
+                    }, LanguageConstants.Object)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("groupBy")
+                    .WithGenericDescription("Converts an array to an object containing a lookup from key to array values filtered by said key. Values can be optionally translated using a mapping function.")
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to map to an object.")
+                    .WithRequiredParameter("keyPredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.String), "The predicate applied to each input array element to return the object key.",
+                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.String)))
+                    .WithOptionalParameter("valuePredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The optional predicate applied to each input array element to return the object value.",
+                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                    .WithReturnType(LanguageConstants.Any)
+                    .WithReturnResultBuilder((_, _, _, argumentTypes) =>
+                    {
+                        if (argumentTypes.Length == 2 && argumentTypes[0] is ArrayType arrayArgType)
+                        {
+                            var valueType = new TypedArrayType(arrayArgType.Item, arrayArgType.ValidationFlags);
+                            return new(TypeHelper.CreateDictionaryType("object", TypeSymbolValidationFlags.Default, valueType));
+                        }
+
+                        if (argumentTypes.Length == 3 && argumentTypes[2] is LambdaType valueLambdaType)
+                        {
+                            var valueType = new TypedArrayType(valueLambdaType.ReturnType, valueLambdaType.ReturnType.Type.ValidationFlags);
+                            return new(TypeHelper.CreateDictionaryType("object", TypeSymbolValidationFlags.Default, valueType));
                         }
 
                         return new(LanguageConstants.Object);
@@ -1077,21 +1128,28 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static TypeSymbol? CalculateLambdaFromArrayParam(GetFunctionArgumentType getArgumentType, int arrayIndex, Func<TypeSymbol, LambdaType> lambdaBuilder)
         {
-            if (getArgumentType(arrayIndex) is ArrayType arrayType)
+            if (getArgumentType(arrayIndex) is not ArrayType arrayType)
             {
-                var itemType = arrayType.Item;
-
-                return lambdaBuilder(itemType.Type);
+                return null;
             }
 
-            return null;
+            var itemType = arrayType.Item;
+            return lambdaBuilder(itemType.Type);
+        }
+
+        private static TypeSymbol? CalculateLambdaFromObjectValues(GetFunctionArgumentType getArgumentType, int arrayIndex, Func<TypeSymbol, LambdaType> lambdaBuilder)
+        {
+            if (getArgumentType(arrayIndex) is not ObjectType objectType)
+            {
+                return null;
+            }
+
+            var (_, valueTypes) = GetReadableObjectKeysAndValues(objectType);
+            return lambdaBuilder(TypeHelper.CreateTypeUnion(valueTypes));
         }
 
         private static LambdaType OneParamLambda(TypeSymbol paramType, TypeSymbol returnType)
-            => new(ImmutableArray.Create<ITypeReference>(paramType), returnType);
-
-        private static LambdaType TwoParamLambda(TypeSymbol param1Type, TypeSymbol param2Type, TypeSymbol returnType)
-            => new(ImmutableArray.Create<ITypeReference>(param1Type, param2Type), returnType);
+            => TypeHelper.CreateLambdaType([paramType], [], returnType);
 
         private static FunctionResult LoadTextContentResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
@@ -1285,13 +1343,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     null),
                 TypeSymbolValidationFlags.Default);
 
-        private static FunctionResult ItemsResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static (IReadOnlyList<TypeSymbol> keyTypes, IReadOnlyList<TypeSymbol> valueTypes) GetReadableObjectKeysAndValues(ObjectType objectType)
         {
-            if (argumentTypes[0] is not ObjectType objectType)
-            {
-                return new(GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any));
-            }
-
             var keyTypes = new List<TypeSymbol>();
             var valueTypes = new List<TypeSymbol>();
             foreach (var property in objectType.Properties.Values)
@@ -1312,9 +1365,32 @@ namespace Bicep.Core.Semantics.Namespaces
                 valueTypes.Add(additionalPropertiesType);
             }
 
+            return (keyTypes, valueTypes);
+        }
+
+        private static FunctionResult ItemsResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            if (argumentTypes[0] is not ObjectType objectType)
+            {
+                return new(GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any));
+            }
+
+            var (keyTypes, valueTypes) = GetReadableObjectKeysAndValues(objectType);
+
             return new(GetItemsReturnType(
                 keyType: TypeHelper.CreateTypeUnion(keyTypes),
                 valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any));
+        }
+
+        private static FunctionResult ObjectKeysResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            if (argumentTypes[0] is not ObjectType objectType)
+            {
+                return new(new TypedArrayType(LanguageConstants.String, argumentTypes[0].ValidationFlags));
+            }
+
+            var (keyTypes, _) = GetReadableObjectKeysAndValues(objectType);
+            return new(new TypedArrayType(TypeHelper.CreateTypeUnion(keyTypes), objectType.ValidationFlags));
         }
 
         public static TypeSymbol ConvertJsonToBicepType(JToken token)

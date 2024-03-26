@@ -6,16 +6,30 @@ var doggos = [
   'Kira'
 ]
 
+func isEven(i int) bool => i % 2 == 0
+//@[012:013) Local i. Type: int. Declaration start char: 12, length: 5
+//@[005:011) Function isEven. Type: int => bool. Declaration start char: 0, length: 37
+
 var numbers = range(0, 4)
 //@[004:011) Variable numbers. Type: int[]. Declaration start char: 0, length: 25
 
 var sayHello = map(doggos, i => 'Hello ${i}!')
 //@[027:028) Local i. Type: 'Casper' | 'Evie' | 'Indy' | 'Kira'. Declaration start char: 27, length: 1
 //@[004:012) Variable sayHello. Type: string[]. Declaration start char: 0, length: 46
+// optional index parameter for map lambda
+var sayHello2 = map(doggos, (dog, i) => '${isEven(i) ? 'Hi' : 'Ahoy'} ${dog}!')
+//@[029:032) Local dog. Type: 'Casper' | 'Evie' | 'Indy' | 'Kira'. Declaration start char: 29, length: 3
+//@[034:035) Local i. Type: int. Declaration start char: 34, length: 1
+//@[004:013) Variable sayHello2. Type: string[]. Declaration start char: 0, length: 79
 
-var isEven = filter(numbers, i => 0 == i % 2)
-//@[029:030) Local i. Type: int. Declaration start char: 29, length: 1
-//@[004:010) Variable isEven. Type: int[]. Declaration start char: 0, length: 45
+var evenNumbers = filter(numbers, i => isEven(i))
+//@[034:035) Local i. Type: int. Declaration start char: 34, length: 1
+//@[004:015) Variable evenNumbers. Type: int[]. Declaration start char: 0, length: 49
+// optional index parameter for filter lambda
+var evenEntries = filter(['a', 'b', 'c', 'd'], (item, i) => isEven(i))
+//@[048:052) Local item. Type: 'a' | 'b' | 'c' | 'd'. Declaration start char: 48, length: 4
+//@[054:055) Local i. Type: int. Declaration start char: 54, length: 1
+//@[004:015) Variable evenEntries. Type: ('a' | 'b' | 'c' | 'd')[]. Declaration start char: 0, length: 70
 
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
 //@[080:081) Local j. Type: int. Declaration start char: 80, length: 1
@@ -89,6 +103,11 @@ var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat
 //@[060:063) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 60, length: 3
 //@[065:069) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 65, length: 4
 //@[004:022) Variable reduceStringConcat. Type: string. Declaration start char: 0, length: 92
+var reduceStringConcatEven = reduce(['abc', 'def', 'ghi'], '', (cur, next, i) => isEven(i) ? concat(cur, next) : cur)
+//@[064:067) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 64, length: 3
+//@[069:073) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 69, length: 4
+//@[075:076) Local i. Type: int. Declaration start char: 75, length: 1
+//@[004:026) Variable reduceStringConcatEven. Type: 'abc' | 'def' | 'ghi' | string. Declaration start char: 0, length: 117
 var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
 //@[046:049) Local cur. Type: int. Declaration start char: 46, length: 3
 //@[051:055) Local next. Type: int. Declaration start char: 51, length: 4
@@ -187,4 +206,41 @@ var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
   next
 //@[002:006) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 2, length: 4
 ) => concat(cur, next))
+
+var mapVals = mapValues({
+//@[004:011) Variable mapVals. Type: object. Declaration start char: 0, length: 62
+  a: 123
+  b: 456
+}, val => val * 2)
+//@[003:006) Local val. Type: 123 | 456. Declaration start char: 3, length: 3
+
+var objectKeysTest = objectKeys({
+//@[004:018) Variable objectKeysTest. Type: ('a' | 'b')[]. Declaration start char: 0, length: 54
+  a: 123
+  b: 456
+})
+
+var shallowMergeTest = shallowMerge([{
+//@[004:020) Variable shallowMergeTest. Type: { a: 123, b: 456 }. Declaration start char: 0, length: 65
+  a: 123
+}, {
+  b: 456
+}])
+
+var groupByTest = groupBy([
+//@[004:015) Variable groupByTest. Type: object. Declaration start char: 0, length: 131
+  { type: 'a', value: 123 }
+  { type: 'b', value: 456 }
+  { type: 'a', value: 789 }
+], arg => arg.type)
+//@[003:006) Local arg. Type: object | object | object. Declaration start char: 3, length: 3
+
+var groupByWithValMapTest = groupBy([
+//@[004:025) Variable groupByWithValMapTest. Type: object. Declaration start char: 0, length: 159
+  { type: 'a', value: 123 }
+  { type: 'b', value: 456 }
+  { type: 'a', value: 789 }
+], arg => arg.type, arg => arg.value)
+//@[003:006) Local arg. Type: object | object | object. Declaration start char: 3, length: 3
+//@[020:023) Local arg. Type: object | object | object. Declaration start char: 20, length: 3
 

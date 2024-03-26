@@ -59,14 +59,14 @@ namespace Bicep.Core.Rewriters
             }
 
             var builtInDependencies = new HashSet<Symbol>();
-            foreach (var property in @object.Properties)
+            foreach (var child in @object.Children)
             {
-                if (property == dependsOnProperty)
+                if (child == dependsOnProperty)
                 {
                     continue;
                 }
 
-                var dependencies = ResourceDependencyFinderVisitor.GetResourceDependencies(semanticModel, property);
+                var dependencies = ResourceDependencyFinderVisitor.GetResourceDependencies(semanticModel, child);
                 builtInDependencies.UnionWith(dependencies);
             }
 

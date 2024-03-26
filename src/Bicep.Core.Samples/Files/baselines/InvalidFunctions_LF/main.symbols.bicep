@@ -19,7 +19,7 @@ output invalidType string = invalidType(true)
 func madeUpTypeArgs(a notAType, b alsoNotAType) string => '${a}-${b}'
 //@[20:21) Local a. Type: error. Declaration start char: 20, length: 10
 //@[32:33) Local b. Type: error. Declaration start char: 32, length: 14
-//@[05:19) Function madeUpTypeArgs. Type: error. Declaration start char: 0, length: 69
+//@[05:19) Function madeUpTypeArgs. Type: (error, error) => string. Declaration start char: 0, length: 69
 
 func noLambda('foo') string => ''
 //@[14:14) Local <missing>. Type: 'foo'. Declaration start char: 14, length: 5

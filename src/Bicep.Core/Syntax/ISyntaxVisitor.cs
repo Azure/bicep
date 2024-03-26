@@ -155,5 +155,7 @@ namespace Bicep.Core.Syntax
         void VisitTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax);
 
         void VisitTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax);
+
+        void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax);
     }
 }

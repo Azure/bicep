@@ -5,11 +5,17 @@
   'Kira'
 ]
 
+func isEven(i int) bool => i % 2 == 0
+
 var numbers = range(0, 4)
 
 var sayHello = map(doggos, i => 'Hello ${i}!')
+// optional index parameter for map lambda
+var sayHello2 = map(doggos, (dog, i) => '${isEven(i) ? 'Hi' : 'Ahoy'} ${dog}!')
 
-var isEven = filter(numbers, i => 0 == i % 2)
+var evenNumbers = filter(numbers, i => isEven(i))
+// optional index parameter for filter lambda
+var evenEntries = filter(['a', 'b', 'c', 'd'], (item, i) => isEven(i))
 
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
 
@@ -45,6 +51,7 @@ var sortByObjectKey = sort([
 var sortEmpty = sort([], (x, y) => int(x) < int(y))
 
 var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat(cur, next))
+var reduceStringConcatEven = reduce(['abc', 'def', 'ghi'], '', (cur, next, i) => isEven(i) ? concat(cur, next) : cur)
 var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
 var reduceObjectUnion = reduce([
   { foo: 123 }
@@ -99,3 +106,31 @@ var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
   cur,
   next
 ) => concat(cur, next))
+
+var mapVals = mapValues({
+  a: 123
+  b: 456
+}, val => val * 2)
+
+var objectKeysTest = objectKeys({
+  a: 123
+  b: 456
+})
+
+var shallowMergeTest = shallowMerge([{
+  a: 123
+}, {
+  b: 456
+}])
+
+var groupByTest = groupBy([
+  { type: 'a', value: 123 }
+  { type: 'b', value: 456 }
+  { type: 'a', value: 789 }
+], arg => arg.type)
+
+var groupByWithValMapTest = groupBy([
+  { type: 'a', value: 123 }
+  { type: 'b', value: 456 }
+  { type: 'a', value: 789 }
+], arg => arg.type, arg => arg.value)

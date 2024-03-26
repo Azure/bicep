@@ -1252,5 +1252,19 @@ namespace Bicep.Core.Syntax
             return new ParameterizedTypeArgumentSyntax(expression);
         }
         void ISyntaxVisitor.VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax) => ReplaceCurrent(syntax, ReplaceParameterizedTypeArgumentSyntax);
+
+        protected virtual SyntaxBase ReplaceSpreadExpressionSyntax(SpreadExpressionSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Ellipsis, out var ellipsis);
+            hasChanges |= TryRewriteStrict(syntax.Expression, out var expression);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new SpreadExpressionSyntax(ellipsis, expression);
+        }
+        void ISyntaxVisitor.VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax) => ReplaceCurrent(syntax, ReplaceSpreadExpressionSyntax);
     }
 }

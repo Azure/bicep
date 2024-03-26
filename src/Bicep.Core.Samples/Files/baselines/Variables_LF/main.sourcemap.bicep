@@ -630,5 +630,20 @@ var joinedString = join(['I', 'love', 'Bicep!'], ' ')
 var prefix = take('food', 3)
 //@    "prefix": "[take('food', 3)]",
 var isPrefixed = startsWith('food', 'foo')
-//@    "isPrefixed": "[startsWith('food', 'foo')]"
+//@    "isPrefixed": "[startsWith('food', 'foo')]",
+
+var spread = {
+//@    "spread": "[shallowMerge(createArray(createObject('foo', 'abc'), variables('issue1332')))]",
+  foo: 'abc'
+  ...issue1332
+}
+
+var test = {
+//@    "test": "[shallowMerge(createArray(variables('spread'), createObject('bar', 'def')))]",
+  ...spread
+  bar: 'def'
+}
+
+var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
+//@    "arraySpread": "[flatten(createArray(variables('arrayOfBooleans'), variables('arrayOfHardCodedNumbers'), variables('arrayOfHardCodedStrings')))]"
 

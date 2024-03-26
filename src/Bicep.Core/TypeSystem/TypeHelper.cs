@@ -45,6 +45,9 @@ namespace Bicep.Core.TypeSystem
             };
         }
 
+        public static LambdaType CreateLambdaType(IEnumerable<ITypeReference> argumentTypes, IEnumerable<ITypeReference> optionalArgumentTypes, TypeSymbol returnType)
+            => new(argumentTypes.ToImmutableArray(), optionalArgumentTypes.ToImmutableArray(), returnType);
+
         /// <summary>
         /// Returns an ordered enumerable of type names.
         /// </summary>
@@ -474,6 +477,11 @@ namespace Bicep.Core.TypeSystem
             }
 
             return builder.WithReturnType(resolver.ResolveResourceDerivedTypes(exportedFunction.Return.TypeReference.Type)).Build();
+        }
+
+        public static ObjectType CreateDictionaryType(string name, TypeSymbolValidationFlags validationFlags, ITypeReference valueType)
+        {
+            return new(name, validationFlags, ImmutableArray<TypeProperty>.Empty, valueType);
         }
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
