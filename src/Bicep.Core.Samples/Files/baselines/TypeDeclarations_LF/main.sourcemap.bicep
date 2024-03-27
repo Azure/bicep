@@ -510,24 +510,6 @@ type discriminatedUnion1 = typeA | typeB
 //@        }
 //@      }
 //@    },
-//@          "a": {
-//@            "$ref": "#/definitions/typeA"
-//@          },
-//@          "b": {
-//@            "$ref": "#/definitions/typeB"
-//@          },
-//@          "a": {
-//@            "$ref": "#/definitions/typeA"
-//@          },
-//@          "b": {
-//@            "$ref": "#/definitions/typeB"
-//@          },
-//@                    "a": {
-//@                      "$ref": "#/definitions/typeA"
-//@                    },
-//@                    "b": {
-//@                      "$ref": "#/definitions/typeB"
-//@                    },
 
 @discriminator('type')
 type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bool }
@@ -659,6 +641,12 @@ type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: '
 //@      "discriminator": {
 //@        "propertyName": "type",
 //@        "mapping": {
+//@          "a": {
+//@            "$ref": "#/definitions/typeA"
+//@          },
+//@          "b": {
+//@            "$ref": "#/definitions/typeB"
+//@          },
 //@          "e": {
 //@            "type": "object",
 //@            "properties": {
@@ -684,6 +672,12 @@ type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
 //@      "discriminator": {
 //@        "propertyName": "type",
 //@        "mapping": {
+//@          "a": {
+//@            "$ref": "#/definitions/typeA"
+//@          },
+//@          "b": {
+//@            "$ref": "#/definitions/typeB"
+//@          },
 //@          "e": {
 //@            "$ref": "#/definitions/typeE"
 //@          }
@@ -855,6 +849,12 @@ type inlineDiscriminatedUnion3 = {
 //@                "discriminator": {
 //@                  "propertyName": "type",
 //@                  "mapping": {
+//@                    "a": {
+//@                      "$ref": "#/definitions/typeA"
+//@                    },
+//@                    "b": {
+//@                      "$ref": "#/definitions/typeB"
+//@                    },
 //@                  }
 //@                }
 //@              }

@@ -454,6 +454,9 @@ namespace Bicep.Core.Emit
 
             ImmutableArray<string> SegmentsForItems()
                 => PointerSegments.Add("items");
+
+            ImmutableArray<string> SegmentsForVariant(string discriminatorValue)
+                => PointerSegments.AddRange("discriminator", "mapping", discriminatorValue);
         }
 
         private record ResourceDerivedTypeResolution(ResourceTypeReference RootResourceTypeReference, ImmutableArray<string> PointerSegments, TypeSymbol DerivedType) : ITypeReferenceExpressionResolution
@@ -827,67 +830,104 @@ namespace Bicep.Core.Emit
 
             foreach (var memberExpression in discriminatedObjectTypeExpr.MemberExpressions)
             {
-                var resolvedMemberExpression = memberExpression;
-                TypeExpression? typeAliasReferenceExpr = null;
-                if (memberExpression is TypeAliasReferenceExpression memberTypeAliasExpr
-                    && declaredTypesByName.TryGetValue(memberTypeAliasExpr.Symbol.Name, out var declaredTypeExpression))
+                var mappingsEnumerable = memberExpression switch
                 {
-                    resolvedMemberExpression = declaredTypeExpression.Value;
-                    typeAliasReferenceExpr = memberTypeAliasExpr;
-                }
+                    TypeAliasReferenceExpression or
+                    SynthesizedTypeAliasReferenceExpression or
+                    ImportedTypeReferenceExpression or
+                    WildcardImportTypePropertyReferenceExpression or
+                    ITypeReferenceAccessExpression => ResolveTypeReferenceExpression(memberExpression) switch
+                    {
+                        ResolvedInternalReference udtRef => GetDiscriminatedUnionMappingEntries(discriminatorPropertyName, udtRef.Declaration, udtRef),
+                        ResourceDerivedTypeResolution rdtRef => GetDiscriminatedUnionMappingEntries(discriminatorPropertyName, rdtRef),
+                        _ => throw new UnreachableException(),
+                    },
+                    _ => GetDiscriminatedUnionMappingEntries(discriminatorPropertyName, memberExpression, null),
+                };
 
-                if (memberExpression is SynthesizedTypeAliasReferenceExpression memberSynthesizedTypeAliasExpr
-                    && declaredTypesByName.TryGetValue(memberSynthesizedTypeAliasExpr.Name, out declaredTypeExpression))
+                foreach (var mapping in mappingsEnumerable)
                 {
-                    resolvedMemberExpression = declaredTypeExpression.Value;
-                    typeAliasReferenceExpr = memberSynthesizedTypeAliasExpr;
+                    yield return mapping;
                 }
+            }
+        }
 
-                if (resolvedMemberExpression is ObjectTypeExpression objectUnionMemberExpr)
-                {
-                    var memberObjectType = objectUnionMemberExpr.ExpressedObjectType;
+        private IEnumerable<ObjectPropertyExpression> GetDiscriminatedUnionMappingEntries(
+            string discriminatorPropertyName,
+            TypeExpression memberDeclaration,
+            ITypeReferenceExpressionResolution? memberResolution)
+        {
+            if (memberDeclaration is ObjectTypeExpression objectUnionMemberExpr)
+            {
+                yield return ExpressionFactory.CreateObjectProperty(
+                    DiscriminatorValue(discriminatorPropertyName, objectUnionMemberExpr.ExpressedObjectType),
+                    memberResolution?.GetTypePropertiesForResolvedReferenceExpression(sourceSyntax: null)
+                        ?? GetTypePropertiesForObjectType(objectUnionMemberExpr));
+            }
+            else if (memberDeclaration is DiscriminatedObjectTypeExpression nestedDiscriminatedMemberExpr)
+            {
+                var nestedDiscriminatorPropertyName = nestedDiscriminatedMemberExpr.ExpressedDiscriminatedObjectType.DiscriminatorProperty.Name;
 
-                    if (!memberObjectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty)
-                        || discriminatorTypeProperty.TypeReference.Type is not StringLiteralType discriminatorStringLiteral)
-                    {
-                        // This should have been caught during type checking
-                        throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
-                    }
-
-                    ObjectExpression objectExpression;
-
-                    if (typeAliasReferenceExpr != null)
-                    {
-                        objectExpression = TypePropertiesForTypeExpression(typeAliasReferenceExpr);
-                    }
-                    else
-                    {
-                        objectExpression = GetTypePropertiesForObjectType(objectUnionMemberExpr);
-                    }
-
-                    yield return ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression);
-                }
-                else if (resolvedMemberExpression is DiscriminatedObjectTypeExpression nestedDiscriminatedMemberExpr)
-                {
-                    var nestedDiscriminatorPropertyName = nestedDiscriminatedMemberExpr.ExpressedDiscriminatedObjectType.DiscriminatorProperty.Name;
-
-                    if (nestedDiscriminatorPropertyName != discriminatorPropertyName)
-                    {
-                        // This should have been caught during type checking
-                        throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
-                    }
-
-                    foreach (var nestedPropertyExpr in GetDiscriminatedUnionMappingEntries(nestedDiscriminatedMemberExpr))
-                    {
-                        yield return nestedPropertyExpr;
-                    }
-                }
-                else
+                if (nestedDiscriminatorPropertyName != discriminatorPropertyName)
                 {
                     // This should have been caught during type checking
                     throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
                 }
+
+                foreach (var nestedPropertyExpr in GetDiscriminatedUnionMappingEntries(nestedDiscriminatedMemberExpr))
+                {
+                    yield return nestedPropertyExpr;
+                }
             }
+            else
+            {
+                // This should have been caught during type checking
+                throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
+            }
+        }
+
+        private static IEnumerable<ObjectPropertyExpression> GetDiscriminatedUnionMappingEntries(
+            string discriminatorPropertyName,
+            ResourceDerivedTypeResolution resolution)
+        {
+            if (resolution.DerivedType is ObjectType @object)
+            {
+                yield return ExpressionFactory.CreateObjectProperty(
+                    DiscriminatorValue(discriminatorPropertyName, @object),
+                    resolution.GetTypePropertiesForResolvedReferenceExpression(sourceSyntax: null));
+            }
+            else if (resolution.DerivedType is DiscriminatedObjectType discriminatedObject)
+            {
+                foreach (var variant in discriminatedObject.UnionMembersByKey.Values)
+                {
+                    var discriminatorValue = DiscriminatorValue(discriminatorPropertyName, variant);
+                    var variantResolution = new ResourceDerivedTypeResolution(
+                        resolution.RootResourceTypeReference,
+                        (resolution as ITypeReferenceExpressionResolution).SegmentsForVariant(discriminatorValue),
+                        variant);
+
+                    yield return ExpressionFactory.CreateObjectProperty(
+                        discriminatorValue,
+                        variantResolution.GetTypePropertiesForResolvedReferenceExpression(sourceSyntax: null));
+                }
+            }
+            else
+            {
+                // This should have been caught during type checking
+                throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
+            }
+        }
+
+        private static string DiscriminatorValue(string discriminatorPropertyName, ObjectType @object)
+        {
+            if (!@object.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty)
+                || discriminatorTypeProperty.TypeReference.Type is not StringLiteralType discriminatorStringLiteral)
+            {
+                // This should have been caught during type checking
+                throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
+            }
+
+            return discriminatorStringLiteral.RawStringValue;
         }
 
         private static Expression ToLiteralValue(ITypeReference literalType) => literalType.Type switch
