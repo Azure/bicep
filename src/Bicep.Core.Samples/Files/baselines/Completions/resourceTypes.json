@@ -4826,6 +4826,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d3",
+    "filterText": "'rbac,Microsoft.Authorization/accessReviewHistoryDefinitions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4847,6 +4848,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d4",
+    "filterText": "'rbac,Microsoft.Authorization/accessReviewScheduleDefinitions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4868,6 +4870,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d5",
+    "filterText": "'rbac,Microsoft.Authorization/accessReviewScheduleDefinitions/instances'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4889,6 +4892,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d6",
+    "filterText": "'rbac,Microsoft.Authorization/accessReviewScheduleDefinitions/instances/decisions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4910,6 +4914,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d7",
+    "filterText": "'rbac,Microsoft.Authorization/accessReviewScheduleSettings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4931,6 +4936,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d8",
+    "filterText": "'rbac,Microsoft.Authorization/dataPolicyManifests'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4952,6 +4958,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d9",
+    "filterText": "'rbac,Microsoft.Authorization/locks'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4973,6 +4980,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000da",
+    "filterText": "'rbac,Microsoft.Authorization/policyAssignments'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4994,6 +5002,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000db",
+    "filterText": "'rbac,Microsoft.Authorization/policyDefinitions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5015,6 +5024,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000dc",
+    "filterText": "'rbac,Microsoft.Authorization/policyDefinitions/versions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5036,6 +5046,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000dd",
+    "filterText": "'rbac,Microsoft.Authorization/policyExemptions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5057,6 +5068,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000de",
+    "filterText": "'rbac,Microsoft.Authorization/policySetDefinitions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5078,6 +5090,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000df",
+    "filterText": "'rbac,Microsoft.Authorization/policySetDefinitions/versions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5099,6 +5112,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e0",
+    "filterText": "'rbac,Microsoft.Authorization/privateLinkAssociations'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5120,6 +5134,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e1",
+    "filterText": "'rbac,Microsoft.Authorization/resourceManagementPrivateLinks'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5141,6 +5156,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e2",
+    "filterText": "'rbac,Microsoft.Authorization/roleAssignmentApprovals'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5162,6 +5178,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e3",
+    "filterText": "'rbac,Microsoft.Authorization/roleAssignmentApprovals/stages'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5183,6 +5200,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e5",
+    "filterText": "'rbac,Microsoft.Authorization/roleAssignmentScheduleRequests'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5226,6 +5244,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e6",
+    "filterText": "'rbac,Microsoft.Authorization/roleDefinitions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5247,6 +5266,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e7",
+    "filterText": "'rbac,Microsoft.Authorization/roleEligibilityScheduleRequests'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5268,6 +5288,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e8",
+    "filterText": "'rbac,Microsoft.Authorization/roleManagementPolicyAssignments'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5289,6 +5310,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e9",
+    "filterText": "'rbac,Microsoft.Authorization/variables'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5310,6 +5332,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000ea",
+    "filterText": "'rbac,Microsoft.Authorization/variables/values'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -37957,6 +37980,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071a",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -37978,6 +38002,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071b",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/dataCollectorLogs'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -37999,6 +38024,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071c",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/dataExports'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38020,6 +38046,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071d",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/dataSources'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38041,6 +38068,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071e",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/features/clientGroups'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38062,6 +38090,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071f",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/features/machineGroups'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38083,6 +38112,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000720",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/features/machines'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38104,6 +38134,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000721",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/features/machines/ports'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38125,6 +38156,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000722",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/features/machines/processes'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38146,6 +38178,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000723",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/features/summaries'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38167,6 +38200,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000724",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/linkedServices'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38188,6 +38222,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000725",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/linkedStorageAccounts'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38209,6 +38244,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000726",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/savedSearches'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38230,6 +38266,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000727",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/storageInsightConfigs'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38251,6 +38288,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000728",
+    "filterText": "'loganalytics,Microsoft.OperationalInsights/workspaces/tables'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
