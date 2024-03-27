@@ -132,5 +132,13 @@ internal partial class ArmReferenceCollector
                 yield return nested;
             }
         }
+
+        if (schemaNode.Discriminator is { } discriminatorConstraint)
+        {
+            foreach (var nested in discriminatorConstraint.Mapping.Values.SelectMany(EnumerateReferencesUsedIn))
+            {
+                yield return nested;
+            }
+        }
     }
 }
