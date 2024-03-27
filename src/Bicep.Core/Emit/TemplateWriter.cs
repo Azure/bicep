@@ -839,7 +839,7 @@ namespace Bicep.Core.Emit
                     ITypeReferenceAccessExpression => ResolveTypeReferenceExpression(memberExpression) switch
                     {
                         ResolvedInternalReference udtRef => GetDiscriminatedUnionMappingEntries(discriminatorPropertyName, udtRef.Declaration, udtRef),
-                        ResourceDerivedTypeResolution rdtRef => GetDiscriminatedUnionMappingEntries(discriminatorPropertyName, rdtRef, memberExpression.SourceSyntax),
+                        ResourceDerivedTypeResolution rdtRef => GetDiscriminatedUnionMappingEntries(discriminatorPropertyName, rdtRef),
                         _ => throw new UnreachableException(),
                     },
                     _ => GetDiscriminatedUnionMappingEntries(discriminatorPropertyName, memberExpression, null),
@@ -861,9 +861,8 @@ namespace Bicep.Core.Emit
             {
                 yield return ExpressionFactory.CreateObjectProperty(
                     DiscriminatorValue(discriminatorPropertyName, objectUnionMemberExpr.ExpressedObjectType),
-                    memberResolution?.GetTypePropertiesForResolvedReferenceExpression(memberDeclaration.SourceSyntax)
-                        ?? GetTypePropertiesForObjectType(objectUnionMemberExpr),
-                    memberDeclaration.SourceSyntax);
+                    memberResolution?.GetTypePropertiesForResolvedReferenceExpression(sourceSyntax: null)
+                        ?? GetTypePropertiesForObjectType(objectUnionMemberExpr));
             }
             else if (memberDeclaration is DiscriminatedObjectTypeExpression nestedDiscriminatedMemberExpr)
             {
@@ -887,17 +886,15 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private IEnumerable<ObjectPropertyExpression> GetDiscriminatedUnionMappingEntries(
+        private static IEnumerable<ObjectPropertyExpression> GetDiscriminatedUnionMappingEntries(
             string discriminatorPropertyName,
-            ResourceDerivedTypeResolution resolution,
-            SyntaxBase? sourceSyntax)
+            ResourceDerivedTypeResolution resolution)
         {
             if (resolution.DerivedType is ObjectType @object)
             {
                 yield return ExpressionFactory.CreateObjectProperty(
                     DiscriminatorValue(discriminatorPropertyName, @object),
-                    resolution.GetTypePropertiesForResolvedReferenceExpression(sourceSyntax),
-                    sourceSyntax);
+                    resolution.GetTypePropertiesForResolvedReferenceExpression(sourceSyntax: null));
             }
             else if (resolution.DerivedType is DiscriminatedObjectType discriminatedObject)
             {
@@ -911,8 +908,7 @@ namespace Bicep.Core.Emit
 
                     yield return ExpressionFactory.CreateObjectProperty(
                         discriminatorValue,
-                        variantResolution.GetTypePropertiesForResolvedReferenceExpression(sourceSyntax),
-                        sourceSyntax);
+                        variantResolution.GetTypePropertiesForResolvedReferenceExpression(sourceSyntax: null));
                 }
             }
             else
