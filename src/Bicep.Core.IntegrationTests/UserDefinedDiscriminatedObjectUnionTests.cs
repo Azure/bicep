@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -642,6 +643,135 @@ namespace Bicep.Core.IntegrationTests
                           }
                         }
                         """));
+        }
+
+        [TestMethod]
+        public void Issue_13661()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", """
+                  import * as t1 from 'app1.spec.bicep'
+                  import * as t2 from 'app2.spec.bicep'
+
+                  @discriminator('Name')
+                  type ApiDef = (t1.Api1Def | t2.Api2Def)?
+
+                  param Name string
+                  param APIs ApiDef[]
+
+                  output test string = '${Name}-${APIs}'
+                  """),
+                  ("app1.spec.bicep", """
+                      @export()
+                      type Api1Def = {
+                        Name: 'Api1'
+                        Settings: {
+                          CustomSetting1: string
+                          CustomSetting2: string
+                        }
+                      }
+                      """),
+                  ("app2.spec.bicep", """
+                      @export()
+                      type Api2Def = {
+                        Name: 'Api2'
+                        Settings: {
+                          CustomSetting3: string
+                        }
+                      }
+                      """));
+
+            result.Template.Should().NotBeNull();
+            result.Template.Should().HaveJsonAtPath("definitions.ApiDef.discriminator", """
+                {
+                    "propertyName": "Name",
+                    "mapping": {
+                        "Api1": {
+                            "$ref": "#/definitions/_1.Api1Def"
+                        },
+                        "Api2": {
+                            "$ref": "#/definitions/_2.Api2Def"
+                        }
+                    }
+                }
+                """);
+        }
+
+        [TestMethod]
+        public void User_defined_discriminated_objects_can_amend_resource_derived_discriminated_unions()
+        {
+            var result = CompilationHelper.Compile(
+                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+                """
+                @discriminator('computeType')
+                type taggedUnion = resource<'Microsoft.MachineLearningServices/workspaces/computes@2020-04-01'>.properties
+                  | { computeType: 'foo', bar: string }
+                """);
+
+            result.Template.Should().NotBeNull();
+            result.Template.Should().HaveJsonAtPath("definitions.taggedUnion.discriminator", """
+                {
+                    "propertyName": "computeType",
+                    "mapping": {
+                      "DataFactory": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/DataFactory"
+                        }
+                      },
+                      "Databricks": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/Databricks"
+                        }
+                      },
+                      "VirtualMachine": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/VirtualMachine"
+                        }
+                      },
+                      "AmlCompute": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/AmlCompute"
+                        }
+                      },
+                      "AKS": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/AKS"
+                        }
+                      },
+                      "HDInsight": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/HDInsight"
+                        }
+                      },
+                      "DataLakeAnalytics": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/DataLakeAnalytics"
+                        }
+                      },
+                      "foo": {
+                        "type": "object",
+                        "properties": {
+                          "computeType": {
+                            "type": "string",
+                            "allowedValues": [
+                              "foo"
+                            ]
+                          },
+                          "bar": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                }
+                """);
         }
     }
 }
