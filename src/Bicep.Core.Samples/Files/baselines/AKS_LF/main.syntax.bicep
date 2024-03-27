@@ -6,7 +6,7 @@ param dnsPrefix string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |dnsPrefix|
-//@[016:0022) | └─VariableAccessSyntax
+//@[016:0022) | └─TypeVariableAccessSyntax
 //@[016:0022) |   └─IdentifierSyntax
 //@[016:0022) |     └─Token(Identifier) |string|
 //@[022:0023) ├─Token(NewLine) |\n|
@@ -15,7 +15,7 @@ param linuxAdminUsername string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0024) | ├─IdentifierSyntax
 //@[006:0024) | | └─Token(Identifier) |linuxAdminUsername|
-//@[025:0031) | └─VariableAccessSyntax
+//@[025:0031) | └─TypeVariableAccessSyntax
 //@[025:0031) |   └─IdentifierSyntax
 //@[025:0031) |     └─Token(Identifier) |string|
 //@[031:0032) ├─Token(NewLine) |\n|
@@ -24,7 +24,7 @@ param sshRSAPublicKey string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0021) | ├─IdentifierSyntax
 //@[006:0021) | | └─Token(Identifier) |sshRSAPublicKey|
-//@[022:0028) | └─VariableAccessSyntax
+//@[022:0028) | └─TypeVariableAccessSyntax
 //@[022:0028) |   └─IdentifierSyntax
 //@[022:0028) |     └─Token(Identifier) |string|
 //@[028:0030) ├─Token(NewLine) |\n\n|
@@ -43,7 +43,7 @@ param servcePrincipalClientId string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0029) | ├─IdentifierSyntax
 //@[006:0029) | | └─Token(Identifier) |servcePrincipalClientId|
-//@[030:0036) | └─VariableAccessSyntax
+//@[030:0036) | └─TypeVariableAccessSyntax
 //@[030:0036) |   └─IdentifierSyntax
 //@[030:0036) |     └─Token(Identifier) |string|
 //@[036:0038) ├─Token(NewLine) |\n\n|
@@ -62,7 +62,7 @@ param servicePrincipalClientSecret string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0034) | ├─IdentifierSyntax
 //@[006:0034) | | └─Token(Identifier) |servicePrincipalClientSecret|
-//@[035:0041) | └─VariableAccessSyntax
+//@[035:0041) | └─TypeVariableAccessSyntax
 //@[035:0041) |   └─IdentifierSyntax
 //@[035:0041) |     └─Token(Identifier) |string|
 //@[041:0043) ├─Token(NewLine) |\n\n|
@@ -74,7 +74,7 @@ param clusterName string = 'aks101cluster'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0017) | ├─IdentifierSyntax
 //@[006:0017) | | └─Token(Identifier) |clusterName|
-//@[018:0024) | ├─VariableAccessSyntax
+//@[018:0024) | ├─TypeVariableAccessSyntax
 //@[018:0024) | | └─IdentifierSyntax
 //@[018:0024) | |   └─Token(Identifier) |string|
 //@[025:0042) | └─ParameterDefaultValueSyntax
@@ -87,7 +87,7 @@ param location string = resourceGroup().location
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0014) | ├─IdentifierSyntax
 //@[006:0014) | | └─Token(Identifier) |location|
-//@[015:0021) | ├─VariableAccessSyntax
+//@[015:0021) | ├─TypeVariableAccessSyntax
 //@[015:0021) | | └─IdentifierSyntax
 //@[015:0021) | |   └─Token(Identifier) |string|
 //@[022:0048) | └─ParameterDefaultValueSyntax
@@ -132,7 +132,7 @@ param osDiskSizeGB int = 0
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0018) | ├─IdentifierSyntax
 //@[006:0018) | | └─Token(Identifier) |osDiskSizeGB|
-//@[019:0022) | ├─VariableAccessSyntax
+//@[019:0022) | ├─TypeVariableAccessSyntax
 //@[019:0022) | | └─IdentifierSyntax
 //@[019:0022) | |   └─Token(Identifier) |int|
 //@[023:0026) | └─ParameterDefaultValueSyntax
@@ -170,7 +170,7 @@ param agentCount int = 3
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0016) | ├─IdentifierSyntax
 //@[006:0016) | | └─Token(Identifier) |agentCount|
-//@[017:0020) | ├─VariableAccessSyntax
+//@[017:0020) | ├─TypeVariableAccessSyntax
 //@[017:0020) | | └─IdentifierSyntax
 //@[017:0020) | |   └─Token(Identifier) |int|
 //@[021:0024) | └─ParameterDefaultValueSyntax
@@ -184,7 +184,7 @@ param agentVMSize string = 'Standard_DS2_v2'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0017) | ├─IdentifierSyntax
 //@[006:0017) | | └─Token(Identifier) |agentVMSize|
-//@[018:0024) | ├─VariableAccessSyntax
+//@[018:0024) | ├─TypeVariableAccessSyntax
 //@[018:0024) | | └─IdentifierSyntax
 //@[018:0024) | |   └─Token(Identifier) |string|
 //@[025:0044) | └─ParameterDefaultValueSyntax

@@ -12,7 +12,7 @@ param ownerPrincipalId string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0022) | ├─IdentifierSyntax
 //@[006:0022) | | └─Token(Identifier) |ownerPrincipalId|
-//@[023:0029) | └─VariableAccessSyntax
+//@[023:0029) | └─TypeVariableAccessSyntax
 //@[023:0029) |   └─IdentifierSyntax
 //@[023:0029) |     └─Token(Identifier) |string|
 //@[029:0033) ├─Token(NewLine) |\r\n\r\n|
@@ -22,7 +22,7 @@ param contributorPrincipals array
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0027) | ├─IdentifierSyntax
 //@[006:0027) | | └─Token(Identifier) |contributorPrincipals|
-//@[028:0033) | └─VariableAccessSyntax
+//@[028:0033) | └─TypeVariableAccessSyntax
 //@[028:0033) |   └─IdentifierSyntax
 //@[028:0033) |     └─Token(Identifier) |array|
 //@[033:0035) ├─Token(NewLine) |\r\n|
@@ -31,7 +31,7 @@ param readerPrincipals array
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0022) | ├─IdentifierSyntax
 //@[006:0022) | | └─Token(Identifier) |readerPrincipals|
-//@[023:0028) | └─VariableAccessSyntax
+//@[023:0028) | └─TypeVariableAccessSyntax
 //@[023:0028) |   └─IdentifierSyntax
 //@[023:0028) |     └─Token(Identifier) |array|
 //@[028:0032) ├─Token(NewLine) |\r\n\r\n|

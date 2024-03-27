@@ -8,7 +8,7 @@ func useRuntimeFunction() string => reference('foo').bar
 //@[023:0025) |   ├─TypedVariableBlockSyntax
 //@[023:0024) |   | ├─Token(LeftParen) |(|
 //@[024:0025) |   | └─Token(RightParen) |)|
-//@[026:0032) |   ├─VariableAccessSyntax
+//@[026:0032) |   ├─TypeVariableAccessSyntax
 //@[026:0032) |   | └─IdentifierSyntax
 //@[026:0032) |   |   └─Token(Identifier) |string|
 //@[033:0035) |   ├─Token(Arrow) |=>|
@@ -39,7 +39,7 @@ func missingArgType(input) string => input
 //@[020:0025) |   | | | └─Token(Identifier) |input|
 //@[025:0025) |   | | └─SkippedTriviaSyntax
 //@[025:0026) |   | └─Token(RightParen) |)|
-//@[027:0033) |   ├─VariableAccessSyntax
+//@[027:0033) |   ├─TypeVariableAccessSyntax
 //@[027:0033) |   | └─IdentifierSyntax
 //@[027:0033) |   |   └─Token(Identifier) |string|
 //@[034:0036) |   ├─Token(Arrow) |=>|
@@ -59,7 +59,7 @@ func missingOutputType(input string) => input
 //@[023:0035) |   | ├─TypedLocalVariableSyntax
 //@[023:0028) |   | | ├─IdentifierSyntax
 //@[023:0028) |   | | | └─Token(Identifier) |input|
-//@[029:0035) |   | | └─VariableAccessSyntax
+//@[029:0035) |   | | └─TypeVariableAccessSyntax
 //@[029:0035) |   | |   └─IdentifierSyntax
 //@[029:0035) |   | |     └─Token(Identifier) |string|
 //@[035:0036) |   | └─Token(RightParen) |)|
@@ -81,11 +81,11 @@ func invalidType(input string) string => input
 //@[017:0029) |   | ├─TypedLocalVariableSyntax
 //@[017:0022) |   | | ├─IdentifierSyntax
 //@[017:0022) |   | | | └─Token(Identifier) |input|
-//@[023:0029) |   | | └─VariableAccessSyntax
+//@[023:0029) |   | | └─TypeVariableAccessSyntax
 //@[023:0029) |   | |   └─IdentifierSyntax
 //@[023:0029) |   | |     └─Token(Identifier) |string|
 //@[029:0030) |   | └─Token(RightParen) |)|
-//@[031:0037) |   ├─VariableAccessSyntax
+//@[031:0037) |   ├─TypeVariableAccessSyntax
 //@[031:0037) |   | └─IdentifierSyntax
 //@[031:0037) |   |   └─Token(Identifier) |string|
 //@[038:0040) |   ├─Token(Arrow) |=>|
@@ -99,7 +99,7 @@ output invalidType string = invalidType(true)
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0018) | ├─IdentifierSyntax
 //@[007:0018) | | └─Token(Identifier) |invalidType|
-//@[019:0025) | ├─VariableAccessSyntax
+//@[019:0025) | ├─TypeVariableAccessSyntax
 //@[019:0025) | | └─IdentifierSyntax
 //@[019:0025) | |   └─Token(Identifier) |string|
 //@[026:0027) | ├─Token(Assignment) |=|
@@ -124,18 +124,18 @@ func madeUpTypeArgs(a notAType, b alsoNotAType) string => '${a}-${b}'
 //@[020:0030) |   | ├─TypedLocalVariableSyntax
 //@[020:0021) |   | | ├─IdentifierSyntax
 //@[020:0021) |   | | | └─Token(Identifier) |a|
-//@[022:0030) |   | | └─VariableAccessSyntax
+//@[022:0030) |   | | └─TypeVariableAccessSyntax
 //@[022:0030) |   | |   └─IdentifierSyntax
 //@[022:0030) |   | |     └─Token(Identifier) |notAType|
 //@[030:0031) |   | ├─Token(Comma) |,|
 //@[032:0046) |   | ├─TypedLocalVariableSyntax
 //@[032:0033) |   | | ├─IdentifierSyntax
 //@[032:0033) |   | | | └─Token(Identifier) |b|
-//@[034:0046) |   | | └─VariableAccessSyntax
+//@[034:0046) |   | | └─TypeVariableAccessSyntax
 //@[034:0046) |   | |   └─IdentifierSyntax
 //@[034:0046) |   | |     └─Token(Identifier) |alsoNotAType|
 //@[046:0047) |   | └─Token(RightParen) |)|
-//@[048:0054) |   ├─VariableAccessSyntax
+//@[048:0054) |   ├─TypeVariableAccessSyntax
 //@[048:0054) |   | └─IdentifierSyntax
 //@[048:0054) |   |   └─Token(Identifier) |string|
 //@[055:0057) |   ├─Token(Arrow) |=>|
@@ -162,10 +162,10 @@ func noLambda('foo') string => ''
 //@[014:0019) |   | ├─TypedLocalVariableSyntax
 //@[014:0014) |   | | ├─IdentifierSyntax
 //@[014:0014) |   | | | └─SkippedTriviaSyntax
-//@[014:0019) |   | | └─StringSyntax
+//@[014:0019) |   | | └─StringTypeLiteralSyntax
 //@[014:0019) |   | |   └─Token(StringComplete) |'foo'|
 //@[019:0020) |   | └─Token(RightParen) |)|
-//@[021:0027) |   ├─VariableAccessSyntax
+//@[021:0027) |   ├─TypeVariableAccessSyntax
 //@[021:0027) |   | └─IdentifierSyntax
 //@[021:0027) |   |   └─Token(Identifier) |string|
 //@[028:0030) |   ├─Token(Arrow) |=>|
@@ -211,25 +211,25 @@ func argLengthMismatch(a string, b string, c string) array => ([a, b, c])
 //@[023:0031) |   | ├─TypedLocalVariableSyntax
 //@[023:0024) |   | | ├─IdentifierSyntax
 //@[023:0024) |   | | | └─Token(Identifier) |a|
-//@[025:0031) |   | | └─VariableAccessSyntax
+//@[025:0031) |   | | └─TypeVariableAccessSyntax
 //@[025:0031) |   | |   └─IdentifierSyntax
 //@[025:0031) |   | |     └─Token(Identifier) |string|
 //@[031:0032) |   | ├─Token(Comma) |,|
 //@[033:0041) |   | ├─TypedLocalVariableSyntax
 //@[033:0034) |   | | ├─IdentifierSyntax
 //@[033:0034) |   | | | └─Token(Identifier) |b|
-//@[035:0041) |   | | └─VariableAccessSyntax
+//@[035:0041) |   | | └─TypeVariableAccessSyntax
 //@[035:0041) |   | |   └─IdentifierSyntax
 //@[035:0041) |   | |     └─Token(Identifier) |string|
 //@[041:0042) |   | ├─Token(Comma) |,|
 //@[043:0051) |   | ├─TypedLocalVariableSyntax
 //@[043:0044) |   | | ├─IdentifierSyntax
 //@[043:0044) |   | | | └─Token(Identifier) |c|
-//@[045:0051) |   | | └─VariableAccessSyntax
+//@[045:0051) |   | | └─TypeVariableAccessSyntax
 //@[045:0051) |   | |   └─IdentifierSyntax
 //@[045:0051) |   | |     └─Token(Identifier) |string|
 //@[051:0052) |   | └─Token(RightParen) |)|
-//@[053:0058) |   ├─VariableAccessSyntax
+//@[053:0058) |   ├─TypeVariableAccessSyntax
 //@[053:0058) |   | └─IdentifierSyntax
 //@[053:0058) |   |   └─Token(Identifier) |array|
 //@[059:0061) |   ├─Token(Arrow) |=>|
@@ -297,11 +297,11 @@ func sayHello(name string) string => 'Hi ${name}!'
 //@[014:0025) |   | ├─TypedLocalVariableSyntax
 //@[014:0018) |   | | ├─IdentifierSyntax
 //@[014:0018) |   | | | └─Token(Identifier) |name|
-//@[019:0025) |   | | └─VariableAccessSyntax
+//@[019:0025) |   | | └─TypeVariableAccessSyntax
 //@[019:0025) |   | |   └─IdentifierSyntax
 //@[019:0025) |   | |     └─Token(Identifier) |string|
 //@[025:0026) |   | └─Token(RightParen) |)|
-//@[027:0033) |   ├─VariableAccessSyntax
+//@[027:0033) |   ├─TypeVariableAccessSyntax
 //@[027:0033) |   | └─IdentifierSyntax
 //@[027:0033) |   |   └─Token(Identifier) |string|
 //@[034:0036) |   ├─Token(Arrow) |=>|
@@ -317,7 +317,7 @@ output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not suppo
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0013) | ├─IdentifierSyntax
 //@[007:0013) | | └─Token(Identifier) |hellos|
-//@[014:0019) | ├─VariableAccessSyntax
+//@[014:0019) | ├─TypeVariableAccessSyntax
 //@[014:0019) | | └─IdentifierSyntax
 //@[014:0019) | |   └─Token(Identifier) |array|
 //@[020:0021) | ├─Token(Assignment) |=|
@@ -357,11 +357,11 @@ func sayHelloBadNewlines(
 //@[002:0013) |   | ├─TypedLocalVariableSyntax
 //@[002:0006) |   | | ├─IdentifierSyntax
 //@[002:0006) |   | | | └─Token(Identifier) |name|
-//@[007:0013) |   | | └─VariableAccessSyntax
+//@[007:0013) |   | | └─TypeVariableAccessSyntax
 //@[007:0013) |   | |   └─IdentifierSyntax
 //@[007:0013) |   | |     └─Token(Identifier) |string|
 //@[013:0014) |   | └─Token(RightParen) |)|
-//@[015:0021) |   ├─VariableAccessSyntax
+//@[015:0021) |   ├─TypeVariableAccessSyntax
 //@[015:0021) |   | └─IdentifierSyntax
 //@[015:0021) |   |   └─Token(Identifier) |string|
 //@[022:0024) |   ├─Token(Arrow) |=>|
@@ -381,15 +381,15 @@ type validStringLiteralUnion = 'foo'|'bar'|'baz'
 //@[029:0030) | ├─Token(Assignment) |=|
 //@[031:0048) | └─UnionTypeSyntax
 //@[031:0036) |   ├─UnionTypeMemberSyntax
-//@[031:0036) |   | └─StringSyntax
+//@[031:0036) |   | └─StringTypeLiteralSyntax
 //@[031:0036) |   |   └─Token(StringComplete) |'foo'|
 //@[036:0037) |   ├─Token(Pipe) |||
 //@[037:0042) |   ├─UnionTypeMemberSyntax
-//@[037:0042) |   | └─StringSyntax
+//@[037:0042) |   | └─StringTypeLiteralSyntax
 //@[037:0042) |   |   └─Token(StringComplete) |'bar'|
 //@[042:0043) |   ├─Token(Pipe) |||
 //@[043:0048) |   └─UnionTypeMemberSyntax
-//@[043:0048) |     └─StringSyntax
+//@[043:0048) |     └─StringTypeLiteralSyntax
 //@[043:0048) |       └─Token(StringComplete) |'baz'|
 //@[048:0049) ├─Token(NewLine) |\n|
 func invalidArgs(a validStringLiteralUnion, b string) string => a
@@ -403,18 +403,18 @@ func invalidArgs(a validStringLiteralUnion, b string) string => a
 //@[017:0042) |   | ├─TypedLocalVariableSyntax
 //@[017:0018) |   | | ├─IdentifierSyntax
 //@[017:0018) |   | | | └─Token(Identifier) |a|
-//@[019:0042) |   | | └─VariableAccessSyntax
+//@[019:0042) |   | | └─TypeVariableAccessSyntax
 //@[019:0042) |   | |   └─IdentifierSyntax
 //@[019:0042) |   | |     └─Token(Identifier) |validStringLiteralUnion|
 //@[042:0043) |   | ├─Token(Comma) |,|
 //@[044:0052) |   | ├─TypedLocalVariableSyntax
 //@[044:0045) |   | | ├─IdentifierSyntax
 //@[044:0045) |   | | | └─Token(Identifier) |b|
-//@[046:0052) |   | | └─VariableAccessSyntax
+//@[046:0052) |   | | └─TypeVariableAccessSyntax
 //@[046:0052) |   | |   └─IdentifierSyntax
 //@[046:0052) |   | |     └─Token(Identifier) |string|
 //@[052:0053) |   | └─Token(RightParen) |)|
-//@[054:0060) |   ├─VariableAccessSyntax
+//@[054:0060) |   ├─TypeVariableAccessSyntax
 //@[054:0060) |   | └─IdentifierSyntax
 //@[054:0060) |   |   └─Token(Identifier) |string|
 //@[061:0063) |   ├─Token(Arrow) |=>|
@@ -431,7 +431,7 @@ func invalidOutput() validStringLiteralUnion => 'foo'
 //@[018:0020) |   ├─TypedVariableBlockSyntax
 //@[018:0019) |   | ├─Token(LeftParen) |(|
 //@[019:0020) |   | └─Token(RightParen) |)|
-//@[021:0044) |   ├─VariableAccessSyntax
+//@[021:0044) |   ├─TypeVariableAccessSyntax
 //@[021:0044) |   | └─IdentifierSyntax
 //@[021:0044) |   |   └─Token(Identifier) |validStringLiteralUnion|
 //@[045:0047) |   ├─Token(Arrow) |=>|
@@ -448,7 +448,7 @@ func recursive() string => recursive()
 //@[014:0016) |   ├─TypedVariableBlockSyntax
 //@[014:0015) |   | ├─Token(LeftParen) |(|
 //@[015:0016) |   | └─Token(RightParen) |)|
-//@[017:0023) |   ├─VariableAccessSyntax
+//@[017:0023) |   ├─TypeVariableAccessSyntax
 //@[017:0023) |   | └─IdentifierSyntax
 //@[017:0023) |   |   └─Token(Identifier) |string|
 //@[024:0026) |   ├─Token(Arrow) |=>|
@@ -468,7 +468,7 @@ func recursiveA() string => recursiveB()
 //@[015:0017) |   ├─TypedVariableBlockSyntax
 //@[015:0016) |   | ├─Token(LeftParen) |(|
 //@[016:0017) |   | └─Token(RightParen) |)|
-//@[018:0024) |   ├─VariableAccessSyntax
+//@[018:0024) |   ├─TypeVariableAccessSyntax
 //@[018:0024) |   | └─IdentifierSyntax
 //@[018:0024) |   |   └─Token(Identifier) |string|
 //@[025:0027) |   ├─Token(Arrow) |=>|
@@ -487,7 +487,7 @@ func recursiveB() string => recursiveA()
 //@[015:0017) |   ├─TypedVariableBlockSyntax
 //@[015:0016) |   | ├─Token(LeftParen) |(|
 //@[016:0017) |   | └─Token(RightParen) |)|
-//@[018:0024) |   ├─VariableAccessSyntax
+//@[018:0024) |   ├─TypeVariableAccessSyntax
 //@[018:0024) |   | └─IdentifierSyntax
 //@[018:0024) |   |   └─Token(Identifier) |string|
 //@[025:0027) |   ├─Token(Arrow) |=>|
@@ -512,7 +512,7 @@ func onlyComma(,) string => 'foo'
 //@[015:0015) |   | | └─SkippedTriviaSyntax
 //@[015:0016) |   | ├─Token(Comma) |,|
 //@[016:0017) |   | └─Token(RightParen) |)|
-//@[018:0024) |   ├─VariableAccessSyntax
+//@[018:0024) |   ├─TypeVariableAccessSyntax
 //@[018:0024) |   | └─IdentifierSyntax
 //@[018:0024) |   |   └─Token(Identifier) |string|
 //@[025:0027) |   ├─Token(Arrow) |=>|
@@ -530,7 +530,7 @@ func trailingCommas(a string,,) string => 'foo'
 //@[020:0028) |   | ├─TypedLocalVariableSyntax
 //@[020:0021) |   | | ├─IdentifierSyntax
 //@[020:0021) |   | | | └─Token(Identifier) |a|
-//@[022:0028) |   | | └─VariableAccessSyntax
+//@[022:0028) |   | | └─TypeVariableAccessSyntax
 //@[022:0028) |   | |   └─IdentifierSyntax
 //@[022:0028) |   | |     └─Token(Identifier) |string|
 //@[028:0029) |   | ├─Token(Comma) |,|
@@ -540,7 +540,7 @@ func trailingCommas(a string,,) string => 'foo'
 //@[029:0029) |   | | └─SkippedTriviaSyntax
 //@[029:0030) |   | ├─Token(Comma) |,|
 //@[030:0031) |   | └─Token(RightParen) |)|
-//@[032:0038) |   ├─VariableAccessSyntax
+//@[032:0038) |   ├─TypeVariableAccessSyntax
 //@[032:0038) |   | └─IdentifierSyntax
 //@[032:0038) |   |   └─Token(Identifier) |string|
 //@[039:0041) |   ├─Token(Arrow) |=>|
@@ -560,7 +560,7 @@ func multiLineOnly(
 //@[002:0010) |   | ├─TypedLocalVariableSyntax
 //@[002:0003) |   | | ├─IdentifierSyntax
 //@[002:0003) |   | | | └─Token(Identifier) |a|
-//@[004:0010) |   | | └─VariableAccessSyntax
+//@[004:0010) |   | | └─TypeVariableAccessSyntax
 //@[004:0010) |   | |   └─IdentifierSyntax
 //@[004:0010) |   | |     └─Token(Identifier) |string|
 //@[010:0011) |   | ├─Token(NewLine) |\n|
@@ -590,7 +590,7 @@ func multiLineTrailingCommas(
 //@[002:0010) |   | ├─TypedLocalVariableSyntax
 //@[002:0003) |   | | ├─IdentifierSyntax
 //@[002:0003) |   | | | └─Token(Identifier) |a|
-//@[004:0010) |   | | └─VariableAccessSyntax
+//@[004:0010) |   | | └─TypeVariableAccessSyntax
 //@[004:0010) |   | |   └─IdentifierSyntax
 //@[004:0010) |   | |     └─Token(Identifier) |string|
 //@[010:0011) |   | ├─Token(Comma) |,|
@@ -602,7 +602,7 @@ func multiLineTrailingCommas(
 //@[002:0002) |   | | └─SkippedTriviaSyntax
 //@[002:0003) |   | ├─Token(Comma) |,|
 //@[003:0004) |   | └─Token(RightParen) |)|
-//@[005:0011) |   ├─VariableAccessSyntax
+//@[005:0011) |   ├─TypeVariableAccessSyntax
 //@[005:0011) |   | └─IdentifierSyntax
 //@[005:0011) |   |   └─Token(Identifier) |string|
 //@[012:0014) |   ├─Token(Arrow) |=>|
@@ -623,7 +623,7 @@ func lineBeforeComma(
 //@[002:0010) |   | ├─TypedLocalVariableSyntax
 //@[002:0003) |   | | ├─IdentifierSyntax
 //@[002:0003) |   | | | └─Token(Identifier) |a|
-//@[004:0010) |   | | └─VariableAccessSyntax
+//@[004:0010) |   | | └─TypeVariableAccessSyntax
 //@[004:0010) |   | |   └─IdentifierSyntax
 //@[004:0010) |   | |     └─Token(Identifier) |string|
 //@[010:0011) |   | ├─Token(NewLine) |\n|

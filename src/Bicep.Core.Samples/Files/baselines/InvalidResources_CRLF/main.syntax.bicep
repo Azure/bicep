@@ -946,7 +946,7 @@ param resrefpar string = foo.id
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00015) | ├─IdentifierSyntax
 //@[006:00015) | | └─Token(Identifier) |resrefpar|
-//@[016:00022) | ├─VariableAccessSyntax
+//@[016:00022) | ├─TypeVariableAccessSyntax
 //@[016:00022) | | └─IdentifierSyntax
 //@[016:00022) | |   └─Token(Identifier) |string|
 //@[023:00031) | └─ParameterDefaultValueSyntax
@@ -965,7 +965,7 @@ output resrefout bool = bar.id
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00016) | ├─IdentifierSyntax
 //@[007:00016) | | └─Token(Identifier) |resrefout|
-//@[017:00021) | ├─VariableAccessSyntax
+//@[017:00021) | ├─TypeVariableAccessSyntax
 //@[017:00021) | | └─IdentifierSyntax
 //@[017:00021) | |   └─Token(Identifier) |bool|
 //@[022:00023) | ├─Token(Assignment) |=|
@@ -9038,7 +9038,7 @@ output directRefViaOutput array = union(premiumStorages, stuffs)
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00025) | ├─IdentifierSyntax
 //@[007:00025) | | └─Token(Identifier) |directRefViaOutput|
-//@[026:00031) | ├─VariableAccessSyntax
+//@[026:00031) | ├─TypeVariableAccessSyntax
 //@[026:00031) | | └─IdentifierSyntax
 //@[026:00031) | |   └─Token(Identifier) |array|
 //@[032:00033) | ├─Token(Assignment) |=|
@@ -11351,7 +11351,7 @@ param dataCollectionRule object
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00024) | ├─IdentifierSyntax
 //@[006:00024) | | └─Token(Identifier) |dataCollectionRule|
-//@[025:00031) | └─VariableAccessSyntax
+//@[025:00031) | └─TypeVariableAccessSyntax
 //@[025:00031) |   └─IdentifierSyntax
 //@[025:00031) |     └─Token(Identifier) |object|
 //@[031:00033) ├─Token(NewLine) |\r\n|
@@ -11360,7 +11360,7 @@ param tags object
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00010) | ├─IdentifierSyntax
 //@[006:00010) | | └─Token(Identifier) |tags|
-//@[011:00017) | └─VariableAccessSyntax
+//@[011:00017) | └─TypeVariableAccessSyntax
 //@[011:00017) |   └─IdentifierSyntax
 //@[011:00017) |     └─Token(Identifier) |object|
 //@[017:00021) ├─Token(NewLine) |\r\n\r\n|
@@ -11950,7 +11950,7 @@ param issue4668_kind string = 'AzureCLI'
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00020) | ├─IdentifierSyntax
 //@[006:00020) | | └─Token(Identifier) |issue4668_kind|
-//@[021:00027) | ├─VariableAccessSyntax
+//@[021:00027) | ├─TypeVariableAccessSyntax
 //@[021:00027) | | └─IdentifierSyntax
 //@[021:00027) | |   └─Token(Identifier) |string|
 //@[028:00040) | └─ParameterDefaultValueSyntax
@@ -11975,7 +11975,7 @@ param issue4668_identity object
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00024) | ├─IdentifierSyntax
 //@[006:00024) | | └─Token(Identifier) |issue4668_identity|
-//@[025:00031) | └─VariableAccessSyntax
+//@[025:00031) | └─TypeVariableAccessSyntax
 //@[025:00031) |   └─IdentifierSyntax
 //@[025:00031) |     └─Token(Identifier) |object|
 //@[031:00033) ├─Token(NewLine) |\r\n|
@@ -11996,7 +11996,7 @@ param issue4668_properties object
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00026) | ├─IdentifierSyntax
 //@[006:00026) | | └─Token(Identifier) |issue4668_properties|
-//@[027:00033) | └─VariableAccessSyntax
+//@[027:00033) | └─TypeVariableAccessSyntax
 //@[027:00033) |   └─IdentifierSyntax
 //@[027:00033) |     └─Token(Identifier) |object|
 //@[033:00035) ├─Token(NewLine) |\r\n|

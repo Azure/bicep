@@ -128,6 +128,21 @@ namespace Bicep.Core.TypeSystem
             base.VisitVariableAccessSyntax(syntax);
         }
 
+        public override void VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax)
+        {
+            if (!currentDeclarations.TryPeek(out var currentDeclaration))
+            {
+                return;
+            }
+
+            if (!selfReferencePermitted)
+            {
+                declarationAccessDict[currentDeclaration].Add(syntax);
+            }
+
+            base.VisitTypeVariableAccessSyntax(syntax);
+        }
+
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {
             if (!currentDeclarations.TryPeek(out var currentDeclaration))

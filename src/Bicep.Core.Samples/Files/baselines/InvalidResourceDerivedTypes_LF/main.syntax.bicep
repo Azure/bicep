@@ -34,11 +34,11 @@ type invalid3 = resource<'abc', 'def'>
 //@[016:0024) |   | └─Token(Identifier) |resource|
 //@[024:0025) |   ├─Token(LeftChevron) |<|
 //@[025:0030) |   ├─ParameterizedTypeArgumentSyntax
-//@[025:0030) |   | └─StringSyntax
+//@[025:0030) |   | └─StringTypeLiteralSyntax
 //@[025:0030) |   |   └─Token(StringComplete) |'abc'|
 //@[030:0031) |   ├─Token(Comma) |,|
 //@[032:0037) |   ├─ParameterizedTypeArgumentSyntax
-//@[032:0037) |   | └─StringSyntax
+//@[032:0037) |   | └─StringTypeLiteralSyntax
 //@[032:0037) |   |   └─Token(StringComplete) |'def'|
 //@[037:0038) |   └─Token(RightChevron) |>|
 //@[038:0039) ├─Token(NewLine) |\n|
@@ -53,7 +53,7 @@ type invalid4 = resource<hello>
 //@[016:0024) |   | └─Token(Identifier) |resource|
 //@[024:0025) |   ├─Token(LeftChevron) |<|
 //@[025:0030) |   ├─ParameterizedTypeArgumentSyntax
-//@[025:0030) |   | └─VariableAccessSyntax
+//@[025:0030) |   | └─TypeVariableAccessSyntax
 //@[025:0030) |   |   └─IdentifierSyntax
 //@[025:0030) |   |     └─Token(Identifier) |hello|
 //@[030:0031) |   └─Token(RightChevron) |>|
@@ -69,7 +69,7 @@ type invalid5 = resource<'Microsoft.Storage/storageAccounts'>
 //@[016:0024) |   | └─Token(Identifier) |resource|
 //@[024:0025) |   ├─Token(LeftChevron) |<|
 //@[025:0060) |   ├─ParameterizedTypeArgumentSyntax
-//@[025:0060) |   | └─StringSyntax
+//@[025:0060) |   | └─StringTypeLiteralSyntax
 //@[025:0060) |   |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts'|
 //@[060:0061) |   └─Token(RightChevron) |>|
 //@[061:0062) ├─Token(NewLine) |\n|
@@ -84,7 +84,7 @@ type invalid6 = resource<'Microsoft.Storage/storageAccounts@'>
 //@[016:0024) |   | └─Token(Identifier) |resource|
 //@[024:0025) |   ├─Token(LeftChevron) |<|
 //@[025:0061) |   ├─ParameterizedTypeArgumentSyntax
-//@[025:0061) |   | └─StringSyntax
+//@[025:0061) |   | └─StringTypeLiteralSyntax
 //@[025:0061) |   |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@'|
 //@[061:0062) |   └─Token(RightChevron) |>|
 //@[062:0063) ├─Token(NewLine) |\n|
@@ -99,7 +99,7 @@ type invalid7 = resource<'Microsoft.Storage/storageAccounts@hello'>
 //@[016:0024) |   | └─Token(Identifier) |resource|
 //@[024:0025) |   ├─Token(LeftChevron) |<|
 //@[025:0066) |   ├─ParameterizedTypeArgumentSyntax
-//@[025:0066) |   | └─StringSyntax
+//@[025:0066) |   | └─StringTypeLiteralSyntax
 //@[025:0066) |   |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@hello'|
 //@[066:0067) |   └─Token(RightChevron) |>|
 //@[067:0068) ├─Token(NewLine) |\n|
@@ -114,7 +114,7 @@ type invalid8 = resource<'notARealNamespace:Microsoft.Storage/storageAccounts@20
 //@[016:0024) |   | └─Token(Identifier) |resource|
 //@[024:0025) |   ├─Token(LeftChevron) |<|
 //@[025:0089) |   ├─ParameterizedTypeArgumentSyntax
-//@[025:0089) |   | └─StringSyntax
+//@[025:0089) |   | └─StringTypeLiteralSyntax
 //@[025:0089) |   |   └─Token(StringComplete) |'notARealNamespace:Microsoft.Storage/storageAccounts@2022-09-01'|
 //@[089:0090) |   └─Token(RightChevron) |>|
 //@[090:0091) ├─Token(NewLine) |\n|
@@ -129,7 +129,7 @@ type invalid9 = resource<':Microsoft.Storage/storageAccounts@2022-09-01'>
 //@[016:0024) |   | └─Token(Identifier) |resource|
 //@[024:0025) |   ├─Token(LeftChevron) |<|
 //@[025:0072) |   ├─ParameterizedTypeArgumentSyntax
-//@[025:0072) |   | └─StringSyntax
+//@[025:0072) |   | └─StringTypeLiteralSyntax
 //@[025:0072) |   |   └─Token(StringComplete) |':Microsoft.Storage/storageAccounts@2022-09-01'|
 //@[072:0073) |   └─Token(RightChevron) |>|
 //@[073:0074) ├─Token(NewLine) |\n|
@@ -144,11 +144,11 @@ type invalid10 = resource<'abc' 'def'>
 //@[017:0025) |   | └─Token(Identifier) |resource|
 //@[025:0026) |   ├─Token(LeftChevron) |<|
 //@[026:0031) |   ├─ParameterizedTypeArgumentSyntax
-//@[026:0031) |   | └─StringSyntax
+//@[026:0031) |   | └─StringTypeLiteralSyntax
 //@[026:0031) |   |   └─Token(StringComplete) |'abc'|
 //@[032:0032) |   ├─SkippedTriviaSyntax
 //@[032:0037) |   ├─ParameterizedTypeArgumentSyntax
-//@[032:0037) |   | └─StringSyntax
+//@[032:0037) |   | └─StringTypeLiteralSyntax
 //@[032:0037) |   |   └─Token(StringComplete) |'def'|
 //@[037:0038) |   └─Token(RightChevron) |>|
 //@[038:0039) ├─Token(NewLine) |\n|
@@ -163,7 +163,7 @@ type invalid11 = resource<123>
 //@[017:0025) |   | └─Token(Identifier) |resource|
 //@[025:0026) |   ├─Token(LeftChevron) |<|
 //@[026:0029) |   ├─ParameterizedTypeArgumentSyntax
-//@[026:0029) |   | └─IntegerLiteralSyntax
+//@[026:0029) |   | └─IntegerTypeLiteralSyntax
 //@[026:0029) |   |   └─Token(Integer) |123|
 //@[029:0030) |   └─Token(RightChevron) |>|
 //@[030:0031) ├─Token(NewLine) |\n|
@@ -178,12 +178,12 @@ type invalid12 = resource<resourceGroup()>
 //@[017:0025) |   | └─Token(Identifier) |resource|
 //@[025:0026) |   ├─Token(LeftChevron) |<|
 //@[026:0039) |   ├─ParameterizedTypeArgumentSyntax
-//@[026:0039) |   | └─VariableAccessSyntax
+//@[026:0039) |   | └─TypeVariableAccessSyntax
 //@[026:0039) |   |   └─IdentifierSyntax
 //@[026:0039) |   |     └─Token(Identifier) |resourceGroup|
 //@[039:0039) |   ├─SkippedTriviaSyntax
 //@[039:0041) |   ├─ParameterizedTypeArgumentSyntax
-//@[039:0041) |   | └─ParenthesizedExpressionSyntax
+//@[039:0041) |   | └─ParenthesizedTypeSyntax
 //@[039:0040) |   |   ├─Token(LeftParen) |(|
 //@[040:0040) |   |   ├─SkippedTriviaSyntax
 //@[040:0041) |   |   └─Token(RightParen) |)|
@@ -202,7 +202,7 @@ type thisIsWeird = resource</*
 //@[027:0028) |   ├─Token(LeftChevron) |<|
 */'Astronomer.Astro/organizations@2023-08-01-preview'
 //@[002:0053) |   ├─ParameterizedTypeArgumentSyntax
-//@[002:0053) |   | └─StringSyntax
+//@[002:0053) |   | └─StringTypeLiteralSyntax
 //@[002:0053) |   |   └─Token(StringComplete) |'Astronomer.Astro/organizations@2023-08-01-preview'|
 //@[053:0053) |   ├─SkippedTriviaSyntax
 //@[053:0054) |   ├─Token(NewLine) |\n|
@@ -223,7 +223,7 @@ type interpolated = resource<'Microsoft.${'Storage'}/storageAccounts@2022-09-01'
 //@[020:0028) |   | └─Token(Identifier) |resource|
 //@[028:0029) |   ├─Token(LeftChevron) |<|
 //@[029:0080) |   ├─ParameterizedTypeArgumentSyntax
-//@[029:0080) |   | └─StringSyntax
+//@[029:0080) |   | └─StringTypeLiteralSyntax
 //@[029:0042) |   |   ├─Token(StringLeftPiece) |'Microsoft.${|
 //@[042:0051) |   |   ├─StringSyntax
 //@[042:0051) |   |   | └─Token(StringComplete) |'Storage'|
@@ -251,7 +251,7 @@ type shouldNotBeSealable = resource<'Microsoft.Storage/storageAccounts@2022-09-0
 //@[027:0035) |   | └─Token(Identifier) |resource|
 //@[035:0036) |   ├─Token(LeftChevron) |<|
 //@[036:0082) |   ├─ParameterizedTypeArgumentSyntax
-//@[036:0082) |   | └─StringSyntax
+//@[036:0082) |   | └─StringTypeLiteralSyntax
 //@[036:0082) |   |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
 //@[082:0083) |   └─Token(RightChevron) |>|
 //@[083:0085) ├─Token(NewLine) |\n\n|
@@ -287,7 +287,7 @@ type hello = {
 //@[007:0015) |   |   | └─Token(Identifier) |resource|
 //@[015:0016) |   |   ├─Token(LeftChevron) |<|
 //@[016:0067) |   |   ├─ParameterizedTypeArgumentSyntax
-//@[016:0067) |   |   | └─StringSyntax
+//@[016:0067) |   |   | └─StringTypeLiteralSyntax
 //@[016:0067) |   |   |   └─Token(StringComplete) |'Astronomer.Astro/organizations@2023-08-01-preview'|
 //@[067:0068) |   |   └─Token(RightChevron) |>|
 //@[068:0069) |   ├─Token(NewLine) |\n|
@@ -307,7 +307,7 @@ type typoInPropertyName = resource<'Microsoft.Storage/storageAccounts@2023-01-01
 //@[026:0034) |   | | └─Token(Identifier) |resource|
 //@[034:0035) |   | ├─Token(LeftChevron) |<|
 //@[035:0081) |   | ├─ParameterizedTypeArgumentSyntax
-//@[035:0081) |   | | └─StringSyntax
+//@[035:0081) |   | | └─StringTypeLiteralSyntax
 //@[035:0081) |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
 //@[081:0082) |   | └─Token(RightChevron) |>|
 //@[082:0083) |   ├─Token(Dot) |.|
@@ -329,7 +329,7 @@ type typoInPropertyName2 = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.prop
 //@[027:0035) |   | | | | | └─Token(Identifier) |resource|
 //@[035:0036) |   | | | | ├─Token(LeftChevron) |<|
 //@[036:0074) |   | | | | ├─ParameterizedTypeArgumentSyntax
-//@[036:0074) |   | | | | | └─StringSyntax
+//@[036:0074) |   | | | | | └─StringTypeLiteralSyntax
 //@[036:0074) |   | | | | |   └─Token(StringComplete) |'Microsoft.KeyVault/vaults@2022-07-01'|
 //@[074:0075) |   | | | | └─Token(RightChevron) |>|
 //@[075:0076) |   | | | ├─Token(Dot) |.|
@@ -360,7 +360,7 @@ type typoInPropertyName3 = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.prop
 //@[027:0035) |   | | | | | └─Token(Identifier) |resource|
 //@[035:0036) |   | | | | ├─Token(LeftChevron) |<|
 //@[036:0074) |   | | | | ├─ParameterizedTypeArgumentSyntax
-//@[036:0074) |   | | | | | └─StringSyntax
+//@[036:0074) |   | | | | | └─StringTypeLiteralSyntax
 //@[036:0074) |   | | | | |   └─Token(StringComplete) |'Microsoft.KeyVault/vaults@2022-07-01'|
 //@[074:0075) |   | | | | └─Token(RightChevron) |>|
 //@[075:0076) |   | | | ├─Token(Dot) |.|
@@ -391,7 +391,7 @@ type typoInPropertyName4 = resource<'Microsoft.Web/customApis@2016-06-01'>.prope
 //@[027:0035) |   | | | | | └─Token(Identifier) |resource|
 //@[035:0036) |   | | | | ├─Token(LeftChevron) |<|
 //@[036:0073) |   | | | | ├─ParameterizedTypeArgumentSyntax
-//@[036:0073) |   | | | | | └─StringSyntax
+//@[036:0073) |   | | | | | └─StringTypeLiteralSyntax
 //@[036:0073) |   | | | | |   └─Token(StringComplete) |'Microsoft.Web/customApis@2016-06-01'|
 //@[073:0074) |   | | | | └─Token(RightChevron) |>|
 //@[074:0075) |   | | | ├─Token(Dot) |.|
@@ -421,7 +421,7 @@ type typoInPropertyName5 = resource<'Microsoft.Web/customApis@2016-06-01'>.prope
 //@[027:0035) |   | | | | | └─Token(Identifier) |resource|
 //@[035:0036) |   | | | | ├─Token(LeftChevron) |<|
 //@[036:0073) |   | | | | ├─ParameterizedTypeArgumentSyntax
-//@[036:0073) |   | | | | | └─StringSyntax
+//@[036:0073) |   | | | | | └─StringTypeLiteralSyntax
 //@[036:0073) |   | | | | |   └─Token(StringComplete) |'Microsoft.Web/customApis@2016-06-01'|
 //@[073:0074) |   | | | | └─Token(RightChevron) |>|
 //@[074:0075) |   | | | ├─Token(Dot) |.|

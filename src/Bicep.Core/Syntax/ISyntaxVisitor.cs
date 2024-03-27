@@ -155,5 +155,21 @@ namespace Bicep.Core.Syntax
         void VisitTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax);
 
         void VisitTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax);
+
+        void VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax);
+
+        void VisitStringTypeLiteralSyntax(StringTypeLiteralSyntax syntax);
+
+        void VisitIntegerTypeLiteralSyntax(IntegerTypeLiteralSyntax syntax);
+
+        void VisitBooleanTypeLiteralSyntax(BooleanTypeLiteralSyntax syntax);
+
+        void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax);
+
+        void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax);
+
+        void VisitNonNullableTypeSyntax(NonNullableTypeSyntax syntax);
+
+        void VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax);
     }
 }

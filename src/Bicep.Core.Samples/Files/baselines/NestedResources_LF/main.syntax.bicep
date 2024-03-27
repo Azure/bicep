@@ -246,7 +246,7 @@ output referenceBasicChild string = basicParent::basicChild.properties.size
 //@[00:0006) | ├─Token(Identifier) |output|
 //@[07:0026) | ├─IdentifierSyntax
 //@[07:0026) | | └─Token(Identifier) |referenceBasicChild|
-//@[27:0033) | ├─VariableAccessSyntax
+//@[27:0033) | ├─TypeVariableAccessSyntax
 //@[27:0033) | | └─IdentifierSyntax
 //@[27:0033) | |   └─Token(Identifier) |string|
 //@[34:0035) | ├─Token(Assignment) |=|
@@ -273,7 +273,7 @@ output referenceBasicGrandchild string = basicParent::basicChild::basicGrandchil
 //@[00:0006) | ├─Token(Identifier) |output|
 //@[07:0031) | ├─IdentifierSyntax
 //@[07:0031) | | └─Token(Identifier) |referenceBasicGrandchild|
-//@[32:0038) | ├─VariableAccessSyntax
+//@[32:0038) | ├─TypeVariableAccessSyntax
 //@[32:0038) | | └─IdentifierSyntax
 //@[32:0038) | |   └─Token(Identifier) |string|
 //@[39:0040) | ├─Token(Assignment) |=|
@@ -419,7 +419,7 @@ param createParent bool
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0018) | ├─IdentifierSyntax
 //@[06:0018) | | └─Token(Identifier) |createParent|
-//@[19:0023) | └─VariableAccessSyntax
+//@[19:0023) | └─TypeVariableAccessSyntax
 //@[19:0023) |   └─IdentifierSyntax
 //@[19:0023) |     └─Token(Identifier) |bool|
 //@[23:0024) ├─Token(NewLine) |\n|
@@ -428,7 +428,7 @@ param createChild bool
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0017) | ├─IdentifierSyntax
 //@[06:0017) | | └─Token(Identifier) |createChild|
-//@[18:0022) | └─VariableAccessSyntax
+//@[18:0022) | └─TypeVariableAccessSyntax
 //@[18:0022) |   └─IdentifierSyntax
 //@[18:0022) |     └─Token(Identifier) |bool|
 //@[22:0023) ├─Token(NewLine) |\n|
@@ -437,7 +437,7 @@ param createGrandchild bool
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0022) | ├─IdentifierSyntax
 //@[06:0022) | | └─Token(Identifier) |createGrandchild|
-//@[23:0027) | └─VariableAccessSyntax
+//@[23:0027) | └─TypeVariableAccessSyntax
 //@[23:0027) |   └─IdentifierSyntax
 //@[23:0027) |     └─Token(Identifier) |bool|
 //@[27:0028) ├─Token(NewLine) |\n|
@@ -664,7 +664,7 @@ output loopChildOutput string = loopParent::loopChild[0].name
 //@[00:0006) | ├─Token(Identifier) |output|
 //@[07:0022) | ├─IdentifierSyntax
 //@[07:0022) | | └─Token(Identifier) |loopChildOutput|
-//@[23:0029) | ├─VariableAccessSyntax
+//@[23:0029) | ├─TypeVariableAccessSyntax
 //@[23:0029) | | └─IdentifierSyntax
 //@[23:0029) | |   └─Token(Identifier) |string|
 //@[30:0031) | ├─Token(Assignment) |=|

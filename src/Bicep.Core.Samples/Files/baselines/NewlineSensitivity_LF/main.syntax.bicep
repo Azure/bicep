@@ -28,7 +28,7 @@ param foo string
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0009) | ├─IdentifierSyntax
 //@[06:0009) | | └─Token(Identifier) |foo|
-//@[10:0016) | └─VariableAccessSyntax
+//@[10:0016) | └─TypeVariableAccessSyntax
 //@[10:0016) |   └─IdentifierSyntax
 //@[10:0016) |     └─Token(Identifier) |string|
 //@[16:0018) ├─Token(NewLine) |\n\n|

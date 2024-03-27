@@ -1434,7 +1434,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static bool RefersToTypeAlias(SyntaxBase? typeSyntax, IBinder binder) => UnwrapNullableSyntax(typeSyntax) switch
             {
-                VariableAccessSyntax variableAccess => binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol or ImportedTypeSymbol or WildcardImportSymbol,
+                TypeVariableAccessSyntax variableAccess => binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol or ImportedTypeSymbol or WildcardImportSymbol,
                 TypePropertyAccessSyntax typePropertyAccess => RefersToTypeAlias(typePropertyAccess.BaseExpression, binder),
                 TypeAdditionalPropertiesAccessSyntax typeAdditionalPropertiesAccess => RefersToTypeAlias(typeAdditionalPropertiesAccess.BaseExpression, binder),
                 TypeArrayAccessSyntax typeArrayAccess => RefersToTypeAlias(typeArrayAccess.BaseExpression, binder) || RefersToTypeAlias(typeArrayAccess.IndexExpression, binder),
@@ -1789,15 +1789,16 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static bool IsLiteralSyntax(SyntaxBase? syntax, ITypeManager typeManager) => syntax switch
         {
-            IntegerLiteralSyntax => true,
-            BooleanLiteralSyntax => true,
-            UnaryOperationSyntax => true,
-            StringSyntax => true,
+            IntegerTypeLiteralSyntax or
+            BooleanTypeLiteralSyntax or
+            UnaryTypeOperationSyntax or
+            StringTypeLiteralSyntax or
             // union types may contain symbols, but the type manager will enforce that they must resolve to a flat union of literals
             UnionTypeSyntax => true,
-            // object types may contain symbols and still be literal types (iff the symbols themselves resolve to literal types)
+            // certain aggregate types may contain symbols and still be literal types (iff the symbols themselves resolve to literal types)
             // unlike with union types, we get no guarantees from the type checker and need to inspect the declared type to verify that this is a literal
             ObjectTypeSyntax @object when TypeHelper.IsLiteralType(typeManager.GetDeclaredType(@object) ?? ErrorType.Empty()) => true,
+            TupleTypeSyntax tuple when TypeHelper.IsLiteralType(typeManager.GetDeclaredType(tuple) ?? ErrorType.Empty()) => true,
             _ => false,
         };
 
@@ -1815,12 +1816,12 @@ namespace Bicep.Core.Semantics.Namespaces
                             LanguageConstants.StringResourceIdentifier)),
                         (binder, syntax, argumentTypes) =>
                         {
-                            if (syntax.Arguments.FirstOrDefault()?.Expression is not StringSyntax stringArg || stringArg.TryGetLiteralValue() is not string resourceTypeString)
+                            if (syntax.Arguments.FirstOrDefault()?.Expression is not StringTypeLiteralSyntax stringArg || stringArg.SegmentValues.Length > 1)
                             {
                                 return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
                             }
 
-                            if (!TypeHelper.GetResourceTypeFromString(binder, resourceTypeString, ResourceTypeGenerationFlags.None, parentResourceType: null)
+                            if (!TypeHelper.GetResourceTypeFromString(binder, stringArg.SegmentValues[0], ResourceTypeGenerationFlags.None, parentResourceType: null)
                                 .IsSuccess(out var resourceType, out var errorBuilder))
                             {
                                 return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
