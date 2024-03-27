@@ -1,5 +1,5 @@
 /* eslint-disable sort-imports */
-import { equalsZero, greaterThan, lessThan } from "../../operators/comparison";
+import { equalsZero, greaterThan, lessThan } from "../../numeric/comparison-operators";
 import { getMinX, getMaxX, getMinY, getMaxY, enumerateSegments } from "../shapes/box";
 import { createPoint } from "../shapes/point";
 import { getBoundingBox, hasZeroLength } from "../shapes/segment";

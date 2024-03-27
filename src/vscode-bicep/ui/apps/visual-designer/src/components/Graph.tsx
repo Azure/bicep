@@ -1,8 +1,9 @@
-import styled from "styled-components";
+import { styled } from "styled-components";
 
-import { Edge } from "./Edge";
-import { Node } from "./Node";
-import { graphStore } from "../stores/graph-slice";
+import { EdgeLayer } from "./EdgeLayer";
+import { NodeLayer } from "./NodeLayer";
+import { useStore } from "../stores";
+// import { store } from "../stores";
 
 const $Graph = styled.div.attrs<{
   $x: number;
@@ -18,30 +19,18 @@ const $Graph = styled.div.attrs<{
   width: 0;
 `;
 
-const $Svg = styled.svg`
-  overflow: visible;
-`;
+// const $Svg = styled.svg`
+//   overflow: visible;
+// `;
 
 export function Graph() {
-  const { x, y } = graphStore.use.graph().position;
-  const scale = graphStore.use.graph().scale;
-  const nodes = graphStore.use.graph().nodes;
-  const edges = graphStore.use.graph().edges;
+  const { x, y } = useStore(x => x.position);
+  const scale = useStore(x => x.scale);
 
   return (
     <$Graph $x={x} $y={y} $scale={scale}>
-      {Object.values(nodes).map((node) => (
-        <Node key={node.id} {...node}>
-          {node.id}
-        </Node>
-      ))}
-      <$Svg>
-        <g>
-          {Object.values(edges).map((edge) => (
-            <Edge key={edge.id} {...edge} />
-          ))}
-        </g>
-      </$Svg>
+      <NodeLayer />
+      <EdgeLayer />
     </$Graph>
   );
 }

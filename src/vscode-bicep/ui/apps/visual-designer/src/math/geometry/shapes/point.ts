@@ -1,4 +1,4 @@
-import { equal } from "../../operators/comparison";
+import { equal } from "../../numeric/comparison-operators";
 
 export type Point = Readonly<{
   x: number;

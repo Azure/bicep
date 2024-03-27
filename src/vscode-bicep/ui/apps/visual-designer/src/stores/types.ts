@@ -1,51 +1,86 @@
 import "zustand/middleware/immer";
 import type { Box, Position } from "../math/geometry";
+import type { Edge, Graph, Node } from "../math/graph-theory/types";
+import type { Diagnostic, DocumentUri, Range } from "vscode-languageserver-protocol";
 import type { StateCreator } from "zustand";
 
-export interface NodeState {
-  id: string;
-  parentId?: string;
-  childIds: string[];
-  edgeIds: string[];
-  boundingBox: Box;
+export interface CommonNodeData {
+  symbolicName: string;
+  range: Range;
+  diagnostics?: Diagnostic[];
 }
 
-export interface EdgeState {
-  id: string;
-  sourceId: string;
-  targetId: string;
-  sourceIntersection?: Position;
-  targetIntersection?: Position;
+export interface ResourceNodeData extends CommonNodeData {
+  kind: "resource";
+  resourceType: string;
 }
-export interface GraphState {
+
+export interface ModuleNodeData extends CommonNodeData {
+  kind: "module";
+  modulePath: string;
+  documentUri?: DocumentUri;
+}
+
+export type NodeData = ResourceNodeData | ModuleNodeData;
+
+export interface NodeState extends Node {
+  boundingBox: Box;
+  collapsed?: boolean;
+  selected?: boolean;
+  padding?: {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+  };
+  data: NodeData;
+}
+
+export interface ExplicitDependency {
+  kind: 'Implicit';
+}
+
+export interface ImplicitDependency {
+  kind: 'Implicit';
+  sourceProperty: string;
+  targetExpression: string;
+}
+
+export interface EdgeState extends Edge {
+  data: {
+    explicitDependsOn?: boolean;
+  };
+}
+
+export interface GraphState extends Graph<NodeState, EdgeState> {
   position: Position;
   scale: number;
-  nodesById: Record<string, NodeState>;
-  edgesById: Record<string, EdgeState>;
+  data: {
+    documentUri: DocumentUri;
+    scope?: "Tenant" | "ManagementGroup" | "Subscription" | "ResourceGroup";
+    diagnostics?: Diagnostic[];
+    dirty?: boolean;
+  };
 
   translateTo: (position: Position) => void;
   scaleTo: (scale: number) => void;
 
-  moveNode: (nodeId: string, dx: number, dy: number) => void;
+  translateNode: (nodeId: string, dx: number, dy: number) => void;
   addNode: (nodeId: string, position: Position) => void;
 }
 
-export type EdgeType = "Straight" | "Bezier" | "Elbow";
+export type NodeVariant = "Compact" | "Informative";
 
-export type NodeType = "Compact" | "Informative";
+export type EdgeShape = "Straight" | "Bezier";
 
 export interface ConfigState {
-  edgeType: EdgeType;
-  nodeType: NodeType;
+  nodeVariant: NodeVariant;
+  edgeShape: EdgeShape;
 
-  setEdgeType: (edgeType: "Straight" | "Bezier" | "Elbow") => void;
-  setNodeType: (nodeType: "Compact" | "Informative") => void;
+  setNodeVariant: (nodeVariant: NodeVariant) => void;
+  setEdgeShape: (edgeShape: EdgeShape) => void;
 }
 
-export interface AppState {
-  theme: "Default" | "Dark" | "Light" | "HighContrast";
-  graph: GraphState;
-  config: ConfigState;
-}
+export type AppState = GraphState & ConfigState;
 
 export type ImmerStateCreator<T> = StateCreator<AppState, [["zustand/immer", never], never], [], T>;

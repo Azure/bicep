@@ -1,8 +1,10 @@
-import { createPoint, translatePoint } from "./point";
+import { createPoint, pointsEqual, translatePoint } from "./point";
 import { createSegment } from "./segment";
+import { equal } from "../../numeric/comparison-operators";
 
 import type { Point } from "./point";
 import type { Segment } from "./segment";
+
 
 export type Box = Readonly<{
   center: Point;
@@ -16,6 +18,12 @@ export function createBox(center: Point, width: number, height: number): Box {
   }
 
   return { center, width, height };
+}
+
+export function boxesEqual(first: Box, second: Box) {
+  return (
+    pointsEqual(first.center, second.center) && equal(first.width, second.width) && equal(first.height, second.height)
+  );
 }
 
 export function translateBox(box: Box, dx: number, dy: number) {

@@ -1,68 +1,30 @@
-import {
-  createBox,
-  createPoint,
-  createSegment,
-  findFirstSegmentBoxIntersection,
-  getMaxX,
-  getMaxY,
-  getMinX,
-  getMinY,
-  pointsEqual,
-  translateBox,
-} from "../math/geometry";
-import { equal, equalsZero } from "../math/operators/comparison";
+import { boxesEqual, createBox, createPoint, getMaxX, getMaxY, getMinX, getMinY, translateBox } from "../math/geometry";
+import { getAncestors, getChildren, getDescendants } from "../math/graph-theory/traversal";
+import { equalsZero } from "../math/numeric/comparison-operators";
 
-import type { GraphState, ImmerStateCreator, NodeState } from "./types";
-
-function* enumerateAncestors(graph: GraphState, node: NodeState) {
-  while (node.parentId) {
-    yield graph.nodesById[node.parentId];
-  }
-}
-
-function* enumerateChildren(graph: GraphState, node: NodeState) {
-  for (const childId of node.childIds) {
-    yield graph.nodesById[childId];
-  }
-}
-
-function* enumerateDescendants(graph: GraphState, node: NodeState): Generator<NodeState> {
-  for (const child of enumerateChildren(graph, node)) {
-    yield child;
-    yield* enumerateDescendants(graph, child);
-  }
-}
-
-function updateLinkedEdges(graph: GraphState, node: NodeState) {
-  for (const edgeId of node.edgeIds ?? []) {
-    const edge = graph.edgesById[edgeId];
-    const sourceNode = graph.nodesById[edge.sourceId];
-    const targetNode = graph.nodesById[edge.targetId];
-    const centerCenterSegment = createSegment(sourceNode.boundingBox.center, targetNode.boundingBox.center);
-
-    edge.sourceIntersection = findFirstSegmentBoxIntersection(centerCenterSegment, sourceNode.boundingBox);
-    edge.targetIntersection = findFirstSegmentBoxIntersection(centerCenterSegment, targetNode.boundingBox);
-  }
-}
+import type { GraphState, ImmerStateCreator } from "./types";
 
 export const createGraphSlice: ImmerStateCreator<GraphState> = (set) => ({
   position: { x: 0, y: 0 },
   scale: 1,
   nodesById: {},
-  edgesById: {},
+  edges: [],
+  data: {
+    documentUri: "",
+  },
 
   translateTo: (position) =>
-    set(({ graph }) => {
+    set((graph) => {
       graph.position = position;
     }),
 
   scaleTo: (scale) =>
-    set(({ graph }) => {
+    set((graph) => {
       graph.scale = scale;
     }),
 
-  moveNode: (nodeId, dx, dy) => {
-    set(({ graph }) => {
+  translateNode: (nodeId, dx, dy) => {
+    set((graph) => {
       dx = dx / graph.scale;
       dy = dy / graph.scale;
 
@@ -72,57 +34,41 @@ export const createGraphSlice: ImmerStateCreator<GraphState> = (set) => ({
 
       const node = graph.nodesById[nodeId];
 
-      // 1. Update the bounding box and edges of the node and its descendants.
       node.boundingBox = translateBox(node.boundingBox, dx, dy);
-      updateLinkedEdges(graph, node);
 
-      for (const descendant of enumerateDescendants(graph, node)) {
+      // Update bounding boxes of descendants.
+      getDescendants(graph, node).forEach((descendant) => {
         descendant.boundingBox = translateBox(descendant.boundingBox, dx, dy);
-        updateLinkedEdges(graph, descendant);
-      }
+      });
 
       // Update bounding boxes of ancestors.
-      for (const ancestor of enumerateAncestors(graph, node)) {
-        let x = Infinity;
-        let y = Infinity;
+      getAncestors(graph, node).forEach((ancestor) => {
+        const childBoundingBoxes = getChildren(graph, ancestor).map((x) => x.boundingBox);
 
-        for (const child of enumerateChildren(graph, ancestor)) {
-          x = Math.min(x, getMinX(child.boundingBox));
-          y = Math.min(y, getMinY(child.boundingBox));
-        }
+        const paddingLeft = ancestor.padding?.left ?? 0;
+        const paddingTop = ancestor.padding?.top ?? 0;
+        const paddingRight = ancestor.padding?.right ?? 0;
+        const paddingBottom = ancestor.padding?.bottom ?? 0;
 
-        let width = 0;
-        let height = 0;
-
-        for (const child of enumerateChildren(graph, ancestor)) {
-          width = Math.max(width, getMaxX(child.boundingBox) - x);
-          height = Math.max(height, getMaxY(child.boundingBox) - y);
-        }
-
-        x -= 20;
-        y -= 20;
-
-        width += 20 * 2;
-        height += 20 * 2;
+        const x = Math.min(...childBoundingBoxes.map((box) => getMinX(box) - paddingLeft));
+        const y = Math.min(...childBoundingBoxes.map((box) => getMinY(box) - paddingTop));
+        const width = Math.max(...childBoundingBoxes.map((box) => getMaxX(box) + paddingRight - x));
+        const height = Math.max(...childBoundingBoxes.map((box) => getMaxY(box) + paddingBottom - y));
 
         const center = createPoint(x + width / 2, y + height / 2);
+        const boundingBox = createBox(center, width, height);
 
-        if (
-          equal(ancestor.boundingBox.width, width) &&
-          equal(ancestor.boundingBox.height, height) &&
-          pointsEqual(ancestor.boundingBox.center, center)
-        ) {
+        if (boxesEqual(ancestor.boundingBox, boundingBox)) {
           return;
         }
 
-        ancestor.boundingBox = createBox(center, width, height);
-        updateLinkedEdges(graph, ancestor);
-      }
+        ancestor.boundingBox = boundingBox;
+      });
     });
   },
 
   addNode: (nodeId, position) => {
-    set(({ graph }) => {
+    set((graph) => {
       const x = (position.x - graph.position.x) / graph.scale;
       const y = (position.y - graph.position.y) / graph.scale;
       const boundingBox = createBox(createPoint(x, y), 100, 100);
@@ -130,8 +76,13 @@ export const createGraphSlice: ImmerStateCreator<GraphState> = (set) => ({
       graph.nodesById[nodeId] = {
         id: nodeId,
         childIds: [],
-        edgeIds: [],
         boundingBox,
+        data: {
+          symbolicName: "",
+          range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
+          kind: "resource",
+          resourceType: "",
+        },
       };
     });
   },

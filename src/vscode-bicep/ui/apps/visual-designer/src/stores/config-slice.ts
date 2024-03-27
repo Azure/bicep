@@ -1,15 +1,15 @@
 import type { ConfigState, ImmerStateCreator } from "./types";
 
-export const createGraphSlice: ImmerStateCreator<ConfigState> = (set) => ({
-  edgeType: "Straight",
-  nodeType: "Compact",
+export const createConfigSlice: ImmerStateCreator<ConfigState> = (set) => ({
+  edgeShape: "Straight",
+  nodeVariant: "Compact",
 
-  setEdgeType: (edgeType) =>
-    set(({ config }) => {
-      config.edgeType = edgeType;
+  setNodeVariant: (nodeVariant) =>
+    set((graphConfig) => {
+      graphConfig.nodeVariant = nodeVariant;
     }),
-  setNodeType: (nodeType) =>
-    set(({ config }) => {
-      config.nodeType = nodeType;
+  setEdgeShape: (edgeType) =>
+    set((graphConfig) => {
+      graphConfig.edgeShape = edgeType;
     }),
 });
