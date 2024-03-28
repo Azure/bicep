@@ -2258,4 +2258,58 @@ INVALID FILE
             }
             """));
     }
+
+    [TestMethod]
+    public void Tuple_imported_from_json_is_recompiled_to_a_valid_schema()
+    {
+        var typesBicep = """
+            @export()
+            type t = {
+              p: {
+                a: [
+                  {
+                    b: string
+                    c: string
+                  }
+                ]
+              }
+            }
+            """;
+
+        var expectedCompilationOfTupleA = """
+            {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "b": {
+                      "type": "string"
+                    },
+                    "c": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ],
+              "items": false
+            }
+            """;
+
+        var resultFromBicep = CompilationHelper.Compile(
+            ("types.bicep", typesBicep),
+            ("main.bicep", "import {t} from 'types.bicep'"));
+
+        resultFromBicep.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        resultFromBicep.Template.Should().NotBeNull();
+        resultFromBicep.Template.Should().HaveJsonAtPath("definitions.t.properties.p.properties.a", expectedCompilationOfTupleA);
+
+        var resultFromJson = CompilationHelper.Compile(
+            ("types.json", CompilationHelper.Compile(typesBicep).Template!.ToString()),
+            ("main.bicep", "import {t} from 'types.json'"));
+
+        resultFromJson.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        resultFromJson.Template.Should().NotBeNull();
+        resultFromJson.Template.Should().HaveJsonAtPath("definitions.t.properties.p.properties.a", expectedCompilationOfTupleA);
+    }
 }
