@@ -203,13 +203,27 @@ output sub int = sum
 
         [DataRow(0, @"
 @secure()
-output param1 string
+param param1 string
 
 @secure()
-output param2 string = param1
+param param2 string = param1
+")]
+        [DataRow(0, @"
+@secure()
+param param1 string = ''
+
+@secure()
+param param2 string = param1
+")]
+        [DataRow(1, @"
+@secure()
+param param1 string = 'abc'
+
+@secure()
+param param2 string = param1
 ")]
         [DataTestMethod]
-        public void VariableAssignment_TestPasses(int diagnosticCount, string text)
+        public void ParameterReassignment_TestPasses(int diagnosticCount, string text)
         {
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
         }

@@ -5,6 +5,7 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -34,9 +35,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     // Empty string - okay
                     continue;
                 }
-                else if (defaultValue is VariableAccessSyntax variableAccessSyntax)
+                else if (model.GetTypeInfo(defaultValue).ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
                 {
-                    // Variable - okay
+                    // has @secure attribute - okay
                     continue;
                 }
                 else if (defaultValue is ObjectSyntax objectSyntax && !objectSyntax.Properties.Any())
