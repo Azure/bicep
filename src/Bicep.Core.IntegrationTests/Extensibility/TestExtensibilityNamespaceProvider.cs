@@ -1,35 +1,45 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Core.UnitTests;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.IntegrationTests.Extensibility;
 
 public class TestExtensibilityNamespaceProvider : INamespaceProvider
 {
-    private readonly INamespaceProvider defaultNamespaceProvider;
+    public static INamespaceProvider CreateWithDefaults()
+        => Create(result => result switch {
+            { ProviderName: FooNamespaceType.BuiltInName } => result with { Type = FooNamespaceType.Create(result.Name) },
+            { ProviderName: BarNamespaceType.BuiltInName } => result with { Type = BarNamespaceType.Create(result.Name) },
+            _ => result,
+        });
 
-    public TestExtensibilityNamespaceProvider(IResourceTypeProviderFactory azResourceTypeProviderFactory)
+    public static INamespaceProvider Create(Func<NamespaceResult, NamespaceResult> namespaceCreatorFunc)
+        => new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory, namespaceCreatorFunc);
+
+    public TestExtensibilityNamespaceProvider(
+        IResourceTypeProviderFactory resourceTypeProviderFactory,
+        Func<NamespaceResult, NamespaceResult> namespaceCreatorFunc)
     {
-        defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeProviderFactory);
+        baseProvider = new NamespaceProvider(resourceTypeProviderFactory);
+        this.namespaceCreatorFunc = namespaceCreatorFunc;
     }
 
-    public ResultWithDiagnostic<NamespaceType> TryGetNamespace(
-        ResourceTypesProviderDescriptor providerDescriptor,
-        ResourceScope resourceScope,
-        IFeatureProvider featureProvider,
-        BicepSourceFileKind sourceFileKind)
+    private readonly INamespaceProvider baseProvider;
+    private readonly Func<NamespaceResult, NamespaceResult> namespaceCreatorFunc;
+
+    public IEnumerable<NamespaceResult> GetNamespaces(RootConfiguration rootConfig, IFeatureProvider features, IArtifactFileLookup artifactFileLookup, BicepSourceFile sourceFile, ResourceScope targetScope)
     {
-        return providerDescriptor.Name switch
+        foreach (var result in baseProvider.GetNamespaces(rootConfig, features, artifactFileLookup, sourceFile, targetScope))
         {
-            FooNamespaceType.BuiltInName => new(FooNamespaceType.Create(providerDescriptor.Alias)),
-            BarNamespaceType.BuiltInName => new(BarNamespaceType.Create(providerDescriptor.Alias)),
-            _ => defaultNamespaceProvider.TryGetNamespace(providerDescriptor, resourceScope, featureProvider, sourceFileKind),
-        };
+            yield return namespaceCreatorFunc(result);
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             LanguageConstants.ResourceParentPropertyName
         }.ToImmutableHashSet(LanguageConstants.IdentifierComparer);
 
-        private static readonly NamespaceType AzNamespaceType = TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInAzProviderDescriptor);
+        private static readonly NamespaceType AzNamespaceType = TestTypeHelper.GetBuiltInNamespaceType("az");
 
         private static IEnumerable<object[]> GetDeserializeTestData()
         {

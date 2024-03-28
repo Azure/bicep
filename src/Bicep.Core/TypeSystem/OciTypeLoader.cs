@@ -22,17 +22,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         public static OciTypeLoader FromDisk(IFileSystem fs, Uri typesTgzUri)
-        {
-            try
-            {
-                return FromStream(fs.File.OpenRead(typesTgzUri.LocalPath));
-            }
-            catch (Exception e)
-            {
-                Trace.WriteLine($"Failed to deserialize provider package from {typesTgzUri}.\n {e.Message}");
-                throw new InvalidArtifactException(e.Message, e, InvalidArtifactExceptionKind.InvalidArtifactContents);
-            }
-        }
+            => FromStream(fs.File.OpenRead(typesTgzUri.LocalPath));
 
         public static OciTypeLoader FromStream(Stream stream)
         {

@@ -28,7 +28,7 @@ namespace Bicep.Core.IntegrationTests
               "bar": "builtin:"
             }
             """))
-            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
+            .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
 
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()

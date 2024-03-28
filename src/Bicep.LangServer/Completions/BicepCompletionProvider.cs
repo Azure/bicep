@@ -2033,22 +2033,13 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportSpecification))
             {
-                // TODO: move to INamespaceProvider.
-                var availableNamespaceSettingsList = new List<NamespaceSettings>
-                {
-                    SystemNamespaceType.Settings,
-                    AzNamespaceType.Settings,
-                    K8sNamespaceType.Settings,
-                };
+                var providerNames = model.Configuration.ProvidersConfig.Data.Keys
+                    .Concat(SystemNamespaceType.BuiltInName)
+                    .ToHashSet();
 
-                if (model.Features.MicrosoftGraphPreviewEnabled)
+                foreach (var providerName in providerNames.OrderBy(x => x, LanguageConstants.IdentifierComparer))
                 {
-                    availableNamespaceSettingsList.Add(MicrosoftGraphNamespaceType.Settings);
-                }
-
-                foreach (var setting in availableNamespaceSettingsList.OrderBy(x => x.BicepProviderName, LanguageConstants.IdentifierComparer))
-                {
-                    var completionText = setting.BicepProviderName;
+                    var completionText = providerName;
                     yield return CompletionItemBuilder.Create(CompletionItemKind.Folder, completionText)
                         .WithSortText(GetSortText(completionText, CompletionPriority.High))
                         .WithDetail(completionText)

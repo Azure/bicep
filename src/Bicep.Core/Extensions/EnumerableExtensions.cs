@@ -17,11 +17,11 @@ namespace Bicep.Core.Extensions
             where TKey : class
             => source.Where(x => keySelector(x) != null).GroupBy(x => keySelector(x)!, comparer);
 
-        public static ImmutableDictionary<TKey, TSource> ToImmutableDictionaryExcludingNull<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey?> keySelector, IEqualityComparer<TKey> keyComparer)
+        public static ImmutableDictionary<TKey, TSource> ToImmutableDictionaryExcludingNull<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey?> keySelector, IEqualityComparer<TKey>? keyComparer = null)
             where TKey : class
             => source.Where(x => keySelector(x) != null).ToImmutableDictionary(x => keySelector(x)!, keyComparer);
 
-        public static ImmutableDictionary<TKey, TValue> ToImmutableDictionaryExcludingNull<TSource, TKey, TValue>(this IEnumerable<TSource> source, Func<TSource, TKey?> keySelector, Func<TSource, TValue> elementSelector, IEqualityComparer<TKey> keyComparer)
+        public static ImmutableDictionary<TKey, TValue> ToImmutableDictionaryExcludingNull<TSource, TKey, TValue>(this IEnumerable<TSource> source, Func<TSource, TKey?> keySelector, Func<TSource, TValue> elementSelector, IEqualityComparer<TKey>? keyComparer = null)
             where TKey : class
             => source.Where(x => keySelector(x) != null).ToImmutableDictionary(x => keySelector(x)!, elementSelector, keyComparer);
 

@@ -1,18 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics
 {
     public class BuiltInNamespaceSymbol : Symbol, INamespaceSymbol
     {
-        public BuiltInNamespaceSymbol(string name, NamespaceType type)
+        public BuiltInNamespaceSymbol(string name, TypeSymbol type)
             : base(name)
         {
             Type = type;
         }
 
-        public NamespaceType Type { get; }
+        public TypeSymbol Type { get; }
 
         public override IEnumerable<Symbol> Descendants
         {
@@ -26,6 +27,6 @@ namespace Bicep.Core.Semantics
 
         public override SymbolKind Kind => SymbolKind.Namespace;
 
-        public NamespaceType? TryGetNamespaceType() => Type;
+        public NamespaceType? TryGetNamespaceType() => Type as NamespaceType;
     }
 }

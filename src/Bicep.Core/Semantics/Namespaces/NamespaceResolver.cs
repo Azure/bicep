@@ -16,62 +16,37 @@ namespace Bicep.Core.Semantics.Namespaces
     public class NamespaceResolver
     {
         private readonly ImmutableDictionary<string, NamespaceType> namespaceTypes;
+        public ImmutableDictionary<string, BuiltInNamespaceSymbol> BuiltIns { get; }
+
+        public static NamespaceResolver Create(ImmutableArray<NamespaceResult> namespaceResults)
+        {
+            Dictionary<string, NamespaceType> namespaceTypes = new(LanguageConstants.IdentifierComparer);
+            Dictionary<string, BuiltInNamespaceSymbol> builtIns = new(LanguageConstants.IdentifierComparer);
+
+            foreach (var result in namespaceResults)
+            {
+                if (result.Origin is null)
+                {
+                    builtIns[result.Name] = new BuiltInNamespaceSymbol(result.Name, result.Type);
+                }
+
+                if (result.Type is NamespaceType namespaceType)
+                {
+                    namespaceTypes[result.Name] = namespaceType;
+                    continue;
+                }
+            }
+
+            return new(
+                namespaceTypes.ToImmutableDictionary(LanguageConstants.IdentifierComparer),
+                builtIns.ToImmutableDictionary(LanguageConstants.IdentifierComparer));
+        }
 
         private NamespaceResolver(ImmutableDictionary<string, NamespaceType> namespaceTypes, ImmutableDictionary<string, BuiltInNamespaceSymbol> builtIns)
         {
             this.namespaceTypes = namespaceTypes;
             this.BuiltIns = builtIns;
         }
-
-        public static NamespaceResolver Create(IFeatureProvider features, INamespaceProvider namespaceProvider, BicepSourceFile sourceFile, ResourceScope targetScope, ILanguageScope fileScope)
-        {
-            var declaredNamespaces = fileScope.Declarations.OfType<ProviderNamespaceSymbol>()
-                .DistinctBy(x => x.Name, LanguageConstants.IdentifierComparer);
-
-            var builtInNamespaceSymbols = new Dictionary<string, BuiltInNamespaceSymbol>(LanguageConstants.IdentifierComparer);
-
-            var namespaceTypes = declaredNamespaces
-                .Select(x => x.DeclaredType)
-                .OfType<NamespaceType>()
-                .ToImmutableDictionary(x => x.Name, LanguageConstants.IdentifierComparer);
-
-            void TryAddBuiltInNamespace(string @namespace)
-            {
-                var descriptor = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
-                    @namespace,
-                    ResourceTypesProviderDescriptor.LegacyVersionPlaceholder);
-                if (!namespaceProvider.TryGetNamespace(descriptor, targetScope, features, sourceFile.FileKind).IsSuccess(out var namespaceType))
-                {
-                    // this namespace doesn't match a known built-in namespace
-                    return;
-                }
-
-                if (namespaceTypes.Values.Any(x => LanguageConstants.IdentifierComparer.Equals(x.ProviderName, @namespace)))
-                {
-                    // the namespace has already been explicitly imported. don't register it as a built-in.
-                    return;
-                }
-
-                var symbol = new BuiltInNamespaceSymbol(@namespace, namespaceType);
-                builtInNamespaceSymbols[@namespace] = symbol;
-
-                // If we've already imported a namespace with this symbolic name, don't add the builtin namespace to the
-                // dictionary of active namespaces. It will still be listed in the BuiltIns dictionary for error reporting,
-                // as it is masking a namespace that would otherwise be loaded and bound by default.
-                if (!namespaceTypes.ContainsKey(@namespace))
-                {
-                    namespaceTypes = namespaceTypes.Add(@namespace, namespaceType);
-                }
-            }
-
-            TryAddBuiltInNamespace(SystemNamespaceType.BuiltInName);
-
-            TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
-
-            return new(namespaceTypes, builtInNamespaceSymbols.ToImmutableDictionary(LanguageConstants.IdentifierComparer));
-        }
-
-        public ImmutableDictionary<string, BuiltInNamespaceSymbol> BuiltIns { get; }
 
         public IEnumerable<Symbol> ResolveUnqualifiedFunction(IdentifierSyntax identifierSyntax, bool includeDecorators)
         {

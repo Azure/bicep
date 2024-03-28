@@ -255,7 +255,7 @@ namespace Bicep.Core.UnitTests.Utils
         }.ToImmutableArray();
 
         public static INamespaceProvider Create()
-            => new DefaultNamespaceProvider(
+            => new NamespaceProvider(
                    TestTypeHelper.CreateResourceTypeLoaderFactory(
                     TestTypeHelper.CreateAzResourceTypeProviderWithTypes(Types)));
     }

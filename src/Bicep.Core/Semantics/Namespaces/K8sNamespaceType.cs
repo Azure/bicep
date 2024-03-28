@@ -13,7 +13,8 @@ namespace Bicep.Core.Semantics.Namespaces
         public const string BuiltInName = "kubernetes";
         public const string BuiltInVersion = "1.0.0";
 
-        private static readonly IResourceTypeProvider TypeProvider = new K8sResourceTypeProvider(new K8sResourceTypeLoader());
+        private static readonly Lazy<IResourceTypeProvider> TypeProviderLazy
+            = new(() => new K8sResourceTypeProvider(new K8sResourceTypeLoader()));
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
@@ -41,7 +42,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,
-                TypeProvider);
+                TypeProviderLazy.Value);
         }
     }
 }

@@ -29,10 +29,5 @@ namespace Bicep.Core.TypeSystem.Providers
         IEnumerable<ResourceTypeReference> GetAvailableTypes();
 
         ImmutableDictionary<string, ImmutableArray<ResourceTypeReference>> TypeReferencesByType { get; }
-
-        /// <summary>
-        /// Returns the version of the type definitions used by this provider.
-        /// </summary>
-        string Version { get; }
     }
 }

@@ -67,9 +67,6 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
         public static readonly TypeSymbol ResourceAsserts = new ObjectType(nameof(ResourceAsserts), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Bool, TypePropertyFlags.DeployTimeConstant);
 
-        public string Version { get; } = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
-
-
         private readonly IResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
@@ -190,10 +187,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             }, null));
         }
 
-        public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, string providerVersion)
+        public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader)
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
-            Version = providerVersion;
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();
             generatedTypeCache = new ResourceTypeCache();
