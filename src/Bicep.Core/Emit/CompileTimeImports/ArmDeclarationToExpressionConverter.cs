@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
+using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Expression.Engines;
@@ -359,6 +361,20 @@ internal class ArmDeclarationToExpressionConverter
                 modifiers.MinValue,
                 modifiers.MaxValue,
                 modifiers.Sealed);
+        }
+
+        if (schemaNode.Discriminator is { } discriminatorConstraint)
+        {
+            var unionMembers = discriminatorConstraint.Mapping.OrderByAscendingOrdinalInsensitively(kvp => kvp.Key)
+                .Select(kvp => ConvertToTypeExpression(kvp.Value))
+                .ToImmutableArray();
+
+            return new DiscriminatedObjectTypeExpression(sourceSyntax,
+                new(string.Empty,
+                    TypeSymbolValidationFlags.Default,
+                    discriminatorConstraint.PropertyName.Value,
+                    unionMembers.Select(expression => expression.ExpressedType)),
+                unionMembers);
         }
 
         return new ObjectTypeExpression(sourceSyntax,
