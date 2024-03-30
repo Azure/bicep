@@ -51,7 +51,7 @@ var storageAccountName_var = 'flowlogs${uniqueString(resourceGroup().id)}'
 //@[04:26) [decompiler-cleanup (Warning)] The name of variable 'storageAccountName_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |storageAccountName_var|
 
 resource foo_bar 'Foo.Rp/bar@2019-06-01' =
-//@[17:40) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
+//@[17:40) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
   if (false) {
     name: '${foo}bar'
     location: 'westus'
@@ -62,7 +62,7 @@ resource foo_bar 'Foo.Rp/bar@2019-06-01' =
   }
 
 resource baz 'Foo.Rp/bar@2019-06-01' =
-//@[13:36) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
+//@[13:36) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
   if (something == foo) {
     name: 'baz'
     location: 'westus'
