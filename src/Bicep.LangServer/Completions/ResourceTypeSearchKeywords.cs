@@ -66,7 +66,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // The filter text, like the insertText, must include the single quotes that surround the resource type in the resource declaration
-            return keywords is { } ?
+            return !keywords.IsDefaultOrEmpty ?
                 StringUtils.EscapeBicepString($"{string.Join(',', keywords)},{filter}") :
                 null; // null - let vscode use the default (label)
         }
