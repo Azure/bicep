@@ -14,26 +14,25 @@ namespace Bicep.LanguageServer.Completions
 {
     public class ResourceTypeSearchKeywords
     {
-        private ImmutableDictionary<string, string[]> keywordsMap;
+        private readonly ImmutableDictionary<string, ImmutableArray<string>> keywordsMap;
 
         public ResourceTypeSearchKeywords() : this
             (new Dictionary<string, string[]>()
-                {
-                    // Keys must be in the form 'xxx' or 'xxx/yyy' - 'xxx' matches 'xxx' and 'xxx/*', 'xxx/yyy' matches 'xxx/yyy' and 'xxx/yyy/*'
-                    // Key casing doesn't matter
-                    ["Microsoft.Web/sites"] = ["appservice", "webapp", "function"],
-                    ["Microsoft.Web/serverFarms"] = ["asp", "appserviceplan", "hostingplan"],
-                    ["Microsoft.App"] = ["containerapp"],
-                    ["Microsoft.ContainerService"] = ["aks", "kubernetes", "k8s", "cluster"],
-                    ["Microsoft.Authorization/roleAssignments"] = ["rbac"],
-                })
+            {
+                // Keys must be in the form 'xxx' or 'xxx/yyy' - 'xxx' matches 'xxx' and 'xxx/*', 'xxx/yyy' matches 'xxx/yyy' and 'xxx/yyy/*'
+                // Key casing doesn't matter
+                ["Microsoft.Web/sites"] = ["appservice", "webapp", "function"],
+                ["Microsoft.Web/serverFarms"] = ["asp", "appserviceplan", "hostingplan"],
+                ["Microsoft.App"] = ["containerapp"],
+                ["Microsoft.ContainerService"] = ["aks", "kubernetes", "k8s", "cluster"],
+                ["Microsoft.Authorization/roleAssignments"] = ["rbac"],
+                ["Microsoft.DocumentDb"] = ["cosmosdb"],
+            })
         {
         }
 
         public ResourceTypeSearchKeywords(IDictionary<string, string[]> keywordsMap)
         {
-            this.keywordsMap = keywordsMap.ToImmutableDictionary(x => x.Key.ToLowerInvariant(), x => x.Value, StringComparer.InvariantCultureIgnoreCase);
-
             // Validate
             foreach ((var key, var keywords) in keywordsMap)
             {
@@ -42,12 +41,14 @@ namespace Bicep.LanguageServer.Completions
                     throw new ArgumentException($"Keys in {nameof(keywordsMap)} can have at most one slash: {key}");
                 }
             }
+
+            this.keywordsMap = keywordsMap.ToImmutableDictionary(x => x.Key.ToLowerInvariant(), x => x.Value.ToImmutableArray(), StringComparer.InvariantCultureIgnoreCase);
         }
 
         public string? TryGetResourceTypeFilterText(ResourceTypeReference resourceType)
         {
             var filter = resourceType.Type;
-            string[]? keywords;
+            ImmutableArray<string> keywords;
 
             // We want to search using the top-level resource type, including subtypes
             // Microsoft.web/serverFarms/xxx -> top-level key is Microsoft.web
@@ -65,7 +66,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // The filter text, like the insertText, must include the single quotes that surround the resource type in the resource declaration
-            return keywords is string[]?
+            return keywords is { } ?
                 StringUtils.EscapeBicepString($"{string.Join(',', keywords)},{filter}") :
                 null; // null - let vscode use the default (label)
         }
