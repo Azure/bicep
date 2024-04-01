@@ -497,7 +497,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         result.Template.Should().HaveValueAtPath("$.resources['dadJoke']['properties']['bodyProp']", "fallback body");
 
         result.Should().HaveDiagnostics(new[]{
-            ("BCP081", DiagnosticLevel.Warning, "Resource type \"test@v1\" does not have types available.")
+            ("BCP081", DiagnosticLevel.Warning, "Resource type \"test@v1\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.")
         });
     }
 

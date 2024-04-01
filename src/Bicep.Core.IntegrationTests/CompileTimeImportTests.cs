@@ -2180,7 +2180,7 @@ INVALID FILE
 
         result.Should().HaveDiagnostics(new[]
         {
-            ("BCP081", DiagnosticLevel.Warning, """Resource type "Microsoft.Foo/bars@2022-09-01" does not have types available."""),
+            ("BCP081", DiagnosticLevel.Warning, """Resource type "Microsoft.Foo/bars@2022-09-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."""),
         });
     }
 
