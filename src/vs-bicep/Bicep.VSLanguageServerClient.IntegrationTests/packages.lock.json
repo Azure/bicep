@@ -1159,7 +1159,7 @@
           "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",
           "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.9.2164, )",
           "Microsoft.VisualStudio.Shell.Interop": "[17.9.37000, )",
-          "Microsoft.VisualStudio.Utilities": "[17.2.32505.113, )",
+          "Microsoft.VisualStudio.Utilities": "[17.9.37000, )",
           "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
           "Microsoft.Visualstudio.Telemetry": "[17.9.305, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.7, )"
