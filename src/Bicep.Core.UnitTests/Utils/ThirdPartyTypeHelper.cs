@@ -59,7 +59,7 @@ public static class ThirdPartyTypeHelper
             [fooType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(fooType)),
         }, new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
             settings,
-            null!);
+            null);
 
         return GetTypesTgzBytesFromFiles(
             ("index.json", StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index))),
@@ -140,6 +140,26 @@ public static class ThirdPartyTypeHelper
 
         var stringType = factory.Create(() => new StringType());
 
+        var awsBucketPropertiesType = factory.Create(() => new ObjectType("properties", new Dictionary<string, ObjectTypeProperty>
+        {
+            ["BucketName"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Identifier, null),
+        }, null));
+
+        var awsBucketsBodyType = factory.Create(() => new ObjectType("body", new Dictionary<string, ObjectTypeProperty>
+        {
+            ["name"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.None, "the resource name"),
+            ["alias"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required | ObjectTypePropertyFlags.Identifier, "the resource alias"),
+            ["properties"] = new(factory.GetReference(awsBucketPropertiesType), ObjectTypePropertyFlags.Identifier, "Bucket properties"),
+        }, null));
+
+        var awsBucketsType = factory.Create(() => new ResourceType(
+            "AWS.S3/Bucket@default",
+            ScopeType.Unknown,
+            null,
+            factory.GetReference(awsBucketsBodyType),
+            ResourceFlags.None,
+            null));
+
         var environmentsBodyType = factory.Create(() => new ObjectType("body", new Dictionary<string, ObjectTypeProperty>
         {
             ["name"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required | ObjectTypePropertyFlags.Identifier, "The resource name"),
@@ -196,14 +216,18 @@ public static class ThirdPartyTypeHelper
 
         var settings = new TypeSettings(name: "Radius", version: "1.0.0", isSingleton: false, configurationType: null!);
 
-        var index = new TypeIndex(new Dictionary<string, CrossFileTypeReference>
-        {
-            [environmentsType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(environmentsType)),
-            [applicationsType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(applicationsType)),
-            [extendersType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(extendersType)),
-        }, new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+        var resourceTypes = new[] {
+            environmentsType,
+            applicationsType,
+            extendersType,
+            awsBucketsType,
+        };
+
+        var index = new TypeIndex(
+            resourceTypes.ToDictionary(x => x.Name, x => new CrossFileTypeReference("types.json", factory.GetIndex(x))),
+            new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
             settings,
-            null!);
+            null);
 
         return GetTypesTgzBytesFromFiles(
             ("index.json", StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index))),
