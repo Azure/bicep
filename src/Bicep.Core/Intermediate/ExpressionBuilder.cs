@@ -245,7 +245,7 @@ public class ExpressionBuilder
     private TypeExpression ConvertTypeWithoutLowering(SyntaxBase syntax)
         => syntax switch
         {
-            VariableAccessSyntax variableAccess => Context.SemanticModel.Binder.GetSymbolInfo(syntax) switch
+            TypeVariableAccessSyntax variableAccess => Context.SemanticModel.Binder.GetSymbolInfo(syntax) switch
             {
                 AmbientTypeSymbol ambientType => new AmbientTypeReferenceExpression(syntax, ambientType.Name, UnwrapType(ambientType.Type)),
                 TypeAliasSymbol typeAlias => new TypeAliasReferenceExpression(syntax, typeAlias, UnwrapType(typeAlias.Type)),
@@ -253,16 +253,16 @@ public class ExpressionBuilder
                 Symbol otherwise => throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression."),
                 _ => throw new ArgumentException($"Unable to locate symbol for name '{variableAccess.Name.IdentifierName}'.")
             },
-            StringSyntax @string => new StringLiteralTypeExpression(@string, GetTypeInfo<StringLiteralType>(@string)),
-            IntegerLiteralSyntax @int => new IntegerLiteralTypeExpression(@int, GetTypeInfo<IntegerLiteralType>(@int)),
-            BooleanLiteralSyntax @bool => new BooleanLiteralTypeExpression(@bool, GetTypeInfo<BooleanLiteralType>(@bool)),
-            UnaryOperationSyntax unaryOperation => Context.SemanticModel.GetTypeInfo(unaryOperation) switch
+            StringTypeLiteralSyntax @string => new StringLiteralTypeExpression(@string, GetTypeInfo<StringLiteralType>(@string)),
+            IntegerTypeLiteralSyntax @int => new IntegerLiteralTypeExpression(@int, GetTypeInfo<IntegerLiteralType>(@int)),
+            BooleanTypeLiteralSyntax @bool => new BooleanLiteralTypeExpression(@bool, GetTypeInfo<BooleanLiteralType>(@bool)),
+            UnaryTypeOperationSyntax unaryOperation => Context.SemanticModel.GetTypeInfo(unaryOperation) switch
             {
                 IntegerLiteralType intOperation => new IntegerLiteralTypeExpression(syntax, intOperation),
                 BooleanLiteralType boolOperation => new BooleanLiteralTypeExpression(syntax, boolOperation),
                 _ => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
             },
-            NullLiteralSyntax @null => new NullLiteralTypeExpression(@null, GetTypeInfo<NullType>(@null)),
+            NullTypeLiteralSyntax @null => new NullLiteralTypeExpression(@null, GetTypeInfo<NullType>(@null)),
             ResourceTypeSyntax resource => new ResourceTypeExpression(resource, GetTypeInfo<ResourceType>(resource)),
             ObjectTypeSyntax objectTypeSyntax => new ObjectTypeExpression(syntax,
                 GetTypeInfo<ObjectType>(syntax),
@@ -293,8 +293,8 @@ public class ExpressionBuilder
                     new UnionType(string.Empty, ImmutableArray.Create<ITypeReference>(otherwise)),
                     ImmutableArray.CreateRange(unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)))),
             },
-            ParenthesizedExpressionSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
-            NonNullAssertionSyntax nonNullAssertion => new NonNullableTypeExpression(nonNullAssertion, ConvertTypeWithoutLowering(nonNullAssertion.BaseExpression)),
+            ParenthesizedTypeSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
+            NonNullableTypeSyntax nonNullableTypeSyntax => new NonNullableTypeExpression(nonNullableTypeSyntax, ConvertTypeWithoutLowering(nonNullableTypeSyntax.Base)),
             TypePropertyAccessSyntax propertyAccess => ConvertTypePropertyAccess(propertyAccess),
             TypeAdditionalPropertiesAccessSyntax additionalPropertiesAccess => ConvertTypeAdditionalPropertiesAccess(additionalPropertiesAccess),
             TypeArrayAccessSyntax arrayAccess => ConvertTypeArrayAccess(arrayAccess),

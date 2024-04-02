@@ -218,7 +218,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static string? GetParameterType(SemanticModel model, ParameterSymbol parameterSymbol)
         {
             if (parameterSymbol.DeclaringSyntax is ParameterDeclarationSyntax parameterDeclaration
-               && parameterDeclaration.Type is VariableAccessSyntax typeSyntax)
+               && parameterDeclaration.Type is TypeVariableAccessSyntax typeSyntax)
             {
                 if (model.HasParsingError(typeSyntax))
                 {

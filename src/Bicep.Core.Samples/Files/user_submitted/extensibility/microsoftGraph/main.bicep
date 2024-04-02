@@ -65,3 +65,8 @@ resource group 'Microsoft.Graph/groups@beta' = {
   groupTypes: ['Unified']
   owners: [resourceSp.id]
 }
+
+resource appV1 'Microsoft.Graph/applications@v1.0' = {
+  displayName: 'TestAppV1'
+  uniqueName: 'testAppV1'
+}

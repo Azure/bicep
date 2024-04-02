@@ -10,6 +10,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
     {
         public const string UniqueNamePropertyName = "uniqueName";
         public const string AppIdPropertyName = "appId";
+        public const string NamePropertyName = "name";
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
@@ -21,6 +22,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
         {
             UniqueNamePropertyName,
             AppIdPropertyName,
+            NamePropertyName,
         }.ToImmutableHashSet();
 
         /*
@@ -93,11 +95,18 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
                 properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
             }
 
-            // add the loop variant flag to the name property (if it exists)
-            if (properties.TryGetValue(UniqueNamePropertyName, out var nameProperty))
+            // add the loop variant flag to the uniqueName property (if it exists)
+            if (properties.TryGetValue(UniqueNamePropertyName, out var uniqueNameProperty))
             {
                 // TODO apply this to all unique properties
-                properties = properties.SetItem(UniqueNamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
+                properties = properties.SetItem(UniqueNamePropertyName, UpdateFlags(uniqueNameProperty, uniqueNameProperty.Flags | TypePropertyFlags.LoopVariant));
+            }
+
+            // add the loop variant flag to the name property (if it exists)
+            if (properties.TryGetValue(NamePropertyName, out var nameProperty))
+            {
+                // TODO apply this to all unique properties
+                properties = properties.SetItem(NamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
             }
 
             foreach (var identifier in ReadWriteDeployTimeConstantPropertyNames)
@@ -121,7 +130,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
         {
             foreach (var property in properties)
             {
-                // "uniqueName", "scope" & "parent" can be set for existing resources - everything else should be read-only
+                // "uniqueName", "name", "appId", "scope" & "parent" can be set for existing resources - everything else should be read-only
                 if (UniqueIdentifierProperties.Contains(property.Name))
                 {
                     yield return property;

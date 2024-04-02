@@ -57,20 +57,20 @@ resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= if (true) {
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[009:012) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 }
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[009:012) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[056:060) [BCP057 (Error)] The name "name" does not exist in the current context. (CodeDescription: none) |name|
 }
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[009:012) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[058:061) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'a'|
 //@[063:064) [BCP057 (Error)] The name "b" does not exist in the current context. (CodeDescription: none) |b|
 }
@@ -78,12 +78,12 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 // simulate typing if condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[054:054) [BCP018 (Error)] Expected the "(" character at this location. (CodeDescription: none) ||
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[056:068) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |\r\n\r\nresource|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
@@ -91,13 +91,13 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[061:061) [BCP018 (Error)] Expected the "{" character at this location. (CodeDescription: none) ||
 
 // missing condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[055:056) [BCP018 (Error)] Expected the "(" character at this location. (CodeDescription: none) |{|
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
@@ -107,7 +107,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 // #completionTest(56) -> symbols
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[056:056) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
@@ -116,7 +116,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 // #completionTest(57, 59) -> symbols
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[056:056) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
@@ -125,7 +125,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
 // invalid condition type
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[055:060) [BCP046 (Error)] Expected a value of type "bool". (CodeDescription: none) |(123)|
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
@@ -134,7 +134,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
 // runtime functions are no allowed in resource conditions
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[057:066) [BCP066 (Error)] Function "reference" is not valid at this location. It can only be used in resource declarations. (CodeDescription: none) |reference|
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
@@ -142,7 +142,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Ma
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[057:065) [BCP066 (Error)] Function "listKeys" is not valid at this location. It can only be used in resource declarations. (CodeDescription: none) |listKeys|
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
@@ -151,7 +151,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-0
 // duplicate property at the top level
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'foo'
 //@[002:006) [BCP025 (Error)] The property "name" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |name|
   name: true
@@ -161,7 +161,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 // duplicate property at the top level with string literal syntax
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'foo'
 //@[002:006) [BCP025 (Error)] The property "name" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |name|
   'name': true
@@ -172,7 +172,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 // duplicate property inside
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
   properties: {
@@ -186,7 +186,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 // duplicate property inside with string literal syntax
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
   properties: {
@@ -201,7 +201,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 // wrong property types
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
   location: [
@@ -212,7 +212,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 }
 
 resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: true ? 's' : 'a' + 1
 //@[021:028) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'a'" and "1". (CodeDescription: none) |'a' + 1|
   properties: {
@@ -258,7 +258,7 @@ output resrefout bool = bar.id
 
 // attempting to set read-only properties
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   id: 2
@@ -288,7 +288,7 @@ resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-0
 }
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[020:057) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[020:057) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   dependsOn: [
@@ -298,7 +298,7 @@ resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 }
 
 resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[021:058) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[021:058) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   dependsOn: [
@@ -310,13 +310,13 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 }
 
 resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[021:058) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[021:058) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
 }
 
 resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[021:058) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[021:058) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   dependsOn: [
@@ -325,7 +325,7 @@ resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 }
 
 resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[021:058) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[021:058) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   dependsOn: badDepends3.dependsOn
@@ -334,7 +334,7 @@ resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 var interpVal = 'abc'
 resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[019:056) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[019:056) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
@@ -1396,7 +1396,7 @@ resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensio
 }
 
 resource selfScope 'My.Rp/mockResource@2020-12-01' = {
-//@[019:050) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. (CodeDescription: none) |'My.Rp/mockResource@2020-12-01'|
+//@[019:050) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/mockResource@2020-12-01'|
   name: 'selfScope'
   scope: selfScope
 //@[009:018) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. (CodeDescription: none) |selfScope|
@@ -1407,55 +1407,55 @@ var notAResource = {
   a: 'resource!'
 }
 resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
-//@[022:053) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. (CodeDescription: none) |'My.Rp/mockResource@2020-12-01'|
+//@[022:053) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/mockResource@2020-12-01'|
   name: 'invalidScope'
   scope: notAResource
 //@[009:021) [BCP036 (Error)] The property "scope" expected a value of type "resource | tenant" but the provided value is of type "object". (CodeDescription: none) |notAResource|
 }
 
 resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
-//@[023:054) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. (CodeDescription: none) |'My.Rp/mockResource@2020-12-01'|
+//@[023:054) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/mockResource@2020-12-01'|
   name: 'invalidScope2'
   scope: resourceGroup()
 }
 
 resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
-//@[023:054) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. (CodeDescription: none) |'My.Rp/mockResource@2020-12-01'|
+//@[023:054) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/mockResource@2020-12-01'|
   name: 'invalidScope3'
   scope: subscription()
 //@[009:023) [BCP139 (Error)] A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope. (CodeDescription: none) |subscription()|
 }
 
 resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {
-//@[031:064) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockResource@2020-01-01'|
+//@[031:064) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Mock.Rp/mockResource@2020-01-01'|
   name: 'invalidDuplicateName'
 //@[008:030) [BCP121 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'invalidDuplicateName'|
 }
 resource invalidDuplicateName2 'Mock.Rp/mockResource@2020-01-01' = {
-//@[031:064) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockResource@2020-01-01'|
+//@[031:064) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Mock.Rp/mockResource@2020-01-01'|
   name: 'invalidDuplicateName'
 //@[008:030) [BCP121 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'invalidDuplicateName'|
 }
 resource invalidDuplicateName3 'Mock.Rp/mockResource@2019-01-01' = {
-//@[031:064) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2019-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockResource@2019-01-01'|
+//@[031:064) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2019-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Mock.Rp/mockResource@2019-01-01'|
   name: 'invalidDuplicateName'
 //@[008:030) [BCP121 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'invalidDuplicateName'|
 }
 
 resource validResourceForInvalidExtensionResourceDuplicateName 'Mock.Rp/mockResource@2020-01-01' = {
-//@[063:096) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockResource@2020-01-01'|
+//@[063:096) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Mock.Rp/mockResource@2020-01-01'|
   name: 'validResourceForInvalidExtensionResourceDuplicateName'
 }
 
 resource invalidExtensionResourceDuplicateName1 'Mock.Rp/mockExtResource@2020-01-01' = {
-//@[048:084) [BCP081 (Warning)] Resource type "Mock.Rp/mockExtResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockExtResource@2020-01-01'|
+//@[048:084) [BCP081 (Warning)] Resource type "Mock.Rp/mockExtResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Mock.Rp/mockExtResource@2020-01-01'|
   name: 'invalidExtensionResourceDuplicateName'
 //@[008:047) [BCP121 (Error)] Resources: "invalidExtensionResourceDuplicateName1", "invalidExtensionResourceDuplicateName2" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'invalidExtensionResourceDuplicateName'|
   scope: validResourceForInvalidExtensionResourceDuplicateName
 }
 
 resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01-01' = {
-//@[048:084) [BCP081 (Warning)] Resource type "Mock.Rp/mockExtResource@2019-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockExtResource@2019-01-01'|
+//@[048:084) [BCP081 (Warning)] Resource type "Mock.Rp/mockExtResource@2019-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Mock.Rp/mockExtResource@2019-01-01'|
   name: 'invalidExtensionResourceDuplicateName'
 //@[008:047) [BCP121 (Error)] Resources: "invalidExtensionResourceDuplicateName1", "invalidExtensionResourceDuplicateName2" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'invalidExtensionResourceDuplicateName'|
   scope: validResourceForInvalidExtensionResourceDuplicateName
@@ -1466,19 +1466,19 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 @secure()
 //@[001:007) [BCP127 (Error)] Function "secure" cannot be used as a resource decorator. (CodeDescription: none) |secure|
 resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[026:063) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[026:063) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'invalidDecorator'
 }
 
 resource cyclicRes 'Mock.Rp/mockExistingResource@2020-01-01' = {
-//@[019:060) [BCP081 (Warning)] Resource type "Mock.Rp/mockExistingResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockExistingResource@2020-01-01'|
+//@[019:060) [BCP081 (Warning)] Resource type "Mock.Rp/mockExistingResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Mock.Rp/mockExistingResource@2020-01-01'|
   name: 'cyclicRes'
   scope: cyclicRes
 //@[009:018) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. (CodeDescription: none) |cyclicRes|
 }
 
 resource cyclicExistingRes 'Mock.Rp/mockExistingResource@2020-01-01' existing = {
-//@[027:068) [BCP081 (Warning)] Resource type "Mock.Rp/mockExistingResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockExistingResource@2020-01-01'|
+//@[027:068) [BCP081 (Warning)] Resource type "Mock.Rp/mockExistingResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Mock.Rp/mockExistingResource@2020-01-01'|
   name: 'cyclicExistingRes'
   scope: cyclicExistingRes
 //@[009:026) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. (CodeDescription: none) |cyclicExistingRes|
@@ -1884,13 +1884,13 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 
 // parent property with 'existing' resource at different scope
 resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
   scope: subscription()
   name: 'res1'
 }
 
 resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
-//@[019:062) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[019:062) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1/child1@2020-06-01'|
 //@[065:106) [BCP165 (Error)] A resource's computed scope must match that of the Bicep file for it to be deployable. This resource's scope is computed from the "scope" property value assigned to ancestor resource "p1_res1". You must use modules to deploy resources to a different scope. (CodeDescription: none) |{\r\n  parent: p1_res1\r\n  name: 'child1'\r\n}|
   parent: p1_res1
   name: 'child1'
@@ -1898,18 +1898,18 @@ resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 
 // parent property with scope on child resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
   name: 'res1'
 //@[008:014) [BCP121 (Error)] Resources: "p2_res1", "p5_res1", "p7_res1" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'res1'|
 }
 
 resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
-//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp2/resource2@2020-06-01'|
+//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp2/resource2@2020-06-01'|
   name: 'res2'
 }
 
 resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
-//@[022:065) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2/child2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[022:065) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2/child2@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp2/resource2/child2@2020-06-01'|
   scope: p2_res1
 //@[009:016) [BCP164 (Error)] A child resource's scope is computed based on the scope of its ancestor resource. This means that using the "scope" property on a child resource is unsupported. (CodeDescription: none) |p2_res1|
   parent: p2_res2
@@ -1941,13 +1941,13 @@ resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
 
 // parent property with invalid child
 resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
   name: 'res1'
 //@[008:014) [BCP121 (Error)] Resources: "p2_res1", "p5_res1", "p7_res1" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'res1'|
 }
 
 resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
-//@[017:060) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2/child2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[017:060) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2/child2@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp2/resource2/child2@2020-06-01'|
   parent: p5_res1
 //@[010:017) [BCP036 (Error)] The property "parent" expected a value of type "Microsoft.Rp2/resource2" but the provided value is of type "Microsoft.Rp1/resource1@2020-06-01". (CodeDescription: none) |p5_res1|
   name: 'res2'
@@ -1960,7 +1960,7 @@ resource p6_res1 '${true}' = {
 }
 
 resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
-//@[017:060) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[017:060) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1/child2@2020-06-01'|
   parent: p6_res1
 //@[010:017) [BCP062 (Error)] The referenced declaration with name "p6_res1" is not valid. (CodeDescription: none) |p6_res1|
   name: 'res2'
@@ -1968,20 +1968,20 @@ resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 
 // parent property with incorrectly-formatted name
 resource p7_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
   name: 'res1'
 //@[008:014) [BCP121 (Error)] Resources: "p2_res1", "p5_res1", "p7_res1" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'res1'|
 }
 
 resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
-//@[017:060) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[017:060) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1/child2@2020-06-01'|
   parent: p7_res1
   name: 'res1/res2'
 //@[008:019) [BCP170 (Error)] Expected resource name to not contain any "/" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name. (CodeDescription: none) |'res1/res2'|
 }
 
 resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
-//@[017:060) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[017:060) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1/child2@2020-06-01'|
   parent: p7_res1
   name: '${p7_res1.name}/res2'
 //@[008:030) [BCP170 (Error)] Expected resource name to not contain any "/" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name. (CodeDescription: none) |'${p7_res1.name}/res2'|
@@ -1989,7 +1989,7 @@ resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 
 // top-level resource with too many '/' characters
 resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[017:053) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
   name: 'res1/res2'
 //@[008:019) [BCP169 (Error)] Expected resource name to contain 0 "/" character(s). The number of name segments must match the number of segments in the resource type. (CodeDescription: none) |'res1/res2'|
 }

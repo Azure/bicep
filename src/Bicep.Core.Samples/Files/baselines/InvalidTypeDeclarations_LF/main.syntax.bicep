@@ -33,7 +33,7 @@ type resource = bool
 //@[005:0013) | ├─IdentifierSyntax
 //@[005:0013) | | └─Token(Identifier) |resource|
 //@[014:0015) | ├─Token(Assignment) |=|
-//@[016:0020) | └─VariableAccessSyntax
+//@[016:0020) | └─TypeVariableAccessSyntax
 //@[016:0020) |   └─IdentifierSyntax
 //@[016:0020) |     └─Token(Identifier) |bool|
 //@[020:0022) ├─Token(NewLine) |\n\n|
@@ -53,7 +53,7 @@ type sealedString = string
 //@[005:0017) | ├─IdentifierSyntax
 //@[005:0017) | | └─Token(Identifier) |sealedString|
 //@[018:0019) | ├─Token(Assignment) |=|
-//@[020:0026) | └─VariableAccessSyntax
+//@[020:0026) | └─TypeVariableAccessSyntax
 //@[020:0026) |   └─IdentifierSyntax
 //@[020:0026) |     └─Token(Identifier) |string|
 //@[026:0028) ├─Token(NewLine) |\n\n|
@@ -80,7 +80,7 @@ type sealedDictionary = {
 //@[001:0010) |   ├─ObjectTypeAdditionalPropertiesSyntax
 //@[001:0002) |   | ├─Token(Asterisk) |*|
 //@[002:0003) |   | ├─Token(Colon) |:|
-//@[004:0010) |   | └─VariableAccessSyntax
+//@[004:0010) |   | └─TypeVariableAccessSyntax
 //@[004:0010) |   |   └─IdentifierSyntax
 //@[004:0010) |   |     └─Token(Identifier) |string|
 //@[010:0011) |   ├─Token(NewLine) |\n|
@@ -96,11 +96,11 @@ type disallowedUnion = 'foo'|21
 //@[021:0022) | ├─Token(Assignment) |=|
 //@[023:0031) | └─UnionTypeSyntax
 //@[023:0028) |   ├─UnionTypeMemberSyntax
-//@[023:0028) |   | └─StringSyntax
+//@[023:0028) |   | └─StringTypeLiteralSyntax
 //@[023:0028) |   |   └─Token(StringComplete) |'foo'|
 //@[028:0029) |   ├─Token(Pipe) |||
 //@[029:0031) |   └─UnionTypeMemberSyntax
-//@[029:0031) |     └─IntegerLiteralSyntax
+//@[029:0031) |     └─IntegerTypeLiteralSyntax
 //@[029:0031) |       └─Token(Integer) |21|
 //@[031:0033) ├─Token(NewLine) |\n\n|
 
@@ -112,15 +112,15 @@ type validStringLiteralUnion = 'foo'|'bar'|'baz'
 //@[029:0030) | ├─Token(Assignment) |=|
 //@[031:0048) | └─UnionTypeSyntax
 //@[031:0036) |   ├─UnionTypeMemberSyntax
-//@[031:0036) |   | └─StringSyntax
+//@[031:0036) |   | └─StringTypeLiteralSyntax
 //@[031:0036) |   |   └─Token(StringComplete) |'foo'|
 //@[036:0037) |   ├─Token(Pipe) |||
 //@[037:0042) |   ├─UnionTypeMemberSyntax
-//@[037:0042) |   | └─StringSyntax
+//@[037:0042) |   | └─StringTypeLiteralSyntax
 //@[037:0042) |   |   └─Token(StringComplete) |'bar'|
 //@[042:0043) |   ├─Token(Pipe) |||
 //@[043:0048) |   └─UnionTypeMemberSyntax
-//@[043:0048) |     └─StringSyntax
+//@[043:0048) |     └─StringTypeLiteralSyntax
 //@[043:0048) |       └─Token(StringComplete) |'baz'|
 //@[048:0050) ├─Token(NewLine) |\n\n|
 
@@ -132,12 +132,12 @@ type validUnionInvalidAddition = validStringLiteralUnion|10
 //@[031:0032) | ├─Token(Assignment) |=|
 //@[033:0059) | └─UnionTypeSyntax
 //@[033:0056) |   ├─UnionTypeMemberSyntax
-//@[033:0056) |   | └─VariableAccessSyntax
+//@[033:0056) |   | └─TypeVariableAccessSyntax
 //@[033:0056) |   |   └─IdentifierSyntax
 //@[033:0056) |   |     └─Token(Identifier) |validStringLiteralUnion|
 //@[056:0057) |   ├─Token(Pipe) |||
 //@[057:0059) |   └─UnionTypeMemberSyntax
-//@[057:0059) |     └─IntegerLiteralSyntax
+//@[057:0059) |     └─IntegerTypeLiteralSyntax
 //@[057:0059) |       └─Token(Integer) |10|
 //@[059:0061) ├─Token(NewLine) |\n\n|
 
@@ -149,12 +149,12 @@ type invalidUnionInvalidAddition = disallowedUnion|true
 //@[033:0034) | ├─Token(Assignment) |=|
 //@[035:0055) | └─UnionTypeSyntax
 //@[035:0050) |   ├─UnionTypeMemberSyntax
-//@[035:0050) |   | └─VariableAccessSyntax
+//@[035:0050) |   | └─TypeVariableAccessSyntax
 //@[035:0050) |   |   └─IdentifierSyntax
 //@[035:0050) |   |     └─Token(Identifier) |disallowedUnion|
 //@[050:0051) |   ├─Token(Pipe) |||
 //@[051:0055) |   └─UnionTypeMemberSyntax
-//@[051:0055) |     └─BooleanLiteralSyntax
+//@[051:0055) |     └─BooleanTypeLiteralSyntax
 //@[051:0055) |       └─Token(TrueKeyword) |true|
 //@[055:0057) ├─Token(NewLine) |\n\n|
 
@@ -164,7 +164,7 @@ type nullLiteral = null
 //@[005:0016) | ├─IdentifierSyntax
 //@[005:0016) | | └─Token(Identifier) |nullLiteral|
 //@[017:0018) | ├─Token(Assignment) |=|
-//@[019:0023) | └─NullLiteralSyntax
+//@[019:0023) | └─NullTypeLiteralSyntax
 //@[019:0023) |   └─Token(NullKeyword) |null|
 //@[023:0025) ├─Token(NewLine) |\n\n|
 
@@ -176,11 +176,11 @@ type unionOfNulls = null|null
 //@[018:0019) | ├─Token(Assignment) |=|
 //@[020:0029) | └─UnionTypeSyntax
 //@[020:0024) |   ├─UnionTypeMemberSyntax
-//@[020:0024) |   | └─NullLiteralSyntax
+//@[020:0024) |   | └─NullTypeLiteralSyntax
 //@[020:0024) |   |   └─Token(NullKeyword) |null|
 //@[024:0025) |   ├─Token(Pipe) |||
 //@[025:0029) |   └─UnionTypeMemberSyntax
-//@[025:0029) |     └─NullLiteralSyntax
+//@[025:0029) |     └─NullTypeLiteralSyntax
 //@[025:0029) |       └─Token(NullKeyword) |null|
 //@[029:0031) ├─Token(NewLine) |\n\n|
 
@@ -202,7 +202,7 @@ type lengthConstrainedInt = int
 //@[005:0025) | ├─IdentifierSyntax
 //@[005:0025) | | └─Token(Identifier) |lengthConstrainedInt|
 //@[026:0027) | ├─Token(Assignment) |=|
-//@[028:0031) | └─VariableAccessSyntax
+//@[028:0031) | └─TypeVariableAccessSyntax
 //@[028:0031) |   └─IdentifierSyntax
 //@[028:0031) |     └─Token(Identifier) |int|
 //@[031:0033) ├─Token(NewLine) |\n\n|
@@ -225,7 +225,7 @@ type valueConstrainedString = string
 //@[005:0027) | ├─IdentifierSyntax
 //@[005:0027) | | └─Token(Identifier) |valueConstrainedString|
 //@[028:0029) | ├─Token(Assignment) |=|
-//@[030:0036) | └─VariableAccessSyntax
+//@[030:0036) | └─TypeVariableAccessSyntax
 //@[030:0036) |   └─IdentifierSyntax
 //@[030:0036) |     └─Token(Identifier) |string|
 //@[036:0038) ├─Token(NewLine) |\n\n|
@@ -236,7 +236,7 @@ type tautology = tautology
 //@[005:0014) | ├─IdentifierSyntax
 //@[005:0014) | | └─Token(Identifier) |tautology|
 //@[015:0016) | ├─Token(Assignment) |=|
-//@[017:0026) | └─VariableAccessSyntax
+//@[017:0026) | └─TypeVariableAccessSyntax
 //@[017:0026) |   └─IdentifierSyntax
 //@[017:0026) |     └─Token(Identifier) |tautology|
 //@[026:0028) ├─Token(NewLine) |\n\n|
@@ -249,12 +249,12 @@ type tautologicalUnion = tautologicalUnion|'foo'
 //@[023:0024) | ├─Token(Assignment) |=|
 //@[025:0048) | └─UnionTypeSyntax
 //@[025:0042) |   ├─UnionTypeMemberSyntax
-//@[025:0042) |   | └─VariableAccessSyntax
+//@[025:0042) |   | └─TypeVariableAccessSyntax
 //@[025:0042) |   |   └─IdentifierSyntax
 //@[025:0042) |   |     └─Token(Identifier) |tautologicalUnion|
 //@[042:0043) |   ├─Token(Pipe) |||
 //@[043:0048) |   └─UnionTypeMemberSyntax
-//@[043:0048) |     └─StringSyntax
+//@[043:0048) |     └─StringTypeLiteralSyntax
 //@[043:0048) |       └─Token(StringComplete) |'foo'|
 //@[048:0050) ├─Token(NewLine) |\n\n|
 
@@ -266,7 +266,7 @@ type tautologicalArray = tautologicalArray[]
 //@[023:0024) | ├─Token(Assignment) |=|
 //@[025:0044) | └─ArrayTypeSyntax
 //@[025:0042) |   ├─ArrayTypeMemberSyntax
-//@[025:0042) |   | └─VariableAccessSyntax
+//@[025:0042) |   | └─TypeVariableAccessSyntax
 //@[025:0042) |   |   └─IdentifierSyntax
 //@[025:0042) |   |     └─Token(Identifier) |tautologicalArray|
 //@[042:0043) |   ├─Token(LeftSquare) |[|
@@ -279,7 +279,7 @@ type directCycleStart = directCycleReturn
 //@[005:0021) | ├─IdentifierSyntax
 //@[005:0021) | | └─Token(Identifier) |directCycleStart|
 //@[022:0023) | ├─Token(Assignment) |=|
-//@[024:0041) | └─VariableAccessSyntax
+//@[024:0041) | └─TypeVariableAccessSyntax
 //@[024:0041) |   └─IdentifierSyntax
 //@[024:0041) |     └─Token(Identifier) |directCycleReturn|
 //@[041:0043) ├─Token(NewLine) |\n\n|
@@ -290,7 +290,7 @@ type directCycleReturn = directCycleStart
 //@[005:0022) | ├─IdentifierSyntax
 //@[005:0022) | | └─Token(Identifier) |directCycleReturn|
 //@[023:0024) | ├─Token(Assignment) |=|
-//@[025:0041) | └─VariableAccessSyntax
+//@[025:0041) | └─TypeVariableAccessSyntax
 //@[025:0041) |   └─IdentifierSyntax
 //@[025:0041) |     └─Token(Identifier) |directCycleStart|
 //@[041:0043) ├─Token(NewLine) |\n\n|
@@ -301,7 +301,7 @@ type cycleRoot = connector
 //@[005:0014) | ├─IdentifierSyntax
 //@[005:0014) | | └─Token(Identifier) |cycleRoot|
 //@[015:0016) | ├─Token(Assignment) |=|
-//@[017:0026) | └─VariableAccessSyntax
+//@[017:0026) | └─TypeVariableAccessSyntax
 //@[017:0026) |   └─IdentifierSyntax
 //@[017:0026) |     └─Token(Identifier) |connector|
 //@[026:0028) ├─Token(NewLine) |\n\n|
@@ -312,7 +312,7 @@ type connector = cycleBack
 //@[005:0014) | ├─IdentifierSyntax
 //@[005:0014) | | └─Token(Identifier) |connector|
 //@[015:0016) | ├─Token(Assignment) |=|
-//@[017:0026) | └─VariableAccessSyntax
+//@[017:0026) | └─TypeVariableAccessSyntax
 //@[017:0026) |   └─IdentifierSyntax
 //@[017:0026) |     └─Token(Identifier) |cycleBack|
 //@[026:0028) ├─Token(NewLine) |\n\n|
@@ -323,7 +323,7 @@ type cycleBack = cycleRoot
 //@[005:0014) | ├─IdentifierSyntax
 //@[005:0014) | | └─Token(Identifier) |cycleBack|
 //@[015:0016) | ├─Token(Assignment) |=|
-//@[017:0026) | └─VariableAccessSyntax
+//@[017:0026) | └─TypeVariableAccessSyntax
 //@[017:0026) |   └─IdentifierSyntax
 //@[017:0026) |     └─Token(Identifier) |cycleRoot|
 //@[026:0028) ├─Token(NewLine) |\n\n|
@@ -351,7 +351,7 @@ type objectWithInvalidPropertyDecorators = {
 //@[002:0009) |   | ├─IdentifierSyntax
 //@[002:0009) |   | | └─Token(Identifier) |fooProp|
 //@[009:0010) |   | ├─Token(Colon) |:|
-//@[011:0017) |   | └─VariableAccessSyntax
+//@[011:0017) |   | └─TypeVariableAccessSyntax
 //@[011:0017) |   |   └─IdentifierSyntax
 //@[011:0017) |   |     └─Token(Identifier) |string|
 //@[017:0019) |   ├─Token(NewLine) |\n\n|
@@ -370,7 +370,7 @@ type objectWithInvalidPropertyDecorators = {
 //@[002:0009) |   | ├─IdentifierSyntax
 //@[002:0009) |   | | └─Token(Identifier) |barProp|
 //@[009:0010) |   | ├─Token(Colon) |:|
-//@[011:0017) |   | └─VariableAccessSyntax
+//@[011:0017) |   | └─TypeVariableAccessSyntax
 //@[011:0017) |   |   └─IdentifierSyntax
 //@[011:0017) |   |     └─Token(Identifier) |string|
 //@[017:0019) |   ├─Token(NewLine) |\n\n|
@@ -404,7 +404,7 @@ type objectWithInvalidPropertyDecorators = {
 //@[002:0012) |   | ├─IdentifierSyntax
 //@[002:0012) |   | | └─Token(Identifier) |krispyProp|
 //@[012:0013) |   | ├─Token(Colon) |:|
-//@[014:0020) |   | └─VariableAccessSyntax
+//@[014:0020) |   | └─TypeVariableAccessSyntax
 //@[014:0020) |   |   └─IdentifierSyntax
 //@[014:0020) |   |     └─Token(Identifier) |string|
 //@[020:0021) |   ├─Token(NewLine) |\n|
@@ -426,7 +426,7 @@ type objectWithInvalidRecursion = {
 //@[002:0026) |   | ├─IdentifierSyntax
 //@[002:0026) |   | | └─Token(Identifier) |requiredAndRecursiveProp|
 //@[026:0027) |   | ├─Token(Colon) |:|
-//@[028:0054) |   | └─VariableAccessSyntax
+//@[028:0054) |   | └─TypeVariableAccessSyntax
 //@[028:0054) |   |   └─IdentifierSyntax
 //@[028:0054) |   |     └─Token(Identifier) |objectWithInvalidRecursion|
 //@[054:0055) |   ├─Token(NewLine) |\n|
@@ -442,7 +442,7 @@ type arrayWithInvalidMember = objectWithInvalidRecursion[]
 //@[028:0029) | ├─Token(Assignment) |=|
 //@[030:0058) | └─ArrayTypeSyntax
 //@[030:0056) |   ├─ArrayTypeMemberSyntax
-//@[030:0056) |   | └─VariableAccessSyntax
+//@[030:0056) |   | └─TypeVariableAccessSyntax
 //@[030:0056) |   |   └─IdentifierSyntax
 //@[030:0056) |   |     └─Token(Identifier) |objectWithInvalidRecursion|
 //@[056:0057) |   ├─Token(LeftSquare) |[|
@@ -463,7 +463,7 @@ param sealedStringParam string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0023) | ├─IdentifierSyntax
 //@[006:0023) | | └─Token(Identifier) |sealedStringParam|
-//@[024:0030) | └─VariableAccessSyntax
+//@[024:0030) | └─TypeVariableAccessSyntax
 //@[024:0030) |   └─IdentifierSyntax
 //@[024:0030) |     └─Token(Identifier) |string|
 //@[030:0032) ├─Token(NewLine) |\n\n|
@@ -475,13 +475,13 @@ param disallowedUnionParam 'foo'|-99
 //@[006:0026) | | └─Token(Identifier) |disallowedUnionParam|
 //@[027:0036) | └─UnionTypeSyntax
 //@[027:0032) |   ├─UnionTypeMemberSyntax
-//@[027:0032) |   | └─StringSyntax
+//@[027:0032) |   | └─StringTypeLiteralSyntax
 //@[027:0032) |   |   └─Token(StringComplete) |'foo'|
 //@[032:0033) |   ├─Token(Pipe) |||
 //@[033:0036) |   └─UnionTypeMemberSyntax
-//@[033:0036) |     └─UnaryOperationSyntax
+//@[033:0036) |     └─UnaryTypeOperationSyntax
 //@[033:0034) |       ├─Token(Minus) |-|
-//@[034:0036) |       └─IntegerLiteralSyntax
+//@[034:0036) |       └─IntegerTypeLiteralSyntax
 //@[034:0036) |         └─Token(Integer) |99|
 //@[036:0038) ├─Token(NewLine) |\n\n|
 
@@ -490,7 +490,7 @@ param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0037) | ├─IdentifierSyntax
 //@[006:0037) | | └─Token(Identifier) |objectWithInvalidRecursionParam|
-//@[038:0064) | └─VariableAccessSyntax
+//@[038:0064) | └─TypeVariableAccessSyntax
 //@[038:0064) |   └─IdentifierSyntax
 //@[038:0064) |     └─Token(Identifier) |objectWithInvalidRecursion|
 //@[064:0066) ├─Token(NewLine) |\n\n|
@@ -509,7 +509,7 @@ type typeA = {
 //@[002:0006) |   | ├─IdentifierSyntax
 //@[002:0006) |   | | └─Token(Identifier) |type|
 //@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0011) |   | └─StringSyntax
+//@[008:0011) |   | └─StringTypeLiteralSyntax
 //@[008:0011) |   |   └─Token(StringComplete) |'a'|
 //@[011:0012) |   ├─Token(NewLine) |\n|
   value: string
@@ -517,7 +517,7 @@ type typeA = {
 //@[002:0007) |   | ├─IdentifierSyntax
 //@[002:0007) |   | | └─Token(Identifier) |value|
 //@[007:0008) |   | ├─Token(Colon) |:|
-//@[009:0015) |   | └─VariableAccessSyntax
+//@[009:0015) |   | └─TypeVariableAccessSyntax
 //@[009:0015) |   |   └─IdentifierSyntax
 //@[009:0015) |   |     └─Token(Identifier) |string|
 //@[015:0016) |   ├─Token(NewLine) |\n|
@@ -539,7 +539,7 @@ type typeB = {
 //@[002:0006) |   | ├─IdentifierSyntax
 //@[002:0006) |   | | └─Token(Identifier) |type|
 //@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0011) |   | └─StringSyntax
+//@[008:0011) |   | └─StringTypeLiteralSyntax
 //@[008:0011) |   |   └─Token(StringComplete) |'b'|
 //@[011:0012) |   ├─Token(NewLine) |\n|
   value: int
@@ -547,7 +547,7 @@ type typeB = {
 //@[002:0007) |   | ├─IdentifierSyntax
 //@[002:0007) |   | | └─Token(Identifier) |value|
 //@[007:0008) |   | ├─Token(Colon) |:|
-//@[009:0012) |   | └─VariableAccessSyntax
+//@[009:0012) |   | └─TypeVariableAccessSyntax
 //@[009:0012) |   |   └─IdentifierSyntax
 //@[009:0012) |   |     └─Token(Identifier) |int|
 //@[012:0013) |   ├─Token(NewLine) |\n|
@@ -575,12 +575,12 @@ type unionAB = typeA | typeB
 //@[013:0014) | ├─Token(Assignment) |=|
 //@[015:0028) | └─UnionTypeSyntax
 //@[015:0020) |   ├─UnionTypeMemberSyntax
-//@[015:0020) |   | └─VariableAccessSyntax
+//@[015:0020) |   | └─TypeVariableAccessSyntax
 //@[015:0020) |   |   └─IdentifierSyntax
 //@[015:0020) |   |     └─Token(Identifier) |typeA|
 //@[021:0022) |   ├─Token(Pipe) |||
 //@[023:0028) |   └─UnionTypeMemberSyntax
-//@[023:0028) |     └─VariableAccessSyntax
+//@[023:0028) |     └─TypeVariableAccessSyntax
 //@[023:0028) |       └─IdentifierSyntax
 //@[023:0028) |         └─Token(Identifier) |typeB|
 //@[028:0030) ├─Token(NewLine) |\n\n|
@@ -599,7 +599,7 @@ type typeC = {
 //@[002:0006) |   | ├─IdentifierSyntax
 //@[002:0006) |   | | └─Token(Identifier) |type|
 //@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0011) |   | └─StringSyntax
+//@[008:0011) |   | └─StringTypeLiteralSyntax
 //@[008:0011) |   |   └─Token(StringComplete) |'c'|
 //@[011:0012) |   ├─Token(NewLine) |\n|
   value: bool
@@ -607,7 +607,7 @@ type typeC = {
 //@[002:0007) |   | ├─IdentifierSyntax
 //@[002:0007) |   | | └─Token(Identifier) |value|
 //@[007:0008) |   | ├─Token(Colon) |:|
-//@[009:0013) |   | └─VariableAccessSyntax
+//@[009:0013) |   | └─TypeVariableAccessSyntax
 //@[009:0013) |   |   └─IdentifierSyntax
 //@[009:0013) |   |     └─Token(Identifier) |bool|
 //@[013:0014) |   ├─Token(NewLine) |\n|
@@ -616,7 +616,7 @@ type typeC = {
 //@[002:0008) |   | ├─IdentifierSyntax
 //@[002:0008) |   | | └─Token(Identifier) |value2|
 //@[008:0009) |   | ├─Token(Colon) |:|
-//@[010:0016) |   | └─VariableAccessSyntax
+//@[010:0016) |   | └─TypeVariableAccessSyntax
 //@[010:0016) |   |   └─IdentifierSyntax
 //@[010:0016) |   |     └─Token(Identifier) |string|
 //@[016:0017) |   ├─Token(NewLine) |\n|
@@ -638,7 +638,7 @@ type typeD = {
 //@[002:0006) |   | ├─IdentifierSyntax
 //@[002:0006) |   | | └─Token(Identifier) |type|
 //@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0011) |   | └─StringSyntax
+//@[008:0011) |   | └─StringTypeLiteralSyntax
 //@[008:0011) |   |   └─Token(StringComplete) |'d'|
 //@[011:0012) |   ├─Token(NewLine) |\n|
   value: object
@@ -646,7 +646,7 @@ type typeD = {
 //@[002:0007) |   | ├─IdentifierSyntax
 //@[002:0007) |   | | └─Token(Identifier) |value|
 //@[007:0008) |   | ├─Token(Colon) |:|
-//@[009:0015) |   | └─VariableAccessSyntax
+//@[009:0015) |   | └─TypeVariableAccessSyntax
 //@[009:0015) |   |   └─IdentifierSyntax
 //@[009:0015) |   |     └─Token(Identifier) |object|
 //@[015:0016) |   ├─Token(NewLine) |\n|
@@ -668,14 +668,14 @@ type typeE = {
 //@[002:0006) |   | ├─IdentifierSyntax
 //@[002:0006) |   | | └─Token(Identifier) |type|
 //@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0011) |   | └─StringSyntax
+//@[008:0011) |   | └─StringTypeLiteralSyntax
 //@[008:0011) |   |   └─Token(StringComplete) |'e'|
 //@[011:0012) |   ├─Token(NewLine) |\n|
   *: string
 //@[002:0011) |   ├─ObjectTypeAdditionalPropertiesSyntax
 //@[002:0003) |   | ├─Token(Asterisk) |*|
 //@[003:0004) |   | ├─Token(Colon) |:|
-//@[005:0011) |   | └─VariableAccessSyntax
+//@[005:0011) |   | └─TypeVariableAccessSyntax
 //@[005:0011) |   |   └─IdentifierSyntax
 //@[005:0011) |   |     └─Token(Identifier) |string|
 //@[011:0012) |   ├─Token(NewLine) |\n|
@@ -697,7 +697,7 @@ type typeF = {
 //@[002:0006) |   | ├─IdentifierSyntax
 //@[002:0006) |   | | └─Token(Identifier) |type|
 //@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0009) |   | └─IntegerLiteralSyntax
+//@[008:0009) |   | └─IntegerTypeLiteralSyntax
 //@[008:0009) |   |   └─Token(Integer) |0|
 //@[009:0010) |   ├─Token(NewLine) |\n|
   value: string
@@ -705,7 +705,7 @@ type typeF = {
 //@[002:0007) |   | ├─IdentifierSyntax
 //@[002:0007) |   | | └─Token(Identifier) |value|
 //@[007:0008) |   | ├─Token(Colon) |:|
-//@[009:0015) |   | └─VariableAccessSyntax
+//@[009:0015) |   | └─TypeVariableAccessSyntax
 //@[009:0015) |   |   └─IdentifierSyntax
 //@[009:0015) |   |     └─Token(Identifier) |string|
 //@[015:0016) |   ├─Token(NewLine) |\n|
@@ -728,7 +728,7 @@ type typeG = {
 //@[002:0006) |   | | └─Token(Identifier) |type|
 //@[006:0007) |   | ├─Token(Colon) |:|
 //@[008:0012) |   | └─NullableTypeSyntax
-//@[008:0011) |   |   ├─StringSyntax
+//@[008:0011) |   |   ├─StringTypeLiteralSyntax
 //@[008:0011) |   |   | └─Token(StringComplete) |'g'|
 //@[011:0012) |   |   └─Token(Question) |?|
 //@[012:0013) |   ├─Token(NewLine) |\n|
@@ -737,7 +737,7 @@ type typeG = {
 //@[002:0007) |   | ├─IdentifierSyntax
 //@[002:0007) |   | | └─Token(Identifier) |value|
 //@[007:0008) |   | ├─Token(Colon) |:|
-//@[009:0015) |   | └─VariableAccessSyntax
+//@[009:0015) |   | └─TypeVariableAccessSyntax
 //@[009:0015) |   |   └─IdentifierSyntax
 //@[009:0015) |   |     └─Token(Identifier) |string|
 //@[015:0016) |   ├─Token(NewLine) |\n|
@@ -754,12 +754,12 @@ type primitiveUnion = | bool | bool
 //@[022:0035) | └─UnionTypeSyntax
 //@[022:0023) |   ├─Token(Pipe) |||
 //@[024:0028) |   ├─UnionTypeMemberSyntax
-//@[024:0028) |   | └─VariableAccessSyntax
+//@[024:0028) |   | └─TypeVariableAccessSyntax
 //@[024:0028) |   |   └─IdentifierSyntax
 //@[024:0028) |   |     └─Token(Identifier) |bool|
 //@[029:0030) |   ├─Token(Pipe) |||
 //@[031:0035) |   └─UnionTypeMemberSyntax
-//@[031:0035) |     └─VariableAccessSyntax
+//@[031:0035) |     └─TypeVariableAccessSyntax
 //@[031:0035) |       └─IdentifierSyntax
 //@[031:0035) |         └─Token(Identifier) |bool|
 //@[035:0037) ├─Token(NewLine) |\n\n|
@@ -772,12 +772,12 @@ type objectUnion = typeA | typeB
 //@[017:0018) | ├─Token(Assignment) |=|
 //@[019:0032) | └─UnionTypeSyntax
 //@[019:0024) |   ├─UnionTypeMemberSyntax
-//@[019:0024) |   | └─VariableAccessSyntax
+//@[019:0024) |   | └─TypeVariableAccessSyntax
 //@[019:0024) |   |   └─IdentifierSyntax
 //@[019:0024) |   |     └─Token(Identifier) |typeA|
 //@[025:0026) |   ├─Token(Pipe) |||
 //@[027:0032) |   └─UnionTypeMemberSyntax
-//@[027:0032) |     └─VariableAccessSyntax
+//@[027:0032) |     └─TypeVariableAccessSyntax
 //@[027:0032) |       └─IdentifierSyntax
 //@[027:0032) |         └─Token(Identifier) |typeB|
 //@[032:0034) ├─Token(NewLine) |\n\n|
@@ -799,12 +799,12 @@ type noDiscriminatorParam = typeA | typeB
 //@[026:0027) | ├─Token(Assignment) |=|
 //@[028:0041) | └─UnionTypeSyntax
 //@[028:0033) |   ├─UnionTypeMemberSyntax
-//@[028:0033) |   | └─VariableAccessSyntax
+//@[028:0033) |   | └─TypeVariableAccessSyntax
 //@[028:0033) |   |   └─IdentifierSyntax
 //@[028:0033) |   |     └─Token(Identifier) |typeA|
 //@[034:0035) |   ├─Token(Pipe) |||
 //@[036:0041) |   └─UnionTypeMemberSyntax
-//@[036:0041) |     └─VariableAccessSyntax
+//@[036:0041) |     └─TypeVariableAccessSyntax
 //@[036:0041) |       └─IdentifierSyntax
 //@[036:0041) |         └─Token(Identifier) |typeB|
 //@[041:0043) ├─Token(NewLine) |\n\n|
@@ -829,12 +829,12 @@ type wrongDiscriminatorParamType = typeA | typeB
 //@[033:0034) | ├─Token(Assignment) |=|
 //@[035:0048) | └─UnionTypeSyntax
 //@[035:0040) |   ├─UnionTypeMemberSyntax
-//@[035:0040) |   | └─VariableAccessSyntax
+//@[035:0040) |   | └─TypeVariableAccessSyntax
 //@[035:0040) |   |   └─IdentifierSyntax
 //@[035:0040) |   |     └─Token(Identifier) |typeA|
 //@[041:0042) |   ├─Token(Pipe) |||
 //@[043:0048) |   └─UnionTypeMemberSyntax
-//@[043:0048) |     └─VariableAccessSyntax
+//@[043:0048) |     └─TypeVariableAccessSyntax
 //@[043:0048) |       └─IdentifierSyntax
 //@[043:0048) |         └─Token(Identifier) |typeB|
 //@[048:0050) ├─Token(NewLine) |\n\n|
@@ -859,12 +859,12 @@ type discriminatorPropertyNotExistAtAll = typeA | typeB
 //@[040:0041) | ├─Token(Assignment) |=|
 //@[042:0055) | └─UnionTypeSyntax
 //@[042:0047) |   ├─UnionTypeMemberSyntax
-//@[042:0047) |   | └─VariableAccessSyntax
+//@[042:0047) |   | └─TypeVariableAccessSyntax
 //@[042:0047) |   |   └─IdentifierSyntax
 //@[042:0047) |   |     └─Token(Identifier) |typeA|
 //@[048:0049) |   ├─Token(Pipe) |||
 //@[050:0055) |   └─UnionTypeMemberSyntax
-//@[050:0055) |     └─VariableAccessSyntax
+//@[050:0055) |     └─TypeVariableAccessSyntax
 //@[050:0055) |       └─IdentifierSyntax
 //@[050:0055) |         └─Token(Identifier) |typeB|
 //@[055:0057) ├─Token(NewLine) |\n\n|
@@ -887,7 +887,7 @@ type discriminatorPropertyMismatch = unionAB
 //@[005:0034) | ├─IdentifierSyntax
 //@[005:0034) | | └─Token(Identifier) |discriminatorPropertyMismatch|
 //@[035:0036) | ├─Token(Assignment) |=|
-//@[037:0044) | └─VariableAccessSyntax
+//@[037:0044) | └─TypeVariableAccessSyntax
 //@[037:0044) |   └─IdentifierSyntax
 //@[037:0044) |     └─Token(Identifier) |unionAB|
 //@[044:0046) ├─Token(NewLine) |\n\n|
@@ -912,7 +912,7 @@ type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
 //@[047:0048) | ├─Token(Assignment) |=|
 //@[049:0072) | └─UnionTypeSyntax
 //@[049:0054) |   ├─UnionTypeMemberSyntax
-//@[049:0054) |   | └─VariableAccessSyntax
+//@[049:0054) |   | └─TypeVariableAccessSyntax
 //@[049:0054) |   |   └─IdentifierSyntax
 //@[049:0054) |   |     └─Token(Identifier) |typeA|
 //@[055:0056) |   ├─Token(Pipe) |||
@@ -923,7 +923,7 @@ type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
 //@[059:0064) |       | ├─IdentifierSyntax
 //@[059:0064) |       | | └─Token(Identifier) |value|
 //@[064:0065) |       | ├─Token(Colon) |:|
-//@[066:0070) |       | └─VariableAccessSyntax
+//@[066:0070) |       | └─TypeVariableAccessSyntax
 //@[066:0070) |       |   └─IdentifierSyntax
 //@[066:0070) |       |     └─Token(Identifier) |bool|
 //@[071:0072) |       └─Token(RightBrace) |}|
@@ -947,7 +947,7 @@ type discriminatorWithOnlyOneMember = typeA
 //@[005:0035) | ├─IdentifierSyntax
 //@[005:0035) | | └─Token(Identifier) |discriminatorWithOnlyOneMember|
 //@[036:0037) | ├─Token(Assignment) |=|
-//@[038:0043) | └─VariableAccessSyntax
+//@[038:0043) | └─TypeVariableAccessSyntax
 //@[038:0043) |   └─IdentifierSyntax
 //@[038:0043) |     └─Token(Identifier) |typeA|
 //@[043:0045) ├─Token(NewLine) |\n\n|
@@ -972,12 +972,12 @@ type discriminatorPropertyNotRequiredStringLiteral1 = typeA | typeF
 //@[052:0053) | ├─Token(Assignment) |=|
 //@[054:0067) | └─UnionTypeSyntax
 //@[054:0059) |   ├─UnionTypeMemberSyntax
-//@[054:0059) |   | └─VariableAccessSyntax
+//@[054:0059) |   | └─TypeVariableAccessSyntax
 //@[054:0059) |   |   └─IdentifierSyntax
 //@[054:0059) |   |     └─Token(Identifier) |typeA|
 //@[060:0061) |   ├─Token(Pipe) |||
 //@[062:0067) |   └─UnionTypeMemberSyntax
-//@[062:0067) |     └─VariableAccessSyntax
+//@[062:0067) |     └─TypeVariableAccessSyntax
 //@[062:0067) |       └─IdentifierSyntax
 //@[062:0067) |         └─Token(Identifier) |typeF|
 //@[067:0069) ├─Token(NewLine) |\n\n|
@@ -1002,12 +1002,12 @@ type discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG
 //@[052:0053) | ├─Token(Assignment) |=|
 //@[054:0067) | └─UnionTypeSyntax
 //@[054:0059) |   ├─UnionTypeMemberSyntax
-//@[054:0059) |   | └─VariableAccessSyntax
+//@[054:0059) |   | └─TypeVariableAccessSyntax
 //@[054:0059) |   |   └─IdentifierSyntax
 //@[054:0059) |   |     └─Token(Identifier) |typeA|
 //@[060:0061) |   ├─Token(Pipe) |||
 //@[062:0067) |   └─UnionTypeMemberSyntax
-//@[062:0067) |     └─VariableAccessSyntax
+//@[062:0067) |     └─TypeVariableAccessSyntax
 //@[062:0067) |       └─IdentifierSyntax
 //@[062:0067) |         └─Token(Identifier) |typeG|
 //@[067:0069) ├─Token(NewLine) |\n\n|
@@ -1032,12 +1032,12 @@ type discriminatorDuplicatedMember1 = typeA | typeA
 //@[036:0037) | ├─Token(Assignment) |=|
 //@[038:0051) | └─UnionTypeSyntax
 //@[038:0043) |   ├─UnionTypeMemberSyntax
-//@[038:0043) |   | └─VariableAccessSyntax
+//@[038:0043) |   | └─TypeVariableAccessSyntax
 //@[038:0043) |   |   └─IdentifierSyntax
 //@[038:0043) |   |     └─Token(Identifier) |typeA|
 //@[044:0045) |   ├─Token(Pipe) |||
 //@[046:0051) |   └─UnionTypeMemberSyntax
-//@[046:0051) |     └─VariableAccessSyntax
+//@[046:0051) |     └─TypeVariableAccessSyntax
 //@[046:0051) |       └─IdentifierSyntax
 //@[046:0051) |         └─Token(Identifier) |typeA|
 //@[051:0053) ├─Token(NewLine) |\n\n|
@@ -1062,7 +1062,7 @@ type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 //@[036:0037) | ├─Token(Assignment) |=|
 //@[038:0075) | └─UnionTypeSyntax
 //@[038:0043) |   ├─UnionTypeMemberSyntax
-//@[038:0043) |   | └─VariableAccessSyntax
+//@[038:0043) |   | └─TypeVariableAccessSyntax
 //@[038:0043) |   |   └─IdentifierSyntax
 //@[038:0043) |   |     └─Token(Identifier) |typeA|
 //@[044:0045) |   ├─Token(Pipe) |||
@@ -1073,14 +1073,14 @@ type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 //@[048:0052) |       | ├─IdentifierSyntax
 //@[048:0052) |       | | └─Token(Identifier) |type|
 //@[052:0053) |       | ├─Token(Colon) |:|
-//@[054:0057) |       | └─StringSyntax
+//@[054:0057) |       | └─StringTypeLiteralSyntax
 //@[054:0057) |       |   └─Token(StringComplete) |'a'|
 //@[057:0058) |       ├─Token(Comma) |,|
 //@[059:0073) |       ├─ObjectTypePropertySyntax
 //@[059:0065) |       | ├─IdentifierSyntax
 //@[059:0065) |       | | └─Token(Identifier) |config|
 //@[065:0066) |       | ├─Token(Colon) |:|
-//@[067:0073) |       | └─VariableAccessSyntax
+//@[067:0073) |       | └─TypeVariableAccessSyntax
 //@[067:0073) |       |   └─IdentifierSyntax
 //@[067:0073) |       |     └─Token(Identifier) |object|
 //@[074:0075) |       └─Token(RightBrace) |}|
@@ -1106,12 +1106,12 @@ type discriminatorOnlyOneNonNullMember1 = typeA | null
 //@[040:0041) | ├─Token(Assignment) |=|
 //@[042:0054) | └─UnionTypeSyntax
 //@[042:0047) |   ├─UnionTypeMemberSyntax
-//@[042:0047) |   | └─VariableAccessSyntax
+//@[042:0047) |   | └─TypeVariableAccessSyntax
 //@[042:0047) |   |   └─IdentifierSyntax
 //@[042:0047) |   |     └─Token(Identifier) |typeA|
 //@[048:0049) |   ├─Token(Pipe) |||
 //@[050:0054) |   └─UnionTypeMemberSyntax
-//@[050:0054) |     └─NullLiteralSyntax
+//@[050:0054) |     └─NullTypeLiteralSyntax
 //@[050:0054) |       └─Token(NullKeyword) |null|
 //@[054:0056) ├─Token(NewLine) |\n\n|
 
@@ -1134,9 +1134,9 @@ type discriminatorOnlyOneNonNullMember2 = (typeA)?
 //@[005:0039) | | └─Token(Identifier) |discriminatorOnlyOneNonNullMember2|
 //@[040:0041) | ├─Token(Assignment) |=|
 //@[042:0050) | └─NullableTypeSyntax
-//@[042:0049) |   ├─ParenthesizedExpressionSyntax
+//@[042:0049) |   ├─ParenthesizedTypeSyntax
 //@[042:0043) |   | ├─Token(LeftParen) |(|
-//@[043:0048) |   | ├─VariableAccessSyntax
+//@[043:0048) |   | ├─TypeVariableAccessSyntax
 //@[043:0048) |   | | └─IdentifierSyntax
 //@[043:0048) |   | |   └─Token(Identifier) |typeA|
 //@[048:0049) |   | └─Token(RightParen) |)|
@@ -1163,12 +1163,12 @@ type discriminatorMemberHasAdditionalProperties = typeA | typeE
 //@[048:0049) | ├─Token(Assignment) |=|
 //@[050:0063) | └─UnionTypeSyntax
 //@[050:0055) |   ├─UnionTypeMemberSyntax
-//@[050:0055) |   | └─VariableAccessSyntax
+//@[050:0055) |   | └─TypeVariableAccessSyntax
 //@[050:0055) |   |   └─IdentifierSyntax
 //@[050:0055) |   |     └─Token(Identifier) |typeA|
 //@[056:0057) |   ├─Token(Pipe) |||
 //@[058:0063) |   └─UnionTypeMemberSyntax
-//@[058:0063) |     └─VariableAccessSyntax
+//@[058:0063) |     └─TypeVariableAccessSyntax
 //@[058:0063) |       └─IdentifierSyntax
 //@[058:0063) |         └─Token(Identifier) |typeE|
 //@[063:0065) ├─Token(NewLine) |\n\n|
@@ -1193,12 +1193,12 @@ type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
 //@[029:0030) | ├─Token(Assignment) |=|
 //@[031:0062) | └─UnionTypeSyntax
 //@[031:0036) |   ├─UnionTypeMemberSyntax
-//@[031:0036) |   | └─VariableAccessSyntax
+//@[031:0036) |   | └─TypeVariableAccessSyntax
 //@[031:0036) |   |   └─IdentifierSyntax
 //@[031:0036) |   |     └─Token(Identifier) |typeA|
 //@[037:0038) |   ├─Token(Pipe) |||
 //@[039:0062) |   └─UnionTypeMemberSyntax
-//@[039:0062) |     └─VariableAccessSyntax
+//@[039:0062) |     └─TypeVariableAccessSyntax
 //@[039:0062) |       └─IdentifierSyntax
 //@[039:0062) |         └─Token(Identifier) |discriminatorSelfCycle1|
 //@[062:0064) ├─Token(NewLine) |\n\n|
@@ -1222,16 +1222,16 @@ type discriminatorSelfCycle2 = (typeA | discriminatorSelfCycle2)?
 //@[005:0028) | | └─Token(Identifier) |discriminatorSelfCycle2|
 //@[029:0030) | ├─Token(Assignment) |=|
 //@[031:0065) | └─NullableTypeSyntax
-//@[031:0064) |   ├─ParenthesizedExpressionSyntax
+//@[031:0064) |   ├─ParenthesizedTypeSyntax
 //@[031:0032) |   | ├─Token(LeftParen) |(|
 //@[032:0063) |   | ├─UnionTypeSyntax
 //@[032:0037) |   | | ├─UnionTypeMemberSyntax
-//@[032:0037) |   | | | └─VariableAccessSyntax
+//@[032:0037) |   | | | └─TypeVariableAccessSyntax
 //@[032:0037) |   | | |   └─IdentifierSyntax
 //@[032:0037) |   | | |     └─Token(Identifier) |typeA|
 //@[038:0039) |   | | ├─Token(Pipe) |||
 //@[040:0063) |   | | └─UnionTypeMemberSyntax
-//@[040:0063) |   | |   └─VariableAccessSyntax
+//@[040:0063) |   | |   └─TypeVariableAccessSyntax
 //@[040:0063) |   | |     └─IdentifierSyntax
 //@[040:0063) |   | |       └─Token(Identifier) |discriminatorSelfCycle2|
 //@[063:0064) |   | └─Token(RightParen) |)|
@@ -1258,12 +1258,12 @@ type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB
 //@[033:0034) | ├─Token(Assignment) |=|
 //@[035:0070) | └─UnionTypeSyntax
 //@[035:0040) |   ├─UnionTypeMemberSyntax
-//@[035:0040) |   | └─VariableAccessSyntax
+//@[035:0040) |   | └─TypeVariableAccessSyntax
 //@[035:0040) |   |   └─IdentifierSyntax
 //@[035:0040) |   |     └─Token(Identifier) |typeA|
 //@[041:0042) |   ├─Token(Pipe) |||
 //@[043:0070) |   └─UnionTypeMemberSyntax
-//@[043:0070) |     └─VariableAccessSyntax
+//@[043:0070) |     └─TypeVariableAccessSyntax
 //@[043:0070) |       └─IdentifierSyntax
 //@[043:0070) |         └─Token(Identifier) |discriminatorTopLevelCycleB|
 //@[070:0071) ├─Token(NewLine) |\n|
@@ -1287,12 +1287,12 @@ type discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA
 //@[033:0034) | ├─Token(Assignment) |=|
 //@[035:0070) | └─UnionTypeSyntax
 //@[035:0040) |   ├─UnionTypeMemberSyntax
-//@[035:0040) |   | └─VariableAccessSyntax
+//@[035:0040) |   | └─TypeVariableAccessSyntax
 //@[035:0040) |   |   └─IdentifierSyntax
 //@[035:0040) |   |     └─Token(Identifier) |typeB|
 //@[041:0042) |   ├─Token(Pipe) |||
 //@[043:0070) |   └─UnionTypeMemberSyntax
-//@[043:0070) |     └─VariableAccessSyntax
+//@[043:0070) |     └─TypeVariableAccessSyntax
 //@[043:0070) |       └─IdentifierSyntax
 //@[043:0070) |         └─Token(Identifier) |discriminatorTopLevelCycleA|
 //@[070:0072) ├─Token(NewLine) |\n\n|
@@ -1317,7 +1317,7 @@ type discriminatorInnerSelfCycle1 = typeA | {
 //@[034:0035) | ├─Token(Assignment) |=|
 //@[036:0097) | └─UnionTypeSyntax
 //@[036:0041) |   ├─UnionTypeMemberSyntax
-//@[036:0041) |   | └─VariableAccessSyntax
+//@[036:0041) |   | └─TypeVariableAccessSyntax
 //@[036:0041) |   |   └─IdentifierSyntax
 //@[036:0041) |   |     └─Token(Identifier) |typeA|
 //@[042:0043) |   ├─Token(Pipe) |||
@@ -1330,7 +1330,7 @@ type discriminatorInnerSelfCycle1 = typeA | {
 //@[002:0006) |       | ├─IdentifierSyntax
 //@[002:0006) |       | | └─Token(Identifier) |type|
 //@[006:0007) |       | ├─Token(Colon) |:|
-//@[008:0011) |       | └─StringSyntax
+//@[008:0011) |       | └─StringTypeLiteralSyntax
 //@[008:0011) |       |   └─Token(StringComplete) |'b'|
 //@[011:0012) |       ├─Token(NewLine) |\n|
   value: discriminatorInnerSelfCycle1
@@ -1338,7 +1338,7 @@ type discriminatorInnerSelfCycle1 = typeA | {
 //@[002:0007) |       | ├─IdentifierSyntax
 //@[002:0007) |       | | └─Token(Identifier) |value|
 //@[007:0008) |       | ├─Token(Colon) |:|
-//@[009:0037) |       | └─VariableAccessSyntax
+//@[009:0037) |       | └─TypeVariableAccessSyntax
 //@[009:0037) |       |   └─IdentifierSyntax
 //@[009:0037) |       |     └─Token(Identifier) |discriminatorInnerSelfCycle1|
 //@[037:0038) |       ├─Token(NewLine) |\n|
@@ -1360,7 +1360,7 @@ type discriminatorInnerSelfCycle2Helper = {
 //@[002:0006) |   | ├─IdentifierSyntax
 //@[002:0006) |   | | └─Token(Identifier) |type|
 //@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0011) |   | └─StringSyntax
+//@[008:0011) |   | └─StringTypeLiteralSyntax
 //@[008:0011) |   |   └─Token(StringComplete) |'b'|
 //@[011:0012) |   ├─Token(NewLine) |\n|
   value: discriminatorInnerSelfCycle2
@@ -1368,7 +1368,7 @@ type discriminatorInnerSelfCycle2Helper = {
 //@[002:0007) |   | ├─IdentifierSyntax
 //@[002:0007) |   | | └─Token(Identifier) |value|
 //@[007:0008) |   | ├─Token(Colon) |:|
-//@[009:0037) |   | └─VariableAccessSyntax
+//@[009:0037) |   | └─TypeVariableAccessSyntax
 //@[009:0037) |   |   └─IdentifierSyntax
 //@[009:0037) |   |     └─Token(Identifier) |discriminatorInnerSelfCycle2|
 //@[037:0038) |   ├─Token(NewLine) |\n|
@@ -1395,12 +1395,12 @@ type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
 //@[034:0035) | ├─Token(Assignment) |=|
 //@[036:0078) | └─UnionTypeSyntax
 //@[036:0041) |   ├─UnionTypeMemberSyntax
-//@[036:0041) |   | └─VariableAccessSyntax
+//@[036:0041) |   | └─TypeVariableAccessSyntax
 //@[036:0041) |   |   └─IdentifierSyntax
 //@[036:0041) |   |     └─Token(Identifier) |typeA|
 //@[042:0043) |   ├─Token(Pipe) |||
 //@[044:0078) |   └─UnionTypeMemberSyntax
-//@[044:0078) |     └─VariableAccessSyntax
+//@[044:0078) |     └─TypeVariableAccessSyntax
 //@[044:0078) |       └─IdentifierSyntax
 //@[044:0078) |         └─Token(Identifier) |discriminatorInnerSelfCycle2Helper|
 //@[078:0080) ├─Token(NewLine) |\n\n|
@@ -1426,12 +1426,12 @@ type discriminatorTupleBadType1 = [typeA, typeB]
 //@[034:0048) | └─TupleTypeSyntax
 //@[034:0035) |   ├─Token(LeftSquare) |[|
 //@[035:0040) |   ├─TupleTypeItemSyntax
-//@[035:0040) |   | └─VariableAccessSyntax
+//@[035:0040) |   | └─TypeVariableAccessSyntax
 //@[035:0040) |   |   └─IdentifierSyntax
 //@[035:0040) |   |     └─Token(Identifier) |typeA|
 //@[040:0041) |   ├─Token(Comma) |,|
 //@[042:0047) |   ├─TupleTypeItemSyntax
-//@[042:0047) |   | └─VariableAccessSyntax
+//@[042:0047) |   | └─TypeVariableAccessSyntax
 //@[042:0047) |   |   └─IdentifierSyntax
 //@[042:0047) |   |     └─Token(Identifier) |typeB|
 //@[047:0048) |   └─Token(RightSquare) |]|
@@ -1460,12 +1460,12 @@ type discriminatorTupleBadType2 = [typeA | typeB]
 //@[035:0048) |   ├─TupleTypeItemSyntax
 //@[035:0048) |   | └─UnionTypeSyntax
 //@[035:0040) |   |   ├─UnionTypeMemberSyntax
-//@[035:0040) |   |   | └─VariableAccessSyntax
+//@[035:0040) |   |   | └─TypeVariableAccessSyntax
 //@[035:0040) |   |   |   └─IdentifierSyntax
 //@[035:0040) |   |   |     └─Token(Identifier) |typeA|
 //@[041:0042) |   |   ├─Token(Pipe) |||
 //@[043:0048) |   |   └─UnionTypeMemberSyntax
-//@[043:0048) |   |     └─VariableAccessSyntax
+//@[043:0048) |   |     └─TypeVariableAccessSyntax
 //@[043:0048) |   |       └─IdentifierSyntax
 //@[043:0048) |   |         └─Token(Identifier) |typeB|
 //@[048:0049) |   └─Token(RightSquare) |]|
@@ -1494,24 +1494,24 @@ type discriminatorTupleBadType3 = [typeA | typeB, typeC | typeD]
 //@[035:0048) |   ├─TupleTypeItemSyntax
 //@[035:0048) |   | └─UnionTypeSyntax
 //@[035:0040) |   |   ├─UnionTypeMemberSyntax
-//@[035:0040) |   |   | └─VariableAccessSyntax
+//@[035:0040) |   |   | └─TypeVariableAccessSyntax
 //@[035:0040) |   |   |   └─IdentifierSyntax
 //@[035:0040) |   |   |     └─Token(Identifier) |typeA|
 //@[041:0042) |   |   ├─Token(Pipe) |||
 //@[043:0048) |   |   └─UnionTypeMemberSyntax
-//@[043:0048) |   |     └─VariableAccessSyntax
+//@[043:0048) |   |     └─TypeVariableAccessSyntax
 //@[043:0048) |   |       └─IdentifierSyntax
 //@[043:0048) |   |         └─Token(Identifier) |typeB|
 //@[048:0049) |   ├─Token(Comma) |,|
 //@[050:0063) |   ├─TupleTypeItemSyntax
 //@[050:0063) |   | └─UnionTypeSyntax
 //@[050:0055) |   |   ├─UnionTypeMemberSyntax
-//@[050:0055) |   |   | └─VariableAccessSyntax
+//@[050:0055) |   |   | └─TypeVariableAccessSyntax
 //@[050:0055) |   |   |   └─IdentifierSyntax
 //@[050:0055) |   |   |     └─Token(Identifier) |typeC|
 //@[056:0057) |   |   ├─Token(Pipe) |||
 //@[058:0063) |   |   └─UnionTypeMemberSyntax
-//@[058:0063) |   |     └─VariableAccessSyntax
+//@[058:0063) |   |     └─TypeVariableAccessSyntax
 //@[058:0063) |   |       └─IdentifierSyntax
 //@[058:0063) |   |         └─Token(Identifier) |typeD|
 //@[063:0064) |   └─Token(RightSquare) |]|
@@ -1542,7 +1542,7 @@ type discriminatorInlineAdditionalPropsBadType1 = {
   *: typeA
 //@[002:0003) |   | ├─Token(Asterisk) |*|
 //@[003:0004) |   | ├─Token(Colon) |:|
-//@[005:0010) |   | └─VariableAccessSyntax
+//@[005:0010) |   | └─TypeVariableAccessSyntax
 //@[005:0010) |   |   └─IdentifierSyntax
 //@[005:0010) |   |     └─Token(Identifier) |typeA|
 //@[010:0011) |   ├─Token(NewLine) |\n|
@@ -1577,12 +1577,12 @@ type discriminatorInlineAdditionalPropsBadType2 = {
 //@[003:0004) |   | ├─Token(Colon) |:|
 //@[005:0018) |   | └─UnionTypeSyntax
 //@[005:0010) |   |   ├─UnionTypeMemberSyntax
-//@[005:0010) |   |   | └─VariableAccessSyntax
+//@[005:0010) |   |   | └─TypeVariableAccessSyntax
 //@[005:0010) |   |   |   └─IdentifierSyntax
 //@[005:0010) |   |   |     └─Token(Identifier) |typeA|
 //@[011:0012) |   |   ├─Token(Pipe) |||
 //@[013:0018) |   |   └─UnionTypeMemberSyntax
-//@[013:0018) |   |     └─VariableAccessSyntax
+//@[013:0018) |   |     └─TypeVariableAccessSyntax
 //@[013:0018) |   |       └─IdentifierSyntax
 //@[013:0018) |   |         └─Token(Identifier) |typeA|
 //@[018:0019) |   ├─Token(NewLine) |\n|
@@ -1615,7 +1615,7 @@ type discriminatorInlineAdditionalPropsBadType3 = {
   *: string
 //@[002:0003) |   | ├─Token(Asterisk) |*|
 //@[003:0004) |   | ├─Token(Colon) |:|
-//@[005:0011) |   | └─VariableAccessSyntax
+//@[005:0011) |   | └─TypeVariableAccessSyntax
 //@[005:0011) |   |   └─IdentifierSyntax
 //@[005:0011) |   |     └─Token(Identifier) |string|
 //@[011:0012) |   ├─Token(NewLine) |\n|
@@ -1649,14 +1649,14 @@ type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string }
 //@[054:0058) |   |   | ├─IdentifierSyntax
 //@[054:0058) |   |   | | └─Token(Identifier) |type|
 //@[058:0059) |   |   | ├─Token(Colon) |:|
-//@[060:0063) |   |   | └─StringSyntax
+//@[060:0063) |   |   | └─StringTypeLiteralSyntax
 //@[060:0063) |   |   |   └─Token(StringComplete) |'a'|
 //@[063:0064) |   |   ├─Token(Comma) |,|
 //@[065:0078) |   |   ├─ObjectTypePropertySyntax
 //@[065:0070) |   |   | ├─IdentifierSyntax
 //@[065:0070) |   |   | | └─Token(Identifier) |value|
 //@[070:0071) |   |   | ├─Token(Colon) |:|
-//@[072:0078) |   |   | └─VariableAccessSyntax
+//@[072:0078) |   |   | └─TypeVariableAccessSyntax
 //@[072:0078) |   |   |   └─IdentifierSyntax
 //@[072:0078) |   |   |     └─Token(Identifier) |string|
 //@[079:0080) |   |   └─Token(RightBrace) |}|
@@ -1668,14 +1668,14 @@ type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string }
 //@[085:0089) |       | ├─IdentifierSyntax
 //@[085:0089) |       | | └─Token(Identifier) |type|
 //@[089:0090) |       | ├─Token(Colon) |:|
-//@[091:0094) |       | └─StringSyntax
+//@[091:0094) |       | └─StringTypeLiteralSyntax
 //@[091:0094) |       |   └─Token(StringComplete) |'A'|
 //@[094:0095) |       ├─Token(Comma) |,|
 //@[096:0106) |       ├─ObjectTypePropertySyntax
 //@[096:0101) |       | ├─IdentifierSyntax
 //@[096:0101) |       | | └─Token(Identifier) |value|
 //@[101:0102) |       | ├─Token(Colon) |:|
-//@[103:0106) |       | └─VariableAccessSyntax
+//@[103:0106) |       | └─TypeVariableAccessSyntax
 //@[103:0106) |       |   └─IdentifierSyntax
 //@[103:0106) |       |     └─Token(Identifier) |int|
 //@[107:0108) |       └─Token(RightBrace) |}|
@@ -1707,14 +1707,14 @@ type discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string }
 //@[054:0058) |   |   | ├─IdentifierSyntax
 //@[054:0058) |   |   | | └─Token(Identifier) |type|
 //@[058:0059) |   |   | ├─Token(Colon) |:|
-//@[060:0063) |   |   | └─StringSyntax
+//@[060:0063) |   |   | └─StringTypeLiteralSyntax
 //@[060:0063) |   |   |   └─Token(StringComplete) |'a'|
 //@[063:0064) |   |   ├─Token(Comma) |,|
 //@[065:0078) |   |   ├─ObjectTypePropertySyntax
 //@[065:0070) |   |   | ├─IdentifierSyntax
 //@[065:0070) |   |   | | └─Token(Identifier) |value|
 //@[070:0071) |   |   | ├─Token(Colon) |:|
-//@[072:0078) |   |   | └─VariableAccessSyntax
+//@[072:0078) |   |   | └─TypeVariableAccessSyntax
 //@[072:0078) |   |   |   └─IdentifierSyntax
 //@[072:0078) |   |   |     └─Token(Identifier) |string|
 //@[079:0080) |   |   └─Token(RightBrace) |}|
@@ -1726,14 +1726,14 @@ type discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string }
 //@[085:0089) |       | ├─IdentifierSyntax
 //@[085:0089) |       | | └─Token(Identifier) |type|
 //@[089:0090) |       | ├─Token(Colon) |:|
-//@[091:0094) |       | └─StringSyntax
+//@[091:0094) |       | └─StringTypeLiteralSyntax
 //@[091:0094) |       |   └─Token(StringComplete) |'b'|
 //@[094:0095) |       ├─Token(Comma) |,|
 //@[096:0106) |       ├─ObjectTypePropertySyntax
 //@[096:0101) |       | ├─IdentifierSyntax
 //@[096:0101) |       | | └─Token(Identifier) |value|
 //@[101:0102) |       | ├─Token(Colon) |:|
-//@[103:0106) |       | └─VariableAccessSyntax
+//@[103:0106) |       | └─TypeVariableAccessSyntax
 //@[103:0106) |       |   └─IdentifierSyntax
 //@[103:0106) |       |     └─Token(Identifier) |int|
 //@[107:0108) |       └─Token(RightBrace) |}|
@@ -1756,7 +1756,7 @@ param discriminatorParamBadType1 typeA
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0032) | ├─IdentifierSyntax
 //@[006:0032) | | └─Token(Identifier) |discriminatorParamBadType1|
-//@[033:0038) | └─VariableAccessSyntax
+//@[033:0038) | └─TypeVariableAccessSyntax
 //@[033:0038) |   └─IdentifierSyntax
 //@[033:0038) |     └─Token(Identifier) |typeA|
 //@[038:0040) ├─Token(NewLine) |\n\n|
@@ -1780,11 +1780,11 @@ param discriminatorParamBadType2 'a' | 'b'
 //@[006:0032) | | └─Token(Identifier) |discriminatorParamBadType2|
 //@[033:0042) | └─UnionTypeSyntax
 //@[033:0036) |   ├─UnionTypeMemberSyntax
-//@[033:0036) |   | └─StringSyntax
+//@[033:0036) |   | └─StringTypeLiteralSyntax
 //@[033:0036) |   |   └─Token(StringComplete) |'a'|
 //@[037:0038) |   ├─Token(Pipe) |||
 //@[039:0042) |   └─UnionTypeMemberSyntax
-//@[039:0042) |     └─StringSyntax
+//@[039:0042) |     └─StringTypeLiteralSyntax
 //@[039:0042) |       └─Token(StringComplete) |'b'|
 //@[042:0044) ├─Token(NewLine) |\n\n|
 
@@ -1805,7 +1805,7 @@ output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0034) | ├─IdentifierSyntax
 //@[007:0034) | | └─Token(Identifier) |discriminatorOutputBadType1|
-//@[035:0040) | ├─VariableAccessSyntax
+//@[035:0040) | ├─TypeVariableAccessSyntax
 //@[035:0040) | | └─IdentifierSyntax
 //@[035:0040) | |   └─Token(Identifier) |typeA|
 //@[041:0042) | ├─Token(Assignment) |=|
@@ -1844,7 +1844,7 @@ output discriminatorOutputBadType2 object = { prop: 'value' }
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0034) | ├─IdentifierSyntax
 //@[007:0034) | | └─Token(Identifier) |discriminatorOutputBadType2|
-//@[035:0041) | ├─VariableAccessSyntax
+//@[035:0041) | ├─TypeVariableAccessSyntax
 //@[035:0041) | | └─IdentifierSyntax
 //@[035:0041) | |   └─Token(Identifier) |object|
 //@[042:0043) | ├─Token(Assignment) |=|
@@ -1867,7 +1867,7 @@ type strings = string[]
 //@[013:0014) | ├─Token(Assignment) |=|
 //@[015:0023) | └─ArrayTypeSyntax
 //@[015:0021) |   ├─ArrayTypeMemberSyntax
-//@[015:0021) |   | └─VariableAccessSyntax
+//@[015:0021) |   | └─TypeVariableAccessSyntax
 //@[015:0021) |   |   └─IdentifierSyntax
 //@[015:0021) |   |     └─Token(Identifier) |string|
 //@[021:0022) |   ├─Token(LeftSquare) |[|
@@ -1881,7 +1881,7 @@ type invalidTupleAccess = strings[0]
 //@[005:0023) | | └─Token(Identifier) |invalidTupleAccess|
 //@[024:0025) | ├─Token(Assignment) |=|
 //@[026:0036) | └─TypeArrayAccessSyntax
-//@[026:0033) |   ├─VariableAccessSyntax
+//@[026:0033) |   ├─TypeVariableAccessSyntax
 //@[026:0033) |   | └─IdentifierSyntax
 //@[026:0033) |   |   └─Token(Identifier) |strings|
 //@[033:0034) |   ├─Token(LeftSquare) |[|
@@ -1899,12 +1899,12 @@ type stringTuple = [string, string]
 //@[019:0035) | └─TupleTypeSyntax
 //@[019:0020) |   ├─Token(LeftSquare) |[|
 //@[020:0026) |   ├─TupleTypeItemSyntax
-//@[020:0026) |   | └─VariableAccessSyntax
+//@[020:0026) |   | └─TypeVariableAccessSyntax
 //@[020:0026) |   |   └─IdentifierSyntax
 //@[020:0026) |   |     └─Token(Identifier) |string|
 //@[026:0027) |   ├─Token(Comma) |,|
 //@[028:0034) |   ├─TupleTypeItemSyntax
-//@[028:0034) |   | └─VariableAccessSyntax
+//@[028:0034) |   | └─TypeVariableAccessSyntax
 //@[028:0034) |   |   └─IdentifierSyntax
 //@[028:0034) |   |     └─Token(Identifier) |string|
 //@[034:0035) |   └─Token(RightSquare) |]|
@@ -1917,7 +1917,7 @@ type invalidItemTypeAccess = stringTuple[*]
 //@[005:0026) | | └─Token(Identifier) |invalidItemTypeAccess|
 //@[027:0028) | ├─Token(Assignment) |=|
 //@[029:0043) | └─TypeItemsAccessSyntax
-//@[029:0040) |   ├─VariableAccessSyntax
+//@[029:0040) |   ├─TypeVariableAccessSyntax
 //@[029:0040) |   | └─IdentifierSyntax
 //@[029:0040) |   |   └─Token(Identifier) |stringTuple|
 //@[040:0041) |   ├─Token(LeftSquare) |[|
@@ -1939,7 +1939,7 @@ type anObject = {
 //@[002:0010) |   | ├─IdentifierSyntax
 //@[002:0010) |   | | └─Token(Identifier) |property|
 //@[010:0011) |   | ├─Token(Colon) |:|
-//@[012:0018) |   | └─VariableAccessSyntax
+//@[012:0018) |   | └─TypeVariableAccessSyntax
 //@[012:0018) |   |   └─IdentifierSyntax
 //@[012:0018) |   |     └─Token(Identifier) |string|
 //@[018:0019) |   ├─Token(NewLine) |\n|
@@ -1954,7 +1954,7 @@ type invalidAdditionalPropertiesAccess = anObject.*
 //@[005:0038) | | └─Token(Identifier) |invalidAdditionalPropertiesAccess|
 //@[039:0040) | ├─Token(Assignment) |=|
 //@[041:0051) | └─TypeAdditionalPropertiesAccessSyntax
-//@[041:0049) |   ├─VariableAccessSyntax
+//@[041:0049) |   ├─TypeVariableAccessSyntax
 //@[041:0049) |   | └─IdentifierSyntax
 //@[041:0049) |   |   └─Token(Identifier) |anObject|
 //@[049:0050) |   ├─Token(Dot) |.|
@@ -1974,7 +1974,7 @@ type stringDict = {
 //@[002:0011) |   ├─ObjectTypeAdditionalPropertiesSyntax
 //@[002:0003) |   | ├─Token(Asterisk) |*|
 //@[003:0004) |   | ├─Token(Colon) |:|
-//@[005:0011) |   | └─VariableAccessSyntax
+//@[005:0011) |   | └─TypeVariableAccessSyntax
 //@[005:0011) |   |   └─IdentifierSyntax
 //@[005:0011) |   |     └─Token(Identifier) |string|
 //@[011:0012) |   ├─Token(NewLine) |\n|
@@ -1989,7 +1989,7 @@ type invalidPropertyAccess = stringDict.property
 //@[005:0026) | | └─Token(Identifier) |invalidPropertyAccess|
 //@[027:0028) | ├─Token(Assignment) |=|
 //@[029:0048) | └─TypePropertyAccessSyntax
-//@[029:0039) |   ├─VariableAccessSyntax
+//@[029:0039) |   ├─TypeVariableAccessSyntax
 //@[029:0039) |   | └─IdentifierSyntax
 //@[029:0039) |   |   └─Token(Identifier) |stringDict|
 //@[039:0040) |   ├─Token(Dot) |.|

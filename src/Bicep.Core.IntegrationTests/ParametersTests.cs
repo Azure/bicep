@@ -169,7 +169,7 @@ output id string = p.id
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
             });
         }
 
@@ -204,7 +204,7 @@ resource resource 'My.Rp/myResource@2020-01-01' = {
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP081", DiagnosticLevel.Warning, "Resource type \"My.Rp/myResource@2020-01-01\" does not have types available."),
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"My.Rp/myResource@2020-01-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                 ("BCP229", DiagnosticLevel.Error, "The parameter \"p\" cannot be used as a resource scope or parent. Resources passed as parameters cannot be used as a scope or parent of a resource."),
             });
         }
@@ -227,7 +227,7 @@ resource resource 'Microsoft.Storage/storageAccounts/tableServices@2020-06-01' =
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts/tableServices@2020-06-01\" does not have types available."),
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts/tableServices@2020-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                 ("BCP229", DiagnosticLevel.Error, "The parameter \"p\" cannot be used as a resource scope or parent. Resources passed as parameters cannot be used as a scope or parent of a resource."),
                 ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 1 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
             });

@@ -118,7 +118,7 @@ namespace Bicep.LangServer.IntegrationTests
 
                     switch (symbol)
                     {
-                        case FunctionSymbol when symbolReference is VariableAccessSyntax:
+                        case FunctionSymbol when symbolReference is VariableAccessSyntax or TypeVariableAccessSyntax:
                             // variable got bound to a function
                             hover.Should().BeNull();
                             break;

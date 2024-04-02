@@ -22,7 +22,7 @@ output myStr string = 'hello'
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0012) | ├─IdentifierSyntax
 //@[007:0012) | | └─Token(Identifier) |myStr|
-//@[013:0019) | ├─VariableAccessSyntax
+//@[013:0019) | ├─TypeVariableAccessSyntax
 //@[013:0019) | | └─IdentifierSyntax
 //@[013:0019) | |   └─Token(Identifier) |string|
 //@[020:0021) | ├─Token(Assignment) |=|
@@ -51,7 +51,7 @@ output myInt int = 7
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0012) | ├─IdentifierSyntax
 //@[007:0012) | | └─Token(Identifier) |myInt|
-//@[013:0016) | ├─VariableAccessSyntax
+//@[013:0016) | ├─TypeVariableAccessSyntax
 //@[013:0016) | | └─IdentifierSyntax
 //@[013:0016) | |   └─Token(Identifier) |int|
 //@[017:0018) | ├─Token(Assignment) |=|
@@ -63,7 +63,7 @@ output myOtherInt int = 20 / 13 + 80 % -4
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0017) | ├─IdentifierSyntax
 //@[007:0017) | | └─Token(Identifier) |myOtherInt|
-//@[018:0021) | ├─VariableAccessSyntax
+//@[018:0021) | ├─TypeVariableAccessSyntax
 //@[018:0021) | | └─IdentifierSyntax
 //@[018:0021) | |   └─Token(Identifier) |int|
 //@[022:0023) | ├─Token(Assignment) |=|
@@ -106,7 +106,7 @@ output myBool bool = !false
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0013) | ├─IdentifierSyntax
 //@[007:0013) | | └─Token(Identifier) |myBool|
-//@[014:0018) | ├─VariableAccessSyntax
+//@[014:0018) | ├─TypeVariableAccessSyntax
 //@[014:0018) | | └─IdentifierSyntax
 //@[014:0018) | |   └─Token(Identifier) |bool|
 //@[019:0020) | ├─Token(Assignment) |=|
@@ -120,7 +120,7 @@ output myOtherBool bool = true
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0018) | ├─IdentifierSyntax
 //@[007:0018) | | └─Token(Identifier) |myOtherBool|
-//@[019:0023) | ├─VariableAccessSyntax
+//@[019:0023) | ├─TypeVariableAccessSyntax
 //@[019:0023) | | └─IdentifierSyntax
 //@[019:0023) | |   └─Token(Identifier) |bool|
 //@[024:0025) | ├─Token(Assignment) |=|
@@ -149,7 +149,7 @@ output suchEmpty array = [
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0016) | ├─IdentifierSyntax
 //@[007:0016) | | └─Token(Identifier) |suchEmpty|
-//@[017:0022) | ├─VariableAccessSyntax
+//@[017:0022) | ├─TypeVariableAccessSyntax
 //@[017:0022) | | └─IdentifierSyntax
 //@[017:0022) | |   └─Token(Identifier) |array|
 //@[023:0024) | ├─Token(Assignment) |=|
@@ -165,7 +165,7 @@ output suchEmpty2 object = {
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0017) | ├─IdentifierSyntax
 //@[007:0017) | | └─Token(Identifier) |suchEmpty2|
-//@[018:0024) | ├─VariableAccessSyntax
+//@[018:0024) | ├─TypeVariableAccessSyntax
 //@[018:0024) | | └─IdentifierSyntax
 //@[018:0024) | |   └─Token(Identifier) |object|
 //@[025:0026) | ├─Token(Assignment) |=|
@@ -197,7 +197,7 @@ output obj object = {
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |obj|
-//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | ├─TypeVariableAccessSyntax
 //@[011:0017) | | └─IdentifierSyntax
 //@[011:0017) | |   └─Token(Identifier) |object|
 //@[018:0019) | ├─Token(Assignment) |=|
@@ -311,7 +311,7 @@ output myArr array = [
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0012) | ├─IdentifierSyntax
 //@[007:0012) | | └─Token(Identifier) |myArr|
-//@[013:0018) | ├─VariableAccessSyntax
+//@[013:0018) | ├─TypeVariableAccessSyntax
 //@[013:0018) | | └─IdentifierSyntax
 //@[013:0018) | |   └─Token(Identifier) |array|
 //@[019:0020) | ├─Token(Assignment) |=|
@@ -349,7 +349,7 @@ output rgLocation string = resourceGroup().location
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0017) | ├─IdentifierSyntax
 //@[007:0017) | | └─Token(Identifier) |rgLocation|
-//@[018:0024) | ├─VariableAccessSyntax
+//@[018:0024) | ├─TypeVariableAccessSyntax
 //@[018:0024) | | └─IdentifierSyntax
 //@[018:0024) | |   └─Token(Identifier) |string|
 //@[025:0026) | ├─Token(Assignment) |=|
@@ -369,7 +369,7 @@ output isWestUs bool = resourceGroup().location != 'westus' ? false : true
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0015) | ├─IdentifierSyntax
 //@[007:0015) | | └─Token(Identifier) |isWestUs|
-//@[016:0020) | ├─VariableAccessSyntax
+//@[016:0020) | ├─TypeVariableAccessSyntax
 //@[016:0020) | | └─IdentifierSyntax
 //@[016:0020) | |   └─Token(Identifier) |bool|
 //@[021:0022) | ├─Token(Assignment) |=|
@@ -400,7 +400,7 @@ output expressionBasedIndexer string = {
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0029) | ├─IdentifierSyntax
 //@[007:0029) | | └─Token(Identifier) |expressionBasedIndexer|
-//@[030:0036) | ├─VariableAccessSyntax
+//@[030:0036) | ├─TypeVariableAccessSyntax
 //@[030:0036) | | └─IdentifierSyntax
 //@[030:0036) | |   └─Token(Identifier) |string|
 //@[037:0038) | ├─Token(Assignment) |=|
@@ -504,7 +504,7 @@ output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-0
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0017) | ├─IdentifierSyntax
 //@[007:0017) | | └─Token(Identifier) |primaryKey|
-//@[018:0024) | ├─VariableAccessSyntax
+//@[018:0024) | ├─TypeVariableAccessSyntax
 //@[018:0024) | | └─IdentifierSyntax
 //@[018:0024) | |   └─Token(Identifier) |string|
 //@[025:0026) | ├─Token(Assignment) |=|
@@ -540,7 +540,7 @@ output secondaryKey string = secondaryKeyIntermediateVar
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0019) | ├─IdentifierSyntax
 //@[007:0019) | | └─Token(Identifier) |secondaryKey|
-//@[020:0026) | ├─VariableAccessSyntax
+//@[020:0026) | ├─TypeVariableAccessSyntax
 //@[020:0026) | | └─IdentifierSyntax
 //@[020:0026) | |   └─Token(Identifier) |string|
 //@[027:0028) | ├─Token(Assignment) |=|
@@ -563,7 +563,7 @@ param paramWithOverlappingOutput string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0032) | ├─IdentifierSyntax
 //@[006:0032) | | └─Token(Identifier) |paramWithOverlappingOutput|
-//@[033:0039) | └─VariableAccessSyntax
+//@[033:0039) | └─TypeVariableAccessSyntax
 //@[033:0039) |   └─IdentifierSyntax
 //@[033:0039) |     └─Token(Identifier) |string|
 //@[039:0043) ├─Token(NewLine) |\r\n\r\n|
@@ -573,7 +573,7 @@ output varWithOverlappingOutput string = varWithOverlappingOutput
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0031) | ├─IdentifierSyntax
 //@[007:0031) | | └─Token(Identifier) |varWithOverlappingOutput|
-//@[032:0038) | ├─VariableAccessSyntax
+//@[032:0038) | ├─TypeVariableAccessSyntax
 //@[032:0038) | | └─IdentifierSyntax
 //@[032:0038) | |   └─Token(Identifier) |string|
 //@[039:0040) | ├─Token(Assignment) |=|
@@ -586,7 +586,7 @@ output paramWithOverlappingOutput string = paramWithOverlappingOutput
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0033) | ├─IdentifierSyntax
 //@[007:0033) | | └─Token(Identifier) |paramWithOverlappingOutput|
-//@[034:0040) | ├─VariableAccessSyntax
+//@[034:0040) | ├─TypeVariableAccessSyntax
 //@[034:0040) | | └─IdentifierSyntax
 //@[034:0040) | |   └─Token(Identifier) |string|
 //@[041:0042) | ├─Token(Assignment) |=|
@@ -602,7 +602,7 @@ output generatedArray array = [for i in range(0,10): i]
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0021) | ├─IdentifierSyntax
 //@[007:0021) | | └─Token(Identifier) |generatedArray|
-//@[022:0027) | ├─VariableAccessSyntax
+//@[022:0027) | ├─TypeVariableAccessSyntax
 //@[022:0027) | | └─IdentifierSyntax
 //@[022:0027) | |   └─Token(Identifier) |array|
 //@[028:0029) | ├─Token(Assignment) |=|

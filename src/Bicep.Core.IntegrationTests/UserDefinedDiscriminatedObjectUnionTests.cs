@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -642,6 +643,223 @@ namespace Bicep.Core.IntegrationTests
                           }
                         }
                         """));
+        }
+
+        [TestMethod]
+        public void Issue_13661()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", """
+                  import * as t1 from 'app1.spec.bicep'
+                  import * as t2 from 'app2.spec.bicep'
+
+                  @discriminator('Name')
+                  type ApiDef = (t1.Api1Def | t2.Api2Def)?
+
+                  param Name string
+                  param APIs ApiDef[]
+
+                  output test string = '${Name}-${APIs}'
+                  """),
+                  ("app1.spec.bicep", """
+                      @export()
+                      type Api1Def = {
+                        Name: 'Api1'
+                        Settings: {
+                          CustomSetting1: string
+                          CustomSetting2: string
+                        }
+                      }
+                      """),
+                  ("app2.spec.bicep", """
+                      @export()
+                      type Api2Def = {
+                        Name: 'Api2'
+                        Settings: {
+                          CustomSetting3: string
+                        }
+                      }
+                      """));
+
+            result.Template.Should().NotBeNull();
+            result.Template.Should().HaveJsonAtPath("definitions.ApiDef.discriminator", """
+                {
+                    "propertyName": "Name",
+                    "mapping": {
+                        "Api1": {
+                            "$ref": "#/definitions/_1.Api1Def"
+                        },
+                        "Api2": {
+                            "$ref": "#/definitions/_2.Api2Def"
+                        }
+                    }
+                }
+                """);
+        }
+
+        [TestMethod]
+        public void User_defined_discriminated_objects_can_amend_resource_derived_discriminated_unions()
+        {
+            var result = CompilationHelper.Compile(
+                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+                """
+                @discriminator('computeType')
+                type taggedUnion = resource<'Microsoft.MachineLearningServices/workspaces/computes@2020-04-01'>.properties
+                  | { computeType: 'foo', bar: string }
+                """);
+
+            result.Template.Should().NotBeNull();
+            result.Template.Should().HaveJsonAtPath("definitions.taggedUnion.discriminator", """
+                {
+                    "propertyName": "computeType",
+                    "mapping": {
+                      "DataFactory": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/DataFactory"
+                        }
+                      },
+                      "Databricks": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/Databricks"
+                        }
+                      },
+                      "VirtualMachine": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/VirtualMachine"
+                        }
+                      },
+                      "AmlCompute": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/AmlCompute"
+                        }
+                      },
+                      "AKS": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/AKS"
+                        }
+                      },
+                      "HDInsight": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/HDInsight"
+                        }
+                      },
+                      "DataLakeAnalytics": {
+                        "type": "object",
+                        "metadata": {
+                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/DataLakeAnalytics"
+                        }
+                      },
+                      "foo": {
+                        "type": "object",
+                        "properties": {
+                          "computeType": {
+                            "type": "string",
+                            "allowedValues": [
+                              "foo"
+                            ]
+                          },
+                          "bar": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                }
+                """);
+        }
+
+        [TestMethod]
+        public void Tagged_unions_can_be_imported_from_json_templates()
+        {
+            var test1Bicep = """
+                @export()
+                type testType = {
+                  subType: subType[]
+                }
+
+                @discriminator('type')
+                type subType = testSub1 | testSub2 | testSub3
+
+                type testSub1 = {
+                  type: '1'
+                  subOption1: string
+                }
+
+                type testSub2 = {
+                  type: '2'
+                  subOption2: int
+                }
+
+                type testSub3 = {
+                  type: '3'
+                  subOption3: bool
+                }
+                """;
+
+            static string expectedSubTypeSchema(string extension) => $$"""
+                {
+                  "type": "object",
+                  "discriminator": {
+                    "propertyName": "type",
+                    "mapping": {
+                      "1": {
+                        "$ref": "#/definitions/_1.testSub1"
+                      },
+                      "2": {
+                        "$ref": "#/definitions/_1.testSub2"
+                      },
+                      "3": {
+                        "$ref": "#/definitions/_1.testSub3"
+                      }
+                    }
+                  },
+                  "metadata": {
+                    "__bicep_imported_from!": {
+                      "sourceTemplate": "test1.{{extension}}"
+                    }
+                  }
+                }
+                """;
+
+            static string mainTypesBicep(string extension) => $$"""
+                import { testType } from 'test1.{{extension}}'
+
+                @export()
+                type mainType = {
+                  name: string
+                  test: testType[]?
+                }
+                """;
+
+            var mainBicep = """
+                import { mainType } from 'main.types.bicep'
+
+                param main mainType
+
+                output mainOut object = main
+                """;
+
+            var resultFromBicep = CompilationHelper.Compile(
+                ("test1.bicep", test1Bicep),
+                ("main.types.bicep", mainTypesBicep("bicep")),
+                ("main.bicep", mainBicep));
+
+            resultFromBicep.Template.Should().NotBeNull();
+            resultFromBicep.Template.Should().HaveJsonAtPath("$.definitions['_1.subType']", expectedSubTypeSchema("bicep"));
+
+            var resultFromJson = CompilationHelper.Compile(
+                ("test1.json", CompilationHelper.Compile(test1Bicep).Template!.ToString()),
+                ("main.types.bicep", mainTypesBicep("json")),
+                ("main.bicep", mainBicep));
+
+            resultFromJson.Template.Should().NotBeNull();
+            resultFromJson.Template.Should().HaveJsonAtPath("$.definitions['_1.subType']", expectedSubTypeSchema("json"));
         }
     }
 }

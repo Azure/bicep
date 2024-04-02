@@ -190,7 +190,7 @@ param intParam int = 0
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0014) | ├─IdentifierSyntax
 //@[06:0014) | | └─Token(Identifier) |intParam|
-//@[15:0018) | ├─VariableAccessSyntax
+//@[15:0018) | ├─TypeVariableAccessSyntax
 //@[15:0018) | | └─IdentifierSyntax
 //@[15:0018) | |   └─Token(Identifier) |int|
 //@[19:0022) | └─ParameterDefaultValueSyntax
@@ -203,7 +203,7 @@ param strParam string = 'id'
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0014) | ├─IdentifierSyntax
 //@[06:0014) | | └─Token(Identifier) |strParam|
-//@[15:0021) | ├─VariableAccessSyntax
+//@[15:0021) | ├─TypeVariableAccessSyntax
 //@[15:0021) | | └─IdentifierSyntax
 //@[15:0021) | |   └─Token(Identifier) |string|
 //@[22:0028) | └─ParameterDefaultValueSyntax
@@ -216,7 +216,7 @@ param strParam2 string = 'd'
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0015) | ├─IdentifierSyntax
 //@[06:0015) | | └─Token(Identifier) |strParam2|
-//@[16:0022) | ├─VariableAccessSyntax
+//@[16:0022) | ├─TypeVariableAccessSyntax
 //@[16:0022) | | └─IdentifierSyntax
 //@[16:0022) | |   └─Token(Identifier) |string|
 //@[23:0028) | └─ParameterDefaultValueSyntax
@@ -229,7 +229,7 @@ param cond bool = false
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0010) | ├─IdentifierSyntax
 //@[06:0010) | | └─Token(Identifier) |cond|
-//@[11:0015) | ├─VariableAccessSyntax
+//@[11:0015) | ├─TypeVariableAccessSyntax
 //@[11:0015) | | └─IdentifierSyntax
 //@[11:0015) | |   └─Token(Identifier) |bool|
 //@[16:0023) | └─ParameterDefaultValueSyntax

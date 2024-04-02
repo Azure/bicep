@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
+using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Expression.Engines;
@@ -134,28 +136,28 @@ internal class ArmDeclarationToExpressionConverter
         Expression? Sealed);
 
     private TypeModifiers GetTypeModifiers(ITemplateSchemaNode schemaNode) => new(
-        GetDescription(schemaNode) is string description ? ExpressionFactory.CreateStringLiteral(description, sourceSyntax) : null,
-        schemaNode.Metadata?.Value is JToken md && ConvertToExpression(ImmutableDictionary<JToken, LanguageExpression>.Empty, md) is ObjectExpression @object
+        Description: GetDescription(schemaNode) is string description ? ExpressionFactory.CreateStringLiteral(description, sourceSyntax) : null,
+        Metadata: schemaNode.Metadata?.Value is JToken md && ConvertToExpression(ImmutableDictionary<JToken, LanguageExpression>.Empty, md) is ObjectExpression @object
             ? ExcludingPropertiesNamed(@object, LanguageConstants.MetadataDescriptionPropertyName, LanguageConstants.MetadataExportedPropertyName)
             : null,
-        schemaNode.Type?.Value switch
+        Secure: schemaNode.Type?.Value switch
         {
             TemplateParameterType.SecureString or TemplateParameterType.SecureObject => ExpressionFactory.CreateBooleanLiteral(true, sourceSyntax),
             _ => null,
         },
-        schemaNode.MinLength?.Value is long minLength
+        MinLength: schemaNode.MinLength?.Value is long minLength
             ? ExpressionFactory.CreateIntegerLiteral(minLength, sourceSyntax)
             : null,
-        schemaNode.MaxLength?.Value is long maxLength
+        MaxLength: schemaNode.MaxLength?.Value is long maxLength
             ? ExpressionFactory.CreateIntegerLiteral(maxLength, sourceSyntax)
             : null,
-        schemaNode.MinValue?.Value is long minValue
+        MinValue: schemaNode.MinValue?.Value is long minValue
             ? ExpressionFactory.CreateIntegerLiteral(minValue, sourceSyntax)
             : null,
-        schemaNode.MaxValue?.Value is long maxValue
+        MaxValue: schemaNode.MaxValue?.Value is long maxValue
             ? ExpressionFactory.CreateIntegerLiteral(maxValue, sourceSyntax)
             : null,
-        schemaNode.AdditionalProperties?.BooleanValue is false || schemaNode.Items?.BooleanValue is false
+        Sealed: schemaNode.AdditionalProperties?.BooleanValue is false
             ? ExpressionFactory.CreateBooleanLiteral(true, sourceSyntax)
             : null);
 
@@ -359,6 +361,20 @@ internal class ArmDeclarationToExpressionConverter
                 modifiers.MinValue,
                 modifiers.MaxValue,
                 modifiers.Sealed);
+        }
+
+        if (schemaNode.Discriminator is { } discriminatorConstraint)
+        {
+            var unionMembers = discriminatorConstraint.Mapping.OrderByAscendingOrdinalInsensitively(kvp => kvp.Key)
+                .Select(kvp => ConvertToTypeExpression(kvp.Value))
+                .ToImmutableArray();
+
+            return new DiscriminatedObjectTypeExpression(sourceSyntax,
+                new(string.Empty,
+                    TypeSymbolValidationFlags.Default,
+                    discriminatorConstraint.PropertyName.Value,
+                    unionMembers.Select(expression => expression.ExpressedType)),
+                unionMembers);
         }
 
         return new ObjectTypeExpression(sourceSyntax,
