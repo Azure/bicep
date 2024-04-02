@@ -18916,6 +18916,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038a",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/cassandraClusters'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -18937,6 +18938,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038b",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/cassandraClusters/backups'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -18958,6 +18960,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038c",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/cassandraClusters/dataCenters'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -18979,6 +18982,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038d",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19000,6 +19004,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038e",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19021,6 +19026,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038f",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/collections'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19042,6 +19048,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000390",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/collections/settings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19063,6 +19070,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000391",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/containers'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19084,6 +19092,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000392",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/containers/settings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19105,6 +19114,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000393",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/graphs'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19126,6 +19136,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000394",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/graphs/settings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19147,6 +19158,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000395",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/settings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19168,6 +19180,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000396",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/keyspaces'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19189,6 +19202,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000397",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/keyspaces/settings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19210,6 +19224,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000398",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/keyspaces/tables'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19231,6 +19246,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000399",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/keyspaces/tables/settings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19252,6 +19268,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039a",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/tables'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19273,6 +19290,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039b",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/tables/settings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19294,6 +19312,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039c",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19315,6 +19334,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039d",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/tables'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19336,6 +19356,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039e",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/tables/throughputSettings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19357,6 +19378,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039f",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/throughputSettings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19378,6 +19400,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a0",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/views'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19399,6 +19422,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a1",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/views/throughputSettings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19420,6 +19444,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a2",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/dataTransferJobs'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19441,6 +19466,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a3",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/graphs'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19462,6 +19488,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a4",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/gremlinDatabases'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19483,6 +19510,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a5",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19504,6 +19532,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a6",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs/throughputSettings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19525,6 +19554,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a7",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/throughputSettings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19546,6 +19576,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a8",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbDatabases'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19567,6 +19598,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a9",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbDatabases/collections'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19588,6 +19620,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003aa",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbDatabases/collections/throughputSettings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19609,6 +19642,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003ab",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbDatabases/throughputSettings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19630,6 +19664,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003ac",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbRoleDefinitions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19651,6 +19686,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003ad",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbUserDefinitions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19672,6 +19708,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003ae",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/notebookWorkspaces'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19693,6 +19730,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003af",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/privateEndpointConnections'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19714,6 +19752,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b0",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/privateLinkResources'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19735,6 +19774,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b1",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/services'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19756,6 +19796,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b2",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19777,6 +19818,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b3",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/clientEncryptionKeys'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19798,6 +19840,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b4",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19819,6 +19862,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b5",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/storedProcedures'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19840,6 +19884,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b6",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/throughputSettings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19861,6 +19906,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b7",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/triggers'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19882,6 +19928,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b8",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/userDefinedFunctions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19903,6 +19950,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b9",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/throughputSettings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19924,6 +19972,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003ba",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19945,6 +19994,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003bb",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19966,6 +20016,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003bc",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/tables'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19987,6 +20038,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003bd",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/tables/throughputSettings'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20008,6 +20060,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003be",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/locations'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20029,6 +20082,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003bf",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/mongoClusters'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20050,6 +20104,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003c0",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/mongoClusters/firewallRules'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20071,6 +20126,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003c1",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/throughputPools'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20092,6 +20148,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003c2",
+    "filterText": "'cosmosdb,Microsoft.DocumentDB/throughputPools/throughputPoolAccounts'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
