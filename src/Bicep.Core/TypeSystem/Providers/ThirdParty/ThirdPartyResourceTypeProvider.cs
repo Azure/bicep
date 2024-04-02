@@ -29,8 +29,13 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
-                    bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
+                    bodyType = SetBicepResourceProperties(bodyObjectType, flags);
                     break;
+
+                case DiscriminatedObjectType bodyDiscriminatedType:
+                    bodyType = SetBicepResourceProperties(bodyDiscriminatedType, flags);
+                    break;
+
                 default:
                     throw new ArgumentException($"Resource {resourceType.TypeReference.FormatName()} has unexpected body type {bodyType.GetType()}");
             }
@@ -38,7 +43,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             return resourceType with { Body = bodyType };
         }
 
-        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
+        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceTypeGenerationFlags flags)
         {
             var properties = objectType.Properties;
             var isExistingResource = flags.HasFlag(ResourceTypeGenerationFlags.ExistingResource);
@@ -56,6 +61,18 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 objectType.AdditionalPropertiesType,
                 isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
                 functions: objectType.MethodResolver.functionOverloads);
+        }
+
+        private static DiscriminatedObjectType SetBicepResourceProperties(DiscriminatedObjectType objectType, ResourceTypeGenerationFlags flags)
+        {
+            var unionMembersByKey = objectType.UnionMembersByKey
+                .ToDictionary(x => x.Key, x => SetBicepResourceProperties(x.Value, flags));
+
+            return new DiscriminatedObjectType(
+                objectType.Name,
+                objectType.ValidationFlags,
+                objectType.DiscriminatorKey,
+                unionMembersByKey.Values);
         }
 
         private static IEnumerable<TypeProperty> ConvertToReadOnly(IEnumerable<TypeProperty> properties)

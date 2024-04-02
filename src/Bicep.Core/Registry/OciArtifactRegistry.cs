@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO.Abstractions;
+using System.Runtime.InteropServices;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
@@ -290,15 +291,30 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public override async Task PublishProvider(OciArtifactReference reference, BinaryData typesTgz)
+        public override async Task PublishProvider(OciArtifactReference reference, ProviderPackage provider)
         {
             // This needs to be valid JSON, otherwise there may be compatibility issues.
             var config = new Oci.OciDescriptor("{}", BicepMediaTypes.BicepProviderConfigV1);
 
             List<Oci.OciDescriptor> layers = new()
             {
-                new(typesTgz, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
+                new(provider.Types, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
             };
+
+            if (provider.OsxArm64Binary is {})
+            {
+                layers.Add(new(provider.OsxArm64Binary, BicepMediaTypes.BicepProviderArtifactLayerV1OsxArm64Binary, new OciManifestAnnotationsBuilder().WithTitle($"osx-arm64.bin").Build()));
+            }
+
+            if (provider.LinuxX64Binary is {})
+            {
+                layers.Add(new(provider.LinuxX64Binary, BicepMediaTypes.BicepProviderArtifactLayerV1LinuxX64Binary, new OciManifestAnnotationsBuilder().WithTitle($"linux-x64.bin").Build()));
+            }
+
+            if (provider.WinX64Binary is {})
+            {
+                layers.Add(new(provider.WinX64Binary, BicepMediaTypes.BicepProviderArtifactLayerV1WinX64Binary, new OciManifestAnnotationsBuilder().WithTitle($"win-x64.bin").Build()));
+            }
 
             var annotations = new OciManifestAnnotationsBuilder()
                 .WithBicepSerializationFormatV1()
@@ -378,6 +394,29 @@ namespace Bicep.Core.Registry
                     // The manifest can be used to determine what's in each layer file.
                     //  (https://github.com/Azure/bicep/issues/11900)
                     this.FileResolver.Write(this.GetArtifactFileUri(reference, ArtifactFileType.Source), sourceData.ToStream());
+                }
+            }
+
+            if (result is OciProviderArtifactResult providerArtifact)
+            {
+                var layerName = RuntimeInformation.ProcessArchitecture switch {
+                    Architecture.X64 when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => BicepMediaTypes.BicepProviderArtifactLayerV1LinuxX64Binary,
+                    Architecture.Arm64 when RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => BicepMediaTypes.BicepProviderArtifactLayerV1OsxArm64Binary,
+                    Architecture.X64 when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => BicepMediaTypes.BicepProviderArtifactLayerV1WinX64Binary,
+                    _ => throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}"),
+                };
+
+                // TODO get working on other architectures
+                if (result.TryGetSingleLayerByMediaType(layerName) is BinaryData sourceData)
+                {
+                    // write binary files
+                    using var binaryStream = sourceData.ToStream();
+                    var binaryUri = this.GetArtifactFileUri(reference, ArtifactFileType.ProviderBinary);
+                    this.FileResolver.Write(binaryUri, binaryStream);
+                    if (!OperatingSystem.IsWindows())
+                    {
+                        this.FileSystem.File.SetUnixFileMode(binaryUri.LocalPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+                    }
                 }
             }
 
@@ -487,6 +526,7 @@ namespace Bicep.Core.Registry
                 ArtifactFileType.Metadata => "metadata",
                 ArtifactFileType.Provider => "types.tgz",
                 ArtifactFileType.Source => "source.tgz",
+                ArtifactFileType.ProviderBinary => "provider.bin",
                 _ => throw new NotImplementedException($"Unexpected artifact file type '{fileType}'.")
             };
 
@@ -505,6 +545,9 @@ namespace Bicep.Core.Registry
             return new(new SourceNotAvailableException());
         }
 
+        public override Uri? TryGetProviderBinary(OciArtifactReference reference)
+            => GetArtifactFileUri(reference, ArtifactFileType.ProviderBinary);
+
         private enum ArtifactFileType
         {
             ModuleMain,
@@ -513,6 +556,7 @@ namespace Bicep.Core.Registry
             Metadata,
             Provider,
             Source,
+            ProviderBinary,
         };
     }
 }

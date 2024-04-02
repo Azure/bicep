@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Azure.Bicep.Extension</AssemblyName>
+    <RootNamespace>Bicep.Extension</RootNamespace>
+    <EnableNuget>true</EnableNuget>
+    <PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
+    <Description>
+      Bicep compiler extension functionality.
+      The Bicep team has made this NuGet package publicly available on nuget.org. While it is public, it is not a supported package. Any dependency you take on this package will be done at your own risk and we reserve the right to push breaking changes to this package at any time.
+    </Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="StreamJsonRpc" Version="2.17.11" />
+  </ItemGroup>
+</Project>

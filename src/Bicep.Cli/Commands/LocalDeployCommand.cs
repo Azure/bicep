@@ -8,6 +8,10 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
+using Bicep.Core.Extensions;
+using Bicep.Core.Registry;
+using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem.Types;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -15,21 +19,41 @@ namespace Bicep.Cli.Commands;
 
 public class LocalDeployCommand : ICommand
 {
+    private readonly IModuleDispatcher moduleDispatcher;
     private readonly IOContext io;
     private readonly ILogger logger;
     private readonly DiagnosticLogger diagnosticLogger;
     private readonly BicepCompiler compiler;
 
     public LocalDeployCommand(
+        IModuleDispatcher moduleDispatcher,
         IOContext io,
         ILogger logger,
         DiagnosticLogger diagnosticLogger,
         BicepCompiler compiler)
     {
+        this.moduleDispatcher = moduleDispatcher;
         this.io = io;
         this.logger = logger;
         this.diagnosticLogger = diagnosticLogger;
         this.compiler = compiler;
+    }
+
+    private IEnumerable<(NamespaceType namespaceType, Uri binaryUri)> GetBinaryProviders(Compilation compilation)
+    {
+        var namespaceTypes = compilation.GetAllBicepModels()
+            .Select(x => x.Root.NamespaceResolver)
+            .SelectMany(x => x.GetNamespaceNames().Select(x.TryGetNamespace))
+            .WhereNotNull();
+
+        foreach (var namespaceType in namespaceTypes)
+        {
+            if (namespaceType.Artifact is {} artifact &&
+                moduleDispatcher.TryGetProviderBinary(artifact) is {} binaryUri)
+            {
+                yield return (namespaceType, binaryUri);
+            }
+        }
     }
 
     public async Task<int> RunAsync(LocalDeployArguments args, CancellationToken cancellationToken)
@@ -56,9 +80,12 @@ public class LocalDeployCommand : ICommand
             logger.LogError("Experimental feature 'localDeploy' is not enabled.");
             return 1;
         }
+        
+        var binaryProviders = GetBinaryProviders(compilation)
+            .DistinctBy(x => x.binaryUri)
+            .ToDictionary(x => x.binaryUri, x => x.namespaceType);
 
-        var extensibilityHandler = LocalExtensibilityHandler.Build(
-            logAction: message => logger.Log(LogLevel.Information, message));
+        await using var extensibilityHandler = LocalExtensibilityHandler.Build(binaryProviders);
 
         var result = await LocalDeployment.Deploy(extensibilityHandler, templateString, parametersString, cancellationToken);
 

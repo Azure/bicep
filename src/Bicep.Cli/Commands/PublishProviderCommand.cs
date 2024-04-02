@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -38,6 +40,16 @@ namespace Bicep.Cli.Commands
 
         public async Task<int> RunAsync(PublishProviderArguments args)
         {
+            BinaryData? TryGetBinary(string architecture)
+            {
+                if (args.ExtensionBinaries.TryGetValue(architecture) is not {} binaryPath)
+                {
+                    return null;
+                }
+
+                return BinaryData.FromStream(fileSystem.FileStream.New(PathHelper.ResolvePath(binaryPath), FileMode.Open, FileAccess.Read, FileShare.Read));
+            }
+
             await ioContext.Error.WriteLineAsync("The 'publish-provider' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
 
             var indexPath = PathHelper.ResolvePath(args.IndexFile);
@@ -56,11 +68,17 @@ namespace Bicep.Cli.Commands
                 throw new BicepException($"Provider package creation failed: {exception.Message}");
             }
 
-            await this.PublishProviderAsync(providerReference, tarPayload, overwriteIfExists);
+            var package = new ProviderPackage(
+                Types: tarPayload,
+                OsxArm64Binary: TryGetBinary("osx-arm64"),
+                LinuxX64Binary: TryGetBinary("linux-x64"),
+                WinX64Binary: TryGetBinary("win-x64"));
+
+            await this.PublishProviderAsync(providerReference, package, overwriteIfExists);
             return 0;
         }
 
-        private async Task PublishProviderAsync(ArtifactReference target, BinaryData tarPayload, bool overwriteIfExists)
+        private async Task PublishProviderAsync(ArtifactReference target, ProviderPackage package, bool overwriteIfExists)
         {
             try
             {
@@ -69,7 +87,7 @@ namespace Bicep.Cli.Commands
                 {
                     throw new BicepException($"The Provider \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing provider.");
                 }
-                await this.moduleDispatcher.PublishProvider(target, tarPayload);
+                await this.moduleDispatcher.PublishProvider(target, package);
             }
             catch (ExternalArtifactException exception)
             {

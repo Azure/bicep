@@ -141,7 +141,7 @@ public static class RegistryHelper
 
         var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, new Uri("file:///main.bicep")).Unwrap();
 
-        await dispatcher.PublishProvider(targetReference, tgzData);
+        await dispatcher.PublishProvider(targetReference, new ProviderPackage(tgzData, null, null, null));
     }
 
     private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());

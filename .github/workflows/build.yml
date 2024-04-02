@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [main]
+    branches: [localdeploy]
   pull_request:
-    branches: [main]
+    branches: [localdeploy]
   workflow_dispatch:
 
 permissions:

@@ -5,6 +5,7 @@ using System.Formats.Tar;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Text;
+using Azure.Bicep.Types;
 using Azure.Bicep.Types.Serialization;
 
 namespace Bicep.Core.Registry.Providers;
@@ -54,7 +55,19 @@ public static class TypesV1Archive
 
         var index = TypeSerializer.DeserializeIndex(indexStream);
 
-        return index.Resources.Values.Select(x => x.RelativePath).Distinct();
+        IEnumerable<CrossFileTypeReference> getRelativeTypeReferences()
+        {
+            foreach (var resRef in index.Resources.Values)
+            {
+                yield return resRef;
+            }
+            if (index.Settings?.ConfigurationType is {} configRef)
+            {
+                yield return configRef;
+            }
+        }
+
+        return getRelativeTypeReferences().Select(x => x.RelativePath).Distinct();
     }
 }
 

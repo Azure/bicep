@@ -74,7 +74,7 @@ namespace Bicep.Core.Registry
         public override Task PublishModule(LocalModuleReference moduleReference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, string? description)
             => throw new NotSupportedException("Local modules cannot be published.");
 
-        public override Task PublishProvider(LocalModuleReference reference, BinaryData typesTgz)
+        public override Task PublishProvider(LocalModuleReference reference, ProviderPackage provider)
             => throw new NotSupportedException("Local providers cannot be published.");
 
         public override Task<bool> CheckArtifactExists(LocalModuleReference reference) => throw new NotSupportedException("Local modules cannot be published.");
@@ -95,5 +95,8 @@ namespace Bicep.Core.Registry
         {
             return new(new SourceNotAvailableException());
         }
+
+        public override Uri? TryGetProviderBinary(LocalModuleReference reference)
+            => null;
     }
 }

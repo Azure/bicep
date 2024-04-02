@@ -6,6 +6,10 @@ using Azure.Bicep.LocalDeploy;
 using Azure.Bicep.LocalDeploy.Extensibility;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.ErrorResponses;
+using Bicep.Core.Extensions;
+using Bicep.Core.Registry;
+using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.LanguageServer.CompilationManager;
 using MediatR;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -42,13 +46,32 @@ public record LocalDeployResponse(
 
 public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, LocalDeployResponse>
 {
+    private readonly IModuleDispatcher moduleDispatcher;
     private readonly ICompilationManager compilationManager;
     private readonly ILanguageServerFacade server;
 
-    public LocalDeployHandler(ICompilationManager compilationManager, ILanguageServerFacade server)
+    public LocalDeployHandler(IModuleDispatcher moduleDispatcher, ICompilationManager compilationManager, ILanguageServerFacade server)
     {
+        this.moduleDispatcher = moduleDispatcher;
         this.compilationManager = compilationManager;
         this.server = server;
+    }
+
+    private IEnumerable<(NamespaceType namespaceType, Uri binaryUri)> GetBinaryProviders(Compilation compilation)
+    {
+        var namespaceTypes = compilation.GetAllBicepModels()
+            .Select(x => x.Root.NamespaceResolver)
+            .SelectMany(x => x.GetNamespaceNames().Select(x.TryGetNamespace))
+            .WhereNotNull();
+
+        foreach (var namespaceType in namespaceTypes)
+        {
+            if (namespaceType.Artifact is {} artifact &&
+                moduleDispatcher.TryGetProviderBinary(artifact) is {} binaryUri)
+            {
+                yield return (namespaceType, binaryUri);
+            }
+        }
     }
 
     public async Task<LocalDeployResponse> Handle(LocalDeployRequest request, CancellationToken cancellationToken)
@@ -74,9 +97,12 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
             {
                 throw new InvalidOperationException("Bicep file had errors.");
             }
+        
+            var binaryProviders = GetBinaryProviders(context.Compilation)
+                .DistinctBy(x => x.binaryUri)
+                .ToDictionary(x => x.binaryUri, x => x.namespaceType);
 
-            var extensibilityHandler = LocalExtensibilityHandler.Build(
-                logAction: message => server.Window.Log(new LogMessageParams { Type = MessageType.Log, Message = message }));
+            await using var extensibilityHandler = LocalExtensibilityHandler.Build(binaryProviders);
 
             var result = await LocalDeployment.Deploy(extensibilityHandler, templateString, parametersString, cancellationToken);
 

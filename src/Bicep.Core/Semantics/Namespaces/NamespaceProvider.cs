@@ -8,6 +8,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
@@ -235,7 +236,7 @@ public class NamespaceProvider : INamespaceProvider
             return new(AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind));
         }
 
-        return new(ThirdPartyNamespaceType.Create(providerName, aliasName, typeProvider));
+        return new(ThirdPartyNamespaceType.Create(providerName, aliasName, typeProvider, artifact.Reference as OciArtifactReference));
     }
 
     private ResultWithDiagnostic<ProviderConfigEntry> TryGetProviderConfig(RootConfiguration rootConfig, string providerName)

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.ThirdParty;
 using Bicep.Core.TypeSystem.Types;
@@ -10,14 +11,7 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public static class ThirdPartyNamespaceType
     {
-        public static NamespaceSettings Settings { get; } = new(
-            IsSingleton: true,
-            BicepProviderName: string.Empty,
-            ConfigurationType: null,
-            ArmTemplateProviderName: string.Empty,
-            ArmTemplateProviderVersion: string.Empty);
-
-        public static NamespaceType Create(string name, string aliasName, IResourceTypeProvider resourceTypeProvider)
+        public static NamespaceType Create(string name, string aliasName, IResourceTypeProvider resourceTypeProvider, OciArtifactReference? artifact)
         {
             // NamespaceConfig is not null
             if (resourceTypeProvider is ThirdPartyResourceTypeProvider thirdPartyProvider && thirdPartyProvider.GetNamespaceConfiguration() is NamespaceConfiguration namespaceConfig && namespaceConfig != null)
@@ -34,7 +28,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     ImmutableArray<FunctionOverload>.Empty,
                     ImmutableArray<BannedFunction>.Empty,
                     ImmutableArray<Decorator>.Empty,
-                    resourceTypeProvider);
+                    resourceTypeProvider,
+                    artifact);
             }
 
             // NamespaceConfig is required to be set for 3PProviders
