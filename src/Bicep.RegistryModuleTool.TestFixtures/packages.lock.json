@@ -59,11 +59,11 @@
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Direct",
-        "requested": "[20.0.15, )",
-        "resolved": "20.0.15",
-        "contentHash": "Or7WQBhwAIvlzMKXod/XfBoqHOcRbmTufqG1FDDUF1U+n4ufGrrgSbYiISJJW11QgWqhwG9qaepGIQXJd7WUIg==",
+        "requested": "[21.0.2, )",
+        "resolved": "21.0.2",
+        "contentHash": "35gVJWBrsUkf+ob0xZJaVja0gLYA5UnqM1K0cSHHKfZ71aMMwUbhNNOy/cpHiVF+Z7FLiREVE080F9QDCf5O2A==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions.TestingHelpers": "20.0.15"
+          "TestableIO.System.IO.Abstractions.TestingHelpers": "21.0.2"
         }
       },
       "Azure.Bicep.Types": {
@@ -1425,11 +1425,11 @@
       },
       "TestableIO.System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
-        "resolved": "20.0.15",
-        "contentHash": "Usbm1pW5TljGIt++b5e2BsxZhG19u0b4Y8cZTuPq4JfbGjv1G6GqPpTD7ygqKloFZOaB3jQjhLIYUjTLlC/+2Q==",
+        "resolved": "21.0.2",
+        "contentHash": "4s6EC7rGSlNPqC9/FOmYavFTjetO7zDBnc0H8Hyb8ABJll2UgeC7UvdNLwx28/hhUE8AvUJmwamjAII6LJWIQA==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "20.0.15",
-          "TestableIO.System.IO.Abstractions.Wrappers": "20.0.15"
+          "TestableIO.System.IO.Abstractions": "21.0.2",
+          "TestableIO.System.IO.Abstractions.Wrappers": "21.0.2"
         }
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
@@ -1500,7 +1500,7 @@
           "Microsoft.NET.Test.Sdk": "[17.9.0, )",
           "Moq": "[4.18.4, )",
           "Newtonsoft.Json.Schema": "[3.0.15, )",
-          "System.IO.Abstractions.TestingHelpers": "[20.0.15, )"
+          "System.IO.Abstractions.TestingHelpers": "[21.0.2, )"
         }
       },
       "bicep.langserver": {
