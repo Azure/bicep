@@ -174,6 +174,22 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax) => this.Apply(syntax, LayoutTypeItemsAccessSyntax);
 
+        public void VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax) => this.Layout(syntax.Name);
+
+        public void VisitStringTypeLiteralSyntax(StringTypeLiteralSyntax syntax) => this.Apply(syntax, LayoutStringTypeLiteralSyntax);
+
+        public void VisitIntegerTypeLiteralSyntax(IntegerTypeLiteralSyntax syntax) => this.Layout(syntax.Literal);
+
+        public void VisitBooleanTypeLiteralSyntax(BooleanTypeLiteralSyntax syntax) => this.Layout(syntax.Literal);
+
+        public void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax) => this.Layout(syntax.NullKeyword);
+
+        public void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax) => this.Apply(syntax, LayoutUnaryTypeOperationSyntax);
+
+        public void VisitNonNullableTypeSyntax(NonNullableTypeSyntax syntax) => this.Apply(syntax, LayoutNonNullableTypeSyntax);
+
+        public void VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax) => this.Apply(syntax, LayoutParenthesizedTypeSyntax);
+
         public void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax) => this.Apply(syntax, LayoutSpreadExpressionSyntax);
 
         public IEnumerable<Document> Layout(SyntaxBase syntax)

@@ -213,7 +213,7 @@ output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0030) | ├─IdentifierSyntax
 //@[007:0030) | | └─Token(Identifier) |myManagementGroupOutput|
-//@[031:0037) | ├─VariableAccessSyntax
+//@[031:0037) | ├─TypeVariableAccessSyntax
 //@[031:0037) | | └─IdentifierSyntax
 //@[031:0037) | |   └─Token(Identifier) |string|
 //@[038:0039) | ├─Token(Assignment) |=|
@@ -234,7 +234,7 @@ output mySubscriptionOutput string = mySubscriptionMod.outputs.myOutput
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0027) | ├─IdentifierSyntax
 //@[007:0027) | | └─Token(Identifier) |mySubscriptionOutput|
-//@[028:0034) | ├─VariableAccessSyntax
+//@[028:0034) | ├─TypeVariableAccessSyntax
 //@[028:0034) | | └─IdentifierSyntax
 //@[028:0034) | |   └─Token(Identifier) |string|
 //@[035:0036) | ├─Token(Assignment) |=|

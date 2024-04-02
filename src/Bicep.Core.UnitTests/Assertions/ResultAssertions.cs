@@ -36,11 +36,11 @@ public static class ResultExtensions
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
-                .Given<Result<TSuccess,TError>>(() => Subject)
+                .Given<Result<TSuccess, TError>>(() => Subject)
                 .ForCondition(x => !x.IsSuccess())
                 .FailWith("Expected result to be a failure{reason}, but it was a success with value {0}", x => x.TryUnwrap());
 
-            return new AndConstraint<ResultAssertions<TSuccess,TError>>(this);
+            return new AndConstraint<ResultAssertions<TSuccess, TError>>(this);
 
         }
         public AndConstraint<ResultAssertions<TSuccess, TError>> BeFailureWithValue(TError expectedError, string because = "", params object[] becauseArgs)

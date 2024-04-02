@@ -83,7 +83,7 @@ const escapeChar: Mode = {
 const stringVerbatim: Mode = {
   className: 'string',
   begin: `'''`,
-  end: `'''`,
+  end: `'''${notBefore(`'`)}`,
 }
 
 const stringSubstitution: Mode = {

@@ -668,7 +668,7 @@ namespace Bicep.Core.TypeSystem
 
         private bool MightBeArrayAny(SyntaxBase syntax) => binder.GetParent(syntax) switch
         {
-            ParenthesizedExpressionSyntax parenthesized => MightBeArrayAny(parenthesized),
+            ParenthesizedTypeSyntax parenthesized => MightBeArrayAny(parenthesized),
             ArrayTypeMemberSyntax arrayTypeMember => MightBeArrayAny(arrayTypeMember),
             ArrayTypeSyntax => true,
             _ => false,
@@ -781,6 +781,79 @@ namespace Bicep.Core.TypeSystem
                 var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
 
                 base.VisitTypeItemsAccessSyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitTypeVariableAccessSyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitStringTypeLiteralSyntax(StringTypeLiteralSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitStringTypeLiteralSyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitIntegerTypeLiteralSyntax(IntegerTypeLiteralSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitIntegerTypeLiteralSyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitBooleanTypeLiteralSyntax(BooleanTypeLiteralSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitBooleanTypeLiteralSyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax)
+            => AssignType(syntax, () => LanguageConstants.Null);
+
+        public override void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitUnaryTypeOperationSyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitNonNullableTypeSyntax(NonNullableTypeSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitNonNullableTypeSyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitParenthesizedTypeSyntax(syntax);
 
                 return declaredType;
             });
@@ -1474,7 +1547,7 @@ namespace Bicep.Core.TypeSystem
 
                 // operand doesn't appear to have errors
                 // let's fold the expression so that an operation with a literal typed operand will have a literal return type
-                if (OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax, operandType, diagnostics) is { } result)
+                if (OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax.Operator, operandType, diagnostics) is { } result)
                 {
                     return result;
                 }

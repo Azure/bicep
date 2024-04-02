@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Types;
@@ -76,6 +77,11 @@ public class ResourceDerivedTypeResolver
                     case "additionalproperties" when current is ObjectType @object &&
                         @object.AdditionalPropertiesType is not null:
                         current = @object.AdditionalPropertiesType.Type;
+                        continue;
+                    case "discriminator" when current is DiscriminatedObjectType discriminatedObject &&
+                        unresolved.PointerSegments[++i].Equals("mapping", StringComparison.OrdinalIgnoreCase) &&
+                        discriminatedObject.UnionMembersByKey.TryGetValue(StringUtils.EscapeBicepString(unresolved.PointerSegments[++i]), out var variant):
+                        current = variant;
                         continue;
                     case "prefixitems" when current is TupleType tuple &&
                         int.TryParse(unresolved.PointerSegments[++i], out int index) &&

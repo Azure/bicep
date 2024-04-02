@@ -160,6 +160,22 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax);
 
+        public abstract void VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax);
+
+        public abstract void VisitStringTypeLiteralSyntax(StringTypeLiteralSyntax syntax);
+
+        public abstract void VisitIntegerTypeLiteralSyntax(IntegerTypeLiteralSyntax syntax);
+
+        public abstract void VisitBooleanTypeLiteralSyntax(BooleanTypeLiteralSyntax syntax);
+
+        public abstract void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax);
+
+        public abstract void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax);
+
+        public abstract void VisitNonNullableTypeSyntax(NonNullableTypeSyntax syntax);
+
+        public abstract void VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax);
+
         public abstract void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax);
 
         public void Visit(SyntaxBase? node)

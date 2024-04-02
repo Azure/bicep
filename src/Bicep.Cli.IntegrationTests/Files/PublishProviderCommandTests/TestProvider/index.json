@@ -1,56 +1,61 @@
 {
   "resources": {
     "Microsoft.Storage/storageAccounts@2022-05-01": {
-      "$ref": "types.json#/179"
+      "$ref": "v1/types.json#/179"
     },
     "Microsoft.Storage/storageAccounts/managementPolicies@2022-05-01": {
-      "$ref": "types.json#/206"
+      "$ref": "v1/types.json#/206"
     },
     "Microsoft.Storage/storageAccounts/inventoryPolicies@2022-05-01": {
-      "$ref": "types.json#/244"
+      "$ref": "v1/types.json#/244"
     },
     "Microsoft.Storage/storageAccounts/privateEndpointConnections@2022-05-01": {
-      "$ref": "types.json#/248"
+      "$ref": "v1/types.json#/248"
     },
     "Microsoft.Storage/storageAccounts/objectReplicationPolicies@2022-05-01": {
-      "$ref": "types.json#/258"
+      "$ref": "v1/types.json#/258"
     },
     "Microsoft.Storage/storageAccounts/localUsers@2022-05-01": {
-      "$ref": "types.json#/268"
+      "$ref": "v1/types.json#/268"
     },
     "Microsoft.Storage/storageAccounts/encryptionScopes@2022-05-01": {
-      "$ref": "types.json#/281"
+      "$ref": "v1/types.json#/281"
     },
     "Microsoft.Storage/storageAccounts/blobServices@2022-05-01": {
-      "$ref": "types.json#/311"
+      "$ref": "v1/types.json#/311"
     },
     "Microsoft.Storage/storageAccounts/blobServices/containers@2022-05-01": {
-      "$ref": "types.json#/352"
+      "$ref": "v1/types.json#/352"
     },
     "Microsoft.Storage/storageAccounts/blobServices/containers/immutabilityPolicies@2022-05-01": {
-      "$ref": "types.json#/357"
+      "$ref": "v1/types.json#/357"
     },
     "Microsoft.Storage/storageAccounts/fileServices@2022-05-01": {
-      "$ref": "types.json#/366"
+      "$ref": "v1/types.json#/366"
     },
     "Microsoft.Storage/storageAccounts/fileServices/shares@2022-05-01": {
-      "$ref": "types.json#/400"
+      "$ref": "v1/types.json#/400"
     },
     "Microsoft.Storage/storageAccounts/queueServices@2022-05-01": {
-      "$ref": "types.json#/406"
+      "$ref": "v1/types.json#/406"
     },
     "Microsoft.Storage/storageAccounts/queueServices/queues@2022-05-01": {
-      "$ref": "types.json#/413"
+      "$ref": "v1/types.json#/413"
     },
     "Microsoft.Storage/storageAccounts/tableServices@2022-05-01": {
-      "$ref": "types.json#/419"
+      "$ref": "v1/types.json#/419"
     },
     "Microsoft.Storage/storageAccounts/tableServices/tables@2022-05-01": {
-      "$ref": "types.json#/428"
+      "$ref": "v1/types.json#/428"
     },
     "Microsoft.Storage/locations/deletedAccounts@2022-05-01": {
-      "$ref": "types.json#/433"
+      "$ref": "v1/types.json#/433"
     }
   },
-  "resourceFunctions": {}
+  "resourceFunctions": {},
+  "settings": {
+    "name": "thirdpartyprovider",
+    "version": "1.2.3",
+    "isSingleton": false
+  }
 }

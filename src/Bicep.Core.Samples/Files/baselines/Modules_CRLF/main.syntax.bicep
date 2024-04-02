@@ -22,7 +22,7 @@ param deployTimeSuffix string = newGuid()
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0022) | ├─IdentifierSyntax
 //@[006:0022) | | └─Token(Identifier) |deployTimeSuffix|
-//@[023:0029) | ├─VariableAccessSyntax
+//@[023:0029) | ├─TypeVariableAccessSyntax
 //@[023:0029) | | └─IdentifierSyntax
 //@[023:0029) | |   └─Token(Identifier) |string|
 //@[030:0041) | └─ParameterDefaultValueSyntax
@@ -931,7 +931,7 @@ output stringOutputA string = modATest.outputs.stringOutputA
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0020) | ├─IdentifierSyntax
 //@[007:0020) | | └─Token(Identifier) |stringOutputA|
-//@[021:0027) | ├─VariableAccessSyntax
+//@[021:0027) | ├─TypeVariableAccessSyntax
 //@[021:0027) | | └─IdentifierSyntax
 //@[021:0027) | |   └─Token(Identifier) |string|
 //@[028:0029) | ├─Token(Assignment) |=|
@@ -952,7 +952,7 @@ output stringOutputB string = modATest.outputs.stringOutputB
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0020) | ├─IdentifierSyntax
 //@[007:0020) | | └─Token(Identifier) |stringOutputB|
-//@[021:0027) | ├─VariableAccessSyntax
+//@[021:0027) | ├─TypeVariableAccessSyntax
 //@[021:0027) | | └─IdentifierSyntax
 //@[021:0027) | |   └─Token(Identifier) |string|
 //@[028:0029) | ├─Token(Assignment) |=|
@@ -973,7 +973,7 @@ output objOutput object = modATest.outputs.objOutput
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0016) | ├─IdentifierSyntax
 //@[007:0016) | | └─Token(Identifier) |objOutput|
-//@[017:0023) | ├─VariableAccessSyntax
+//@[017:0023) | ├─TypeVariableAccessSyntax
 //@[017:0023) | | └─IdentifierSyntax
 //@[017:0023) | |   └─Token(Identifier) |object|
 //@[024:0025) | ├─Token(Assignment) |=|
@@ -994,7 +994,7 @@ output arrayOutput array = modATest.outputs.arrayOutput
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0018) | ├─IdentifierSyntax
 //@[007:0018) | | └─Token(Identifier) |arrayOutput|
-//@[019:0024) | ├─VariableAccessSyntax
+//@[019:0024) | ├─TypeVariableAccessSyntax
 //@[019:0024) | | └─IdentifierSyntax
 //@[019:0024) | |   └─Token(Identifier) |array|
 //@[025:0026) | ├─Token(Assignment) |=|
@@ -1015,7 +1015,7 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0030) | ├─IdentifierSyntax
 //@[007:0030) | | └─Token(Identifier) |modCalculatedNameOutput|
-//@[031:0037) | ├─VariableAccessSyntax
+//@[031:0037) | ├─TypeVariableAccessSyntax
 //@[031:0037) | | └─IdentifierSyntax
 //@[031:0037) | |   └─Token(Identifier) |object|
 //@[038:0039) | ├─Token(Assignment) |=|

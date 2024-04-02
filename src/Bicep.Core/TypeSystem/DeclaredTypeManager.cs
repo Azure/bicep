@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -51,7 +52,7 @@ namespace Bicep.Core.TypeSystem
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
-            if (IsWithinTypeSyntax(syntax))
+            if (syntax is TypeSyntax)
             {
                 return TryGetTypeAssignmentFromTypeSyntax(syntax);
             }
@@ -147,25 +148,6 @@ namespace Bicep.Core.TypeSystem
             }
 
             return null;
-        }
-
-        private bool IsWithinTypeSyntax(SyntaxBase syntax)
-        {
-            if (syntax.Span == TextSpan.Nil)
-            {
-                // a syntax node that occupies the Nil span was synthesized and exists outside of the syntax hierarchy. This should never happen within a type clause
-                return false;
-            }
-
-            return binder.GetNearestAncestor<DecorableSyntax>(syntax) switch
-            {
-                TypeDeclarationSyntax typeDeclaration => binder.IsEqualOrDescendent(syntax, typeDeclaration.Value),
-                ParameterDeclarationSyntax parameterDeclaration => binder.IsEqualOrDescendent(syntax, parameterDeclaration.Type),
-                OutputDeclarationSyntax outputDeclaration => binder.IsEqualOrDescendent(syntax, outputDeclaration.Type),
-                FunctionDeclarationSyntax functionDeclaration when functionDeclaration.Lambda is TypedLambdaSyntax typedLambda
-                    => binder.IsEqualOrDescendent(syntax, typedLambda.ReturnType) || typedLambda.GetLocalVariables().Any(v => binder.IsEqualOrDescendent(syntax, v.Type)),
-                _ => false,
-            };
         }
 
         private DeclaredTypeAssignment GetTypedLocalVariableType(TypedLocalVariableSyntax syntax)
@@ -446,7 +428,7 @@ namespace Bicep.Core.TypeSystem
         private ITypeReference GetTypeMemberType(UnionTypeMemberSyntax syntax) => syntax.Value switch
         {
             // A `null` literal is usually too ambiguous to be a valid type (a `null` value could be valid for any nullable type), but it is permitted as a member of a union of literals.
-            NullLiteralSyntax => LanguageConstants.Null,
+            NullTypeLiteralSyntax => LanguageConstants.Null,
             _ => DisallowNamespaceTypes(GetTypeFromTypeSyntax(syntax.Value), syntax.Value),
         };
 
@@ -473,7 +455,7 @@ namespace Bicep.Core.TypeSystem
             {
                 SkippedTriviaSyntax => LanguageConstants.Any,
                 ResourceTypeSyntax resource => GetTypeReferenceForResourceType(resource),
-                VariableAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef),
+                TypeVariableAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef),
                 ParameterizedTypeInstantiationSyntaxBase parameterizedTypeInvocation => GetInstantiatedType(parameterizedTypeInvocation),
                 ArrayTypeSyntax array => GetArrayTypeType(array),
                 ArrayTypeMemberSyntax arrayMember => GetTypeMemberType(arrayMember),
@@ -482,19 +464,19 @@ namespace Bicep.Core.TypeSystem
                 ObjectTypeAdditionalPropertiesSyntax objectAdditionalProperties => GetTypeAdditionalPropertiesType(objectAdditionalProperties),
                 TupleTypeSyntax tuple => GetTupleTypeType(tuple),
                 TupleTypeItemSyntax tupleItem => GetTupleTypeItemType(tupleItem),
-                StringSyntax @string => ConvertTypeExpressionToType(@string),
-                IntegerLiteralSyntax @int => ConvertTypeExpressionToType(@int),
-                BooleanLiteralSyntax @bool => ConvertTypeExpressionToType(@bool),
-                UnaryOperationSyntax unaryOperation => GetUnaryOperationType(unaryOperation),
+                StringTypeLiteralSyntax @string => ConvertTypeExpressionToType(@string),
+                IntegerTypeLiteralSyntax @int => ConvertTypeExpressionToType(@int),
+                BooleanTypeLiteralSyntax @bool => ConvertTypeExpressionToType(@bool),
+                UnaryTypeOperationSyntax unaryOperation => GetUnaryOperationType(unaryOperation),
                 UnionTypeSyntax unionType => GetUnionTypeType(unionType),
                 UnionTypeMemberSyntax unionTypeMember => GetTypeMemberType(unionTypeMember),
-                ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized),
+                ParenthesizedTypeSyntax parenthesized => ConvertTypeExpressionToType(parenthesized),
                 TypePropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
                 TypeAdditionalPropertiesAccessSyntax additionalPropertiesAccess => ConvertTypeExpressionToType(additionalPropertiesAccess),
                 TypeArrayAccessSyntax arrayAccess => ConvertTypeExpressionToType(arrayAccess),
                 TypeItemsAccessSyntax itemsAccess => ConvertTypeExpressionToType(itemsAccess),
                 NullableTypeSyntax nullableType => ConvertTypeExpressionToType(nullableType),
-                NonNullAssertionSyntax nonNullAssertion => ConvertTypeExpressionToType(nonNullAssertion),
+                NonNullableTypeSyntax nonNullAssertion => ConvertTypeExpressionToType(nonNullAssertion),
                 _ => null
             };
 
@@ -534,7 +516,7 @@ namespace Bicep.Core.TypeSystem
             _ => null,
         };
 
-        private ITypeReference ConvertTypeExpressionToType(VariableAccessSyntax syntax)
+        private ITypeReference ConvertTypeExpressionToType(TypeVariableAccessSyntax syntax)
             => binder.GetSymbolInfo(syntax) switch
             {
                 BuiltInNamespaceSymbol builtInNamespace => builtInNamespace.Type,
@@ -586,7 +568,7 @@ namespace Bicep.Core.TypeSystem
                 _ => new(DiagnosticBuilder.ForPosition(syntax).TypeIsNotParameterizable(typeName)),
             };
 
-        private ITypeReference TypeRefToType(VariableAccessSyntax signifier, TypeAliasSymbol signified) => new DeferredTypeReference(() =>
+        private DeferredTypeReference TypeRefToType(TypeVariableAccessSyntax signifier, TypeAliasSymbol signified) => new(() =>
         {
             var signifiedType = userDefinedTypeReferences.GetOrAdd(signified, GetUserDefinedTypeType);
             if (signifiedType is ErrorType error)
@@ -686,9 +668,9 @@ namespace Bicep.Core.TypeSystem
         private DecoratorSyntax? TryGetSystemDecorator(DecorableSyntax syntax, string decoratorName)
             => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, decoratorName);
 
-        private ITypeReference GetTupleTypeType(TupleTypeSyntax syntax)
+        private TupleType GetTupleTypeType(TupleTypeSyntax syntax)
         {
-            List<ITypeReference> items = new();
+            var items = ImmutableArray.CreateBuilder<ITypeReference>();
             TupleTypeNameBuilder nameBuilder = new();
 
             foreach (var item in syntax.Items)
@@ -698,38 +680,50 @@ namespace Bicep.Core.TypeSystem
                 nameBuilder.AppendItem(GetPropertyTypeName(item.Value, itemType));
             }
 
-            return new TupleType(nameBuilder.ToString(), items.ToImmutableArray(), default);
+            return new(nameBuilder.ToString(), items.ToImmutable(), default);
         }
 
         private ITypeReference GetTupleTypeItemType(TupleTypeItemSyntax syntax)
             => ApplyTypeModifyingDecorators(DisallowNamespaceTypes(GetTypeFromTypeSyntax(syntax.Value), syntax.Value), syntax);
 
-        private TypeSymbol ConvertTypeExpressionToType(StringSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(StringTypeLiteralSyntax syntax)
         {
-            if (typeManager.GetTypeInfo(syntax) is StringLiteralType literal)
+            StringBuilder literalText = new();
+            for (int i = 0; i < syntax.SegmentValues.Length + syntax.Expressions.Length; i++)
             {
-                return literal;
+                // String syntax should have alternating blocks of literal values and expressions.
+                // If i is even, process the next literal value. If it's odd, process the next expresssion
+                if (i % 2 == 0)
+                {
+                    literalText.Append(syntax.SegmentValues[i / 2]);
+                }
+                else
+                {
+                    if (typeManager.GetTypeInfo(syntax.Expressions[i / 2]) is StringLiteralType literalSegment)
+                    {
+                        literalText.Append(literalSegment.RawStringValue);
+                    }
+                    else
+                    {
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed());
+                    }
+                }
             }
 
-            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed());
+            return TypeFactory.CreateStringLiteralType(literalText.ToString());
         }
 
-        private TypeSymbol ConvertTypeExpressionToType(IntegerLiteralSyntax syntax)
+        private static TypeSymbol ConvertTypeExpressionToType(IntegerTypeLiteralSyntax syntax) => syntax.Value switch
         {
-            if (typeManager.GetTypeInfo(syntax) is IntegerLiteralType literal)
-            {
-                return literal;
-            }
+            <= long.MaxValue => TypeFactory.CreateIntegerLiteralType((long)syntax.Value),
+            // -9223372036854775808 is handled as a special case in FinalizeUnaryType
+            _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed()),
+        };
 
-            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed());
-        }
+        private static TypeSymbol ConvertTypeExpressionToType(BooleanTypeLiteralSyntax syntax)
+            => syntax.Value ? LanguageConstants.True : LanguageConstants.False;
 
-        private TypeSymbol ConvertTypeExpressionToType(BooleanLiteralSyntax syntax)
-        {
-            return syntax.Value ? LanguageConstants.True : LanguageConstants.False;
-        }
-
-        private ITypeReference GetUnaryOperationType(UnaryOperationSyntax syntax)
+        private ITypeReference GetUnaryOperationType(UnaryTypeOperationSyntax syntax)
         {
             if (RequiresDeferral(syntax))
             {
@@ -739,8 +733,19 @@ namespace Bicep.Core.TypeSystem
             return FinalizeUnaryType(syntax);
         }
 
-        private TypeSymbol FinalizeUnaryType(UnaryOperationSyntax syntax)
+        private TypeSymbol FinalizeUnaryType(UnaryTypeOperationSyntax syntax)
         {
+            // since abs(long.MinValue) is one greater than long.MaxValue, we need to handle that case specially
+            if (syntax.Operator == UnaryOperator.Minus && syntax.Expression is IntegerTypeLiteralSyntax @int)
+            {
+                return @int.Value switch
+                {
+                    <= long.MaxValue => TypeFactory.CreateIntegerLiteralType(0L - (long)@int.Value),
+                    1UL + long.MaxValue => TypeFactory.CreateIntegerLiteralType(long.MinValue),
+                    _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed()),
+                };
+            }
+
             var baseExpressionType = DisallowNamespaceTypes(GetTypeFromTypeSyntax(syntax.Expression), syntax.Expression).Type;
 
             if (baseExpressionType is ErrorType)
@@ -749,7 +754,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var evaluated = OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax, baseExpressionType, diagnosticWriter);
+            var evaluated = OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax.Operator, baseExpressionType, diagnosticWriter);
             if (diagnosticWriter.GetDiagnostics().OfType<ErrorDiagnostic>().Any())
             {
                 return ErrorType.Create(diagnosticWriter.GetDiagnostics().OfType<ErrorDiagnostic>());
@@ -765,16 +770,16 @@ namespace Bicep.Core.TypeSystem
 
         private bool RequiresDeferral(SyntaxBase syntax) => syntax switch
         {
-            NonNullAssertionSyntax nonNullAssertion => RequiresDeferral(nonNullAssertion.BaseExpression),
-            ParenthesizedExpressionSyntax parenthesizedExpression => RequiresDeferral(parenthesizedExpression.Expression),
+            NonNullableTypeSyntax nonNullableType => RequiresDeferral(nonNullableType.Base),
+            ParenthesizedTypeSyntax parenthesizedExpression => RequiresDeferral(parenthesizedExpression.Expression),
             NullableTypeSyntax nullableType => RequiresDeferral(nullableType.Base),
-            UnaryOperationSyntax unaryOperation => RequiresDeferral(unaryOperation.Expression),
+            UnaryTypeOperationSyntax unaryOperation => RequiresDeferral(unaryOperation.Expression),
             UnionTypeSyntax unionType => unionType.Members.Any(m => RequiresDeferral(m.Value)),
             TypePropertyAccessSyntax typePropertyAccess => RequiresDeferral(typePropertyAccess.BaseExpression),
             TypeAdditionalPropertiesAccessSyntax typeAdditionalPropertiesAccess => RequiresDeferral(typeAdditionalPropertiesAccess.BaseExpression),
             TypeArrayAccessSyntax typeArrayAccess => RequiresDeferral(typeArrayAccess.BaseExpression),
             TypeItemsAccessSyntax typeItemsAccess => RequiresDeferral(typeItemsAccess.BaseExpression),
-            VariableAccessSyntax variableAccess when binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol => true,
+            TypeVariableAccessSyntax variableAccess when binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol => true,
             _ => false,
         };
 
@@ -805,7 +810,7 @@ namespace Bicep.Core.TypeSystem
             syntaxBase switch
             {
                 DecorableSyntax decorableSyntax => decorableSyntax,
-                ParenthesizedExpressionSyntax or UnionTypeSyntax or UnionTypeMemberSyntax or NullableTypeSyntax or NonNullAssertionSyntax =>
+                ParenthesizedTypeSyntax or UnionTypeSyntax or UnionTypeMemberSyntax or NullableTypeSyntax or NonNullableTypeSyntax =>
                     TryResolveUnionImmediateDecorableSyntax(binder.GetParent(syntaxBase)),
                 _ => null
             };
@@ -881,7 +886,7 @@ namespace Bicep.Core.TypeSystem
             };
         }
 
-        private ITypeReference ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax)
+        private ITypeReference ConvertTypeExpressionToType(ParenthesizedTypeSyntax syntax)
             => GetTypeFromTypeSyntax(syntax.Expression);
 
         private ITypeReference ConvertTypeExpressionToType(TypePropertyAccessSyntax syntax)
@@ -919,7 +924,7 @@ namespace Bicep.Core.TypeSystem
             TypeArrayAccessSyntax or
             TypeItemsAccessSyntax => true,
             // Accessing properties or elements of a reference is permitted
-            VariableAccessSyntax => true,
+            TypeVariableAccessSyntax => true,
             // as is accessing elements of a resource-derived type
             ParameterizedTypeInstantiationSyntax parameterized
                 when binder.GetSymbolInfo(parameterized) is AmbientTypeSymbol ambient &&
@@ -1110,9 +1115,9 @@ namespace Bicep.Core.TypeSystem
             TypeSymbol otherwise => TypeHelper.CreateTypeUnion(otherwise, LanguageConstants.Null)
         };
 
-        private ITypeReference ConvertTypeExpressionToType(NonNullAssertionSyntax syntax)
+        private ITypeReference ConvertTypeExpressionToType(NonNullableTypeSyntax syntax)
         {
-            var baseExpressionType = GetTypeFromTypeSyntax(syntax.BaseExpression);
+            var baseExpressionType = GetTypeFromTypeSyntax(syntax.Base);
 
             return baseExpressionType is DeferredTypeReference
                 ? new DeferredTypeReference(() => FinalizeNonNullableType(baseExpressionType))

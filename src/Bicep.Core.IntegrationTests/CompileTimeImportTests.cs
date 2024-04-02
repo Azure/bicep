@@ -2180,7 +2180,7 @@ INVALID FILE
 
         result.Should().HaveDiagnostics(new[]
         {
-            ("BCP081", DiagnosticLevel.Warning, """Resource type "Microsoft.Foo/bars@2022-09-01" does not have types available."""),
+            ("BCP081", DiagnosticLevel.Warning, """Resource type "Microsoft.Foo/bars@2022-09-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."""),
         });
     }
 
@@ -2257,5 +2257,59 @@ INVALID FILE
                 ]
             }
             """));
+    }
+
+    [TestMethod]
+    public void Tuple_imported_from_json_is_recompiled_to_a_valid_schema()
+    {
+        var typesBicep = """
+            @export()
+            type t = {
+              p: {
+                a: [
+                  {
+                    b: string
+                    c: string
+                  }
+                ]
+              }
+            }
+            """;
+
+        var expectedCompilationOfTupleA = """
+            {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "b": {
+                      "type": "string"
+                    },
+                    "c": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ],
+              "items": false
+            }
+            """;
+
+        var resultFromBicep = CompilationHelper.Compile(
+            ("types.bicep", typesBicep),
+            ("main.bicep", "import {t} from 'types.bicep'"));
+
+        resultFromBicep.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        resultFromBicep.Template.Should().NotBeNull();
+        resultFromBicep.Template.Should().HaveJsonAtPath("definitions.t.properties.p.properties.a", expectedCompilationOfTupleA);
+
+        var resultFromJson = CompilationHelper.Compile(
+            ("types.json", CompilationHelper.Compile(typesBicep).Template!.ToString()),
+            ("main.bicep", "import {t} from 'types.json'"));
+
+        resultFromJson.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        resultFromJson.Template.Should().NotBeNull();
+        resultFromJson.Template.Should().HaveJsonAtPath("definitions.t.properties.p.properties.a", expectedCompilationOfTupleA);
     }
 }

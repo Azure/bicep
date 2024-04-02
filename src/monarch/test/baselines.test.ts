@@ -27,6 +27,7 @@ import { BicepLanguage } from '../src/bicep';
 import { editor, languages } from 'monaco-editor-core';
 import { escape } from 'html-escaper';
 import { env } from 'process';
+import { expectFileContents, baselineRecordEnabled } from './utils';
 
 const tokenToHljsClass: Record<string, string | null> = {
   'string.bicep': 'string',
@@ -51,16 +52,11 @@ async function getTokensByLine(content: string) {
   }));
 }
 
-async function writeBaseline(filePath: string) {
-  const baselineBaseName = basename(filePath, extname(filePath));
-  const baselineFilePath = path.join(dirname(filePath), `${baselineBaseName}.html`);
+async function generateBaseline(inputFilePath: string) {
+  const baselineBaseName = basename(inputFilePath, extname(inputFilePath));
+  const baselineFilePath = path.join(dirname(inputFilePath), `${baselineBaseName}.html`);
 
-  let diffBefore = '';
-  const bicepFile = await readFile(filePath, { encoding: 'utf-8' });
-  try {
-    diffBefore = await readFile(baselineFilePath, { encoding: 'utf-8' });
-  // eslint-disable-next-line no-empty
-  } catch {} // ignore and create the baseline file anyway
+  const bicepFile = await readFile(inputFilePath, { encoding: 'utf-8' });
 
   let html = '';
   const tokensByLine = await getTokensByLine(bicepFile);
@@ -95,7 +91,7 @@ async function writeBaseline(filePath: string) {
     html += '\n';
   }
 
-  const diffAfter = `
+  const expected = `
 <!--
   Preview this file by prepending http://htmlpreview.github.io/? to its URL
   e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/monarch/test/baselines/${baselineBaseName}.html
@@ -111,15 +107,10 @@ ${html}
   </body>
 </html>`;
 
-  const output = {
-    diffBefore: diffBefore.replace(/\r\n/g, '\n'),
-    diffAfter: diffAfter.replace(/\r\n/g, '\n'),
+  return {
+    expected: expected.replace(/\r\n/g, '\n'),
     baselineFilePath,
   };
-
-  await writeFile(baselineFilePath, output.diffAfter, { encoding: 'utf-8' });
-
-  return output;
 }
 
 const baselinesDir = `${__dirname}/baselines`;
@@ -130,16 +121,6 @@ const baselineFiles = readdirSync(baselinesDir)
 
 for (const filePath of baselineFiles) {
   describe(`Baseline: ${filePath}`, () => {
-    let result: {
-      baselineFilePath: string;
-      diffBefore: string;
-      diffAfter: string;
-    };
-
-    beforeAll(async () => {
-      result = await writeBaseline(filePath);
-    });
-
     if (!basename(filePath).startsWith('invalid_')) {
       // skip the invalid files - we don't expect them to compile
 
@@ -164,8 +145,17 @@ for (const filePath of baselineFiles) {
       });
     }
 
-    it('baseline matches expected', () => {
-      expect(result.diffBefore).toStrictEqual(result.diffAfter);
+    it('baseline matches expected', async () => {
+      const { expected, baselineFilePath } = await generateBaseline(filePath);
+
+      await expectFileContents(baselineFilePath, expected);
     });
   });
 }
+
+describe('Test suite', () => {
+  it('should not succeed if BASELINE_RECORD is set to true', () => {
+    // This test just ensures the suite doesn't pass in 'record' mode
+    expect(baselineRecordEnabled).toBeFalsy();
+  });
+});

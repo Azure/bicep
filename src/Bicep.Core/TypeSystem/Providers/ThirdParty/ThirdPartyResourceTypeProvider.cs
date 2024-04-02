@@ -120,10 +120,40 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 ImmutableHashSet<string>.Empty);
         }
 
-        //TODO - We're not ready to add fallback types, as this requires a change to the types.json package first
         public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
+            var loadedFallbackType = resourceTypeLoader.LoadFallbackResourceType();
+
+            if (loadedFallbackType != null)
+            {
+                var resourceType = generatedTypeCache.GetOrAdd(flags, typeReference, () =>
+                {
+                    var resourceType = new ResourceTypeComponents(
+                        typeReference,
+                        ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
+                        ResourceScope.None,
+                        ResourceFlags.None,
+                        loadedFallbackType.Body);
+
+                    return resourceType;
+                });
+
+                return new(
+                    declaringNamespace,
+                    resourceType.TypeReference,
+                    resourceType.ValidParentScopes,
+                    resourceType.ReadOnlyScopes,
+                    resourceType.Flags,
+                    resourceType.Body,
+                    ImmutableHashSet<string>.Empty);
+            }
+
             return null;
+        }
+
+        public ThirdPartyResourceTypeLoader.NamespaceConfiguration? GetNamespaceConfiguration()
+        {
+            return resourceTypeLoader.LoadNamespaceConfiguration();
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)

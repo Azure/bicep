@@ -51,8 +51,8 @@ public static class OperationReturnTypeEvaluator
         // coalesce
         new CoalesceEvaluator());
 
-    public static TypeSymbol? TryFoldUnaryExpression(UnaryOperationSyntax expressionSyntax, TypeSymbol operandType, IDiagnosticWriter diagnosticWriter)
-        => unaryEvaluators.Where(e => e.IsMatch(expressionSyntax.Operator, operandType)).FirstOrDefault()?.Evaluate(expressionSyntax, operandType);
+    public static TypeSymbol? TryFoldUnaryExpression(UnaryOperator unaryOperator, TypeSymbol operandType, IDiagnosticWriter diagnosticWriter)
+        => unaryEvaluators.Where(e => e.IsMatch(unaryOperator, operandType)).FirstOrDefault()?.Evaluate(operandType);
 
     public static TypeSymbol? TryFoldBinaryExpression(BinaryOperationSyntax expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, IDiagnosticWriter diagnosticWriter)
     {
@@ -70,7 +70,7 @@ public static class OperationReturnTypeEvaluator
 
         TypeSymbol OperandType { get; }
 
-        TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol operandType);
+        TypeSymbol Evaluate(TypeSymbol operandType);
 
         bool IsMatch(UnaryOperator @operator, TypeSymbol operandType)
             => Operator == @operator && TypeValidator.AreTypesAssignable(operandType, OperandType);
@@ -82,9 +82,9 @@ public static class OperationReturnTypeEvaluator
 
         public TypeSymbol OperandType => LanguageConstants.Bool;
 
-        public TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol operandType) => operandType switch
+        public TypeSymbol Evaluate(TypeSymbol operandType) => operandType switch
         {
-            UnionType union => TypeHelper.CreateTypeUnion(union.Members.Select(t => Evaluate(expressionSyntax, t.Type))),
+            UnionType union => TypeHelper.CreateTypeUnion(union.Members.Select(t => Evaluate(t.Type))),
             BooleanLiteralType booleanLiteral => TypeFactory.CreateBooleanLiteralType(!booleanLiteral.Value, booleanLiteral.ValidationFlags),
             BooleanType @bool => @bool,
             _ => TypeFactory.CreateBooleanType(operandType.ValidationFlags),
@@ -148,7 +148,7 @@ public static class OperationReturnTypeEvaluator
 
         public TypeSymbol OperandType => LanguageConstants.Int;
 
-        public TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol operandType) => Negate(operandType);
+        public TypeSymbol Evaluate(TypeSymbol operandType) => Negate(operandType);
     }
 
     private interface IBinaryEvaluator

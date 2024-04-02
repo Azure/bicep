@@ -158,7 +158,7 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 
 // should be able to access the read only properties
 resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
-//@[37:68) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2019-10-01" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2019-10-01'|
+//@[37:68) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2019-10-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2019-10-01'|
   name: 'nestedTemplate1'
   properties: {
     otherId: nested.id
@@ -171,18 +171,18 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 }
 
 resource resourceA 'My.Rp/typeA@2020-01-01' = {
-//@[19:43) [BCP081 (Warning)] Resource type "My.Rp/typeA@2020-01-01" does not have types available. (CodeDescription: none) |'My.Rp/typeA@2020-01-01'|
+//@[19:43) [BCP081 (Warning)] Resource type "My.Rp/typeA@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/typeA@2020-01-01'|
   name: 'resourceA'
 }
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. (CodeDescription: none) |'My.Rp/typeA/typeB@2020-01-01'|
+//@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/typeA/typeB@2020-01-01'|
   name: '${resourceA.name}/myName'
 //@[08:34) [use-parent-property (Warning)] Resource "resourceB" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-parent-property)) |'${resourceA.name}/myName'|
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. (CodeDescription: none) |'My.Rp/typeA/typeB@2020-01-01'|
+//@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/typeA/typeB@2020-01-01'|
   name: '${resourceA.name}/myName'
 //@[08:34) [use-parent-property (Warning)] Resource "resourceC" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-parent-property)) |'${resourceA.name}/myName'|
   properties: {
@@ -212,7 +212,7 @@ var resourceCRef = {
 var setResourceCRef = true
 
 resource resourceD 'My.Rp/typeD@2020-01-01' = {
-//@[19:43) [BCP081 (Warning)] Resource type "My.Rp/typeD@2020-01-01" does not have types available. (CodeDescription: none) |'My.Rp/typeD@2020-01-01'|
+//@[19:43) [BCP081 (Warning)] Resource type "My.Rp/typeD@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/typeD@2020-01-01'|
   name: 'constant'
   properties: {
     runtime: varBRuntime
@@ -223,7 +223,7 @@ resource resourceD 'My.Rp/typeD@2020-01-01' = {
 
 var myInterpKey = 'abc'
 resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
-//@[28:53) [BCP081 (Warning)] Resource type "My.Rp/interp@2020-01-01" does not have types available. (CodeDescription: none) |'My.Rp/interp@2020-01-01'|
+//@[28:53) [BCP081 (Warning)] Resource type "My.Rp/interp@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/interp@2020-01-01'|
   name: 'interpTest'
   properties: {
     '${myInterpKey}': 1
@@ -233,7 +233,7 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 }
 
 resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
-//@[30:61) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-01-01" does not have types available. (CodeDescription: none) |'My.Rp/mockResource@2020-01-01'|
+//@[30:61) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/mockResource@2020-01-01'|
   name: 'test'
   properties: {
     // both key and value should be escaped in template output
@@ -273,19 +273,19 @@ resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
 }
 
 resource extension1 'My.Rp/extensionResource@2020-12-01' = {
-//@[20:56) [BCP081 (Warning)] Resource type "My.Rp/extensionResource@2020-12-01" does not have types available. (CodeDescription: none) |'My.Rp/extensionResource@2020-12-01'|
+//@[20:56) [BCP081 (Warning)] Resource type "My.Rp/extensionResource@2020-12-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/extensionResource@2020-12-01'|
   name: 'extension'
   scope: vmWithCondition
 }
 
 resource extension2 'My.Rp/extensionResource@2020-12-01' = {
-//@[20:56) [BCP081 (Warning)] Resource type "My.Rp/extensionResource@2020-12-01" does not have types available. (CodeDescription: none) |'My.Rp/extensionResource@2020-12-01'|
+//@[20:56) [BCP081 (Warning)] Resource type "My.Rp/extensionResource@2020-12-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/extensionResource@2020-12-01'|
   name: 'extension'
   scope: extension1
 }
 
 resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
-//@[31:62) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-01-01" does not have types available. (CodeDescription: none) |'My.Rp/mockResource@2020-01-01'|
+//@[31:62) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/mockResource@2020-01-01'|
   name: 'extensionDependencies'
   properties: {
     res1: vmWithCondition.id
@@ -300,20 +300,20 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
 
 @sys.description('this is existing1')
 resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
-//@[19:65) [BCP081 (Warning)] Resource type "Mock.Rp/existingExtensionResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/existingExtensionResource@2020-01-01'|
+//@[19:65) [BCP081 (Warning)] Resource type "Mock.Rp/existingExtensionResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Mock.Rp/existingExtensionResource@2020-01-01'|
   name: 'existing1'
   scope: extension1
 }
 
 resource existing2 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
 //@[09:18) [no-unused-existing-resources (Warning)] Existing resource "existing2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-existing-resources)) |existing2|
-//@[19:65) [BCP081 (Warning)] Resource type "Mock.Rp/existingExtensionResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/existingExtensionResource@2020-01-01'|
+//@[19:65) [BCP081 (Warning)] Resource type "Mock.Rp/existingExtensionResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Mock.Rp/existingExtensionResource@2020-01-01'|
   name: 'existing2'
   scope: existing1
 }
 
 resource extension3 'My.Rp/extensionResource@2020-12-01' = {
-//@[20:56) [BCP081 (Warning)] Resource type "My.Rp/extensionResource@2020-12-01" does not have types available. (CodeDescription: none) |'My.Rp/extensionResource@2020-12-01'|
+//@[20:56) [BCP081 (Warning)] Resource type "My.Rp/extensionResource@2020-12-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'My.Rp/extensionResource@2020-12-01'|
   name: 'extension3'
   scope: existing1
 }
@@ -472,24 +472,24 @@ output p1_subnet1id string = p1_subnet1.id
 
 // parent property with extension resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
   name: 'res1'
 }
 
 resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
-//@[22:65) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[22:65) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1/child1@2020-06-01'|
   parent: p2_res1
   name: 'child1'
 }
 
 resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
-//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp2/resource2@2020-06-01'|
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp2/resource2@2020-06-01'|
   scope: p2_res1child
   name: 'res2'
 }
 
 resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
-//@[22:65) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2/child2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[22:65) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2/child2@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp2/resource2/child2@2020-06-01'|
   parent: p2_res2
   name: 'child2'
 }
@@ -501,12 +501,12 @@ output p2_res2childid string = p2_res2child.id
 
 // parent property with 'existing' resource
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
   name: 'res1'
 }
 
 resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
-//@[19:62) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[19:62) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1/child1@2020-06-01'|
   parent: p3_res1
   name: 'child1'
 }
@@ -518,13 +518,13 @@ output p3_res1childid string = p3_child1.id
 
 // parent & child with 'existing'
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
   scope: tenant()
   name: 'res1'
 }
 
 resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
-//@[19:62) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[19:62) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Rp1/resource1/child1@2020-06-01'|
   parent: p4_res1
   name: 'child1'
 }

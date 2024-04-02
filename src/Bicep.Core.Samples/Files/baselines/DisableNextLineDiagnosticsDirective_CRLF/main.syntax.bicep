@@ -113,7 +113,7 @@ param storageAccount1 string = 'testStorageAccount'
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:021) | ├─IdentifierSyntax
 //@[06:021) | | └─Token(Identifier) |storageAccount1|
-//@[22:028) | ├─VariableAccessSyntax
+//@[22:028) | ├─TypeVariableAccessSyntax
 //@[22:028) | | └─IdentifierSyntax
 //@[22:028) | |   └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
@@ -128,7 +128,7 @@ param storageAccount2 string = 'testStorageAccount'
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:021) | ├─IdentifierSyntax
 //@[06:021) | | └─Token(Identifier) |storageAccount2|
-//@[22:028) | ├─VariableAccessSyntax
+//@[22:028) | ├─TypeVariableAccessSyntax
 //@[22:028) | | └─IdentifierSyntax
 //@[22:028) | |   └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
@@ -143,7 +143,7 @@ param storageAccount3 string = 'testStorageAccount'
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:021) | ├─IdentifierSyntax
 //@[06:021) | | └─Token(Identifier) |storageAccount3|
-//@[22:028) | ├─VariableAccessSyntax
+//@[22:028) | ├─TypeVariableAccessSyntax
 //@[22:028) | | └─IdentifierSyntax
 //@[22:028) | |   └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
@@ -158,7 +158,7 @@ param storageAccount5 string = 'testStorageAccount'
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:021) | ├─IdentifierSyntax
 //@[06:021) | | └─Token(Identifier) |storageAccount5|
-//@[22:028) | ├─VariableAccessSyntax
+//@[22:028) | ├─TypeVariableAccessSyntax
 //@[22:028) | | └─IdentifierSyntax
 //@[22:028) | |   └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax

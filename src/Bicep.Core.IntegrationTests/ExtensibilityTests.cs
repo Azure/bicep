@@ -364,7 +364,7 @@ resource secret 'core/Secret@v1' = {
 
             result.Should().GenerateATemplate();
             result.Should().HaveDiagnostics(new[] {
-                ("BCP081", DiagnosticLevel.Warning, @"Resource type ""custom/Foo@v1"" does not have types available."),
+                ("BCP081", DiagnosticLevel.Warning, @"Resource type ""custom/Foo@v1"" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
             });
         }
 
@@ -397,8 +397,8 @@ resource secret 'core/Secret@v1' = {
             result.Should().HaveDiagnostics(new[] {
                 ("BCP264", DiagnosticLevel.Error, @"Resource type ""Microsoft.Compute/availabilitySets@2023-01-01"" is declared in multiple imported namespaces (""az"", ""kubernetes""), and must be fully-qualified."),
                 ("BCP035", DiagnosticLevel.Error, @"The specified ""resource"" declaration is missing the following required properties: ""name""."),
-                ("BCP081", DiagnosticLevel.Warning, @"Resource type ""Microsoft.Compute/availabilitySets@2023-01-01"" does not have types available."),
-                ("BCP081", DiagnosticLevel.Warning, @"Resource type ""Microsoft.Foo/bar@2023-01-01"" does not have types available."),
+                ("BCP081", DiagnosticLevel.Warning, @"Resource type ""Microsoft.Compute/availabilitySets@2023-01-01"" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
+                ("BCP081", DiagnosticLevel.Warning, @"Resource type ""Microsoft.Foo/bar@2023-01-01"" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
             });
         }
 
@@ -466,7 +466,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 ");
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2020-01-01\" does not have types available."),
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2020-01-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                 ("BCP210", DiagnosticLevel.Error, "Resource type belonging to namespace \"stg\" cannot have a parent resource type belonging to different namespace \"az\"."),
             });
         }

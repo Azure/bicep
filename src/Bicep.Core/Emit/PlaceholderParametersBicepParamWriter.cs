@@ -78,7 +78,7 @@ namespace Bicep.Core.Emit
                 return defaultValue;
             }
 
-            if (syntax.Type is VariableAccessSyntax variableAccessSyntax)
+            if (syntax.Type is TypeVariableAccessSyntax variableAccessSyntax)
             {
                 var allowedDecorator = syntax.Decorators.Where(e => e.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.Name.IdentifierName == "allowed").Select(e => e.Arguments).FirstOrDefault();
 

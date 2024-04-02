@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { existsSync } from "fs";
-import { readFile } from "fs/promises";
 import { generateGrammar, grammarPath } from "../src/bicep";
+import { expectFileContents } from "./utils";
 
 describe('grammar tests', () => {
   it('should exist', () => {
@@ -12,8 +12,7 @@ describe('grammar tests', () => {
 
   it('should be up-to-date', async () => {
     const generatedGrammar = await generateGrammar();
-    const savedGrammar = await readFile(grammarPath, { encoding: 'utf8' });
 
-    expect(generatedGrammar).toStrictEqual(savedGrammar);
+    await expectFileContents(grammarPath, generatedGrammar);
   });
 });

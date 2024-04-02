@@ -1253,6 +1253,129 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax) => ReplaceCurrent(syntax, ReplaceParameterizedTypeArgumentSyntax);
 
+        protected virtual SyntaxBase ReplaceTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Name, out var name);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new TypeVariableAccessSyntax(name);
+        }
+        void ISyntaxVisitor.VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceTypeVariableAccessSyntax);
+
+        protected virtual SyntaxBase ReplaceStringTypeLiteralSyntax(StringTypeLiteralSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.StringTokens, out var stringTokens);
+            hasChanges |= TryRewrite(syntax.Expressions, out var expressions);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            var segmentValues = Lexer.TryGetRawStringSegments(stringTokens.ToArray());
+            if (segmentValues == null)
+            {
+                throw new ArgumentException($"Failed to parse string tokens");
+            }
+
+            return new StringTypeLiteralSyntax(stringTokens, expressions, segmentValues);
+        }
+        void ISyntaxVisitor.VisitStringTypeLiteralSyntax(StringTypeLiteralSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceStringTypeLiteralSyntax);
+
+        protected virtual SyntaxBase ReplaceIntegerTypeLiteralSyntax(IntegerTypeLiteralSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Literal, out var literal);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new IntegerTypeLiteralSyntax(literal, ulong.Parse(literal.Text));
+        }
+        void ISyntaxVisitor.VisitIntegerTypeLiteralSyntax(IntegerTypeLiteralSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceIntegerTypeLiteralSyntax);
+
+        protected virtual SyntaxBase ReplaceBooleanTypeLiteralSyntax(BooleanTypeLiteralSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Literal, out var literal);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new BooleanTypeLiteralSyntax(literal, bool.Parse(literal.Text));
+        }
+        void ISyntaxVisitor.VisitBooleanTypeLiteralSyntax(BooleanTypeLiteralSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceBooleanTypeLiteralSyntax);
+
+        protected virtual SyntaxBase ReplaceNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.NullKeyword, out var nullKeyword);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new NullTypeLiteralSyntax(nullKeyword);
+        }
+        void ISyntaxVisitor.VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceNullTypeLiteralSyntax);
+
+        protected virtual SyntaxBase ReplaceUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.OperatorToken, out var operatorToken);
+            hasChanges |= TryRewrite(syntax.Expression, out var expression);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new UnaryTypeOperationSyntax(operatorToken, expression);
+        }
+        void ISyntaxVisitor.VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceUnaryTypeOperationSyntax);
+
+        protected virtual SyntaxBase ReplaceNonNullableTypeSyntax(NonNullableTypeSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.Base, out var baseExpression);
+            hasChanges |= TryRewriteStrict(syntax.NonNullabilityMarker, out var nonNullabilityMarker);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new NonNullableTypeSyntax(baseExpression, nonNullabilityMarker);
+        }
+        void ISyntaxVisitor.VisitNonNullableTypeSyntax(NonNullableTypeSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceNonNullableTypeSyntax);
+
+        protected virtual SyntaxBase ReplaceParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.OpenParen, out var openParen);
+            hasChanges |= TryRewrite(syntax.Expression, out var expression);
+            hasChanges |= TryRewrite(syntax.CloseParen, out var closeParen);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ParenthesizedTypeSyntax(openParen, expression, closeParen);
+        }
+        void ISyntaxVisitor.VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceParenthesizedTypeSyntax);
+
         protected virtual SyntaxBase ReplaceSpreadExpressionSyntax(SpreadExpressionSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Ellipsis, out var ellipsis);
@@ -1265,6 +1388,7 @@ namespace Bicep.Core.Syntax
 
             return new SpreadExpressionSyntax(ellipsis, expression);
         }
-        void ISyntaxVisitor.VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax) => ReplaceCurrent(syntax, ReplaceSpreadExpressionSyntax);
+        void ISyntaxVisitor.VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceSpreadExpressionSyntax);
     }
 }

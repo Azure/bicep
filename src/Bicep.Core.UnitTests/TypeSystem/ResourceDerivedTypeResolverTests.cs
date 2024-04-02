@@ -294,13 +294,28 @@ public class ResourceDerivedTypeResolverTests
                     ImmutableArray.Create<ITypeReference>(new ObjectType("dictionary",
                         TypeSymbolValidationFlags.Default,
                         ImmutableArray<TypeProperty>.Empty,
-                        TypeFactory.CreateArrayType(targetType))),
+                        TypeFactory.CreateArrayType(new DiscriminatedObjectType("taggedUnion",
+                            TypeSymbolValidationFlags.Default,
+                            "type",
+                            ImmutableArray.Create<ITypeReference>(
+                                new ObjectType("fooVariant",
+                                    TypeSymbolValidationFlags.Default,
+                                    ImmutableArray.Create(
+                                        new TypeProperty("type", TypeFactory.CreateStringLiteralType("foo")),
+                                        new TypeProperty("property", LanguageConstants.Int)),
+                                    null),
+                                new ObjectType("barVariant",
+                                    TypeSymbolValidationFlags.Default,
+                                    ImmutableArray.Create(
+                                        new TypeProperty("type", TypeFactory.CreateStringLiteralType("bar")),
+                                        new TypeProperty("property", targetType)),
+                                    null)))))),
                     TypeSymbolValidationFlags.Default))),
             null);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
         UnresolvedResourceDerivedType unresolved = new(unhydratedTypeRef,
-            ImmutableArray.Create("properties", "property", "prefixItems", "0", "additionalProperties", "items"),
+            ImmutableArray.Create("properties", "property", "prefixItems", "0", "additionalProperties", "items", "discriminator", "mapping", "bar", "properties", "property"),
             LanguageConstants.Any);
 
         var bound = sut.ResolveResourceDerivedTypes(unresolved);

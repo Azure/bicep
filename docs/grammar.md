@@ -34,9 +34,9 @@ compileTimeImportTarget ->
 
 importedSymbolsList -> "{" ( NL+ ( importedSymbolsListItem NL+ )* )? "}"
 
-importedSymbolsListItem -> IDENTIFIER(originalSymbolName) importAsClause?
+importedSymbolsListItem -> IDENTIFIER(originalSymbolName) providerAsClause?
 
-wildcardImport -> "*" importAsClause
+wildcardImport -> "*" providerAsClause
 
 compileTimeImportFromClause -> "from" interpString(path)
 

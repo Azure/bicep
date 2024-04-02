@@ -1259,7 +1259,7 @@ output testYamlString string = testYamlString
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0021) | ├─IdentifierSyntax
 //@[007:0021) | | └─Token(Identifier) |testYamlString|
-//@[022:0028) | ├─VariableAccessSyntax
+//@[022:0028) | ├─TypeVariableAccessSyntax
 //@[022:0028) | | └─IdentifierSyntax
 //@[022:0028) | |   └─Token(Identifier) |string|
 //@[029:0030) | ├─Token(Assignment) |=|
@@ -1272,7 +1272,7 @@ output testYamlInt int = testYamlInt
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0018) | ├─IdentifierSyntax
 //@[007:0018) | | └─Token(Identifier) |testYamlInt|
-//@[019:0022) | ├─VariableAccessSyntax
+//@[019:0022) | ├─TypeVariableAccessSyntax
 //@[019:0022) | | └─IdentifierSyntax
 //@[019:0022) | |   └─Token(Identifier) |int|
 //@[023:0024) | ├─Token(Assignment) |=|
@@ -1285,7 +1285,7 @@ output testYamlBool bool = testYamlBool
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0019) | ├─IdentifierSyntax
 //@[007:0019) | | └─Token(Identifier) |testYamlBool|
-//@[020:0024) | ├─VariableAccessSyntax
+//@[020:0024) | ├─TypeVariableAccessSyntax
 //@[020:0024) | | └─IdentifierSyntax
 //@[020:0024) | |   └─Token(Identifier) |bool|
 //@[025:0026) | ├─Token(Assignment) |=|
@@ -1298,7 +1298,7 @@ output testYamlArrayInt array = testYamlArrayInt
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0023) | ├─IdentifierSyntax
 //@[007:0023) | | └─Token(Identifier) |testYamlArrayInt|
-//@[024:0029) | ├─VariableAccessSyntax
+//@[024:0029) | ├─TypeVariableAccessSyntax
 //@[024:0029) | | └─IdentifierSyntax
 //@[024:0029) | |   └─Token(Identifier) |array|
 //@[030:0031) | ├─Token(Assignment) |=|
@@ -1311,7 +1311,7 @@ output testYamlArrayIntVal int = testYamlArrayIntVal
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0026) | ├─IdentifierSyntax
 //@[007:0026) | | └─Token(Identifier) |testYamlArrayIntVal|
-//@[027:0030) | ├─VariableAccessSyntax
+//@[027:0030) | ├─TypeVariableAccessSyntax
 //@[027:0030) | | └─IdentifierSyntax
 //@[027:0030) | |   └─Token(Identifier) |int|
 //@[031:0032) | ├─Token(Assignment) |=|
@@ -1324,7 +1324,7 @@ output testYamlArrayString array = testYamlArrayString
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0026) | ├─IdentifierSyntax
 //@[007:0026) | | └─Token(Identifier) |testYamlArrayString|
-//@[027:0032) | ├─VariableAccessSyntax
+//@[027:0032) | ├─TypeVariableAccessSyntax
 //@[027:0032) | | └─IdentifierSyntax
 //@[027:0032) | |   └─Token(Identifier) |array|
 //@[033:0034) | ├─Token(Assignment) |=|
@@ -1337,7 +1337,7 @@ output testYamlArrayStringVal string = testYamlArrayStringVal
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0029) | ├─IdentifierSyntax
 //@[007:0029) | | └─Token(Identifier) |testYamlArrayStringVal|
-//@[030:0036) | ├─VariableAccessSyntax
+//@[030:0036) | ├─TypeVariableAccessSyntax
 //@[030:0036) | | └─IdentifierSyntax
 //@[030:0036) | |   └─Token(Identifier) |string|
 //@[037:0038) | ├─Token(Assignment) |=|
@@ -1350,7 +1350,7 @@ output testYamlArrayBool array = testYamlArrayBool
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0024) | ├─IdentifierSyntax
 //@[007:0024) | | └─Token(Identifier) |testYamlArrayBool|
-//@[025:0030) | ├─VariableAccessSyntax
+//@[025:0030) | ├─TypeVariableAccessSyntax
 //@[025:0030) | | └─IdentifierSyntax
 //@[025:0030) | |   └─Token(Identifier) |array|
 //@[031:0032) | ├─Token(Assignment) |=|
@@ -1363,7 +1363,7 @@ output testYamlArrayBoolVal bool = testYamlArrayBoolVal
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0027) | ├─IdentifierSyntax
 //@[007:0027) | | └─Token(Identifier) |testYamlArrayBoolVal|
-//@[028:0032) | ├─VariableAccessSyntax
+//@[028:0032) | ├─TypeVariableAccessSyntax
 //@[028:0032) | | └─IdentifierSyntax
 //@[028:0032) | |   └─Token(Identifier) |bool|
 //@[033:0034) | ├─Token(Assignment) |=|
@@ -1376,7 +1376,7 @@ output testYamlObject object = testYamlObject
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0021) | ├─IdentifierSyntax
 //@[007:0021) | | └─Token(Identifier) |testYamlObject|
-//@[022:0028) | ├─VariableAccessSyntax
+//@[022:0028) | ├─TypeVariableAccessSyntax
 //@[022:0028) | | └─IdentifierSyntax
 //@[022:0028) | |   └─Token(Identifier) |object|
 //@[029:0030) | ├─Token(Assignment) |=|
@@ -1389,7 +1389,7 @@ output testYamlObjectNestedString string = testYamlObjectNestedString
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0033) | ├─IdentifierSyntax
 //@[007:0033) | | └─Token(Identifier) |testYamlObjectNestedString|
-//@[034:0040) | ├─VariableAccessSyntax
+//@[034:0040) | ├─TypeVariableAccessSyntax
 //@[034:0040) | | └─IdentifierSyntax
 //@[034:0040) | |   └─Token(Identifier) |string|
 //@[041:0042) | ├─Token(Assignment) |=|
@@ -1402,7 +1402,7 @@ output testYamlObjectNestedInt int = testYamlObjectNestedInt
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0030) | ├─IdentifierSyntax
 //@[007:0030) | | └─Token(Identifier) |testYamlObjectNestedInt|
-//@[031:0034) | ├─VariableAccessSyntax
+//@[031:0034) | ├─TypeVariableAccessSyntax
 //@[031:0034) | | └─IdentifierSyntax
 //@[031:0034) | |   └─Token(Identifier) |int|
 //@[035:0036) | ├─Token(Assignment) |=|
@@ -1415,7 +1415,7 @@ output testYamlObjectNestedBool bool = testYamlObjectNestedBool
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0031) | ├─IdentifierSyntax
 //@[007:0031) | | └─Token(Identifier) |testYamlObjectNestedBool|
-//@[032:0036) | ├─VariableAccessSyntax
+//@[032:0036) | ├─TypeVariableAccessSyntax
 //@[032:0036) | | └─IdentifierSyntax
 //@[032:0036) | |   └─Token(Identifier) |bool|
 //@[037:0038) | ├─Token(Assignment) |=|

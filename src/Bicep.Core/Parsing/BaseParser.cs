@@ -447,7 +447,7 @@ namespace Bicep.Core.Parsing
             return (parameterizedTypeName, openChevron, itemsOrTokens, closeChevron);
         }
 
-        private SyntaxBase ParameterizedTypeOrTypeVariableAccess()
+        private TypeSyntax ParameterizedTypeOrTypeVariableAccess()
         {
             var identifierToken = Expect(TokenType.Identifier, b => b.ExpectedTypeIdentifier());
             var identifier = new IdentifierSyntax(identifierToken);
@@ -463,7 +463,7 @@ namespace Bicep.Core.Parsing
                     parameterizedType.CloseChevron);
             }
 
-            return new VariableAccessSyntax(identifier);
+            return new TypeVariableAccessSyntax(identifier);
         }
 
         protected Token? GetOptionalKeyword(string expectedKeyword)
@@ -478,18 +478,14 @@ namespace Bicep.Core.Parsing
             return null;
         }
 
-        private ParenthesizedExpressionSyntax GetParenthesizedExpressionSyntax(Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen)
-        {
-            var bodyExpression = expressionsOrCommas.Length switch
+        private SyntaxBase GetParenthesizedExpressionInnerContent(Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen)
+            => expressionsOrCommas.Length switch
             {
                 0 => SkipEmpty(openParen.Span.GetEndPosition(), x => x.ParenthesesMustHaveExactlyOneItem()),
                 1 when expressionsOrCommas[0] is Token token => Skip(token.AsEnumerable()),
                 1 => expressionsOrCommas[0],
                 _ => Skip(expressionsOrCommas, x => x.ParenthesesMustHaveExactlyOneItem()),
             };
-
-            return new ParenthesizedExpressionSyntax(openParen, bodyExpression, closeParen);
-        }
 
         private VariableBlockSyntax GetVariableBlock(Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen)
         {
@@ -802,23 +798,29 @@ namespace Bicep.Core.Parsing
         private SyntaxBase LiteralValue()
         {
             var current = reader.Peek();
-            switch (current.Type)
+            return current.Type switch
             {
-                case TokenType.TrueKeyword:
-                    return new BooleanLiteralSyntax(reader.Read(), true);
+                TokenType.TrueKeyword => new BooleanLiteralSyntax(reader.Read(), true),
+                TokenType.FalseKeyword => new BooleanLiteralSyntax(reader.Read(), false),
+                TokenType.Integer when NumericLiteral() is { literal: Token literal, value: ulong value }
+                    => new IntegerLiteralSyntax(literal, value),
+                TokenType.NullKeyword => new NullLiteralSyntax(reader.Read()),
+                _ => throw new ExpectedTokenException(current, b => b.InvalidType()),
+            };
+        }
 
-                case TokenType.FalseKeyword:
-                    return new BooleanLiteralSyntax(reader.Read(), false);
-
-                case TokenType.Integer:
-                    return this.NumericLiteral();
-
-                case TokenType.NullKeyword:
-                    return new NullLiteralSyntax(reader.Read());
-
-                default:
-                    throw new ExpectedTokenException(current, b => b.InvalidType());
-            }
+        private TypeSyntax LiteralType()
+        {
+            var current = reader.Peek();
+            return current.Type switch
+            {
+                TokenType.TrueKeyword => new BooleanTypeLiteralSyntax(reader.Read(), true),
+                TokenType.FalseKeyword => new BooleanTypeLiteralSyntax(reader.Read(), false),
+                TokenType.Integer when NumericLiteral() is { literal: Token literal, value: ulong value }
+                    => new IntegerTypeLiteralSyntax(literal, value),
+                TokenType.NullKeyword => new NullTypeLiteralSyntax(reader.Read()),
+                _ => throw new ExpectedTokenException(current, b => b.InvalidType()),
+            };
         }
 
         private bool Match(params TokenType[] types)
@@ -1044,13 +1046,13 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private IntegerLiteralSyntax NumericLiteral()
+        private (Token literal, ulong value) NumericLiteral()
         {
             var literal = Expect(TokenType.Integer, b => b.ExpectedNumericLiteral());
 
             if (ulong.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out ulong value))
             {
-                return new IntegerLiteralSyntax(literal, value);
+                return (literal, value);
             }
 
             // TODO: Should probably be moved to type checking
@@ -1130,15 +1132,15 @@ namespace Bicep.Core.Parsing
         private SyntaxBase ParenthesizedExpression(ExpressionFlags expressionFlags)
         {
             var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => Expression(expressionFlags), permitNewLines: true);
-
-            return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
+            var innerSyntax = GetParenthesizedExpressionInnerContent(openParen, expressionsOrCommas, closeParen);
+            return new ParenthesizedExpressionSyntax(openParen, innerSyntax, closeParen);
         }
 
-        private SyntaxBase ParenthesizedTypeExpression()
+        private TypeSyntax ParenthesizedTypeExpression()
         {
             var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(TypeExpression, permitNewLines: false);
-
-            return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
+            var innerSyntax = GetParenthesizedExpressionInnerContent(openParen, expressionsOrCommas, closeParen);
+            return new ParenthesizedTypeSyntax(openParen, innerSyntax, closeParen);
         }
 
         private (Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen) ParenthesizedExpressionList(Func<SyntaxBase> expressionParser, bool permitNewLines)
@@ -1209,7 +1211,8 @@ namespace Bicep.Core.Parsing
                 return new LambdaSyntax(variableBlock, arrow, newlinesBeforeBody.ToImmutableArray(), expression);
             }
 
-            return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
+            var innerSyntax = GetParenthesizedExpressionInnerContent(openParen, expressionsOrCommas, closeParen);
+            return new ParenthesizedExpressionSyntax(openParen, innerSyntax, closeParen);
         }
 
         private SyntaxBase TypedLocalVariable(params TokenType[] terminatingTypes)
@@ -1288,14 +1291,14 @@ namespace Bicep.Core.Parsing
                 case TokenType.NullKeyword:
                 case TokenType.TrueKeyword:
                 case TokenType.FalseKeyword:
-                    return this.LiteralValue();
+                    return this.LiteralType();
 
                 case TokenType.StringComplete:
                 case TokenType.StringLeftPiece:
-                    return this.InterpolableString();
+                    return AsStringTypeLiteral(this.InterpolableString());
 
                 case TokenType.MultilineString:
-                    return this.MultilineString();
+                    return AsStringTypeLiteral(this.MultilineString());
 
                 case TokenType.LeftBrace:
                     return this.ObjectType();
@@ -1313,6 +1316,12 @@ namespace Bicep.Core.Parsing
                     throw new ExpectedTokenException(nextToken, b => b.UnrecognizedTypeExpression());
             }
         }
+
+        private static SyntaxBase AsStringTypeLiteral(SyntaxBase syntax) => syntax switch
+        {
+            StringSyntax @string => new StringTypeLiteralSyntax(@string.StringTokens, @string.Expressions, @string.SegmentValues),
+            _ => syntax,
+        };
 
         protected SkippedTriviaSyntax Skip(SyntaxBase syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
             => Skip(syntax.AsEnumerable(), errorFunc);
@@ -1635,7 +1644,7 @@ namespace Bicep.Core.Parsing
 
                 if (Check(TokenType.Exclamation))
                 {
-                    candidate = new NonNullAssertionSyntax(candidate, Expect(TokenType.Exclamation, b => b.ExpectedCharacter("!")));
+                    candidate = new NonNullableTypeSyntax(candidate, Expect(TokenType.Exclamation, b => b.ExpectedCharacter("!")));
                     continue;
                 }
 
@@ -1662,7 +1671,7 @@ namespace Bicep.Core.Parsing
                     TokenType.RightSquare,
                     TokenType.NewLine);
 
-                return new UnaryOperationSyntax(operatorToken, expression);
+                return new UnaryTypeOperationSyntax(operatorToken, expression);
             }
 
             return this.MemberTypeExpression();

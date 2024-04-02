@@ -16,6 +16,7 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Represents a URI to request displaying a source file from an external module
     /// </summary>
+    [DebuggerDisplay("{ToUri()}")]
     public partial class ExternalSourceReference
     {
         // The title to display for the document's tab,

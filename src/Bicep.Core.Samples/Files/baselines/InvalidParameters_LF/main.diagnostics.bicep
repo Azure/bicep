@@ -313,7 +313,7 @@ param paramModifierSelfCycle string
 // wrong types of "variable"/identifier access
 var sampleVar = 'sample'
 resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
-//@[24:055) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02'|
+//@[24:055) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02'|
   name: 'foo'
 }
 output sampleOutput string = 'hello'

@@ -357,9 +357,9 @@ namespace Bicep.LanguageServer.Completions
                         .Select(exportMetadata => (wildcardImport, exportMetadata)))
                     .Select(t => CreateWildcardPropertyCompletion(t.Item1, t.Item2, context.ReplacementRange, CompletionPriority.High)));
 
-        private static bool IsTypeLiteralSyntax(SyntaxBase syntax) => syntax is BooleanLiteralSyntax
-            || syntax is IntegerLiteralSyntax
-            || (syntax is StringSyntax @string && @string.TryGetLiteralValue() is string literal)
+        private static bool IsTypeLiteralSyntax(SyntaxBase syntax) => syntax is BooleanTypeLiteralSyntax
+            || syntax is IntegerTypeLiteralSyntax
+            || (syntax is StringTypeLiteralSyntax @string && @string.SegmentValues.Length == 1)
             || syntax is UnionTypeSyntax
             || (syntax is ObjectTypeSyntax objectType && objectType.Properties.All(p => IsTypeLiteralSyntax(p.Value)))
             || (syntax is TupleTypeSyntax tupleType && tupleType.Items.All(i => IsTypeLiteralSyntax(i.Value)));
@@ -406,6 +406,7 @@ namespace Bicep.LanguageServer.Completions
         private static string? TryGetEnteredTextFromStringOrSkipped(SyntaxBase syntax)
             => syntax switch
             {
+                StringTypeLiteralSyntax s when s.SegmentValues.Length == 1 => s.SegmentValues[0],
                 StringSyntax s => s.TryGetLiteralValue(),
                 SkippedTriviaSyntax s => TryGetSkippedTokenText(s),
                 _ => null,

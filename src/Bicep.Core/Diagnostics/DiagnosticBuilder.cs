@@ -549,7 +549,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP081",
-                $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available.");
+                $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.");
 
             public FixableErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new(
                 TextSpan,
@@ -1367,7 +1367,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP230",
-                $"The referenced module uses resource type \"{resourceTypeReference.FormatName()}\" which does not have types available.");
+                $"The referenced module uses resource type \"{resourceTypeReference.FormatName()}\" which does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.");
 
             public ErrorDiagnostic ParamOrOutputResourceTypeUnsupported() => new(
                 TextSpan,

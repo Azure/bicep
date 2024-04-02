@@ -11,7 +11,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2462067839436922243"
+      "templateHash": "9158608803224636845"
     }
   },
   "parameters": {
@@ -138,6 +138,14 @@
       "dependsOn": [
         "resourceSp"
       ]
+    },
+    "appV1": {
+      "import": "graph",
+      "type": "Microsoft.Graph/applications@v1.0",
+      "properties": {
+        "displayName": "TestAppV1",
+        "uniqueName": "testAppV1"
+      }
     }
   }
 }

@@ -1602,7 +1602,7 @@ param parameters bool = true
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0016) | ├─IdentifierSyntax
 //@[006:0016) | | └─Token(Identifier) |parameters|
-//@[017:0021) | ├─VariableAccessSyntax
+//@[017:0021) | ├─TypeVariableAccessSyntax
 //@[017:0021) | | └─IdentifierSyntax
 //@[017:0021) | |   └─Token(Identifier) |bool|
 //@[022:0028) | └─ParameterDefaultValueSyntax
@@ -1678,7 +1678,7 @@ param mod bool = true
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0009) | ├─IdentifierSyntax
 //@[006:0009) | | └─Token(Identifier) |mod|
-//@[010:0014) | ├─VariableAccessSyntax
+//@[010:0014) | ├─TypeVariableAccessSyntax
 //@[010:0014) | | └─IdentifierSyntax
 //@[010:0014) | |   └─Token(Identifier) |bool|
 //@[015:0021) | └─ParameterDefaultValueSyntax
@@ -1727,7 +1727,7 @@ param equals bool = true
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0012) | ├─IdentifierSyntax
 //@[006:0012) | | └─Token(Identifier) |equals|
-//@[013:0017) | ├─VariableAccessSyntax
+//@[013:0017) | ├─TypeVariableAccessSyntax
 //@[013:0017) | | └─IdentifierSyntax
 //@[013:0017) | |   └─Token(Identifier) |bool|
 //@[018:0024) | └─ParameterDefaultValueSyntax

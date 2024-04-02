@@ -603,6 +603,33 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax) =>
             this.Glue(syntax.BaseExpression, syntax.OpenSquare, syntax.Asterisk, syntax.CloseSquare);
 
+        private IEnumerable<Document> LayoutStringTypeLiteralSyntax(StringTypeLiteralSyntax syntax)
+        {
+            var leadingTrivia = this.LayoutLeadingTrivia(syntax.StringTokens[0].LeadingTrivia);
+            var trailingTrivia = this.LayoutTrailingTrivia(syntax.StringTokens[^1].TrailingTrivia, out var suffix);
+
+            var writer = new StringWriter();
+
+            for (var i = 0; i < syntax.Expressions.Length; i++)
+            {
+                writer.Write(syntax.StringTokens[i].Text.ReplaceLineEndings(this.context.Newline));
+                SyntaxStringifier.StringifyTo(writer, syntax.Expressions[i], this.context.Newline);
+            }
+
+            writer.Write(syntax.StringTokens[^1].Text.ReplaceLineEndings(this.context.Newline));
+
+            return LayoutWithLeadingAndTrailingTrivia(writer.ToString(), leadingTrivia, trailingTrivia, suffix);
+        }
+
+        private IEnumerable<Document> LayoutUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax)
+            => this.Glue(syntax.OperatorToken, syntax.Expression);
+
+        private IEnumerable<Document> LayoutNonNullableTypeSyntax(NonNullableTypeSyntax syntax)
+            => this.Glue(syntax.Base, syntax.NonNullabilityMarker);
+
+        private IEnumerable<Document> LayoutParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax)
+            => this.Glue(syntax.OpenParen, syntax.Expression, syntax.CloseParen);
+
         private IEnumerable<Document> LayoutSpreadExpressionSyntax(SpreadExpressionSyntax syntax) =>
             this.Glue(syntax.Ellipsis, syntax.Expression);
 
