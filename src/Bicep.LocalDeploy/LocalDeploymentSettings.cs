@@ -215,6 +215,12 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public IReadOnlyDictionary<string, List<string>> PreviewFeatureSubscriptionsDictionary { get; set; } = new Dictionary<string, List<string>>();
     public IReadOnlyDictionary<string, List<string>> PreviewFeatureTenantDictionary { get; set; } = new Dictionary<string, List<string>>();
+    public IReadOnlyDictionary<string, List<string>> PreviewFeatureRegionDictionary { get; set; } = new Dictionary<string, List<string>>();
+    public IReadOnlyDictionary<string, decimal> PreviewFeatureThresholdDictionary { get; set; } = new Dictionary<string, decimal>();
+    public IReadOnlyDictionary<string, List<string>> DisabledTenantDictionary { get; set; } = new Dictionary<string, List<string>>();
+    public IReadOnlyDictionary<string, List<string>> DisabledSubscriptionDictionary { get; set; } = new Dictionary<string, List<string>>();
+    public IReadOnlyDictionary<string, List<string>> DisabledRegionDictionary { get; set; } = new Dictionary<string, List<string>>();
+    public IEnumerable<string> DisabledThresholdFeatures { get; set; } = [];
 
     public string[] AllowedLocations => new string[] { "local", "west us", "east us" };
 
@@ -238,4 +244,10 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
     public int GroomingJobMinimumThreshold { get; set; } = 790;
 
     public int GroomingJobPreservedDeploymentCount { get; set; } = 760;
+
+    public bool DeploymentGroomingRegionEnabled => false;
+
+    public TimeSpan DeploymentGroomingJobMaxLifetime => TimeSpan.Zero;
+
+    public string[] ExportTemplateSchemaNotRequiredProviders => [];
 }

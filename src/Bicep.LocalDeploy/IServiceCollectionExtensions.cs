@@ -76,8 +76,8 @@ public static class IServiceCollectionExtensions
 
     private static void RegisterJobsAsService(IServiceCollection services)
     {
-        services.AddTransient<AzureDeploymentFirstJob>();
-        services.AddTransient<AzureDeploymentExtensibleResourceJob>();
-        services.AddTransient<AzureDeploymentLastJob>();
+        services.AddTransient<DeploymentFirstJob>();
+        services.AddTransient<DeploymentExtensibleResourceJob>();
+        services.AddTransient<DeploymentLastJob>();
     }
 }

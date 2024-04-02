@@ -31,7 +31,7 @@ namespace Bicep.LanguageServer;
 public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
-        .AddSingleton<INamespaceProvider, ExtensibilityNamespaceProvider>()
+        .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
         .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()

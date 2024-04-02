@@ -15,11 +15,10 @@
 
   <ItemGroup>
     <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
+    <ProjectReference Include="../Bicep.Extension/Bicep.Extension.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Deployments.Engine" Version="1.0.1158" />
-    <PackageReference Include="Azure.Deployments.Extensibility.Providers.Kubernetes" Version="0.1.38" />
-    <PackageReference Include="Octokit" Version="9.0.0" />
+    <PackageReference Include="Azure.Deployments.Engine" Version="1.0.1243.1" />
   </ItemGroup>
 </Project>

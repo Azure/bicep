@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Azure.Bicep.LocalDeploy.Extensibility;
 
-public class AzExtensibilityProvider : IExtensibilityProvider
+public class AzExtensibilityProvider : LocalExtensibilityProvider
 {
     private readonly LocalExtensibilityHandler extensibilityHandler;
 
@@ -23,22 +23,22 @@ public class AzExtensibilityProvider : IExtensibilityProvider
         this.extensibilityHandler = extensibilityHandler;
     }
 
-    public Task<ExtensibilityOperationResponse> Delete(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
+    public override Task<ExtensibilityOperationResponse> Delete(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ExtensibilityOperationResponse> Get(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
+    public override Task<ExtensibilityOperationResponse> Get(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ExtensibilityOperationResponse> PreviewSave(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
+    public override Task<ExtensibilityOperationResponse> PreviewSave(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<ExtensibilityOperationResponse> Save(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
+    public override async Task<ExtensibilityOperationResponse> Save(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
     {
         switch (request.Resource.Type)
         {

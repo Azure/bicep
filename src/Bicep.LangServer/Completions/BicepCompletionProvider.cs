@@ -2047,17 +2047,6 @@ namespace Bicep.LanguageServer.Completions
                     availableNamespaceSettingsList.Add(MicrosoftGraphNamespaceType.Settings);
                 }
 
-                if (model.Features.LocalDeployEnabled)
-                {
-                    availableNamespaceSettingsList = new List<NamespaceSettings>
-                    {
-                        SystemNamespaceType.Settings,
-                        K8sNamespaceType.Settings,
-                        UtilsNamespaceType.Settings,
-                        GithubNamespaceType.Settings,
-                    };
-                }
-
                 foreach (var setting in availableNamespaceSettingsList.OrderBy(x => x.BicepProviderName, LanguageConstants.IdentifierComparer))
                 {
                     var completionText = setting.BicepProviderName;

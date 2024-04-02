@@ -77,8 +77,7 @@ namespace Bicep.Core.Registry
         /// Publishes a provider types package to the registry.
         /// </summary>
         /// <param name="reference">The provider reference</param>
-        /// <param name="typesTgz">A BinaryData object with the contents of the types.tgz</param>
-        Task PublishProvider(ArtifactReference reference, BinaryData typesTgz);
+        Task PublishProvider(ArtifactReference reference, ProviderPackage provider);
 
         /// <summary>
         /// Returns documentationUri for the module.
@@ -97,5 +96,7 @@ namespace Bicep.Core.Registry
         /// <param name="reference">The module reference</param>
         /// <returns>A source archive</returns>
         ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference);
+
+        Uri? TryGetProviderBinary(ArtifactReference reference);
     }
 }

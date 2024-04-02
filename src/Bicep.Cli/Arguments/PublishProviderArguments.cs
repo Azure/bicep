@@ -26,6 +26,13 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
+                    case {} when args[i].StartsWith("--ext-"):
+                        var extensionName = args[i].Substring("--ext-".Length);
+
+                        ExtensionBinaries[extensionName] = args[i + 1];
+                        i++;
+                        break;
+
                     case "--force":
                         Force = true;
                         break;
@@ -56,6 +63,8 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException("The target provider was not specified.");
             }
         }
+
+        public Dictionary<string, string> ExtensionBinaries { get; } = new();
 
         public string IndexFile { get; }
 

@@ -3,47 +3,51 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Extensibility.Contract;
 using Azure.Deployments.Extensibility.Messages;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.LocalDeploy.Namespaces;
+using Microsoft.VisualStudio.Threading;
+using IAsyncDisposable = System.IAsyncDisposable;
 
 namespace Azure.Bicep.LocalDeploy.Extensibility;
 
-public class LocalExtensibilityHandler
+public class LocalExtensibilityHandler : IAsyncDisposable
 {
     private record ProviderKey(
         string Name,
         string Version);
 
-    private ConcurrentDictionary<ProviderKey, Func<IExtensibilityProvider>> RegisteredProviders = new();
+    private Dictionary<ProviderKey, AsyncLazy<LocalExtensibilityProvider>> RegisteredProviders = new();
 
     private LocalExtensibilityHandler()
     {
     }
 
-    private void Register(string name, string version, Func<IExtensibilityProvider> providerFactory)
+    private void RegisterAsync(string name, string version, Func<Task<LocalExtensibilityProvider>> providerFactory)
     {
-        RegisteredProviders[new(name, version)] = providerFactory;
+#pragma warning disable VSTHRD012 // Provide JoinableTaskFactory where allowed
+        RegisteredProviders.TryAdd(new(name, version), new AsyncLazy<LocalExtensibilityProvider>(providerFactory));
+#pragma warning restore VSTHRD012 // Provide JoinableTaskFactory where allowed
     }
+
+    private void Register(string name, string version, Func<LocalExtensibilityProvider> providerFactory)
+        => RegisterAsync(name, version, () => Task.FromResult(providerFactory()));
 
     private async Task<ExtensibilityOperationResponse> CallProvider(string method, IExtensibilityProvider provider, ExtensibilityOperationRequest request, CancellationToken cancellationToken)
     {
-        switch (method)
+        return method switch
         {
-            case "get":
-                return await provider.Get(request, cancellationToken);
-            case "delete":
-                return await provider.Delete(request, cancellationToken);
-            case "save":
-                return await provider.Save(request, cancellationToken);
-            case "previewSave":
-                return await provider.PreviewSave(request, cancellationToken);
-            default:
-                throw new NotImplementedException($"Unsupported method {method}");
-        }
+            "get" => await provider.Get(request, cancellationToken),
+            "delete" => await provider.Delete(request, cancellationToken),
+            "save" => await provider.Save(request, cancellationToken),
+            "previewSave" => await provider.PreviewSave(request, cancellationToken),
+            _ => throw new NotImplementedException($"Unsupported method {method}"),
+        };
     }
 
     public async Task<ExtensibilityOperationResponse> CallExtensibilityHost(
@@ -51,23 +55,51 @@ public class LocalExtensibilityHandler
         ExtensibilityOperationRequest request,
         CancellationToken cancellationToken)
     {
-        var providerKey = new ProviderKey(request.Import.Provider, request.Import.Version);
-        var provider = RegisteredProviders.TryGetValue(providerKey, out var providerFactory)
-            ? providerFactory()
-            : throw new NotImplementedException($"Unrecognized provider {request.Import.Provider}, version {request.Import.Version}");
+        LocalExtensibilityProvider provider;
+        try {
+            // TOOD use fully qualified reference to guarantee uniqueness
+            provider = await RegisteredProviders[new(request.Import.Provider, request.Import.Version)]
+                .GetValueAsync(cancellationToken);
+        } catch (Exception ex) {
+            return new(
+                null,
+                null,
+                [new("ProviderLoadFailed", $"Failed to launch provider: {ex.Message}", request.Import.Provider)]);
+        }
 
         return await CallProvider(method, provider, request, cancellationToken);
     }
 
-    public static LocalExtensibilityHandler Build(Action<string> logAction)
+    public static LocalExtensibilityHandler Build(IReadOnlyDictionary<Uri, NamespaceType> binaryProviders)
     {
         var handler = new LocalExtensibilityHandler();
 
         handler.Register("LocalNested", "0.0.0", () => new AzExtensibilityProvider(handler));
-        handler.Register(UtilsNamespaceType.Settings.ArmTemplateProviderName, UtilsNamespaceType.Settings.ArmTemplateProviderVersion, () => new UtilsExtensibilityProvider(logAction));
-        handler.Register(K8sNamespaceType.Settings.ArmTemplateProviderName, K8sNamespaceType.Settings.ArmTemplateProviderVersion, () => new K8sExtensibilityProvider());
-        handler.Register(GithubNamespaceType.Settings.ArmTemplateProviderName, GithubNamespaceType.Settings.ArmTemplateProviderVersion, () => new GithubExtensibilityProvider());
+        foreach (var (binaryUri, namespaceType) in binaryProviders)
+        {
+            handler.RegisterAsync(
+                namespaceType.Settings.ArmTemplateProviderName,
+                namespaceType.Settings.ArmTemplateProviderVersion,
+                async () => await JsonRpcExtensibilityProvider.Start(binaryUri));
+        }
 
         return handler;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await Task.WhenAll(RegisteredProviders.Values.Select(async x => {
+            try {
+                if (x.IsValueCreated)
+                {
+                    var value = await x.GetValueAsync();
+                    await value.DisposeAsync();
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+        }));
     }
 }

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
@@ -66,7 +67,9 @@ public class DefaultNamespaceProvider : INamespaceProvider
         {
             if (resourceTypeLoaderFactory.GetResourceTypeProvider(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
-                return new(ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider));
+                var artifact = descriptor.ArtifactReference as OciArtifactReference;
+
+                return new(ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider, artifact));
             }
 
             Trace.WriteLine($"Failed to load types from {descriptor.TypesTgzUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}");

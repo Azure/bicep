@@ -228,11 +228,11 @@ namespace Bicep.Core.Registry
             await registry.PublishModule(reference, compiledArmTemplate, bicepSources, documentationUri, description);
         }
 
-        public async Task PublishProvider(ArtifactReference reference, BinaryData typesTgz)
+        public async Task PublishProvider(ArtifactReference reference, ProviderPackage provider)
         {
             var registry = this.GetRegistry(reference);
 
-            await registry.PublishProvider(reference, typesTgz);
+            await registry.PublishProvider(reference, provider);
         }
 
         public async Task<bool> CheckModuleExists(ArtifactReference reference)
@@ -269,6 +269,12 @@ namespace Bicep.Core.Registry
         {
             var registry = this.GetRegistry(reference);
             return registry.TryGetSource(reference);
+        }
+
+        public Uri? TryGetProviderBinary(ArtifactReference reference)
+        {
+            var registry = this.GetRegistry(reference);
+            return registry.TryGetProviderBinary(reference);
         }
 
         private bool HasRestoreFailed(ArtifactReference reference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)

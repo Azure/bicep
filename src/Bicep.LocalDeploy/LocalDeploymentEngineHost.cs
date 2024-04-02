@@ -28,9 +28,11 @@ using Azure.Deployments.Engine.Host.Azure.Constants;
 using Azure.Deployments.Engine.Host.Azure.Definitions;
 using Azure.Deployments.Engine.Host.Azure.Exceptions;
 using Azure.Deployments.Engine.Host.Azure.Interfaces;
+using Azure.Deployments.Engine.Host.Azure.Workers.Metadata;
 using Azure.Deployments.Engine.Host.External;
 using Azure.Deployments.Engine.Interfaces;
 using Azure.Deployments.Extensibility.Messages;
+using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -93,7 +95,8 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         HttpRequestMessage requestMessage = null,
         HttpContent content = null,
         Action<HttpRequestHeaders> addHeadersFunc = null,
-        Action<IDictionary<string, object>> requestPropertiesEnricher = null)
+        Action<IDictionary<string, object>> requestPropertiesEnricher = null,
+        AuthenticationToken frontdoorAuthenticationToken = null)
         => throw new NotImplementedException();
 
 
@@ -160,4 +163,7 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
 
     public override Task ValidateDeploymentLocationAcceptable(IDeploymentRequestContext deploymentContext, string deploymentLocation, string oboToken, string oboCorrelationId)
         => Task.CompletedTask;
+
+    public override void AddAsyncNotificationUri(HttpRequestHeaders httpHeaders, BackgroundJob backgroundJob, DeploymentResourceJobMetadata deploymentJobMetadata, JobLogger jobLogger)
+        => throw new NotImplementedException();
 }
