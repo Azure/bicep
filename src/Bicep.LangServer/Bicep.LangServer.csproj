@@ -9,9 +9,17 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
+  <Target Name="_RemoveUnwantedAspNetFrameworkReference" BeforeTargets="ResolveFrameworkReferences" >
+    <!-- workaround to remove framework reference from https://github.com/Azure/bicep-extensibility/blob/434dcd59b7625da8e772bfcf99c86a78c0e0e3dc/src/Azure.Deployments.Extensibility.Core/Azure.Deployments.Extensibility.Core.csproj#L14 -->
+    <ItemGroup>
+      <FrameworkReference Remove="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+  </Target>
+
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
     <ProjectReference Include="..\Bicep.Decompiler\Bicep.Decompiler.csproj" />
+    <ProjectReference Include="..\Bicep.LocalDeploy\Bicep.LocalDeploy.csproj" />
   </ItemGroup>
 
   <ItemGroup>

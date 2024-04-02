@@ -36,7 +36,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
         }.ToImmutableDictionary();
     }
 
-    public ResultWithDiagnostic<NamespaceType> TryGetNamespace(
+    public virtual ResultWithDiagnostic<NamespaceType> TryGetNamespace(
         ResourceTypesProviderDescriptor descriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,

@@ -25,6 +25,7 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
+using Bicep.LocalDeploy.Namespaces;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -2044,6 +2045,17 @@ namespace Bicep.LanguageServer.Completions
                 if (model.Features.MicrosoftGraphPreviewEnabled)
                 {
                     availableNamespaceSettingsList.Add(MicrosoftGraphNamespaceType.Settings);
+                }
+
+                if (model.Features.LocalDeployEnabled)
+                {
+                    availableNamespaceSettingsList = new List<NamespaceSettings>
+                    {
+                        SystemNamespaceType.Settings,
+                        K8sNamespaceType.Settings,
+                        UtilsNamespaceType.Settings,
+                        GithubNamespaceType.Settings,
+                    };
                 }
 
                 foreach (var setting in availableNamespaceSettingsList.OrderBy(x => x.BicepProviderName, LanguageConstants.IdentifierComparer))

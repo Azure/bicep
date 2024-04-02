@@ -1,0 +1,40 @@
+name: Test Local Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  local-deploy-k8s:
+    name: Local Deploy (Kubernetes)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nightly
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --repo anthony-c-martin/bicep
+
+      - name: Start minikube
+        uses: medyagh/setup-minikube@latest
+
+      - name: Run "echo-server"
+        env:
+          BICEP_TRACING_ENABLED: true
+        run: ~/.azure/bin/bicep local-deploy ./src/Bicep.LocalDeploy/samples/e2e/echo-server-e2e.bicepparam
+
+      - name: Wait for endpoint
+        run: |
+          kubectl wait --for=condition=ready pod -l app=echo-server --timeout=60s
+
+      - name: Kubectl outputs
+        run: |
+          kubectl describe service
+          kubectl describe deployment
+          kubectl describe pod
+
+      - name: Make request to echo-server service
+        run: |
+          curl -I localhost:8080
