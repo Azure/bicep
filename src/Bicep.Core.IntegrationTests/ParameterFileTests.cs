@@ -94,9 +94,37 @@ param fromEnv=readEnvironmentVariable('stringEnvVariable')
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]{
                 ("BCP338", DiagnosticLevel.Error,
-                "Failed to evaluate parameter \"stringEnvVariable\": Environment variable does not exist, and no default value set")});
+                "Failed to evaluate parameter \"stringEnvVariable\": Environment variable does not exist, and no default value set.")});
     }
 
+    [TestMethod]
+    public void Parameters_file_cannot_reference_non_existing_env_variable_verbose()
+    {
+        var result = CompilationHelper.CompileParams(
+("bicepconfig.json", """
+{
+  "analyzers": {
+    "core": {
+      "rules": {
+      },
+      "verbose": true
+    }
+  }
+}
+"""),
+("parameters.bicepparam", @"
+using 'foo.bicep'
+param fromEnv=readEnvironmentVariable('stringEnvVariable')
+"),
+("foo.bicep", @"param fromEnv string"));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]{
+                ("BCP338", DiagnosticLevel.Error,
+                "Failed to evaluate parameter \"stringEnvVariable\": Environment variable does not exist, and no default value set."),
+                ("Bicepparam ReadEnvironmentVariable function", DiagnosticLevel.Info,
+                "Available environment variables are: "
+                )});
+    }
     [TestMethod]
     public void Parameters_file_can_use_variables()
     {

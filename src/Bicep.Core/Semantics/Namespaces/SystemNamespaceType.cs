@@ -10,6 +10,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -1155,9 +1156,22 @@ namespace Bicep.Core.Semantics.Namespaces
                 }
                 else
                 {
+                    //log available environment variables if verbose logging is enabled
+                    if(model.Configuration.Analyzers.GetValue(LinterAnalyzer.LinterEnabledSetting, false) && model.Configuration.Analyzers.GetValue(LinterAnalyzer.LinterVerboseSetting, false)) {
+                        var availableEnvironmentVariables = model.Environment.GetVariableNames();
+                        diagnostics.Write(
+                            new Diagnostic(
+                                arguments[0].Span,
+                                DiagnosticLevel.Info,
+                                "Bicepparam ReadEnvironmentVariable function",
+                                "Available environment variables are: " + string.Join(", ", model.Environment.GetVariableNames()),
+                                null)
+                        );                     
+                    }
+                    
                     //error to fail the build-param with clear message of the missing env var name
                     return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(envVariableName,
-                    "Environment variable does not exist, and no default value set")));
+                    "Environment variable does not exist, and no default value set.")));
                 }
             }
             return new(TypeFactory.CreateStringLiteralType(envVariableValue),
