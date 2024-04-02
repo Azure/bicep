@@ -20,6 +20,7 @@ public record ExperimentalFeaturesEnabled(
     bool MicrosoftGraphPreview,
     bool PublishSource,
     bool OptionalModuleNames,
+    bool LocalDeploy,
     bool ResourceDerivedTypes)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
