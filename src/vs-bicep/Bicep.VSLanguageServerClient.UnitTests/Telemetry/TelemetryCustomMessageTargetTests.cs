@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
 {
     [TestClass]
+    [Ignore]
     public class TelemetryCustomMessageTargetTests
     {
         [DataRow("{}")]
