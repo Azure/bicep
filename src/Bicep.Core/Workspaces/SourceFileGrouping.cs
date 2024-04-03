@@ -49,7 +49,7 @@ public record SourceFileGrouping(
         }
     }
 
-    public bool ShouldRestore(ArtifactResolutionInfo artifact, bool force = false)
+    public static bool ShouldRestore(ArtifactResolutionInfo artifact, bool force = false)
         => force || (!artifact.Result.IsSuccess() && artifact.RequiresRestore);
 
     public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax reference)

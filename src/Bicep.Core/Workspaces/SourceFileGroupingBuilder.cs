@@ -71,7 +71,7 @@ namespace Bicep.Core.Workspaces
             var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, current);
 
             var sourceFilesRequiringRestore = new HashSet<ISourceFile>();
-            foreach (var (syntax, artifact) in current.ArtifactLookup.Where(x => current.ShouldRestore(x.Value)))
+            foreach (var (syntax, artifact) in current.ArtifactLookup.Where(x => SourceFileGrouping.ShouldRestore(x.Value)))
             {
                 builder.artifactLookup.Remove(syntax);
                 sourceFilesRequiringRestore.Add(artifact.Origin);
@@ -79,14 +79,12 @@ namespace Bicep.Core.Workspaces
 
             foreach (var (file, providers) in current.ImplicitProviders)
             {
-                foreach (var provider in providers.Where(x => x.Artifact is {} artifact && current.ShouldRestore(artifact)))
+                foreach (var provider in providers.Where(x => x.Artifact is {} artifact && SourceFileGrouping.ShouldRestore(artifact)))
                 {
                     builder.implicitProviders[file].Remove(provider);
                     sourceFilesRequiringRestore.Add(file);
                 }
             }
-
-            var artifactsToRestore = current.GetArtifactsToRestore();
 
             // Rebuild source files that contain external artifact references restored during the initial build.
             var sourceFilesToRebuild = sourceFilesRequiringRestore

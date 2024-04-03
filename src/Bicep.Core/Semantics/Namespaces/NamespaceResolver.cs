@@ -16,18 +16,18 @@ namespace Bicep.Core.Semantics.Namespaces
     public class NamespaceResolver
     {
         private readonly ImmutableDictionary<string, NamespaceType> namespaceTypes;
-        public ImmutableDictionary<string, BuiltInNamespaceSymbol> BuiltIns { get; }
+        public ImmutableDictionary<string, BuiltInNamespaceSymbol> ImplicitNamespaces { get; }
 
         public static NamespaceResolver Create(ImmutableArray<NamespaceResult> namespaceResults)
         {
-            Dictionary<string, NamespaceType> namespaceTypes = new(LanguageConstants.IdentifierComparer);
-            Dictionary<string, BuiltInNamespaceSymbol> builtIns = new(LanguageConstants.IdentifierComparer);
+            var namespaceTypes = ImmutableDictionary.CreateBuilder<string, NamespaceType>(LanguageConstants.IdentifierComparer);
+            var implicitNamespaces = ImmutableDictionary.CreateBuilder<string, BuiltInNamespaceSymbol>(LanguageConstants.IdentifierComparer);
 
             foreach (var result in namespaceResults)
             {
                 if (result.Origin is null)
                 {
-                    builtIns[result.Name] = new BuiltInNamespaceSymbol(result.Name, result.Type);
+                    implicitNamespaces[result.Name] = new BuiltInNamespaceSymbol(result.Name, result.Type);
                 }
 
                 if (result.Type is NamespaceType namespaceType)
@@ -38,14 +38,14 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             return new(
-                namespaceTypes.ToImmutableDictionary(LanguageConstants.IdentifierComparer),
-                builtIns.ToImmutableDictionary(LanguageConstants.IdentifierComparer));
+                namespaceTypes.ToImmutable(),
+                implicitNamespaces.ToImmutable());
         }
 
-        private NamespaceResolver(ImmutableDictionary<string, NamespaceType> namespaceTypes, ImmutableDictionary<string, BuiltInNamespaceSymbol> builtIns)
+        private NamespaceResolver(ImmutableDictionary<string, NamespaceType> namespaceTypes, ImmutableDictionary<string, BuiltInNamespaceSymbol> implicitNamespaces)
         {
             this.namespaceTypes = namespaceTypes;
-            this.BuiltIns = builtIns;
+            this.ImplicitNamespaces = implicitNamespaces;
         }
 
         public IEnumerable<Symbol> ResolveUnqualifiedFunction(IdentifierSyntax identifierSyntax, bool includeDecorators)

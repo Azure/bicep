@@ -23,16 +23,6 @@ public record NamespaceResult(
     TypeSymbol Type,
     ProviderDeclarationSyntax? Origin);
 
-public interface INamespaceProvider
-{
-    IEnumerable<NamespaceResult> GetNamespaces(
-        RootConfiguration rootConfig,
-        IFeatureProvider features,
-        IArtifactFileLookup artifactFileLookup,
-        BicepSourceFile sourceFile,
-        ResourceScope targetScope);
-}
-
 public class NamespaceProvider : INamespaceProvider
 {
     private readonly IResourceTypeProviderFactory resourceTypeProviderFactory;
