@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Extensions;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -16,7 +17,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.MicrosoftGraph
         [TestMethod]
         public void MicrosoftGraphResourceTypeProvider_can_list_all_types_without_throwing()
         {
-            var availableTypes = TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.MicrosoftGraphProviderDescriptor).ResourceTypeProvider.GetAvailableTypes();
+            var availableTypes = MicrosoftGraphNamespaceType.Create(MicrosoftGraphNamespaceType.Settings.BicepProviderName).ResourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
             var minExpectedTypes = 5;

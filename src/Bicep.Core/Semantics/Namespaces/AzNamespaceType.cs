@@ -21,8 +21,13 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public const string BuiltInName = "az";
         public const string GetSecretFunctionName = "getSecret";
-        private static readonly string EmbeddedAzProviderVersion = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
+        public static readonly string EmbeddedAzProviderVersion = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
             ?? throw new UnreachableException("The 'Azure.Bicep.Types.Az' assembly should always have a file version attribute.");
+
+        private static readonly Lazy<IResourceTypeProvider> TypeProviderLazy
+            = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader())));
+
+        public static IResourceTypeProvider BuiltInTypeProvider => TypeProviderLazy.Value;
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
@@ -525,7 +530,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     BicepProviderName: BuiltInName,
                     ConfigurationType: null,
                     ArmTemplateProviderName: "AzureResourceManager",
-                    ArmTemplateProviderVersion: resourceTypeProvider.Version),
+                    ArmTemplateProviderVersion: EmbeddedAzProviderVersion),
                 ImmutableArray<TypeProperty>.Empty,
                 Overloads.Where(x => x.IsVisible(scope, sourceFileKind)).Select(x => x.Value),
                 ImmutableArray<BannedFunction>.Empty,

@@ -486,8 +486,8 @@ output length int =
             var functionCompletions = completions.Where(c => c.Kind == CompletionItemKind.Function).OrderBy(c => c.Label).ToList();
 
             var namespaces = new[] {
-                TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInAzProviderDescriptor),
-                TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInSysProviderDescriptor)
+                TestTypeHelper.GetBuiltInNamespaceType("az"),
+                TestTypeHelper.GetBuiltInNamespaceType("sys")
             };
 
             var availableFunctionNames = namespaces
