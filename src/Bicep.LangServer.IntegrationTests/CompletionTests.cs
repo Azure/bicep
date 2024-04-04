@@ -2138,6 +2138,101 @@ resource abc 'Test.Rp/basic|'
         }
 
         [TestMethod]
+        public async Task Resource_type_completions_for_MicrosoftApp_and_subtypes_use_common_keywords_in_filter()
+        {
+            var fileWithCursors = """
+                resource r 'appservice|'
+                """;
+
+            await RunCompletionScenarioTest(TestContext, ServerWithNamespaceProvider, fileWithCursors, completionLists =>
+            {
+                var completionList = completionLists.Should().HaveCount(1).And.Subject.First();
+
+                var microsoftApp = completionList.Where(completion => completion.Label.StartsWith("'microsoft.app/", StringComparison.InvariantCultureIgnoreCase)).ToArray();
+                foreach (var completion in microsoftApp)
+                {
+                    completion.FilterText.Should().NotBeNull();
+                    completion.FilterText.Should().NotBeUpperCased();
+                    var filters = completion.FilterText!.Trim('\'').Split(',');
+
+                    filters.Where(x => x.StartsWith("microsoft.app", StringComparison.OrdinalIgnoreCase)).Should().HaveCount(1);
+                    filters.Should().Contain("containerapp");
+                }
+
+                foreach (var completion in completionList.Except(microsoftApp))
+                {
+                    if (completion.FilterText is string filterText)
+                    {
+                        filterText.Should().NotBeUpperCased();
+                        var filters = filterText.Trim('\'').Split(',');
+
+                        filters.Where(x => x.StartsWith("microsoft.app", StringComparison.OrdinalIgnoreCase)).Should().HaveCount(0);
+                        filters.Should().NotContain("containerapp");
+                    }
+                }
+            });
+        }
+
+        [TestMethod]
+        public async Task Resource_type_completions_for_MicrosoftWebServerFarms_use_common_keywords_in_filter()
+        {
+            var fileWithCursors = """
+                resource r 'appservice|'
+                """;
+
+            await RunCompletionScenarioTest(TestContext, ServerWithNamespaceProvider, fileWithCursors, completionLists =>
+            {
+                var completionList = completionLists.Should().HaveCount(1).And.Subject.First();
+
+                // Everything under Microsoft.Web/serverFarms should have keywords "appservice", "webapp", "function" in filter text
+                var serverFarms = completionList.Where(completion => completion.Label.StartsWith("'microsoft.web/serverfarms", StringComparison.InvariantCultureIgnoreCase)).ToArray();
+                foreach (var completion in serverFarms)
+                {
+                    completion.FilterText.Should().NotBeNull();
+                    completion.FilterText.Should().NotBeUpperCased();
+                    var filters = completion.FilterText!.Trim('\'').Split(',');
+
+                    filters.Where(x => x.StartsWith("microsoft.web/serverfarms", StringComparison.OrdinalIgnoreCase)).Should().HaveCount(1);
+                    filters.Should().Contain("appserviceplan");
+                    filters.Should().Contain("asp");
+                    filters.Should().Contain("hostingplan");
+                }
+
+                // Everything else under Microsoft.Web other than serverFarms should not have these keywords
+                var webButNotServerFarms = completionList.Where(completion => completion.Label.StartsWith("'microsoft.web", StringComparison.InvariantCultureIgnoreCase)
+                    && !completion.Label.Contains("serverfarms", StringComparison.InvariantCultureIgnoreCase)).ToArray();
+                foreach (var completion in webButNotServerFarms)
+                {
+                    if (completion.FilterText is string filterText)
+                    {
+                        filterText.Should().NotBeUpperCased();
+                        var filters = filterText.Trim('\'').Split(',');
+
+                        filters.Where(x => x.StartsWith("microsoft.web/serverfarms", StringComparison.OrdinalIgnoreCase)).Should().HaveCount(0);
+                        filters.Should().NotContain("appserviceplan");
+                        filters.Should().NotContain("asp");
+                        filters.Should().NotContain("hostingplan");
+                    }
+                }
+
+                // Everything not under Microsoft.Web should not have these keywords
+                foreach (var completion in completionList.Except(serverFarms).Except(webButNotServerFarms))
+                {
+                    if (completion.FilterText is string filterText)
+                    {
+                        filterText.Should().NotBeUpperCased();
+                        var filters = filterText.Trim('\'').Split(',');
+
+                        filters.Where(x => x.StartsWith("microsoft.web/serverfarms", StringComparison.OrdinalIgnoreCase)).Should().HaveCount(0);
+                        filters.Should().NotContain("appserviceplan");
+                        filters.Should().NotContain("asp");
+                        filters.Should().NotContain("hostingplan");
+                    }
+                }
+            });
+        }
+
+        [TestMethod]
         public async Task Known_list_functions_are_offered()
         {
             var fileWithCursors = @"
