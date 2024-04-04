@@ -2152,8 +2152,7 @@ resource abc 'Test.Rp/basic|'
                 foreach (var completion in microsoftApp)
                 {
                     completion.FilterText.Should().NotBeNull();
-                    completion.FilterText.Should().NotBeUpperCased();
-                    var filters = completion.FilterText!.Trim('\'').Split(',');
+                    var filters = completion.FilterText!.Trim('\'').Split(' ');
 
                     filters.Where(x => x.StartsWith("microsoft.app", StringComparison.OrdinalIgnoreCase)).Should().HaveCount(1);
                     filters.Should().Contain("containerapp");
@@ -2163,8 +2162,7 @@ resource abc 'Test.Rp/basic|'
                 {
                     if (completion.FilterText is string filterText)
                     {
-                        filterText.Should().NotBeUpperCased();
-                        var filters = filterText.Trim('\'').Split(',');
+                        var filters = filterText.Trim('\'').Split(' ');
 
                         filters.Where(x => x.StartsWith("microsoft.app", StringComparison.OrdinalIgnoreCase)).Should().HaveCount(0);
                         filters.Should().NotContain("containerapp");
@@ -2189,8 +2187,7 @@ resource abc 'Test.Rp/basic|'
                 foreach (var completion in serverFarms)
                 {
                     completion.FilterText.Should().NotBeNull();
-                    completion.FilterText.Should().NotBeUpperCased();
-                    var filters = completion.FilterText!.Trim('\'').Split(',');
+                    var filters = completion.FilterText!.Trim('\'').Split(' ');
 
                     filters.Where(x => x.StartsWith("microsoft.web/serverfarms", StringComparison.OrdinalIgnoreCase)).Should().HaveCount(1);
                     filters.Should().Contain("appserviceplan");
@@ -2205,8 +2202,7 @@ resource abc 'Test.Rp/basic|'
                 {
                     if (completion.FilterText is string filterText)
                     {
-                        filterText.Should().NotBeUpperCased();
-                        var filters = filterText.Trim('\'').Split(',');
+                        var filters = filterText.Trim('\'').Split(' ');
 
                         filters.Where(x => x.StartsWith("microsoft.web/serverfarms", StringComparison.OrdinalIgnoreCase)).Should().HaveCount(0);
                         filters.Should().NotContain("appserviceplan");
@@ -2220,8 +2216,7 @@ resource abc 'Test.Rp/basic|'
                 {
                     if (completion.FilterText is string filterText)
                     {
-                        filterText.Should().NotBeUpperCased();
-                        var filters = filterText.Trim('\'').Split(',');
+                        var filters = filterText.Trim('\'').Split(' ');
 
                         filters.Where(x => x.StartsWith("microsoft.web/serverfarms", StringComparison.OrdinalIgnoreCase)).Should().HaveCount(0);
                         filters.Should().NotContain("appserviceplan");
