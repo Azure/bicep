@@ -278,7 +278,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-aks-cluster",
-    "filterText": "res-aks-cluster,Kubernetes Service Cluster,aks,kubernetes,k8s,cluster,Microsoft.ContainerService/managedClusters",
+    "filterText": "res-aks-cluster Kubernetes Service Cluster Microsoft.ContainerService/managedClusters aks kubernetes k8s cluster",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -309,7 +309,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-api-management-instance",
-    "filterText": "res-api-management-instance,Api Management Instance,Microsoft.ApiManagement/service",
+    "filterText": "res-api-management-instance Api Management Instance Microsoft.ApiManagement/service",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -340,7 +340,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-app-gateway",
-    "filterText": "res-app-gateway,Application Gateway,Microsoft.Network/applicationGateways",
+    "filterText": "res-app-gateway Application Gateway Microsoft.Network/applicationGateways",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -371,7 +371,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-app-gateway-waf",
-    "filterText": "res-app-gateway-waf,Application Gateway with Web Application Firewall,Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies",
+    "filterText": "res-app-gateway-waf Application Gateway with Web Application Firewall Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -402,7 +402,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-app-insights",
-    "filterText": "res-app-insights,Application Insights for Web Apps,Microsoft.Insights/components",
+    "filterText": "res-app-insights Application Insights for Web Apps Microsoft.Insights/components",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -433,7 +433,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-app-insights-alert-rules",
-    "filterText": "res-app-insights-alert-rules,Application Insights Alert Rules,Microsoft.Insights/alertrules",
+    "filterText": "res-app-insights-alert-rules Application Insights Alert Rules Microsoft.Insights/alertrules",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -464,7 +464,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-app-insights-auto-scale-settings",
-    "filterText": "res-app-insights-auto-scale-settings,Application Insights Auto Scale Settings,Microsoft.Insights/autoscalesettings",
+    "filterText": "res-app-insights-auto-scale-settings Application Insights Auto Scale Settings Microsoft.Insights/autoscalesettings",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -495,7 +495,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-app-plan",
-    "filterText": "res-app-plan,Application Service Plan (Server Farm),asp,appserviceplan,hostingplan,Microsoft.Web/serverfarms",
+    "filterText": "res-app-plan Application Service Plan (Server Farm) Microsoft.Web/serverfarms asp appserviceplan hostingplan",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -526,7 +526,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-app-security-group",
-    "filterText": "res-app-security-group,Application Security Group,Microsoft.Network/applicationSecurityGroups",
+    "filterText": "res-app-security-group Application Security Group Microsoft.Network/applicationSecurityGroups",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -557,7 +557,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-automation-account",
-    "filterText": "res-automation-account,Automation Account,Microsoft.Automation/automationAccounts",
+    "filterText": "res-automation-account Automation Account Microsoft.Automation/automationAccounts",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -588,7 +588,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-automation-cert",
-    "filterText": "res-automation-cert,Automation Certificate,Microsoft.Automation/automationAccounts,Microsoft.Automation/automationAccounts/certificates",
+    "filterText": "res-automation-cert Automation Certificate Microsoft.Automation/automationAccounts Microsoft.Automation/automationAccounts/certificates",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -619,7 +619,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-automation-cred",
-    "filterText": "res-automation-cred,Automation Credential,Microsoft.Automation/automationAccounts,Microsoft.Automation/automationAccounts/credentials",
+    "filterText": "res-automation-cred Automation Credential Microsoft.Automation/automationAccounts Microsoft.Automation/automationAccounts/credentials",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -650,7 +650,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-automation-job-schedule",
-    "filterText": "res-automation-job-schedule,Automation Job Schedule,Microsoft.Automation/automationAccounts,Microsoft.Automation/automationAccounts/jobSchedules",
+    "filterText": "res-automation-job-schedule Automation Job Schedule Microsoft.Automation/automationAccounts Microsoft.Automation/automationAccounts/jobSchedules",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -681,7 +681,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-automation-module",
-    "filterText": "res-automation-module,Automation Module,Microsoft.Automation/automationAccounts,Microsoft.Automation/automationAccounts/modules",
+    "filterText": "res-automation-module Automation Module Microsoft.Automation/automationAccounts Microsoft.Automation/automationAccounts/modules",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -712,7 +712,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-automation-runbook",
-    "filterText": "res-automation-runbook,Automation Runbook,Microsoft.Automation/automationAccounts,Microsoft.Automation/automationAccounts/runbooks",
+    "filterText": "res-automation-runbook Automation Runbook Microsoft.Automation/automationAccounts Microsoft.Automation/automationAccounts/runbooks",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -743,7 +743,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-automation-schedule",
-    "filterText": "res-automation-schedule,Automation Schedule,Microsoft.Automation/automationAccounts,Microsoft.Automation/automationAccounts/schedules",
+    "filterText": "res-automation-schedule Automation Schedule Microsoft.Automation/automationAccounts Microsoft.Automation/automationAccounts/schedules",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -774,7 +774,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-automation-variable",
-    "filterText": "res-automation-variable,Automation Variable,Microsoft.Automation/automationAccounts,Microsoft.Automation/automationAccounts/variables",
+    "filterText": "res-automation-variable Automation Variable Microsoft.Automation/automationAccounts Microsoft.Automation/automationAccounts/variables",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -805,7 +805,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-availability-set",
-    "filterText": "res-availability-set,Availability Set,Microsoft.Compute/availabilitySets",
+    "filterText": "res-availability-set Availability Set Microsoft.Compute/availabilitySets",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -836,7 +836,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-container-group",
-    "filterText": "res-container-group,Container Group,Microsoft.ContainerInstance/containerGroups",
+    "filterText": "res-container-group Container Group Microsoft.ContainerInstance/containerGroups",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -867,7 +867,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-container-registry",
-    "filterText": "res-container-registry,Container Registry,Microsoft.ContainerRegistry/registries",
+    "filterText": "res-container-registry Container Registry Microsoft.ContainerRegistry/registries",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -898,7 +898,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-cosmos-account",
-    "filterText": "res-cosmos-account,Cosmos DB Database Account,Microsoft.DocumentDB/databaseAccounts",
+    "filterText": "res-cosmos-account Cosmos DB Database Account Microsoft.DocumentDB/databaseAccounts cosmosdb",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -929,7 +929,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-cosmos-cassandra-keyspace",
-    "filterText": "res-cosmos-cassandra-keyspace,Cosmos DB Cassandra Namespace,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces",
+    "filterText": "res-cosmos-cassandra-keyspace Cosmos DB Cassandra Namespace Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces cosmosdb",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -960,7 +960,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-cosmos-cassandra-table",
-    "filterText": "res-cosmos-cassandra-table,Cosmos DB Cassandra Table,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/tables",
+    "filterText": "res-cosmos-cassandra-table Cosmos DB Cassandra Table Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces cosmosdb Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/tables cosmosdb",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -991,7 +991,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-cosmos-gremlin-database",
-    "filterText": "res-cosmos-gremlin-database,Cosmos DB Gremlin Database,Microsoft.DocumentDB/databaseAccounts/gremlinDatabases",
+    "filterText": "res-cosmos-gremlin-database Cosmos DB Gremlin Database Microsoft.DocumentDB/databaseAccounts/gremlinDatabases cosmosdb",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1022,7 +1022,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-cosmos-gremlin-graph",
-    "filterText": "res-cosmos-gremlin-graph,Cosmos DB Gremlin Graph,Microsoft.DocumentDB/databaseAccounts/gremlinDatabases,Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs",
+    "filterText": "res-cosmos-gremlin-graph Cosmos DB Gremlin Graph Microsoft.DocumentDB/databaseAccounts/gremlinDatabases cosmosdb Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs cosmosdb",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1053,7 +1053,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-cosmos-mongo-database",
-    "filterText": "res-cosmos-mongo-database,Cosmos DB Mongo Database,Microsoft.DocumentDB/databaseAccounts/mongodbDatabases",
+    "filterText": "res-cosmos-mongo-database Cosmos DB Mongo Database Microsoft.DocumentDB/databaseAccounts/mongodbDatabases cosmosdb",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1084,7 +1084,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-cosmos-sql-container",
-    "filterText": "res-cosmos-sql-container,Cosmos DB SQL Container,Microsoft.DocumentDB/databaseAccounts/sqlDatabases,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+    "filterText": "res-cosmos-sql-container Cosmos DB SQL Container Microsoft.DocumentDB/databaseAccounts/sqlDatabases cosmosdb Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers cosmosdb",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1115,7 +1115,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-cosmos-sql-database",
-    "filterText": "res-cosmos-sql-database,Cosmos DB SQL Database,Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+    "filterText": "res-cosmos-sql-database Cosmos DB SQL Database Microsoft.DocumentDB/databaseAccounts/sqlDatabases cosmosdb",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1146,7 +1146,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-cosmos-tablestorage-table",
-    "filterText": "res-cosmos-tablestorage-table,Cosmos Table Storage,Microsoft.DocumentDB/databaseAccounts/tables",
+    "filterText": "res-cosmos-tablestorage-table Cosmos Table Storage Microsoft.DocumentDB/databaseAccounts/tables cosmosdb",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1177,7 +1177,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-data-lake",
-    "filterText": "res-data-lake,Data Lake Store Account,Microsoft.DataLakeStore/accounts",
+    "filterText": "res-data-lake Data Lake Store Account Microsoft.DataLakeStore/accounts",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1208,7 +1208,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-dns-record",
-    "filterText": "res-dns-record,DNS Record,Microsoft.Network/dnsZones",
+    "filterText": "res-dns-record DNS Record Microsoft.Network/dnsZones",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1239,7 +1239,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-dns-resolver",
-    "filterText": "res-dns-resolver,,Microsoft.Network/dnsResolvers",
+    "filterText": "res-dns-resolver  Microsoft.Network/dnsResolvers",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1270,7 +1270,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-dns-zone",
-    "filterText": "res-dns-zone,DNS Zone,Microsoft.Network/dnsZones",
+    "filterText": "res-dns-zone DNS Zone Microsoft.Network/dnsZones",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1301,7 +1301,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-expressroute-circuit",
-    "filterText": "res-expressroute-circuit,ExpressRoute Circuit,Microsoft.Network/expressRouteCircuits",
+    "filterText": "res-expressroute-circuit ExpressRoute Circuit Microsoft.Network/expressRouteCircuits",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1332,7 +1332,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-expressroute-gateway",
-    "filterText": "res-expressroute-gateway,ExpressRoute Gateway,Microsoft.Network/expressRouteGateways",
+    "filterText": "res-expressroute-gateway ExpressRoute Gateway Microsoft.Network/expressRouteGateways",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1363,7 +1363,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-firewall-classic-rules",
-    "filterText": "res-firewall-classic-rules,Azure Firewall using classic rules,Microsoft.Network/azureFirewalls",
+    "filterText": "res-firewall-classic-rules Azure Firewall using classic rules Microsoft.Network/azureFirewalls",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1394,7 +1394,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-firewall-policy-standard",
-    "filterText": "res-firewall-policy-standard,Azure Firewall Policy Standard SKU,Microsoft.Network/firewallPolicies",
+    "filterText": "res-firewall-policy-standard Azure Firewall Policy Standard SKU Microsoft.Network/firewallPolicies",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1425,7 +1425,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-firewall-standard",
-    "filterText": "res-firewall-standard,Azure Firewall Standard SKU,Microsoft.Network/azureFirewalls",
+    "filterText": "res-firewall-standard Azure Firewall Standard SKU Microsoft.Network/azureFirewalls",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1456,7 +1456,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-firewall-standard-vwan",
-    "filterText": "res-firewall-standard-vwan,Azure Firewall Standard SKU for Virtual WAN Hub,Microsoft.Network/azureFirewalls",
+    "filterText": "res-firewall-standard-vwan Azure Firewall Standard SKU for Virtual WAN Hub Microsoft.Network/azureFirewalls",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1487,7 +1487,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-function",
-    "filterText": "res-function,Azure Functions (v2),appservice,webapp,function,Microsoft.Web/sites",
+    "filterText": "res-function Azure Functions (v2) Microsoft.Web/sites appservice webapp function",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1518,7 +1518,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-ip",
-    "filterText": "res-ip,Public IP Address,Microsoft.Network/publicIPAddresses",
+    "filterText": "res-ip Public IP Address Microsoft.Network/publicIPAddresses",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1549,7 +1549,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-ip-prefix",
-    "filterText": "res-ip-prefix,Public IP Prefix,Microsoft.Network/publicIPPrefixes",
+    "filterText": "res-ip-prefix Public IP Prefix Microsoft.Network/publicIPPrefixes",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1580,7 +1580,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-keyvault",
-    "filterText": "res-keyvault,KeyVault,Microsoft.KeyVault/vaults",
+    "filterText": "res-keyvault KeyVault Microsoft.KeyVault/vaults",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1611,7 +1611,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-keyvault-secret",
-    "filterText": "res-keyvault-secret,Key Vault Secret,Microsoft.KeyVault/vaults/secrets",
+    "filterText": "res-keyvault-secret Key Vault Secret Microsoft.KeyVault/vaults/secrets",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1642,7 +1642,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-loadbalancer-external",
-    "filterText": "res-loadbalancer-external,External Load Balancer,Microsoft.Network/loadBalancers",
+    "filterText": "res-loadbalancer-external External Load Balancer Microsoft.Network/loadBalancers",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1673,7 +1673,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-loadbalancer-internal",
-    "filterText": "res-loadbalancer-internal,Internal Load Balancer,Microsoft.Network/loadBalancers",
+    "filterText": "res-loadbalancer-internal Internal Load Balancer Microsoft.Network/loadBalancers",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1704,7 +1704,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-lock",
-    "filterText": "res-lock,,rbac,Microsoft.Authorization/locks",
+    "filterText": "res-lock  Microsoft.Authorization/locks rbac",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1735,7 +1735,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-log-analytics-solution",
-    "filterText": "res-log-analytics-solution,Log Analytics Solution,Microsoft.OperationsManagement/solutions",
+    "filterText": "res-log-analytics-solution Log Analytics Solution Microsoft.OperationsManagement/solutions",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1766,7 +1766,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-log-analytics-workspace",
-    "filterText": "res-log-analytics-workspace,Log Analytics Workspace,loganalytics,Microsoft.OperationalInsights/workspaces",
+    "filterText": "res-log-analytics-workspace Log Analytics Workspace Microsoft.OperationalInsights/workspaces loganalytics",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1797,7 +1797,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-logic-app",
-    "filterText": "res-logic-app,Logic App,Microsoft.Logic/workflows",
+    "filterText": "res-logic-app Logic App Microsoft.Logic/workflows",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1828,7 +1828,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-logic-app-connector",
-    "filterText": "res-logic-app-connector,Logic App Connector,Microsoft.Web/connections",
+    "filterText": "res-logic-app-connector Logic App Connector Microsoft.Web/connections",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1859,7 +1859,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-logic-app-from-file",
-    "filterText": "res-logic-app-from-file,Logic App,Microsoft.Logic/workflows",
+    "filterText": "res-logic-app-from-file Logic App Microsoft.Logic/workflows",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1890,7 +1890,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-logic-app-integration",
-    "filterText": "res-logic-app-integration,Logic App Integration Account,Microsoft.Logic/integrationAccounts",
+    "filterText": "res-logic-app-integration Logic App Integration Account Microsoft.Logic/integrationAccounts",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1921,7 +1921,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-managed-identity",
-    "filterText": "res-managed-identity,Managed Identity (User Assigned),Microsoft.ManagedIdentity/userAssignedIdentities",
+    "filterText": "res-managed-identity Managed Identity (User Assigned) Microsoft.ManagedIdentity/userAssignedIdentities",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1952,7 +1952,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-media",
-    "filterText": "res-media,Media Services account,Microsoft.Media/mediaServices",
+    "filterText": "res-media Media Services account Microsoft.Media/mediaServices",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1983,7 +1983,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-mg",
-    "filterText": "res-mg,Management Group(for tenant scope),Microsoft.Management/managementGroups",
+    "filterText": "res-mg Management Group(for tenant scope) Microsoft.Management/managementGroups",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2014,7 +2014,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-mysql",
-    "filterText": "res-mysql,MySQL Database,Microsoft.DBforMySQL/servers",
+    "filterText": "res-mysql MySQL Database Microsoft.DBforMySQL/servers",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2045,7 +2045,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-nic",
-    "filterText": "res-nic,Network Interface,Microsoft.Network/networkInterfaces",
+    "filterText": "res-nic Network Interface Microsoft.Network/networkInterfaces",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2076,7 +2076,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-nsg",
-    "filterText": "res-nsg,Network Security Group,Microsoft.Network/networkSecurityGroups",
+    "filterText": "res-nsg Network Security Group Microsoft.Network/networkSecurityGroups",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2107,7 +2107,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-nsgrule",
-    "filterText": "res-nsgrule,Network Security Group Rule,Microsoft.Network/networkSecurityGroups/securityRules",
+    "filterText": "res-nsgrule Network Security Group Rule Microsoft.Network/networkSecurityGroups/securityRules",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2138,7 +2138,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-plan",
-    "filterText": "res-plan,Application Service Plan (Server Farm),asp,appserviceplan,hostingplan,Microsoft.Web/serverfarms",
+    "filterText": "res-plan Application Service Plan (Server Farm) Microsoft.Web/serverfarms asp appserviceplan hostingplan",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2169,7 +2169,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-policy-assignment",
-    "filterText": "res-policy-assignment,Policy Assignment,rbac,Microsoft.Authorization/policyAssignments",
+    "filterText": "res-policy-assignment Policy Assignment Microsoft.Authorization/policyAssignments rbac",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2200,7 +2200,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-policy-definition-audit-effect",
-    "filterText": "res-policy-definition-audit-effect,Policy Definition,rbac,Microsoft.Authorization/policyDefinitions",
+    "filterText": "res-policy-definition-audit-effect Policy Definition Microsoft.Authorization/policyDefinitions rbac",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2231,7 +2231,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-policy-definition-deploy-effect",
-    "filterText": "res-policy-definition-deploy-effect,Policy Definition,rbac,Microsoft.Authorization/policyDefinitions",
+    "filterText": "res-policy-definition-deploy-effect Policy Definition Microsoft.Authorization/policyDefinitions rbac",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2262,7 +2262,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-policy-definition-modify-effect",
-    "filterText": "res-policy-definition-modify-effect,Policy Definition,rbac,Microsoft.Authorization/policyDefinitions",
+    "filterText": "res-policy-definition-modify-effect Policy Definition Microsoft.Authorization/policyDefinitions rbac",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2293,7 +2293,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-policy-exemption",
-    "filterText": "res-policy-exemption,Policy Exemption,rbac,Microsoft.Authorization/policyExemptions",
+    "filterText": "res-policy-exemption Policy Exemption Microsoft.Authorization/policyExemptions rbac",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2324,7 +2324,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-policy-guestconfig",
-    "filterText": "res-policy-guestconfig,Guest configuration assignment for virtual machine,Microsoft.Compute/virtualMachines,Microsoft.GuestConfiguration/guestConfigurationAssignments",
+    "filterText": "res-policy-guestconfig Guest configuration assignment for virtual machine Microsoft.Compute/virtualMachines Microsoft.GuestConfiguration/guestConfigurationAssignments",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2355,7 +2355,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-policy-guestconfig-hybrid",
-    "filterText": "res-policy-guestconfig-hybrid,Guest configuration assignment for virtual machine,Microsoft.HybridCompute/machines,Microsoft.GuestConfiguration/guestConfigurationAssignments",
+    "filterText": "res-policy-guestconfig-hybrid Guest configuration assignment for virtual machine Microsoft.HybridCompute/machines Microsoft.GuestConfiguration/guestConfigurationAssignments",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2386,7 +2386,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-policy-guestconfig-params",
-    "filterText": "res-policy-guestconfig-params,Guest configuration assignment with parameters, for virtual machine,Microsoft.Compute/virtualMachines,Microsoft.GuestConfiguration/guestConfigurationAssignments",
+    "filterText": "res-policy-guestconfig-params Guest configuration assignment with parameters, for virtual machine Microsoft.Compute/virtualMachines Microsoft.GuestConfiguration/guestConfigurationAssignments",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2417,7 +2417,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-policy-remediation",
-    "filterText": "res-policy-remediation,Policy Remediation,Microsoft.PolicyInsights/remediations",
+    "filterText": "res-policy-remediation Policy Remediation Microsoft.PolicyInsights/remediations",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2448,7 +2448,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-policyset-definition",
-    "filterText": "res-policyset-definition,PolicySet Definition,rbac,Microsoft.Authorization/policySetDefinitions",
+    "filterText": "res-policyset-definition PolicySet Definition Microsoft.Authorization/policySetDefinitions rbac",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2479,7 +2479,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-private-endpoint",
-    "filterText": "res-private-endpoint,,Microsoft.Network/privateEndpoints",
+    "filterText": "res-private-endpoint  Microsoft.Network/privateEndpoints",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2510,7 +2510,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-recovery-service-vault",
-    "filterText": "res-recovery-service-vault,Recovery Service Vault,Microsoft.RecoveryServices/vaults",
+    "filterText": "res-recovery-service-vault Recovery Service Vault Microsoft.RecoveryServices/vaults",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2541,7 +2541,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-redis",
-    "filterText": "res-redis,Redis Cache,Microsoft.Cache/Redis",
+    "filterText": "res-redis Redis Cache Microsoft.Cache/Redis",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2572,7 +2572,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-rg",
-    "filterText": "res-rg,Resource Group,Microsoft.Resources/resourceGroups",
+    "filterText": "res-rg Resource Group Microsoft.Resources/resourceGroups",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2603,7 +2603,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-role-assignment",
-    "filterText": "res-role-assignment,,rbac,Microsoft.Authorization/roleAssignments",
+    "filterText": "res-role-assignment  Microsoft.Authorization/roleAssignments rbac",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2634,7 +2634,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-route-server",
-    "filterText": "res-route-server,Route Server,Microsoft.Network/virtualHubs,Microsoft.Network/virtualHubs/ipConfigurations",
+    "filterText": "res-route-server Route Server Microsoft.Network/virtualHubs Microsoft.Network/virtualHubs/ipConfigurations",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2665,7 +2665,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-route-table",
-    "filterText": "res-route-table,Route Table,Microsoft.Network/routeTables",
+    "filterText": "res-route-table Route Table Microsoft.Network/routeTables",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2696,7 +2696,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-route-table-route",
-    "filterText": "res-route-table-route,Azure Route Table Route,Microsoft.Network/routeTables/routes",
+    "filterText": "res-route-table-route Azure Route Table Route Microsoft.Network/routeTables/routes",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2727,7 +2727,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-scoped-lock",
-    "filterText": "res-scoped-lock,,rbac,Microsoft.Authorization/locks",
+    "filterText": "res-scoped-lock  Microsoft.Authorization/locks rbac",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2758,7 +2758,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-service-bus",
-    "filterText": "res-service-bus,Service Bus Namespace,Microsoft.ServiceBus/namespaces",
+    "filterText": "res-service-bus Service Bus Namespace Microsoft.ServiceBus/namespaces",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2789,7 +2789,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-shared-image-gallery",
-    "filterText": "res-shared-image-gallery,Create Image Gallery,Microsoft.Compute/galleries",
+    "filterText": "res-shared-image-gallery Create Image Gallery Microsoft.Compute/galleries",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2820,7 +2820,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-sql",
-    "filterText": "res-sql,SQL Database,Microsoft.Sql/servers,Microsoft.Sql/servers/databases",
+    "filterText": "res-sql SQL Database Microsoft.Sql/servers Microsoft.Sql/servers/databases",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2851,7 +2851,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-sql-db-import",
-    "filterText": "res-sql-db-import,SQL Database Import,Microsoft.Sql/servers/databases,Microsoft.Sql/servers/databases/extensions",
+    "filterText": "res-sql-db-import SQL Database Import Microsoft.Sql/servers/databases Microsoft.Sql/servers/databases/extensions",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2882,7 +2882,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-sql-server-firewall-rules",
-    "filterText": "res-sql-server-firewall-rules,SQL Server Firewall Rules,Microsoft.Sql/servers,Microsoft.Sql/servers/firewallRules",
+    "filterText": "res-sql-server-firewall-rules SQL Server Firewall Rules Microsoft.Sql/servers Microsoft.Sql/servers/firewallRules",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2913,7 +2913,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-storage",
-    "filterText": "res-storage,Storage Account,Microsoft.Storage/storageAccounts",
+    "filterText": "res-storage Storage Account Microsoft.Storage/storageAccounts",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2944,7 +2944,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-template-spec",
-    "filterText": "res-template-spec,Template spec,Microsoft.Resources/templateSpecs",
+    "filterText": "res-template-spec Template spec Microsoft.Resources/templateSpecs",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -2975,7 +2975,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-traffic-manager",
-    "filterText": "res-traffic-manager,Traffic Manager Profile,Microsoft.Network/trafficManagerProfiles",
+    "filterText": "res-traffic-manager Traffic Manager Profile Microsoft.Network/trafficManagerProfiles",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3006,7 +3006,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-virtual-wan",
-    "filterText": "res-virtual-wan,Virtual WAN,Microsoft.Network/virtualWans",
+    "filterText": "res-virtual-wan Virtual WAN Microsoft.Network/virtualWans",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3037,7 +3037,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vm-dsc",
-    "filterText": "res-vm-dsc,Desired State Configuration PowerShell script for a Windows Virtual Machine,Microsoft.Compute/virtualMachines,Microsoft.Compute/virtualMachines/extensions",
+    "filterText": "res-vm-dsc Desired State Configuration PowerShell script for a Windows Virtual Machine Microsoft.Compute/virtualMachines Microsoft.Compute/virtualMachines/extensions",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3068,7 +3068,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vm-linux-guestconfig-ext",
-    "filterText": "res-vm-linux-guestconfig-ext,Guest configuration extension for Linux virtual machine,Microsoft.Compute/virtualMachines,Microsoft.Compute/virtualMachines/extensions",
+    "filterText": "res-vm-linux-guestconfig-ext Guest configuration extension for Linux virtual machine Microsoft.Compute/virtualMachines Microsoft.Compute/virtualMachines/extensions",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3099,7 +3099,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vm-script-linux",
-    "filterText": "res-vm-script-linux,Custom script extension for Linux Virtual Machine,Microsoft.Compute/virtualMachines,Microsoft.Compute/virtualMachines/extensions",
+    "filterText": "res-vm-script-linux Custom script extension for Linux Virtual Machine Microsoft.Compute/virtualMachines Microsoft.Compute/virtualMachines/extensions",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3130,7 +3130,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vm-script-windows",
-    "filterText": "res-vm-script-windows,Custom script extension for a Windows Virtual Machine,Microsoft.Compute/virtualMachines,Microsoft.Compute/virtualMachines/extensions",
+    "filterText": "res-vm-script-windows Custom script extension for a Windows Virtual Machine Microsoft.Compute/virtualMachines Microsoft.Compute/virtualMachines/extensions",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3161,7 +3161,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vm-ubuntu",
-    "filterText": "res-vm-ubuntu,Ubuntu Virtual Machine,Microsoft.Compute/virtualMachines",
+    "filterText": "res-vm-ubuntu Ubuntu Virtual Machine Microsoft.Compute/virtualMachines",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3192,7 +3192,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vm-windows",
-    "filterText": "res-vm-windows,Windows Virtual Machine,Microsoft.Compute/virtualMachines",
+    "filterText": "res-vm-windows Windows Virtual Machine Microsoft.Compute/virtualMachines",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3223,7 +3223,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vm-windows-diagnostics",
-    "filterText": "res-vm-windows-diagnostics,Diagnostics Extension for a Windows Virtual Machine,Microsoft.Compute/virtualMachines/extensions",
+    "filterText": "res-vm-windows-diagnostics Diagnostics Extension for a Windows Virtual Machine Microsoft.Compute/virtualMachines/extensions",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3254,7 +3254,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vm-windows-guestconfig-ext",
-    "filterText": "res-vm-windows-guestconfig-ext,Guest configuration assignment for Windows virtual machine,Microsoft.Compute/virtualMachines,Microsoft.Compute/virtualMachines/extensions",
+    "filterText": "res-vm-windows-guestconfig-ext Guest configuration assignment for Windows virtual machine Microsoft.Compute/virtualMachines Microsoft.Compute/virtualMachines/extensions",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3285,7 +3285,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vnet",
-    "filterText": "res-vnet,Virtual Network,Microsoft.Network/virtualNetworks",
+    "filterText": "res-vnet Virtual Network Microsoft.Network/virtualNetworks",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3316,7 +3316,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vnet-peering",
-    "filterText": "res-vnet-peering,Virtual Network Peering,Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+    "filterText": "res-vnet-peering Virtual Network Peering Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3347,7 +3347,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vpn-local-gateway",
-    "filterText": "res-vpn-local-gateway,VPN Local Network Gateway,Microsoft.Network/localNetworkGateways",
+    "filterText": "res-vpn-local-gateway VPN Local Network Gateway Microsoft.Network/localNetworkGateways",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3378,7 +3378,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vpn-vnet-connection",
-    "filterText": "res-vpn-vnet-connection,VPN Virtual Network Connection,Microsoft.Network/connections",
+    "filterText": "res-vpn-vnet-connection VPN Virtual Network Connection Microsoft.Network/connections",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3409,7 +3409,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-vpn-vnet-gateway",
-    "filterText": "res-vpn-vnet-gateway,VPN Virtual Network Gateway,Microsoft.Network/virtualNetworkGateways",
+    "filterText": "res-vpn-vnet-gateway VPN Virtual Network Gateway Microsoft.Network/virtualNetworkGateways",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3440,7 +3440,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-web-app",
-    "filterText": "res-web-app,Web Application,appservice,webapp,function,Microsoft.Web/sites",
+    "filterText": "res-web-app Web Application Microsoft.Web/sites appservice webapp function",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3471,7 +3471,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-web-app-deploy",
-    "filterText": "res-web-app-deploy,Web Deploy for a Web Application,appservice,webapp,function,Microsoft.Web/sites,appservice,webapp,function,Microsoft.Web/sites/extensions",
+    "filterText": "res-web-app-deploy Web Deploy for a Web Application Microsoft.Web/sites appservice webapp function Microsoft.Web/sites/extensions appservice webapp function",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3502,7 +3502,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-wvd-appgroup",
-    "filterText": "res-wvd-appgroup,WVD AppGroup,Microsoft.DesktopVirtualization/applicationgroups",
+    "filterText": "res-wvd-appgroup WVD AppGroup Microsoft.DesktopVirtualization/applicationgroups",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3533,7 +3533,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-wvd-hostpool",
-    "filterText": "res-wvd-hostpool,WVD Host Pool,Microsoft.DesktopVirtualization/hostpools",
+    "filterText": "res-wvd-hostpool WVD Host Pool Microsoft.DesktopVirtualization/hostpools",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3564,7 +3564,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_res-wvd-workspace",
-    "filterText": "res-wvd-workspace,WVD Workspace,Microsoft.DesktopVirtualization/workspaces",
+    "filterText": "res-wvd-workspace WVD Workspace Microsoft.DesktopVirtualization/workspaces",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
