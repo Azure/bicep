@@ -3,7 +3,7 @@
 
 using System.Collections.Immutable;
 
-namespace Bicep.Extension;
+namespace Bicep.Extension.Protocol;
 
 public class ResourceDispatcher
 {

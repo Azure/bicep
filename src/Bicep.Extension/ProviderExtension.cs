@@ -5,9 +5,12 @@ using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime;
+using Microsoft.AspNetCore.Builder;
 using Bicep.Extension.Rpc;
 using CommandLine;
-using StreamJsonRpc;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Bicep.Extension.Protocol;
 
 namespace Bicep.Extension;
 
@@ -15,14 +18,8 @@ public class ProviderExtension
 {
     internal class CommandLineOptions
     {
-        [Option("pipe", Required = false, HelpText = "The named pipe to connect to for LSP communication")]
-        public string? Pipe { get; set; }
-
-        [Option("socket", Required = false, HelpText = "The TCP port to connect to for LSP communication")]
-        public int? Socket { get; set; }
-
-        [Option("stdio", Required = false, HelpText = "If set, use stdin/stdout for LSP communication")]
-        public bool Stdio { get; set; }
+        [Option("socket", Required = false, HelpText = "The path to the domain socket to connect on")]
+        public string? Socket { get; set; }
 
         [Option("wait-for-debugger", Required = false, HelpText = "If set, wait for a dotnet debugger to be attached before starting the server")]
         public bool WaitForDebugger { get; set; }
@@ -74,47 +71,28 @@ public class ProviderExtension
         registerHandlers(handlerBuilder);
         var dispatcher = handlerBuilder.Build();
 
-        if (options.Pipe is { } pipeName)
+        if (options.Socket is { } socketPath)
         {
-            if (pipeName.StartsWith(@"\\.\pipe\"))
+            if (File.Exists(socketPath))
             {
-                pipeName = pipeName.Substring(@"\\.\pipe\".Length);
+                File.Delete(socketPath);
             }
 
-            using var clientPipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
+            var builder = WebApplication.CreateBuilder();
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.ListenUnixSocket(socketPath);
+            });
+    
+            builder.Services.AddGrpc();
+            builder.Services.AddSingleton(dispatcher);
+            var app = builder.Build();
+            app.MapGrpcService<BicepExtensionImpl>();
 
-            await clientPipe.ConnectAsync(cancellationToken);
-            await RunServer(dispatcher, clientPipe, clientPipe, cancellationToken);
-        }
-        else if (options.Socket is { } port)
-        {
-            using var tcpClient = new TcpClient();
-
-            await tcpClient.ConnectAsync(IPAddress.Loopback, port, cancellationToken);
-            using var tcpStream = tcpClient.GetStream();
-            await RunServer(dispatcher, tcpStream, tcpStream, cancellationToken);
-        }
-        else
-        {
-            await RunServer(dispatcher, Console.OpenStandardOutput(), Console.OpenStandardInput(), cancellationToken);
-        }
-    }
-
-    private static async Task RunServer(ResourceDispatcher dispatcher, Stream inputStream, Stream outputStream, CancellationToken cancellationToken)
-    {
-        using var jsonRpc = new JsonRpc(ExtensionRpcServer.CreateMessageHandler(inputStream, outputStream));
-        if (IsTracingEnabled)
-        {
-            jsonRpc.TraceSource = new TraceSource("JsonRpc", SourceLevels.Verbose);
-            jsonRpc.TraceSource.Listeners.AddRange(Trace.Listeners);
+            await Task.WhenAny(app.RunAsync(), WaitForCancellation(cancellationToken));
         }
 
-        var server = new ExtensionRpcServer(dispatcher);
-        jsonRpc.AddLocalRpcTarget<IExtensionRpcProtocol>(server, null);
-
-        jsonRpc.StartListening();
-
-        await Task.WhenAny(jsonRpc.Completion, WaitForCancellation(cancellationToken));
+        throw new NotImplementedException();
     }
 
     private static async Task WaitForCancellation(CancellationToken cancellationToken)

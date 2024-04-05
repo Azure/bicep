@@ -11,7 +11,6 @@ using Azure.Deployments.Extensibility.Messages;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.LocalDeploy.Namespaces;
-using Microsoft.VisualStudio.Threading;
 using IAsyncDisposable = System.IAsyncDisposable;
 
 namespace Azure.Bicep.LocalDeploy.Extensibility;
@@ -22,7 +21,7 @@ public class LocalExtensibilityHandler : IAsyncDisposable
         string Name,
         string Version);
 
-    private Dictionary<ProviderKey, AsyncLazy<LocalExtensibilityProvider>> RegisteredProviders = new();
+    private Dictionary<ProviderKey, Lazy<Task<LocalExtensibilityProvider>>> RegisteredProviders = new();
 
     private LocalExtensibilityHandler()
     {
@@ -30,9 +29,9 @@ public class LocalExtensibilityHandler : IAsyncDisposable
 
     private void RegisterAsync(string name, string version, Func<Task<LocalExtensibilityProvider>> providerFactory)
     {
-#pragma warning disable VSTHRD012 // Provide JoinableTaskFactory where allowed
-        RegisteredProviders.TryAdd(new(name, version), new AsyncLazy<LocalExtensibilityProvider>(providerFactory));
-#pragma warning restore VSTHRD012 // Provide JoinableTaskFactory where allowed
+#pragma warning disable VSTHRD011 // Use AsyncLazy<T>
+        RegisteredProviders.TryAdd(new(name, version), new(providerFactory));
+#pragma warning restore VSTHRD011 // Use AsyncLazy<T>
     }
 
     private void Register(string name, string version, Func<LocalExtensibilityProvider> providerFactory)
@@ -58,8 +57,9 @@ public class LocalExtensibilityHandler : IAsyncDisposable
         LocalExtensibilityProvider provider;
         try {
             // TOOD use fully qualified reference to guarantee uniqueness
-            provider = await RegisteredProviders[new(request.Import.Provider, request.Import.Version)]
-                .GetValueAsync(cancellationToken);
+#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
+            provider = await RegisteredProviders[new(request.Import.Provider, request.Import.Version)].Value;
+#pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
         } catch (Exception ex) {
             return new(
                 null,
@@ -80,7 +80,7 @@ public class LocalExtensibilityHandler : IAsyncDisposable
             handler.RegisterAsync(
                 namespaceType.Settings.ArmTemplateProviderName,
                 namespaceType.Settings.ArmTemplateProviderVersion,
-                async () => await JsonRpcExtensibilityProvider.Start(binaryUri));
+                async () => await GrpcExtensibilityProvider.Start(binaryUri));
         }
 
         return handler;
@@ -92,7 +92,7 @@ public class LocalExtensibilityHandler : IAsyncDisposable
             try {
                 if (x.IsValueCreated)
                 {
-                    var value = await x.GetValueAsync();
+                    var value = await x.Value;
                     await value.DisposeAsync();
                 }
             }

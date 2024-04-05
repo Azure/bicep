@@ -11,7 +11,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Protobuf Include="extension.proto" GrpcServices="Both" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="StreamJsonRpc" Version="2.17.11" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.62.0" />
   </ItemGroup>
 </Project>
