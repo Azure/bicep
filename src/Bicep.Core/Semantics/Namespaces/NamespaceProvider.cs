@@ -136,7 +136,7 @@ public class NamespaceProvider : INamespaceProvider
             var artifact = providerConfig.BuiltIn ? null : artifactFileLookup.ArtifactLookup[syntax];
             return GetNamespaceTypeForConfigManagedProvider(rootConfig, features, sourceFile, targetScope, artifact, providerName, aliasName, syntax);
         }
-        
+
         if (syntax.Specification is InlinedProviderSpecification)
         {
             var artifact = artifactFileLookup.ArtifactLookup[syntax];
@@ -148,7 +148,7 @@ public class NamespaceProvider : INamespaceProvider
 
             return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax.SpecificationString)));
         }
-        
+
         // we've exhaustively checked all the different implementations of IProviderSpecification
         throw new UnreachableException();
     }
@@ -163,9 +163,9 @@ public class NamespaceProvider : INamespaceProvider
         string aliasName,
         ProviderDeclarationSyntax? syntax)
     {
-        var diagBuilder = syntax is {} ? DiagnosticBuilder.ForPosition(syntax) : DiagnosticBuilder.ForDocumentStart();
+        var diagBuilder = syntax is { } ? DiagnosticBuilder.ForPosition(syntax) : DiagnosticBuilder.ForDocumentStart();
 
-        if (artifact is {})
+        if (artifact is { })
         {
             // not a built-in provider
             if (GetNamespaceTypeForArtifact(features, artifact, sourceFile, targetScope, providerName, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
