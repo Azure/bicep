@@ -52,7 +52,7 @@ namespace Bicep.Core.Semantics
         {
             // collect declarations
             var localScopes = new List<ScopeInfo>();
-            
+
             var declarationVisitor = new DeclarationVisitor(
                 namespaceResults.ToImmutableDictionaryExcludingNull(x => x.Origin),
                 sourceFileLookup,

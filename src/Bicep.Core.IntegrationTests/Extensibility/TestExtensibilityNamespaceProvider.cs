@@ -15,7 +15,8 @@ namespace Bicep.Core.IntegrationTests.Extensibility;
 public class TestExtensibilityNamespaceProvider : INamespaceProvider
 {
     public static INamespaceProvider CreateWithDefaults()
-        => Create(result => result switch {
+        => Create(result => result switch
+        {
             { ProviderName: FooNamespaceType.BuiltInName } => result with { Type = FooNamespaceType.Create(result.Name) },
             { ProviderName: BarNamespaceType.BuiltInName } => result with { Type = BarNamespaceType.Create(result.Name) },
             _ => result,

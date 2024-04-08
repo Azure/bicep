@@ -190,7 +190,7 @@ namespace Bicep.LanguageServer.Handlers
             // Create a new document containing the resource to insert.
             // This allows us to apply syntax rewriters and formatting, before generating the code replacement.
             var program = new ProgramSyntax(
-                [ resourceDeclaration ],
+                [resourceDeclaration],
                 SyntaxFactory.EndOfFileToken);
 
             BicepSourceFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri("inmemory:///generated.bicep"), program.ToString());
