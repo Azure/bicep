@@ -14,8 +14,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public MaxNumberAssertsRule() : base(
             code: Code,
             description: CoreResources.MaxNumberAssertsRuleDescription,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
-            diagnosticLevel: DiagnosticLevel.Error)
+            LinterRuleCategory.DeploymentError,
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
         public override string FormatMessage(params object[] values)

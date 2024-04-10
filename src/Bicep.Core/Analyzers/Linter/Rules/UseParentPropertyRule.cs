@@ -19,8 +19,8 @@ public sealed class UseParentPropertyRule : LinterRuleBase
     public UseParentPropertyRule() : base(
         code: Code,
         description: CoreResources.UseParentPropertyRule_Description,
-        docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
-        diagnosticLevel: DiagnosticLevel.Warning)
+        LinterRuleCategory.BestPractice,
+        docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
     { }
 
     public override string FormatMessage(params object[] values)
