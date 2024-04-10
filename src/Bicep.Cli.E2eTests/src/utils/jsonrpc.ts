@@ -10,6 +10,7 @@ import {
   createClientPipeTransport,
 } from "vscode-jsonrpc/node";
 import { bicepCli } from "./fs";
+import {expect, jest, test} from '@jest/globals';
 
 interface VersionRequest {}
 
