@@ -105,6 +105,7 @@ namespace Bicep.Core.Registry
         private static DiagnosticBuilder.ErrorBuilderDelegate GetErrorBuilderDelegate(IArtifactReferenceSyntax artifactReferenceSyntax) => artifactReferenceSyntax switch
         {
             UsingDeclarationSyntax => x => x.UsingPathHasNotBeenSpecified(),
+            ExtendsDeclarationSyntax => x => x.ExtendsPathHasNotBeenSpecified(),
             CompileTimeImportDeclarationSyntax => x => x.PathHasNotBeenSpecified(),
             ModuleDeclarationSyntax => x => x.ModulePathHasNotBeenSpecified(),
             TestDeclarationSyntax => x => x.PathHasNotBeenSpecified(),

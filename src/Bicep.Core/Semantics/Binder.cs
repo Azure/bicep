@@ -3,8 +3,10 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using Bicep.Core.Configuration;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -42,6 +44,26 @@ namespace Bicep.Core.Semantics
             var fileScope = DeclarationVisitor.GetDeclarations(namespaceResults, sourceFileLookup, modelLookup, sourceFile, symbolContext);
             this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope);
             this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
+
+            var extendsDeclarations = sourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
+
+            var thisSemanticModel = (SemanticModel)modelLookup.GetSemanticModel(sourceFile);
+
+            foreach (var extendsDeclaration in extendsDeclarations)
+            {
+                if (sourceFileLookup.TryGetSourceFile(extendsDeclaration).TryUnwrap() is {} extendedFile &&
+                    modelLookup.GetSemanticModel(extendedFile) is SemanticModel extendedModel)
+                {
+                    var calculated = EmitLimitationCalculator.Calculate(extendedModel);
+
+                    foreach (var assignment in extendedModel.Root.ParameterAssignments)
+                    {
+                        thisSemanticModel.EmitLimitationInfo.ParameterAssignments.Add(assignment, calculated.ParameterAssignments[assignment]);
+                    }
+
+                    fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(extendedModel.Root.ParameterAssignments));
+                }
+            }
 
             this.FileSymbol = new FileSymbol(
                 symbolContext,

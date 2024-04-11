@@ -457,6 +457,12 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return expression;
     }
 
+    void IExpressionVisitor.VisitExtendsDeclarationExpression(ExtendsDeclarationExpression expression) => ReplaceCurrent(expression, ReplaceExtendsDeclarationExpression);
+    public virtual Expression ReplaceExtendsDeclarationExpression(ExtendsDeclarationExpression expression)
+    {
+        return expression;
+    }
+
     void IExpressionVisitor.VisitStringLiteralTypeExpression(StringLiteralTypeExpression expression) => ReplaceCurrent(expression, ReplaceStringLiteralTypeExpression);
     public virtual Expression ReplaceStringLiteralTypeExpression(StringLiteralTypeExpression expression)
     {

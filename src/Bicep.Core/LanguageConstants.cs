@@ -63,6 +63,7 @@ namespace Bicep.Core
         public const string TypeKeyword = "type";
         public const string ParameterKeyword = "param";
         public const string UsingKeyword = "using";
+        public const string ExtendsKeyword = "extends";
         public const string OutputKeyword = "output";
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";

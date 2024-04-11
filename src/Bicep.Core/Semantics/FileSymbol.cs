@@ -248,6 +248,11 @@ namespace Bicep.Core.Semantics
                 return new(DiagnosticBuilder.ForDocumentStart().UsingDeclarationNotSpecified());
             }
 
+            if (usingDeclaration.Path is NullLiteralSyntax)
+            {
+                return new(new InMemoryFileSemanticModel(string.Empty));
+            }
+
             return SemanticModelHelper.TryGetTemplateModelForArtifactReference(
                 Context.Compilation.SourceFileGrouping,
                 usingDeclaration,

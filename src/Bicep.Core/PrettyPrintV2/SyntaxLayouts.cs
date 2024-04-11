@@ -452,6 +452,11 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Keyword,
                 syntax.Path);
 
+        private IEnumerable<Document> LayoutExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax) =>
+            this.Spread(
+                syntax.Keyword,
+                syntax.Path);
+
         private IEnumerable<Document> LayoutVariableBlockSyntax(VariableBlockSyntax syntax) =>
             this.Bracket(
                 syntax.OpenParen,

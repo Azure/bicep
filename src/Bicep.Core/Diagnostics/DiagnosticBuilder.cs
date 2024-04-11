@@ -1869,7 +1869,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnrecognizedParamsFileDeclaration() => new(
                 TextSpan,
                 "BCP337",
-                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"", ""{LanguageConstants.ParameterKeyword}"" or ""{LanguageConstants.VariableKeyword}"" declaration.");
+                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"", ""{LanguageConstants.ExtendsKeyword}"", ""{LanguageConstants.ParameterKeyword}"" or ""{LanguageConstants.VariableKeyword}"" declaration.");
 
             public ErrorDiagnostic FailedToEvaluateParameter(string parameterName, string message) => new(
                 TextSpan,
@@ -2146,6 +2146,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP394",
                 "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted.");
+
+            public ErrorDiagnostic ExtendsPathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP395",
+                "The extends declaration is missing a bicepparam file path reference.");
 
             public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecification syntax)
             {

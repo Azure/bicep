@@ -79,6 +79,14 @@ public record NullLiteralExpression(
         => visitor.VisitNullLiteralExpression(this);
 }
 
+public record ExtendsDeclarationExpression(
+    SyntaxBase? SourceSyntax
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitExtendsDeclarationExpression(this);
+}
+
 public record InterpolatedStringExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<string> SegmentValues,

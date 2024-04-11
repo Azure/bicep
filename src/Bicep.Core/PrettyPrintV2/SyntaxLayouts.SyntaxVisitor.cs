@@ -132,6 +132,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutUsingDeclarationSyntax);
 
+        public void VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutExtendsDeclarationSyntax);
+
         public void VisitVariableAccessSyntax(VariableAccessSyntax syntax) => this.Layout(syntax.Name);
 
         public void VisitVariableBlockSyntax(VariableBlockSyntax syntax) => this.Apply(syntax, this.LayoutVariableBlockSyntax);

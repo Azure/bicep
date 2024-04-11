@@ -351,6 +351,12 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Path);
         }
 
+        public override void VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Path);
+        }
+
         public override void VisitLambdaSyntax(LambdaSyntax syntax)
         {
             this.Visit(syntax.VariableSection);

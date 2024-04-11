@@ -194,6 +194,20 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax) => ReplaceCurrent(syntax, VisitUsingDeclarationSyntax);
 
+        protected virtual SyntaxBase VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Path, out var path);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ExtendsDeclarationSyntax(keyword, path);
+        }
+        void ISyntaxVisitor.VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax) => ReplaceCurrent(syntax, VisitExtendsDeclarationSyntax);
+
         protected virtual SyntaxBase ReplaceVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);

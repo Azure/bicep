@@ -427,4 +427,9 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
         expression.Accept(this);
     }
+
+    public void VisitExtendsDeclarationExpression(ExtendsDeclarationExpression expression)
+    {
+        expression.Accept(this);
+    }
 }

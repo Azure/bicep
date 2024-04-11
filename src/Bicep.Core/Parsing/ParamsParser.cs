@@ -56,6 +56,7 @@ namespace Bicep.Core.Parsing
                         TokenType.Identifier => ValidateKeyword(current.Text) switch
                         {
                             LanguageConstants.UsingKeyword => this.UsingDeclaration(),
+                            LanguageConstants.ExtendsKeyword => this.ExtendsDeclaration(),
                             LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
@@ -74,13 +75,42 @@ namespace Bicep.Core.Parsing
         private UsingDeclarationSyntax UsingDeclaration()
         {
             var keyword = ExpectKeyword(LanguageConstants.UsingKeyword);
+
+            SyntaxBase expression = reader.Peek().Type switch
+            {
+                TokenType.EndOfFile or
+                TokenType.NewLine or
+                TokenType.StringComplete => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
+                TokenType.NullKeyword => WithRecovery(
+                    () => new NullLiteralSyntax(
+                        Expect(
+                            TokenType.NullKeyword,
+                            e => e.ExpectedKeyword(LanguageConstants.NullKeyword)
+                        )
+                    ),
+                    GetSuppressionFlag(keyword),
+                    TokenType.NewLine
+                ),
+                _ => Skip(reader.Read(), b => b.ExpectedSymbolListOrWildcard()),
+            };
+
+            return new(keyword, expression);
+        }
+
+        private ExtendsDeclarationSyntax ExtendsDeclaration()
+        {
+            var keyword = ExpectKeyword(LanguageConstants.ExtendsKeyword);
             var path = this.WithRecovery(
-                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExtendsPathHasNotBeenSpecified()),
                 GetSuppressionFlag(keyword),
-                TokenType.Assignment, TokenType.NewLine);
+                TokenType.NewLine);
 
-            return new UsingDeclarationSyntax(keyword, path);
+            if (path is StringSyntax pathSyntax && pathSyntax.SegmentValues[0] == string.Empty)
+            {
+                throw new ExpectedTokenException(reader.Peek(), b => b.ExtendsPathHasNotBeenSpecified());
+            }
 
+            return new ExtendsDeclarationSyntax(keyword, path);
         }
 
         private SyntaxBase ParameterAssignment()
