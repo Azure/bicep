@@ -303,8 +303,8 @@
       },
       "Microsoft.Extensions.Configuration.Binder": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "mBMoXLsr5s1y2zOHWmKsE9veDcx8h1x/c3rz4baEdQKTeDcmQAPNbB54Pi/lhFO3K431eEq6PFbMgLaa6PHFfA==",
+        "resolved": "8.0.1",
+        "contentHash": "2UKFJnLiBt7Od6nCnTqP9rTIUNhzmn9Hv1l2FchyKbz8xieB9ULwZTbQZMw+M24Qw3F5dzzH1U9PPleN0LNLOQ==",
         "dependencies": {
           "Microsoft.Extensions.Configuration.Abstractions": "8.0.0"
         }
@@ -1176,7 +1176,7 @@
           "JsonPatch.Net": "[2.1.0, )",
           "JsonPath.Net": "[0.7.0, )",
           "Microsoft.Extensions.Configuration": "[8.0.0, )",
-          "Microsoft.Extensions.Configuration.Binder": "[8.0.0, )",
+          "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
           "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
           "Microsoft.Graph.Bicep.Types": "[0.1.4-preview, )",
