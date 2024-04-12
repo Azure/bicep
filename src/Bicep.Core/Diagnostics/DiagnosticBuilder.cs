@@ -549,7 +549,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP081",
-                $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available.");
+                $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.");
 
             public FixableErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new(
                 TextSpan,
@@ -1367,7 +1367,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP230",
-                $"The referenced module uses resource type \"{resourceTypeReference.FormatName()}\" which does not have types available.");
+                $"The referenced module uses resource type \"{resourceTypeReference.FormatName()}\" which does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.");
 
             public ErrorDiagnostic ParamOrOutputResourceTypeUnsupported() => new(
                 TextSpan,
@@ -2164,6 +2164,31 @@ namespace Bicep.Core.Diagnostics
                     DiagnosticStyling.Default,
                     codeFix);
             }
+
+            public ErrorDiagnostic InvalidTypesTgzPackage_DeserializationFailed() => new(
+                TextSpan,
+                "BCP396",
+                "The referenced provider types artifact has been published with malformed content.");
+
+            public ErrorDiagnostic InvalidProvider_ImplicitProviderMissingConfig(Uri? configFileUri, string name) => new(
+                TextSpan,
+                "BCP397",
+                $"""Provider {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{RootConfiguration.ImplicitProvidersConfigurationKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ProvidersConfigurationKey}" section.""");
+
+            public ErrorDiagnostic InvalidProvider_NotABuiltInProvider(Uri? configFileUri, string name) => new(
+                TextSpan,
+                "BCP398",
+                $"""Provider {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ProvidersConfigurationKey}" section, but no built-in provider exists.""");
+
+            public ErrorDiagnostic FetchingAzTypesRequiresExperimentalFeature() => new(
+                TextSpan,
+                "BCP399",
+                $"Fetching az types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.DynamicTypeLoading)}\".");
+
+            public ErrorDiagnostic FetchingTypesRequiresExperimentalFeature() => new(
+                TextSpan,
+                "BCP400",
+                $"Fetching types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ProviderRegistry)}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

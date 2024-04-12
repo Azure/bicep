@@ -2,12 +2,19 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.Workspaces;
+
+public record ImplicitProvider(
+    string Name,
+    ProviderConfigEntry? Config,
+    ArtifactResolutionInfo? Artifact);
 
 public record ArtifactResolutionInfo(
     BicepSourceFile Origin,
@@ -21,21 +28,29 @@ public record SourceFileGrouping(
     ImmutableArray<ISourceFile> SourceFiles,
     ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup,
     ImmutableDictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> ArtifactLookup,
-    ImmutableArray<ArtifactResolutionInfo> ImplicitArtifacts,
+    ImmutableDictionary<ISourceFile, ImmutableHashSet<ImplicitProvider>> ImplicitProviders,
     ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> SourceFileLookup) : IArtifactFileLookup
 {
     public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore(bool force = false)
     {
-        var artifacts = ArtifactLookup.Values.Concat(ImplicitArtifacts);
+        var artifacts = ArtifactLookup.Values.Concat(ImplicitProviders.Values.SelectMany(x => x).Select(x => x.Artifact));
 
-        foreach (var artifact in artifacts)
+        foreach (var (_, artifact) in ArtifactLookup.Where(x => ShouldRestore(x.Value, force)))
         {
-            if (force || !artifact.Result.IsSuccess(out _, out var failure) && artifact.RequiresRestore)
+            yield return artifact;
+        }
+
+        foreach (var (file, providers) in ImplicitProviders)
+        {
+            foreach (var artifact in providers.Select(x => x.Artifact).WhereNotNull().Where(artifact => ShouldRestore(artifact, force)))
             {
                 yield return artifact;
             }
         }
     }
+
+    public static bool ShouldRestore(ArtifactResolutionInfo artifact, bool force = false)
+        => force || (!artifact.Result.IsSuccess() && artifact.RequiresRestore);
 
     public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax reference)
     {

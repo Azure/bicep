@@ -16,62 +16,37 @@ namespace Bicep.Core.Semantics.Namespaces
     public class NamespaceResolver
     {
         private readonly ImmutableDictionary<string, NamespaceType> namespaceTypes;
+        public ImmutableDictionary<string, BuiltInNamespaceSymbol> ImplicitNamespaces { get; }
 
-        private NamespaceResolver(ImmutableDictionary<string, NamespaceType> namespaceTypes, ImmutableDictionary<string, BuiltInNamespaceSymbol> builtIns)
+        public static NamespaceResolver Create(ImmutableArray<NamespaceResult> namespaceResults)
         {
-            this.namespaceTypes = namespaceTypes;
-            this.BuiltIns = builtIns;
-        }
+            var namespaceTypes = ImmutableDictionary.CreateBuilder<string, NamespaceType>(LanguageConstants.IdentifierComparer);
+            var implicitNamespaces = ImmutableDictionary.CreateBuilder<string, BuiltInNamespaceSymbol>(LanguageConstants.IdentifierComparer);
 
-        public static NamespaceResolver Create(IFeatureProvider features, INamespaceProvider namespaceProvider, BicepSourceFile sourceFile, ResourceScope targetScope, ILanguageScope fileScope)
-        {
-            var declaredNamespaces = fileScope.Declarations.OfType<ProviderNamespaceSymbol>()
-                .DistinctBy(x => x.Name, LanguageConstants.IdentifierComparer);
-
-            var builtInNamespaceSymbols = new Dictionary<string, BuiltInNamespaceSymbol>(LanguageConstants.IdentifierComparer);
-
-            var namespaceTypes = declaredNamespaces
-                .Select(x => x.DeclaredType)
-                .OfType<NamespaceType>()
-                .ToImmutableDictionary(x => x.Name, LanguageConstants.IdentifierComparer);
-
-            void TryAddBuiltInNamespace(string @namespace)
+            foreach (var result in namespaceResults)
             {
-                var descriptor = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
-                    @namespace,
-                    ResourceTypesProviderDescriptor.LegacyVersionPlaceholder);
-                if (!namespaceProvider.TryGetNamespace(descriptor, targetScope, features, sourceFile.FileKind).IsSuccess(out var namespaceType))
+                if (result.Origin is null)
                 {
-                    // this namespace doesn't match a known built-in namespace
-                    return;
+                    implicitNamespaces[result.Name] = new BuiltInNamespaceSymbol(result.Name, result.Type);
                 }
 
-                if (namespaceTypes.Values.Any(x => LanguageConstants.IdentifierComparer.Equals(x.ProviderName, @namespace)))
+                if (result.Type is NamespaceType namespaceType)
                 {
-                    // the namespace has already been explicitly imported. don't register it as a built-in.
-                    return;
-                }
-
-                var symbol = new BuiltInNamespaceSymbol(@namespace, namespaceType);
-                builtInNamespaceSymbols[@namespace] = symbol;
-
-                // If we've already imported a namespace with this symbolic name, don't add the builtin namespace to the
-                // dictionary of active namespaces. It will still be listed in the BuiltIns dictionary for error reporting,
-                // as it is masking a namespace that would otherwise be loaded and bound by default.
-                if (!namespaceTypes.ContainsKey(@namespace))
-                {
-                    namespaceTypes = namespaceTypes.Add(@namespace, namespaceType);
+                    namespaceTypes[result.Name] = namespaceType;
+                    continue;
                 }
             }
 
-            TryAddBuiltInNamespace(SystemNamespaceType.BuiltInName);
-
-            TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
-
-            return new(namespaceTypes, builtInNamespaceSymbols.ToImmutableDictionary(LanguageConstants.IdentifierComparer));
+            return new(
+                namespaceTypes.ToImmutable(),
+                implicitNamespaces.ToImmutable());
         }
 
-        public ImmutableDictionary<string, BuiltInNamespaceSymbol> BuiltIns { get; }
+        private NamespaceResolver(ImmutableDictionary<string, NamespaceType> namespaceTypes, ImmutableDictionary<string, BuiltInNamespaceSymbol> implicitNamespaces)
+        {
+            this.namespaceTypes = namespaceTypes;
+            this.ImplicitNamespaces = implicitNamespaces;
+        }
 
         public IEnumerable<Symbol> ResolveUnqualifiedFunction(IdentifierSyntax identifierSyntax, bool includeDecorators)
         {

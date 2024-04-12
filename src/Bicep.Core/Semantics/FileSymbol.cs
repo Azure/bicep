@@ -134,7 +134,7 @@ namespace Bicep.Core.Semantics
         }
 
         public override IEnumerable<Symbol> Descendants =>
-            this.NamespaceResolver.BuiltIns.Values
+            this.NamespaceResolver.ImplicitNamespaces.Values
             .Concat<Symbol>(this.ProviderDeclarations)
             .Concat(this.LocalScopes)
             .Concat(this.MetadataDeclarations)
@@ -155,7 +155,7 @@ namespace Bicep.Core.Semantics
             .Concat(this.WildcardImports);
 
         public IEnumerable<Symbol> Namespaces =>
-            this.NamespaceResolver.BuiltIns.Values
+            this.NamespaceResolver.ImplicitNamespaces.Values
             .Concat<Symbol>(this.ProviderDeclarations);
 
         public override SymbolKind Kind => SymbolKind.File;
@@ -266,7 +266,7 @@ namespace Bicep.Core.Semantics
 
             public static IEnumerable<ErrorDiagnostic> GetDiagnostics(FileSymbol file)
             {
-                var visitor = new DuplicateIdentifierValidatorVisitor(file.NamespaceResolver.BuiltIns);
+                var visitor = new DuplicateIdentifierValidatorVisitor(file.NamespaceResolver.ImplicitNamespaces);
                 visitor.Visit(file);
 
                 return visitor.Diagnostics;

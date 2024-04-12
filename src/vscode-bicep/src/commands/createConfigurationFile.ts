@@ -63,7 +63,6 @@ export class CreateBicepConfigurationFile implements Command {
       while (true) {
         const response = await window.showSaveDialog({
           defaultUri: Uri.file(selectedPath),
-          filters: { "Bicep configuration files": [bicepConfig] },
           title: "Where would you like to save the Bicep configuration file?",
           saveLabel: "Save configuration file",
         });

@@ -11,7 +11,8 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public const string BuiltInName = "microsoftGraph";
 
-        private static readonly IResourceTypeProvider TypeProvider = new MicrosoftGraphResourceTypeProvider(new MicrosoftGraphResourceTypeLoader());
+        private static readonly Lazy<IResourceTypeProvider> TypeProviderLazy
+            = new(() => new MicrosoftGraphResourceTypeProvider(new MicrosoftGraphResourceTypeLoader()));
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
@@ -29,7 +30,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,
-                TypeProvider);
+                TypeProviderLazy.Value);
         }
     }
 }

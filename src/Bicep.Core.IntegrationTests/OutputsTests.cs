@@ -35,7 +35,7 @@ namespace Bicep.Core.IntegrationTests
               "bar": "builtin:"
             }
             """))
-            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
+            .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
 
         [TestMethod]
         public void Output_can_have_inferred_resource_type()
@@ -206,8 +206,8 @@ output out resource 'Some.Fake/Type@2019-06-01' = resource
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 // There are two warnings because there are two places in code to correct the missing type.
-                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
-                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
             });
         }
 
@@ -226,7 +226,7 @@ output out resource = resource
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
             });
         }
 

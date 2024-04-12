@@ -23,7 +23,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
         private ISnippetsProvider CreateSnippetsProvider()
             => ServiceBuilder.Create(s => s.AddSingleton<SnippetsProvider>()).Construct<SnippetsProvider>();
 
-        private readonly NamespaceType azNamespaceType = TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInAzProviderDescriptor);
+        private readonly NamespaceType azNamespaceType = TestTypeHelper.GetBuiltInNamespaceType("az");
 
         [TestMethod]
         public void CompletionPriorityOfResourceSnippets_ShouldBeHigh()
