@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JsonPath.Net" Version="0.7.0" />
-    <PackageReference Include="JsonSchema.Net" Version="5.5.1" />
+    <PackageReference Include="JsonPath.Net" Version="1.0.0" />
+    <PackageReference Include="JsonSchema.Net" Version="6.0.7" />
     <PackageReference Include="Markdig" Version="0.36.2" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
