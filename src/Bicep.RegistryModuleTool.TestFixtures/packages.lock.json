@@ -218,11 +218,6 @@
         "resolved": "2.6.598",
         "contentHash": "8o5fIh67jPHUeflUuzMSRXVnXJ9MjXjjRra9M1u0+evOoABhSyJouxXdvTWaM/GaEsDBU0bQjn+9O0MywsxTDQ=="
       },
-      "JetBrains.Annotations": {
-        "type": "Transitive",
-        "resolved": "2021.2.0",
-        "contentHash": "kKSyoVfndMriKHLfYGmr0uzQuI4jcc3TKGyww7buJFCYeHb/X0kodYBPL7n9454q7v6ASiRmDgpPGaDGerg/Hg=="
-      },
       "Json.More.Net": {
         "type": "Transitive",
         "resolved": "2.0.0",
@@ -238,10 +233,10 @@
       },
       "JsonPath.Net": {
         "type": "Transitive",
-        "resolved": "0.7.0",
-        "contentHash": "yjAz9OeLtO2Ea1EAFOYBBO0IAxBUL782urZPHZhvJuUkr0m0OFTDrqeI9U0fCLnokNP3wA/pWOqAy/kxddGc7w==",
+        "resolved": "1.0.0",
+        "contentHash": "Y2ur7pm9mHn2CzdhL3jg9UJHLnYWFmOy5RRwhwXZUcBwGrMBoi8YqoZCaBgFL2sQ90CUlYWV9o5/uJ4Ye26lnQ==",
         "dependencies": {
-          "Json.More.Net": "1.9.2"
+          "Json.More.Net": "2.0.0"
         }
       },
       "JsonPointer.Net": {
@@ -255,12 +250,11 @@
       },
       "JsonSchema.Net": {
         "type": "Transitive",
-        "resolved": "5.5.1",
-        "contentHash": "vAsyJf7r3Hi+elc0Cf4lZ93puqluLPhN4m3pH5r3UiP42n63jfmSVFFsRHD52hK25INqnFh/dXpF38cPIMgotA==",
+        "resolved": "6.0.7",
+        "contentHash": "j3v3FqcQp7RQVsYP9tAC8RiOvYRaxxqD89u3I914CVF5ynl0Aexpc9z+ZuacMsG2BFLRgcC11LB4WY+14ZA6Eg==",
         "dependencies": {
-          "JetBrains.Annotations": "2021.2.0",
-          "Json.More.Net": "1.9.0",
-          "JsonPointer.Net": "3.0.3"
+          "Json.More.Net": "2.0.0",
+          "JsonPointer.Net": "4.0.0"
         }
       },
       "Markdig": {
@@ -1455,7 +1449,7 @@
           "Azure.Identity": "[1.11.0, )",
           "Azure.ResourceManager.Resources": "[1.7.0, )",
           "JsonPatch.Net": "[3.0.0, )",
-          "JsonPath.Net": "[0.7.0, )",
+          "JsonPath.Net": "[1.0.0, )",
           "Microsoft.Extensions.Configuration": "[8.0.0, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.0.0, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
@@ -1477,8 +1471,8 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
-          "JsonPath.Net": "[0.7.0, )",
-          "JsonSchema.Net": "[5.5.1, )",
+          "JsonPath.Net": "[1.0.0, )",
+          "JsonSchema.Net": "[6.0.7, )",
           "Markdig": "[0.36.2, )",
           "Microsoft.Extensions.Logging": "[8.0.0, )",
           "Serilog.Extensions.Hosting": "[8.0.0, )",
