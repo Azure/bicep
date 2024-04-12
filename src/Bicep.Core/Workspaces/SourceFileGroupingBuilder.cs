@@ -79,7 +79,7 @@ namespace Bicep.Core.Workspaces
 
             foreach (var (file, providers) in current.ImplicitProviders)
             {
-                foreach (var provider in providers.Where(x => x.Artifact is {} artifact && SourceFileGrouping.ShouldRestore(artifact)))
+                foreach (var provider in providers.Where(x => x.Artifact is { } artifact && SourceFileGrouping.ShouldRestore(artifact)))
                 {
                     builder.implicitProviders[file].Remove(provider);
                     sourceFilesRequiringRestore.Add(file);

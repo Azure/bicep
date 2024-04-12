@@ -3327,7 +3327,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000008d",
-    "filterText": "'containerapp,Microsoft.App/builders'",
+    "filterText": "'Microsoft.App/builders containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3349,7 +3349,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000008e",
-    "filterText": "'containerapp,Microsoft.App/builders/builds'",
+    "filterText": "'Microsoft.App/builders/builds containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3371,7 +3371,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000008f",
-    "filterText": "'containerapp,Microsoft.App/connectedEnvironments'",
+    "filterText": "'Microsoft.App/connectedEnvironments containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3393,7 +3393,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000090",
-    "filterText": "'containerapp,Microsoft.App/connectedEnvironments/certificates'",
+    "filterText": "'Microsoft.App/connectedEnvironments/certificates containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3415,7 +3415,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000091",
-    "filterText": "'containerapp,Microsoft.App/connectedEnvironments/daprComponents'",
+    "filterText": "'Microsoft.App/connectedEnvironments/daprComponents containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3437,7 +3437,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000092",
-    "filterText": "'containerapp,Microsoft.App/connectedEnvironments/storages'",
+    "filterText": "'Microsoft.App/connectedEnvironments/storages containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3459,7 +3459,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000093",
-    "filterText": "'containerapp,Microsoft.App/containerApps'",
+    "filterText": "'Microsoft.App/containerApps containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3481,7 +3481,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000094",
-    "filterText": "'containerapp,Microsoft.App/containerApps/authConfigs'",
+    "filterText": "'Microsoft.App/containerApps/authConfigs containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3503,7 +3503,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000095",
-    "filterText": "'containerapp,Microsoft.App/containerApps/detectorProperties'",
+    "filterText": "'Microsoft.App/containerApps/detectorProperties containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3525,7 +3525,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000096",
-    "filterText": "'containerapp,Microsoft.App/containerApps/detectorProperties/revisions'",
+    "filterText": "'Microsoft.App/containerApps/detectorProperties/revisions containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3547,7 +3547,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000097",
-    "filterText": "'containerapp,Microsoft.App/containerApps/detectors'",
+    "filterText": "'Microsoft.App/containerApps/detectors containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3569,7 +3569,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000098",
-    "filterText": "'containerapp,Microsoft.App/containerApps/resiliencyPolicies'",
+    "filterText": "'Microsoft.App/containerApps/resiliencyPolicies containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3591,7 +3591,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000099",
-    "filterText": "'containerapp,Microsoft.App/containerApps/revisions'",
+    "filterText": "'Microsoft.App/containerApps/revisions containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3613,7 +3613,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000009a",
-    "filterText": "'containerapp,Microsoft.App/containerApps/revisions/replicas'",
+    "filterText": "'Microsoft.App/containerApps/revisions/replicas containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3635,7 +3635,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000009b",
-    "filterText": "'containerapp,Microsoft.App/containerApps/sourcecontrols'",
+    "filterText": "'Microsoft.App/containerApps/sourcecontrols containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3657,7 +3657,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000009c",
-    "filterText": "'containerapp,Microsoft.App/jobs'",
+    "filterText": "'Microsoft.App/jobs containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3679,7 +3679,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000009d",
-    "filterText": "'containerapp,Microsoft.App/jobs/detectorProperties'",
+    "filterText": "'Microsoft.App/jobs/detectorProperties containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3701,7 +3701,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000009e",
-    "filterText": "'containerapp,Microsoft.App/jobs/detectors'",
+    "filterText": "'Microsoft.App/jobs/detectors containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3723,7 +3723,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000009f",
-    "filterText": "'containerapp,Microsoft.App/managedEnvironments'",
+    "filterText": "'Microsoft.App/managedEnvironments containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3745,7 +3745,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000a0",
-    "filterText": "'containerapp,Microsoft.App/managedEnvironments/certificates'",
+    "filterText": "'Microsoft.App/managedEnvironments/certificates containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3767,7 +3767,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000a1",
-    "filterText": "'containerapp,Microsoft.App/managedEnvironments/daprComponents'",
+    "filterText": "'Microsoft.App/managedEnvironments/daprComponents containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3789,7 +3789,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000a2",
-    "filterText": "'containerapp,Microsoft.App/managedEnvironments/daprComponents/resiliencyPolicies'",
+    "filterText": "'Microsoft.App/managedEnvironments/daprComponents/resiliencyPolicies containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3811,7 +3811,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000a3",
-    "filterText": "'containerapp,Microsoft.App/managedEnvironments/daprSubscriptions'",
+    "filterText": "'Microsoft.App/managedEnvironments/daprSubscriptions containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3833,7 +3833,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000a4",
-    "filterText": "'containerapp,Microsoft.App/managedEnvironments/detectorProperties'",
+    "filterText": "'Microsoft.App/managedEnvironments/detectorProperties containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3855,7 +3855,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000a5",
-    "filterText": "'containerapp,Microsoft.App/managedEnvironments/detectors'",
+    "filterText": "'Microsoft.App/managedEnvironments/detectors containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3877,7 +3877,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000a6",
-    "filterText": "'containerapp,Microsoft.App/managedEnvironments/dotNetComponents'",
+    "filterText": "'Microsoft.App/managedEnvironments/dotNetComponents containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3899,7 +3899,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000a7",
-    "filterText": "'containerapp,Microsoft.App/managedEnvironments/javaComponents'",
+    "filterText": "'Microsoft.App/managedEnvironments/javaComponents containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3921,7 +3921,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000a8",
-    "filterText": "'containerapp,Microsoft.App/managedEnvironments/managedCertificates'",
+    "filterText": "'Microsoft.App/managedEnvironments/managedCertificates containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -3943,7 +3943,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000a9",
-    "filterText": "'containerapp,Microsoft.App/managedEnvironments/storages'",
+    "filterText": "'Microsoft.App/managedEnvironments/storages containerapp'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4826,6 +4826,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d3",
+    "filterText": "'Microsoft.Authorization/accessReviewHistoryDefinitions rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4847,6 +4848,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d4",
+    "filterText": "'Microsoft.Authorization/accessReviewScheduleDefinitions rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4868,6 +4870,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d5",
+    "filterText": "'Microsoft.Authorization/accessReviewScheduleDefinitions/instances rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4889,6 +4892,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d6",
+    "filterText": "'Microsoft.Authorization/accessReviewScheduleDefinitions/instances/decisions rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4910,6 +4914,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d7",
+    "filterText": "'Microsoft.Authorization/accessReviewScheduleSettings rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4931,6 +4936,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d8",
+    "filterText": "'Microsoft.Authorization/dataPolicyManifests rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4952,6 +4958,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000d9",
+    "filterText": "'Microsoft.Authorization/locks rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4973,6 +4980,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000da",
+    "filterText": "'Microsoft.Authorization/policyAssignments rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -4994,6 +5002,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000db",
+    "filterText": "'Microsoft.Authorization/policyDefinitions rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5015,6 +5024,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000dc",
+    "filterText": "'Microsoft.Authorization/policyDefinitions/versions rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5036,6 +5046,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000dd",
+    "filterText": "'Microsoft.Authorization/policyExemptions rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5057,6 +5068,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000de",
+    "filterText": "'Microsoft.Authorization/policySetDefinitions rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5078,6 +5090,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000df",
+    "filterText": "'Microsoft.Authorization/policySetDefinitions/versions rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5099,6 +5112,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e0",
+    "filterText": "'Microsoft.Authorization/privateLinkAssociations rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5120,6 +5134,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e1",
+    "filterText": "'Microsoft.Authorization/resourceManagementPrivateLinks rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5141,6 +5156,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e2",
+    "filterText": "'Microsoft.Authorization/roleAssignmentApprovals rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5162,6 +5178,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e3",
+    "filterText": "'Microsoft.Authorization/roleAssignmentApprovals/stages rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5183,6 +5200,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e5",
+    "filterText": "'Microsoft.Authorization/roleAssignmentScheduleRequests rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5204,7 +5222,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e4",
-    "filterText": "'rbac,Microsoft.Authorization/roleAssignments'",
+    "filterText": "'Microsoft.Authorization/roleAssignments rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5226,6 +5244,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e6",
+    "filterText": "'Microsoft.Authorization/roleDefinitions rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5247,6 +5266,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e7",
+    "filterText": "'Microsoft.Authorization/roleEligibilityScheduleRequests rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5268,6 +5288,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e8",
+    "filterText": "'Microsoft.Authorization/roleManagementPolicyAssignments rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5289,6 +5310,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000e9",
+    "filterText": "'Microsoft.Authorization/variables rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -5310,6 +5332,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000000ea",
+    "filterText": "'Microsoft.Authorization/variables/values rbac'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12177,7 +12200,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000024a",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/containerServices'",
+    "filterText": "'Microsoft.ContainerService/containerServices aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12199,7 +12222,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000024b",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/fleets'",
+    "filterText": "'Microsoft.ContainerService/fleets aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12221,7 +12244,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000024c",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/fleets/members'",
+    "filterText": "'Microsoft.ContainerService/fleets/members aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12243,7 +12266,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000024d",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/fleets/updateRuns'",
+    "filterText": "'Microsoft.ContainerService/fleets/updateRuns aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12265,7 +12288,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000024e",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/fleets/updateStrategies'",
+    "filterText": "'Microsoft.ContainerService/fleets/updateStrategies aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12287,7 +12310,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000024f",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/locations/guardrailsVersions'",
+    "filterText": "'Microsoft.ContainerService/locations/guardrailsVersions aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12309,7 +12332,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000250",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/locations/meshRevisionProfiles'",
+    "filterText": "'Microsoft.ContainerService/locations/meshRevisionProfiles aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12331,7 +12354,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000251",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/locations/safeguardsVersions'",
+    "filterText": "'Microsoft.ContainerService/locations/safeguardsVersions aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12353,7 +12376,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000252",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/managedClusters'",
+    "filterText": "'Microsoft.ContainerService/managedClusters aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12375,7 +12398,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000253",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/managedClusters/accessProfiles'",
+    "filterText": "'Microsoft.ContainerService/managedClusters/accessProfiles aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12397,7 +12420,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000254",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/managedClusters/agentPools'",
+    "filterText": "'Microsoft.ContainerService/managedClusters/agentPools aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12419,7 +12442,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000255",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/managedClusters/agentPools/machines'",
+    "filterText": "'Microsoft.ContainerService/managedClusters/agentPools/machines aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12441,7 +12464,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000256",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/managedClusters/maintenanceConfigurations'",
+    "filterText": "'Microsoft.ContainerService/managedClusters/maintenanceConfigurations aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12463,7 +12486,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000257",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/managedClusters/meshUpgradeProfiles'",
+    "filterText": "'Microsoft.ContainerService/managedClusters/meshUpgradeProfiles aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12485,7 +12508,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000258",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/managedClusters/privateEndpointConnections'",
+    "filterText": "'Microsoft.ContainerService/managedClusters/privateEndpointConnections aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12507,7 +12530,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000259",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/managedClusters/trustedAccessRoleBindings'",
+    "filterText": "'Microsoft.ContainerService/managedClusters/trustedAccessRoleBindings aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12529,7 +12552,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000025a",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/managedclustersnapshots'",
+    "filterText": "'Microsoft.ContainerService/managedclustersnapshots aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12551,7 +12574,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000025b",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/openShiftManagedClusters'",
+    "filterText": "'Microsoft.ContainerService/openShiftManagedClusters aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -12573,7 +12596,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000025c",
-    "filterText": "'aks,kubernetes,k8s,cluster,Microsoft.ContainerService/snapshots'",
+    "filterText": "'Microsoft.ContainerService/snapshots aks kubernetes k8s cluster'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -18916,7 +18939,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038a",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/cassandraClusters'",
+    "filterText": "'Microsoft.DocumentDB/cassandraClusters cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -18938,7 +18961,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038b",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/cassandraClusters/backups'",
+    "filterText": "'Microsoft.DocumentDB/cassandraClusters/backups cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -18960,7 +18983,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038c",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/cassandraClusters/dataCenters'",
+    "filterText": "'Microsoft.DocumentDB/cassandraClusters/dataCenters cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -18982,7 +19005,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038d",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19004,7 +19027,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038e",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/databases cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19026,7 +19049,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000038f",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/collections'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/databases/collections cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19048,7 +19071,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000390",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/collections/settings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/databases/collections/settings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19070,7 +19093,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000391",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/containers'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/databases/containers cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19092,7 +19115,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000392",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/containers/settings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/databases/containers/settings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19114,7 +19137,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000393",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/graphs'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/databases/graphs cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19136,7 +19159,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000394",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/graphs/settings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/databases/graphs/settings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19158,7 +19181,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000395",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/databases/settings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/databases/settings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19180,7 +19203,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000396",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/keyspaces'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19202,7 +19225,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000397",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/keyspaces/settings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces/settings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19224,7 +19247,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000398",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/keyspaces/tables'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces/tables cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19246,7 +19269,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000399",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/keyspaces/tables/settings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces/tables/settings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19268,7 +19291,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039a",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/tables'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/tables cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19290,7 +19313,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039b",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/apis/tables/settings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/apis/tables/settings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19312,7 +19335,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039c",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19334,7 +19357,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039d",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/tables'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/tables cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19356,7 +19379,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039e",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/tables/throughputSettings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/tables/throughputSettings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19378,7 +19401,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000039f",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/throughputSettings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/throughputSettings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19400,7 +19423,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a0",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/views'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/views cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19422,7 +19445,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a1",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/views/throughputSettings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/views/throughputSettings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19444,7 +19467,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a2",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/dataTransferJobs'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/dataTransferJobs cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19466,7 +19489,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a3",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/graphs'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/graphs cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19488,7 +19511,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a4",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/gremlinDatabases'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19510,7 +19533,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a5",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19532,7 +19555,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a6",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs/throughputSettings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs/throughputSettings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19554,7 +19577,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a7",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/throughputSettings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/throughputSettings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19576,7 +19599,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a8",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbDatabases'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19598,7 +19621,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003a9",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbDatabases/collections'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases/collections cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19620,7 +19643,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003aa",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbDatabases/collections/throughputSettings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases/collections/throughputSettings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19642,7 +19665,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003ab",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbDatabases/throughputSettings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases/throughputSettings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19664,7 +19687,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003ac",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbRoleDefinitions'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/mongodbRoleDefinitions cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19686,7 +19709,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003ad",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/mongodbUserDefinitions'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/mongodbUserDefinitions cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19708,7 +19731,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003ae",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/notebookWorkspaces'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/notebookWorkspaces cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19730,7 +19753,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003af",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/privateEndpointConnections'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/privateEndpointConnections cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19752,7 +19775,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b0",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/privateLinkResources'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/privateLinkResources cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19774,7 +19797,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b1",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/services'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/services cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19796,7 +19819,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b2",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/sqlDatabases cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19818,7 +19841,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b3",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/clientEncryptionKeys'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/clientEncryptionKeys cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19840,7 +19863,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b4",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19862,7 +19885,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b5",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/storedProcedures'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/storedProcedures cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19884,7 +19907,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b6",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/throughputSettings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/throughputSettings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19906,7 +19929,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b7",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/triggers'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/triggers cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19928,7 +19951,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b8",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/userDefinedFunctions'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/userDefinedFunctions cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19950,7 +19973,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003b9",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlDatabases/throughputSettings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/throughputSettings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19972,7 +19995,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003ba",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -19994,7 +20017,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003bb",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20016,7 +20039,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003bc",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/tables'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/tables cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20038,7 +20061,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003bd",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/databaseAccounts/tables/throughputSettings'",
+    "filterText": "'Microsoft.DocumentDB/databaseAccounts/tables/throughputSettings cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20060,7 +20083,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003be",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/locations'",
+    "filterText": "'Microsoft.DocumentDB/locations cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20082,7 +20105,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003bf",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/mongoClusters'",
+    "filterText": "'Microsoft.DocumentDB/mongoClusters cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20104,7 +20127,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003c0",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/mongoClusters/firewallRules'",
+    "filterText": "'Microsoft.DocumentDB/mongoClusters/firewallRules cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20126,7 +20149,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003c1",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/throughputPools'",
+    "filterText": "'Microsoft.DocumentDB/throughputPools cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -20148,7 +20171,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000003c2",
-    "filterText": "'cosmosdb,Microsoft.DocumentDB/throughputPools/throughputPoolAccounts'",
+    "filterText": "'Microsoft.DocumentDB/throughputPools/throughputPoolAccounts cosmosdb'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -37957,6 +37980,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071a",
+    "filterText": "'Microsoft.OperationalInsights/workspaces loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -37978,6 +38002,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071b",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/dataCollectorLogs loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -37999,6 +38024,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071c",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/dataExports loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38020,6 +38046,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071d",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/dataSources loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38041,6 +38068,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071e",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/features/clientGroups loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38062,6 +38090,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000071f",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/features/machineGroups loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38083,6 +38112,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000720",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/features/machines loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38104,6 +38134,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000721",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/features/machines/ports loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38125,6 +38156,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000722",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/features/machines/processes loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38146,6 +38178,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000723",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/features/summaries loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38167,6 +38200,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000724",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/linkedServices loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38188,6 +38222,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000725",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/linkedStorageAccounts loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38209,6 +38244,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000726",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/savedSearches loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38230,6 +38266,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000727",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/storageInsightConfigs loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -38251,6 +38288,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000728",
+    "filterText": "'Microsoft.OperationalInsights/workspaces/tables loganalytics'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -52783,7 +52821,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009df",
-    "filterText": "'asp,appserviceplan,hostingplan,Microsoft.Web/serverfarms'",
+    "filterText": "'Microsoft.Web/serverfarms asp appserviceplan hostingplan'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -52805,7 +52843,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009e0",
-    "filterText": "'asp,appserviceplan,hostingplan,Microsoft.Web/serverfarms/hybridConnectionNamespaces/relays'",
+    "filterText": "'Microsoft.Web/serverfarms/hybridConnectionNamespaces/relays asp appserviceplan hostingplan'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -52827,7 +52865,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009e1",
-    "filterText": "'asp,appserviceplan,hostingplan,Microsoft.Web/serverfarms/hybridConnectionPlanLimits'",
+    "filterText": "'Microsoft.Web/serverfarms/hybridConnectionPlanLimits asp appserviceplan hostingplan'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -52849,7 +52887,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009e2",
-    "filterText": "'asp,appserviceplan,hostingplan,Microsoft.Web/serverfarms/operationresults'",
+    "filterText": "'Microsoft.Web/serverfarms/operationresults asp appserviceplan hostingplan'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -52871,7 +52909,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009e3",
-    "filterText": "'asp,appserviceplan,hostingplan,Microsoft.Web/serverfarms/virtualNetworkConnections'",
+    "filterText": "'Microsoft.Web/serverfarms/virtualNetworkConnections asp appserviceplan hostingplan'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -52893,7 +52931,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009e4",
-    "filterText": "'asp,appserviceplan,hostingplan,Microsoft.Web/serverfarms/virtualNetworkConnections/gateways'",
+    "filterText": "'Microsoft.Web/serverfarms/virtualNetworkConnections/gateways asp appserviceplan hostingplan'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -52915,7 +52953,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009e5",
-    "filterText": "'asp,appserviceplan,hostingplan,Microsoft.Web/serverfarms/virtualNetworkConnections/routes'",
+    "filterText": "'Microsoft.Web/serverfarms/virtualNetworkConnections/routes asp appserviceplan hostingplan'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -52937,7 +52975,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009e6",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites'",
+    "filterText": "'Microsoft.Web/sites appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -52959,7 +52997,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009e7",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/backups'",
+    "filterText": "'Microsoft.Web/sites/backups appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -52981,7 +53019,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009e8",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/basicPublishingCredentialsPolicies'",
+    "filterText": "'Microsoft.Web/sites/basicPublishingCredentialsPolicies appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53003,7 +53041,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009e9",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/config'",
+    "filterText": "'Microsoft.Web/sites/config appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53025,7 +53063,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009ea",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/config/appsettings'",
+    "filterText": "'Microsoft.Web/sites/config/appsettings appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53047,7 +53085,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009eb",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/config/connectionstrings'",
+    "filterText": "'Microsoft.Web/sites/config/connectionstrings appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53069,7 +53107,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009ec",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/config/snapshots'",
+    "filterText": "'Microsoft.Web/sites/config/snapshots appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53091,7 +53129,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009ed",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/continuouswebjobs'",
+    "filterText": "'Microsoft.Web/sites/continuouswebjobs appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53113,7 +53151,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009ef",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/deploymentStatus'",
+    "filterText": "'Microsoft.Web/sites/deploymentStatus appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53135,7 +53173,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009ee",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/deployments'",
+    "filterText": "'Microsoft.Web/sites/deployments appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53157,7 +53195,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009f0",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/detectors'",
+    "filterText": "'Microsoft.Web/sites/detectors appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53179,7 +53217,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009f1",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/diagnostics'",
+    "filterText": "'Microsoft.Web/sites/diagnostics appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53201,7 +53239,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009f2",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/diagnostics/analyses'",
+    "filterText": "'Microsoft.Web/sites/diagnostics/analyses appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53223,7 +53261,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009f3",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/diagnostics/detectors'",
+    "filterText": "'Microsoft.Web/sites/diagnostics/detectors appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53245,7 +53283,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009f4",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/domainOwnershipIdentifiers'",
+    "filterText": "'Microsoft.Web/sites/domainOwnershipIdentifiers appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53267,7 +53305,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009f5",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/extensions'",
+    "filterText": "'Microsoft.Web/sites/extensions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53289,7 +53327,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009f6",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/functions'",
+    "filterText": "'Microsoft.Web/sites/functions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53311,7 +53349,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009f7",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/functions/keys'",
+    "filterText": "'Microsoft.Web/sites/functions/keys appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53333,7 +53371,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009f8",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/hostNameBindings'",
+    "filterText": "'Microsoft.Web/sites/hostNameBindings appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53355,7 +53393,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009f9",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/hostruntime/webhooks/api/workflows/runs'",
+    "filterText": "'Microsoft.Web/sites/hostruntime/webhooks/api/workflows/runs appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53377,7 +53415,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009fa",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/hostruntime/webhooks/api/workflows/runs/actions'",
+    "filterText": "'Microsoft.Web/sites/hostruntime/webhooks/api/workflows/runs/actions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53399,7 +53437,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009fb",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/hostruntime/webhooks/api/workflows/runs/actions/repetitions'",
+    "filterText": "'Microsoft.Web/sites/hostruntime/webhooks/api/workflows/runs/actions/repetitions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53421,7 +53459,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009fc",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/hostruntime/webhooks/api/workflows/runs/actions/repetitions/requestHistories'",
+    "filterText": "'Microsoft.Web/sites/hostruntime/webhooks/api/workflows/runs/actions/repetitions/requestHistories appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53443,7 +53481,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009fd",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/hostruntime/webhooks/api/workflows/runs/actions/scopeRepetitions'",
+    "filterText": "'Microsoft.Web/sites/hostruntime/webhooks/api/workflows/runs/actions/scopeRepetitions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53465,7 +53503,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009fe",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/hostruntime/webhooks/api/workflows/triggers'",
+    "filterText": "'Microsoft.Web/sites/hostruntime/webhooks/api/workflows/triggers appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53487,7 +53525,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "000009ff",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/hostruntime/webhooks/api/workflows/triggers/histories'",
+    "filterText": "'Microsoft.Web/sites/hostruntime/webhooks/api/workflows/triggers/histories appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53509,7 +53547,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a00",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/hostruntime/webhooks/api/workflows/versions'",
+    "filterText": "'Microsoft.Web/sites/hostruntime/webhooks/api/workflows/versions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53531,7 +53569,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a02",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/hybridConnectionNamespaces/relays'",
+    "filterText": "'Microsoft.Web/sites/hybridConnectionNamespaces/relays appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53553,7 +53591,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a01",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/hybridconnection'",
+    "filterText": "'Microsoft.Web/sites/hybridconnection appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53575,7 +53613,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a03",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/instances'",
+    "filterText": "'Microsoft.Web/sites/instances appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53597,7 +53635,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a04",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/instances/deployments'",
+    "filterText": "'Microsoft.Web/sites/instances/deployments appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53619,7 +53657,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a05",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/instances/extensions'",
+    "filterText": "'Microsoft.Web/sites/instances/extensions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53641,7 +53679,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a06",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/instances/processes'",
+    "filterText": "'Microsoft.Web/sites/instances/processes appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53663,7 +53701,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a07",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/instances/processes/modules'",
+    "filterText": "'Microsoft.Web/sites/instances/processes/modules appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53685,7 +53723,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a08",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/instances/processes/threads'",
+    "filterText": "'Microsoft.Web/sites/instances/processes/threads appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53707,7 +53745,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a09",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/migratemysql'",
+    "filterText": "'Microsoft.Web/sites/migratemysql appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53729,7 +53767,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a0a",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/networkConfig'",
+    "filterText": "'Microsoft.Web/sites/networkConfig appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53751,7 +53789,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a0b",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/networkFeatures'",
+    "filterText": "'Microsoft.Web/sites/networkFeatures appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53773,7 +53811,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a0c",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/premieraddons'",
+    "filterText": "'Microsoft.Web/sites/premieraddons appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53795,7 +53833,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a0d",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/privateAccess'",
+    "filterText": "'Microsoft.Web/sites/privateAccess appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53817,7 +53855,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a0e",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/privateEndpointConnections'",
+    "filterText": "'Microsoft.Web/sites/privateEndpointConnections appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53839,7 +53877,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a0f",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/processes'",
+    "filterText": "'Microsoft.Web/sites/processes appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53861,7 +53899,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a10",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/processes/modules'",
+    "filterText": "'Microsoft.Web/sites/processes/modules appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53883,7 +53921,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a11",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/processes/threads'",
+    "filterText": "'Microsoft.Web/sites/processes/threads appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53905,7 +53943,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a12",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/publicCertificates'",
+    "filterText": "'Microsoft.Web/sites/publicCertificates appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53927,7 +53965,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a13",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/recommendations'",
+    "filterText": "'Microsoft.Web/sites/recommendations appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53949,7 +53987,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a14",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/resourceHealthMetadata'",
+    "filterText": "'Microsoft.Web/sites/resourceHealthMetadata appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53971,7 +54009,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a15",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/siteextensions'",
+    "filterText": "'Microsoft.Web/sites/siteextensions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -53993,7 +54031,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a16",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots'",
+    "filterText": "'Microsoft.Web/sites/slots appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54015,7 +54053,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a17",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/backups'",
+    "filterText": "'Microsoft.Web/sites/slots/backups appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54037,7 +54075,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a18",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/basicPublishingCredentialsPolicies'",
+    "filterText": "'Microsoft.Web/sites/slots/basicPublishingCredentialsPolicies appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54059,7 +54097,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a19",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/config'",
+    "filterText": "'Microsoft.Web/sites/slots/config appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54081,7 +54119,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a1a",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/config/appsettings'",
+    "filterText": "'Microsoft.Web/sites/slots/config/appsettings appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54103,7 +54141,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a1b",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/config/connectionstrings'",
+    "filterText": "'Microsoft.Web/sites/slots/config/connectionstrings appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54125,7 +54163,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a1c",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/config/snapshots'",
+    "filterText": "'Microsoft.Web/sites/slots/config/snapshots appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54147,7 +54185,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a1d",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/continuouswebjobs'",
+    "filterText": "'Microsoft.Web/sites/slots/continuouswebjobs appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54169,7 +54207,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a1f",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/deploymentStatus'",
+    "filterText": "'Microsoft.Web/sites/slots/deploymentStatus appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54191,7 +54229,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a1e",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/deployments'",
+    "filterText": "'Microsoft.Web/sites/slots/deployments appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54213,7 +54251,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a20",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/detectors'",
+    "filterText": "'Microsoft.Web/sites/slots/detectors appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54235,7 +54273,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a21",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/diagnostics'",
+    "filterText": "'Microsoft.Web/sites/slots/diagnostics appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54257,7 +54295,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a22",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/diagnostics/analyses'",
+    "filterText": "'Microsoft.Web/sites/slots/diagnostics/analyses appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54279,7 +54317,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a23",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/diagnostics/detectors'",
+    "filterText": "'Microsoft.Web/sites/slots/diagnostics/detectors appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54301,7 +54339,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a24",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/domainOwnershipIdentifiers'",
+    "filterText": "'Microsoft.Web/sites/slots/domainOwnershipIdentifiers appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54323,7 +54361,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a25",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/extensions'",
+    "filterText": "'Microsoft.Web/sites/slots/extensions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54345,7 +54383,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a26",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/functions'",
+    "filterText": "'Microsoft.Web/sites/slots/functions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54367,7 +54405,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a27",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/functions/keys'",
+    "filterText": "'Microsoft.Web/sites/slots/functions/keys appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54389,7 +54427,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a28",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/hostNameBindings'",
+    "filterText": "'Microsoft.Web/sites/slots/hostNameBindings appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54411,7 +54449,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a2a",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/hybridConnectionNamespaces/relays'",
+    "filterText": "'Microsoft.Web/sites/slots/hybridConnectionNamespaces/relays appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54433,7 +54471,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a29",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/hybridconnection'",
+    "filterText": "'Microsoft.Web/sites/slots/hybridconnection appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54455,7 +54493,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a2b",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/instances'",
+    "filterText": "'Microsoft.Web/sites/slots/instances appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54477,7 +54515,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a2c",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/instances/deployments'",
+    "filterText": "'Microsoft.Web/sites/slots/instances/deployments appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54499,7 +54537,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a2d",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/instances/extensions'",
+    "filterText": "'Microsoft.Web/sites/slots/instances/extensions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54521,7 +54559,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a2e",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/instances/processes'",
+    "filterText": "'Microsoft.Web/sites/slots/instances/processes appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54543,7 +54581,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a2f",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/instances/processes/modules'",
+    "filterText": "'Microsoft.Web/sites/slots/instances/processes/modules appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54565,7 +54603,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a30",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/instances/processes/threads'",
+    "filterText": "'Microsoft.Web/sites/slots/instances/processes/threads appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54587,7 +54625,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a31",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/migratemysql'",
+    "filterText": "'Microsoft.Web/sites/slots/migratemysql appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54609,7 +54647,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a32",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/networkConfig'",
+    "filterText": "'Microsoft.Web/sites/slots/networkConfig appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54631,7 +54669,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a33",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/networkFeatures'",
+    "filterText": "'Microsoft.Web/sites/slots/networkFeatures appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54653,7 +54691,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a34",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/premieraddons'",
+    "filterText": "'Microsoft.Web/sites/slots/premieraddons appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54675,7 +54713,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a35",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/privateAccess'",
+    "filterText": "'Microsoft.Web/sites/slots/privateAccess appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54697,7 +54735,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a36",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/privateEndpointConnections'",
+    "filterText": "'Microsoft.Web/sites/slots/privateEndpointConnections appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54719,7 +54757,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a37",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/processes'",
+    "filterText": "'Microsoft.Web/sites/slots/processes appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54741,7 +54779,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a38",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/processes/modules'",
+    "filterText": "'Microsoft.Web/sites/slots/processes/modules appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54763,7 +54801,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a39",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/processes/threads'",
+    "filterText": "'Microsoft.Web/sites/slots/processes/threads appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54785,7 +54823,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a3a",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/publicCertificates'",
+    "filterText": "'Microsoft.Web/sites/slots/publicCertificates appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54807,7 +54845,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a3b",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/resourceHealthMetadata'",
+    "filterText": "'Microsoft.Web/sites/slots/resourceHealthMetadata appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54829,7 +54867,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a3c",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/siteextensions'",
+    "filterText": "'Microsoft.Web/sites/slots/siteextensions appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54851,7 +54889,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a3d",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/sourcecontrols'",
+    "filterText": "'Microsoft.Web/sites/slots/sourcecontrols appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54873,7 +54911,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a3e",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/triggeredwebjobs'",
+    "filterText": "'Microsoft.Web/sites/slots/triggeredwebjobs appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54895,7 +54933,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a3f",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/triggeredwebjobs/history'",
+    "filterText": "'Microsoft.Web/sites/slots/triggeredwebjobs/history appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54917,7 +54955,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a40",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/virtualNetworkConnections'",
+    "filterText": "'Microsoft.Web/sites/slots/virtualNetworkConnections appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54939,7 +54977,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a41",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/virtualNetworkConnections/gateways'",
+    "filterText": "'Microsoft.Web/sites/slots/virtualNetworkConnections/gateways appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54961,7 +54999,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a42",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/slots/webjobs'",
+    "filterText": "'Microsoft.Web/sites/slots/webjobs appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -54983,7 +55021,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a43",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/sourcecontrols'",
+    "filterText": "'Microsoft.Web/sites/sourcecontrols appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -55005,7 +55043,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a44",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/triggeredwebjobs'",
+    "filterText": "'Microsoft.Web/sites/triggeredwebjobs appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -55027,7 +55065,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a45",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/triggeredwebjobs/history'",
+    "filterText": "'Microsoft.Web/sites/triggeredwebjobs/history appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -55049,7 +55087,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a46",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/virtualNetworkConnections'",
+    "filterText": "'Microsoft.Web/sites/virtualNetworkConnections appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -55071,7 +55109,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a47",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/virtualNetworkConnections/gateways'",
+    "filterText": "'Microsoft.Web/sites/virtualNetworkConnections/gateways appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -55093,7 +55131,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000a48",
-    "filterText": "'appservice,webapp,function,Microsoft.Web/sites/webjobs'",
+    "filterText": "'Microsoft.Web/sites/webjobs appservice webapp function'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

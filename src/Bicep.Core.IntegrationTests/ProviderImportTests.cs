@@ -311,7 +311,8 @@ provider madeUpNamespace
                 ImmutableArray<Decorator>.Empty,
                 new EmptyResourceTypeProvider());
 
-            var nsProvider = TestExtensibilityNamespaceProvider.Create(result => result switch {
+            var nsProvider = TestExtensibilityNamespaceProvider.Create(result => result switch
+            {
                 { ProviderName: "ns1" } => result with { Type = ns1 },
                 { ProviderName: "ns2" } => result with { Type = ns2 },
                 _ => result,
@@ -377,7 +378,8 @@ provider madeUpNamespace
                 ImmutableArray<Decorator>.Empty,
                 new EmptyResourceTypeProvider());
 
-            var nsProvider = TestExtensibilityNamespaceProvider.Create(result => result switch {
+            var nsProvider = TestExtensibilityNamespaceProvider.Create(result => result switch
+            {
                 { ProviderName: "mockNs" } => result with { Type = mockNs },
                 _ => result,
             });
