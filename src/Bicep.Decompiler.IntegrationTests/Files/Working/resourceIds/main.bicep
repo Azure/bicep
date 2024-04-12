@@ -4,7 +4,7 @@ param location string = resourceGroup().location
 var fooName = 'Foo!'
 
 resource fooName_bar 'Foo.Rp/bar@2019-06-01' = {
-//@[21:44) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
+//@[21:44) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
   name: '${fooName}bar'
   location: location
   properties: {
@@ -13,7 +13,7 @@ resource fooName_bar 'Foo.Rp/bar@2019-06-01' = {
 }
 
 resource fooName_baz 'Foo.Rp/bar@2019-06-01' = {
-//@[21:44) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
+//@[21:44) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
   name: '${fooName}baz'
   location: location
   dependsOn: [
@@ -22,7 +22,7 @@ resource fooName_baz 'Foo.Rp/bar@2019-06-01' = {
 }
 
 resource fooName_blah 'Foo.Rp/bar@2019-06-01' = {
-//@[22:45) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
+//@[22:45) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
   name: '${fooName}blah'
   location: location
   dependsOn: [
@@ -31,7 +31,7 @@ resource fooName_blah 'Foo.Rp/bar@2019-06-01' = {
 }
 
 resource fooName_blah2 'Foo.Rp/bar@2019-06-01' = {
-//@[23:46) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
+//@[23:46) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
   name: '${fooName}blah2'
   location: location
   properties: {

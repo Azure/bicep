@@ -131,7 +131,7 @@ namespace Bicep.Core.IntegrationTests
             var permittedMissingTypeDiagnostics = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 // To exclude a particular type for BCP081 (if there are missing types), add an entry of format:
-                // "Resource type \"<type>\" does not have types available.",
+                // "Resource type \"<type>\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.",
             };
 
             return permittedMissingTypeDiagnostics.Contains(diagnostic.Message);

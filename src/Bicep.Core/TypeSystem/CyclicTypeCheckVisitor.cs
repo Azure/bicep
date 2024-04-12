@@ -68,7 +68,7 @@ public sealed class CyclicTypeCheckVisitor : AstVisitor
         {
             declarationAccesses.Add(syntax);
         }
-        
+
         base.VisitTypeVariableAccessSyntax(syntax);
     }
 

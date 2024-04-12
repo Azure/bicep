@@ -36,7 +36,7 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static IResourceTypeProvider CreateAzResourceTypeProviderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
-        => new AzResourceTypeProvider(new TestResourceTypeLoader(resourceTypes), "fake");
+        => new AzResourceTypeProvider(new TestResourceTypeLoader(resourceTypes));
 
         public static IResourceTypeLoader CreateEmptyResourceTypeLoader()
             => new TestResourceTypeLoader(Enumerable.Empty<ResourceTypeComponents>());
@@ -47,13 +47,13 @@ namespace Bicep.Core.UnitTests.Utils
         public static IResourceTypeProviderFactory CreateResourceTypeLoaderFactory(IResourceTypeProvider provider)
         {
             var factory = StrictMock.Of<IResourceTypeProviderFactory>();
-            factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<ResourceTypesProviderDescriptor>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
+            factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<Uri>(), It.IsAny<bool>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
             factory.Setup(m => m.GetBuiltInAzResourceTypesProvider()).Returns(provider);
             return factory.Object;
         }
 
         public static INamespaceProvider CreateEmptyNamespaceProvider()
-            => new DefaultNamespaceProvider(
+            => new NamespaceProvider(
                 CreateResourceTypeLoaderFactory(
                     CreateAzResourceTypeProviderWithTypes(
                         Enumerable.Empty<ResourceTypeComponents>())));
@@ -125,8 +125,7 @@ namespace Bicep.Core.UnitTests.Utils
                 key,
                 members);
 
-        public static NamespaceType GetBuiltInNamespaceType(ResourceTypesProviderDescriptor descriptor) => BicepTestConstants.NamespaceProvider
-            .TryGetNamespace(descriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)
-            .IsSuccess(out var ns) ? ns : throw new UnreachableException("always succeeds");
+        public static NamespaceType GetBuiltInNamespaceType(string name) =>
+            BicepTestConstants.DefaultNamespaceResolver.TryGetNamespace(name) ?? throw new InvalidOperationException();
     }
 }

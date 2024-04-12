@@ -5,6 +5,7 @@ using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.UnitTests.SourceFiles
 {
@@ -32,12 +33,10 @@ namespace Bicep.Core.UnitTests.SourceFiles
         [TestMethod]
         public void ResXAndDesignerFilesShouldBeConsistentAndNotCauseUnnecessaryMergeConflicts()
         {
-            List<string> resxFiles = new();
-            foreach (string file in System.IO.Directory.GetFiles(BaselineHelper.GetAbsolutePathRelativeToRepoRoot(""), "*.resx", SearchOption.AllDirectories))
-            {
-                resxFiles.Add(file);
-            }
-            resxFiles.Should().HaveCountGreaterThan(2, "There should be at least 3 resx files found in the project");
+            string[] resxFiles = System.IO.Directory.GetFiles(BaselineHelper.GetAbsolutePathRelativeToRepoRoot("src"), "*.resx", SearchOption.AllDirectories)
+                .Where(path => !path.ContainsOrdinally("packages"))
+                .ToArray();
+            resxFiles.Should().HaveCountGreaterThan(2, "There should be at least 3 ResX files found in the project");
 
             foreach (string resXRelativePath in resxFiles)
             {

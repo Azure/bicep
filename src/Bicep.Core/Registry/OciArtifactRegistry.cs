@@ -354,12 +354,15 @@ namespace Bicep.Core.Registry
             // TODO: IsArtifactRestoreRequired assumes there must be a ModuleMain file, which isn't true for provider artifacts
             // NOTE(stephenWeatherford): That can be solved by only writing layer data files only (see below CONSIDER)
             //   and not main.json directly (https://github.com/Azure/bicep/issues/11900)
-            var moduleFileType = result switch
+            var moduleFileType = (reference.Type, result) switch
             {
-                OciModuleArtifactResult => ArtifactFileType.ModuleMain,
-                OciProviderArtifactResult => ArtifactFileType.Provider,
-                _ => throw new ArgumentException($"Unexpected artifact type \"{result.GetType().Name}\".")
+                (ArtifactType.Module, OciModuleArtifactResult) => ArtifactFileType.ModuleMain,
+                (ArtifactType.Module, OciProviderArtifactResult) => throw new InvalidArtifactException($"Expected a module, but retrieved a provider."),
+                (ArtifactType.Provider, OciProviderArtifactResult) => ArtifactFileType.Provider,
+                (ArtifactType.Provider, OciModuleArtifactResult) => throw new InvalidArtifactException($"Expected a provider, but retrieved a module."),
+                _ => throw new InvalidOperationException($"Unexpected artifact type \"{result.GetType().Name}\"."),
             };
+
             using var dataStream = mainLayer.Data.ToStream();
             this.FileResolver.Write(this.GetArtifactFileUri(reference, moduleFileType), dataStream);
 

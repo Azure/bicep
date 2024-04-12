@@ -41,9 +41,11 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Regex ModuleRegistryWithoutAliasPattern = new(@"'br:(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex ModuleRegistryWithAliasPattern = new(@"'br/(.*?):(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
+        private static readonly ResourceTypeSearchKeywords ResourceTypeSearchKeywords = new();
+
         private readonly IFileResolver FileResolver;
-        private readonly ISnippetsProvider SnippetsProvider;
         public readonly IModuleReferenceCompletionProvider moduleReferenceCompletionProvider;
+        private readonly ISnippetsProvider SnippetsProvider;
 
         public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, IModuleReferenceCompletionProvider moduleReferenceCompletionProvider)
         {
@@ -183,7 +185,8 @@ namespace Bicep.LanguageServer.Completions
                                                                            resourceSnippet.Text,
                                                                            context.ReplacementRange,
                                                                            command,
-                                                                           resourceSnippet.CompletionPriority);
+                                                                           resourceSnippet.CompletionPriority,
+                                                                           filterText: ResourceTypeSearchKeywords.TryGetSnippetFilterText(resourceSnippet));
                         }
 
                         break;
@@ -1884,6 +1887,7 @@ namespace Bicep.LanguageServer.Completions
                         MarkdownHelper.AppendNewline($"Type: `{resourceType.Type}`"))
                     .WithFollowupCompletion("resource type completion")
                     .WithSortText(index.ToString("x8"))
+                    .WithFilterText(ResourceTypeSearchKeywords.TryGetResourceTypeFilterText(resourceType, surroundWithSingleQuotes: true))
                     .Build();
             }
         }
@@ -1940,13 +1944,14 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// Creates a completion with a contextual snippet with command option. This will look like a snippet to the user.
         /// </summary>
-        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, Command command, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false) =>
+        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, Command command, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false, string? filterText = null) =>
             CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                 .WithSnippetEdit(replacementRange, snippet)
                 .WithCommand(command)
                 .WithDetail(detail)
                 .WithDocumentation(MarkdownHelper.CodeBlock(new Snippet(snippet).FormatDocumentation()))
                 .WithSortText(GetSortText(label, priority))
+                .WithFilterText(filterText)
                 .Preselect(preselect)
                 .Build();
 
@@ -2033,22 +2038,13 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportSpecification))
             {
-                // TODO: move to INamespaceProvider.
-                var availableNamespaceSettingsList = new List<NamespaceSettings>
-                {
-                    SystemNamespaceType.Settings,
-                    AzNamespaceType.Settings,
-                    K8sNamespaceType.Settings,
-                };
+                var providerNames = model.Configuration.ProvidersConfig.Data.Keys
+                    .Concat(SystemNamespaceType.BuiltInName)
+                    .ToHashSet();
 
-                if (model.Features.MicrosoftGraphPreviewEnabled)
+                foreach (var providerName in providerNames.OrderBy(x => x, LanguageConstants.IdentifierComparer))
                 {
-                    availableNamespaceSettingsList.Add(MicrosoftGraphNamespaceType.Settings);
-                }
-
-                foreach (var setting in availableNamespaceSettingsList.OrderBy(x => x.BicepProviderName, LanguageConstants.IdentifierComparer))
-                {
-                    var completionText = setting.BicepProviderName;
+                    var completionText = providerName;
                     yield return CompletionItemBuilder.Create(CompletionItemKind.Folder, completionText)
                         .WithSortText(GetSortText(completionText, CompletionPriority.High))
                         .WithDetail(completionText)

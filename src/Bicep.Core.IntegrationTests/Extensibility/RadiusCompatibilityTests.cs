@@ -23,10 +23,8 @@ public class RadiusCompatibilityTests
             .WithContainerRegistryClientFactory(clientFactory);
     }
 
-    [TestMethod]
-    public async Task Radius_identifier_passing_works_as_defined()
+    private static async Task<ServiceBuilder> GetServicesWithPrepublishedTypes()
     {
-        // repro for https://github.com/Azure/bicep/issues/13465
         var registry = "example.azurecr.io";
         var repository = $"test/radius";
 
@@ -34,6 +32,15 @@ public class RadiusCompatibilityTests
 
         var tgzData = ThirdPartyTypeHelper.GetMockRadiusTypesTgz();
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", tgzData);
+
+        return services;
+    }
+
+    [TestMethod]
+    public async Task Radius_identifier_passing_works_as_defined()
+    {
+        // repro for https://github.com/Azure/bicep/issues/13465
+        var services = await GetServicesWithPrepublishedTypes();
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
 provider 'br:example.azurecr.io/test/radius@1.0.0'
@@ -62,6 +69,30 @@ resource extender 'Applications.Core/extenders@2023-10-01-preview' = {
     }
   }
 }
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public async Task Radius_use_of_existing_works()
+    {
+        // repro for https://github.com/Azure/bicep/issues/13423#issuecomment-2030512429
+        var services = await GetServicesWithPrepublishedTypes();
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+provider 'br:example.azurecr.io/test/radius@1.0.0'
+
+param bucketName string
+
+resource bucket 'AWS.S3/Bucket@default' existing =  {
+  alias: bucketName
+  properties: {
+    BucketName: bucketName
+  }
+}
+
+output var string = bucket.properties.BucketName
 """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();

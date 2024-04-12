@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,30 +34,78 @@ namespace Bicep.Core.UnitTests.Configuration
                 "providerRegistry",
             };
 
-        private static string GetBicepConfigSchemaContents()
+        private string GetBicepConfigSchemaContents()
         {
             var configStream = typeof(BicepConfigSchemaTests).Assembly.GetManifestResourceStream(
-           $"{typeof(BicepConfigSchemaTests).Assembly.GetName().Name}.bicepconfig.schema.json");
+                $"{typeof(BicepConfigSchemaTests).Assembly.GetName().Name}.bicepconfig.schema.json");
             Assert.IsNotNull(configStream);
             var configContents = new StreamReader(configStream).ReadToEnd();
             Assert.IsNotNull(configContents);
             return configContents;
         }
-        private static JSchema GetConfigSchema() => JSchema.Parse(GetBicepConfigSchemaContents());
 
-        private (IBicepAnalyzerRule[] rules, JObject configSchema) GetRulesAndSchema()
+        private JObject BicepConfigSchema => JObject.Parse(GetBicepConfigSchemaContents());
+
+        private JSchema BicepConfigSchemaAsJSchema => JSchema.Parse(GetBicepConfigSchemaContents());
+
+        private IBicepAnalyzerRule[] AllRules
         {
-            var linter = new LinterAnalyzer();
-            var ruleSet = linter.GetRuleSet();
-            ruleSet.Should().NotBeEmpty();
+            get
+            {
+                var linter = new LinterAnalyzer();
+                var ruleSet = linter.GetRuleSet();
+                ruleSet.Should().NotBeEmpty();
 
-            return (ruleSet.ToArray(), JObject.Parse(GetBicepConfigSchemaContents()));
+                return ruleSet.ToArray();
+            }
         }
+
+        private (string Id, JObject Schema)[] AllRuleSchemas =>
+            (BicepConfigSchema.SelectToken("properties.analyzers.properties.core.properties.rules.properties") as JObject)!
+            .Children<JProperty>()
+            .Select(prop => (prop.Name, (JObject)prop.Value))
+            .ToArray();
+
+        private IDictionary<string, JObject> AllRuleSchemasById =>
+            BicepConfigSchema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>()!;
+
+        private IDictionary<string, (IBicepAnalyzerRule Rule, JObject Schema)> AllRulesAndSchemasById =>
+                AllRules
+                    .Join(AllRuleSchemas,
+                          rule => rule.Code,
+                          ruleSchema => ruleSchema.Id,
+                          (rule, ruleSchema) => new { Id = rule.Code, Rule = rule, ruleSchema.Schema })
+                    .ToDictionary(rs => rs.Id, rs => (rs.Rule, rs.Schema));
 
         private IEnumerable<JProperty> GetRuleCustomConfigurationProperties(JObject ruleConfigSchema)
         {
             var properties = ruleConfigSchema.SelectToken("allOf[0].properties")?.OfType<JProperty>();
             return properties ?? Enumerable.Empty<JProperty>();
+        }
+
+        private IDictionary<string, JObject> GetExperimentalFeaturesFromSchema()
+        {
+            IDictionary<string, JObject>? experimentalFeatures = BicepConfigSchema.SelectToken("properties.experimentalFeaturesEnabled.properties")!.ToObject<IDictionary<string, JObject>>();
+            Assert.IsNotNull(experimentalFeatures);
+            return experimentalFeatures;
+        }
+
+        private ICollection<string> GetExperimentalFeatureIdsFromSchema()
+        {
+            IDictionary<string, JObject>? experimentalFeatures = GetExperimentalFeaturesFromSchema();
+            return experimentalFeatures.Keys;
+        }
+
+        private string? GetRuleDefaultLevel(JObject ruleConfigSchema)
+        {
+            return ruleConfigSchema.SelectToken("allOf[1].$ref")?.Value<string>() switch
+            {
+                "#/definitions/rule-def-level-off" => "Off",
+                "#/definitions/rule-def-level-warning" => "Warning",
+                "#/definitions/rule-def-level-error" => "Error",
+                "#/definitions/rule-def-level-info" => "Info",
+                _ => throw new Exception("Unexpected value for #/definitions/rule-def-level-xxx for rule configuration schema")
+            };
         }
 
         private string GetExperimentalFeaturesHelpContents()
@@ -81,21 +130,43 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void Config_ShouldIncludeCurrentAllCoreRules()
+        public void SanityCheck_Rules()
         {
-            var (rules, schema) = GetRulesAndSchema();
-            var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, object>>();
-            Assert.IsNotNull(ruleConfigs);
-            ruleConfigs.Keys.Should().BeEquivalentTo(rules.Select(r => r.Code), "config schema should include definitions for core rules");
+            AllRules.Should().NotBeEmpty();
+        }
+
+        [TestMethod]
+        public void SanityCheck_Schemas()
+        {
+            BicepConfigSchema.Children().Should().NotBeEmpty();
+        }
+
+        [TestMethod]
+        public void SanityCheck_RuleSchemas()
+        {
+            AllRuleSchemas.Should().NotBeEmpty();
+        }
+
+        [TestMethod]
+        public void SanityCheck_AllRulesAndSchemaById()
+        {
+            AllRulesAndSchemasById.Should().NotBeEmpty();
+
+            AllRules.Length.Should().Be(AllRuleSchemas.Length, "the count of rules and rule configuration schemas should match");
+
+            AllRulesAndSchemasById.Count.Should().Be(AllRules.Length, "the Code of rules and should match the Id of each corresponding rule configuration schema");
+        }
+
+        [TestMethod]
+        public void Config_EachRuleShouldHaveOneSchemaAndViceVersa()
+        {
+            AllRuleSchemas.Select(s => s.Id).Should().BeEquivalentTo(AllRules.Select(r => r.Code), "each core linter rule should have one corresponding configuration schema entry and vice versa");
         }
 
         [TestMethod]
         public void RuleConfigs_ShouldBeCorrectlyDefined()
         {
-            var (rules, schema) = GetRulesAndSchema();
-            var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
-            Assert.IsNotNull(ruleConfigs);
-            foreach (var (configKey, ruleConfig) in ruleConfigs)
+            foreach (var (configKey, ruleConfig) in AllRuleSchemas)
             {
                 // Example of minimum expected format for each rule definition
                 /*
@@ -121,7 +192,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 Assert.IsNotNull(description);
                 description.Should().EndWith($" See https://aka.ms/bicep/linter/{configKey}", "each rule's description should end with 'See <help-link>' using the link to the rule's docs");
 
-                var matchingRule = rules.SingleOrDefault(r => r.Code == configKey);
+                var matchingRule = AllRules.SingleOrDefault(r => r.Code == configKey);
                 matchingRule.Should().NotBeNull("Rule's key in config does not match any linter rule's code");
                 description.Should().Contain(matchingRule!.Description, "each rule's description should contain the same description as is specified in the rule");
 
@@ -135,29 +206,22 @@ namespace Bicep.Core.UnitTests.Configuration
         [TestMethod]
         public void RuleConfigs_RuleNamesShouldBeConsistent()
         {
-            var (rules, schema) = GetRulesAndSchema();
-            var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
-            Assert.IsNotNull(ruleConfigs);
-            foreach (var (key, rule) in ruleConfigs)
+            foreach (var rule in AllRules)
             {
-                key.Should().BeInKebabCasing("all rule keys should be lower-cased with hyphens, and not start or end with hyphen");
-                key.Should().HaveLengthLessThanOrEqualTo(36, "rule ids should have a reasonable length");
+                rule.Code.Should().BeInKebabCasing("all rule ids should be lower-cased with hyphens, and not start or end with hyphen");
+                rule.Code.Should().HaveLengthLessThanOrEqualTo(36, "rule ids should have a reasonable length");
             }
         }
 
         [TestMethod]
         public void RuleConfigs_RuleCustomConfigurationPropertiesShouldBeConsistent()
         {
-            var (rules, schema) = GetRulesAndSchema();
-            var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
-            Assert.IsNotNull(ruleConfigs);
-            foreach (var (key, rule) in ruleConfigs)
+            foreach (var (ruleId, ruleSchema) in AllRuleSchemas)
             {
-                var rulePropertyConfigs = GetRuleCustomConfigurationProperties(rule);
-                foreach (JProperty rulePropertyConfig in rulePropertyConfigs)
+                var customRuleConfigProps = GetRuleCustomConfigurationProperties(ruleSchema);
+                foreach (JProperty rulePropertyConfig in customRuleConfigProps)
                 {
-                    string rulePropertyName = rulePropertyConfig.Name;
-                    string rulePlusPropertyName = $"{key} -> {rulePropertyConfig.Name}";
+                    string rulePlusPropertyName = $"{ruleId} -> {rulePropertyConfig.Name}";
 
                     rulePropertyConfig.Name.Should().BeInCamelCasing($"all rule custom configuration property names should be mixed case with no hyphens ({rulePlusPropertyName})");
                     rulePropertyConfig.Name.Should().HaveLengthLessThanOrEqualTo(25, $"all rule custom configuration property names should have a reasonable length {rulePlusPropertyName})");
@@ -168,12 +232,9 @@ namespace Bicep.Core.UnitTests.Configuration
         [TestMethod]
         public void RuleConfigs_RuleDescriptionsShouldBeConsistent()
         {
-            var (rules, schema) = GetRulesAndSchema();
-            var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
-            Assert.IsNotNull(ruleConfigs);
-            foreach (var (key, rule) in ruleConfigs)
+            foreach (var (_, ruleSchema) in AllRuleSchemas)
             {
-                string descriptionWithLink = rule.SelectToken("allOf[0].description")!.ToString();
+                string descriptionWithLink = ruleSchema.SelectToken("allOf[0].description")!.ToString();
                 string description = new Regex("^(.+) See https://.+").Match(descriptionWithLink)?.Groups[1].Value ?? "<couldn't find rule description>";
                 description.Should().MatchRegex("^[A-Z]", "all rule descriptions should start with a capital letter");
                 description.Should().EndWith(".", "all rule descriptions should end with a period");
@@ -185,21 +246,17 @@ namespace Bicep.Core.UnitTests.Configuration
         [TestMethod]
         public void RuleConfigs_RulesShouldBeAlphabetizedForEasierMaintenance()
         {
-            var (rules, schema) = GetRulesAndSchema();
-            var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToArray();
-            var ruleNames = ruleConfigs.Select(c => ((JProperty)c).Name);
-            var alphabetizedNames = ruleNames.OrderBy(n => n);
+            var alphabetizedRuleIds = AllRuleSchemas.Select(r => r.Id).OrderBy(n => n);
+            alphabetizedRuleIds.Should().BeInAscendingOrder();
         }
 
         [TestMethod]
         public void NoHardCodedEnvUrls_DefaultsShouldMatchInConfigAndSchema()
         {
             // From schema
-            var (rules, schema) = GetRulesAndSchema();
-            IDictionary<string, JObject>? ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
-            Assert.IsNotNull(ruleConfigs);
-            string[] disallowedHostsInSchema = ruleConfigs["no-hardcoded-env-urls"].SelectToken("allOf[0].properties.disallowedhosts.default")!.Values().Select(v => v.ToString()).ToArray();
-            string[] excludedHostsInSchema = ruleConfigs["no-hardcoded-env-urls"].SelectToken("allOf[0].properties.excludedhosts.default")!.Values().Select(v => v.ToString()).ToArray();
+            var ruleSchemas = AllRuleSchemasById;
+            string[] disallowedHostsInSchema = ruleSchemas["no-hardcoded-env-urls"].SelectToken("allOf[0].properties.disallowedhosts.default")!.Values().Select(v => v.ToString()).ToArray();
+            string[] excludedHostsInSchema = ruleSchemas["no-hardcoded-env-urls"].SelectToken("allOf[0].properties.excludedhosts.default")!.Values().Select(v => v.ToString()).ToArray();
 
             // From config
             RootConfiguration builtinConfig = IConfigurationManager.GetBuiltInConfiguration();
@@ -215,12 +272,6 @@ namespace Bicep.Core.UnitTests.Configuration
             excludedHostsInSchema.Should().BeEquivalentTo(excludedHostsInConfig, $"default of no-hardcoded-env-urls.excluded should be the same in {BicepRootConfigFilePath} and {BicepConfigSchemaFilePath}");
             excludedHostsInSchema.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.excluded should be in alphabetical order in {BicepConfigSchemaFilePath}");
             excludedHostsInConfig.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.excluded should be in alphabetical order in {BicepRootConfigFilePath}");
-        }
-
-        private ICollection<string> GetExperimentalFeatureIdsFromSchema()
-        {
-            IDictionary<string, JObject>? experimentalFeatures = GetExperimentalFeaturesFromSchema();
-            return experimentalFeatures.Keys;
         }
 
         [TestMethod]
@@ -269,14 +320,6 @@ namespace Bicep.Core.UnitTests.Configuration
 
                 description.Should().NotContainAny(new[] { "don't", "do not" }, "Use \"Should\" type of language generally (less impolite)");
             }
-        }
-
-        private IDictionary<string, JObject> GetExperimentalFeaturesFromSchema()
-        {
-            var (rules, schema) = GetRulesAndSchema();
-            IDictionary<string, JObject>? experimentalFeatures = schema.SelectToken("properties.experimentalFeaturesEnabled.properties")!.ToObject<IDictionary<string, JObject>>();
-            Assert.IsNotNull(experimentalFeatures);
-            return experimentalFeatures;
         }
 
         [TestMethod]
@@ -339,10 +382,9 @@ namespace Bicep.Core.UnitTests.Configuration
             var builtinConfig = IConfigurationManager.GetBuiltInConfiguration().ToUtf8Json();
             builtinConfig.Should().NotBeNull();
             var bicepConfigJson = JObject.Parse(builtinConfig!);
-            var schema = GetConfigSchema();
 
             // Act & Assert
-            bool isValid = bicepConfigJson.IsValid(schema, out IList<ValidationError> errors);
+            bool isValid = bicepConfigJson.IsValid(BicepConfigSchemaAsJSchema, out IList<ValidationError> errors);
             errors.Should().BeEmpty();
             isValid.Should().BeTrue();
         }
@@ -357,11 +399,24 @@ namespace Bicep.Core.UnitTests.Configuration
                 }
             }
             """);
-            var schema = GetConfigSchema();
-            bool isValid = bicepConfigJson.IsValid(schema, out IList<ValidationError> errors);
+
+            bool isValid = bicepConfigJson.IsValid(BicepConfigSchemaAsJSchema, out IList<ValidationError> errors);
             errors.Should().HaveCount(1);
             errors.Single().Path.Should().Be("providers.sys");
             isValid.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void RuleConfigs_DefaultLevelShouldMatchRuleDefinition()
+        {
+            foreach (var (id, (rule, ruleSchema)) in AllRulesAndSchemasById)
+            {
+                var defaultLevelInRuleDefinition = rule.DefaultDiagnosticLevel.ToString();
+                var defaultLevelInSchema = GetRuleDefaultLevel(ruleSchema);
+
+                defaultLevelInSchema.Should().Be(defaultLevelInRuleDefinition,
+                    $"the default diagnostic level of a rule's config schema should match that defined in the rule's class definition. Make sure rule {id} #/definitions/rule-def-level-xxx reference is correct");
+            }
         }
     }
 }
