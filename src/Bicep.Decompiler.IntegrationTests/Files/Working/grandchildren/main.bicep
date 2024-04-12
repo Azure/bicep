@@ -4,11 +4,10 @@ param storageAccounts_ll22w7onmmpv65q24_name string = 'll22w7onmmpv65q24'
 resource storageAccounts_ll21w7onmmpv65q24_name_resource 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   name: storageAccounts_ll21w7onmmpv65q24_name
   location: 'westeurope'
-//@[12:24) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westeurope' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westeurope'|
   sku: {
     name: 'Standard_LRS'
     tier: 'Standard'
-//@[04:08) [BCP073 (Warning)] The property "tier" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |tier|
+//@[4:08) [BCP073 (Warning)] The property "tier" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |tier|
   }
   kind: 'StorageV2'
   properties: {
@@ -39,11 +38,10 @@ resource storageAccounts_ll21w7onmmpv65q24_name_resource 'Microsoft.Storage/stor
 resource storageAccounts_ll22w7onmmpv65q24_name_resource 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   name: storageAccounts_ll22w7onmmpv65q24_name
   location: 'westeurope'
-//@[12:24) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westeurope' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westeurope'|
   sku: {
     name: 'Standard_LRS'
     tier: 'Standard'
-//@[04:08) [BCP073 (Warning)] The property "tier" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |tier|
+//@[4:08) [BCP073 (Warning)] The property "tier" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |tier|
   }
   kind: 'StorageV2'
   properties: {
@@ -181,7 +179,7 @@ resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs11 'Microsoft.Stora
   }
   dependsOn: [
     storageAccounts_ll21w7onmmpv65q24_name_resource
-//@[04:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll21w7onmmpv65q24_name_resource|
+//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll21w7onmmpv65q24_name_resource|
   ]
 }
 
@@ -195,7 +193,7 @@ resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs12 'Microsoft.Stora
   }
   dependsOn: [
     storageAccounts_ll21w7onmmpv65q24_name_resource
-//@[04:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll21w7onmmpv65q24_name_resource|
+//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll21w7onmmpv65q24_name_resource|
   ]
 }
 
@@ -209,7 +207,7 @@ resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs21 'Microsoft.Stora
   }
   dependsOn: [
     storageAccounts_ll22w7onmmpv65q24_name_resource
-//@[04:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll22w7onmmpv65q24_name_resource|
+//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll22w7onmmpv65q24_name_resource|
   ]
 }
 
@@ -223,7 +221,7 @@ resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs22 'Microsoft.Stora
   }
   dependsOn: [
     storageAccounts_ll22w7onmmpv65q24_name_resource
-//@[04:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll22w7onmmpv65q24_name_resource|
+//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll22w7onmmpv65q24_name_resource|
   ]
 }
 
