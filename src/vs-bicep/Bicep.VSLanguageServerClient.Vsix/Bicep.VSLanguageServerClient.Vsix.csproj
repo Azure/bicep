@@ -60,8 +60,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.9.37000">
-      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    <PackageReference Include="Microsoft.VisualStudio.SDK">
+      <Version>17.9.37000</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.9.3174">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
