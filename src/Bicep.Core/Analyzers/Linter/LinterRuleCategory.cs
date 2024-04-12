@@ -13,11 +13,11 @@ namespace Bicep.Core.Analyzers.Linter;
 // Note: These aren't currently exposed to users (but might be later), they're currently used just to determine the default diagnostic level for a rule
 public enum LinterRuleCategory
 {
-    Style,
-    Portability,
     BestPractice,
+    DeploymentError,
+    Portability,
     PotentialCodeIssues,
     ResourceLocationRules,
     Security,
-    DeploymentError,
+    Style,
 }
