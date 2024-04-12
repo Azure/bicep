@@ -5681,7 +5681,7 @@ param foo2 string[]
         var result = CompilationHelper.Compile(
             Services
                 .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
-                .WithConfigurationPatch(x => x.WithAnalyzers(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
+                .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
             ("main.bicep", """
                 provider kubernetes with {
                   kubeConfig: 'config'
