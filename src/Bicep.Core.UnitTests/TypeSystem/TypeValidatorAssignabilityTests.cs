@@ -6,6 +6,7 @@ using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
@@ -933,17 +934,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private TypeSymbol CreateDummyResourceType()
         {
-            var ns = TestTypeHelper.CreateEmptyNamespaceProvider()
-                .TryGetNamespace(
-                    BicepTestConstants.BuiltInAzProviderDescriptor,
-                    ResourceScope.ResourceGroup,
-                    BicepTestConstants.Features,
-                    BicepSourceFileKind.BicepFile)
-                .IsSuccess(out var azNamespaceType) ? azNamespaceType : throw new UnreachableException("always succeeds");
+            var typeProvider = TestTypeHelper.CreateAzResourceTypeProviderWithTypes([]);
+            var ns = AzNamespaceType.Create(AzNamespaceType.BuiltInName, ResourceScope.ResourceGroup, typeProvider, BicepSourceFileKind.BicepFile);
 
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
 
-            return ns.ResourceTypeProvider.TryGenerateFallbackType(azNamespaceType, typeReference, ResourceTypeGenerationFlags.None)!;
+            return typeProvider.TryGenerateFallbackType(ns, typeReference, ResourceTypeGenerationFlags.None)!;
         }
 
         private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(ISyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType, IDiagnosticLookup? parsingErrorLookup = null)

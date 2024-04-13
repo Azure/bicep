@@ -27,7 +27,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     new NamespaceSettings(
                         IsSingleton: namespaceConfig.IsSingleton,
                         BicepProviderName: namespaceConfig.Name,
-                        ConfigurationType: (ObjectType?)namespaceConfig.ConfigurationObject,
+                        ConfigurationType: namespaceConfig.ConfigurationObject,
                         ArmTemplateProviderName: namespaceConfig.Name,
                         ArmTemplateProviderVersion: namespaceConfig.Version),
                     ImmutableArray<TypeProperty>.Empty,

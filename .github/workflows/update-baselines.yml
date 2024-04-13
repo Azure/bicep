@@ -9,6 +9,8 @@ jobs:
   main:
     name: Update Baselines
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     env:
       # don't print dotnet logo

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -198,29 +199,9 @@ public class ResourceDerivedTypeResolverTests
                 hydratedType,
                 ImmutableHashSet<string>.Empty));
 
-        var namespaceProviderMock = StrictMock.Of<INamespaceProvider>();
-        namespaceProviderMock.Setup(x => x.TryGetNamespace(It.Is<ResourceTypesProviderDescriptor>(x => x.Name == AzNamespaceType.BuiltInName),
-            It.IsAny<ResourceScope>(),
-            It.IsAny<IFeatureProvider>(),
-            It.IsAny<BicepSourceFileKind>()))
-            .Returns(new ResultWithDiagnostic<NamespaceType>(stubbedNamespaceType));
-        namespaceProviderMock.Setup(x => x.TryGetNamespace(It.Is<ResourceTypesProviderDescriptor>(x => x.Name != AzNamespaceType.BuiltInName),
-            It.IsAny<ResourceScope>(),
-            It.IsAny<IFeatureProvider>(),
-            It.IsAny<BicepSourceFileKind>()))
-            .Returns(new ResultWithDiagnostic<NamespaceType>(x => x.UnrecognizedProvider(unhydratedTypeRef.Name)));
-
-        var scopeMock = StrictMock.Of<ILanguageScope>();
-        scopeMock.Setup(x => x.GetDeclarationsByName(It.IsAny<string>()))
-            .Returns(Enumerable.Empty<DeclaredSymbol>());
-        scopeMock.Setup(x => x.Declarations)
-            .Returns(Enumerable.Empty<DeclaredSymbol>());
-
-        var resolver = NamespaceResolver.Create(BicepTestConstants.Features,
-            namespaceProviderMock.Object,
-            SourceFileFactory.CreateBicepFile(new("file:///path/to/main.bicep"), string.Empty),
-            ResourceScope.None,
-            scopeMock.Object);
+        var resolver = NamespaceResolver.Create([
+            new("az", "az", stubbedNamespaceType, null),
+        ]);
 
         var binderMock = StrictMock.Of<IBinder>();
         binderMock.Setup(x => x.NamespaceResolver).Returns(resolver);
@@ -245,29 +226,9 @@ public class ResourceDerivedTypeResolverTests
         resourceTypeProviderMock.Setup(x => x.TryGenerateFallbackType(stubbedNamespaceType, unhydratedTypeRef, ResourceTypeGenerationFlags.None))
             .Returns((ResourceType?)null);
 
-        var namespaceProviderMock = StrictMock.Of<INamespaceProvider>();
-        namespaceProviderMock.Setup(x => x.TryGetNamespace(It.IsAny<ResourceTypesProviderDescriptor>(),
-            It.IsAny<ResourceScope>(),
-            It.IsAny<IFeatureProvider>(),
-            It.IsAny<BicepSourceFileKind>()))
-            .Returns(new ResultWithDiagnostic<NamespaceType>(stubbedNamespaceType));
-        namespaceProviderMock.Setup(x => x.TryGetNamespace(It.Is<ResourceTypesProviderDescriptor>(x => x.Name != AzNamespaceType.BuiltInName),
-            It.IsAny<ResourceScope>(),
-            It.IsAny<IFeatureProvider>(),
-            It.IsAny<BicepSourceFileKind>()))
-            .Returns(new ResultWithDiagnostic<NamespaceType>(x => x.UnrecognizedProvider(unhydratedTypeRef.Name)));
-
-        var scopeMock = StrictMock.Of<ILanguageScope>();
-        scopeMock.Setup(x => x.GetDeclarationsByName(It.IsAny<string>()))
-            .Returns(Enumerable.Empty<DeclaredSymbol>());
-        scopeMock.Setup(x => x.Declarations)
-            .Returns(Enumerable.Empty<DeclaredSymbol>());
-
-        var resolver = NamespaceResolver.Create(BicepTestConstants.Features,
-            namespaceProviderMock.Object,
-            SourceFileFactory.CreateBicepFile(new("file:///path/to/main.bicep"), string.Empty),
-            ResourceScope.None,
-            scopeMock.Object);
+        var resolver = NamespaceResolver.Create([
+            new("az", "az", stubbedNamespaceType, null),
+        ]);
 
         var binderMock = StrictMock.Of<IBinder>();
         binderMock.Setup(x => x.NamespaceResolver).Returns(resolver);

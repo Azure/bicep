@@ -14,4 +14,6 @@ public interface IArtifactFileLookup
     ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference);
 
     ImmutableDictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> ArtifactLookup { get; }
+
+    ImmutableDictionary<ISourceFile, ImmutableHashSet<ImplicitProvider>> ImplicitProviders { get; }
 }

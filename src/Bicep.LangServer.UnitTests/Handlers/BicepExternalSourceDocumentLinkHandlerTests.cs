@@ -11,6 +11,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
@@ -18,10 +19,12 @@ using Bicep.LangServer.IntegrationTests;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.UnitTests.Mocks;
 using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
@@ -84,8 +87,19 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var resolvedLinks = new List<DocumentLink<ExternalSourceDocumentLinkData>>();
             foreach (var link in links)
             {
-                var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(link, moduleDispatcher, server.Mock.Object);
+                var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
+                telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
+
+                var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(link, moduleDispatcher, server.Mock.Object, telemetryProvider.Object);
                 resolvedLinks.Add(resolvedLink);
+
+                telemetryProvider.Verify(m => m.PostEvent(It.Is<BicepTelemetryEvent>(
+                    p => (p.EventName == TelemetryConstants.EventNames.ExternalSourceDocLinkClickSuccess
+                        || p.EventName == TelemetryConstants.EventNames.ExternalSourceDocLinkClickFailure)
+                    && p.Properties != null
+                    )), Times.Exactly(1));
+
+                telemetryProvider.VerifyNoOtherCalls();
             }
 
             return (

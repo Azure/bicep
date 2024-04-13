@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Telemetry
@@ -306,6 +307,26 @@ namespace Bicep.LanguageServer.Telemetry
                 properties: new()
                 {
                     ["failureType"] = failureType,
+                }
+            );
+
+        public static BicepTelemetryEvent ExternalSourceDocLinkClickSuccess(ExternalSourceRequestType requestType, string moduleRegistryType)
+            => new(
+                eventName: TelemetryConstants.EventNames.ExternalSourceDocLinkClickSuccess,
+                properties: new()
+                {
+                    ["requestType"] = Enum.GetName(typeof(ExternalSourceRequestType), requestType) ?? string.Empty,
+                    ["registryType"] = moduleRegistryType,
+                }
+            );
+
+        public static BicepTelemetryEvent ExternalSourceDocLinkClickFailure(string failureType, string? code = null)
+            => new(
+                eventName: TelemetryConstants.EventNames.ExternalSourceDocLinkClickFailure,
+                properties: new()
+                {
+                    ["failureType"] = failureType,
+                    ["code"] = code ?? string.Empty,
                 }
             );
     }

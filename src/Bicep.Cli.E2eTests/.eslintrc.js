@@ -38,6 +38,7 @@ module.exports = {
             assertFunctionNames: ["expect*", "invokingBicepCommand"],
           },
         ],
+        "jest/prefer-importing-jest-globals": "off",
       },
     },
     {

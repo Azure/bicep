@@ -26,6 +26,8 @@ using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.UnitTests
 {
+    // See also Bicep.LangServer.IntegrationTests/CompletionTests.cs4
+
     [TestClass]
     public class BicepCompletionProviderTests
     {
@@ -486,8 +488,8 @@ output length int =
             var functionCompletions = completions.Where(c => c.Kind == CompletionItemKind.Function).OrderBy(c => c.Label).ToList();
 
             var namespaces = new[] {
-                TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInAzProviderDescriptor),
-                TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInSysProviderDescriptor)
+                TestTypeHelper.GetBuiltInNamespaceType("az"),
+                TestTypeHelper.GetBuiltInNamespaceType("sys")
             };
 
             var availableFunctionNames = namespaces

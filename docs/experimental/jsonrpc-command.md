@@ -5,13 +5,24 @@ The `jsonrpc` command allows you to run the Bicep CLI in a JSONRPC server mode. 
 
 This makes it possible to build libraries which interact with Bicep files programatically in non-.NET languages.
 
+## Format
+The wire format used to send/recieve input/output is header-delimited, meaning the following format is expected, where `\r` and `\n` refer to carriage return and line feed characters:
+
+`Content-Length: <length>\r\n\r\n<message>\r\n\r\n`
+
+* `<length>` is the length of the `<message>` string, including the trailing `\r\n\r\n`.
+* `<message>` is the raw JSON message.
+
+### Example
+`Content-Length: 72\r\n\r\n{"jsonrpc": "2.0", "id": 0, "method": "bicep/version", "params": {}}\r\n\r\n`
+
 ## Usage (named pipe)
 `bicep jsonrpc --pipe <named_pipe>`
 
-Runs the JSONRPC server connected to a named pipe.
+Connects to an existing named pipe as a JSONRPC client. See here for some examples: [C#](https://github.com/Azure/bicep/blob/096c32f9d5c42bfb85dff550f72f3fe16f8142c7/src/Bicep.Cli.IntegrationTests/JsonRpcCommandTests.cs#L24-L50) and [node.js](https://github.com/anthony-c-martin/bicep-node/blob/4769e402f2d2c1da8d27df86cb3d62677e7a7456/src/utils/jsonrpc.ts#L117-L151).
 
 ### Arguments
-`<named_pipe>` A named pipe to connect the JSONRPC server to.
+`<named_pipe>` An existing named pipe to connect the JSONRPC client to.
 
 ### Examples
 #### Connecting to a named pipe (OSX/Linux)
@@ -23,10 +34,10 @@ Runs the JSONRPC server connected to a named pipe.
 ## Usage (TCP socket)
 `bicep jsonrpc --socket <tcp_socket>`
 
-Runs the JSONRPC server connected to a TCP socket.
+Connects to an existing TCP socket as a JSONRPC client.
 
 ### Arguments
-`<tcp_socket>` A socket number to connect the JSONRPC server to.
+`<tcp_socket>` A socket number to connect the JSONRPC client to.
 
 ### Examples
 #### Connecting to a TCP socket
