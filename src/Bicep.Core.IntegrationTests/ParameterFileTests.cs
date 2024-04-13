@@ -94,7 +94,7 @@ param fromEnv=readEnvironmentVariable('stringEnvVariable')
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]{
                 ("BCP338", DiagnosticLevel.Error,
-                "Failed to evaluate parameter \"stringEnvVariable\": Environment variable does not exist, and no default value set.")});
+                "Failed to evaluate parameter \"fromEnv\": Environment variable \"stringEnvVariable\" does not exist, and no default value set.")});
     }
 
     [TestMethod]
@@ -120,7 +120,7 @@ param fromEnv=readEnvironmentVariable('stringEnvVariable')
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]{
                 ("BCP338", DiagnosticLevel.Error,
-                "Failed to evaluate parameter \"stringEnvVariable\": Environment variable does not exist, and no default value set."),
+                "Failed to evaluate parameter \"fromEnv\": Environment variable \"stringEnvVariable\" does not exist, and no default value set."),
                 ("Bicepparam ReadEnvironmentVariable function", DiagnosticLevel.Info,
                 "Available environment variables are: "
                 )});

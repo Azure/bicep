@@ -1170,8 +1170,12 @@ namespace Bicep.Core.Semantics.Namespaces
                     }
                     
                     //error to fail the build-param with clear message of the missing env var name
-                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(envVariableName,
-                    "Environment variable does not exist, and no default value set.")));
+                    var paramAssignmentDefinition = model.Root.ParameterAssignments.Where(
+                        p => p.DeclaringParameterAssignment.Value.Span.Position == functionCall.Span.Position
+                    ).FirstOrDefault();
+                    var paramName = paramAssignmentDefinition?.Name ?? "";
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(paramName,
+                    $"Environment variable \"{envVariableName}\" does not exist, and no default value set.")));
                 }
             }
             return new(TypeFactory.CreateStringLiteralType(envVariableValue),
