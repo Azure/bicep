@@ -16,7 +16,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         // Finds insecure uses of parameters or list* functions inside outer-scpped nested deployments (resources of
         //   type "microsoft.resources/deployments").  Modules are inner-scoped so do not have this issue.
         //
-        // These nested deployments will evaluate expressions prior to being sent to the deployment engine.This means that all
+        // These nested deployments will evaluate expressions prior to being sent to the deployment engine. This means that all
         // properties are in the request in an evaluated state (clear text) and persisted on the deployment object.
 
         public new const string Code = "secure-params-in-nested-deploy";
@@ -24,8 +24,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SecureParamsInNestedDeploymentsRule() : base(
             code: Code,
             description: CoreResources.SecureParamsInNestedDeployRule_Description,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
-            diagnosticLevel: DiagnosticLevel.Warning)
+            LinterRuleCategory.Security,
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
         public override string FormatMessage(params object[] values)

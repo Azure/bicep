@@ -7,7 +7,6 @@ resource base 'Microsoft.Storage/storageAccounts@2019-04-01' = [
     name: concat(i, baseName)
 //@[10:029) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(i, baseName)|
     location: resourceGroup().location
-//@[14:038) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
     sku: {
       name: 'Standard_LRS'
     }

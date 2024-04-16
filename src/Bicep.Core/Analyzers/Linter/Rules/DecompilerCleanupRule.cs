@@ -9,7 +9,7 @@ using Bicep.Core.Syntax;
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
     // Mark decompiler imperfections that should be manually cleaned up
-    public sealed class DecompilerCleanupRule : LocationRuleBase
+    public sealed class DecompilerCleanupRule : LinterRuleBase
     {
         public new const string Code = "decompiler-cleanup";
 
@@ -19,6 +19,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public DecompilerCleanupRule() : base(
             code: Code,
             description: CoreResources.DecompilerImperfectionsRule_Description,
+            LinterRuleCategory.BestPractice,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         {
         }

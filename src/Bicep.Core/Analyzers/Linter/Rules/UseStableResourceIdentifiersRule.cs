@@ -15,6 +15,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public UseStableResourceIdentifiersRule() : base(
             code: Code,
             description: CoreResources.UseStableResourceIdentifiersMessage,
+            LinterRuleCategory.PotentialCodeIssues,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 

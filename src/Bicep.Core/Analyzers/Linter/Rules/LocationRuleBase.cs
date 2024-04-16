@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -25,10 +26,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             string code,
             string description,
             Uri docUri,
-            DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
             DiagnosticStyling diagnosticStyling = DiagnosticStyling.Default
             )
-        : base(code, description, docUri, diagnosticLevel, diagnosticStyling) { }
+        : base(code, description, LinterRuleCategory.ResourceLocationRules, docUri, diagnosticStyling) { }
 
         /// <summary>
         /// Retrieves the literal text value of a syntax node if that node is either a string literal or a reference (possibly indirectly)

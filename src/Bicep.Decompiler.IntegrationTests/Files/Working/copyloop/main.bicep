@@ -23,7 +23,6 @@ resource storagePrefix_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [
     name: toLower(concat(i, storagePrefix, uniqueString(resourceGroup().id)))
 //@[18:76) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(i, storagePrefix, uniqueString(resourceGroup().id))|
     location: resourceGroup().location
-//@[14:38) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
     sku: {
       name: 'Standard_LRS'
     }
@@ -37,7 +36,6 @@ resource vmPrefix_resource 'Microsoft.Compute/virtualMachines@2020-06-01' = [
     name: '${vmPrefix}-${i}'
 //@[10:28) [decompiler-cleanup (Warning)] The symbolic name of resource 'vmPrefix_resource' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |'${vmPrefix}-${i}'|
     location: resourceGroup().location
-//@[14:38) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
     properties: {
       hardwareProfile: {
         vmSize: vmSize
@@ -82,7 +80,6 @@ resource namedcopy_blah_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [
     name: toLower('${i}blah${uniqueString(resourceGroup().id)}')
 //@[10:64) [BCP335 (Warning)] The provided value can have a length as large as 36 and may be too long to assign to a target with a configured maximum length of 24. (CodeDescription: none) |toLower('${i}blah${uniqueString(resourceGroup().id)}')|
     location: resourceGroup().location
-//@[14:38) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
     sku: {
       name: 'Standard_LRS'
     }

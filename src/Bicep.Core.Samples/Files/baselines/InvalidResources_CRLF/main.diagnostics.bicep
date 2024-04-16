@@ -272,7 +272,6 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'vnet-bicep'
   location: 'westeurope'
-//@[012:024) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westeurope' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westeurope'|
   etag: 'assigning-to-read-only-value'
 //@[002:006) [BCP073 (Warning)] The property "etag" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |etag|
   properties: {
@@ -345,7 +344,6 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 module validModule './module.bicep' = {
   name: 'storageDeploy'
   params: {
-//@[002:037) [explicit-values-for-loc-params (Warning)] Parameter 'location' of module 'validModule' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    name: 'contoso'\r\n  }|
     name: 'contoso'
   }
 }
@@ -353,7 +351,6 @@ module validModule './module.bicep' = {
 resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   name: 'name1'
   location: 'eastus'
-//@[012:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
   properties: {
     evictionPolicy: 'Deallocate'
   }
@@ -364,7 +361,6 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[008:089) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)|
   kind:'AzureCLI'
   location: 'eastus'
-//@[012:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
   properties: {
     azCliVersion: '2.0'
     retentionInterval: runtimeValidRes1.properties.evictionPolicy
@@ -401,7 +397,6 @@ resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 //@[008:035) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "AzureCLI" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.properties|
   kind:'AzureCLI'
   location: 'eastus'
-//@[012:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
   properties: {
     azCliVersion: '2.0'
     retentionInterval: runtimeValidRes1.properties.evictionPolicy
@@ -556,7 +551,6 @@ resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thin
 //@[009:028) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck|
   name: 'test'
   location: 'test'
-//@[012:018) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'test' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'test'|
 }]
 
 var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
@@ -566,7 +560,6 @@ resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' =
   name: runtimeCheckVar2
 //@[008:024) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Network/dnsZones" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Properties of loopForRuntimeCheck which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeCheckVar2|
   location: 'test'
-//@[012:018) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'test' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'test'|
 }
 
 resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
@@ -574,7 +567,6 @@ resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thi
   name: runtimeCheckVar2
 //@[008:024) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Network/dnsZones" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Properties of loopForRuntimeCheck which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeCheckVar2|
   location: 'test'
-//@[012:018) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'test' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'test'|
 }]
 
 resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
@@ -582,7 +574,6 @@ resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
   name: loopForRuntimeCheck[0].properties.zoneType
 //@[008:041) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Network/dnsZones" type, which requires a value that can be calculated at the start of the deployment. Properties of loopForRuntimeCheck which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |loopForRuntimeCheck[0].properties|
   location: 'test'
-//@[012:018) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'test' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'test'|
 }]
 
 var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
@@ -592,7 +583,6 @@ resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
   name: varForRuntimeCheck4b
 //@[008:028) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Network/dnsZones" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("varForRuntimeCheck4b" -> "varForRuntimeCheck4a" -> "loopForRuntimeCheck"). Properties of loopForRuntimeCheck which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |varForRuntimeCheck4b|
   location: 'test'
-//@[012:018) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'test' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'test'|
 }]
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
@@ -615,7 +605,6 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'v'
   location: 'eastus'
-//@[012:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
   properties: {
     subnets: [
       {
@@ -1039,7 +1028,6 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
   kind: 'AzureCLI'
   name: 'test'
   location: ''
-//@[012:014) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: '' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |''|
   properties: {
     azCliVersion: '2'
     retentionInterval: 'PT1H'
@@ -1104,7 +1092,6 @@ resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@20
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
-//@[012:015) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
 //@[014:051) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. (CodeDescription: none) |{\r\n    //createMode: 'Default'\r\n\r\n  }|
     //createMode: 'Default'
@@ -1131,7 +1118,6 @@ resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
-//@[012:015) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
 //@[014:051) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. (CodeDescription: none) |{\r\n    //createMode: 'Default'\r\n\r\n  }|
     //createMode: 'Default'
@@ -1159,7 +1145,6 @@ resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccount
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
-//@[012:015) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
 //@[014:051) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. (CodeDescription: none) |{\r\n    //createMode: 'Default'\r\n\r\n  }|
     //createMode: 'Default'
@@ -1188,7 +1173,6 @@ resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAcco
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
-//@[012:015) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
 //@[014:051) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. (CodeDescription: none) |{\r\n    //createMode: 'Default'\r\n\r\n  }|
     //createMode: 'Default'
@@ -1216,7 +1200,6 @@ resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-p
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
-//@[012:015) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     createMode: 'Default'
@@ -1254,7 +1237,6 @@ resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-0
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
-//@[012:015) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     createMode: 'Default'
@@ -1294,7 +1276,6 @@ resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
-//@[012:015) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     createMode: 'Default'
@@ -1334,7 +1315,6 @@ resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
-//@[012:015) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     createMode: 'Default'
@@ -1370,7 +1350,6 @@ var nestedDiscriminatorArrayIndexCompletions_for_if = nestedDiscriminator_for_if
 // sample resource to validate completions on the next declarations
 resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@2020-06-01' = if(true) {
   location: 'test'
-//@[012:018) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'test' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'test'|
   name: 'test'
   properties: {
     additionalCapabilities: {
@@ -1614,7 +1593,6 @@ resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-
 //@[009:039) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "kind", "sku". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |missingFewerRequiredProperties|
   name: account
   location: 'eastus42'
-//@[012:022) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus42' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus42'|
   properties: {
     wrong: 'test'
 //@[004:009) [BCP037 (Warning)] The property "wrong" is not allowed on objects of type "StorageAccountPropertiesCreateParametersOrStorageAccountProperties". Permissible properties include "accessTier", "allowBlobPublicAccess", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "customDomain", "encryption", "isHnsEnabled", "largeFileSharesState", "minimumTlsVersion", "networkAcls", "routingPreference", "supportsHttpsTrafficOnly". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |wrong|
@@ -1823,7 +1801,6 @@ var expressionInPropertyLoopVar = true
 resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'hello'
   location: 'eastus'
-//@[012:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
   properties: {
     'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
 //@[004:061) [BCP143 (Error)] For-expressions cannot be used with properties whose names are also expressions. (CodeDescription: none) |'resolutionVirtualNetworks${expressionInPropertyLoopVar}'|
@@ -1921,7 +1898,6 @@ resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
   parent: p3_vmExt
 //@[010:018) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. (CodeDescription: none) |p3_vmExt|
   location: 'eastus'
-//@[012:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
 }
 
 // parent property 2-cycle
@@ -1929,14 +1905,12 @@ resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   parent: p4_vmExt
 //@[010:018) [BCP080 (Error)] The expression is involved in a cycle ("p4_vmExt" -> "p4_vm"). (CodeDescription: none) |p4_vmExt|
   location: 'eastus'
-//@[012:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
 }
 
 resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
   parent: p4_vm
 //@[010:015) [BCP080 (Error)] The expression is involved in a cycle ("p4_vm" -> "p4_vmExt"). (CodeDescription: none) |p4_vm|
   location: 'eastus'
-//@[012:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
 }
 
 // parent property with invalid child
@@ -1998,7 +1972,6 @@ resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' exis
   name: 'existingResProperty'
   location: 'westeurope'
 //@[002:010) [BCP173 (Error)] The property "location" cannot be used in an existing resource declaration. (CodeDescription: none) |location|
-//@[012:024) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westeurope' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westeurope'|
   properties: {}
 //@[002:012) [BCP173 (Error)] The property "properties" cannot be used in an existing resource declaration. (CodeDescription: none) |properties|
 }
@@ -2013,7 +1986,6 @@ resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extension
 resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'anyTypeInDependsOn'
   location: resourceGroup().location
-//@[012:036) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   dependsOn: [
     any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
 //@[004:070) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)|
@@ -2119,7 +2091,6 @@ resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
 resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
   name: 'issue3000LogicApp1'
   location: resourceGroup().location
-//@[012:036) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   properties: {
     state: 'Enabled'
     definition: ''
@@ -2158,7 +2129,6 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
 resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
   name: 'issue3000LogicApp2'
   location: resourceGroup().location
-//@[012:036) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   properties: {
     state: 'Enabled'
     definition: ''
@@ -2208,7 +2178,6 @@ resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'issue3000stg'
   kind: 'StorageV2'
   location: 'West US'
-//@[012:021) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'West US' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'West US'|
   sku: {
     name: 'Premium_LRS'    
   }
@@ -2292,7 +2261,6 @@ param issue4668_properties object
 resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'testscript'
   location: 'westeurope'
-//@[012:024) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westeurope' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westeurope'|
   kind: issue4668_kind
 //@[008:022) [BCP225 (Warning)] The discriminator property "kind" value cannot be determined at compilation time. Type checking for this object is disabled. (CodeDescription: none) |issue4668_kind|
   identity: issue4668_identity
@@ -2312,7 +2280,6 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
 resource sqlServer1 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sqlServer1'
   location: 'polandcentral'
-//@[012:027) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
 
   @
 //@[003:003) [BCP123 (Error)] Expected a namespace or decorator name at this location. (CodeDescription: none) ||
@@ -2321,7 +2288,6 @@ resource sqlServer2 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sqlServer2'
 //@[002:006) [BCP025 (Error)] The property "name" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |name|
   location: 'polandcentral'
-//@[012:027) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
 
   @description('var')
 //@[002:021) [BCP132 (Error)] Expected a declaration after the decorator. (CodeDescription: none) |@description('var')|
@@ -2344,7 +2310,6 @@ resource sqlServer2 'Microsoft.Sql/servers@2021-11-01' = {
 resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sqlServer3'
   location: 'polandcentral'
-//@[012:027) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
 
   @description('mising resource keyword')
 //@[002:041) [BCP132 (Error)] Expected a declaration after the decorator. (CodeDescription: none) |@description('mising resource keyword')|
@@ -2353,7 +2318,6 @@ resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
 resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sqlServer4'
   location: 'polandcentral'
-//@[012:027) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
 
   @batchSize(1)
 //@[002:015) [BCP153 (Error)] Expected a resource or module declaration after the decorator. (CodeDescription: none) |@batchSize(1)|
@@ -2362,13 +2326,11 @@ resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {
 resource sqlServer5 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sqlServer5'
   location: 'polandcentral'
-//@[012:027) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
 
   @batchSize(1)
 //@[002:015) [BCP155 (Error)] The decorator "batchSize" can only be attached to resource or module collections. (CodeDescription: none) |@batchSize(1)|
   resource sqlDatabase 'databases' = {
     name: 'db'
     location: 'polandcentral'
-//@[014:029) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
   }
 }

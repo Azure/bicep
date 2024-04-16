@@ -17,6 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public UseResourceIdFunctionsRule() : base(
             code: Code,
             description: CoreResources.UseResourceIdFunctionsRule_Description,
+            LinterRuleCategory.BestPractice,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
