@@ -281,8 +281,8 @@
       },
       "Markdig": {
         "type": "Transitive",
-        "resolved": "0.36.2",
-        "contentHash": "jQoU7pIDSGBuorR6mxAmGPXAiTmG1/1bSzuXsL7DfmDe/ueokSld5abE0M+lYHI7IeKs/HvkhRnKl0Gt9MF5cw=="
+        "resolved": "0.37.0",
+        "contentHash": "biiu4MTPFjW55qw6v5Aphtj0MjDLJ14x8ndZwkJUHIeqvaSGKeqhLY7S7Vu/S3k7/c9KwhhnaCDP9hdFNUhcNA=="
       },
       "MediatR": {
         "type": "Transitive",
@@ -1532,7 +1532,7 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "JsonPath.Net": "[1.0.0, )",
           "JsonSchema.Net": "[6.0.7, )",
-          "Markdig": "[0.36.2, )",
+          "Markdig": "[0.37.0, )",
           "Microsoft.Extensions.Logging": "[8.0.0, )",
           "Serilog.Extensions.Hosting": "[8.0.0, )",
           "Serilog.Sinks.Console": "[5.0.1, )",
