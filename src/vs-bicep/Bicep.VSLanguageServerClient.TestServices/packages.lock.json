@@ -41,9 +41,9 @@
       },
       "Microsoft.Test.Apex.VisualStudio": {
         "type": "Direct",
-        "requested": "[17.9.34701.34, )",
-        "resolved": "17.9.34701.34",
-        "contentHash": "jUpqt3cjbXlcmyDUH4cuS+ZR6p3AHV5Uvoo5YQ27wmkjOmH827gfUVV+hJaaNOt6Kgo13asTzKfFHPwfefQoLQ==",
+        "requested": "[17.10.34814.14, )",
+        "resolved": "17.10.34814.14",
+        "contentHash": "oNHZuMjispSoqNrl/Y+GXAIkK3tLA2AkEQStEGxyXHtRgo/fgjxZloJ8gUf8pSqy0FuM1JgAK05AH0NnInd2og==",
         "dependencies": {
           "MSTest.TestAdapter": "3.0.3",
           "MSTest.TestFramework": "3.0.3"
