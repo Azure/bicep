@@ -11,6 +11,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class UseResourceIdFunctionsRuleTests : LinterRuleTestsBase
     {
+        private const string allowedFunctions = "extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId";
+
         private static void CompileAndTest(string bicep, params string[] expectedMessages)
         {
             AssertLinterRuleDiagnostics(UseResourceIdFunctionsRule.Code, bicep, expectedMessages, new Options(OnCompileErrors.IncludeErrors, IncludePosition.LineNumberAndColumn));
@@ -71,7 +73,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // TTK result:
                 // Property: "id" must use one of the following expressions for an resourceId property:
                 //  extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId.,if,parameters,reference,variables,subscription,guid
-                "[39:25] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
+                $"[39:25] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}."
             },
             DisplayName = "virtualNetworkName fail"
         )]
@@ -110,7 +112,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }",
             new string[]
             {
-                "[24:31] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
+                $"[24:31] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}."
             },
             DisplayName = "'id' should be analyzed anywhere in the resource tree"
         )]
@@ -132,8 +134,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
             new string[]
             {
-                "[7:21] If property \"firstId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
-                "[13:23] If property \"secondId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
+                $"[7:21] If property \"firstId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}.",
+                $"[13:23] If property \"secondId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}.",
             },
             DisplayName = "'id' should be analyzed in nested resources"
         )]
@@ -194,7 +196,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
             new string[]
             {
-                "[7:21] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
+                $"[7:21] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}."
             },
             DisplayName = "Quoted property keys"
         )]
@@ -286,7 +288,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // TTK result:
                 // Property: "resourceId" must use one of the following expressions for an resourceId property:
                 // extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId.,if,parameters,reference,variables,subscription,guid
-                "[8:23] If property \"resourceId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
+                $"[8:23] If property \"resourceId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}."
             },
             DisplayName = "Fail/concat.json")]
         // from https://github.com/Azure/arm-ttk/blob/master/unit-tests/IDs-Should-Be-Derived-From-ResourceIDs/Fail/documentdb-sqldatabases-that-contains-invalid-id-property-should-fail.json
@@ -309,7 +311,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // TTK result:
                 // Property: "id" must use one of the following expressions for an resourceId property:
                 //   extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId.,if,parameters,reference,variables,subscription,guid
-                "[11:21] If property \"failId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
+                $"[11:21] If property \"failId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}.",
             },
             DisplayName = "Fail/documentdb-sqldatabases-that-contains-invalid-id-property-should-fail.json")]
         // from https://github.com/Azure/arm-ttk/blob/master/unit-tests/IDs-Should-Be-Derived-From-ResourceIDs/Fail/empty-string.json
@@ -351,7 +353,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
             new string[]
             {
-                "[6:23] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
+                $"[6:23] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}."
             },
             DisplayName = "Fail/literal.json")]
         [DataRow(
@@ -366,7 +368,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
             new string[]
             {
-                "[6:23] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
+                $"[6:23] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}."
             },
             DisplayName = "literal without any forward slashes - pass - if it doesn't look like an ID, probably not intended to be, so reduce likelihood of false positives")]
         [DataRow(
@@ -394,7 +396,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
             new string[]
             {
-                "[19:23] If property \"slashesFailId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. Found nonconforming expression at slashesFailId -> slashes2 -> slashes"
+                $"[19:23] If property \"slashesFailId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}. Found nonconforming expression at slashesFailId -> slashes2 -> slashes"
             },
             DisplayName = "literal in variable")]
         [DataRow(
@@ -474,7 +476,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             new string[]
             {
-                "[20:17] If property \"keyVaultShouldFailId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. Found nonconforming expression at keyVaultShouldFailId -> existingKeyVaultId",
+                $"[20:17] If property \"keyVaultShouldFailId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}. Found nonconforming expression at keyVaultShouldFailId -> existingKeyVaultId",
             },
             DisplayName = "pass/IDs-In-KeyVault.json")]
         // from https://github.com/Azure/arm-ttk/blob/master/unit-tests/IDs-Should-Be-Derived-From-ResourceIDs/Pass/IDs-In-Metadata.json
@@ -899,7 +901,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new string[]
             {
                 // guId: 'abc/def'   // not considered "guid", fail
-                "[9:17] If property \"guId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
+                $"[9:17] If property \"guId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}."
             },
             DisplayName = "Ignore properties like \"UID\" and \"guid\" (but not 'guId')")]
         [DataRow(
@@ -914,7 +916,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }",
             new string[]
             {
-                "[7:17] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. Found nonconforming expression at id -> idValue",
+                $"[7:17] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}. Found nonconforming expression at id -> idValue",
             },
             DisplayName = "resolved variable simple")]
         [DataRow(
@@ -930,7 +932,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }",
             new string[]
             {
-                "[8:17] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. Found nonconforming expression at id -> idValue2 -> idValue",
+                $"[8:17] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}. Found nonconforming expression at id -> idValue2 -> idValue",
             },
         DisplayName = "resolved variable double")]
         [DataRow(
@@ -1028,7 +1030,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }",
             new string[]
             {
-                "[16:19] If property \"fail2id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. Found nonconforming expression at fail2id -> appGatewayBackendPool",
+                $"[16:19] If property \"fail2id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}. Found nonconforming expression at fail2id -> appGatewayBackendPool",
             },
             DisplayName = "Resolved variables with string literals")]
         [DataRow(@"
@@ -1104,7 +1106,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ,
             new string[]
             {
-                "[5:21] If property \"resourceId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
+                $"[5:21] If property \"resourceId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}."
             },
             DisplayName = "resourceId has to be outermost function")]
         [DataRow(@"
@@ -1271,7 +1273,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // [-] IDs Should Be Derived From ResourceIDs
                 // Property: "id" must use one of the following expressions for an resourceId property:
                 //   extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId,if,parameters,reference,variables,subscription,guid
-                "[86:23] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
+                $"[86:23] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}.",
             },
             DisplayName = "https://github.com/Azure/arm-ttk/issues/497")]
         [DataRow(@"
@@ -1289,7 +1291,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             new string[]
             {
-                "[5:21] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
+                $"[5:21] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}."
             },
             DisplayName = "concat")]
         [DataRow(@"
@@ -1302,7 +1304,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             new string[]
             {
-                "[5:21] If property \"failid\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
+                $"[5:21] If property \"failid\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}."
             },
             DisplayName = "loops")]
         [DataRow(@"
@@ -1785,6 +1787,26 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // pass
             },
             DisplayName = "Array parameter elements"
+        )]
+        [DataRow("""
+            targetScope = 'managementGroup'
+
+            resource symbolicname 'Microsoft.Authorization/policySetDefinitions@2021-06-01' = {
+              name: 'string'
+              properties: {
+                policyDefinitions: [
+                  {
+                    policyDefinitionId: managementGroupResourceId('a', 'b')
+                  }
+                ]
+              }
+            }
+            """,
+            new string[]
+            {
+                // pass
+            },
+            DisplayName = "managementGroupResourceId"
         )]
         [DataTestMethod]
         public void Test(string text, string[] expectedMessages)
