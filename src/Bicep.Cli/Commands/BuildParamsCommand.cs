@@ -92,9 +92,9 @@ namespace Bicep.Cli.Commands
                 }
                 else
                 {
-                    var paramsOutputPath = PathHelper.ResolveDefaultOutputPath(paramsFileUri.LocalPath, null, args.OutputFile, PathHelper.GetDefaultBuildOutputPath);
+                    var outputPath = PathHelper.ResolveDefaultOutputPath(paramsFileUri.LocalPath, args.OutputDir, args.OutputFile, PathHelper.GetDefaultBuildOutputPath);
 
-                    writer.ParametersToFile(compilation, PathHelper.FilePathToFileUrl(paramsOutputPath));
+                    writer.ParametersToFile(compilation, PathHelper.FilePathToFileUrl(outputPath));
                 }
             }
 
