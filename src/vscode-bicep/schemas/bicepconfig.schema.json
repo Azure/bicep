@@ -777,10 +777,6 @@
         "providerRegistry": {
           "type": "boolean"
         },
-        "publishSource": {
-          "type": "boolean",
-          "description": "asdfgEnables publishing source code with modules using the bicep publish `--with-source` option. See https://aka.ms/bicep/experimental-features#publishsource"
-        },
         "optionalModuleNames": {
           "type": "boolean",
           "description": "Enabling this feature makes the name property in the body of module declarations optional. See https://aka.ms/bicep/experimental-features#optionalmodulenames"

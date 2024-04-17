@@ -376,7 +376,7 @@ namespace Bicep.Core.UnitTests.Configuration
         public void ExperimentalFeatures_ShouldBeDocumentedInHelpFile()
         {
             // From schema
-            var experimentalFeaturesIdsFromSchema = GetExperimentalFeatureIdsFromSchema();
+            var experimentalFeaturesIdsFromSchema = GetExperimentalFeatureIdsFromSchema().ToArray();
 
             // From help
             var experimentalFeatureIdsFromHelp = GetExperimentalFeatureIdsFromHelpContents().OrderBy(s => s).ToArray();
@@ -386,6 +386,11 @@ namespace Bicep.Core.UnitTests.Configuration
             foreach (var featureId in experimentalFeaturesIdsFromSchema.Where(id => !GrandfatheredFeaturesNeedingHelpOrDescription.Contains(id)))
             {
                 experimentalFeatureIdsFromHelp.Should().Contain(featureId, $"all experimental features in the schema should be documented in the help file {HelpFileName}");
+            }
+
+            foreach (var featureId in experimentalFeatureIdsFromHelp.Where(id => !GrandfatheredFeaturesNeedingHelpOrDescription.Contains(id)))
+            {
+                experimentalFeaturesIdsFromSchema.Should().Contain(featureId, $"all experimental features documented in the help file {HelpFileName} should be in the bicepconfig.schema.json file");
             }
         }
 
