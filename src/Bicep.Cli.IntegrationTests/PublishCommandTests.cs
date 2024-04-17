@@ -155,7 +155,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource, (registryStr, repository));
+            var clientFactory = dataSet.CreateMockRegistryClients((registryStr, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
