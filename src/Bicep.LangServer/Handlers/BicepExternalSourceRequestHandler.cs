@@ -113,9 +113,9 @@ namespace Bicep.LanguageServer.Handlers
         /// <param name="reference">The module reference</param>
         /// <param name="sourceArchive">The source archive for the module, if sources are available</param>
         /// <returns>A bicep-extsrc: URI</returns>
-        public static Uri GetExternalSourceLinkUri(OciArtifactReference reference, SourceArchive? sourceArchive, bool defaultToDisplayingBicep = true)
+        public static Uri GetExternalSourceLinkUri(OciArtifactReference reference, SourceArchive? sourceArchive)
         {
-            return new ExternalSourceReference(reference, sourceArchive, defaultToDisplayingBicep: defaultToDisplayingBicep).ToUri();
+            return new ExternalSourceReference(reference, sourceArchive).ToUri();
         }
 
         private BicepTelemetryEvent CreateSuccessTelemetry(SourceArchive? sourceArchive, string? requestedSourceFile)
