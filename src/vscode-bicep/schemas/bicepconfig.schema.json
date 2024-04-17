@@ -779,7 +779,7 @@
         },
         "publishSource": {
           "type": "boolean",
-          "description": "Enables publishing source code with modules using the bicep publish `--with-source` option. See https://aka.ms/bicep/experimental-features#publishsource"
+          "description": "asdfgEnables publishing source code with modules using the bicep publish `--with-source` option. See https://aka.ms/bicep/experimental-features#publishsource"
         },
         "optionalModuleNames": {
           "type": "boolean",

@@ -252,7 +252,7 @@ namespace Bicep.Core.Registry
                 new(compiledArmTemplate, BicepMediaTypes.BicepModuleLayerV1Json, new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
             };
 
-            if (bicepSources is { } && features.PublishSourceEnabled)
+            if (bicepSources is { })
             {
                 layers.Add(
                     new(

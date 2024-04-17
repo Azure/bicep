@@ -67,7 +67,7 @@ namespace Bicep.Cli.IntegrationTests
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
             var (output, error, result) = await Bicep(settings, "build", bicepFilePath);
 
             using (new AssertionScope())
@@ -210,7 +210,7 @@ namespace Bicep.Cli.IntegrationTests
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "build", "--stdout", bicepFilePath);
 
@@ -249,7 +249,7 @@ namespace Bicep.Cli.IntegrationTests
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
 
             var (restoreOutput, restoreError, restoreResult) = await Bicep(settings, "restore", bicepFilePath);
             using (new AssertionScope())
@@ -295,7 +295,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -307,7 +307,7 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 publishResult.Should().Be(0);
-                publishOutput.Should().MatchRegex("NOTE: Experimental feature publishSource is enabled, but --with-source must also be specified to publish a module with source.");
+                publishOutput.Should().BeEmpty();
                 publishError.Should().BeEmpty();
             }
 

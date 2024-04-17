@@ -161,7 +161,7 @@ namespace Bicep.Core.IntegrationTests
             Directory.CreateDirectory(cacheDirectory);
 
             var services = Services
-                .WithFeatureOverrides(new(PublishSourceEnabled: true, CacheRootDirectory: cacheDirectory))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory))
                 .WithContainerRegistryClientFactory(clientFactory)
                 .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
                 .Build();
@@ -217,7 +217,7 @@ namespace Bicep.Core.IntegrationTests
 
             var fileResolver = BicepTestConstants.FileResolver;
             var services = Services
-                .WithFeatureOverrides(new(PublishSourceEnabled: true, CacheRootDirectory: cacheDirectory))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory))
                 .WithContainerRegistryClientFactory(clientFactory)
                 .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
                 .WithFileResolver(fileResolver)
@@ -289,7 +289,7 @@ namespace Bicep.Core.IntegrationTests
 
             var fileResolver = BicepTestConstants.FileResolver;
             var services = Services
-                .WithFeatureOverrides(new(PublishSourceEnabled: true, CacheRootDirectory: cacheDirectory))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory))
                 .WithContainerRegistryClientFactory(clientFactory)
                 .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
                 .WithFileResolver(fileResolver)
@@ -367,7 +367,7 @@ namespace Bicep.Core.IntegrationTests
 
             var fileResolver = BicepTestConstants.FileResolver;
             var services = Services
-                .WithFeatureOverrides(new(PublishSourceEnabled: true, CacheRootDirectory: cacheDirectory))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory))
                 .WithContainerRegistryClientFactory(clientFactory)
                 .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
                 .WithFileResolver(fileResolver)

@@ -116,7 +116,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "dynamicTypeLoading": false,
           "providerRegistry": false,
           "microsoftGraphPreview": false,
-          "publishSource": false,
           "optionalModuleNames": false,
           "resourceDerivedTypes": false
         },
@@ -206,7 +205,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "dynamicTypeLoading": false,
           "providerRegistry": false,
           "microsoftGraphPreview": false,
-          "publishSource": false,
           "optionalModuleNames": false,
           "resourceDerivedTypes": false
         },
@@ -321,7 +319,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "dynamicTypeLoading": false,
           "providerRegistry": false,
           "microsoftGraphPreview": false,
-          "publishSource": false,
           "optionalModuleNames": false,
           "resourceDerivedTypes": false
         },
@@ -764,7 +761,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "dynamicTypeLoading": false,
           "providerRegistry": false,
           "microsoftGraphPreview": false,
-          "publishSource": false,
           "optionalModuleNames": false,
           "resourceDerivedTypes": false
         },

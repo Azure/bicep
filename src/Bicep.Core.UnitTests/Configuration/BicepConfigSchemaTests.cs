@@ -372,7 +372,7 @@ namespace Bicep.Core.UnitTests.Configuration
             }
         }
 
-        [TestMethod]
+        [TestMethod]    
         public void ExperimentalFeatures_ShouldBeDocumentedInHelpFile()
         {
             // From schema

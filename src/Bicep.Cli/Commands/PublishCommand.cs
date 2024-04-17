@@ -47,7 +47,6 @@ namespace Bicep.Cli.Commands
 
         public async Task<int> RunAsync(PublishArguments args)
         {
-            const string PublishSourceFeatureName = "publishSource";
             var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
             var features = featureProviderFactory.GetFeatureProvider(inputUri);
             var documentationUri = args.DocumentationUri;
@@ -85,23 +84,8 @@ namespace Bicep.Cli.Commands
             Stream? sourcesStream = null;
             if (publishSource)
             {
-                if (!features.PublishSourceEnabled)
-                {
-                    await ioContext.Error.WriteLineAsync($"The experimental flag \"{PublishSourceFeatureName}\" must be enabled in bicepconfig.json in order to publish a module with source.");
-                    return 1;
-                }
-
-                await ioContext.Output.WriteLineAsync(string.Format(CliResources.ExperimentalFeaturesDisclaimerMessage, PublishSourceFeatureName));
-
                 sourcesStream = SourceArchive.PackSourcesIntoStream(moduleDispatcher, compilation.SourceFileGrouping, features.CacheRootDirectory);
                 Trace.WriteLine("Publishing Bicep module with source");
-            }
-            else
-            {
-                if (features.PublishSourceEnabled)
-                {
-                    await ioContext.Output.WriteLineAsync($"NOTE: Experimental feature {PublishSourceFeatureName} is enabled, but --with-source must also be specified to publish a module with source.");
-                }
             }
 
             using (sourcesStream)

@@ -55,7 +55,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
@@ -123,7 +123,7 @@ namespace Bicep.Cli.IntegrationTests
                 .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns<RootConfiguration, Uri, string>(clientFactory.CreateAnonymousBlobClient);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: publishSource), clientFactoryForRestore.Object, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactoryForRestore.Object, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
@@ -310,7 +310,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: publishSource), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -324,7 +324,7 @@ output o1 string = p1");
             using (new AssertionScope())
             {
                 exitCode.Should().Be(0);
-                publishOutput.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
+                publishOutput.Should().BeEmpty();
                 publishError.Should().BeEmpty();
             }
 
@@ -374,7 +374,7 @@ output o1 string = '${p1}${p2}'");
             using (new AssertionScope())
             {
                 exitCode.Should().Be(0);
-                publishOutput.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
+                publishOutput.Should().BeEmpty();
                 publishError.Should().BeEmpty();
             }
 
@@ -431,7 +431,7 @@ output o1 string = '${p1}${p2}'");
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: publishSource), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -443,7 +443,7 @@ output o1 string = '${p1}${p2}'");
             using (new AssertionScope())
             {
                 publishResult.Should().Be(0);
-                publishOutput.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
+                publishOutput.Should().BeEmpty();
                 publishError.Should().BeEmpty();
             }
 
@@ -483,7 +483,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var (output, error, exitCode) = await Bicep(settings, "restore", bicepFilePath);
 

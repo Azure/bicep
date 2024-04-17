@@ -54,7 +54,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 .WithContainerRegistryClientFactory(clientFactory)
                 .WithFileSystem(MockFileSystem)
                 .WithFeatureProviderFactory(
-                    BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: true, CacheRootDirectory: CacheRootPath, OptionalModuleNamesEnabled: true))
+                    BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: CacheRootPath, OptionalModuleNamesEnabled: true))
                 )
                 .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
                 ;

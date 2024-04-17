@@ -64,7 +64,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Publish_InvalidInputFile_ShouldProduceExpectedError()
         {
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var (output, error, result) = await Bicep(settings, "publish", "WrongFile.bicep", "--target", "br:example.azurecr.io/hello/there:v1");
 
             result.Should().Be(1);
@@ -85,7 +85,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Publish_OciDigestTarget_ShouldProduceExpectedError()
         {
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var (output, error, result) = await Bicep(settings, "publish", "WrongFile.bicep", "--target", "br:example.com/test@sha256:80f63ced0b80b63874c808a321f472755a3c9e93987d1fa0a51e13c65e4a52b9");
 
             result.Should().Be(1);
@@ -96,7 +96,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Publish_WithMissingDocumentationUri_ShouldProduceExpectedError()
         {
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
             var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentation-uri");
 
@@ -164,7 +164,7 @@ namespace Bicep.Cli.IntegrationTests
             // mock client factory caches the clients
             var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             List<string> requiredArgs = new() { "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1" };
 
@@ -181,7 +181,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error, result) = await Bicep(settings, args);
             result.Should().Be(0);
-            output.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
+            output.Should().BeEmpty();
             AssertNoErrors(error);
 
             using var expectedCompiledStream = new FileStream(compiledFilePath, FileMode.Open, FileAccess.Read);
@@ -204,7 +204,7 @@ namespace Bicep.Cli.IntegrationTests
             // publish the same content again without --force
             var (output2, error2, result2) = await Bicep(settings, args);
             result2.Should().Be(1);
-            output2.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
+            output2.Should().BeEmpty();
             error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
 
             testClient.Should().OnlyHaveModule("v1", expectedCompiledPayload);
@@ -221,7 +221,7 @@ namespace Bicep.Cli.IntegrationTests
             requiredArgs.Add("--force");
             var (output3, error3, result3) = await Bicep(settings, requiredArgs.ToArray());
             result3.Should().Be(0);
-            output3.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
+            output3.Should().BeEmpty();
             AssertNoErrors(error3);
 
             // compile to get what the new expected main.json should be
@@ -255,7 +255,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: false, (registryStr, repository));
+            var clientFactory = dataSet.CreateMockRegistryClients((registryStr, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -263,7 +263,7 @@ namespace Bicep.Cli.IntegrationTests
             // mock client factory caches the clients
             var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
             result.Should().Be(0);
@@ -309,7 +309,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: true, (registryStr, repository));
+            var clientFactory = dataSet.CreateMockRegistryClients((registryStr, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -317,7 +317,7 @@ namespace Bicep.Cli.IntegrationTests
             // mock client factory caches the clients
             var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             var args = new List<string> { "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1", "--with-source" };
             var (output, error, result) = await Bicep(settings, args.ToArray());
@@ -348,7 +348,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var (output, error, result) = await Bicep(settings, "publish", compiledFilePath, "--target", "br:fake/fake:v1");
             using (new AssertionScope())
             {
@@ -380,7 +380,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var (output, error, result) = await Bicep(settings, "publish", compiledFilePath, "--target", "br:fake/fake:v1");
             using (new AssertionScope())
             {
