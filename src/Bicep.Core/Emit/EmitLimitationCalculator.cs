@@ -16,6 +16,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
+using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
@@ -508,6 +509,24 @@ namespace Bicep.Core.Emit
             var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>().Distinct()
                 .ToImmutableDictionary(p => p, p => SymbolicReferenceCollector.CollectSymbolsReferenced(model.Binder, p.DeclaringSyntax));
             var generated = ImmutableDictionary.CreateBuilder<ParameterAssignmentSymbol, ParameterAssignmentValue>();
+
+            var extendsDeclarations = model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
+
+            foreach (var extendsDeclaration in extendsDeclarations)
+            {
+                var extendedModel = SemanticModelHelper.TryGetTemplateModelForArtifactReference(
+                                        model.Compilation.SourceFileGrouping,
+                                        extendsDeclaration,
+                                        b => b.ExtendsPathHasNotBeenSpecified(),
+                                        model.Compilation
+                                    );
+
+                if (extendedModel.IsSuccess() && extendedModel.Unwrap() is SemanticModel extendedSemanticModel)
+                {
+                    generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ParameterAssignments);
+                }
+            }
+
             var evaluator = new ParameterAssignmentEvaluator(model);
             HashSet<Symbol> erroredSymbols = new();
 

@@ -47,20 +47,11 @@ namespace Bicep.Core.Semantics
 
             var extendsDeclarations = sourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
 
-            var thisSemanticModel = (SemanticModel)modelLookup.GetSemanticModel(sourceFile);
-
             foreach (var extendsDeclaration in extendsDeclarations)
             {
                 if (sourceFileLookup.TryGetSourceFile(extendsDeclaration).TryUnwrap() is {} extendedFile &&
                     modelLookup.GetSemanticModel(extendedFile) is SemanticModel extendedModel)
                 {
-                    var calculated = EmitLimitationCalculator.Calculate(extendedModel);
-
-                    foreach (var assignment in extendedModel.Root.ParameterAssignments)
-                    {
-                        thisSemanticModel.EmitLimitationInfo.ParameterAssignments.Add(assignment, calculated.ParameterAssignments[assignment]);
-                    }
-
                     fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(extendedModel.Root.ParameterAssignments));
                 }
             }
