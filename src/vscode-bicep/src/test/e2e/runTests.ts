@@ -49,12 +49,30 @@ async function go() {
         "ms-dotnettools.vscode-dotnet-runtime",
         ...userDataArguments,
       ];
+      const extensionListArguments = [
+        ...cliArguments,
+        "--list-extensions",
+        ...userDataArguments,
+      ];
 
-      // Install .NET Install Tool as a dependency.
-      cp.spawnSync(cliPath, extensionInstallArguments, {
+      // Install .NET Install Tool extension as a dependency.
+      console.log(
+        `Installing dotnet extension: ${cliPath} ${extensionInstallArguments.join(" ")}`,
+      );
+      let result = cp.spawnSync(cliPath, extensionInstallArguments, {
         encoding: "utf-8",
         stdio: "inherit",
+        shell: true,
       });
+      console.log(result.error ?? result.output?.filter((o) => !!o).join("\n"));
+
+      console.log("Installed extensions:");
+      result = cp.spawnSync(cliPath, extensionListArguments, {
+        encoding: "utf-8",
+        stdio: "inherit",
+        shell: true,
+      });
+      console.log(result.error ?? result.output?.filter((o) => !!o).join("\n"));
 
       await runTests({
         vscodeExecutablePath,
