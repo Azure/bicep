@@ -736,6 +736,7 @@
     "watch": "webpack --watch --mode development --stats=minimal",
     "lint": "eslint src --ext ts",
     "lint:fix": "eslint src --ext ts --fix",
+    "$test:e2e.comment": "use testlocal:e2e to run on a local Mac/Linux/Windows (not PowerShell) machine",
     "test:e2e": "node ./out/test/e2e/runTests.js",
     "test:unit": "jest --config jest.config.unit.js",
     "test:snapshot": "jest --config jest.config.snapshot.js",
