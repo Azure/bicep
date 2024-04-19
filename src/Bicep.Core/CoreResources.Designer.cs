@@ -869,6 +869,18 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseParentPropertyRule_CodeFix", resourceCulture);
             }
         }
+
+        internal static string UseSecureValueForSecureInputsRule_Description {
+            get {
+                return ResourceManager.GetString("UseSecureValueForSecureInputsRule_Description", resourceCulture);
+            }
+        }
+        
+        internal static string UseSecureValueForSecureInputsRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseSecureValueForSecureInputsRule_MessageFormat", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Use the parent property instead of formatting child resource names with &apos;/&apos; characters..
