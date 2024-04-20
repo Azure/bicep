@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests;
 public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
-        .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
+        .AddSingleton<INamespaceProvider, NamespaceProvider>()
         .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
@@ -95,6 +95,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithDisabledAnalyzersConfiguration(this IServiceCollection services)
         => services.WithConfigurationPatch(c => c.WithAllAnalyzersDisabled());
 
+    public static IServiceCollection WithConfiguration(this IServiceCollection services, RootConfiguration configuration)
+        => services.WithConfigurationPatch(c => configuration);
+
     public static IServiceCollection WithBicepAnalyzer(this IServiceCollection services, IBicepAnalyzer bicepAnalyzer)
         => Register(services, bicepAnalyzer);
 
@@ -103,7 +106,7 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IResourceTypeLoader loader)
     {
-        var provider = new AzResourceTypeProvider(loader, AzNamespaceType.Settings.ArmTemplateProviderVersion);
+        var provider = new AzResourceTypeProvider(loader);
         return Register(services, TestTypeHelper.CreateResourceTypeLoaderFactory(provider));
     }
 

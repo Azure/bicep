@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Reflection;
 using Bicep.Core.Analyzers;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
@@ -17,6 +18,25 @@ namespace Bicep.Core.UnitTests.Diagnostics
     [TestClass]
     public class LinterAnalyzerTests
     {
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+        public class TestDataAttribute : Attribute, ITestDataSource
+        {
+            public IEnumerable<object[]> GetData(MethodInfo methodInfo)
+            {
+                var analyzer = new LinterAnalyzer();
+                var ruleSet = analyzer.GetRuleSet().ToArray();
+
+                return ruleSet.Select(rule => new object[] { rule });
+            }
+
+            public string? GetDisplayName(MethodInfo methodInfo, object?[]? data)
+            {
+                var baselineData = (data?[0] as IBicepAnalyzerRule)!;
+
+                return $"{methodInfo.Name} ({baselineData.Code})";
+            }
+        }
+
         [TestMethod]
         public void HasBuiltInRules()
         {
@@ -38,7 +58,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [TestMethod]
-        public void AllDefinedRulesAreListInLinterRulesProvider()
+        public void AllDefinedRulesAreListedInLinterRulesProvider()
         {
             var linter = new LinterAnalyzer();
             var ruleTypes = linter.GetRuleSet().Select(r => r.GetType()).ToArray();
@@ -78,17 +98,35 @@ namespace Bicep.Core.UnitTests.Diagnostics
             numberEnabled.Should().BeGreaterThan(ruleSet.Length / 2, "most rules should probably be enabled by default");
         }
 
-        [TestMethod]
-        public void AllRulesHaveDescription()
+        [DataTestMethod]
+        [TestData]
+        public void AllRulesHaveDescription(IBicepAnalyzerRule rule)
         {
-            var analyzer = new LinterAnalyzer();
-            var ruleSet = analyzer.GetRuleSet();
-            ruleSet.Should().OnlyContain(r => r.Description.Length > 0);
+            rule.Description.Length.Should().BeGreaterThan(0);
+        }
+
+        [DataTestMethod()]
+        [TestData]
+        public void RulesShouldNotSpecifyOverriddenDiagnosticLevel_UnlessDifferingFromCategoryDefault(IBicepAnalyzerRule rule)
+        {
+            if (rule is LinterRuleBase ruleBase)
+            {
+                if (ruleBase.OverrideCategoryDefaultDiagnosticLevel.HasValue)
+                {
+                    ruleBase.DefaultDiagnosticLevel.Should().NotBe(LinterRuleBase.GetDefaultDiagosticLevelForCategory(ruleBase.Category),
+                        "Do not specify a value for OverrideCategoryDefaultDiagnosticLevel unless it is overriding the default diagnostic level for that rule's category " +
+                            "(and usually that should not be done).");
+
+                    ruleBase.DefaultDiagnosticLevel.Should().Be(DiagnosticLevel.Off,
+                        "I think the reason for overriding the default diagnostic level of a rule's category should only be to turn it to Off by default " +
+                            "(if there turn out to be valid reasons for something different, this test will need to be changed)");
+                }
+            }
         }
 
         public class LinterThrowsTestRule : LinterRuleBase
         {
-            public LinterThrowsTestRule() : base("ThrowsRule", "Throws an exception when used", null, DiagnosticLevel.Warning) { }
+            public LinterThrowsTestRule() : base("ThrowsRule", "Throws an exception when used", LinterRuleCategory.Style) { }
 
             public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
             {

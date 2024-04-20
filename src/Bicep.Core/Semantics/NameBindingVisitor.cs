@@ -399,7 +399,7 @@ namespace Bicep.Core.Semantics
             // the former case must have an empty namespace value whereas the latter will have a namespace value.
 
             // attempt to find name in the built in namespaces. imported namespaces will be present in the declarations list as they create declared symbols.
-            if (this.namespaceResolver.BuiltIns.TryGetValue(identifierSyntax.IdentifierName) is { } namespaceSymbol)
+            if (this.namespaceResolver.ImplicitNamespaces.TryGetValue(identifierSyntax.IdentifierName) is { } namespaceSymbol)
             {
                 // namespace symbol found
                 return namespaceSymbol;

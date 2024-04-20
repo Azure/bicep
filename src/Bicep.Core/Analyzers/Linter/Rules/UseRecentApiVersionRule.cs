@@ -3,6 +3,7 @@
 
 using System.Data;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Common;
@@ -48,10 +49,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public UseRecentApiVersionRule() : base(
             code: Code,
             description: CoreResources.UseRecentApiVersionRule_Description,
+            LinterRuleCategory.BestPractice,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
             diagnosticStyling: DiagnosticStyling.Default,
-            diagnosticLevel: DiagnosticLevel.Off
-        )
+            overrideCategoryDefaultDiagnosticLevel: DiagnosticLevel.Off // many users prefer this to be off by default due to the noise
+            )
         { }
 
         public override string FormatMessage(params object[] values)

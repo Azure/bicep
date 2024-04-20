@@ -369,7 +369,7 @@
                       "description": "When consuming a module, any location-related parameters that have a default value must be assigned an explicit value. See https://aka.ms/bicep/linter/explicit-values-for-loc-params"
                     },
                     {
-                      "$ref": "#/definitions/rule-def-level-warning"
+                      "$ref": "#/definitions/rule-def-level-off"
                     }
                   ]
                 },
@@ -502,7 +502,7 @@
                       "description": "A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string 'global'. See https://aka.ms/bicep/linter/no-hardcoded-location"
                     },
                     {
-                      "$ref": "#/definitions/rule-def-level-warning"
+                      "$ref": "#/definitions/rule-def-level-off"
                     }
                   ]
                 },
@@ -512,7 +512,7 @@
                       "description": "Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter. See https://aka.ms/bicep/linter/no-loc-expr-outside-params"
                     },
                     {
-                      "$ref": "#/definitions/rule-def-level-warning"
+                      "$ref": "#/definitions/rule-def-level-off"
                     }
                   ]
                 },

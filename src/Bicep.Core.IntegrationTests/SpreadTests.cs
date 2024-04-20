@@ -109,9 +109,9 @@ output qux int[] = [ 123, ...bar ]
 """);
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
-            ("BCP398", Diagnostics.DiagnosticLevel.Error, """The enclosing array expects elements of type "int", but the array being spread contains elements of incompatible type "string"."""),
-            ("BCP398", Diagnostics.DiagnosticLevel.Error, """The enclosing array expects elements of type "int", but the array being spread contains elements of incompatible type "string"."""),
-            ("BCP398", Diagnostics.DiagnosticLevel.Error, """The enclosing array expects elements of type "int", but the array being spread contains elements of incompatible type "string"."""),
+            ("BCP403", Diagnostics.DiagnosticLevel.Error, """The enclosing array expects elements of type "int", but the array being spread contains elements of incompatible type "string"."""),
+            ("BCP403", Diagnostics.DiagnosticLevel.Error, """The enclosing array expects elements of type "int", but the array being spread contains elements of incompatible type "string"."""),
+            ("BCP403", Diagnostics.DiagnosticLevel.Error, """The enclosing array expects elements of type "int", but the array being spread contains elements of incompatible type "string"."""),
         ]);
     }
 
@@ -129,7 +129,7 @@ var test = {
 """);
 
         result.ExcludingLinterDiagnostics().Should().ContainDiagnostic(
-            "BCP397", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." can only be used in this context for an expression assignable to type "object".""");
+            "BCP402", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." can only be used in this context for an expression assignable to type "object".""");
     }
 
     [TestMethod]
@@ -148,7 +148,7 @@ var test = [
 """);
 
         result.ExcludingLinterDiagnostics().Should().ContainDiagnostic(
-            "BCP397", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." can only be used in this context for an expression assignable to type "array".""");
+            "BCP402", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." can only be used in this context for an expression assignable to type "array".""");
     }
 
     [TestMethod]
@@ -184,7 +184,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 """);
 
         result.ExcludingLinterDiagnostics().Should().ContainDiagnostic(
-            "BCP396", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." is not permitted in this location.""");
+            "BCP401", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." is not permitted in this location.""");
     }
 
     [TestMethod]

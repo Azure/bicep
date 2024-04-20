@@ -5,13 +5,12 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
-using ObjectType = Azure.Bicep.Types.Concrete.ObjectType;
 
 namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 {
     public class ThirdPartyResourceTypeLoader : IResourceTypeLoader
     {
-        public record NamespaceConfiguration(string Name, string Version, bool IsSingleton, TypeSymbol? ConfigurationObject);
+        public record NamespaceConfiguration(string Name, string Version, bool IsSingleton, ObjectType? ConfigurationObject);
 
         private readonly ITypeLoader typeLoader;
         private readonly ExtensibilityResourceTypeFactory resourceTypeFactory;
@@ -64,18 +63,17 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 throw new ArgumentException($"Please provide the following Settings properties: Name, Version, & IsSingleton.");
             }
 
-            TypeSymbol? configurationType = null;
-
+            ObjectType? configurationType = null;
             if (typeSettings.ConfigurationType is { } reference)
             {
 
-                if (typeLoader.LoadType(reference) is not ObjectType objectType)
+                if (typeLoader.LoadType(reference) is not Azure.Bicep.Types.Concrete.ObjectType concreteObjectType ||
+                    resourceTypeFactory.GetObjectType(concreteObjectType) is not ObjectType objectType)
                 {
                     throw new ArgumentException($"Unable to locate resource object type at index {reference.Index} in \"{reference.RelativePath}\" resource");
                 }
 
-                var bodyType = resourceTypeFactory.GetObjectType(objectType);
-                configurationType = bodyType;
+                configurationType = objectType;
             }
 
             return new(

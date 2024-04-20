@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.IO.Abstractions;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -12,11 +13,13 @@ using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
 using Moq;
@@ -43,34 +46,19 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory(FileSystem);
 
-        public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(ResourceTypeProviderFactory);
+        public static readonly INamespaceProvider NamespaceProvider = new NamespaceProvider(ResourceTypeProviderFactory);
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
-        public static ResourceTypesProviderDescriptor BuiltInAzProviderDescriptor { get; } = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
-            AzNamespaceType.BuiltInName,
-            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder);
-
-        public static ResourceTypesProviderDescriptor BuiltInSysProviderDescriptor { get; } = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
-            SystemNamespaceType.BuiltInName,
-            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder);
-
-        public static ResourceTypesProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
-            MicrosoftGraphNamespaceType.BuiltInName,
-            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder);
-
         // Linter rules added to this list will be automatically disabled for most tests.
-        // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
-        public static readonly string[] AnalyzerRulesToDisableInTests = [];
+       public static readonly string[] NonStableAnalyzerRules = [ UseRecentApiVersionRule.Code ];
 
-        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = IConfigurationManager.GetBuiltInConfiguration();
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-        public static readonly RootConfiguration BuiltInConfigurationWithProblematicAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled(AnalyzerRulesToDisableInTests);
+        public static readonly RootConfiguration BuiltInConfigurationWithStableAnalyzers = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzers().WithAnalyzersDisabled(NonStableAnalyzerRules);
 
-        // By default turns off only problematic analyzers
-        public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithProblematicAnalyzersDisabled;
+        public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithStableAnalyzers;
 
         public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
 
@@ -81,6 +69,11 @@ namespace Bicep.Core.UnitTests
         public static readonly IArtifactRegistryProvider RegistryProvider = new DefaultArtifactRegistryProvider(EmptyServiceProvider, FileResolver, FileSystem, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
 
         public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
+
+        public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
+            new("az", "az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile), null),
+            new("sys", "sys", SystemNamespaceType.Create("sys", Features, BicepSourceFileKind.BicepFile), null),
+        ]);
 
         // By default turns off only problematic analyzers
         public static readonly LinterAnalyzer LinterAnalyzer = new();

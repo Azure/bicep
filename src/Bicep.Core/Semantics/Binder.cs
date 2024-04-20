@@ -8,6 +8,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -32,16 +33,13 @@ namespace Bicep.Core.Semantics
             // TODO use lazy or some other pattern for init
             this.bicepFile = sourceFile;
             this.TargetScope = SyntaxHelper.GetTargetScope(sourceFile);
-            var fileScope = DeclarationVisitor.GetDeclarations(
-                namespaceProvider,
-                configuration,
-                features,
-                sourceFileLookup,
-                modelLookup,
-                TargetScope,
-                sourceFile,
-                symbolContext);
-            this.NamespaceResolver = NamespaceResolver.Create(features, namespaceProvider, sourceFile, this.TargetScope, fileScope);
+
+            var namespaceResults = namespaceProvider
+                .GetNamespaces(configuration, features, sourceFileLookup, sourceFile, TargetScope)
+                .ToImmutableArray();
+            this.NamespaceResolver = NamespaceResolver.Create(namespaceResults);
+
+            var fileScope = DeclarationVisitor.GetDeclarations(namespaceResults, sourceFileLookup, modelLookup, sourceFile, symbolContext);
             this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope);
             this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
 

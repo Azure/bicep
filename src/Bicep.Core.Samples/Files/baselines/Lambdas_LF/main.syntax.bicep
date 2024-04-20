@@ -43,11 +43,11 @@ func isEven(i int) bool => i % 2 == 0
 //@[012:0017) |   | ├─TypedLocalVariableSyntax
 //@[012:0013) |   | | ├─IdentifierSyntax
 //@[012:0013) |   | | | └─Token(Identifier) |i|
-//@[014:0017) |   | | └─VariableAccessSyntax
+//@[014:0017) |   | | └─TypeVariableAccessSyntax
 //@[014:0017) |   | |   └─IdentifierSyntax
 //@[014:0017) |   | |     └─Token(Identifier) |int|
 //@[017:0018) |   | └─Token(RightParen) |)|
-//@[019:0023) |   ├─VariableAccessSyntax
+//@[019:0023) |   ├─TypeVariableAccessSyntax
 //@[019:0023) |   | └─IdentifierSyntax
 //@[019:0023) |   |   └─Token(Identifier) |bool|
 //@[024:0026) |   ├─Token(Arrow) |=>|

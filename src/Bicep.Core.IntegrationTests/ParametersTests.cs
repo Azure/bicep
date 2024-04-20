@@ -34,7 +34,7 @@ namespace Bicep.Core.IntegrationTests
               "bar": "builtin:"
             }
             """))
-            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
+            .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
 
         [TestMethod]
         public void Parameter_can_have_resource_type()

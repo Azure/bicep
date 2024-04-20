@@ -109,7 +109,6 @@ var myArrWithObjects = [
 var expressionIndexOnAny = any({
 //@[04:24) [no-unused-vars (Warning)] Variable "expressionIndexOnAny" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |expressionIndexOnAny|
 })[az.resourceGroup().location]
-//@[03:30) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |az.resourceGroup().location|
 
 var anyIndexOnAny = any(true)[any(false)]
 //@[04:17) [no-unused-vars (Warning)] Variable "anyIndexOnAny" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |anyIndexOnAny|
@@ -168,7 +167,6 @@ var previousEmitLimit = [
         'hello'
       ])
       d: az.resourceGroup().location
-//@[09:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |az.resourceGroup().location|
       e: concat([
         true
       ])
@@ -194,7 +192,6 @@ var previousEmitLimit2 = [
         c: 'hello'
       })
       d: az.resourceGroup().location
-//@[09:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |az.resourceGroup().location|
       e: union({
         x: true
       }, {})
@@ -211,7 +208,6 @@ var previousEmitLimit3 = {
   a: {
     b: {
       a: az.resourceGroup().location
-//@[09:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |az.resourceGroup().location|
     } == 2
     c: concat([
 

@@ -17,6 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public NoUnnecessaryDependsOnRule() : base(
             code: Code,
             description: CoreResources.NoUnnecessaryDependsOnRuleDescription,
+            LinterRuleCategory.BestPractice,//asdfg? bug says style
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}")
         )
         {

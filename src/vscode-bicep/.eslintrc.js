@@ -50,6 +50,7 @@ module.exports = {
             assertFunctionNames: ["expect*"],
           },
         ],
+        "jest/prefer-importing-jest-globals": "off",
         "prettier/prettier": "warn",
         '@typescript-eslint/no-floating-promises': ["error"],
       },

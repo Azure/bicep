@@ -10,7 +10,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed partial class ArtifactsParametersRule : LocationRuleBase
+    public sealed partial class ArtifactsParametersRule : LinterRuleBase
     {
         public new const string Code = "artifacts-parameters";
 
@@ -24,6 +24,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public ArtifactsParametersRule() : base(
             code: Code,
             description: "Follow best practices when including the _artifactsLocation and _artifactsLocationSasToken parameters.",
+            LinterRuleCategory.BestPractice,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         {
             Debug.Assert(ArtifactsLocationName.StartsWith("_"));

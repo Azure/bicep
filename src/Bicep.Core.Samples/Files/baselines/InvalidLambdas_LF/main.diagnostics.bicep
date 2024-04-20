@@ -139,7 +139,6 @@ var inArray = [
 resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' = [for i in range(0, 2): {
   name: 'antteststg${i}'
   location: 'West US'
-//@[12:21) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'West US' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'West US'|
   sku: {
     name: 'Standard_LRS'
   }

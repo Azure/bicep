@@ -2167,20 +2167,45 @@ namespace Bicep.Core.Diagnostics
                     codeFix);
             }
 
-            public ErrorDiagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => new(
+            public ErrorDiagnostic InvalidTypesTgzPackage_DeserializationFailed() => new(
                 TextSpan,
                 "BCP396",
+                "The referenced provider types artifact has been published with malformed content.");
+
+            public ErrorDiagnostic InvalidProvider_ImplicitProviderMissingConfig(Uri? configFileUri, string name) => new(
+                TextSpan,
+                "BCP397",
+                $"""Provider {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{RootConfiguration.ImplicitProvidersConfigurationKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ProvidersConfigurationKey}" section.""");
+
+            public ErrorDiagnostic InvalidProvider_NotABuiltInProvider(Uri? configFileUri, string name) => new(
+                TextSpan,
+                "BCP398",
+                $"""Provider {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ProvidersConfigurationKey}" section, but no built-in provider exists.""");
+
+            public ErrorDiagnostic FetchingAzTypesRequiresExperimentalFeature() => new(
+                TextSpan,
+                "BCP399",
+                $"Fetching az types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.DynamicTypeLoading)}\".");
+
+            public ErrorDiagnostic FetchingTypesRequiresExperimentalFeature() => new(
+                TextSpan,
+                "BCP400",
+                $"Fetching types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ProviderRegistry)}\".");
+
+            public ErrorDiagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => new(
+                TextSpan,
+                "BCP401",
                 $"The spread operator \"{spread.Ellipsis.Text}\" is not permitted in this location.");
 
             public ErrorDiagnostic SpreadOperatorRequiresAssignableValue(SpreadExpressionSyntax spread, TypeSymbol requiredType) => new(
                 TextSpan,
-                "BCP397",
+                "BCP402",
                 $"The spread operator \"{spread.Ellipsis.Text}\" can only be used in this context for an expression assignable to type \"{requiredType}\".");
 
             public Diagnostic ArrayTypeMismatchSpread(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
-                "BCP398",
+                "BCP403",
                 $"The enclosing array expects elements of type \"{expectedType}\", but the array being spread contains elements of incompatible type \"{actualType}\".");
         }
 

@@ -3,9 +3,11 @@
 
 using System.Collections.Immutable;
 using Azure.Bicep.Types.Az;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
@@ -14,10 +16,12 @@ using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -44,33 +48,6 @@ namespace Bicep.Core.IntegrationTests
             return services;
         }
 
-        private class TestNamespaceProvider : INamespaceProvider
-        {
-            private readonly ImmutableDictionary<string, Func<string, NamespaceType>> builderDict;
-
-            private readonly HashSet<string> builtInNamespacesNames = new(){
-                SystemNamespaceType.BuiltInName,
-                AzNamespaceType.BuiltInName,
-                MicrosoftGraphNamespaceType.BuiltInName,
-                K8sNamespaceType.BuiltInName,
-            };
-
-            public TestNamespaceProvider(Dictionary<string, Func<string, NamespaceType>> builderDict)
-            {
-                this.builderDict = builderDict.ToImmutableDictionary();
-            }
-
-            public ResultWithDiagnostic<NamespaceType> TryGetNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
-            {
-                if (builtInNamespacesNames.Contains(providerDescriptor.Name))
-                {
-                    return new(TestTypeHelper.GetBuiltInNamespaceType(providerDescriptor));
-                }
-                var namespaceBuilderFn = builderDict[providerDescriptor.Name];
-                return new(namespaceBuilderFn(providerDescriptor.Alias));
-            }
-        }
-
         [TestMethod]
         public async Task Providers_are_disabled_unless_feature_is_enabled()
         {
@@ -80,8 +57,6 @@ namespace Bicep.Core.IntegrationTests
             """);
             result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
-                // BCP084 is raised because BCP203 prevented the compiler from binding a namespace to the `az` symbol (an ErrorType was bound instead).
-                ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\"."),
             });
         }
 
@@ -208,7 +183,7 @@ provider
         public async Task Imports_return_error_with_unrecognized_namespace()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"
-provider 'madeUpNamespace@1.0.0'
+provider madeUpNamespace
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP204", DiagnosticLevel.Error, "Provider namespace \"madeUpNamespace\" is not recognized."),
@@ -302,107 +277,130 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public async Task Ambiguous_function_references_must_be_qualified()
         {
-            var nsProvider = new TestNamespaceProvider(new()
+            var ns1 = new NamespaceType(
+                "ns1",
+                new NamespaceSettings(
+                    IsSingleton: true,
+                    BicepProviderName: "ns1",
+                    ConfigurationType: null,
+                    ArmTemplateProviderName: "Ns1-Unused",
+                    ArmTemplateProviderVersion: "1.0"),
+                ImmutableArray<TypeProperty>.Empty,
+                new[] {
+                    new FunctionOverloadBuilder("ns1Func").Build(),
+                    new FunctionOverloadBuilder("dupeFunc").Build(),
+                },
+                ImmutableArray<BannedFunction>.Empty,
+                ImmutableArray<Decorator>.Empty,
+                new EmptyResourceTypeProvider());
+
+            var ns2 = new NamespaceType(
+                "ns2",
+                new NamespaceSettings(
+                    IsSingleton: true,
+                    BicepProviderName: "ns2",
+                    ConfigurationType: null,
+                    ArmTemplateProviderName: "Ns2-Unused",
+                    ArmTemplateProviderVersion: "1.0"),
+                ImmutableArray<TypeProperty>.Empty,
+                new[] {
+                    new FunctionOverloadBuilder("ns2Func").Build(),
+                    new FunctionOverloadBuilder("dupeFunc").Build(),
+                },
+                ImmutableArray<BannedFunction>.Empty,
+                ImmutableArray<Decorator>.Empty,
+                new EmptyResourceTypeProvider());
+
+            var nsProvider = TestExtensibilityNamespaceProvider.Create(result => result switch
             {
-                ["ns1"] = aliasName => new NamespaceType(
-                    aliasName,
-                    new NamespaceSettings(
-                        IsSingleton: true,
-                        BicepProviderName: "ns1",
-                        ConfigurationType: null,
-                        ArmTemplateProviderName: "Ns1-Unused",
-                        ArmTemplateProviderVersion: "1.0"),
-                    ImmutableArray<TypeProperty>.Empty,
-                    new[] {
-                        new FunctionOverloadBuilder("ns1Func").Build(),
-                        new FunctionOverloadBuilder("dupeFunc").Build(),
-                    },
-                    ImmutableArray<BannedFunction>.Empty,
-                    ImmutableArray<Decorator>.Empty,
-                    new EmptyResourceTypeProvider()),
-                ["ns2"] = aliasName => new NamespaceType(
-                    aliasName,
-                    new NamespaceSettings(
-                        IsSingleton: true,
-                        BicepProviderName: "ns2",
-                        ConfigurationType: null,
-                        ArmTemplateProviderName: "Ns2-Unused",
-                        ArmTemplateProviderVersion: "1.0"),
-                    ImmutableArray<TypeProperty>.Empty,
-                    new[] {
-                        new FunctionOverloadBuilder("ns2Func").Build(),
-                        new FunctionOverloadBuilder("dupeFunc").Build(),
-                    },
-                    ImmutableArray<BannedFunction>.Empty,
-                    ImmutableArray<Decorator>.Empty,
-                    new EmptyResourceTypeProvider()),
+                { ProviderName: "ns1" } => result with { Type = ns1 },
+                { ProviderName: "ns2" } => result with { Type = ns2 },
+                _ => result,
             });
 
-            var services = (await GetServices()).WithNamespaceProvider(nsProvider);
+            var services = (await GetServices())
+                .WithNamespaceProvider(nsProvider)
+                .WithConfigurationPatch(c => c.WithProvidersConfiguration("""
+                {
+                  "az": "builtin:",
+                  "ns1": "builtin:",
+                  "ns2": "builtin:"
+                }
+                """));
 
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider 'ns1@1.0.0' as ns1
-            provider 'ns2@1.0.0' as ns2
+            provider ns1
+            provider ns2
 
             output ambiguousResult string = dupeFunc()
             output ns1Result string = ns1Func()
             output ns2Result string = ns2Func()
             ");
 
-            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP056", DiagnosticLevel.Error, "The reference to name \"dupeFunc\" is ambiguous because it exists in namespaces \"ns1\", \"ns2\". The reference must be fully-qualified."),
             });
 
             // fix by fully-qualifying
             result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider 'ns1@1.0.0' as ns1
-            provider 'ns2@1.0.0' as ns2
+            provider ns1
+            provider ns2
 
             output ambiguousResult string = ns1.dupeFunc()
             output ns1Result string = ns1Func()
             output ns2Result string = ns2Func()
             ");
 
-            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
+            result.Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public async Task Config_with_optional_properties_can_be_skipped()
         {
-            var nsProvider = new TestNamespaceProvider(new()
+            var mockNs = new NamespaceType(
+                "mockNs",
+                new(
+                    IsSingleton: false,
+                    BicepProviderName: "mockNs",
+                    ConfigurationType: new ObjectType(
+                        "mockNs",
+                        TypeSymbolValidationFlags.Default,
+                        new[]
+                        {
+                            new TypeProperty("optionalConfig", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant),
+                        },
+                        null),
+                    ArmTemplateProviderName: "Unused",
+                    ArmTemplateProviderVersion: "1.0.0"),
+                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<FunctionOverload>.Empty,
+                ImmutableArray<BannedFunction>.Empty,
+                ImmutableArray<Decorator>.Empty,
+                new EmptyResourceTypeProvider());
+
+            var nsProvider = TestExtensibilityNamespaceProvider.Create(result => result switch
             {
-                ["mockNs"] = aliasName => new NamespaceType(
-                    aliasName,
-                    new(
-                        IsSingleton: false,
-                        BicepProviderName: "mockNs",
-                        ConfigurationType: new ObjectType(
-                            "mockNs",
-                            TypeSymbolValidationFlags.Default,
-                            new[]
-                            {
-                                new TypeProperty("optionalConfig", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant),
-                            },
-                            null),
-                        ArmTemplateProviderName: "Unused",
-                        ArmTemplateProviderVersion: "1.0.0"),
-                    ImmutableArray<TypeProperty>.Empty,
-                    ImmutableArray<FunctionOverload>.Empty,
-                    ImmutableArray<BannedFunction>.Empty,
-                    ImmutableArray<Decorator>.Empty,
-                    new EmptyResourceTypeProvider()),
+                { ProviderName: "mockNs" } => result with { Type = mockNs },
+                _ => result,
             });
 
-            var services = (await GetServices()).WithNamespaceProvider(nsProvider);
+            var services = (await GetServices())
+                .WithNamespaceProvider(nsProvider)
+                .WithConfigurationPatch(c => c.WithProvidersConfiguration("""
+                {
+                  "az": "builtin:",
+                  "mockNs": "builtin:"
+                }
+                """));
 
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider 'mockNs@1.0.0' with {
+            provider mockNs with {
               optionalConfig: 'blah blah'
             } as ns1
-            provider 'mockNs@1.0.0' as ns2
+            provider mockNs
             """);
 
-            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
+            result.Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]

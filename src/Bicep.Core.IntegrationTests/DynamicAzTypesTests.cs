@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions.TestingHelpers;
 using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -129,17 +131,9 @@ namespace Bicep.Core.IntegrationTests
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
             provider 'az@{BicepTestConstants.BuiltinAzProviderVersion}'
             ");
-            result.Should().NotGenerateATemplate();
-            result.Should().HaveDiagnostics(
-                new[] {
-                ("BCP201", DiagnosticLevel.Error, """
-                Expected a provider specification string of with a valid format at this location. Valid formats:
-                * "br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>"
-                * "br/<providerAlias>:<providerName>@<providerVersion>"
-                """),
-                ("BCP084", DiagnosticLevel.Error,
-                "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
-            });
+            result.Should().HaveDiagnostics([
+                new("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead.")
+            ]);
         }
 
         [TestMethod]
@@ -153,27 +147,26 @@ namespace Bicep.Core.IntegrationTests
             ");
 
             result.Should().NotGenerateATemplate();
-            result.Should().HaveDiagnostics(
-                new[] {
-                    ("BCP379", DiagnosticLevel.Error, "The OCI artifact provider alias name \"notFound\" does not exist in the built-in Bicep configuration."),
-                    ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
-            });
-
+            result.Should().HaveDiagnostics([
+                ("BCP379", DiagnosticLevel.Error, "The OCI artifact provider alias name \"notFound\" does not exist in the built-in Bicep configuration."),
+            ]);
         }
 
         [TestMethod]
         public async Task Bicep_module_artifact_specified_in_provider_declaration_syntax_yields_diagnostic()
         {
             // ARRANGE
+            var fsMock = new MockFileSystem();
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/providers/az", "0.2.661");
             var clientFactory = RegistryHelper.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
             var services = new ServiceBuilder()
+                .WithFileSystem(fsMock)
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
             await RegistryHelper.PublishModuleToRegistryAsync(
                 clientFactory,
-                BicepTestConstants.FileSystem,
+                fsMock,
                 moduleName: "az",
                 target: testArtifact.ToSpecificationString(':'),
                 moduleSource: "",
@@ -189,8 +182,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(
                 new[] {
-                ("BCP190", DiagnosticLevel.Error, @$"The artifact with reference ""{testArtifact.ToSpecificationString(':')}"" has not been restored."),
-                ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
+                ("BCP192", DiagnosticLevel.Error, """Unable to restore the artifact with reference "br:mcr.microsoft.com/bicep/providers/az:0.2.661": The OCI artifact is not a valid Bicep artifact. Expected a provider, but retrieved a module."""),
             });
         }
 
@@ -212,12 +204,9 @@ namespace Bicep.Core.IntegrationTests
 
             // ASSERT
             result.Should().NotGenerateATemplate();
-            result.Should().HaveDiagnostics(new[]
-            {
-                ("BCP192", DiagnosticLevel.Error, $"Unable to restore the artifact with reference \"{testArtifactAddress.ToSpecificationString(':')}\": The OCI artifact is not a valid Bicep artifact. {innerErrorMessage}"),
-                ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
-            });
-
+            result.Should().HaveDiagnostics([
+                ("BCP396", DiagnosticLevel.Error, """The referenced provider types artifact has been published with malformed content.""")
+            ]);
         }
 
         public record ArtifactRegistryAddress(string RegistryAddress, string RepositoryPath, string ProviderVersion)
@@ -274,8 +263,7 @@ namespace Bicep.Core.IntegrationTests
                 unreacheable,
                 new AggregateException(AggregateExceptionMessage),
                 new (string, DiagnosticLevel, string)[]{
-                    ("BCP192", DiagnosticLevel.Error, @$"Unable to restore the artifact with reference ""{unreacheable.ToSpecificationString(':')}"": {AggregateExceptionMessage}"),
-                    ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
+                    ("BCP192", DiagnosticLevel.Error, @$"Unable to restore the artifact with reference ""{unreacheable.ToSpecificationString(':')}"": {AggregateExceptionMessage}")
                 },
             };
 
@@ -286,8 +274,7 @@ namespace Bicep.Core.IntegrationTests
                 withoutRepo,
                 new RequestFailedException(404, NotFoundMessage),
                 new (string, DiagnosticLevel, string)[]{
-                    ("BCP192", DiagnosticLevel.Error, $@"Unable to restore the artifact with reference ""{withoutRepo.ToSpecificationString(':')}"": {NotFoundMessage}"),
-                    ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
+                    ("BCP192", DiagnosticLevel.Error, $@"Unable to restore the artifact with reference ""{withoutRepo.ToSpecificationString(':')}"": {NotFoundMessage}")
                 },
             };
         }
@@ -390,7 +377,7 @@ namespace Bicep.Core.IntegrationTests
             //ASSERT
             result.Should().GenerateATemplate();
             result.Template.Should().NotBeNull();
-            result.Template.Should().HaveValueAtPath("$.imports.az.version", artifactRegistryAddress.ProviderVersion);
+            result.Template.Should().HaveValueAtPath("$.imports.az.version", AzNamespaceType.EmbeddedAzProviderVersion);
         }
     }
 }

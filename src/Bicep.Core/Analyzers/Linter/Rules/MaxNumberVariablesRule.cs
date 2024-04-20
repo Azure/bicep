@@ -14,8 +14,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public MaxNumberVariablesRule() : base(
             code: Code,
             description: CoreResources.MaxNumberVariablesRuleDescription,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
-            diagnosticLevel: DiagnosticLevel.Error)
+            LinterRuleCategory.DeploymentError,
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
         public override string FormatMessage(params object[] values)

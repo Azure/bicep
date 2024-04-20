@@ -45,6 +45,9 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithDisabledAnalyzersConfiguration(this ServiceBuilder serviceBuilder)
         => serviceBuilder.WithRegistration(x => x.WithDisabledAnalyzersConfiguration());
 
+    public static ServiceBuilder WithConfiguration(this ServiceBuilder serviceBuilder, RootConfiguration configuration)
+        => serviceBuilder.WithRegistration(x => x.WithConfiguration(configuration));
+
     public static ServiceBuilder WithBicepAnalyzer(this ServiceBuilder serviceBuilder, IBicepAnalyzer bicepAnalyzer)
         => serviceBuilder.WithRegistration(x => x.WithBicepAnalyzer(bicepAnalyzer));
 

@@ -6,7 +6,9 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Comparers;
 using Azure.Deployments.Core.Definitions.Identifiers;
+using Bicep.Core;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -39,17 +41,20 @@ namespace Bicep.LanguageServer.Handlers
 
     public partial class InsertResourceHandler : IJsonRpcNotificationHandler<InsertResourceParams>
     {
+        private readonly BicepCompiler compiler;
         private readonly ILanguageServerFacade server;
         private readonly ICompilationManager compilationManager;
         private readonly IAzResourceProvider azResourceProvider;
         private readonly TelemetryAndErrorHandlingHelper<Unit> helper;
 
         public InsertResourceHandler(
+            BicepCompiler compiler,
             ILanguageServerFacade server,
             ICompilationManager compilationManager,
             IAzResourceProvider azResourceProvider,
             ITelemetryProvider telemetryProvider)
         {
+            this.compiler = compiler;
             this.server = server;
             this.compilationManager = compilationManager;
             this.azResourceProvider = azResourceProvider;
@@ -132,7 +137,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 var resourceDeclaration = CreateResourceSyntax(resource.Value, resourceId, matchedType);
                 var insertContext = GetInsertContext(context, request.Position);
-                var replacement = GenerateCodeReplacement(context.Compilation, resourceDeclaration, insertContext);
+                var replacement = GenerateCodeReplacement(compiler, model.Configuration, resourceDeclaration, insertContext);
 
                 await server.Workspace.ApplyWorkspaceEdit(new ApplyWorkspaceEditParams
                 {
@@ -180,22 +185,29 @@ namespace Bicep.LanguageServer.Handlers
             return new(startNewline, endNewline, insertOffset);
         }
 
-        private static CodeReplacement GenerateCodeReplacement(Compilation prevCompilation, ResourceDeclarationSyntax resourceDeclaration, InsertContext insertContext)
+        private static CodeReplacement GenerateCodeReplacement(BicepCompiler compiler, RootConfiguration configuration, ResourceDeclarationSyntax resourceDeclaration, InsertContext insertContext)
         {
             // Create a new document containing the resource to insert.
             // This allows us to apply syntax rewriters and formatting, before generating the code replacement.
             var program = new ProgramSyntax(
-                new[] { resourceDeclaration },
+                [resourceDeclaration],
                 SyntaxFactory.EndOfFileToken);
 
-            var bicepFile = RewriterHelper.RewriteMultiple(
-                prevCompilation,
-                SourceFileFactory.CreateBicepFile(new Uri("inmemory:///generated.bicep"), program.ToString()),
+            BicepSourceFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri("inmemory:///generated.bicep"), program.ToString());
+
+            var workspace = new Workspace();
+            workspace.UpsertSourceFile(bicepFile);
+            var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.FileUri, workspace);
+
+            bicepFile = RewriterHelper.RewriteMultiple(
+                compiler,
+                compilation,
+                bicepFile,
                 rewritePasses: 5,
                 model => new TypeCasingFixerRewriter(model),
                 model => new ReadOnlyPropertyRemovalRewriter(model));
 
-            var printerOptions = prevCompilation.GetEntrypointSemanticModel().Configuration.Formatting.Data;
+            var printerOptions = configuration.Formatting.Data;
             var printed = PrettyPrinterV2.PrintValid(program, printerOptions);
 
             var newline = printerOptions.NewlineKind.ToEscapeSequence();

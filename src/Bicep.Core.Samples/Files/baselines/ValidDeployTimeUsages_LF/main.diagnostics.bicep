@@ -1,7 +1,6 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'foo'
   location: 'westus'
-//@[12:20) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
   sku: {
     name: 'Standard_LRS'
   }
@@ -14,7 +13,6 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
   name: 'foo-${i}'
   location: 'westus'
-//@[12:20) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
   sku: {
     name: 'Standard_LRS'
   }

@@ -18,7 +18,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="FluentAssertions" Version="6.9.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.5.0">
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.9.2">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -28,7 +28,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.7.40" />
 		<PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.2.3194" />
 		<PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.9.37000" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.2.2" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.3.1" />
 		<PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
 	</ItemGroup>
 

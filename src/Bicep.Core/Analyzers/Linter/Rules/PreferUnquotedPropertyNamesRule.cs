@@ -17,6 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public PreferUnquotedPropertyNamesRule() : base(
             code: Code,
             description: CoreResources.PreferUnquotedPropertyNamesRule_Description,
+            LinterRuleCategory.Style,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 

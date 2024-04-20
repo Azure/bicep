@@ -319,7 +319,7 @@ public class ExpressionBuilder
         {
             BuiltInNamespaceSymbol builtIn => TryGetPropertyType(builtIn, propertyName) switch
             {
-                TypeType typeType => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, typeType.Unwrapped),
+                TypeType typeType when builtIn is { Type: NamespaceType nsType } => new FullyQualifiedAmbientTypeReferenceExpression(syntax, nsType.ProviderName, propertyName, typeType.Unwrapped),
                 _ => throw new ArgumentException($"Property '{propertyName}' of symbol '{builtIn.Name}' was not found or was not valid."),
             },
             WildcardImportSymbol wildcardImport => TryGetPropertyType(wildcardImport, propertyName) switch

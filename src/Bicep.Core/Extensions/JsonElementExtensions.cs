@@ -79,6 +79,7 @@ namespace Bicep.Core.Extensions
             return element.Merge(valueElement);
         }
 
+        [SuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute'")]
         public static JsonElement Patch(this JsonElement element, params PatchOperation[] operations)
         {
             var patch = new JsonPatch(operations);
