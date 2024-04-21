@@ -1,7 +1,7 @@
 # Using the `jsonrpc` command (Experimental!)
 
 ## What is it?
-The `jsonrpc` command allows you to run the Bicep CLI in a JSONRPC server mode. This is useful for invoking the CLI programatically to consume structured output, and to avoid cold-start delays when compiling multiple files.
+The `jsonrpc` command allows you to run the Bicep CLI with a JSONRPC interface that you can connect to. This is useful for invoking the CLI programatically to consume structured output, and to avoid cold-start delays when compiling multiple files.
 
 This makes it possible to build libraries which interact with Bicep files programatically in non-.NET languages.
 
@@ -46,17 +46,17 @@ Connects to an existing TCP socket as a JSONRPC client.
 ## Usage (stdin/stdout)
 `bicep jsonrpc --stdio`
 
-Runs the JSONRPC server using stdin & stdout for messages.
+Runs the JSONRPC interface using stdin & stdout for messages.
 
 ## JSONRPC Contract
 
 See [`ICliJsonRpcProtocol.cs`](../../src/Bicep.Cli/Rpc/ICliJsonRpcProtocol.cs) for the available methods & request/response bodies.
 
-See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an example of connecting to the server and interacting with Bicep files programatically using Node.
+See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an example establinging a JSONRPC connection and interacting with Bicep files programatically using Node.
 
 ## Example JSONRPC messages
 
-### `bicep/getVersion`
+### `bicep/version`
 #### Input
 ```json
 {
