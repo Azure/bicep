@@ -472,32 +472,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         }
 
         [TestMethod]
-        public void LegacyProvider_codefix_works()
-        {
-            var originalFile = @"
-provider 'bar@1.0.0' with {
-  connectionString: 'asdf'
-} as stg
-";
-
-            var result = CompilationHelper.Compile(Services, originalFile);
-
-            result.Should().HaveDiagnostics(new[] {
-                ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
-            });
-
-            var diagnostic = result.Diagnostics.OfType<IFixable>().Single();
-            var fix = diagnostic.Fixes.Single();
-
-            fix.Kind.Should().Be(CodeFixKind.QuickFix);
-            fix.Should().HaveResult(originalFile, @"
-provider bar with {
-  connectionString: 'asdf'
-} as stg
-");
-        }
-
-        [TestMethod]
         public void Bar_import_end_to_end_test()
         {
             var result = CompilationHelper.Compile(Services,

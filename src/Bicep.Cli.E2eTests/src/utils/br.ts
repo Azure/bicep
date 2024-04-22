@@ -36,14 +36,6 @@ export class BicepRegistryReferenceBuilder {
     return `br:${this.registry}/${this.getRepository(name)}:${tag}`;
   }
 
-  public getBicepProviderReference(name: string, version: string): string {
-    // format the 'label' to be semver compliant
-    const semverLabel = this.tagSuffix.replace(/[^0-9A-Za-z-]/g, "-");
-
-    // We should switch to ':' instead of '@' once https://github.com/Azure/bicep/issues/12202 has been implemented.
-    return `br:${this.registry}/${this.getRepository(name)}@${version}-${semverLabel}`;
-  }
-
   public getBicepReferenceWithAlias(
     alias: string,
     name: string,

@@ -1219,9 +1219,9 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedProviderSpecification()
             {
                 var message = """
-                Expected a provider specification string of with a valid format at this location. Valid formats:
-                * "br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>"
-                * "br/<providerAlias>:<providerName>@<providerVersion>"
+                Expected a provider specification string with a valid format at this location. Valid formats:
+                * "br:<providerRegistryHost>/<providerRepositoryPath>:<providerVersion>"
+                * "br/<providerAlias>:<providerName>:<providerVersion>"
                 """;
                 return new(TextSpan, "BCP201", message);
             }
@@ -2155,24 +2155,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP394",
                 "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted.");
-
-            public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecification syntax)
-            {
-                var codeFix = new CodeFix(
-                    "Replace the import specification with an configuration backed identifier",
-                    true,
-                    CodeFixKind.QuickFix,
-                    new CodeReplacement(syntax.Span, syntax.NamespaceIdentifier));
-
-                return new FixableDiagnostic(
-                    TextSpan,
-                    DiagnosticLevel.Warning,
-                    "BCP395",
-                    $"Declaring provider namespaces using the \'<providerName>@<version>\' expression has been deprecated. Please use an identifier instead.",
-                    documentationUri: null,
-                    DiagnosticStyling.Default,
-                    codeFix);
-            }
 
             public ErrorDiagnostic InvalidTypesTgzPackage_DeserializationFailed() => new(
                 TextSpan,

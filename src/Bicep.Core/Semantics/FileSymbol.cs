@@ -322,7 +322,7 @@ namespace Bicep.Core.Semantics
                 // TODO: validation for alias x name.
                 this.Diagnostics.AddRange(
                     FindDuplicateNamespaceImports(namespaceDeclarations)
-                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringProvider.Specification).NamespaceMultipleDeclarations(decl.DeclaringProvider.Specification.NamespaceIdentifier)));
+                    .Select(kvp => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringProvider.SpecificationString).NamespaceMultipleDeclarations(kvp.Value.ProviderName)));
             }
 
             private static IEnumerable<DeclaredSymbol> FindDuplicateNamedSymbols(IEnumerable<DeclaredSymbol> symbols)
@@ -332,7 +332,7 @@ namespace Bicep.Core.Semantics
                 .Where(group => group.Count() > 1)
                 .SelectMany(group => group);
 
-            private static IEnumerable<ProviderNamespaceSymbol> FindDuplicateNamespaceImports(IEnumerable<ProviderNamespaceSymbol> symbols)
+            private static IEnumerable<KeyValuePair<ProviderNamespaceSymbol, NamespaceType>> FindDuplicateNamespaceImports(IEnumerable<ProviderNamespaceSymbol> symbols)
             {
                 var typeBySymbol = new Dictionary<ProviderNamespaceSymbol, NamespaceType>();
 
@@ -346,9 +346,9 @@ namespace Bicep.Core.Semantics
 
                 return typeBySymbol
                     .Where(kvp => kvp.Value.Settings.IsSingleton)
-                    .GroupBy(kvp => kvp.Key.DeclaringProvider.Specification.NamespaceIdentifier, LanguageConstants.IdentifierComparer)
+                    .GroupBy(kvp => kvp.Value.ProviderName, LanguageConstants.IdentifierComparer)
                     .Where(group => group.Count() > 1)
-                    .SelectMany(group => group.Select(kvp => kvp.Key));
+                    .SelectMany(group => group);
             }
         }
     }

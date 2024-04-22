@@ -132,7 +132,7 @@ namespace Bicep.Cli.IntegrationTests
 
             // 3. create a main.bicep and save it to a output directory
             var bicepFile = $"""
-                provider '{providerDeclarationSyntax}@2.0.0'
+                provider '{providerDeclarationSyntax}:2.0.0'
                 """;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);

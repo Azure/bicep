@@ -32,7 +32,7 @@ public class ResultTests
         test.IsSuccess().Should().BeFalse();
         test.TryUnwrap().Should().BeNull();
         FluentActions.Invoking(() => test.Unwrap()).Should().Throw<InvalidOperationException>()
-            .Which.Message.Should().Be("Cannot unwrap a failed result.");
+            .Which.Message.Should().Be("Cannot unwrap a failed result: error!.");
         test.IsSuccess(out var success, out var error).Should().Be(false);
         success.Should().BeNull();
         error.Should().Be("error!");

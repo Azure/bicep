@@ -9,7 +9,7 @@ namespace Bicep.Core.Registry
 {
     public interface IModuleDispatcher : IArtifactReferenceFactory
     {
-        RegistryCapabilities GetRegistryCapabilities(ArtifactReference reference);
+        RegistryCapabilities GetRegistryCapabilities(ArtifactType artifactType, ArtifactReference reference);
 
         ArtifactRestoreStatus GetArtifactRestoreStatus(ArtifactReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
 

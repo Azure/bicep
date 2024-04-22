@@ -12,25 +12,17 @@ namespace Bicep.Core.Configuration;
 
 public record ProviderConfigEntry
 {
-    public bool BuiltIn => this.Scheme == "builtin";
+    public bool BuiltIn => this.Value == "builtin:";
 
-    public string Path { get; }
+    public string Value { get; }
 
-    public string Scheme { get; }
-
-    public ProviderConfigEntry(string providerConfigEntry)
+    public ProviderConfigEntry(string value)
     {
-        var parts = providerConfigEntry.Split(':', StringSplitOptions.None);
-        Debug.Assert(parts.Length is >= 1 and <= 3, "The provider configuration entry must have 1-3 parts separated by colons.");
-
-        this.Scheme = parts[0]; // Is ensured to exist since there is a pattern match in the bicepconfig json schema
-        this.Path = parts.Length > 1 ? string.Join(':', parts[1..]) : string.Empty;
+        Value = value;
     }
 
     public override string ToString()
-    {
-        return $"{this.Scheme}:{this.Path}";
-    }
+        => Value;
 }
 
 public partial class ProvidersConfiguration : ConfigurationSection<ImmutableDictionary<string, ProviderConfigEntry>>

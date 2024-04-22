@@ -17,13 +17,13 @@ namespace Bicep.Core.Semantics.Namespaces
             ArmTemplateProviderName: string.Empty,
             ArmTemplateProviderVersion: string.Empty);
 
-        public static NamespaceType Create(string name, string aliasName, IResourceTypeProvider resourceTypeProvider)
+        public static NamespaceType Create(string? aliasName, IResourceTypeProvider resourceTypeProvider)
         {
             // NamespaceConfig is not null
             if (resourceTypeProvider is ThirdPartyResourceTypeProvider thirdPartyProvider && thirdPartyProvider.GetNamespaceConfiguration() is NamespaceConfiguration namespaceConfig && namespaceConfig != null)
             {
                 return new NamespaceType(
-                    aliasName,
+                    aliasName ?? namespaceConfig.Name,
                     new NamespaceSettings(
                         IsSingleton: namespaceConfig.IsSingleton,
                         BicepProviderName: namespaceConfig.Name,

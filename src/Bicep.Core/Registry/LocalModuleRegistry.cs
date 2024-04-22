@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.IO;
+using System.Threading.Tasks;
+using System.Diagnostics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -9,6 +12,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
+using Bicep.Core.Registry.Providers;
 
 namespace Bicep.Core.Registry
 {
@@ -27,7 +31,12 @@ namespace Bicep.Core.Registry
 
         public override string Scheme => ArtifactReferenceSchemes.Local;
 
-        public override RegistryCapabilities GetCapabilities(LocalModuleReference reference) => RegistryCapabilities.Default;
+        public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, LocalModuleReference reference)
+            => artifactType switch {
+                ArtifactType.Module => RegistryCapabilities.Default,
+                ArtifactType.Provider => RegistryCapabilities.Publish,
+                _ => throw new UnreachableException(),
+            };
 
         public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? alias, string reference)
         {
@@ -35,6 +44,7 @@ namespace Bicep.Core.Registry
             {
                 return new(x => x.UnsupportedArtifactType(artifactType));
             }
+            
             if (!LocalModuleReference.TryParse(reference, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
@@ -74,10 +84,20 @@ namespace Bicep.Core.Registry
         public override Task PublishModule(LocalModuleReference moduleReference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, string? description)
             => throw new NotSupportedException("Local modules cannot be published.");
 
-        public override Task PublishProvider(LocalModuleReference reference, BinaryData typesTgz)
-            => throw new NotSupportedException("Local providers cannot be published.");
+        public override async Task PublishProvider(LocalModuleReference reference, BinaryData typesTgz)
+        {
+            var archive = await ProviderV1Archive.Build(typesTgz);
 
-        public override Task<bool> CheckArtifactExists(LocalModuleReference reference) => throw new NotSupportedException("Local modules cannot be published.");
+            var fileUri = PathHelper.TryResolveFilePath(reference.ParentModuleUri, reference.Path)!;
+            fileResolver.Write(fileUri, archive.ToStream());
+        }
+
+        public override Task<bool> CheckArtifactExists(ArtifactType artifactType, LocalModuleReference reference)
+            => artifactType switch {
+                ArtifactType.Module => throw new NotSupportedException("Local modules cannot be published."),
+                ArtifactType.Provider => Task.FromResult(false),
+                _ => throw new UnreachableException(),
+            };
 
         public override string? TryGetDocumentationUri(LocalModuleReference moduleReference) => null;
 

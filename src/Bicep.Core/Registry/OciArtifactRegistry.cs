@@ -52,7 +52,7 @@ namespace Bicep.Core.Registry
 
         public string CacheRootDirectory => this.features.CacheRootDirectory;
 
-        public override RegistryCapabilities GetCapabilities(OciArtifactReference reference)
+        public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, OciArtifactReference reference)
         {
             // cannot publish without tag
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
@@ -94,7 +94,7 @@ namespace Bicep.Core.Registry
                 !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Metadata));
         }
 
-        public override async Task<bool> CheckArtifactExists(OciArtifactReference reference)
+        public override async Task<bool> CheckArtifactExists(ArtifactType artifactType, OciArtifactReference reference)
         {
             try
             {

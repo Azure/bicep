@@ -125,7 +125,7 @@ namespace Bicep.Cli.Commands
                 throw new BicepException(message);
             }
 
-            if (!this.moduleDispatcher.GetRegistryCapabilities(moduleReference).HasFlag(RegistryCapabilities.Publish))
+            if (!this.moduleDispatcher.GetRegistryCapabilities(ArtifactType.Module, moduleReference).HasFlag(RegistryCapabilities.Publish))
             {
                 throw new BicepException($"The specified module target \"{targetModuleReference}\" is not supported.");
             }

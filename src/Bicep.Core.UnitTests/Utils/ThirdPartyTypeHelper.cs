@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Formats.Tar;
+using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Text;
 using Azure.Bicep.Types;
@@ -303,5 +304,28 @@ public static class ThirdPartyTypeHelper
         }
         stream.Position = 0;
         return BinaryData.FromStream(stream);
+    }
+
+    public static void WriteTypesTgzToFs(IFileSystem fileSystem, string basePath, BinaryData typesTgz)
+    {
+        using var gzipStream = new GZipStream(typesTgz.ToStream(), CompressionMode.Decompress);
+        using var tarReader = new TarReader(gzipStream);
+        while (tarReader.GetNextEntry() is { } entry)
+        {
+            if (entry.DataStream is null)
+            {
+                throw new InvalidOperationException($"Stream for {entry.Name} is null.");
+            }
+
+            var outputPath = Path.Combine(basePath, entry.Name);
+            if (Path.GetDirectoryName(outputPath) is {} outputParentDir &&
+                !fileSystem.Directory.Exists(outputParentDir))
+            {
+                fileSystem.Directory.CreateDirectory(outputParentDir);
+            }
+
+            using var fileStream = fileSystem.FileStream.New(outputPath, FileMode.Create);
+            entry.DataStream.CopyTo(fileStream);
+        }
     }
 }

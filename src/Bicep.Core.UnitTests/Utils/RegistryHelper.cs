@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -139,7 +140,18 @@ public static class RegistryHelper
     {
         var dispatcher = services.Construct<IModuleDispatcher>();
 
-        var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, new Uri("file:///main.bicep")).Unwrap();
+        var targetProviderUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath("dummy"));
+        if (!target.StartsWith("br:"))
+        {
+            // convert to a relative path, as this is the only format supported for the local filesystem
+            targetProviderUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(target));
+            target = Path.GetFileName(targetProviderUri.LocalPath);
+        }
+
+        if (!dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, targetProviderUri).IsSuccess(out var targetReference, out var errorBuilder))
+        {
+            throw new InvalidOperationException($"Failed to get reference '{errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}'.");
+        }
 
         await dispatcher.PublishProvider(targetReference, tgzData);
     }

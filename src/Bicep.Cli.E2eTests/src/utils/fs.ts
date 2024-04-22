@@ -80,3 +80,7 @@ export function writeTempFile(
 
   return filePath;
 }
+
+export function ensureParentDirExists(filePath: string): void {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+}

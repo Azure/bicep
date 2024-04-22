@@ -30,13 +30,11 @@ public class ProvidersConfigurationTests
         providers.Should().NotBeNull();
 
         providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
-        azProvider!.Path.Should().Be("mcr.microsoft.com/bicep/providers/az:0.2.3");
-        azProvider.BuiltIn.Should().BeFalse();
+        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/providers/az:0.2.3");
 
         providers.TryGetProviderSource("kubernetes").IsSuccess(out var k8sProvider).Should().BeTrue();
         k8sProvider.Should().NotBeNull();
-        k8sProvider!.BuiltIn.Should().BeTrue();
-        k8sProvider.Path.Should().BeEmpty();
+        k8sProvider!.Value.Should().Be("builtin:");
 
         providers.TryGetProviderSource("unspecified").IsSuccess(out var provider, out var errorBuilder).Should().BeFalse();
         provider.Should().BeNull();
@@ -56,8 +54,7 @@ public class ProvidersConfigurationTests
         foreach (var providerName in new[] { "az", "kubernetes", "microsoftGraph" })
         {
             config.ProvidersConfig!.TryGetProviderSource(providerName).IsSuccess(out var provider).Should().BeTrue();
-            provider!.BuiltIn.Should().BeTrue();
-            provider.Path.Should().BeEmpty();
+            provider!.Value.Should().Be("builtin:");
         }
 
         // assert that 'sys' is not present in the default configuration
@@ -90,11 +87,11 @@ public class ProvidersConfigurationTests
         var providers = config.ProvidersConfig!;
         // assert 'source' and 'version' are valid properties for 'foo'
         providers.TryGetProviderSource("foo").IsSuccess(out var fooProvider).Should().BeTrue();
-        fooProvider!.Path.Should().Be("example.azurecr.io/some/fake/path:1.0.0");
+        fooProvider!.Value.Should().Be("br:example.azurecr.io/some/fake/path:1.0.0");
 
         // assert 'az' provider properties are overridden by the user provided configuration
         providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
-        azProvider!.Path.Should().Be("mcr.microsoft.com/bicep/providers/az:0.2.3");
+        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/providers/az:0.2.3");
 
         // assert that 'sys' is not present in the merged configuration
         providers.TryGetProviderSource("sys").IsSuccess(out var provider, out var errorBuilder).Should().BeFalse();
