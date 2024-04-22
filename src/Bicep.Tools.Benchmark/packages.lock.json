@@ -591,20 +591,20 @@
       },
       "Microsoft.VisualStudio.Threading": {
         "type": "Transitive",
-        "resolved": "17.7.30",
-        "contentHash": "CiIijf66NTEb8TSWt5qRCbzLw/aYwom6gV1+g6GSGzZD+0ZNfLwN+yvMhKoAD5Pb0arkqGkxVXbDU+61jQ6Y3A==",
+        "resolved": "17.9.28",
+        "contentHash": "n1bG965yT/7QHChX4x8zJ28LDaNdlJ6AgzthU3XzCsV9fVAMXYJEFi6BbWt8EM+7t0Wz9Oy021VMH2Z/iyz/Qw==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "7.0.0",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.7.30",
-          "Microsoft.VisualStudio.Validation": "17.6.11",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.9.28",
+          "Microsoft.VisualStudio.Validation": "17.8.8",
           "Microsoft.Win32.Registry": "5.0.0",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
       "Microsoft.VisualStudio.Validation": {
         "type": "Transitive",
-        "resolved": "17.6.11",
-        "contentHash": "J+9L/iac6c8cwcgVSCMuoIYOlD1Jw4mbZ8XMe1IZVj8p8+3dJ46LnnkIkTRMjK7xs9UtU9MoUp1JGhWoN6fAEw=="
+        "resolved": "17.8.8",
+        "contentHash": "rWXThIpyQd4YIXghNkiv2+VLvzS+MCMKVRDR0GAMlflsdo+YcAN2g2r5U1Ah98OFjQMRexTFtXQQ2LkajxZi3g=="
       },
       "Microsoft.Win32.Registry": {
         "type": "Transitive",
@@ -1345,7 +1345,7 @@
           "MSTest.TestAdapter": "[3.1.1, )",
           "MSTest.TestFramework": "[3.3.1, )",
           "Microsoft.NET.Test.Sdk": "[17.9.0, )",
-          "Microsoft.VisualStudio.Threading": "[17.7.30, )",
+          "Microsoft.VisualStudio.Threading": "[17.9.28, )",
           "Moq": "[4.18.4, )",
           "OmniSharp.Extensions.LanguageClient": "[0.19.9, )"
         }
