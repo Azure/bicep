@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 var analyzer = new LinterAnalyzer();
                 var ruleSet = analyzer.GetRuleSet().ToArray();
 
-                return AllRulesAndSchemasById.Values.Select(value => new object[] { value.Rule.Code, value.Rule, value.Schema});
+                return AllRulesAndSchemasById.Values.Select(value => new object[] { value.Rule.Code, value.Rule, value.Schema });
             }
 
             public string? GetDisplayName(MethodInfo methodInfo, object?[]? data)
