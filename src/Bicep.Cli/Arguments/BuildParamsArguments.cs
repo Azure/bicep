@@ -26,6 +26,19 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
+                    case "--outdir":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --outdir parameter expects an argument");
+                        }
+                        if (OutputDir is not null)
+                        {
+                            throw new CommandLineException($"The --outdir parameter cannot be specified twice");
+                        }
+                        OutputDir = args[i + 1];
+                        i++;
+                        break;
+
                     case "--outfile":
                         if (args.Length == i + 1)
                         {
@@ -79,9 +92,19 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException($"The parameters file path was not specified");
             }
 
-            if (OutputFile is not null && OutputToStdOut)
+            if (OutputToStdOut && OutputDir is not null)
             {
-                throw new CommandLineException($"The --stdout can not be used when --outfile is specified");
+                throw new CommandLineException($"The --outdir and --stdout parameters cannot both be used");
+            }
+
+            if (OutputToStdOut && OutputFile is not null)
+            {
+                throw new CommandLineException($"The --outfile and --stdout parameters cannot both be used");
+            }
+
+            if (OutputDir is not null && OutputFile is not null)
+            {
+                throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
             }
 
             if (DiagnosticsFormat is null)
@@ -95,6 +118,8 @@ namespace Bicep.Cli.Arguments
         public string ParamsFile { get; }
 
         public string? BicepFile { get; }
+
+        public string? OutputDir { get; }
 
         public string? OutputFile { get; }
 
