@@ -222,7 +222,7 @@ namespace Bicep.Core.Parsing
 
                 if (current.Type == TokenType.Ellipsis)
                 {
-                    return SpreadExpression([TokenType.NewLine, TokenType.RightSquare]);
+                    return SpreadExpression([TokenType.Comma, TokenType.NewLine, TokenType.RightSquare]);
                 }
 
                 var value = this.Expression(ExpressionFlags.AllowComplexLiterals);
@@ -1106,7 +1106,7 @@ namespace Bicep.Core.Parsing
 
                 if (current.Type == TokenType.Ellipsis)
                 {
-                    return SpreadExpression([TokenType.NewLine, TokenType.RightBrace]);
+                    return SpreadExpression([TokenType.Comma, TokenType.NewLine, TokenType.RightBrace]);
                 }
 
                 var key = this.WithRecovery(
