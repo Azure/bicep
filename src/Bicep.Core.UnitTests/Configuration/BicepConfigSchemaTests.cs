@@ -438,5 +438,18 @@ namespace Bicep.Core.UnitTests.Configuration
             defaultLevelInSchema.Should().Be(defaultLevelInRuleDefinition,
                 $"the default diagnostic level of a rule's config schema should match that defined in the rule's class definition (make sure rule {id} #/definitions/rule-def-level-xxx reference is correct)");
         }
+
+        [TestMethod]
+        public void RuleConfigs_RuleDescriptionShouldIndicateDefaultDiagnosticLevel()
+        {
+            foreach (var (id, (rule, ruleSchema)) in AllRulesAndSchemasById)
+            {
+                var defaultLevel = rule.DefaultDiagnosticLevel.ToString();
+                var descripton = ruleSchema.SelectToken("allOf")?[0]?.SelectToken("description")?.ToString();
+
+                descripton.Should().MatchRegex($"\\. Defaults to '{defaultLevel}'\\. See https:",
+                    "rule description should indicate its default diagnostic level");
+            }
+        }
     }
 }
