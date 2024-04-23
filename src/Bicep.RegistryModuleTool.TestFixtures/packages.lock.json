@@ -250,8 +250,8 @@
       },
       "JsonSchema.Net": {
         "type": "Transitive",
-        "resolved": "6.0.7",
-        "contentHash": "j3v3FqcQp7RQVsYP9tAC8RiOvYRaxxqD89u3I914CVF5ynl0Aexpc9z+ZuacMsG2BFLRgcC11LB4WY+14ZA6Eg==",
+        "resolved": "6.1.1",
+        "contentHash": "DzrKpzA03xD87xWiFX6xQQClErr2rfg8889e0QLQpkqrojjKIYzrG2Rag3rxRlBMvCXG+/BuV1ciZNFF3FApvQ==",
         "dependencies": {
           "Json.More.Net": "2.0.0",
           "JsonPointer.Net": "4.0.0"
@@ -1472,7 +1472,7 @@
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
           "JsonPath.Net": "[1.0.0, )",
-          "JsonSchema.Net": "[6.0.7, )",
+          "JsonSchema.Net": "[6.1.1, )",
           "Markdig": "[0.37.0, )",
           "Microsoft.Extensions.Logging": "[8.0.0, )",
           "Serilog.Extensions.Hosting": "[8.0.0, )",
