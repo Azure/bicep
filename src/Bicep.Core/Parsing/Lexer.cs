@@ -900,6 +900,12 @@ namespace Bicep.Core.Parsing
                 case ',':
                     return TokenType.Comma;
                 case '.':
+                    switch (textWindow.Peek(), textWindow.Peek(1))
+                    {
+                        case ('.', '.'):
+                            textWindow.Advance(2);
+                            return TokenType.Ellipsis;
+                    }
                     return TokenType.Dot;
                 case '?':
                     if (!textWindow.IsAtEnd())

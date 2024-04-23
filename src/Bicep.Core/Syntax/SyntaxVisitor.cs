@@ -176,6 +176,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax);
 
+        public abstract void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax);
+
         public void Visit(SyntaxBase? node)
         {
             if (node == null)

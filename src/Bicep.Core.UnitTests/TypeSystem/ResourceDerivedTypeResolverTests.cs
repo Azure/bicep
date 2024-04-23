@@ -167,9 +167,11 @@ public class ResourceDerivedTypeResolverTests
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
         var containsUnresolved = new LambdaType(
-            ImmutableArray.Create<ITypeReference>(
+            [
                 TypeFactory.CreateArrayType(new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any)),
-                new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any)),
+                new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any),
+            ],
+            [],
             new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any));
 
         var bound = sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<LambdaType>().Subject;

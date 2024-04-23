@@ -50,7 +50,7 @@ public class ResourceDerivedTypeDiagnosticReporter
                 .SelectMany(ReportResourceDerivedTypeDiagnostics),
             UnionType union => union.Members.SelectMany(ReportResourceDerivedTypeDiagnostics),
             TypeType typeType => ReportResourceDerivedTypeDiagnostics(typeType.Unwrapped),
-            LambdaType lambda => lambda.ArgumentTypes.Append(lambda.ReturnType).SelectMany(ReportResourceDerivedTypeDiagnostics),
+            LambdaType lambda => lambda.ArgumentTypes.Concat(lambda.OptionalArgumentTypes).Concat(lambda.ReturnType).SelectMany(ReportResourceDerivedTypeDiagnostics),
             _ => Enumerable.Empty<DiagnosticBuilder.DiagnosticBuilderDelegate>(),
         })
         {

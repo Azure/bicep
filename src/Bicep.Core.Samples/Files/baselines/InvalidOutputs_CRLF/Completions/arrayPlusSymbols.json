@@ -462,7 +462,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nfilter(array: array, predicate: any => bool): array\n\n```  \nFilters an array with a custom filtering function.  \n"
+      "value": "```bicep\nfilter(array: array, predicate: (any[, int]) => bool): array\n\n```  \nFilters an array with a custom filtering function.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -571,6 +571,27 @@
     "textEdit": {
       "range": {},
       "newText": "format($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "groupBy",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ngroupBy(array: array, keyPredicate: any => string, [valuePredicate: any => any]): object\n\n```  \nConverts an array to an object containing a lookup from key to array values filtered by said key. Values can be optionally translated using a mapping function.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_groupBy",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "groupBy($0)"
     },
     "command": {
       "title": "signature help",
@@ -949,7 +970,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nmap(array: array, predicate: any => any): array\n\n```  \nApplies a custom mapping function to each element of an array and returns the result array.  \n"
+      "value": "```bicep\nmap(array: array, predicate: (any[, int]) => any): array\n\n```  \nApplies a custom mapping function to each element of an array and returns the result array.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -959,6 +980,27 @@
     "textEdit": {
       "range": {},
       "newText": "map($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "mapValues",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmapValues(object: object, predicate: any => any): array\n\n```  \nApplies a custom mapping function to the values of an object and returns the result object.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_mapValues",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "mapValues($0)"
     },
     "command": {
       "title": "signature help",
@@ -1001,6 +1043,27 @@
     "textEdit": {
       "range": {},
       "newText": "min($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "objectKeys",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nobjectKeys(object: object): string[]\n\n```  \nReturns an array of object keys. Elements are consistently ordered alphabetically.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_objectKeys",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "objectKeys($0)"
     },
     "command": {
       "title": "signature help",
@@ -1117,7 +1180,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any) => any): array\n\n```  \nReduces an array with a custom reduce function.  \n"
+      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any[, int]) => any): array\n\n```  \nReduces an array with a custom reduce function.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1211,6 +1274,27 @@
     "textEdit": {
       "range": {},
       "newText": "resourceId($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "shallowMerge",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nshallowMerge(entries: object[]): object\n\n```  \nReturns a single array or object with all elements from the parameters. Duplicate values or keys are only included once.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_shallowMerge",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "shallowMerge($0)"
     },
     "command": {
       "title": "signature help",

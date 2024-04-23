@@ -15,8 +15,6 @@ output invalidType string = invalidType(true)
 //@[40:44) [BCP070 (Error)] Argument of type "true" is not assignable to parameter of type "string". (CodeDescription: none) |true|
 
 func madeUpTypeArgs(a notAType, b alsoNotAType) string => '${a}-${b}'
-//@[22:30) [BCP302 (Error)] The name "notAType" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string", "validStringLiteralUnion". (CodeDescription: none) |notAType|
-//@[34:46) [BCP302 (Error)] The name "alsoNotAType" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string", "validStringLiteralUnion". (CodeDescription: none) |alsoNotAType|
 //@[61:62) [BCP062 (Error)] The referenced declaration with name "a" is not valid. (CodeDescription: none) |a|
 //@[66:67) [BCP062 (Error)] The referenced declaration with name "b" is not valid. (CodeDescription: none) |b|
 

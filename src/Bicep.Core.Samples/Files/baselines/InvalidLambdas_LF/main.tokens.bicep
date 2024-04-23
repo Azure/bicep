@@ -81,7 +81,31 @@ var map4 = map(range(0, 10), () => null)
 //@[032:034) Arrow |=>|
 //@[035:039) NullKeyword |null|
 //@[039:040) RightParen |)|
-//@[040:042) NewLine |\n\n|
+//@[040:041) NewLine |\n|
+var map5 = map(range(0, 10), (a, b, c) => a)
+//@[000:003) Identifier |var|
+//@[004:008) Identifier |map5|
+//@[009:010) Assignment |=|
+//@[011:014) Identifier |map|
+//@[014:015) LeftParen |(|
+//@[015:020) Identifier |range|
+//@[020:021) LeftParen |(|
+//@[021:022) Integer |0|
+//@[022:023) Comma |,|
+//@[024:026) Integer |10|
+//@[026:027) RightParen |)|
+//@[027:028) Comma |,|
+//@[029:030) LeftParen |(|
+//@[030:031) Identifier |a|
+//@[031:032) Comma |,|
+//@[033:034) Identifier |b|
+//@[034:035) Comma |,|
+//@[036:037) Identifier |c|
+//@[037:038) RightParen |)|
+//@[039:041) Arrow |=>|
+//@[042:043) Identifier |a|
+//@[043:044) RightParen |)|
+//@[044:046) NewLine |\n\n|
 
 var filter1 = filter('abc')
 //@[000:003) Identifier |var|
@@ -172,7 +196,31 @@ var filter6 = filter([true, 'hello!'], i => i)
 //@[041:043) Arrow |=>|
 //@[044:045) Identifier |i|
 //@[045:046) RightParen |)|
-//@[046:048) NewLine |\n\n|
+//@[046:047) NewLine |\n|
+var filter7 = filter(range(0, 10), (a, b, c) => true)
+//@[000:003) Identifier |var|
+//@[004:011) Identifier |filter7|
+//@[012:013) Assignment |=|
+//@[014:020) Identifier |filter|
+//@[020:021) LeftParen |(|
+//@[021:026) Identifier |range|
+//@[026:027) LeftParen |(|
+//@[027:028) Integer |0|
+//@[028:029) Comma |,|
+//@[030:032) Integer |10|
+//@[032:033) RightParen |)|
+//@[033:034) Comma |,|
+//@[035:036) LeftParen |(|
+//@[036:037) Identifier |a|
+//@[037:038) Comma |,|
+//@[039:040) Identifier |b|
+//@[040:041) Comma |,|
+//@[042:043) Identifier |c|
+//@[043:044) RightParen |)|
+//@[045:047) Arrow |=>|
+//@[048:052) TrueKeyword |true|
+//@[052:053) RightParen |)|
+//@[053:055) NewLine |\n\n|
 
 var sort1 = sort('abc')
 //@[000:003) Identifier |var|
@@ -350,7 +398,35 @@ var reduce5 = reduce(range(0, 10), 0, i => i)
 //@[040:042) Arrow |=>|
 //@[043:044) Identifier |i|
 //@[044:045) RightParen |)|
-//@[045:047) NewLine |\n\n|
+//@[045:046) NewLine |\n|
+var reduce6 = reduce(range(0, 10), 0, (a, b, c, d) => a)
+//@[000:003) Identifier |var|
+//@[004:011) Identifier |reduce6|
+//@[012:013) Assignment |=|
+//@[014:020) Identifier |reduce|
+//@[020:021) LeftParen |(|
+//@[021:026) Identifier |range|
+//@[026:027) LeftParen |(|
+//@[027:028) Integer |0|
+//@[028:029) Comma |,|
+//@[030:032) Integer |10|
+//@[032:033) RightParen |)|
+//@[033:034) Comma |,|
+//@[035:036) Integer |0|
+//@[036:037) Comma |,|
+//@[038:039) LeftParen |(|
+//@[039:040) Identifier |a|
+//@[040:041) Comma |,|
+//@[042:043) Identifier |b|
+//@[043:044) Comma |,|
+//@[045:046) Identifier |c|
+//@[046:047) Comma |,|
+//@[048:049) Identifier |d|
+//@[049:050) RightParen |)|
+//@[051:053) Arrow |=>|
+//@[054:055) Identifier |a|
+//@[055:056) RightParen |)|
+//@[056:058) NewLine |\n\n|
 
 var toObject1 = toObject('abc')
 //@[000:003) Identifier |var|

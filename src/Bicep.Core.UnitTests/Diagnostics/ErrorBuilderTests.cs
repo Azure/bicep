@@ -193,6 +193,13 @@ namespace Bicep.Core.UnitTests.Diagnostics
                     asClause: SyntaxFactory.EmptySkippedTrivia);
             }
 
+            if (parameter.ParameterType == typeof(SpreadExpressionSyntax))
+            {
+                return new SpreadExpressionSyntax(
+                    SyntaxFactory.EllipsisToken,
+                    TestSyntaxFactory.CreateVariableAccess("identifier"));
+            }
+
             if (parameter.ParameterType == typeof(ExportMetadataKind))
             {
                 return ExportMetadataKind.Error;

@@ -20,6 +20,22 @@ var doggos = [
 //@[000:001) RightSquare |]|
 //@[001:003) NewLine |\n\n|
 
+func isEven(i int) bool => i % 2 == 0
+//@[000:004) Identifier |func|
+//@[005:011) Identifier |isEven|
+//@[011:012) LeftParen |(|
+//@[012:013) Identifier |i|
+//@[014:017) Identifier |int|
+//@[017:018) RightParen |)|
+//@[019:023) Identifier |bool|
+//@[024:026) Arrow |=>|
+//@[027:028) Identifier |i|
+//@[029:030) Modulo |%|
+//@[031:032) Integer |2|
+//@[033:035) Equals |==|
+//@[036:037) Integer |0|
+//@[037:039) NewLine |\n\n|
+
 var numbers = range(0, 4)
 //@[000:003) Identifier |var|
 //@[004:011) Identifier |numbers|
@@ -46,25 +62,84 @@ var sayHello = map(doggos, i => 'Hello ${i}!')
 //@[041:042) Identifier |i|
 //@[042:045) StringRightPiece |}!'|
 //@[045:046) RightParen |)|
-//@[046:048) NewLine |\n\n|
-
-var isEven = filter(numbers, i => 0 == i % 2)
+//@[046:047) NewLine |\n|
+// optional index parameter for map lambda
+//@[042:043) NewLine |\n|
+var sayHello2 = map(doggos, (dog, i) => '${isEven(i) ? 'Hi' : 'Ahoy'} ${dog}!')
 //@[000:003) Identifier |var|
-//@[004:010) Identifier |isEven|
-//@[011:012) Assignment |=|
-//@[013:019) Identifier |filter|
+//@[004:013) Identifier |sayHello2|
+//@[014:015) Assignment |=|
+//@[016:019) Identifier |map|
 //@[019:020) LeftParen |(|
-//@[020:027) Identifier |numbers|
-//@[027:028) Comma |,|
-//@[029:030) Identifier |i|
-//@[031:033) Arrow |=>|
-//@[034:035) Integer |0|
-//@[036:038) Equals |==|
-//@[039:040) Identifier |i|
-//@[041:042) Modulo |%|
-//@[043:044) Integer |2|
-//@[044:045) RightParen |)|
-//@[045:047) NewLine |\n\n|
+//@[020:026) Identifier |doggos|
+//@[026:027) Comma |,|
+//@[028:029) LeftParen |(|
+//@[029:032) Identifier |dog|
+//@[032:033) Comma |,|
+//@[034:035) Identifier |i|
+//@[035:036) RightParen |)|
+//@[037:039) Arrow |=>|
+//@[040:043) StringLeftPiece |'${|
+//@[043:049) Identifier |isEven|
+//@[049:050) LeftParen |(|
+//@[050:051) Identifier |i|
+//@[051:052) RightParen |)|
+//@[053:054) Question |?|
+//@[055:059) StringComplete |'Hi'|
+//@[060:061) Colon |:|
+//@[062:068) StringComplete |'Ahoy'|
+//@[068:072) StringMiddlePiece |} ${|
+//@[072:075) Identifier |dog|
+//@[075:078) StringRightPiece |}!'|
+//@[078:079) RightParen |)|
+//@[079:081) NewLine |\n\n|
+
+var evenNumbers = filter(numbers, i => isEven(i))
+//@[000:003) Identifier |var|
+//@[004:015) Identifier |evenNumbers|
+//@[016:017) Assignment |=|
+//@[018:024) Identifier |filter|
+//@[024:025) LeftParen |(|
+//@[025:032) Identifier |numbers|
+//@[032:033) Comma |,|
+//@[034:035) Identifier |i|
+//@[036:038) Arrow |=>|
+//@[039:045) Identifier |isEven|
+//@[045:046) LeftParen |(|
+//@[046:047) Identifier |i|
+//@[047:048) RightParen |)|
+//@[048:049) RightParen |)|
+//@[049:050) NewLine |\n|
+// optional index parameter for filter lambda
+//@[045:046) NewLine |\n|
+var evenEntries = filter(['a', 'b', 'c', 'd'], (item, i) => isEven(i))
+//@[000:003) Identifier |var|
+//@[004:015) Identifier |evenEntries|
+//@[016:017) Assignment |=|
+//@[018:024) Identifier |filter|
+//@[024:025) LeftParen |(|
+//@[025:026) LeftSquare |[|
+//@[026:029) StringComplete |'a'|
+//@[029:030) Comma |,|
+//@[031:034) StringComplete |'b'|
+//@[034:035) Comma |,|
+//@[036:039) StringComplete |'c'|
+//@[039:040) Comma |,|
+//@[041:044) StringComplete |'d'|
+//@[044:045) RightSquare |]|
+//@[045:046) Comma |,|
+//@[047:048) LeftParen |(|
+//@[048:052) Identifier |item|
+//@[052:053) Comma |,|
+//@[054:055) Identifier |i|
+//@[055:056) RightParen |)|
+//@[057:059) Arrow |=>|
+//@[060:066) Identifier |isEven|
+//@[066:067) LeftParen |(|
+//@[067:068) Identifier |i|
+//@[068:069) RightParen |)|
+//@[069:070) RightParen |)|
+//@[070:072) NewLine |\n\n|
 
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
 //@[000:003) Identifier |var|
@@ -560,6 +635,45 @@ var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat
 //@[090:091) RightParen |)|
 //@[091:092) RightParen |)|
 //@[092:093) NewLine |\n|
+var reduceStringConcatEven = reduce(['abc', 'def', 'ghi'], '', (cur, next, i) => isEven(i) ? concat(cur, next) : cur)
+//@[000:003) Identifier |var|
+//@[004:026) Identifier |reduceStringConcatEven|
+//@[027:028) Assignment |=|
+//@[029:035) Identifier |reduce|
+//@[035:036) LeftParen |(|
+//@[036:037) LeftSquare |[|
+//@[037:042) StringComplete |'abc'|
+//@[042:043) Comma |,|
+//@[044:049) StringComplete |'def'|
+//@[049:050) Comma |,|
+//@[051:056) StringComplete |'ghi'|
+//@[056:057) RightSquare |]|
+//@[057:058) Comma |,|
+//@[059:061) StringComplete |''|
+//@[061:062) Comma |,|
+//@[063:064) LeftParen |(|
+//@[064:067) Identifier |cur|
+//@[067:068) Comma |,|
+//@[069:073) Identifier |next|
+//@[073:074) Comma |,|
+//@[075:076) Identifier |i|
+//@[076:077) RightParen |)|
+//@[078:080) Arrow |=>|
+//@[081:087) Identifier |isEven|
+//@[087:088) LeftParen |(|
+//@[088:089) Identifier |i|
+//@[089:090) RightParen |)|
+//@[091:092) Question |?|
+//@[093:099) Identifier |concat|
+//@[099:100) LeftParen |(|
+//@[100:103) Identifier |cur|
+//@[103:104) Comma |,|
+//@[105:109) Identifier |next|
+//@[109:110) RightParen |)|
+//@[111:112) Colon |:|
+//@[113:116) Identifier |cur|
+//@[116:117) RightParen |)|
+//@[117:118) NewLine |\n|
 var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
 //@[000:003) Identifier |var|
 //@[004:019) Identifier |reduceFactorial|
@@ -1066,6 +1180,198 @@ var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
 //@[017:021) Identifier |next|
 //@[021:022) RightParen |)|
 //@[022:023) RightParen |)|
-//@[023:024) NewLine |\n|
+//@[023:025) NewLine |\n\n|
+
+var mapVals = mapValues({
+//@[000:003) Identifier |var|
+//@[004:011) Identifier |mapVals|
+//@[012:013) Assignment |=|
+//@[014:023) Identifier |mapValues|
+//@[023:024) LeftParen |(|
+//@[024:025) LeftBrace |{|
+//@[025:026) NewLine |\n|
+  a: 123
+//@[002:003) Identifier |a|
+//@[003:004) Colon |:|
+//@[005:008) Integer |123|
+//@[008:009) NewLine |\n|
+  b: 456
+//@[002:003) Identifier |b|
+//@[003:004) Colon |:|
+//@[005:008) Integer |456|
+//@[008:009) NewLine |\n|
+}, val => val * 2)
+//@[000:001) RightBrace |}|
+//@[001:002) Comma |,|
+//@[003:006) Identifier |val|
+//@[007:009) Arrow |=>|
+//@[010:013) Identifier |val|
+//@[014:015) Asterisk |*|
+//@[016:017) Integer |2|
+//@[017:018) RightParen |)|
+//@[018:020) NewLine |\n\n|
+
+var objectKeysTest = objectKeys({
+//@[000:003) Identifier |var|
+//@[004:018) Identifier |objectKeysTest|
+//@[019:020) Assignment |=|
+//@[021:031) Identifier |objectKeys|
+//@[031:032) LeftParen |(|
+//@[032:033) LeftBrace |{|
+//@[033:034) NewLine |\n|
+  a: 123
+//@[002:003) Identifier |a|
+//@[003:004) Colon |:|
+//@[005:008) Integer |123|
+//@[008:009) NewLine |\n|
+  b: 456
+//@[002:003) Identifier |b|
+//@[003:004) Colon |:|
+//@[005:008) Integer |456|
+//@[008:009) NewLine |\n|
+})
+//@[000:001) RightBrace |}|
+//@[001:002) RightParen |)|
+//@[002:004) NewLine |\n\n|
+
+var shallowMergeTest = shallowMerge([{
+//@[000:003) Identifier |var|
+//@[004:020) Identifier |shallowMergeTest|
+//@[021:022) Assignment |=|
+//@[023:035) Identifier |shallowMerge|
+//@[035:036) LeftParen |(|
+//@[036:037) LeftSquare |[|
+//@[037:038) LeftBrace |{|
+//@[038:039) NewLine |\n|
+  a: 123
+//@[002:003) Identifier |a|
+//@[003:004) Colon |:|
+//@[005:008) Integer |123|
+//@[008:009) NewLine |\n|
+}, {
+//@[000:001) RightBrace |}|
+//@[001:002) Comma |,|
+//@[003:004) LeftBrace |{|
+//@[004:005) NewLine |\n|
+  b: 456
+//@[002:003) Identifier |b|
+//@[003:004) Colon |:|
+//@[005:008) Integer |456|
+//@[008:009) NewLine |\n|
+}])
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:003) RightParen |)|
+//@[003:005) NewLine |\n\n|
+
+var groupByTest = groupBy([
+//@[000:003) Identifier |var|
+//@[004:015) Identifier |groupByTest|
+//@[016:017) Assignment |=|
+//@[018:025) Identifier |groupBy|
+//@[025:026) LeftParen |(|
+//@[026:027) LeftSquare |[|
+//@[027:028) NewLine |\n|
+  { type: 'a', value: 123 }
+//@[002:003) LeftBrace |{|
+//@[004:008) Identifier |type|
+//@[008:009) Colon |:|
+//@[010:013) StringComplete |'a'|
+//@[013:014) Comma |,|
+//@[015:020) Identifier |value|
+//@[020:021) Colon |:|
+//@[022:025) Integer |123|
+//@[026:027) RightBrace |}|
+//@[027:028) NewLine |\n|
+  { type: 'b', value: 456 }
+//@[002:003) LeftBrace |{|
+//@[004:008) Identifier |type|
+//@[008:009) Colon |:|
+//@[010:013) StringComplete |'b'|
+//@[013:014) Comma |,|
+//@[015:020) Identifier |value|
+//@[020:021) Colon |:|
+//@[022:025) Integer |456|
+//@[026:027) RightBrace |}|
+//@[027:028) NewLine |\n|
+  { type: 'a', value: 789 }
+//@[002:003) LeftBrace |{|
+//@[004:008) Identifier |type|
+//@[008:009) Colon |:|
+//@[010:013) StringComplete |'a'|
+//@[013:014) Comma |,|
+//@[015:020) Identifier |value|
+//@[020:021) Colon |:|
+//@[022:025) Integer |789|
+//@[026:027) RightBrace |}|
+//@[027:028) NewLine |\n|
+], arg => arg.type)
+//@[000:001) RightSquare |]|
+//@[001:002) Comma |,|
+//@[003:006) Identifier |arg|
+//@[007:009) Arrow |=>|
+//@[010:013) Identifier |arg|
+//@[013:014) Dot |.|
+//@[014:018) Identifier |type|
+//@[018:019) RightParen |)|
+//@[019:021) NewLine |\n\n|
+
+var groupByWithValMapTest = groupBy([
+//@[000:003) Identifier |var|
+//@[004:025) Identifier |groupByWithValMapTest|
+//@[026:027) Assignment |=|
+//@[028:035) Identifier |groupBy|
+//@[035:036) LeftParen |(|
+//@[036:037) LeftSquare |[|
+//@[037:038) NewLine |\n|
+  { type: 'a', value: 123 }
+//@[002:003) LeftBrace |{|
+//@[004:008) Identifier |type|
+//@[008:009) Colon |:|
+//@[010:013) StringComplete |'a'|
+//@[013:014) Comma |,|
+//@[015:020) Identifier |value|
+//@[020:021) Colon |:|
+//@[022:025) Integer |123|
+//@[026:027) RightBrace |}|
+//@[027:028) NewLine |\n|
+  { type: 'b', value: 456 }
+//@[002:003) LeftBrace |{|
+//@[004:008) Identifier |type|
+//@[008:009) Colon |:|
+//@[010:013) StringComplete |'b'|
+//@[013:014) Comma |,|
+//@[015:020) Identifier |value|
+//@[020:021) Colon |:|
+//@[022:025) Integer |456|
+//@[026:027) RightBrace |}|
+//@[027:028) NewLine |\n|
+  { type: 'a', value: 789 }
+//@[002:003) LeftBrace |{|
+//@[004:008) Identifier |type|
+//@[008:009) Colon |:|
+//@[010:013) StringComplete |'a'|
+//@[013:014) Comma |,|
+//@[015:020) Identifier |value|
+//@[020:021) Colon |:|
+//@[022:025) Integer |789|
+//@[026:027) RightBrace |}|
+//@[027:028) NewLine |\n|
+], arg => arg.type, arg => arg.value)
+//@[000:001) RightSquare |]|
+//@[001:002) Comma |,|
+//@[003:006) Identifier |arg|
+//@[007:009) Arrow |=>|
+//@[010:013) Identifier |arg|
+//@[013:014) Dot |.|
+//@[014:018) Identifier |type|
+//@[018:019) Comma |,|
+//@[020:023) Identifier |arg|
+//@[024:026) Arrow |=>|
+//@[027:030) Identifier |arg|
+//@[030:031) Dot |.|
+//@[031:036) Identifier |value|
+//@[036:037) RightParen |)|
+//@[037:038) NewLine |\n|
 
 //@[000:000) EndOfFile ||
