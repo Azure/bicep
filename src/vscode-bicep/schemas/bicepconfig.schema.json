@@ -708,7 +708,7 @@
                 "use-secure-value-for-secure-inputs": {
                   "allOf": [
                     {
-                      "description": "Resource properties expecting secure input should be assigned secure values. See https://aka.ms/bicep/linter/use-secure-value-for-secure-inputs"
+                      "description": "Resource properties expecting secure input should be assigned secure values. Defaults to 'Warning'. See https://aka.ms/bicep/linter/use-secure-value-for-secure-inputs"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
