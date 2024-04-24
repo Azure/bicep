@@ -3,12 +3,14 @@
 // $3 = location
 // $4 = 'computerName'
 // $5 = adminUsername
-// $6 = 'adminPassword'
+// $6 = adminPassword
 // $7 = 'name'
 // $8 = 'id'
 // $9 = 'storageUri'
 
 param location string
+@secure()
+param adminPassword string
 param adminUsername string
 
 resource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
@@ -21,7 +23,7 @@ resource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
     osProfile: {
       computerName: 'computerName'
       adminUsername: adminUsername
-      adminPassword: 'adminPassword'
+      adminPassword: adminPassword
     }
     storageProfile: {
       imageReference: {

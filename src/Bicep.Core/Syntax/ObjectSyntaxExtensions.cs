@@ -69,14 +69,17 @@ namespace Bicep.Core.Syntax
         }
 
         public static ObjectPropertySyntax? TryGetPropertyByNameRecursive(this ObjectSyntax syntax, params string[] propertyAccesses)
+            => syntax.TryGetPropertyByNameRecursive(propertyAccesses as IReadOnlyList<string>);
+
+        public static ObjectPropertySyntax? TryGetPropertyByNameRecursive(this ObjectSyntax syntax, IReadOnlyList<string> propertyAccesses)
         {
             var currentSyntax = syntax;
-            for (int i = 0; i < propertyAccesses.Length; i++)
+            for (int i = 0; i < propertyAccesses.Count; i++)
             {
                 if (currentSyntax.TryGetPropertyByName(propertyAccesses[i]) is ObjectPropertySyntax propertySyntax)
                 {
                     // we have found our last property access
-                    if (i == propertyAccesses.Length - 1)
+                    if (i == propertyAccesses.Count - 1)
                     {
                         return propertySyntax;
                     }

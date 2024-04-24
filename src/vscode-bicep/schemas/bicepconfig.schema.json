@@ -705,6 +705,16 @@
                     }
                   ]
                 },
+                "use-secure-value-for-secure-inputs": {
+                  "allOf": [
+                    {
+                      "description": "Resource properties expecting secure input should be assigned secure values. See https://aka.ms/bicep/linter/use-secure-value-for-secure-inputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "use-stable-resource-identifiers": {
                   "allOf": [
                     {
