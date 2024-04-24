@@ -1,5 +1,5 @@
 
-//@[000:8752) ProgramSyntax
+//@[000:8922) ProgramSyntax
 //@[000:0002) ├─Token(NewLine) |\r\n|
 @sys.description('this is deployTimeSuffix param')
 //@[000:0093) ├─ParameterDeclarationSyntax
@@ -252,6 +252,67 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@[008:0027) |     | └─StringSyntax
 //@[008:0027) |     |   └─Token(StringComplete) |'modBWithCondition'|
 //@[027:0029) |     ├─Token(NewLine) |\r\n|
+  params: {
+//@[002:0041) |     ├─ObjectPropertySyntax
+//@[002:0008) |     | ├─IdentifierSyntax
+//@[002:0008) |     | | └─Token(Identifier) |params|
+//@[008:0009) |     | ├─Token(Colon) |:|
+//@[010:0041) |     | └─ObjectSyntax
+//@[010:0011) |     |   ├─Token(LeftBrace) |{|
+//@[011:0013) |     |   ├─Token(NewLine) |\r\n|
+    location: 'East US'
+//@[004:0023) |     |   ├─ObjectPropertySyntax
+//@[004:0012) |     |   | ├─IdentifierSyntax
+//@[004:0012) |     |   | | └─Token(Identifier) |location|
+//@[012:0013) |     |   | ├─Token(Colon) |:|
+//@[014:0023) |     |   | └─StringSyntax
+//@[014:0023) |     |   |   └─Token(StringComplete) |'East US'|
+//@[023:0025) |     |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |     |   └─Token(RightBrace) |}|
+//@[003:0005) |     ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |     └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+module modBWithCondition2 './child/moduleb.bicep' =
+//@[000:0166) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0025) | ├─IdentifierSyntax
+//@[007:0025) | | └─Token(Identifier) |modBWithCondition2|
+//@[026:0049) | ├─StringSyntax
+//@[026:0049) | | └─Token(StringComplete) |'./child/moduleb.bicep'|
+//@[050:0051) | ├─Token(Assignment) |=|
+//@[051:0053) | ├─Token(NewLine) |\r\n|
+// awkward comment
+//@[018:0020) | ├─Token(NewLine) |\r\n|
+if (1 + 1 == 2) {
+//@[000:0093) | └─IfConditionSyntax
+//@[000:0002) |   ├─Token(Identifier) |if|
+//@[003:0015) |   ├─ParenthesizedExpressionSyntax
+//@[003:0004) |   | ├─Token(LeftParen) |(|
+//@[004:0014) |   | ├─BinaryOperationSyntax
+//@[004:0009) |   | | ├─BinaryOperationSyntax
+//@[004:0005) |   | | | ├─IntegerLiteralSyntax
+//@[004:0005) |   | | | | └─Token(Integer) |1|
+//@[006:0007) |   | | | ├─Token(Plus) |+|
+//@[008:0009) |   | | | └─IntegerLiteralSyntax
+//@[008:0009) |   | | |   └─Token(Integer) |1|
+//@[010:0012) |   | | ├─Token(Equals) |==|
+//@[013:0014) |   | | └─IntegerLiteralSyntax
+//@[013:0014) |   | |   └─Token(Integer) |2|
+//@[014:0015) |   | └─Token(RightParen) |)|
+//@[016:0093) |   └─ObjectSyntax
+//@[016:0017) |     ├─Token(LeftBrace) |{|
+//@[017:0019) |     ├─Token(NewLine) |\r\n|
+  name: 'modBWithCondition2'
+//@[002:0028) |     ├─ObjectPropertySyntax
+//@[002:0006) |     | ├─IdentifierSyntax
+//@[002:0006) |     | | └─Token(Identifier) |name|
+//@[006:0007) |     | ├─Token(Colon) |:|
+//@[008:0028) |     | └─StringSyntax
+//@[008:0028) |     |   └─Token(StringComplete) |'modBWithCondition2'|
+//@[028:0030) |     ├─Token(NewLine) |\r\n|
   params: {
 //@[002:0041) |     ├─ObjectPropertySyntax
 //@[002:0008) |     | ├─IdentifierSyntax

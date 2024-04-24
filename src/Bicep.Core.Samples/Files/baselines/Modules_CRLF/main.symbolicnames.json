@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7842340340111572194"
+      "templateHash": "847860570633955362"
     }
   },
   "parameters": {
@@ -302,6 +302,54 @@
       },
       "metadata": {
         "description": "this is just module b with a condition"
+      }
+    },
+    "modBWithCondition2": {
+      "condition": "[equals(add(1, 1), 2)]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "modBWithCondition2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "East US"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10597432502958414413"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            }
+          },
+          "resources": {
+            "myResource": {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "mockResource",
+              "location": "[parameters('location')]"
+            }
+          },
+          "outputs": {
+            "myResourceId": {
+              "type": "string",
+              "value": "[resourceId('Mock.Rp/mockResource', 'mockResource')]"
+            }
+          }
+        }
       }
     },
     "modC": {

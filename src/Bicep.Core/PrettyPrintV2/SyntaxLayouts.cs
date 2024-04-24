@@ -310,16 +310,21 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Value);
 
         private IEnumerable<Document> LayoutResourceOrModuleDeclarationSyntax(
-            IEnumerable<SyntaxBase> leadingNodes,
+            ImmutableArray<SyntaxBase> leadingNodes,
             SyntaxBase keyword,
             SyntaxBase name,
             SyntaxBase typeOrPath,
             SyntaxBase? existingKeyword,
             SyntaxBase assignment,
-            IEnumerable<SyntaxBase> newlines,
+            ImmutableArray<Token> newlines,
             SyntaxBase value)
         {
-            if (value is IfConditionSyntax)
+            // The parser only allows newlines before between = and the if keyword.
+            // If there are dangling comments attached to the newlines, we have
+            // to group the newlines and the IfConditionSyntx to ensure the comments
+            // are not dropped.
+            if (value is IfConditionSyntax &&
+                newlines.Any(x => x.LeadingTrivia.Any(trivia => trivia.IsComment()) || x.TrailingTrivia.Any(trivia => trivia.IsComment())))
             {
                 var valueGroup = this.IndentGroup(newlines.Append(value));
 

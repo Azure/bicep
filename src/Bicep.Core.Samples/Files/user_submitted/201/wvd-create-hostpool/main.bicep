@@ -258,215 +258,209 @@ resource appGroupName 'Microsoft.DesktopVirtualization/applicationgroups@2019-12
   }
 }
 
-module workspace './modules/workspace.bicep' =
-  if (addToWorkspace) {
-    name: 'Workspace-linkedTemplate-${deploymentId}'
-    scope: resourceGroup(workspaceResourceGroup_var)
-    params: {
-      //apiVersion: apiVersion
-      workSpaceName: workSpaceName
-      workspaceLocation: workspaceLocation
-      applicationGroupReferencesArr: applicationGroupReferencesArr
-    }
+module workspace './modules/workspace.bicep' = if (addToWorkspace) {
+  name: 'Workspace-linkedTemplate-${deploymentId}'
+  scope: resourceGroup(workspaceResourceGroup_var)
+  params: {
+    //apiVersion: apiVersion
+    workSpaceName: workSpaceName
+    workspaceLocation: workspaceLocation
+    applicationGroupReferencesArr: applicationGroupReferencesArr
   }
+}
 
-module AVSet './modules/AVSet.bicep' =
-  if (createVMs && (availabilityOption == 'AvailabilitySet') && createAvailabilitySet) {
-    name: 'AVSet-deployment' //'AVSet-linkedTemplate-${deploymentId}'
-    scope: resourceGroup(vmResourceGroup)
-    params: {
-      availabilitySetName: availabilitySetName
-      vmLocation: vmLocation
-      availabilitySetTags: availabilitySetTags
-      availabilitySetUpdateDomainCount: availabilitySetUpdateDomainCount
-      availabilitySetFaultDomainCount: availabilitySetFaultDomainCount
-      avSetSKU: avSetSKU
-    }
-    dependsOn: [appGroupName]
+module AVSet './modules/AVSet.bicep' = if (createVMs && (availabilityOption == 'AvailabilitySet') && createAvailabilitySet) {
+  name: 'AVSet-deployment' //'AVSet-linkedTemplate-${deploymentId}'
+  scope: resourceGroup(vmResourceGroup)
+  params: {
+    availabilitySetName: availabilitySetName
+    vmLocation: vmLocation
+    availabilitySetTags: availabilitySetTags
+    availabilitySetUpdateDomainCount: availabilitySetUpdateDomainCount
+    availabilitySetFaultDomainCount: availabilitySetFaultDomainCount
+    avSetSKU: avSetSKU
   }
+  dependsOn: [appGroupName]
+}
 
 // Deploy vmImageType = CustomVHD, managed disks
-module vmCreation_customVHD_managedDisks './modules/managedDisks-customvhdvm.bicep' =
-  if ((createVMs) && (vmImageType == 'CustomVHD') && (vmUseManagedDisks)) {
-    name: 'vmCreation-linkedTemplate-${deploymentId}-managedDisks-customvhdvm'
-    scope: resourceGroup(vmResourceGroup)
-    params: {
-      artifactsLocation: artifactsLocation
-      availabilityOption: availabilityOption
-      availabilitySetName: availabilitySetName
-      availabilityZone: availabilityZone
-      vmImageVhdUri: vmImageVhdUri
-      storageAccountResourceGroupName: storageAccountResourceGroupName
-      vmGalleryImageOffer: vmGalleryImageOffer
-      vmGalleryImagePublisher: vmGalleryImagePublisher
-      vmGalleryImageSKU: vmGalleryImageSKU
-      rdshPrefix: rdshPrefix
-      rdshNumberOfInstances: vmNumberOfInstances
-      rdshVMDiskType: vmDiskType
-      rdshVmSize: vmSize
-      enableAcceleratedNetworking: false
-      vmAdministratorAccountUsername: vmAdministratorAccountUsername
-      vmAdministratorAccountPassword: vmAdministratorAccountPassword
-      administratorAccountUsername: administratorAccountUsername
-      administratorAccountPassword: administratorAccountPassword
-      subnet_id: subnet_id
-      vhds: vhds
-      rdshImageSourceId: vmCustomImageSourceId
-      location: vmLocation
-      createNetworkSecurityGroup: createNetworkSecurityGroup
-      networkSecurityGroupId: networkSecurityGroupId
-      networkSecurityGroupRules: networkSecurityGroupRules
-      networkInterfaceTags: networkInterfaceTags
-      networkSecurityGroupTags: networkSecurityGroupTags
-      virtualMachineTags: virtualMachineTags
-      imageTags: imageTags
-      hostpoolToken: reference(hostpoolName).registrationInfo.token
-      hostpoolName: hostpoolName
-      domain: domain
-      ouPath: ouPath
-      aadJoin: aadJoin
-      intune: intune
-      guidValue: deploymentId
-    }
-    dependsOn: [AVSet]
+module vmCreation_customVHD_managedDisks './modules/managedDisks-customvhdvm.bicep' = if ((createVMs) && (vmImageType == 'CustomVHD') && (vmUseManagedDisks)) {
+  name: 'vmCreation-linkedTemplate-${deploymentId}-managedDisks-customvhdvm'
+  scope: resourceGroup(vmResourceGroup)
+  params: {
+    artifactsLocation: artifactsLocation
+    availabilityOption: availabilityOption
+    availabilitySetName: availabilitySetName
+    availabilityZone: availabilityZone
+    vmImageVhdUri: vmImageVhdUri
+    storageAccountResourceGroupName: storageAccountResourceGroupName
+    vmGalleryImageOffer: vmGalleryImageOffer
+    vmGalleryImagePublisher: vmGalleryImagePublisher
+    vmGalleryImageSKU: vmGalleryImageSKU
+    rdshPrefix: rdshPrefix
+    rdshNumberOfInstances: vmNumberOfInstances
+    rdshVMDiskType: vmDiskType
+    rdshVmSize: vmSize
+    enableAcceleratedNetworking: false
+    vmAdministratorAccountUsername: vmAdministratorAccountUsername
+    vmAdministratorAccountPassword: vmAdministratorAccountPassword
+    administratorAccountUsername: administratorAccountUsername
+    administratorAccountPassword: administratorAccountPassword
+    subnet_id: subnet_id
+    vhds: vhds
+    rdshImageSourceId: vmCustomImageSourceId
+    location: vmLocation
+    createNetworkSecurityGroup: createNetworkSecurityGroup
+    networkSecurityGroupId: networkSecurityGroupId
+    networkSecurityGroupRules: networkSecurityGroupRules
+    networkInterfaceTags: networkInterfaceTags
+    networkSecurityGroupTags: networkSecurityGroupTags
+    virtualMachineTags: virtualMachineTags
+    imageTags: imageTags
+    hostpoolToken: reference(hostpoolName).registrationInfo.token
+    hostpoolName: hostpoolName
+    domain: domain
+    ouPath: ouPath
+    aadJoin: aadJoin
+    intune: intune
+    guidValue: deploymentId
   }
+  dependsOn: [AVSet]
+}
 
 // Deploy vmImageType = CustomVHD, unmanaged disks
-module vmCreation_customVHD_unmanagedDisks './modules/unmanagedDisks-customvhdvm.bicep' =
-  if ((createVMs) && (vmImageType == 'CustomVHD') && (!vmUseManagedDisks)) {
-    name: 'vmCreation-linkedTemplate-${deploymentId}-unmanagedDisks-customvhdvm'
-    scope: resourceGroup(vmResourceGroup)
-    params: {
-      artifactsLocation: artifactsLocation
-      availabilityOption: availabilityOption
-      availabilitySetName: availabilitySetName
-      availabilityZone: availabilityZone
-      vmImageVhdUri: vmImageVhdUri
-      storageAccountResourceGroupName: storageAccountResourceGroupName
-      vmGalleryImageOffer: vmGalleryImageOffer
-      vmGalleryImagePublisher: vmGalleryImagePublisher
-      vmGalleryImageSKU: vmGalleryImageSKU
-      rdshPrefix: rdshPrefix
-      rdshNumberOfInstances: vmNumberOfInstances
-      rdshVMDiskType: vmDiskType
-      rdshVmSize: vmSize
-      enableAcceleratedNetworking: false
-      vmAdministratorAccountUsername: vmAdministratorAccountUsername
-      vmAdministratorAccountPassword: vmAdministratorAccountPassword
-      administratorAccountUsername: administratorAccountUsername
-      administratorAccountPassword: administratorAccountPassword
-      subnet_id: subnet_id
-      vhds: vhds
-      rdshImageSourceId: vmCustomImageSourceId
-      location: vmLocation
-      createNetworkSecurityGroup: createNetworkSecurityGroup
-      networkSecurityGroupId: networkSecurityGroupId
-      networkSecurityGroupRules: networkSecurityGroupRules
-      networkInterfaceTags: networkInterfaceTags
-      networkSecurityGroupTags: networkSecurityGroupTags
-      virtualMachineTags: virtualMachineTags
-      imageTags: imageTags
-      hostpoolToken: reference(hostpoolName).registrationInfo.token
-      hostpoolName: hostpoolName
-      domain: domain
-      ouPath: ouPath
-      aadJoin: aadJoin
-      intune: intune
-      guidValue: deploymentId
-    }
-    dependsOn: [AVSet]
+module vmCreation_customVHD_unmanagedDisks './modules/unmanagedDisks-customvhdvm.bicep' = if ((createVMs) && (vmImageType == 'CustomVHD') && (!vmUseManagedDisks)) {
+  name: 'vmCreation-linkedTemplate-${deploymentId}-unmanagedDisks-customvhdvm'
+  scope: resourceGroup(vmResourceGroup)
+  params: {
+    artifactsLocation: artifactsLocation
+    availabilityOption: availabilityOption
+    availabilitySetName: availabilitySetName
+    availabilityZone: availabilityZone
+    vmImageVhdUri: vmImageVhdUri
+    storageAccountResourceGroupName: storageAccountResourceGroupName
+    vmGalleryImageOffer: vmGalleryImageOffer
+    vmGalleryImagePublisher: vmGalleryImagePublisher
+    vmGalleryImageSKU: vmGalleryImageSKU
+    rdshPrefix: rdshPrefix
+    rdshNumberOfInstances: vmNumberOfInstances
+    rdshVMDiskType: vmDiskType
+    rdshVmSize: vmSize
+    enableAcceleratedNetworking: false
+    vmAdministratorAccountUsername: vmAdministratorAccountUsername
+    vmAdministratorAccountPassword: vmAdministratorAccountPassword
+    administratorAccountUsername: administratorAccountUsername
+    administratorAccountPassword: administratorAccountPassword
+    subnet_id: subnet_id
+    vhds: vhds
+    rdshImageSourceId: vmCustomImageSourceId
+    location: vmLocation
+    createNetworkSecurityGroup: createNetworkSecurityGroup
+    networkSecurityGroupId: networkSecurityGroupId
+    networkSecurityGroupRules: networkSecurityGroupRules
+    networkInterfaceTags: networkInterfaceTags
+    networkSecurityGroupTags: networkSecurityGroupTags
+    virtualMachineTags: virtualMachineTags
+    imageTags: imageTags
+    hostpoolToken: reference(hostpoolName).registrationInfo.token
+    hostpoolName: hostpoolName
+    domain: domain
+    ouPath: ouPath
+    aadJoin: aadJoin
+    intune: intune
+    guidValue: deploymentId
   }
+  dependsOn: [AVSet]
+}
 
 // Deploy vmImageType = CustomImage
-module vmCreation_customeImage './modules/managedDisks-customimagevm.bicep' =
-  if ((createVMs) && (vmImageType == 'CustomImage')) {
-    name: 'vmCreation-linkedTemplate-${deploymentId}-managedDisks-customimagevm'
-    scope: resourceGroup(vmResourceGroup)
-    params: {
-      artifactsLocation: artifactsLocation
-      availabilityOption: availabilityOption
-      availabilitySetName: availabilitySetName
-      availabilityZone: availabilityZone
-      vmImageVhdUri: vmImageVhdUri
-      storageAccountResourceGroupName: storageAccountResourceGroupName
-      vmGalleryImageOffer: vmGalleryImageOffer
-      vmGalleryImagePublisher: vmGalleryImagePublisher
-      vmGalleryImageSKU: vmGalleryImageSKU
-      rdshPrefix: rdshPrefix
-      rdshNumberOfInstances: vmNumberOfInstances
-      rdshVMDiskType: vmDiskType
-      rdshVmSize: vmSize
-      enableAcceleratedNetworking: false
-      vmAdministratorAccountUsername: vmAdministratorAccountUsername
-      vmAdministratorAccountPassword: vmAdministratorAccountPassword
-      administratorAccountUsername: administratorAccountUsername
-      administratorAccountPassword: administratorAccountPassword
-      subnet_id: subnet_id
-      vhds: vhds
-      rdshImageSourceId: vmCustomImageSourceId
-      location: vmLocation
-      createNetworkSecurityGroup: createNetworkSecurityGroup
-      networkSecurityGroupId: networkSecurityGroupId
-      networkSecurityGroupRules: networkSecurityGroupRules
-      networkInterfaceTags: networkInterfaceTags
-      networkSecurityGroupTags: networkSecurityGroupTags
-      virtualMachineTags: virtualMachineTags
-      imageTags: imageTags
-      hostpoolToken: reference(hostpoolName).registrationInfo.token
-      hostpoolName: hostpoolName
-      domain: domain
-      ouPath: ouPath
-      aadJoin: aadJoin
-      intune: intune
-      guidValue: deploymentId
-    }
-    dependsOn: [AVSet]
+module vmCreation_customeImage './modules/managedDisks-customimagevm.bicep' = if ((createVMs) && (vmImageType == 'CustomImage')) {
+  name: 'vmCreation-linkedTemplate-${deploymentId}-managedDisks-customimagevm'
+  scope: resourceGroup(vmResourceGroup)
+  params: {
+    artifactsLocation: artifactsLocation
+    availabilityOption: availabilityOption
+    availabilitySetName: availabilitySetName
+    availabilityZone: availabilityZone
+    vmImageVhdUri: vmImageVhdUri
+    storageAccountResourceGroupName: storageAccountResourceGroupName
+    vmGalleryImageOffer: vmGalleryImageOffer
+    vmGalleryImagePublisher: vmGalleryImagePublisher
+    vmGalleryImageSKU: vmGalleryImageSKU
+    rdshPrefix: rdshPrefix
+    rdshNumberOfInstances: vmNumberOfInstances
+    rdshVMDiskType: vmDiskType
+    rdshVmSize: vmSize
+    enableAcceleratedNetworking: false
+    vmAdministratorAccountUsername: vmAdministratorAccountUsername
+    vmAdministratorAccountPassword: vmAdministratorAccountPassword
+    administratorAccountUsername: administratorAccountUsername
+    administratorAccountPassword: administratorAccountPassword
+    subnet_id: subnet_id
+    vhds: vhds
+    rdshImageSourceId: vmCustomImageSourceId
+    location: vmLocation
+    createNetworkSecurityGroup: createNetworkSecurityGroup
+    networkSecurityGroupId: networkSecurityGroupId
+    networkSecurityGroupRules: networkSecurityGroupRules
+    networkInterfaceTags: networkInterfaceTags
+    networkSecurityGroupTags: networkSecurityGroupTags
+    virtualMachineTags: virtualMachineTags
+    imageTags: imageTags
+    hostpoolToken: reference(hostpoolName).registrationInfo.token
+    hostpoolName: hostpoolName
+    domain: domain
+    ouPath: ouPath
+    aadJoin: aadJoin
+    intune: intune
+    guidValue: deploymentId
   }
+  dependsOn: [AVSet]
+}
 
 // Deploy vmImageType = CustomVHD, managed disks
-module vmCreation_Gallery './modules/managedDisks-galleryvm.bicep' =
-  if ((createVMs) && (vmImageType == 'Gallery') && (vmUseManagedDisks)) {
-    name: 'vmCreation-linkedTemplate-${deploymentId}-managedDisks-galleryvm'
-    scope: resourceGroup(vmResourceGroup)
-    params: {
-      artifactsLocation: artifactsLocation
-      availabilityOption: availabilityOption
-      availabilitySetName: availabilitySetName
-      availabilityZone: availabilityZone
-      vmImageVhdUri: vmImageVhdUri
-      storageAccountResourceGroupName: storageAccountResourceGroupName
-      vmGalleryImageOffer: vmGalleryImageOffer
-      vmGalleryImagePublisher: vmGalleryImagePublisher
-      vmGalleryImageSKU: vmGalleryImageSKU
-      rdshPrefix: rdshPrefix
-      rdshNumberOfInstances: vmNumberOfInstances
-      rdshVMDiskType: vmDiskType
-      rdshVmSize: vmSize
-      enableAcceleratedNetworking: false
-      vmAdministratorAccountUsername: vmAdministratorAccountUsername
-      vmAdministratorAccountPassword: vmAdministratorAccountPassword
-      administratorAccountUsername: administratorAccountUsername
-      administratorAccountPassword: administratorAccountPassword
-      subnet_id: subnet_id
-      vhds: vhds
-      rdshImageSourceId: vmCustomImageSourceId
-      location: vmLocation
-      createNetworkSecurityGroup: createNetworkSecurityGroup
-      networkSecurityGroupId: networkSecurityGroupId
-      networkSecurityGroupRules: networkSecurityGroupRules
-      networkInterfaceTags: networkInterfaceTags
-      networkSecurityGroupTags: networkSecurityGroupTags
-      virtualMachineTags: virtualMachineTags
-      imageTags: imageTags
-      hostpoolToken: reference(hostpoolName).registrationInfo.token
-      hostpoolName: hostpoolName
-      domain: domain
-      ouPath: ouPath
-      aadJoin: aadJoin
-      intune: intune
-      guidValue: deploymentId
-    }
-    dependsOn: [AVSet]
+module vmCreation_Gallery './modules/managedDisks-galleryvm.bicep' = if ((createVMs) && (vmImageType == 'Gallery') && (vmUseManagedDisks)) {
+  name: 'vmCreation-linkedTemplate-${deploymentId}-managedDisks-galleryvm'
+  scope: resourceGroup(vmResourceGroup)
+  params: {
+    artifactsLocation: artifactsLocation
+    availabilityOption: availabilityOption
+    availabilitySetName: availabilitySetName
+    availabilityZone: availabilityZone
+    vmImageVhdUri: vmImageVhdUri
+    storageAccountResourceGroupName: storageAccountResourceGroupName
+    vmGalleryImageOffer: vmGalleryImageOffer
+    vmGalleryImagePublisher: vmGalleryImagePublisher
+    vmGalleryImageSKU: vmGalleryImageSKU
+    rdshPrefix: rdshPrefix
+    rdshNumberOfInstances: vmNumberOfInstances
+    rdshVMDiskType: vmDiskType
+    rdshVmSize: vmSize
+    enableAcceleratedNetworking: false
+    vmAdministratorAccountUsername: vmAdministratorAccountUsername
+    vmAdministratorAccountPassword: vmAdministratorAccountPassword
+    administratorAccountUsername: administratorAccountUsername
+    administratorAccountPassword: administratorAccountPassword
+    subnet_id: subnet_id
+    vhds: vhds
+    rdshImageSourceId: vmCustomImageSourceId
+    location: vmLocation
+    createNetworkSecurityGroup: createNetworkSecurityGroup
+    networkSecurityGroupId: networkSecurityGroupId
+    networkSecurityGroupRules: networkSecurityGroupRules
+    networkInterfaceTags: networkInterfaceTags
+    networkSecurityGroupTags: networkSecurityGroupTags
+    virtualMachineTags: virtualMachineTags
+    imageTags: imageTags
+    hostpoolToken: reference(hostpoolName).registrationInfo.token
+    hostpoolName: hostpoolName
+    domain: domain
+    ouPath: ouPath
+    aadJoin: aadJoin
+    intune: intune
+    guidValue: deploymentId
   }
+  dependsOn: [AVSet]
+}
 
 output rdshVmNamesObject array = rdshVmNamesOutput

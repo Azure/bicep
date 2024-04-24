@@ -75,95 +75,89 @@ resource name_resource 'Microsoft.Synapse/workspaces@2021-06-01' = {
   ]
 }
 
-resource name_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' =
-  if (allowAllConnections) {
-    parent: name_resource
-    location: location
-//@[04:012) [BCP187 (Warning)] The property "location" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |location|
-    name: 'allowAll'
-    properties: {
-      startIpAddress: '0.0.0.0'
-      endIpAddress: '255.255.255.255'
-    }
+resource name_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' = if (allowAllConnections) {
+  parent: name_resource
+  location: location
+//@[02:010) [BCP187 (Warning)] The property "location" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |location|
+  name: 'allowAll'
+  properties: {
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '255.255.255.255'
   }
+}
 
-module StorageRoleDeploymentResource './nested_StorageRoleDeploymentResource.bicep' =
+module StorageRoleDeploymentResource './nested_StorageRoleDeploymentResource.bicep' = if (setWorkspaceIdentityRbacOnStorageAccount) {
 //@[37:083) [BCP104 (Error)] The referenced module has errors. (CodeDescription: none) |'./nested_StorageRoleDeploymentResource.bicep'|
-  if (setWorkspaceIdentityRbacOnStorageAccount) {
-    name: 'StorageRoleDeploymentResource'
-    scope: resourceGroup(storageSubscriptionID, storageResourceGroupName)
-    params: {
-      reference_concat_Microsoft_Synapse_workspaces_parameters_name_2021_06_01_Full_identity_principalId: reference(
-        'Microsoft.Synapse/workspaces/${name}',
-        '2021-06-01',
-        'Full'
-      )
-      resourceId_Microsoft_Authorization_roleDefinitions_variables_storageBlobDataContributorRoleID: resourceId(
-        'Microsoft.Authorization/roleDefinitions',
-        storageBlobDataContributorRoleID
-      )
-      variables_storageBlobDataContributorRoleID: storageBlobDataContributorRoleID
-      defaultDataLakeStorageAccountName: defaultDataLakeStorageAccountName
-      name: name
-      storageRoleUniqueId: storageRoleUniqueId
-      storageLocation: storageLocation
-      setSbdcRbacOnStorageAccount: setSbdcRbacOnStorageAccount
-      userObjectId: userObjectId
-    }
-    dependsOn: [
-      name_resource
-    ]
+  name: 'StorageRoleDeploymentResource'
+  scope: resourceGroup(storageSubscriptionID, storageResourceGroupName)
+  params: {
+    reference_concat_Microsoft_Synapse_workspaces_parameters_name_2021_06_01_Full_identity_principalId: reference(
+      'Microsoft.Synapse/workspaces/${name}',
+      '2021-06-01',
+      'Full'
+    )
+    resourceId_Microsoft_Authorization_roleDefinitions_variables_storageBlobDataContributorRoleID: resourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      storageBlobDataContributorRoleID
+    )
+    variables_storageBlobDataContributorRoleID: storageBlobDataContributorRoleID
+    defaultDataLakeStorageAccountName: defaultDataLakeStorageAccountName
+    name: name
+    storageRoleUniqueId: storageRoleUniqueId
+    storageLocation: storageLocation
+    setSbdcRbacOnStorageAccount: setSbdcRbacOnStorageAccount
+    userObjectId: userObjectId
   }
+  dependsOn: [
+    name_resource
+  ]
+}
 
-module UpdateStorageAccountNetworkingAcls './nested_UpdateStorageAccountNetworkingAcls.bicep' =
-  if (setWorkspaceMsiByPassOnStorageAccount) {
-    name: 'UpdateStorageAccountNetworkingAcls'
-    scope: resourceGroup(storageSubscriptionID, storageResourceGroupName)
-    params: {
-      storageLocation: storageLocation
-      defaultDataLakeStorageAccountName: defaultDataLakeStorageAccountName
-      workspaceStorageAccountProperties: workspaceStorageAccountProperties
-    }
-    dependsOn: [
-      name_resource
-    ]
+module UpdateStorageAccountNetworkingAcls './nested_UpdateStorageAccountNetworkingAcls.bicep' = if (setWorkspaceMsiByPassOnStorageAccount) {
+  name: 'UpdateStorageAccountNetworkingAcls'
+  scope: resourceGroup(storageSubscriptionID, storageResourceGroupName)
+  params: {
+    storageLocation: storageLocation
+    defaultDataLakeStorageAccountName: defaultDataLakeStorageAccountName
+    workspaceStorageAccountProperties: workspaceStorageAccountProperties
   }
+  dependsOn: [
+    name_resource
+  ]
+}
 
-resource defaultDataLakeStorageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' =
-  if (isNewStorageAccount) {
-    name: defaultDataLakeStorageAccountName
-    location: storageLocation
-    properties: {
-      accessTier: storageAccessTier
-      supportsHttpsTrafficOnly: storageSupportsHttpsTrafficOnly
-      isHnsEnabled: storageIsHnsEnabled
-      minimumTlsVersion: minimumTlsVersion
-    }
-    sku: {
-      name: storageAccountType
-    }
-    kind: storageKind
-    tags: {}
+resource defaultDataLakeStorageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = if (isNewStorageAccount) {
+  name: defaultDataLakeStorageAccountName
+  location: storageLocation
+  properties: {
+    accessTier: storageAccessTier
+    supportsHttpsTrafficOnly: storageSupportsHttpsTrafficOnly
+    isHnsEnabled: storageIsHnsEnabled
+    minimumTlsVersion: minimumTlsVersion
   }
+  sku: {
+    name: storageAccountType
+  }
+  kind: storageKind
+  tags: {}
+}
 
-resource defaultDataLakeStorageAccountName_default_defaultDataLakeStorageFilesystem 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' =
-  if (isNewStorageAccount) {
-    name: '${defaultDataLakeStorageAccountName}/default/${defaultDataLakeStorageFilesystemName}'
-    properties: {
-      publicAccess: 'None'
-    }
-    dependsOn: [
-      defaultDataLakeStorageAccount
-    ]
+resource defaultDataLakeStorageAccountName_default_defaultDataLakeStorageFilesystem 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = if (isNewStorageAccount) {
+  name: '${defaultDataLakeStorageAccountName}/default/${defaultDataLakeStorageFilesystemName}'
+  properties: {
+    publicAccess: 'None'
   }
+  dependsOn: [
+    defaultDataLakeStorageAccount
+  ]
+}
 
-module defaultDataLakeStorageFilesystem './nested_defaultDataLakeStorageFilesystem.bicep' =
-  if (isNewFileSystemOnly) {
-    name: defaultDataLakeStorageFilesystemName
-    scope: resourceGroup(storageSubscriptionID, storageResourceGroupName)
-    params: {
-      defaultDataLakeStorageAccountName: defaultDataLakeStorageAccountName
-      defaultDataLakeStorageFilesystemName: defaultDataLakeStorageFilesystemName
-    }
+module defaultDataLakeStorageFilesystem './nested_defaultDataLakeStorageFilesystem.bicep' = if (isNewFileSystemOnly) {
+  name: defaultDataLakeStorageFilesystemName
+  scope: resourceGroup(storageSubscriptionID, storageResourceGroupName)
+  params: {
+    defaultDataLakeStorageAccountName: defaultDataLakeStorageAccountName
+    defaultDataLakeStorageFilesystemName: defaultDataLakeStorageFilesystemName
   }
+}
 

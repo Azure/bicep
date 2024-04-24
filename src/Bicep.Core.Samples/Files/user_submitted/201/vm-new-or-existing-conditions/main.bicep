@@ -70,72 +70,67 @@ var publicIPId = createNewPublicIP
   ? publicIP.id
   : resourceId(publicIPResourceGroupName, 'Microsoft.Network/publicIPAddresses', publicIPName)
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2017-06-01' =
-  if (createNewStorageAccount) {
-    name: storageAccountName
-    location: location
-    kind: 'Storage'
-    sku: {
-      name: storageAccountType
+resource storageAccount 'Microsoft.Storage/storageAccounts@2017-06-01' = if (createNewStorageAccount) {
+  name: storageAccountName
+  location: location
+  kind: 'Storage'
+  sku: {
+    name: storageAccountType
+  }
+}
+
+resource publicIP 'Microsoft.Network/publicIPAddresses@2017-09-01' = if (createNewPublicIP) {
+  name: publicIPName
+  location: location
+  properties: {
+    publicIPAllocationMethod: 'Dynamic'
+    dnsSettings: {
+      domainNameLabel: publicIPDns
     }
   }
+}
 
-resource publicIP 'Microsoft.Network/publicIPAddresses@2017-09-01' =
-  if (createNewPublicIP) {
-    name: publicIPName
-    location: location
-    properties: {
-      publicIPAllocationMethod: 'Dynamic'
-      dnsSettings: {
-        domainNameLabel: publicIPDns
-      }
-    }
-  }
-
-resource nsg 'Microsoft.Network/networkSecurityGroups@2019-08-01' =
-  if (createNewVnet) {
-    name: 'default-NSG'
-    location: location
-    properties: {
-      securityRules: [
-        {
-          name: 'default-allow-22'
-          properties: {
-            priority: 1000
-            access: 'Allow'
-            direction: 'Inbound'
-            destinationPortRange: '22'
-            protocol: 'Tcp'
-            sourceAddressPrefix: '*'
-            sourcePortRange: '*'
-            destinationAddressPrefix: '*'
-          }
+resource nsg 'Microsoft.Network/networkSecurityGroups@2019-08-01' = if (createNewVnet) {
+  name: 'default-NSG'
+  location: location
+  properties: {
+    securityRules: [
+      {
+        name: 'default-allow-22'
+        properties: {
+          priority: 1000
+          access: 'Allow'
+          direction: 'Inbound'
+          destinationPortRange: '22'
+          protocol: 'Tcp'
+          sourceAddressPrefix: '*'
+          sourcePortRange: '*'
+          destinationAddressPrefix: '*'
         }
-      ]
-    }
-  }
-
-resource vnet 'Microsoft.Network/virtualNetworks@2017-09-01' =
-  if (createNewVnet) {
-    name: vnetName
-    location: location
-    properties: {
-      addressSpace: {
-        addressPrefixes: addressPrefixes
       }
-    }
+    ]
   }
+}
 
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2017-09-01' =
-  if (createNewVnet) {
-    name: '${vnet.name}/${subnetName}'
-    properties: {
-      addressPrefix: subnetPrefix
-      networkSecurityGroup: {
-        id: nsg.id
-      }
+resource vnet 'Microsoft.Network/virtualNetworks@2017-09-01' = if (createNewVnet) {
+  name: vnetName
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: addressPrefixes
     }
   }
+}
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2017-09-01' = if (createNewVnet) {
+  name: '${vnet.name}/${subnetName}'
+  properties: {
+    addressPrefix: subnetPrefix
+    networkSecurityGroup: {
+      id: nsg.id
+    }
+  }
+}
 
 resource nic 'Microsoft.Network/networkInterfaces@2017-09-01' = {
   name: '${vmName}-nic'

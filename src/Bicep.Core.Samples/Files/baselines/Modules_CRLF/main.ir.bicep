@@ -1,5 +1,5 @@
 
-//@[000:8752) ProgramExpression
+//@[000:8922) ProgramExpression
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) | | └─ModuleReferenceExpression [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
@@ -104,6 +104,30 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@[002:0027) | |   └─ObjectPropertyExpression
 //@[002:0006) | |     ├─StringLiteralExpression { Value = name }
 //@[008:0027) | |     └─StringLiteralExpression { Value = modBWithCondition }
+  params: {
+//@[010:0041) | └─ObjectExpression
+    location: 'East US'
+//@[004:0023) |   └─ObjectPropertyExpression
+//@[004:0012) |     ├─StringLiteralExpression { Value = location }
+//@[014:0023) |     └─StringLiteralExpression { Value = East US }
+  }
+}
+
+module modBWithCondition2 './child/moduleb.bicep' =
+//@[000:0166) ├─DeclaredModuleExpression
+// awkward comment
+if (1 + 1 == 2) {
+//@[004:0014) | ├─ConditionExpression
+//@[004:0014) | | ├─BinaryExpression { Operator = Equals }
+//@[004:0009) | | | ├─BinaryExpression { Operator = Add }
+//@[004:0005) | | | | ├─IntegerLiteralExpression { Value = 1 }
+//@[008:0009) | | | | └─IntegerLiteralExpression { Value = 1 }
+//@[013:0014) | | | └─IntegerLiteralExpression { Value = 2 }
+//@[016:0093) | | └─ObjectExpression
+  name: 'modBWithCondition2'
+//@[002:0028) | |   └─ObjectPropertyExpression
+//@[002:0006) | |     ├─StringLiteralExpression { Value = name }
+//@[008:0028) | |     └─StringLiteralExpression { Value = modBWithCondition2 }
   params: {
 //@[010:0041) | └─ObjectExpression
     location: 'East US'
