@@ -2147,16 +2147,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP394",
                 "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted.");
 
-            public ErrorDiagnostic ExtendsPathHasNotBeenSpecified() => new(
-                TextSpan,
-                "BCP395",
-                "The extends declaration is missing a bicepparam file path reference.");
-
-            public ErrorDiagnostic MoreThanOneExtendsDeclarationSpecified() => new(
-                TextSpan,
-                "BCP396",
-                "More than one 'extends' declaration are present");
-
             public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecification syntax)
             {
                 var codeFix = new CodeFix(
@@ -2199,6 +2189,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP400",
                 $"Fetching types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ProviderRegistry)}\".");
+
+            public ErrorDiagnostic ExtendsPathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP401",
+                "The extends declaration is missing a bicepparam file path reference.");
+
+            public ErrorDiagnostic MoreThanOneExtendsDeclarationSpecified() => new(
+                TextSpan,
+                "BCP402",
+                "More than one 'extends' declaration are present");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
