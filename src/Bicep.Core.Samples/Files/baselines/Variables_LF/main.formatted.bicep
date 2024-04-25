@@ -372,3 +372,15 @@ var joinedString = join(['I', 'love', 'Bicep!'], ' ')
 
 var prefix = take('food', 3)
 var isPrefixed = startsWith('food', 'foo')
+
+var spread = {
+  foo: 'abc'
+  ...issue1332
+}
+
+var test = {
+  ...spread
+  bar: 'def'
+}
+
+var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]

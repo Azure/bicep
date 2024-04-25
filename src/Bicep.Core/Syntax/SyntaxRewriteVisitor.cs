@@ -1389,5 +1389,20 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax)
             => ReplaceCurrent(syntax, ReplaceParenthesizedTypeSyntax);
+
+        protected virtual SyntaxBase ReplaceSpreadExpressionSyntax(SpreadExpressionSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Ellipsis, out var ellipsis);
+            hasChanges |= TryRewriteStrict(syntax.Expression, out var expression);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new SpreadExpressionSyntax(ellipsis, expression);
+        }
+        void ISyntaxVisitor.VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceSpreadExpressionSyntax);
     }
 }

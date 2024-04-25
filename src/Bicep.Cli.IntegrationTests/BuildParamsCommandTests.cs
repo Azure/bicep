@@ -296,6 +296,24 @@ output foo string = foo
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Build_Valid_Params_File_To_Outdir_Should_Succeed(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+            var (output, error, result) = await Bicep(Settings, "build-params", data.Parameters.OutputFilePath, "--bicep-file", data.Bicep.OutputFilePath, "--outdir", Path.GetDirectoryName(data.Compiled!.OutputFilePath));
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                AssertNoErrors(error);
+            }
+
+            data.Compiled!.ShouldHaveExpectedJsonValue();
+        }
+
+        [DataTestMethod]
+        [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Build_Valid_Params_File_ToStdOut_Should_Succeed(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);

@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
@@ -23,6 +25,25 @@ namespace Bicep.Core.UnitTests.Configuration
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+        public class RuleAndSchemaTestDataAttribute : Attribute, ITestDataSource
+        {
+            public IEnumerable<object[]> GetData(MethodInfo methodInfo)
+            {
+                var analyzer = new LinterAnalyzer();
+                var ruleSet = analyzer.GetRuleSet().ToArray();
+
+                return AllRulesAndSchemasById.Values.Select(value => new object[] { value.Rule.Code, value.Rule, value.Schema });
+            }
+
+            public string? GetDisplayName(MethodInfo methodInfo, object?[]? data)
+            {
+                var id = (data?[0] as string)!;
+
+                return $"{methodInfo.Name} ({id})";
+            }
+        }
+
         private const string BicepRootConfigFilePath = "src/Bicep.Core/Configuration/bicepconfig.json";
         private const string BicepConfigSchemaFilePath = "src/vscode-bicep/schemas/bicepconfig.schema.json";
 
@@ -34,7 +55,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "providerRegistry",
             };
 
-        private string GetBicepConfigSchemaContents()
+        private static string GetBicepConfigSchemaContents()
         {
             var configStream = typeof(BicepConfigSchemaTests).Assembly.GetManifestResourceStream(
                 $"{typeof(BicepConfigSchemaTests).Assembly.GetName().Name}.bicepconfig.schema.json");
@@ -44,11 +65,11 @@ namespace Bicep.Core.UnitTests.Configuration
             return configContents;
         }
 
-        private JObject BicepConfigSchema => JObject.Parse(GetBicepConfigSchemaContents());
+        private static JObject BicepConfigSchema => JObject.Parse(GetBicepConfigSchemaContents());
 
-        private JSchema BicepConfigSchemaAsJSchema => JSchema.Parse(GetBicepConfigSchemaContents());
+        private static JSchema BicepConfigSchemaAsJSchema => JSchema.Parse(GetBicepConfigSchemaContents());
 
-        private IBicepAnalyzerRule[] AllRules
+        private static ImmutableArray<IBicepAnalyzerRule> AllRules
         {
             get
             {
@@ -56,43 +77,44 @@ namespace Bicep.Core.UnitTests.Configuration
                 var ruleSet = linter.GetRuleSet();
                 ruleSet.Should().NotBeEmpty();
 
-                return ruleSet.ToArray();
+                return ruleSet.ToImmutableArray();
             }
         }
 
-        private (string Id, JObject Schema)[] AllRuleSchemas =>
+        private static (string Id, JObject Schema)[] AllRuleSchemas =>
             (BicepConfigSchema.SelectToken("properties.analyzers.properties.core.properties.rules.properties") as JObject)!
             .Children<JProperty>()
             .Select(prop => (prop.Name, (JObject)prop.Value))
             .ToArray();
 
-        private IDictionary<string, JObject> AllRuleSchemasById =>
-            BicepConfigSchema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>()!;
+        private static IImmutableDictionary<string, JObject> AllRuleSchemasById =>
+            BicepConfigSchema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>()!
+            .ToImmutableDictionary();
 
-        private IDictionary<string, (IBicepAnalyzerRule Rule, JObject Schema)> AllRulesAndSchemasById =>
+        private static IImmutableDictionary<string, (IBicepAnalyzerRule Rule, JObject Schema)> AllRulesAndSchemasById =>
                 AllRules
                     .Join(AllRuleSchemas,
                           rule => rule.Code,
                           ruleSchema => ruleSchema.Id,
                           (rule, ruleSchema) => new { Id = rule.Code, Rule = rule, ruleSchema.Schema })
-                    .ToDictionary(rs => rs.Id, rs => (rs.Rule, rs.Schema));
+                    .ToImmutableDictionary(rs => rs.Id, rs => (rs.Rule, rs.Schema));
 
-        private IEnumerable<JProperty> GetRuleCustomConfigurationProperties(JObject ruleConfigSchema)
+        private static IEnumerable<JProperty> GetRuleCustomConfigurationProperties(JObject ruleConfigSchema)
         {
             var properties = ruleConfigSchema.SelectToken("allOf[0].properties")?.OfType<JProperty>();
             return properties ?? Enumerable.Empty<JProperty>();
         }
 
-        private IDictionary<string, JObject> GetExperimentalFeaturesFromSchema()
+        private IImmutableDictionary<string, JObject> GetExperimentalFeaturesFromSchema()
         {
             IDictionary<string, JObject>? experimentalFeatures = BicepConfigSchema.SelectToken("properties.experimentalFeaturesEnabled.properties")!.ToObject<IDictionary<string, JObject>>();
             Assert.IsNotNull(experimentalFeatures);
-            return experimentalFeatures;
+            return experimentalFeatures.ToImmutableDictionary();
         }
 
-        private ICollection<string> GetExperimentalFeatureIdsFromSchema()
+        private IEnumerable<string> GetExperimentalFeatureIdsFromSchema()
         {
-            IDictionary<string, JObject>? experimentalFeatures = GetExperimentalFeaturesFromSchema();
+            IImmutableDictionary<string, JObject>? experimentalFeatures = GetExperimentalFeaturesFromSchema();
             return experimentalFeatures.Keys;
         }
 
@@ -278,7 +300,7 @@ namespace Bicep.Core.UnitTests.Configuration
         public void ExperimentalFeatures_ShouldHaveDescription()
         {
             // From schema
-            IDictionary<string, JObject>? experimentalFeatures = GetExperimentalFeaturesFromSchema();
+            IImmutableDictionary<string, JObject>? experimentalFeatures = GetExperimentalFeaturesFromSchema();
 
             foreach (var (featureName, featureValue) in experimentalFeatures)
             {
@@ -326,7 +348,7 @@ namespace Bicep.Core.UnitTests.Configuration
         public void ExperimentalFeatures_DescriptionsShouldEndWithLinkToHelpPage()
         {
             // From schema
-            IDictionary<string, JObject>? experimentalFeatures = GetExperimentalFeaturesFromSchema();
+            IImmutableDictionary<string, JObject>? experimentalFeatures = GetExperimentalFeaturesFromSchema();
 
             foreach (var (featureName, featureValue) in experimentalFeatures)
             {
@@ -350,11 +372,11 @@ namespace Bicep.Core.UnitTests.Configuration
             }
         }
 
-        [TestMethod]
+        [TestMethod]    
         public void ExperimentalFeatures_ShouldBeDocumentedInHelpFile()
         {
             // From schema
-            var experimentalFeaturesIdsFromSchema = GetExperimentalFeatureIdsFromSchema();
+            var experimentalFeaturesIdsFromSchema = GetExperimentalFeatureIdsFromSchema().ToArray();
 
             // From help
             var experimentalFeatureIdsFromHelp = GetExperimentalFeatureIdsFromHelpContents().OrderBy(s => s).ToArray();
@@ -364,6 +386,11 @@ namespace Bicep.Core.UnitTests.Configuration
             foreach (var featureId in experimentalFeaturesIdsFromSchema.Where(id => !GrandfatheredFeaturesNeedingHelpOrDescription.Contains(id)))
             {
                 experimentalFeatureIdsFromHelp.Should().Contain(featureId, $"all experimental features in the schema should be documented in the help file {HelpFileName}");
+            }
+
+            foreach (var featureId in experimentalFeatureIdsFromHelp.Where(id => !GrandfatheredFeaturesNeedingHelpOrDescription.Contains(id)))
+            {
+                experimentalFeaturesIdsFromSchema.Should().Contain(featureId, $"all experimental features documented in the help file {HelpFileName} should be in the bicepconfig.schema.json file");
             }
         }
 
@@ -407,15 +434,26 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RuleConfigs_DefaultLevelShouldMatchRuleDefinition()
+        [RuleAndSchemaTestData]
+        public void RuleConfigs_DefaultLevelShouldMatchRuleDefinition(string id, IBicepAnalyzerRule rule, JObject ruleSchema)
+        {
+            var defaultLevelInRuleDefinition = rule.DefaultDiagnosticLevel.ToString();
+            var defaultLevelInSchema = GetRuleDefaultLevel(ruleSchema);
+
+            defaultLevelInSchema.Should().Be(defaultLevelInRuleDefinition,
+                $"the default diagnostic level of a rule's config schema should match that defined in the rule's class definition (make sure rule {id} #/definitions/rule-def-level-xxx reference is correct)");
+        }
+
+        [TestMethod]
+        public void RuleConfigs_RuleDescriptionShouldIndicateDefaultDiagnosticLevel()
         {
             foreach (var (id, (rule, ruleSchema)) in AllRulesAndSchemasById)
             {
-                var defaultLevelInRuleDefinition = rule.DefaultDiagnosticLevel.ToString();
-                var defaultLevelInSchema = GetRuleDefaultLevel(ruleSchema);
+                var defaultLevel = rule.DefaultDiagnosticLevel.ToString();
+                var descripton = ruleSchema.SelectToken("allOf")?[0]?.SelectToken("description")?.ToString();
 
-                defaultLevelInSchema.Should().Be(defaultLevelInRuleDefinition,
-                    $"the default diagnostic level of a rule's config schema should match that defined in the rule's class definition. Make sure rule {id} #/definitions/rule-def-level-xxx reference is correct");
+                descripton.Should().MatchRegex($"\\. Defaults to '{defaultLevel}'\\. See https:",
+                    "rule description should indicate its default diagnostic level");
             }
         }
     }

@@ -635,6 +635,9 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax)
             => this.Glue(syntax.OpenParen, syntax.Expression, syntax.CloseParen);
 
+        private IEnumerable<Document> LayoutSpreadExpressionSyntax(SpreadExpressionSyntax syntax) =>
+            this.Glue(syntax.Ellipsis, syntax.Expression);
+
         private IEnumerable<Document> LayoutLeadingNodes(IEnumerable<SyntaxBase> leadingNodes) =>
             this.LayoutMany(leadingNodes)
                 .Where(x => x != HardLine); // Remove empty lines between decorators.

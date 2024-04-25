@@ -55,7 +55,6 @@ resource foo_bar 'Foo.Rp/bar@2019-06-01' =
   if (false) {
     name: '${foo}bar'
     location: 'westus'
-//@[14:22) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
     properties: {
       foo: 'bar'
     }
@@ -66,7 +65,6 @@ resource baz 'Foo.Rp/bar@2019-06-01' =
   if (something == foo) {
     name: 'baz'
     location: 'westus'
-//@[14:22) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
     dependsOn: [
       foo_bar
     ]

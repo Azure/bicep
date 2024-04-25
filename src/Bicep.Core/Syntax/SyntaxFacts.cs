@@ -62,6 +62,7 @@ namespace Bicep.Core.Syntax
             TokenType.Pipe => "|",
             TokenType.WithKeyword => "with",
             TokenType.AsKeyword => "as",
+            TokenType.Ellipsis => "...",
             _ => null,
         };
 

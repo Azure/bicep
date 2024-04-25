@@ -167,7 +167,7 @@ namespace Bicep.Core.TypeSystem
             var returnType = TryGetTypeFromTypeSyntax(syntax.ReturnType) ??
                 ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ReturnType).InvalidOutputType(GetValidTypeNames()));
 
-            var type = new LambdaType(argumentTypes, DisallowNamespaceTypes(returnType, syntax.ReturnType));
+            var type = new LambdaType(argumentTypes, [], DisallowNamespaceTypes(returnType, syntax.ReturnType));
             return new(type, syntax);
         }
 

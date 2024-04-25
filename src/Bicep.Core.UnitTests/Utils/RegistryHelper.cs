@@ -48,7 +48,7 @@ public static class RegistryHelper
         bool publishSource,
         string? documentationUri = null)
     {
-        var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: publishSource));
+        var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides());
 
         var services = new ServiceBuilder()
             .WithDisabledAnalyzersConfiguration()

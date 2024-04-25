@@ -173,5 +173,7 @@ namespace Bicep.Core.Syntax
         void VisitNonNullableTypeSyntax(NonNullableTypeSyntax syntax);
 
         void VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax);
+
+        void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax);
     }
 }

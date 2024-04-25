@@ -17,18 +17,20 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public UseResourceIdFunctionsRule() : base(
             code: Code,
             description: CoreResources.UseResourceIdFunctionsRule_Description,
+            LinterRuleCategory.BestPractice,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
         private static readonly HashSet<string> allowedFunctions = new() {
                 "extensionResourceId",
+                "if",
+                "guid",
+                "managementGroupResourceId",
+                "reference",
                 "resourceId",
+                "subscription",
                 "subscriptionResourceId",
                 "tenantResourceId",
-                "if",
-                "reference",
-                "subscription",
-                "guid"
                 };
 
         private class Exclusion

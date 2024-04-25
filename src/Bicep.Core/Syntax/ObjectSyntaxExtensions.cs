@@ -30,13 +30,6 @@ namespace Bicep.Core.Syntax
         }
 
         /// <summary>
-        /// Converts a syntactically valid object syntax node to a dictionary mapping property name strings to property syntax node values. Returns the first property value in the case of duplicate names.
-        /// </summary>
-        /// <param name="syntax">The object syntax node</param>
-        public static ImmutableDictionary<string, SyntaxBase> ToNamedPropertyValueDictionary(this ObjectSyntax syntax)
-            => ToNamedPropertyDictionary(syntax).ToImmutableDictionary(x => x.Key, x => x.Value.Value, LanguageConstants.IdentifierComparer);
-
-        /// <summary>
         /// Returns the specified property by name on any valid or invalid object syntax node if there is exactly one property by that name.
         /// Returns null if the property does not exist or if multiple properties by that name exist. This method is intended for a single
         /// one-off property lookup and avoids allocation of a dictionary. If you need to make multiple look ups, use another extension in this class.
@@ -76,14 +69,17 @@ namespace Bicep.Core.Syntax
         }
 
         public static ObjectPropertySyntax? TryGetPropertyByNameRecursive(this ObjectSyntax syntax, params string[] propertyAccesses)
+            => syntax.TryGetPropertyByNameRecursive(propertyAccesses as IReadOnlyList<string>);
+
+        public static ObjectPropertySyntax? TryGetPropertyByNameRecursive(this ObjectSyntax syntax, IReadOnlyList<string> propertyAccesses)
         {
             var currentSyntax = syntax;
-            for (int i = 0; i < propertyAccesses.Length; i++)
+            for (int i = 0; i < propertyAccesses.Count; i++)
             {
                 if (currentSyntax.TryGetPropertyByName(propertyAccesses[i]) is ObjectPropertySyntax propertySyntax)
                 {
                     // we have found our last property access
-                    if (i == propertyAccesses.Length - 1)
+                    if (i == propertyAccesses.Count - 1)
                     {
                         return propertySyntax;
                     }

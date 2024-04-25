@@ -7,6 +7,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static Bicep.Core.UnitTests.Utils.CompilationHelper;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
@@ -24,6 +25,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 this.ReplacementText = replacementText;
             }
         }
+
+        // This linter rule is "Off" by default
+        private static ServiceBuilder Services => new ServiceBuilder().WithConfiguration(BicepTestConstants.BuiltInConfigurationWithStableAnalyzers);
+
+        private static CompilationResult Compile(string fileContents)
+            => CompilationHelper.Compile(Services, ("main.bicep", fileContents));
 
         protected void ExpectPass(string bicepText, Options? options = null)
         {
@@ -200,7 +207,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void If_ResLocIs_ResourceGroupLocation_ShouldFail()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
                 resource appInsightsComponents 'Microsoft.Insights/components@2020-02-02-preview' = {
                   name: 'name'
                   location: resourceGroup().location
@@ -221,7 +228,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void ForLoop1_Resource()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
                 resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i in range(0, 10): {
                   name: 'name${i}'
                   location: resourceGroup().location
@@ -241,7 +248,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void CantBeFooledByStealthyString()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
                 output o string = 'resourceGroup().location'
             ");
 

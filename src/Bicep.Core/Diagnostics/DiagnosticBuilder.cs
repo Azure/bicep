@@ -1437,10 +1437,12 @@ namespace Bicep.Core.Diagnostics
                 "BCP243",
                 "Parentheses must contain exactly one expression.");
 
-            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new(
+            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int minArgCount, int maxArgCount, int actualArgCount) => new(
                 TextSpan,
                 "BCP244",
-                $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
+                minArgCount == maxArgCount ?
+                    $"Expected lambda expression of type \"{lambdaType}\" with {minArgCount} arguments but received {actualArgCount} arguments." :
+                    $"Expected lambda expression of type \"{lambdaType}\" with between {minArgCount} and {maxArgCount} arguments but received {actualArgCount} arguments.");
 
             public Diagnostic ResourceTypeIsReadonly(ResourceTypeReference resourceTypeReference) => new(
                 TextSpan,
@@ -2190,14 +2192,30 @@ namespace Bicep.Core.Diagnostics
                 "BCP400",
                 $"Fetching types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ProviderRegistry)}\".");
 
-            public ErrorDiagnostic ExtendsPathHasNotBeenSpecified() => new(
+            public ErrorDiagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => new(
                 TextSpan,
                 "BCP401",
+                $"The spread operator \"{spread.Ellipsis.Text}\" is not permitted in this location.");
+
+            public ErrorDiagnostic SpreadOperatorRequiresAssignableValue(SpreadExpressionSyntax spread, TypeSymbol requiredType) => new(
+                TextSpan,
+                "BCP402",
+                $"The spread operator \"{spread.Ellipsis.Text}\" can only be used in this context for an expression assignable to type \"{requiredType}\".");
+
+            public Diagnostic ArrayTypeMismatchSpread(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => new(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP403",
+                $"The enclosing array expects elements of type \"{expectedType}\", but the array being spread contains elements of incompatible type \"{actualType}\".");
+
+            public ErrorDiagnostic ExtendsPathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP404",
                 "The extends declaration is missing a bicepparam file path reference.");
 
             public ErrorDiagnostic MoreThanOneExtendsDeclarationSpecified() => new(
                 TextSpan,
-                "BCP402",
+                "BCP405",
                 "More than one 'extends' declaration are present");
         }
 

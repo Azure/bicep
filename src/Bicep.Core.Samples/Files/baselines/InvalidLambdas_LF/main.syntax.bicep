@@ -1,5 +1,5 @@
 param ids array
-//@[000:2629) ProgramSyntax
+//@[000:2785) ProgramSyntax
 //@[000:0015) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0009) | ├─IdentifierSyntax
@@ -144,7 +144,53 @@ var map4 = map(range(0, 10), () => null)
 //@[035:0039) |   |   └─NullLiteralSyntax
 //@[035:0039) |   |     └─Token(NullKeyword) |null|
 //@[039:0040) |   └─Token(RightParen) |)|
-//@[040:0042) ├─Token(NewLine) |\n\n|
+//@[040:0041) ├─Token(NewLine) |\n|
+var map5 = map(range(0, 10), (a, b, c) => a)
+//@[000:0044) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0008) | ├─IdentifierSyntax
+//@[004:0008) | | └─Token(Identifier) |map5|
+//@[009:0010) | ├─Token(Assignment) |=|
+//@[011:0044) | └─FunctionCallSyntax
+//@[011:0014) |   ├─IdentifierSyntax
+//@[011:0014) |   | └─Token(Identifier) |map|
+//@[014:0015) |   ├─Token(LeftParen) |(|
+//@[015:0027) |   ├─FunctionArgumentSyntax
+//@[015:0027) |   | └─FunctionCallSyntax
+//@[015:0020) |   |   ├─IdentifierSyntax
+//@[015:0020) |   |   | └─Token(Identifier) |range|
+//@[020:0021) |   |   ├─Token(LeftParen) |(|
+//@[021:0022) |   |   ├─FunctionArgumentSyntax
+//@[021:0022) |   |   | └─IntegerLiteralSyntax
+//@[021:0022) |   |   |   └─Token(Integer) |0|
+//@[022:0023) |   |   ├─Token(Comma) |,|
+//@[024:0026) |   |   ├─FunctionArgumentSyntax
+//@[024:0026) |   |   | └─IntegerLiteralSyntax
+//@[024:0026) |   |   |   └─Token(Integer) |10|
+//@[026:0027) |   |   └─Token(RightParen) |)|
+//@[027:0028) |   ├─Token(Comma) |,|
+//@[029:0043) |   ├─FunctionArgumentSyntax
+//@[029:0043) |   | └─LambdaSyntax
+//@[029:0038) |   |   ├─VariableBlockSyntax
+//@[029:0030) |   |   | ├─Token(LeftParen) |(|
+//@[030:0031) |   |   | ├─LocalVariableSyntax
+//@[030:0031) |   |   | | └─IdentifierSyntax
+//@[030:0031) |   |   | |   └─Token(Identifier) |a|
+//@[031:0032) |   |   | ├─Token(Comma) |,|
+//@[033:0034) |   |   | ├─LocalVariableSyntax
+//@[033:0034) |   |   | | └─IdentifierSyntax
+//@[033:0034) |   |   | |   └─Token(Identifier) |b|
+//@[034:0035) |   |   | ├─Token(Comma) |,|
+//@[036:0037) |   |   | ├─LocalVariableSyntax
+//@[036:0037) |   |   | | └─IdentifierSyntax
+//@[036:0037) |   |   | |   └─Token(Identifier) |c|
+//@[037:0038) |   |   | └─Token(RightParen) |)|
+//@[039:0041) |   |   ├─Token(Arrow) |=>|
+//@[042:0043) |   |   └─VariableAccessSyntax
+//@[042:0043) |   |     └─IdentifierSyntax
+//@[042:0043) |   |       └─Token(Identifier) |a|
+//@[043:0044) |   └─Token(RightParen) |)|
+//@[044:0046) ├─Token(NewLine) |\n\n|
 
 var filter1 = filter('abc')
 //@[000:0027) ├─VariableDeclarationSyntax
@@ -310,7 +356,52 @@ var filter6 = filter([true, 'hello!'], i => i)
 //@[044:0045) |   |     └─IdentifierSyntax
 //@[044:0045) |   |       └─Token(Identifier) |i|
 //@[045:0046) |   └─Token(RightParen) |)|
-//@[046:0048) ├─Token(NewLine) |\n\n|
+//@[046:0047) ├─Token(NewLine) |\n|
+var filter7 = filter(range(0, 10), (a, b, c) => true)
+//@[000:0053) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0011) | ├─IdentifierSyntax
+//@[004:0011) | | └─Token(Identifier) |filter7|
+//@[012:0013) | ├─Token(Assignment) |=|
+//@[014:0053) | └─FunctionCallSyntax
+//@[014:0020) |   ├─IdentifierSyntax
+//@[014:0020) |   | └─Token(Identifier) |filter|
+//@[020:0021) |   ├─Token(LeftParen) |(|
+//@[021:0033) |   ├─FunctionArgumentSyntax
+//@[021:0033) |   | └─FunctionCallSyntax
+//@[021:0026) |   |   ├─IdentifierSyntax
+//@[021:0026) |   |   | └─Token(Identifier) |range|
+//@[026:0027) |   |   ├─Token(LeftParen) |(|
+//@[027:0028) |   |   ├─FunctionArgumentSyntax
+//@[027:0028) |   |   | └─IntegerLiteralSyntax
+//@[027:0028) |   |   |   └─Token(Integer) |0|
+//@[028:0029) |   |   ├─Token(Comma) |,|
+//@[030:0032) |   |   ├─FunctionArgumentSyntax
+//@[030:0032) |   |   | └─IntegerLiteralSyntax
+//@[030:0032) |   |   |   └─Token(Integer) |10|
+//@[032:0033) |   |   └─Token(RightParen) |)|
+//@[033:0034) |   ├─Token(Comma) |,|
+//@[035:0052) |   ├─FunctionArgumentSyntax
+//@[035:0052) |   | └─LambdaSyntax
+//@[035:0044) |   |   ├─VariableBlockSyntax
+//@[035:0036) |   |   | ├─Token(LeftParen) |(|
+//@[036:0037) |   |   | ├─LocalVariableSyntax
+//@[036:0037) |   |   | | └─IdentifierSyntax
+//@[036:0037) |   |   | |   └─Token(Identifier) |a|
+//@[037:0038) |   |   | ├─Token(Comma) |,|
+//@[039:0040) |   |   | ├─LocalVariableSyntax
+//@[039:0040) |   |   | | └─IdentifierSyntax
+//@[039:0040) |   |   | |   └─Token(Identifier) |b|
+//@[040:0041) |   |   | ├─Token(Comma) |,|
+//@[042:0043) |   |   | ├─LocalVariableSyntax
+//@[042:0043) |   |   | | └─IdentifierSyntax
+//@[042:0043) |   |   | |   └─Token(Identifier) |c|
+//@[043:0044) |   |   | └─Token(RightParen) |)|
+//@[045:0047) |   |   ├─Token(Arrow) |=>|
+//@[048:0052) |   |   └─BooleanLiteralSyntax
+//@[048:0052) |   |     └─Token(TrueKeyword) |true|
+//@[052:0053) |   └─Token(RightParen) |)|
+//@[053:0055) ├─Token(NewLine) |\n\n|
 
 var sort1 = sort('abc')
 //@[000:0023) ├─VariableDeclarationSyntax
@@ -634,7 +725,61 @@ var reduce5 = reduce(range(0, 10), 0, i => i)
 //@[043:0044) |   |     └─IdentifierSyntax
 //@[043:0044) |   |       └─Token(Identifier) |i|
 //@[044:0045) |   └─Token(RightParen) |)|
-//@[045:0047) ├─Token(NewLine) |\n\n|
+//@[045:0046) ├─Token(NewLine) |\n|
+var reduce6 = reduce(range(0, 10), 0, (a, b, c, d) => a)
+//@[000:0056) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0011) | ├─IdentifierSyntax
+//@[004:0011) | | └─Token(Identifier) |reduce6|
+//@[012:0013) | ├─Token(Assignment) |=|
+//@[014:0056) | └─FunctionCallSyntax
+//@[014:0020) |   ├─IdentifierSyntax
+//@[014:0020) |   | └─Token(Identifier) |reduce|
+//@[020:0021) |   ├─Token(LeftParen) |(|
+//@[021:0033) |   ├─FunctionArgumentSyntax
+//@[021:0033) |   | └─FunctionCallSyntax
+//@[021:0026) |   |   ├─IdentifierSyntax
+//@[021:0026) |   |   | └─Token(Identifier) |range|
+//@[026:0027) |   |   ├─Token(LeftParen) |(|
+//@[027:0028) |   |   ├─FunctionArgumentSyntax
+//@[027:0028) |   |   | └─IntegerLiteralSyntax
+//@[027:0028) |   |   |   └─Token(Integer) |0|
+//@[028:0029) |   |   ├─Token(Comma) |,|
+//@[030:0032) |   |   ├─FunctionArgumentSyntax
+//@[030:0032) |   |   | └─IntegerLiteralSyntax
+//@[030:0032) |   |   |   └─Token(Integer) |10|
+//@[032:0033) |   |   └─Token(RightParen) |)|
+//@[033:0034) |   ├─Token(Comma) |,|
+//@[035:0036) |   ├─FunctionArgumentSyntax
+//@[035:0036) |   | └─IntegerLiteralSyntax
+//@[035:0036) |   |   └─Token(Integer) |0|
+//@[036:0037) |   ├─Token(Comma) |,|
+//@[038:0055) |   ├─FunctionArgumentSyntax
+//@[038:0055) |   | └─LambdaSyntax
+//@[038:0050) |   |   ├─VariableBlockSyntax
+//@[038:0039) |   |   | ├─Token(LeftParen) |(|
+//@[039:0040) |   |   | ├─LocalVariableSyntax
+//@[039:0040) |   |   | | └─IdentifierSyntax
+//@[039:0040) |   |   | |   └─Token(Identifier) |a|
+//@[040:0041) |   |   | ├─Token(Comma) |,|
+//@[042:0043) |   |   | ├─LocalVariableSyntax
+//@[042:0043) |   |   | | └─IdentifierSyntax
+//@[042:0043) |   |   | |   └─Token(Identifier) |b|
+//@[043:0044) |   |   | ├─Token(Comma) |,|
+//@[045:0046) |   |   | ├─LocalVariableSyntax
+//@[045:0046) |   |   | | └─IdentifierSyntax
+//@[045:0046) |   |   | |   └─Token(Identifier) |c|
+//@[046:0047) |   |   | ├─Token(Comma) |,|
+//@[048:0049) |   |   | ├─LocalVariableSyntax
+//@[048:0049) |   |   | | └─IdentifierSyntax
+//@[048:0049) |   |   | |   └─Token(Identifier) |d|
+//@[049:0050) |   |   | └─Token(RightParen) |)|
+//@[051:0053) |   |   ├─Token(Arrow) |=>|
+//@[054:0055) |   |   └─VariableAccessSyntax
+//@[054:0055) |   |     └─IdentifierSyntax
+//@[054:0055) |   |       └─Token(Identifier) |a|
+//@[055:0056) |   └─Token(RightParen) |)|
+//@[056:0058) ├─Token(NewLine) |\n\n|
 
 var toObject1 = toObject('abc')
 //@[000:0031) ├─VariableDeclarationSyntax

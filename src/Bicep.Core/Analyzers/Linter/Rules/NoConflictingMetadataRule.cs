@@ -17,8 +17,8 @@ public sealed class NoConflictingMetadataRule : LinterRuleBase
     public NoConflictingMetadataRule() : base(
         code: Code,
         description: CoreResources.NoConflictingMetadataRuleDescription,
-        docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
-        diagnosticLevel: DiagnosticLevel.Warning)
+        LinterRuleCategory.PotentialCodeIssues,
+        docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
     { }
 
     public override string FormatMessage(params object[] values)

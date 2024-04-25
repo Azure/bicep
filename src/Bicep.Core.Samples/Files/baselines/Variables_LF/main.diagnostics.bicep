@@ -109,7 +109,6 @@ var myArrWithObjects = [
 var expressionIndexOnAny = any({
 //@[04:24) [no-unused-vars (Warning)] Variable "expressionIndexOnAny" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |expressionIndexOnAny|
 })[az.resourceGroup().location]
-//@[03:30) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |az.resourceGroup().location|
 
 var anyIndexOnAny = any(true)[any(false)]
 //@[04:17) [no-unused-vars (Warning)] Variable "anyIndexOnAny" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |anyIndexOnAny|
@@ -168,7 +167,6 @@ var previousEmitLimit = [
         'hello'
       ])
       d: az.resourceGroup().location
-//@[09:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |az.resourceGroup().location|
       e: concat([
         true
       ])
@@ -194,7 +192,6 @@ var previousEmitLimit2 = [
         c: 'hello'
       })
       d: az.resourceGroup().location
-//@[09:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |az.resourceGroup().location|
       e: union({
         x: true
       }, {})
@@ -211,7 +208,6 @@ var previousEmitLimit3 = {
   a: {
     b: {
       a: az.resourceGroup().location
-//@[09:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |az.resourceGroup().location|
     } == 2
     c: concat([
 
@@ -296,7 +292,6 @@ var scopesWithArmRepresentation = {
 // Issue #1332
 var issue1332_propname = 'ptest'
 var issue1332 = true ? {
-//@[04:13) [no-unused-vars (Warning)] Variable "issue1332" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |issue1332|
     prop1: {
         '${issue1332_propname}': {}
     }
@@ -364,13 +359,10 @@ var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
   'prefix-${i}-${name}-suffix'
 ]]
 var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
-//@[04:19) [no-unused-vars (Warning)] Variable "arrayOfBooleans" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |arrayOfBooleans|
 var arrayOfHardCodedNumbers = [for i in range(0,10): 3]
-//@[04:27) [no-unused-vars (Warning)] Variable "arrayOfHardCodedNumbers" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |arrayOfHardCodedNumbers|
 var arrayOfHardCodedBools = [for i in range(0,10): false]
 //@[04:25) [no-unused-vars (Warning)] Variable "arrayOfHardCodedBools" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |arrayOfHardCodedBools|
 var arrayOfHardCodedStrings = [for i in range(0,3): 'hi']
-//@[04:27) [no-unused-vars (Warning)] Variable "arrayOfHardCodedStrings" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |arrayOfHardCodedStrings|
 var arrayOfNonRuntimeFunctionCalls = [for i in range(0,3): concat('hi', i)]
 //@[04:34) [no-unused-vars (Warning)] Variable "arrayOfNonRuntimeFunctionCalls" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |arrayOfNonRuntimeFunctionCalls|
 //@[59:74) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('hi', i)|
@@ -452,4 +444,18 @@ var prefix = take('food', 3)
 //@[04:10) [no-unused-vars (Warning)] Variable "prefix" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |prefix|
 var isPrefixed = startsWith('food', 'foo')
 //@[04:14) [no-unused-vars (Warning)] Variable "isPrefixed" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |isPrefixed|
+
+var spread = {
+  foo: 'abc'
+  ...issue1332
+}
+
+var test = {
+//@[04:08) [no-unused-vars (Warning)] Variable "test" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |test|
+  ...spread
+  bar: 'def'
+}
+
+var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
+//@[04:15) [no-unused-vars (Warning)] Variable "arraySpread" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |arraySpread|
 

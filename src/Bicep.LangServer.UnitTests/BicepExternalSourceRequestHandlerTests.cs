@@ -395,18 +395,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
         #region GetExternalSourceLinkUri tests
 
         [TestMethod]
-        public void GetExternalSourceLinkUri_DefaultToBicepIsFalse_WithoutOrWithoutSource_ShouldRequestMainJson()
-        {
-            Uri resultWithSource = GetExternalSourceLinkUri(new ExternalSourceLinkTestData(), defaultToDisplayingBicep: false);
-            DecodeExternalSourceUri(resultWithSource).IsRequestingCompiledJson.Should().BeTrue();
-            DecodeExternalSourceUri(resultWithSource).FullTitle.Should().Contain("main.json");
-
-            Uri resultWithoutSource = GetExternalSourceLinkUri(new ExternalSourceLinkTestData(), defaultToDisplayingBicep: false);
-            DecodeExternalSourceUri(resultWithoutSource).IsRequestingCompiledJson.Should().BeTrue();
-            DecodeExternalSourceUri(resultWithoutSource).FullTitle.Should().Contain("main.json");
-        }
-
-        [TestMethod]
         public void GetExternalSourceLinkUri_FullLink_WithSource()
         {
             Uri result = GetExternalSourceLinkUri(new ExternalSourceLinkTestData());
@@ -500,7 +488,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             (decoded.RequestedFile ?? "main.json").Should().MatchRegex(".+\\.(bicep|json)$", "requested source file should end with .json or .bicep");
         }
 
-        private Uri GetExternalSourceLinkUri(ExternalSourceLinkTestData testData, bool defaultToDisplayingBicep = true)
+        private Uri GetExternalSourceLinkUri(ExternalSourceLinkTestData testData)
         {
             Uri? entrypointUri = testData.sourceEntrypoint is { } ? PathHelper.FilePathToFileUrl(testData.sourceEntrypoint) : null;
             OciArtifactReference reference = new(
@@ -515,7 +503,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new SourceArchiveBuilder().WithBicepFile(entrypointUri, "metadata description = 'bicep module'").Build()
                 : null;
 
-            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(reference, sourceArchive, defaultToDisplayingBicep);
+            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(reference, sourceArchive);
         }
 
         private string TrimFirstCharacter(string s)

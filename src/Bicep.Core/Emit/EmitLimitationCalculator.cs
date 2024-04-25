@@ -54,6 +54,7 @@ namespace Bicep.Core.Emit
             BlockAssertsWithoutExperimentalFeatures(model, diagnostics);
             BlockNamesDistinguishedOnlyByCase(model, diagnostics);
             BlockResourceDerivedTypesThatDoNotDereferenceProperties(model, diagnostics);
+            BlockSpreadInUnsupportedLocations(model, diagnostics);
 
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
@@ -700,6 +701,41 @@ namespace Bicep.Core.Emit
                 .Where(typeInstantiation => model.TypeManager.TryGetReifiedType(typeInstantiation) is ResourceDerivedTypeExpression &&
                     !IsPermittedResourceDerivedTypeParent(model.Binder, model.Binder.GetParent(typeInstantiation)))
                 .Select(typeInstantiaion => DiagnosticBuilder.ForPosition(typeInstantiaion).CannotUseEntireResourceBodyAsType()));
+        }
+
+        private static void BlockSpreadInUnsupportedLocations(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            IEnumerable<ObjectSyntax> getObjectSyntaxesToBlock()
+            {
+                foreach (var module in model.Root.ModuleDeclarations)
+                {
+                    if (module.DeclaringModule.TryGetBody() is {} body)
+                    {
+                        yield return body;
+
+                        if (body.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName)?.Value is ObjectSyntax paramsBody)
+                        {
+                            yield return paramsBody;
+                        }
+                    }
+                }
+
+                foreach (var resource in model.Root.ResourceDeclarations)
+                {
+                    if (resource.DeclaringResource.TryGetBody() is {} body)
+                    {
+                        yield return body;
+                    }
+                }
+            }
+
+            foreach (var body in getObjectSyntaxesToBlock())
+            {
+                foreach (var spread in body.Children.OfType<SpreadExpressionSyntax>())
+                {
+                    diagnostics.Write(spread, x => x.SpreadOperatorUnsupportedInLocation(spread));
+                }
+            }
         }
     }
 }

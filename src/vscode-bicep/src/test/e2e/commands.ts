@@ -83,7 +83,9 @@ export async function executeShowDeployPaneToSideCommand(
 export async function executeShowSourceCommand(): Promise<
   vscode.TextEditor | undefined
 > {
-  return await vscode.commands.executeCommand(ShowSourceFromVisualizerCommand.CommandId);
+  return await vscode.commands.executeCommand(
+    ShowSourceFromVisualizerCommand.CommandId,
+  );
 }
 
 export async function executeBuildCommand(

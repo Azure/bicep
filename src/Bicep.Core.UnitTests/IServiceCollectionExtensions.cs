@@ -95,6 +95,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithDisabledAnalyzersConfiguration(this IServiceCollection services)
         => services.WithConfigurationPatch(c => c.WithAllAnalyzersDisabled());
 
+    public static IServiceCollection WithConfiguration(this IServiceCollection services, RootConfiguration configuration)
+        => services.WithConfigurationPatch(c => configuration);
+
     public static IServiceCollection WithBicepAnalyzer(this IServiceCollection services, IBicepAnalyzer bicepAnalyzer)
         => Register(services, bicepAnalyzer);
 

@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.IO.Abstractions;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -52,15 +53,12 @@ namespace Bicep.Core.UnitTests
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
         // Linter rules added to this list will be automatically disabled for most tests.
-        // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
-        public static readonly string[] AnalyzerRulesToDisableInTests = [];
+        public static readonly string[] NonStableAnalyzerRules = [UseRecentApiVersionRule.Code];
 
-        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = IConfigurationManager.GetBuiltInConfiguration();
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-        public static readonly RootConfiguration BuiltInConfigurationWithProblematicAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled(AnalyzerRulesToDisableInTests);
+        public static readonly RootConfiguration BuiltInConfigurationWithStableAnalyzers = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzers().WithAnalyzersDisabled(NonStableAnalyzerRules);
 
-        // By default turns off only problematic analyzers
-        public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithProblematicAnalyzersDisabled;
+        public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithStableAnalyzers;
 
         public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
 

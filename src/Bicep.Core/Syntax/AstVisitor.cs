@@ -500,5 +500,10 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Expression);
         }
+
+        public override void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax)
+        {
+            this.Visit(syntax.Expression);
+        }
     }
 }

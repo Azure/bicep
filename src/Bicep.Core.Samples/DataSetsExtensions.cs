@@ -30,13 +30,13 @@ namespace Bicep.Core.Samples
         public static string SaveFilesToTestDirectory(this DataSet dataSet, TestContext testContext)
             => FileHelper.SaveEmbeddedResourcesWithPathPrefix(testContext, typeof(DataSet).Assembly, dataSet.GetStreamPrefix());
 
-        public static async Task<(Compilation compilation, string outputDirectory, Uri fileUri)> SetupPrerequisitesAndCreateCompilation(this DataSet dataSet, TestContext testContext, FeatureProviderOverrides? features = null, bool enablePublishSource = true)
+        public static async Task<(Compilation compilation, string outputDirectory, Uri fileUri)> SetupPrerequisitesAndCreateCompilation(this DataSet dataSet, TestContext testContext, FeatureProviderOverrides? features = null)
         {
             features ??= new(testContext, RegistryEnabled: dataSet.HasExternalModules);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory, enablePublishSource);
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(testContext, enablePublishSource);
+            var clientFactory = dataSet.CreateMockRegistryClients();
+            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(testContext);
 
             var compiler = ServiceBuilder.Create(s => s.AddSingleton(templateSpecRepositoryFactory).AddSingleton(clientFactory).WithFeatureOverrides(features)).GetCompiler();
 
@@ -46,17 +46,15 @@ namespace Bicep.Core.Samples
             return (compilation, outputDirectory, fileUri);
         }
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, bool enablePublishSource, params (string registryUri, string repository)[] additionalClients)
-            => CreateMockRegistryClients(dataSet.RegistryModules, enablePublishSource, additionalClients);
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, params (string registryUri, string repository)[] additionalClients)
+            => CreateMockRegistryClients(dataSet.RegistryModules, additionalClients);
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, bool enablePublishSource, params (string registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, params (string registryUri, string repository)[] additionalClients)
         {
-            var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: enablePublishSource));
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                .AddSingleton(featureProviderFactory)
-                ).Construct<IModuleDispatcher>();
+            ).Construct<IModuleDispatcher>();
 
             var clients = new List<(string, string)>();
 
@@ -75,19 +73,17 @@ namespace Bicep.Core.Samples
             return RegistryHelper.CreateMockRegistryClients(clients.Concat(additionalClients).ToArray()).factoryMock;
         }
 
-        public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory(bool enablePublishSource = false)
-            => CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo>.Empty, enablePublishSource);
+        public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory()
+            => CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo>.Empty);
 
-        public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext _, bool enablePublishSource = false)
-            => CreateMockTemplateSpecRepositoryFactory(dataSet.TemplateSpecs, enablePublishSource);
+        public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext _)
+            => CreateMockTemplateSpecRepositoryFactory(dataSet.TemplateSpecs);
 
-        public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo> templateSpecs, bool enablePublishSource = false)
+        public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo> templateSpecs)
         {
-            var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: enablePublishSource));
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                .AddSingleton(featureProviderFactory)
                 ).Construct<IModuleDispatcher>();
             var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 

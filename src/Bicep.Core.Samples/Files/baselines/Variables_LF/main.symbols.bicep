@@ -493,3 +493,18 @@ var prefix = take('food', 3)
 var isPrefixed = startsWith('food', 'foo')
 //@[04:14) Variable isPrefixed. Type: true. Declaration start char: 0, length: 42
 
+var spread = {
+//@[04:10) Variable spread. Type: object. Declaration start char: 0, length: 44
+  foo: 'abc'
+  ...issue1332
+}
+
+var test = {
+//@[04:08) Variable test. Type: object. Declaration start char: 0, length: 39
+  ...spread
+  bar: 'def'
+}
+
+var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
+//@[04:15) Variable arraySpread. Type: ('hi' | 3 | bool)[]. Declaration start char: 0, length: 94
+

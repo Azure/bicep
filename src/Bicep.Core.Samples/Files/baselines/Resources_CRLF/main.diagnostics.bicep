@@ -3,7 +3,6 @@
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'basicblobs'
   location: 'westus'
-//@[12:20) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
   kind: 'BlobStorage'
   sku: {
     name: 'Standard_GRS'
@@ -19,7 +18,6 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
 resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   name: 'myencryptedone'
   location: 'eastus2'
-//@[12:21) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus2' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus2'|
   properties: {
     supportsHttpsTrafficOnly: true
     accessTier: 'Hot'
@@ -44,7 +42,6 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   name: 'myencryptedone2'
   location: 'eastus2'
-//@[12:21) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus2' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus2'|
   properties: {
     supportsHttpsTrafficOnly: !false
     accessTier: true ? 'Hot' : 'Cold'
@@ -77,7 +74,6 @@ param appServicePlanTier string
 param appServicePlanInstances int
 
 var location = resourceGroup().location
-//@[15:39) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
 
 resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   // dependsOn: resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosAccountName)
@@ -247,7 +243,6 @@ param shouldDeployVm bool = true
 resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
   name: 'vmName'
   location: 'westus'
-//@[12:20) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
   properties: {
     osProfile: {
       windowsConfiguration: {
@@ -262,7 +257,6 @@ resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
                     if (shouldDeployVm) {
   name: 'vmName2'
   location: 'westus'
-//@[12:20) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
   properties: {
     osProfile: {
       windowsConfiguration: {
@@ -438,7 +432,6 @@ resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
 
 resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: resourceGroup().location
-//@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   name: 'myVnet'
   properties: {
     addressSpace: {
@@ -539,20 +532,17 @@ var dbs = ['db1', 'db2','db3']
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sql-server-name'
   location: 'polandcentral'
-//@[12:27) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
 
   @batchSize(1)
   @description('Sql Databases')
   resource sqlDatabases 'databases' = [for db in dbs: {
     name: db
     location: 'polandcentral'
-//@[14:29) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
   }]
 
   @description('Primary Sql Database')
   resource primaryDb 'databases' = {
     name: 'primary-db'
     location: 'polandcentral'
-//@[14:29) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
   }
 }

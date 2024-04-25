@@ -15,6 +15,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public AdminUsernameShouldNotBeLiteralRule() : base(
             code: Code,
             description: CoreResources.AdminUsernameShouldNotBeLiteralRuleDescription,
+            LinterRuleCategory.Security,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}")
         )
         {
