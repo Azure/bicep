@@ -52,7 +52,16 @@ namespace Bicep.Core.Semantics
                 if (sourceFileLookup.TryGetSourceFile(extendsDeclaration).TryUnwrap() is {} extendedFile &&
                     modelLookup.GetSemanticModel(extendedFile) is SemanticModel extendedModel)
                 {
-                    fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(extendedModel.Root.ParameterAssignments));
+                    var parameterAssignments = ImmutableArray<ParameterAssignmentSymbol>.Empty;
+                    foreach (var assignment in extendedModel.Root.ParameterAssignments)
+                    {
+                        if (!fileScope.Locals.Any(e => e.Name == assignment.Name))
+                        {
+                            parameterAssignments = parameterAssignments.Add(assignment);
+                        }
+                    }
+
+                    fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(parameterAssignments));
                 }
             }
 

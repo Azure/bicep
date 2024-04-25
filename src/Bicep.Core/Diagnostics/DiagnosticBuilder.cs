@@ -2152,6 +2152,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP395",
                 "The extends declaration is missing a bicepparam file path reference.");
 
+            public ErrorDiagnostic MoreThanOneExtendsDeclarationSpecified() => new(
+                TextSpan,
+                "BCP396",
+                "More than one 'extends' declaration are present");
+
             public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecification syntax)
             {
                 var codeFix = new CodeFix(
