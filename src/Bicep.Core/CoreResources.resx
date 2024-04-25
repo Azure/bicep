@@ -487,9 +487,6 @@
   <data name="ExperimentalFeatureNames_MicrosoftGraphPreview" xml:space="preserve">
     <value>MicrosoftGraph Preview</value>
   </data>
-  <data name="ExperimentalFeatureNames_PublishSource" xml:space="preserve">
-    <value>Enable publishing modules with source</value>
-  </data>
   <data name="ExperimentalFeatureNames_OptionalModuleNames" xml:space="preserve">
     <value>Enable optional module names</value>
   </data>

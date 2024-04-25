@@ -29,8 +29,6 @@ public interface IFeatureProvider
 
     bool MicrosoftGraphPreviewEnabled { get; }
 
-    bool PublishSourceEnabled { get; }
-
     bool OptionalModuleNamesEnabled { get; }
 
     bool ResourceDerivedTypesEnabled { get; }
@@ -52,7 +50,6 @@ public interface IFeatureProvider
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
                 (MicrosoftGraphPreviewEnabled, CoreResources.ExperimentalFeatureNames_MicrosoftGraphPreview, true, true),
-                (PublishSourceEnabled, CoreResources.ExperimentalFeatureNames_PublishSource, false, false),
                 (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),
                 (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
             })

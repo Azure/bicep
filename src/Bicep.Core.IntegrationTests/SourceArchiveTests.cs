@@ -53,7 +53,7 @@ namespace Bicep.Core.IntegrationTests
 
         private IModuleDispatcher CreateModuleDispatcher(IContainerRegistryClientFactory clientFactory)
         {
-            var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: true, CacheRootDirectory: CacheRoot));
+            var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: CacheRoot));
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(clientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
@@ -195,7 +195,7 @@ namespace Bicep.Core.IntegrationTests
                             p1: false
                       }
                     }
-                    
+
                     module local 'local.bicep' = {
                         params: {
                             p2: 'there'

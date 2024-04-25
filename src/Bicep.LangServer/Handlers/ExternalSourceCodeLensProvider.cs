@@ -31,7 +31,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
                 catch (Exception ex)
                 {
-                    message = $"(Experimental) There was an error retrieving source code for this module: {ex.Message}";
+                    message = $"There was an error retrieving source code for this module: {ex.Message}";
                 }
 
                 if (externalReference is not null)
@@ -51,7 +51,7 @@ namespace Bicep.LanguageServer.Handlers
                             {
                                 yield return CreateCodeLens(
                                     DocumentStart,
-                                    "Show Bicep source (experimental)",
+                                    "Show Bicep source",
                                     "bicep.internal.showModuleSourceFile",
                                     new ExternalSourceReference(request.TextDocument.Uri).WithRequestForSourceFile(sourceArchive.EntrypointRelativePath).ToUri().ToString());
                             }
@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
                             }
                             else
                             {
-                                message = $"(Experimental) Cannot display source code for this module. {ex.Message}";
+                                message = $"Cannot display source code for this module. {ex.Message}";
                             }
                         }
                         else

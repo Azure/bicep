@@ -185,7 +185,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lens = lenses.First();
             lens.Should().HaveRange(new Range(0, 0, 0, 0));
             lens.Should().HaveCommandName("bicep.internal.showModuleSourceFile");
-            lens.Should().HaveCommandTitle("Show Bicep source (experimental)");
+            lens.Should().HaveCommandTitle("Show Bicep source");
             var target = new ExternalSourceReference(lens.CommandArguments().Single());
             target.IsRequestingCompiledJson.Should().BeFalse();
             target.RequestedFile.Should().Be(Path.GetFileName(moduleEntrypointUri.Path));
@@ -208,7 +208,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lens = lenses.First();
             lens.Should().HaveRange(new Range(0, 0, 0, 0));
             lens.Should().HaveCommandName("");
-            lens.Should().HaveCommandTitle("(Experimental) No source code is available for this module");
+            lens.Should().HaveCommandTitle("No source code is available for this module");
             lens.Should().HaveNoCommandArguments();
         }
 
@@ -229,7 +229,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lens = lenses.First();
             lens.Should().HaveRange(new Range(0, 0, 0, 0));
             lens.Should().HaveCommandName("");
-            lens.Should().HaveCommandTitle("(Experimental) There was an error retrieving source code for this module: Invalid module reference 'br:myregistry.azurecr.io/myrepo/bicep/module1:'. The specified OCI artifact reference \"br:myregistry.azurecr.io/myrepo/bicep/module1:\" is not valid. The module tag or digest is missing. (Parameter 'fullyQualifiedModuleReference')");
+            lens.Should().HaveCommandTitle("There was an error retrieving source code for this module: Invalid module reference 'br:myregistry.azurecr.io/myrepo/bicep/module1:'. The specified OCI artifact reference \"br:myregistry.azurecr.io/myrepo/bicep/module1:\" is not valid. The module tag or digest is missing. (Parameter 'fullyQualifiedModuleReference')");
             lens.Should().HaveNoCommandArguments();
         }
 
@@ -251,7 +251,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lens = lenses.First();
             lens.Should().HaveRange(new Range(0, 0, 0, 0));
             lens.Should().HaveCommandName("");
-            lens.Should().HaveCommandTitle("(Experimental) Cannot display source code for this module. Source archive is incompatible with this version of Bicep.");
+            lens.Should().HaveCommandTitle("Cannot display source code for this module. Source archive is incompatible with this version of Bicep.");
             lens.Should().HaveNoCommandArguments();
         }
 

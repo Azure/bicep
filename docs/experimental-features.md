@@ -24,9 +24,6 @@ Enables code formatting with the legacy formatter. This feature flag is introduc
 ### `optionalModuleNames`
 Enabling this feature makes the `name` property in the body of `module` declarations optional. When a `module` omits the `name` property with the feature enabled, the Bicep compiler will automatically generate an expression for the name of the resulting nested deployment in the JSON. If you specify the `name` property, the compiler will use the specified expression in the resulting JSON. For more information, see [Added optional module names as an experimental feature](https://github.com/Azure/bicep/pull/12600).
 
-### `publishSource`
-Enables publishing source code with modules using the `bicep publish` `--with-source` option. This option must be enabled in the `bicepconfig.json` file that applies to the `.bicep` module file being published. When enabled, Bicep sources will be stored in the target registry along with the module itself.  Users with Bicep v0.25 and higher will be able to view the Bicep source directly when they press F12 ("Go to Definition") on a `module` declaration referencing the published `module`. For modules published without this option, users will only be able to view the compiled JSON.
-
 ### `resourceDerivedTypes`
 If enabled, templates can reuse resource types wherever a type is expected. For example, to declare a parameter `foo` that should be usable as the name of an Azure Storage account, the following syntax would be used: `param foo resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name`. **NB:** Because resource types may be inaccurate in some cases, no constraints other than the ARM type primitive will be enforced on resource derived types within the ARM deployment engine. Resource-derived types will be checked by Bicep at compile time, but violations will be emitted as warnings rather than errors.
 

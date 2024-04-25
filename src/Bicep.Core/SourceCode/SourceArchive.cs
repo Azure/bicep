@@ -24,7 +24,7 @@ namespace Bicep.Core.SourceCode
     public class SourceNotAvailableException : Exception
     {
         public SourceNotAvailableException()
-            : base("(Experimental) No source code is available for this module")
+            : base("No source code is available for this module")
         { }
     }
 
