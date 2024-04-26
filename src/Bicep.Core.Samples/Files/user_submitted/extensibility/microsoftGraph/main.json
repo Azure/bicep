@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13144292752242927112"
+      "templateHash": "13653571511506928892"
     }
   },
   "parameters": {
@@ -30,6 +30,22 @@
     }
   },
   "resources": {
+    "appV1::myTestFIC": {
+      "import": "graph",
+      "type": "Microsoft.Graph/applications/federatedIdentityCredentials@v1.0",
+      "properties": {
+        "name": "[format('{0}/mytestfic', reference('appV1').uniqueName)]",
+        "audiences": [
+          "audience"
+        ],
+        "description": "My test fic",
+        "issuer": "issuer",
+        "subject": "subject"
+      },
+      "dependsOn": [
+        "appV1"
+      ]
+    },
     "resourceApp": {
       "import": "graph",
       "type": "Microsoft.Graph/applications@beta",
