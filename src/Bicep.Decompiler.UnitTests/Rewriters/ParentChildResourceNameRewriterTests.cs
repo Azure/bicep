@@ -124,19 +124,17 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
 
                 var parentName = 'resA'
 
-                resource resA 'My.Rp/resA@2020-01-01' =
-                  if (condA) {
-                    name: parentName
-                  }
+                resource resA 'My.Rp/resA@2020-01-01' = if (condA) {
+                  name: parentName
+                }
 
-                resource resB 'My.Rp/resA/childB@2020-01-01' =
-                  if (condB) {
-                    parent: resA
-                    name: 'resB'
-                    dependsOn: [
-                      resA
-                    ]
-                  }
+                resource resB 'My.Rp/resA/childB@2020-01-01' = if (condB) {
+                  parent: resA
+                  name: 'resB'
+                  dependsOn: [
+                    resA
+                  ]
+                }
 
                 """);
         }
