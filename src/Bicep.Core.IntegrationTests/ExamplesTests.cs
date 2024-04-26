@@ -83,7 +83,7 @@ namespace Bicep.Core.IntegrationTests
         public Task ExampleIsValid_extensibility(EmbeddedFile embeddedBicep)
             => RunExampleTest(
                 embeddedBicep,
-                new(ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: embeddedBicep.StreamPath.Contains("microsoftGraph")),
+                new(ExtensibilityEnabled: true),
                 ".json");
 
         [DataTestMethod]

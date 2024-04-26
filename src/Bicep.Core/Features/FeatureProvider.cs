@@ -32,8 +32,6 @@ namespace Bicep.Core.Features
 
         public bool AssertsEnabled => configuration.ExperimentalFeaturesEnabled.Assertions;
 
-        public bool MicrosoftGraphPreviewEnabled => this.configuration.ExperimentalFeaturesEnabled.MicrosoftGraphPreview;
-
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvVar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
