@@ -211,6 +211,34 @@ var w81___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 123456789
 var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
 //@    "w82___": "[if(true(), 1234567890, 1234567890)]",
 
+
+var w80_________ = union(/*******************************************/ {}, {}, {
+//@    "w80_________": "[union(createObject(), createObject(), createObject('foo', true(), 'bar', false()))]",
+    foo: true
+    bar: false
+})
+var w81_________ = union(/********************************************/ {}, {}, {
+//@    "w81_________": "[union(createObject(), createObject(), createObject('foo', true(), 'bar', false()))]",
+    foo: true
+    bar: false
+})
+
+var w80__________ = union(/******************************************/ {}, {}, {
+//@    "w80__________": "[union(createObject(), createObject(), createObject('foo', true(), 'w80', union(createObject(), createObject('baz', 123))))]",
+    foo: true
+    w80: union(/***********************************************************/ {}, {
+        baz: 123
+    })
+})
+
+var w81__________ = union(/*******************************************/ {}, {}, {
+//@    "w81__________": "[union(createObject(), createObject(), createObject('foo', true(), 'w81', union(createObject(), createObject('baz', 123))))]",
+    foo: true
+    w81: union(/**********************************************************/ {}, {
+        baz: 123
+    })
+})
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -288,6 +316,7 @@ var forceBreak9 = [1, 2, {
     bar: false
 //@        "bar": false
 }]
+// Does not break immediate parent group, but breaks grandparent.
 var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
 //@    "forceBreak10": [
 //@      1,
@@ -312,6 +341,13 @@ var forceBreak14 = true ? {
     foo: 42
 } : false
 var forceBreak15 = true ? { foo: 0 } : {
-//@    "forceBreak15": "[if(true(), createObject('foo', 0), createObject('bar', 1))]"
+//@    "forceBreak15": "[if(true(), createObject('foo', 0), createObject('bar', 1))]",
     bar: 1}
+
+var forceBreak16 = union({ foo: 0 }, {
+//@    "forceBreak16": "[union(createObject('foo', 0), createObject('foo', 123, 'bar', 456))]"
+    foo: 123
+    bar: 456
+} // comment
+)
 

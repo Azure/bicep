@@ -117,6 +117,34 @@ var w81___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 123456789
 var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
 //@[04:10) [no-unused-vars (Warning)] Variable "w82___" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w82___|
 
+
+var w80_________ = union(/*******************************************/ {}, {}, {
+//@[04:16) [no-unused-vars (Warning)] Variable "w80_________" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w80_________|
+    foo: true
+    bar: false
+})
+var w81_________ = union(/********************************************/ {}, {}, {
+//@[04:16) [no-unused-vars (Warning)] Variable "w81_________" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w81_________|
+    foo: true
+    bar: false
+})
+
+var w80__________ = union(/******************************************/ {}, {}, {
+//@[04:17) [no-unused-vars (Warning)] Variable "w80__________" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w80__________|
+    foo: true
+    w80: union(/***********************************************************/ {}, {
+        baz: 123
+    })
+})
+
+var w81__________ = union(/*******************************************/ {}, {}, {
+//@[04:17) [no-unused-vars (Warning)] Variable "w81__________" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w81__________|
+    foo: true
+    w81: union(/**********************************************************/ {}, {
+        baz: 123
+    })
+})
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,6 +185,7 @@ var forceBreak9 = [1, 2, {
     foo: true
     bar: false
 }]
+// Does not break immediate parent group, but breaks grandparent.
 var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
 //@[04:16) [no-unused-vars (Warning)] Variable "forceBreak10" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |forceBreak10|
   foo: true})]
@@ -179,4 +208,11 @@ var forceBreak14 = true ? {
 var forceBreak15 = true ? { foo: 0 } : {
 //@[04:16) [no-unused-vars (Warning)] Variable "forceBreak15" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |forceBreak15|
     bar: 1}
+
+var forceBreak16 = union({ foo: 0 }, {
+//@[04:16) [no-unused-vars (Warning)] Variable "forceBreak16" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |forceBreak16|
+    foo: 123
+    bar: 456
+} // comment
+)
 

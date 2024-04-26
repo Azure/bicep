@@ -124,6 +124,30 @@ namespace Bicep.Core.Syntax
             _ => CommentStickiness.None,
         };
 
+        public static bool HasCommentOrDirective(this Token token) => token.LeadingTrivia.Any(x => !x.IsWhitespace()) || token.TrailingTrivia.Any(x => !x.IsWhitespace());
+
+        public static bool HasTrailingLineComment(this Token token) => token.TrailingTrivia.Any(IsSingleLineComment);
+
+        public static bool IsKeyword(this Token token, string keyword) => token.IsOf(TokenType.Identifier) && IdentifierEquals(token.Text, keyword);
+
+        public static bool IsOf(this Token token, TokenType type) => token.Type == type;
+
         public static bool IsOf(this SyntaxTrivia trivia, SyntaxTriviaType type) => trivia.Type == type;
+
+        public static bool IsSingleLineComment(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.SingleLineComment;
+
+        public static bool IsMultiLineComment(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.MultiLineComment;
+
+        public static bool IsComment(this SyntaxTrivia? trivia) => IsSingleLineComment(trivia) || IsMultiLineComment(trivia);
+
+        public static bool IsDirective(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.DisableNextLineDiagnosticsDirective;
+
+        public static bool IsWhitespace(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.Whitespace;
+
+        public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo) => IdentifierEquals(funcSyntax.Name.IdentifierName, compareTo);
+
+        public static bool NameEquals(this IdentifierSyntax identifier, string compareTo) => IdentifierEquals(identifier.IdentifierName, compareTo);
+
+        private static bool IdentifierEquals(string x, string y) => LanguageConstants.IdentifierComparer.Equals(x, y);
     }
 }

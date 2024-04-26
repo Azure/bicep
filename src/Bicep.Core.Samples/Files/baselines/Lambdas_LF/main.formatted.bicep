@@ -24,23 +24,17 @@ var flattenedEmptyArray = flatten([])
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
 var mapEmpty = map([], foo => 'Hi ${foo}!')
-var mapObject = map(
-  range(0, length(doggos)),
-  i => {
-    i: i
-    doggo: doggos[i]
-    greeting: 'Ahoy, ${doggos[i]}!'
-  }
-)
+var mapObject = map(range(0, length(doggos)), i => {
+  i: i
+  doggo: doggos[i]
+  greeting: 'Ahoy, ${doggos[i]}!'
+})
 var mapArray = flatten(map(range(1, 3), i => [i * 2, (i * 2) + 1]))
-var mapMultiLineArray = flatten(map(
-  range(1, 3),
-  i => [
-    i * 3
-    (i * 3) + 1
-    (i * 3) + 2
-  ]
-))
+var mapMultiLineArray = flatten(map(range(1, 3), i => [
+  i * 3
+  (i * 3) + 1
+  (i * 3) + 2
+]))
 
 var filterEqualityCheck = filter(['abc', 'def', 'ghi'], foo => 'def' == foo)
 var filterEmpty = filter([], foo => 'def' == foo)
@@ -94,30 +88,22 @@ var mappedModOutputProps = map(myMod.outputs.outputThis, doggo => '${doggo} says
 var parentheses = map([123], (i => '${i}'))
 
 var objectMap = toObject([123, 456, 789], i => '${i / 100}')
-var objectMap2 = toObject(
-  range(0, 10),
-  i => '${i}',
-  i => {
-    isEven: (i % 2) == 0
-    isGreaterThan4: (i > 4)
-  }
-)
+var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
+  isEven: (i % 2) == 0
+  isGreaterThan4: (i > 4)
+})
 var objectMap3 = toObject(sortByObjectKey, x => x.name)
 var objectMap4 = toObject(sortByObjectKey, x => x.name)
 var objectMap5 = toObject(
   sortByObjectKey,
   xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.name
 )
-var objectMap6 = toObject(
-  range(0, 10),
-  i => '${i}',
-  i =>
-    // comment
-    {
-      isEven: (i % 2) == 0
-      isGreaterThan4: (i > 4)
-    }
-)
+var objectMap6 = toObject(range(0, 10), i => '${i}', i =>
+  // comment
+  {
+    isEven: (i % 2) == 0
+    isGreaterThan4: (i > 4)
+  })
 
 var multiLine = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat(cur, next))
 

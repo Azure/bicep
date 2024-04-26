@@ -111,6 +111,34 @@ var w81___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 123456789
 var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
 //@[04:10) Variable w82___. Type: 1234567890. Declaration start char: 0, length: 82
 
+
+var w80_________ = union(/*******************************************/ {}, {}, {
+//@[04:16) Variable w80_________. Type: { bar: false, foo: true }. Declaration start char: 0, length: 112
+    foo: true
+    bar: false
+})
+var w81_________ = union(/********************************************/ {}, {}, {
+//@[04:16) Variable w81_________. Type: { bar: false, foo: true }. Declaration start char: 0, length: 113
+    foo: true
+    bar: false
+})
+
+var w80__________ = union(/******************************************/ {}, {}, {
+//@[04:17) Variable w80__________. Type: { foo: true, w80: { baz: 123 } }. Declaration start char: 0, length: 204
+    foo: true
+    w80: union(/***********************************************************/ {}, {
+        baz: 123
+    })
+})
+
+var w81__________ = union(/*******************************************/ {}, {}, {
+//@[04:17) Variable w81__________. Type: { foo: true, w81: { baz: 123 } }. Declaration start char: 0, length: 204
+    foo: true
+    w81: union(/**********************************************************/ {}, {
+        baz: 123
+    })
+})
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -151,6 +179,7 @@ var forceBreak9 = [1, 2, {
     foo: true
     bar: false
 }]
+// Does not break immediate parent group, but breaks grandparent.
 var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
 //@[04:16) Variable forceBreak10. Type: [1, 2, { foo: true }]. Declaration start char: 0, length: 82
   foo: true})]
@@ -173,4 +202,11 @@ var forceBreak14 = true ? {
 var forceBreak15 = true ? { foo: 0 } : {
 //@[04:16) Variable forceBreak15. Type: object | object. Declaration start char: 0, length: 52
     bar: 1}
+
+var forceBreak16 = union({ foo: 0 }, {
+//@[04:16) Variable forceBreak16. Type: { bar: 456, foo: 123 }. Declaration start char: 0, length: 79
+    foo: 123
+    bar: 456
+} // comment
+)
 

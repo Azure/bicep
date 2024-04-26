@@ -22,7 +22,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
         public string Value { get; }
 
-        public virtual int Width => this.Value.Length;
+        public override int Width => this.Value.Length;
 
         public static TextDocument From(string value) =>
             TextDocumentPool.TryGetValue(value, out var instance) ? instance : new TextDocument(value);

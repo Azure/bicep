@@ -183,12 +183,9 @@ var previousEmitLimit3 = {
     b: {
       a: az.resourceGroup().location
     } == 2
-    c: concat(
-      [],
-      [
-        true
-      ]
-    )
+    c: concat([], [
+      true
+    ])
   }
 }
 
