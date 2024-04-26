@@ -54,7 +54,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 .WithContainerRegistryClientFactory(clientFactory)
                 .WithFileSystem(MockFileSystem)
                 .WithFeatureProviderFactory(
-                    BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: true, CacheRootDirectory: CacheRootPath, OptionalModuleNamesEnabled: true))
+                    BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: CacheRootPath, OptionalModuleNamesEnabled: true))
                 )
                 .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
                 ;
@@ -180,7 +180,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public async Task NestedExternalSource_ShouldGetCorrectLink()
         {
-            // Setup: 
+            // Setup:
             //   module1 is published with source
             //   module2 references module1 and is published with source
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
@@ -219,7 +219,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public async Task DoublyNestedExternalSource_ShouldGetCorrectLink()
         {
-            // Setup: 
+            // Setup:
             //   module1 is published with source
             //   module2 references module1 and is published with source
             //   module3 references module1 and module2 and is published with source
@@ -426,7 +426,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var (msg, links) = await GetAndResolveLinksForDisplayedDocument(moduleDispatcher, module3Uri);
 
-            msg.Should().Be("Unable to retrieve source code for module br:mockregistry.io/test/module1:v2. (Experimental) No source code is available for this module");
+            msg.Should().Be("Unable to retrieve source code for module br:mockregistry.io/test/module1:v2. No source code is available for this module");
 
             // Target should be to the compiled JSON of module2 embedded inside module3's source
             links.Should().HaveCount(1);

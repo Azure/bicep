@@ -616,5 +616,11 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Expression);
             this.Visit(syntax.CloseParen);
         }
+
+        public override void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax)
+        {
+            this.Visit(syntax.Ellipsis);
+            this.Visit(syntax.Expression);
+        }
     }
 }

@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 var analyzer = new LinterAnalyzer();
                 var ruleSet = analyzer.GetRuleSet().ToArray();
 
-                return AllRulesAndSchemasById.Values.Select(value => new object[] { value.Rule.Code, value.Rule, value.Schema});
+                return AllRulesAndSchemasById.Values.Select(value => new object[] { value.Rule.Code, value.Rule, value.Schema });
             }
 
             public string? GetDisplayName(MethodInfo methodInfo, object?[]? data)
@@ -371,11 +371,11 @@ namespace Bicep.Core.UnitTests.Configuration
             }
         }
 
-        [TestMethod]
+        [TestMethod]    
         public void ExperimentalFeatures_ShouldBeDocumentedInHelpFile()
         {
             // From schema
-            var experimentalFeaturesIdsFromSchema = GetExperimentalFeatureIdsFromSchema();
+            var experimentalFeaturesIdsFromSchema = GetExperimentalFeatureIdsFromSchema().ToArray();
 
             // From help
             var experimentalFeatureIdsFromHelp = GetExperimentalFeatureIdsFromHelpContents().OrderBy(s => s).ToArray();
@@ -385,6 +385,11 @@ namespace Bicep.Core.UnitTests.Configuration
             foreach (var featureId in experimentalFeaturesIdsFromSchema.Where(id => !GrandfatheredFeaturesNeedingHelpOrDescription.Contains(id)))
             {
                 experimentalFeatureIdsFromHelp.Should().Contain(featureId, $"all experimental features in the schema should be documented in the help file {HelpFileName}");
+            }
+
+            foreach (var featureId in experimentalFeatureIdsFromHelp.Where(id => !GrandfatheredFeaturesNeedingHelpOrDescription.Contains(id)))
+            {
+                experimentalFeaturesIdsFromSchema.Should().Contain(featureId, $"all experimental features documented in the help file {HelpFileName} should be in the bicepconfig.schema.json file");
             }
         }
 
@@ -436,6 +441,19 @@ namespace Bicep.Core.UnitTests.Configuration
 
             defaultLevelInSchema.Should().Be(defaultLevelInRuleDefinition,
                 $"the default diagnostic level of a rule's config schema should match that defined in the rule's class definition (make sure rule {id} #/definitions/rule-def-level-xxx reference is correct)");
+        }
+
+        [TestMethod]
+        public void RuleConfigs_RuleDescriptionShouldIndicateDefaultDiagnosticLevel()
+        {
+            foreach (var (id, (rule, ruleSchema)) in AllRulesAndSchemasById)
+            {
+                var defaultLevel = rule.DefaultDiagnosticLevel.ToString();
+                var descripton = ruleSchema.SelectToken("allOf")?[0]?.SelectToken("description")?.ToString();
+
+                descripton.Should().MatchRegex($"\\. Defaults to '{defaultLevel}'\\. See https:",
+                    "rule description should indicate its default diagnostic level");
+            }
         }
     }
 }

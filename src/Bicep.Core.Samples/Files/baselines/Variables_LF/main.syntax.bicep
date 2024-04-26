@@ -1,5 +1,5 @@
 
-//@[000:7923) ProgramSyntax
+//@[000:8106) ProgramSyntax
 //@[000:0001) ├─Token(NewLine) |\n|
 // int
 //@[006:0007) ├─Token(NewLine) |\n|
@@ -3167,6 +3167,90 @@ var isPrefixed = startsWith('food', 'foo')
 //@[036:0041) |   | └─StringSyntax
 //@[036:0041) |   |   └─Token(StringComplete) |'foo'|
 //@[041:0042) |   └─Token(RightParen) |)|
-//@[042:0043) ├─Token(NewLine) |\n|
+//@[042:0044) ├─Token(NewLine) |\n\n|
+
+var spread = {
+//@[000:0044) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0010) | ├─IdentifierSyntax
+//@[004:0010) | | └─Token(Identifier) |spread|
+//@[011:0012) | ├─Token(Assignment) |=|
+//@[013:0044) | └─ObjectSyntax
+//@[013:0014) |   ├─Token(LeftBrace) |{|
+//@[014:0015) |   ├─Token(NewLine) |\n|
+  foo: 'abc'
+//@[002:0012) |   ├─ObjectPropertySyntax
+//@[002:0005) |   | ├─IdentifierSyntax
+//@[002:0005) |   | | └─Token(Identifier) |foo|
+//@[005:0006) |   | ├─Token(Colon) |:|
+//@[007:0012) |   | └─StringSyntax
+//@[007:0012) |   |   └─Token(StringComplete) |'abc'|
+//@[012:0013) |   ├─Token(NewLine) |\n|
+  ...issue1332
+//@[002:0014) |   ├─SpreadExpressionSyntax
+//@[002:0005) |   | ├─Token(Ellipsis) |...|
+//@[005:0014) |   | └─VariableAccessSyntax
+//@[005:0014) |   |   └─IdentifierSyntax
+//@[005:0014) |   |     └─Token(Identifier) |issue1332|
+//@[014:0015) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+var test = {
+//@[000:0039) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0008) | ├─IdentifierSyntax
+//@[004:0008) | | └─Token(Identifier) |test|
+//@[009:0010) | ├─Token(Assignment) |=|
+//@[011:0039) | └─ObjectSyntax
+//@[011:0012) |   ├─Token(LeftBrace) |{|
+//@[012:0013) |   ├─Token(NewLine) |\n|
+  ...spread
+//@[002:0011) |   ├─SpreadExpressionSyntax
+//@[002:0005) |   | ├─Token(Ellipsis) |...|
+//@[005:0011) |   | └─VariableAccessSyntax
+//@[005:0011) |   |   └─IdentifierSyntax
+//@[005:0011) |   |     └─Token(Identifier) |spread|
+//@[011:0012) |   ├─Token(NewLine) |\n|
+  bar: 'def'
+//@[002:0012) |   ├─ObjectPropertySyntax
+//@[002:0005) |   | ├─IdentifierSyntax
+//@[002:0005) |   | | └─Token(Identifier) |bar|
+//@[005:0006) |   | ├─Token(Colon) |:|
+//@[007:0012) |   | └─StringSyntax
+//@[007:0012) |   |   └─Token(StringComplete) |'def'|
+//@[012:0013) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
+//@[000:0094) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0015) | ├─IdentifierSyntax
+//@[004:0015) | | └─Token(Identifier) |arraySpread|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0094) | └─ArraySyntax
+//@[018:0019) |   ├─Token(LeftSquare) |[|
+//@[019:0037) |   ├─SpreadExpressionSyntax
+//@[019:0022) |   | ├─Token(Ellipsis) |...|
+//@[022:0037) |   | └─VariableAccessSyntax
+//@[022:0037) |   |   └─IdentifierSyntax
+//@[022:0037) |   |     └─Token(Identifier) |arrayOfBooleans|
+//@[037:0038) |   ├─Token(Comma) |,|
+//@[039:0065) |   ├─SpreadExpressionSyntax
+//@[039:0042) |   | ├─Token(Ellipsis) |...|
+//@[042:0065) |   | └─VariableAccessSyntax
+//@[042:0065) |   |   └─IdentifierSyntax
+//@[042:0065) |   |     └─Token(Identifier) |arrayOfHardCodedNumbers|
+//@[065:0066) |   ├─Token(Comma) |,|
+//@[067:0093) |   ├─SpreadExpressionSyntax
+//@[067:0070) |   | ├─Token(Ellipsis) |...|
+//@[070:0093) |   | └─VariableAccessSyntax
+//@[070:0093) |   |   └─IdentifierSyntax
+//@[070:0093) |   |     └─Token(Identifier) |arrayOfHardCodedStrings|
+//@[093:0094) |   └─Token(RightSquare) |]|
+//@[094:0095) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

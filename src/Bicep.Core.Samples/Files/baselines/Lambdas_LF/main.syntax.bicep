@@ -1,5 +1,5 @@
 var doggos = [
-//@[000:3053) ProgramSyntax
+//@[000:3935) ProgramSyntax
 //@[000:0054) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0010) | ├─IdentifierSyntax
@@ -31,6 +31,38 @@ var doggos = [
 ]
 //@[000:0001) |   └─Token(RightSquare) |]|
 //@[001:0003) ├─Token(NewLine) |\n\n|
+
+func isEven(i int) bool => i % 2 == 0
+//@[000:0037) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0011) | ├─IdentifierSyntax
+//@[005:0011) | | └─Token(Identifier) |isEven|
+//@[011:0037) | └─TypedLambdaSyntax
+//@[011:0018) |   ├─TypedVariableBlockSyntax
+//@[011:0012) |   | ├─Token(LeftParen) |(|
+//@[012:0017) |   | ├─TypedLocalVariableSyntax
+//@[012:0013) |   | | ├─IdentifierSyntax
+//@[012:0013) |   | | | └─Token(Identifier) |i|
+//@[014:0017) |   | | └─TypeVariableAccessSyntax
+//@[014:0017) |   | |   └─IdentifierSyntax
+//@[014:0017) |   | |     └─Token(Identifier) |int|
+//@[017:0018) |   | └─Token(RightParen) |)|
+//@[019:0023) |   ├─TypeVariableAccessSyntax
+//@[019:0023) |   | └─IdentifierSyntax
+//@[019:0023) |   |   └─Token(Identifier) |bool|
+//@[024:0026) |   ├─Token(Arrow) |=>|
+//@[027:0037) |   └─BinaryOperationSyntax
+//@[027:0032) |     ├─BinaryOperationSyntax
+//@[027:0028) |     | ├─VariableAccessSyntax
+//@[027:0028) |     | | └─IdentifierSyntax
+//@[027:0028) |     | |   └─Token(Identifier) |i|
+//@[029:0030) |     | ├─Token(Modulo) |%|
+//@[031:0032) |     | └─IntegerLiteralSyntax
+//@[031:0032) |     |   └─Token(Integer) |2|
+//@[033:0035) |     ├─Token(Equals) |==|
+//@[036:0037) |     └─IntegerLiteralSyntax
+//@[036:0037) |       └─Token(Integer) |0|
+//@[037:0039) ├─Token(NewLine) |\n\n|
 
 var numbers = range(0, 4)
 //@[000:0025) ├─VariableDeclarationSyntax
@@ -80,42 +112,151 @@ var sayHello = map(doggos, i => 'Hello ${i}!')
 //@[041:0042) |   |     |   └─Token(Identifier) |i|
 //@[042:0045) |   |     └─Token(StringRightPiece) |}!'|
 //@[045:0046) |   └─Token(RightParen) |)|
-//@[046:0048) ├─Token(NewLine) |\n\n|
-
-var isEven = filter(numbers, i => 0 == i % 2)
-//@[000:0045) ├─VariableDeclarationSyntax
+//@[046:0047) ├─Token(NewLine) |\n|
+// optional index parameter for map lambda
+//@[042:0043) ├─Token(NewLine) |\n|
+var sayHello2 = map(doggos, (dog, i) => '${isEven(i) ? 'Hi' : 'Ahoy'} ${dog}!')
+//@[000:0079) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
-//@[004:0010) | ├─IdentifierSyntax
-//@[004:0010) | | └─Token(Identifier) |isEven|
-//@[011:0012) | ├─Token(Assignment) |=|
-//@[013:0045) | └─FunctionCallSyntax
-//@[013:0019) |   ├─IdentifierSyntax
-//@[013:0019) |   | └─Token(Identifier) |filter|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |sayHello2|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0079) | └─FunctionCallSyntax
+//@[016:0019) |   ├─IdentifierSyntax
+//@[016:0019) |   | └─Token(Identifier) |map|
 //@[019:0020) |   ├─Token(LeftParen) |(|
-//@[020:0027) |   ├─FunctionArgumentSyntax
-//@[020:0027) |   | └─VariableAccessSyntax
-//@[020:0027) |   |   └─IdentifierSyntax
-//@[020:0027) |   |     └─Token(Identifier) |numbers|
-//@[027:0028) |   ├─Token(Comma) |,|
-//@[029:0044) |   ├─FunctionArgumentSyntax
-//@[029:0044) |   | └─LambdaSyntax
-//@[029:0030) |   |   ├─LocalVariableSyntax
-//@[029:0030) |   |   | └─IdentifierSyntax
-//@[029:0030) |   |   |   └─Token(Identifier) |i|
-//@[031:0033) |   |   ├─Token(Arrow) |=>|
-//@[034:0044) |   |   └─BinaryOperationSyntax
-//@[034:0035) |   |     ├─IntegerLiteralSyntax
-//@[034:0035) |   |     | └─Token(Integer) |0|
-//@[036:0038) |   |     ├─Token(Equals) |==|
-//@[039:0044) |   |     └─BinaryOperationSyntax
-//@[039:0040) |   |       ├─VariableAccessSyntax
-//@[039:0040) |   |       | └─IdentifierSyntax
-//@[039:0040) |   |       |   └─Token(Identifier) |i|
-//@[041:0042) |   |       ├─Token(Modulo) |%|
-//@[043:0044) |   |       └─IntegerLiteralSyntax
-//@[043:0044) |   |         └─Token(Integer) |2|
-//@[044:0045) |   └─Token(RightParen) |)|
-//@[045:0047) ├─Token(NewLine) |\n\n|
+//@[020:0026) |   ├─FunctionArgumentSyntax
+//@[020:0026) |   | └─VariableAccessSyntax
+//@[020:0026) |   |   └─IdentifierSyntax
+//@[020:0026) |   |     └─Token(Identifier) |doggos|
+//@[026:0027) |   ├─Token(Comma) |,|
+//@[028:0078) |   ├─FunctionArgumentSyntax
+//@[028:0078) |   | └─LambdaSyntax
+//@[028:0036) |   |   ├─VariableBlockSyntax
+//@[028:0029) |   |   | ├─Token(LeftParen) |(|
+//@[029:0032) |   |   | ├─LocalVariableSyntax
+//@[029:0032) |   |   | | └─IdentifierSyntax
+//@[029:0032) |   |   | |   └─Token(Identifier) |dog|
+//@[032:0033) |   |   | ├─Token(Comma) |,|
+//@[034:0035) |   |   | ├─LocalVariableSyntax
+//@[034:0035) |   |   | | └─IdentifierSyntax
+//@[034:0035) |   |   | |   └─Token(Identifier) |i|
+//@[035:0036) |   |   | └─Token(RightParen) |)|
+//@[037:0039) |   |   ├─Token(Arrow) |=>|
+//@[040:0078) |   |   └─StringSyntax
+//@[040:0043) |   |     ├─Token(StringLeftPiece) |'${|
+//@[043:0068) |   |     ├─TernaryOperationSyntax
+//@[043:0052) |   |     | ├─FunctionCallSyntax
+//@[043:0049) |   |     | | ├─IdentifierSyntax
+//@[043:0049) |   |     | | | └─Token(Identifier) |isEven|
+//@[049:0050) |   |     | | ├─Token(LeftParen) |(|
+//@[050:0051) |   |     | | ├─FunctionArgumentSyntax
+//@[050:0051) |   |     | | | └─VariableAccessSyntax
+//@[050:0051) |   |     | | |   └─IdentifierSyntax
+//@[050:0051) |   |     | | |     └─Token(Identifier) |i|
+//@[051:0052) |   |     | | └─Token(RightParen) |)|
+//@[053:0054) |   |     | ├─Token(Question) |?|
+//@[055:0059) |   |     | ├─StringSyntax
+//@[055:0059) |   |     | | └─Token(StringComplete) |'Hi'|
+//@[060:0061) |   |     | ├─Token(Colon) |:|
+//@[062:0068) |   |     | └─StringSyntax
+//@[062:0068) |   |     |   └─Token(StringComplete) |'Ahoy'|
+//@[068:0072) |   |     ├─Token(StringMiddlePiece) |} ${|
+//@[072:0075) |   |     ├─VariableAccessSyntax
+//@[072:0075) |   |     | └─IdentifierSyntax
+//@[072:0075) |   |     |   └─Token(Identifier) |dog|
+//@[075:0078) |   |     └─Token(StringRightPiece) |}!'|
+//@[078:0079) |   └─Token(RightParen) |)|
+//@[079:0081) ├─Token(NewLine) |\n\n|
+
+var evenNumbers = filter(numbers, i => isEven(i))
+//@[000:0049) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0015) | ├─IdentifierSyntax
+//@[004:0015) | | └─Token(Identifier) |evenNumbers|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0049) | └─FunctionCallSyntax
+//@[018:0024) |   ├─IdentifierSyntax
+//@[018:0024) |   | └─Token(Identifier) |filter|
+//@[024:0025) |   ├─Token(LeftParen) |(|
+//@[025:0032) |   ├─FunctionArgumentSyntax
+//@[025:0032) |   | └─VariableAccessSyntax
+//@[025:0032) |   |   └─IdentifierSyntax
+//@[025:0032) |   |     └─Token(Identifier) |numbers|
+//@[032:0033) |   ├─Token(Comma) |,|
+//@[034:0048) |   ├─FunctionArgumentSyntax
+//@[034:0048) |   | └─LambdaSyntax
+//@[034:0035) |   |   ├─LocalVariableSyntax
+//@[034:0035) |   |   | └─IdentifierSyntax
+//@[034:0035) |   |   |   └─Token(Identifier) |i|
+//@[036:0038) |   |   ├─Token(Arrow) |=>|
+//@[039:0048) |   |   └─FunctionCallSyntax
+//@[039:0045) |   |     ├─IdentifierSyntax
+//@[039:0045) |   |     | └─Token(Identifier) |isEven|
+//@[045:0046) |   |     ├─Token(LeftParen) |(|
+//@[046:0047) |   |     ├─FunctionArgumentSyntax
+//@[046:0047) |   |     | └─VariableAccessSyntax
+//@[046:0047) |   |     |   └─IdentifierSyntax
+//@[046:0047) |   |     |     └─Token(Identifier) |i|
+//@[047:0048) |   |     └─Token(RightParen) |)|
+//@[048:0049) |   └─Token(RightParen) |)|
+//@[049:0050) ├─Token(NewLine) |\n|
+// optional index parameter for filter lambda
+//@[045:0046) ├─Token(NewLine) |\n|
+var evenEntries = filter(['a', 'b', 'c', 'd'], (item, i) => isEven(i))
+//@[000:0070) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0015) | ├─IdentifierSyntax
+//@[004:0015) | | └─Token(Identifier) |evenEntries|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0070) | └─FunctionCallSyntax
+//@[018:0024) |   ├─IdentifierSyntax
+//@[018:0024) |   | └─Token(Identifier) |filter|
+//@[024:0025) |   ├─Token(LeftParen) |(|
+//@[025:0045) |   ├─FunctionArgumentSyntax
+//@[025:0045) |   | └─ArraySyntax
+//@[025:0026) |   |   ├─Token(LeftSquare) |[|
+//@[026:0029) |   |   ├─ArrayItemSyntax
+//@[026:0029) |   |   | └─StringSyntax
+//@[026:0029) |   |   |   └─Token(StringComplete) |'a'|
+//@[029:0030) |   |   ├─Token(Comma) |,|
+//@[031:0034) |   |   ├─ArrayItemSyntax
+//@[031:0034) |   |   | └─StringSyntax
+//@[031:0034) |   |   |   └─Token(StringComplete) |'b'|
+//@[034:0035) |   |   ├─Token(Comma) |,|
+//@[036:0039) |   |   ├─ArrayItemSyntax
+//@[036:0039) |   |   | └─StringSyntax
+//@[036:0039) |   |   |   └─Token(StringComplete) |'c'|
+//@[039:0040) |   |   ├─Token(Comma) |,|
+//@[041:0044) |   |   ├─ArrayItemSyntax
+//@[041:0044) |   |   | └─StringSyntax
+//@[041:0044) |   |   |   └─Token(StringComplete) |'d'|
+//@[044:0045) |   |   └─Token(RightSquare) |]|
+//@[045:0046) |   ├─Token(Comma) |,|
+//@[047:0069) |   ├─FunctionArgumentSyntax
+//@[047:0069) |   | └─LambdaSyntax
+//@[047:0056) |   |   ├─VariableBlockSyntax
+//@[047:0048) |   |   | ├─Token(LeftParen) |(|
+//@[048:0052) |   |   | ├─LocalVariableSyntax
+//@[048:0052) |   |   | | └─IdentifierSyntax
+//@[048:0052) |   |   | |   └─Token(Identifier) |item|
+//@[052:0053) |   |   | ├─Token(Comma) |,|
+//@[054:0055) |   |   | ├─LocalVariableSyntax
+//@[054:0055) |   |   | | └─IdentifierSyntax
+//@[054:0055) |   |   | |   └─Token(Identifier) |i|
+//@[055:0056) |   |   | └─Token(RightParen) |)|
+//@[057:0059) |   |   ├─Token(Arrow) |=>|
+//@[060:0069) |   |   └─FunctionCallSyntax
+//@[060:0066) |   |     ├─IdentifierSyntax
+//@[060:0066) |   |     | └─Token(Identifier) |isEven|
+//@[066:0067) |   |     ├─Token(LeftParen) |(|
+//@[067:0068) |   |     ├─FunctionArgumentSyntax
+//@[067:0068) |   |     | └─VariableAccessSyntax
+//@[067:0068) |   |     |   └─IdentifierSyntax
+//@[067:0068) |   |     |     └─Token(Identifier) |i|
+//@[068:0069) |   |     └─Token(RightParen) |)|
+//@[069:0070) |   └─Token(RightParen) |)|
+//@[070:0072) ├─Token(NewLine) |\n\n|
 
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
 //@[000:0118) ├─VariableDeclarationSyntax
@@ -1052,6 +1193,84 @@ var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat
 //@[090:0091) |   |     └─Token(RightParen) |)|
 //@[091:0092) |   └─Token(RightParen) |)|
 //@[092:0093) ├─Token(NewLine) |\n|
+var reduceStringConcatEven = reduce(['abc', 'def', 'ghi'], '', (cur, next, i) => isEven(i) ? concat(cur, next) : cur)
+//@[000:0117) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0026) | ├─IdentifierSyntax
+//@[004:0026) | | └─Token(Identifier) |reduceStringConcatEven|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0117) | └─FunctionCallSyntax
+//@[029:0035) |   ├─IdentifierSyntax
+//@[029:0035) |   | └─Token(Identifier) |reduce|
+//@[035:0036) |   ├─Token(LeftParen) |(|
+//@[036:0057) |   ├─FunctionArgumentSyntax
+//@[036:0057) |   | └─ArraySyntax
+//@[036:0037) |   |   ├─Token(LeftSquare) |[|
+//@[037:0042) |   |   ├─ArrayItemSyntax
+//@[037:0042) |   |   | └─StringSyntax
+//@[037:0042) |   |   |   └─Token(StringComplete) |'abc'|
+//@[042:0043) |   |   ├─Token(Comma) |,|
+//@[044:0049) |   |   ├─ArrayItemSyntax
+//@[044:0049) |   |   | └─StringSyntax
+//@[044:0049) |   |   |   └─Token(StringComplete) |'def'|
+//@[049:0050) |   |   ├─Token(Comma) |,|
+//@[051:0056) |   |   ├─ArrayItemSyntax
+//@[051:0056) |   |   | └─StringSyntax
+//@[051:0056) |   |   |   └─Token(StringComplete) |'ghi'|
+//@[056:0057) |   |   └─Token(RightSquare) |]|
+//@[057:0058) |   ├─Token(Comma) |,|
+//@[059:0061) |   ├─FunctionArgumentSyntax
+//@[059:0061) |   | └─StringSyntax
+//@[059:0061) |   |   └─Token(StringComplete) |''|
+//@[061:0062) |   ├─Token(Comma) |,|
+//@[063:0116) |   ├─FunctionArgumentSyntax
+//@[063:0116) |   | └─LambdaSyntax
+//@[063:0077) |   |   ├─VariableBlockSyntax
+//@[063:0064) |   |   | ├─Token(LeftParen) |(|
+//@[064:0067) |   |   | ├─LocalVariableSyntax
+//@[064:0067) |   |   | | └─IdentifierSyntax
+//@[064:0067) |   |   | |   └─Token(Identifier) |cur|
+//@[067:0068) |   |   | ├─Token(Comma) |,|
+//@[069:0073) |   |   | ├─LocalVariableSyntax
+//@[069:0073) |   |   | | └─IdentifierSyntax
+//@[069:0073) |   |   | |   └─Token(Identifier) |next|
+//@[073:0074) |   |   | ├─Token(Comma) |,|
+//@[075:0076) |   |   | ├─LocalVariableSyntax
+//@[075:0076) |   |   | | └─IdentifierSyntax
+//@[075:0076) |   |   | |   └─Token(Identifier) |i|
+//@[076:0077) |   |   | └─Token(RightParen) |)|
+//@[078:0080) |   |   ├─Token(Arrow) |=>|
+//@[081:0116) |   |   └─TernaryOperationSyntax
+//@[081:0090) |   |     ├─FunctionCallSyntax
+//@[081:0087) |   |     | ├─IdentifierSyntax
+//@[081:0087) |   |     | | └─Token(Identifier) |isEven|
+//@[087:0088) |   |     | ├─Token(LeftParen) |(|
+//@[088:0089) |   |     | ├─FunctionArgumentSyntax
+//@[088:0089) |   |     | | └─VariableAccessSyntax
+//@[088:0089) |   |     | |   └─IdentifierSyntax
+//@[088:0089) |   |     | |     └─Token(Identifier) |i|
+//@[089:0090) |   |     | └─Token(RightParen) |)|
+//@[091:0092) |   |     ├─Token(Question) |?|
+//@[093:0110) |   |     ├─FunctionCallSyntax
+//@[093:0099) |   |     | ├─IdentifierSyntax
+//@[093:0099) |   |     | | └─Token(Identifier) |concat|
+//@[099:0100) |   |     | ├─Token(LeftParen) |(|
+//@[100:0103) |   |     | ├─FunctionArgumentSyntax
+//@[100:0103) |   |     | | └─VariableAccessSyntax
+//@[100:0103) |   |     | |   └─IdentifierSyntax
+//@[100:0103) |   |     | |     └─Token(Identifier) |cur|
+//@[103:0104) |   |     | ├─Token(Comma) |,|
+//@[105:0109) |   |     | ├─FunctionArgumentSyntax
+//@[105:0109) |   |     | | └─VariableAccessSyntax
+//@[105:0109) |   |     | |   └─IdentifierSyntax
+//@[105:0109) |   |     | |     └─Token(Identifier) |next|
+//@[109:0110) |   |     | └─Token(RightParen) |)|
+//@[111:0112) |   |     ├─Token(Colon) |:|
+//@[113:0116) |   |     └─VariableAccessSyntax
+//@[113:0116) |   |       └─IdentifierSyntax
+//@[113:0116) |   |         └─Token(Identifier) |cur|
+//@[116:0117) |   └─Token(RightParen) |)|
+//@[117:0118) ├─Token(NewLine) |\n|
 var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
 //@[000:0071) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
@@ -1969,6 +2188,330 @@ var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
 //@[017:0021) |   |     |     └─Token(Identifier) |next|
 //@[021:0022) |   |     └─Token(RightParen) |)|
 //@[022:0023) |   └─Token(RightParen) |)|
-//@[023:0024) ├─Token(NewLine) |\n|
+//@[023:0025) ├─Token(NewLine) |\n\n|
+
+var mapVals = mapValues({
+//@[000:0062) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0011) | ├─IdentifierSyntax
+//@[004:0011) | | └─Token(Identifier) |mapVals|
+//@[012:0013) | ├─Token(Assignment) |=|
+//@[014:0062) | └─FunctionCallSyntax
+//@[014:0023) |   ├─IdentifierSyntax
+//@[014:0023) |   | └─Token(Identifier) |mapValues|
+//@[023:0024) |   ├─Token(LeftParen) |(|
+//@[024:0045) |   ├─FunctionArgumentSyntax
+//@[024:0045) |   | └─ObjectSyntax
+//@[024:0025) |   |   ├─Token(LeftBrace) |{|
+//@[025:0026) |   |   ├─Token(NewLine) |\n|
+  a: 123
+//@[002:0008) |   |   ├─ObjectPropertySyntax
+//@[002:0003) |   |   | ├─IdentifierSyntax
+//@[002:0003) |   |   | | └─Token(Identifier) |a|
+//@[003:0004) |   |   | ├─Token(Colon) |:|
+//@[005:0008) |   |   | └─IntegerLiteralSyntax
+//@[005:0008) |   |   |   └─Token(Integer) |123|
+//@[008:0009) |   |   ├─Token(NewLine) |\n|
+  b: 456
+//@[002:0008) |   |   ├─ObjectPropertySyntax
+//@[002:0003) |   |   | ├─IdentifierSyntax
+//@[002:0003) |   |   | | └─Token(Identifier) |b|
+//@[003:0004) |   |   | ├─Token(Colon) |:|
+//@[005:0008) |   |   | └─IntegerLiteralSyntax
+//@[005:0008) |   |   |   └─Token(Integer) |456|
+//@[008:0009) |   |   ├─Token(NewLine) |\n|
+}, val => val * 2)
+//@[000:0001) |   |   └─Token(RightBrace) |}|
+//@[001:0002) |   ├─Token(Comma) |,|
+//@[003:0017) |   ├─FunctionArgumentSyntax
+//@[003:0017) |   | └─LambdaSyntax
+//@[003:0006) |   |   ├─LocalVariableSyntax
+//@[003:0006) |   |   | └─IdentifierSyntax
+//@[003:0006) |   |   |   └─Token(Identifier) |val|
+//@[007:0009) |   |   ├─Token(Arrow) |=>|
+//@[010:0017) |   |   └─BinaryOperationSyntax
+//@[010:0013) |   |     ├─VariableAccessSyntax
+//@[010:0013) |   |     | └─IdentifierSyntax
+//@[010:0013) |   |     |   └─Token(Identifier) |val|
+//@[014:0015) |   |     ├─Token(Asterisk) |*|
+//@[016:0017) |   |     └─IntegerLiteralSyntax
+//@[016:0017) |   |       └─Token(Integer) |2|
+//@[017:0018) |   └─Token(RightParen) |)|
+//@[018:0020) ├─Token(NewLine) |\n\n|
+
+var objectKeysTest = objectKeys({
+//@[000:0054) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0018) | ├─IdentifierSyntax
+//@[004:0018) | | └─Token(Identifier) |objectKeysTest|
+//@[019:0020) | ├─Token(Assignment) |=|
+//@[021:0054) | └─FunctionCallSyntax
+//@[021:0031) |   ├─IdentifierSyntax
+//@[021:0031) |   | └─Token(Identifier) |objectKeys|
+//@[031:0032) |   ├─Token(LeftParen) |(|
+//@[032:0053) |   ├─FunctionArgumentSyntax
+//@[032:0053) |   | └─ObjectSyntax
+//@[032:0033) |   |   ├─Token(LeftBrace) |{|
+//@[033:0034) |   |   ├─Token(NewLine) |\n|
+  a: 123
+//@[002:0008) |   |   ├─ObjectPropertySyntax
+//@[002:0003) |   |   | ├─IdentifierSyntax
+//@[002:0003) |   |   | | └─Token(Identifier) |a|
+//@[003:0004) |   |   | ├─Token(Colon) |:|
+//@[005:0008) |   |   | └─IntegerLiteralSyntax
+//@[005:0008) |   |   |   └─Token(Integer) |123|
+//@[008:0009) |   |   ├─Token(NewLine) |\n|
+  b: 456
+//@[002:0008) |   |   ├─ObjectPropertySyntax
+//@[002:0003) |   |   | ├─IdentifierSyntax
+//@[002:0003) |   |   | | └─Token(Identifier) |b|
+//@[003:0004) |   |   | ├─Token(Colon) |:|
+//@[005:0008) |   |   | └─IntegerLiteralSyntax
+//@[005:0008) |   |   |   └─Token(Integer) |456|
+//@[008:0009) |   |   ├─Token(NewLine) |\n|
+})
+//@[000:0001) |   |   └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightParen) |)|
+//@[002:0004) ├─Token(NewLine) |\n\n|
+
+var shallowMergeTest = shallowMerge([{
+//@[000:0065) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0020) | ├─IdentifierSyntax
+//@[004:0020) | | └─Token(Identifier) |shallowMergeTest|
+//@[021:0022) | ├─Token(Assignment) |=|
+//@[023:0065) | └─FunctionCallSyntax
+//@[023:0035) |   ├─IdentifierSyntax
+//@[023:0035) |   | └─Token(Identifier) |shallowMerge|
+//@[035:0036) |   ├─Token(LeftParen) |(|
+//@[036:0064) |   ├─FunctionArgumentSyntax
+//@[036:0064) |   | └─ArraySyntax
+//@[036:0037) |   |   ├─Token(LeftSquare) |[|
+//@[037:0049) |   |   ├─ArrayItemSyntax
+//@[037:0049) |   |   | └─ObjectSyntax
+//@[037:0038) |   |   |   ├─Token(LeftBrace) |{|
+//@[038:0039) |   |   |   ├─Token(NewLine) |\n|
+  a: 123
+//@[002:0008) |   |   |   ├─ObjectPropertySyntax
+//@[002:0003) |   |   |   | ├─IdentifierSyntax
+//@[002:0003) |   |   |   | | └─Token(Identifier) |a|
+//@[003:0004) |   |   |   | ├─Token(Colon) |:|
+//@[005:0008) |   |   |   | └─IntegerLiteralSyntax
+//@[005:0008) |   |   |   |   └─Token(Integer) |123|
+//@[008:0009) |   |   |   ├─Token(NewLine) |\n|
+}, {
+//@[000:0001) |   |   |   └─Token(RightBrace) |}|
+//@[001:0002) |   |   ├─Token(Comma) |,|
+//@[003:0015) |   |   ├─ArrayItemSyntax
+//@[003:0015) |   |   | └─ObjectSyntax
+//@[003:0004) |   |   |   ├─Token(LeftBrace) |{|
+//@[004:0005) |   |   |   ├─Token(NewLine) |\n|
+  b: 456
+//@[002:0008) |   |   |   ├─ObjectPropertySyntax
+//@[002:0003) |   |   |   | ├─IdentifierSyntax
+//@[002:0003) |   |   |   | | └─Token(Identifier) |b|
+//@[003:0004) |   |   |   | ├─Token(Colon) |:|
+//@[005:0008) |   |   |   | └─IntegerLiteralSyntax
+//@[005:0008) |   |   |   |   └─Token(Integer) |456|
+//@[008:0009) |   |   |   ├─Token(NewLine) |\n|
+}])
+//@[000:0001) |   |   |   └─Token(RightBrace) |}|
+//@[001:0002) |   |   └─Token(RightSquare) |]|
+//@[002:0003) |   └─Token(RightParen) |)|
+//@[003:0005) ├─Token(NewLine) |\n\n|
+
+var groupByTest = groupBy([
+//@[000:0131) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0015) | ├─IdentifierSyntax
+//@[004:0015) | | └─Token(Identifier) |groupByTest|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0131) | └─FunctionCallSyntax
+//@[018:0025) |   ├─IdentifierSyntax
+//@[018:0025) |   | └─Token(Identifier) |groupBy|
+//@[025:0026) |   ├─Token(LeftParen) |(|
+//@[026:0113) |   ├─FunctionArgumentSyntax
+//@[026:0113) |   | └─ArraySyntax
+//@[026:0027) |   |   ├─Token(LeftSquare) |[|
+//@[027:0028) |   |   ├─Token(NewLine) |\n|
+  { type: 'a', value: 123 }
+//@[002:0027) |   |   ├─ArrayItemSyntax
+//@[002:0027) |   |   | └─ObjectSyntax
+//@[002:0003) |   |   |   ├─Token(LeftBrace) |{|
+//@[004:0013) |   |   |   ├─ObjectPropertySyntax
+//@[004:0008) |   |   |   | ├─IdentifierSyntax
+//@[004:0008) |   |   |   | | └─Token(Identifier) |type|
+//@[008:0009) |   |   |   | ├─Token(Colon) |:|
+//@[010:0013) |   |   |   | └─StringSyntax
+//@[010:0013) |   |   |   |   └─Token(StringComplete) |'a'|
+//@[013:0014) |   |   |   ├─Token(Comma) |,|
+//@[015:0025) |   |   |   ├─ObjectPropertySyntax
+//@[015:0020) |   |   |   | ├─IdentifierSyntax
+//@[015:0020) |   |   |   | | └─Token(Identifier) |value|
+//@[020:0021) |   |   |   | ├─Token(Colon) |:|
+//@[022:0025) |   |   |   | └─IntegerLiteralSyntax
+//@[022:0025) |   |   |   |   └─Token(Integer) |123|
+//@[026:0027) |   |   |   └─Token(RightBrace) |}|
+//@[027:0028) |   |   ├─Token(NewLine) |\n|
+  { type: 'b', value: 456 }
+//@[002:0027) |   |   ├─ArrayItemSyntax
+//@[002:0027) |   |   | └─ObjectSyntax
+//@[002:0003) |   |   |   ├─Token(LeftBrace) |{|
+//@[004:0013) |   |   |   ├─ObjectPropertySyntax
+//@[004:0008) |   |   |   | ├─IdentifierSyntax
+//@[004:0008) |   |   |   | | └─Token(Identifier) |type|
+//@[008:0009) |   |   |   | ├─Token(Colon) |:|
+//@[010:0013) |   |   |   | └─StringSyntax
+//@[010:0013) |   |   |   |   └─Token(StringComplete) |'b'|
+//@[013:0014) |   |   |   ├─Token(Comma) |,|
+//@[015:0025) |   |   |   ├─ObjectPropertySyntax
+//@[015:0020) |   |   |   | ├─IdentifierSyntax
+//@[015:0020) |   |   |   | | └─Token(Identifier) |value|
+//@[020:0021) |   |   |   | ├─Token(Colon) |:|
+//@[022:0025) |   |   |   | └─IntegerLiteralSyntax
+//@[022:0025) |   |   |   |   └─Token(Integer) |456|
+//@[026:0027) |   |   |   └─Token(RightBrace) |}|
+//@[027:0028) |   |   ├─Token(NewLine) |\n|
+  { type: 'a', value: 789 }
+//@[002:0027) |   |   ├─ArrayItemSyntax
+//@[002:0027) |   |   | └─ObjectSyntax
+//@[002:0003) |   |   |   ├─Token(LeftBrace) |{|
+//@[004:0013) |   |   |   ├─ObjectPropertySyntax
+//@[004:0008) |   |   |   | ├─IdentifierSyntax
+//@[004:0008) |   |   |   | | └─Token(Identifier) |type|
+//@[008:0009) |   |   |   | ├─Token(Colon) |:|
+//@[010:0013) |   |   |   | └─StringSyntax
+//@[010:0013) |   |   |   |   └─Token(StringComplete) |'a'|
+//@[013:0014) |   |   |   ├─Token(Comma) |,|
+//@[015:0025) |   |   |   ├─ObjectPropertySyntax
+//@[015:0020) |   |   |   | ├─IdentifierSyntax
+//@[015:0020) |   |   |   | | └─Token(Identifier) |value|
+//@[020:0021) |   |   |   | ├─Token(Colon) |:|
+//@[022:0025) |   |   |   | └─IntegerLiteralSyntax
+//@[022:0025) |   |   |   |   └─Token(Integer) |789|
+//@[026:0027) |   |   |   └─Token(RightBrace) |}|
+//@[027:0028) |   |   ├─Token(NewLine) |\n|
+], arg => arg.type)
+//@[000:0001) |   |   └─Token(RightSquare) |]|
+//@[001:0002) |   ├─Token(Comma) |,|
+//@[003:0018) |   ├─FunctionArgumentSyntax
+//@[003:0018) |   | └─LambdaSyntax
+//@[003:0006) |   |   ├─LocalVariableSyntax
+//@[003:0006) |   |   | └─IdentifierSyntax
+//@[003:0006) |   |   |   └─Token(Identifier) |arg|
+//@[007:0009) |   |   ├─Token(Arrow) |=>|
+//@[010:0018) |   |   └─PropertyAccessSyntax
+//@[010:0013) |   |     ├─VariableAccessSyntax
+//@[010:0013) |   |     | └─IdentifierSyntax
+//@[010:0013) |   |     |   └─Token(Identifier) |arg|
+//@[013:0014) |   |     ├─Token(Dot) |.|
+//@[014:0018) |   |     └─IdentifierSyntax
+//@[014:0018) |   |       └─Token(Identifier) |type|
+//@[018:0019) |   └─Token(RightParen) |)|
+//@[019:0021) ├─Token(NewLine) |\n\n|
+
+var groupByWithValMapTest = groupBy([
+//@[000:0159) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0025) | ├─IdentifierSyntax
+//@[004:0025) | | └─Token(Identifier) |groupByWithValMapTest|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0159) | └─FunctionCallSyntax
+//@[028:0035) |   ├─IdentifierSyntax
+//@[028:0035) |   | └─Token(Identifier) |groupBy|
+//@[035:0036) |   ├─Token(LeftParen) |(|
+//@[036:0123) |   ├─FunctionArgumentSyntax
+//@[036:0123) |   | └─ArraySyntax
+//@[036:0037) |   |   ├─Token(LeftSquare) |[|
+//@[037:0038) |   |   ├─Token(NewLine) |\n|
+  { type: 'a', value: 123 }
+//@[002:0027) |   |   ├─ArrayItemSyntax
+//@[002:0027) |   |   | └─ObjectSyntax
+//@[002:0003) |   |   |   ├─Token(LeftBrace) |{|
+//@[004:0013) |   |   |   ├─ObjectPropertySyntax
+//@[004:0008) |   |   |   | ├─IdentifierSyntax
+//@[004:0008) |   |   |   | | └─Token(Identifier) |type|
+//@[008:0009) |   |   |   | ├─Token(Colon) |:|
+//@[010:0013) |   |   |   | └─StringSyntax
+//@[010:0013) |   |   |   |   └─Token(StringComplete) |'a'|
+//@[013:0014) |   |   |   ├─Token(Comma) |,|
+//@[015:0025) |   |   |   ├─ObjectPropertySyntax
+//@[015:0020) |   |   |   | ├─IdentifierSyntax
+//@[015:0020) |   |   |   | | └─Token(Identifier) |value|
+//@[020:0021) |   |   |   | ├─Token(Colon) |:|
+//@[022:0025) |   |   |   | └─IntegerLiteralSyntax
+//@[022:0025) |   |   |   |   └─Token(Integer) |123|
+//@[026:0027) |   |   |   └─Token(RightBrace) |}|
+//@[027:0028) |   |   ├─Token(NewLine) |\n|
+  { type: 'b', value: 456 }
+//@[002:0027) |   |   ├─ArrayItemSyntax
+//@[002:0027) |   |   | └─ObjectSyntax
+//@[002:0003) |   |   |   ├─Token(LeftBrace) |{|
+//@[004:0013) |   |   |   ├─ObjectPropertySyntax
+//@[004:0008) |   |   |   | ├─IdentifierSyntax
+//@[004:0008) |   |   |   | | └─Token(Identifier) |type|
+//@[008:0009) |   |   |   | ├─Token(Colon) |:|
+//@[010:0013) |   |   |   | └─StringSyntax
+//@[010:0013) |   |   |   |   └─Token(StringComplete) |'b'|
+//@[013:0014) |   |   |   ├─Token(Comma) |,|
+//@[015:0025) |   |   |   ├─ObjectPropertySyntax
+//@[015:0020) |   |   |   | ├─IdentifierSyntax
+//@[015:0020) |   |   |   | | └─Token(Identifier) |value|
+//@[020:0021) |   |   |   | ├─Token(Colon) |:|
+//@[022:0025) |   |   |   | └─IntegerLiteralSyntax
+//@[022:0025) |   |   |   |   └─Token(Integer) |456|
+//@[026:0027) |   |   |   └─Token(RightBrace) |}|
+//@[027:0028) |   |   ├─Token(NewLine) |\n|
+  { type: 'a', value: 789 }
+//@[002:0027) |   |   ├─ArrayItemSyntax
+//@[002:0027) |   |   | └─ObjectSyntax
+//@[002:0003) |   |   |   ├─Token(LeftBrace) |{|
+//@[004:0013) |   |   |   ├─ObjectPropertySyntax
+//@[004:0008) |   |   |   | ├─IdentifierSyntax
+//@[004:0008) |   |   |   | | └─Token(Identifier) |type|
+//@[008:0009) |   |   |   | ├─Token(Colon) |:|
+//@[010:0013) |   |   |   | └─StringSyntax
+//@[010:0013) |   |   |   |   └─Token(StringComplete) |'a'|
+//@[013:0014) |   |   |   ├─Token(Comma) |,|
+//@[015:0025) |   |   |   ├─ObjectPropertySyntax
+//@[015:0020) |   |   |   | ├─IdentifierSyntax
+//@[015:0020) |   |   |   | | └─Token(Identifier) |value|
+//@[020:0021) |   |   |   | ├─Token(Colon) |:|
+//@[022:0025) |   |   |   | └─IntegerLiteralSyntax
+//@[022:0025) |   |   |   |   └─Token(Integer) |789|
+//@[026:0027) |   |   |   └─Token(RightBrace) |}|
+//@[027:0028) |   |   ├─Token(NewLine) |\n|
+], arg => arg.type, arg => arg.value)
+//@[000:0001) |   |   └─Token(RightSquare) |]|
+//@[001:0002) |   ├─Token(Comma) |,|
+//@[003:0018) |   ├─FunctionArgumentSyntax
+//@[003:0018) |   | └─LambdaSyntax
+//@[003:0006) |   |   ├─LocalVariableSyntax
+//@[003:0006) |   |   | └─IdentifierSyntax
+//@[003:0006) |   |   |   └─Token(Identifier) |arg|
+//@[007:0009) |   |   ├─Token(Arrow) |=>|
+//@[010:0018) |   |   └─PropertyAccessSyntax
+//@[010:0013) |   |     ├─VariableAccessSyntax
+//@[010:0013) |   |     | └─IdentifierSyntax
+//@[010:0013) |   |     |   └─Token(Identifier) |arg|
+//@[013:0014) |   |     ├─Token(Dot) |.|
+//@[014:0018) |   |     └─IdentifierSyntax
+//@[014:0018) |   |       └─Token(Identifier) |type|
+//@[018:0019) |   ├─Token(Comma) |,|
+//@[020:0036) |   ├─FunctionArgumentSyntax
+//@[020:0036) |   | └─LambdaSyntax
+//@[020:0023) |   |   ├─LocalVariableSyntax
+//@[020:0023) |   |   | └─IdentifierSyntax
+//@[020:0023) |   |   |   └─Token(Identifier) |arg|
+//@[024:0026) |   |   ├─Token(Arrow) |=>|
+//@[027:0036) |   |   └─PropertyAccessSyntax
+//@[027:0030) |   |     ├─VariableAccessSyntax
+//@[027:0030) |   |     | └─IdentifierSyntax
+//@[027:0030) |   |     |   └─Token(Identifier) |arg|
+//@[030:0031) |   |     ├─Token(Dot) |.|
+//@[031:0036) |   |     └─IdentifierSyntax
+//@[031:0036) |   |       └─Token(Identifier) |value|
+//@[036:0037) |   └─Token(RightParen) |)|
+//@[037:0038) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

@@ -40,8 +40,6 @@ namespace Bicep.Core.Features
 
         public bool ProviderRegistryEnabled => configuration.ExperimentalFeaturesEnabled.ProviderRegistry;
 
-        public bool PublishSourceEnabled => configuration.ExperimentalFeaturesEnabled.PublishSource;
-
         public bool OptionalModuleNamesEnabled => configuration.ExperimentalFeaturesEnabled.OptionalModuleNames;
 
         public bool ResourceDerivedTypesEnabled => configuration.ExperimentalFeaturesEnabled.ResourceDerivedTypes;

@@ -23,13 +23,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static readonly HashSet<string> allowedFunctions = new() {
                 "extensionResourceId",
+                "if",
+                "guid",
+                "managementGroupResourceId",
+                "reference",
                 "resourceId",
+                "subscription",
                 "subscriptionResourceId",
                 "tenantResourceId",
-                "if",
-                "reference",
-                "subscription",
-                "guid"
                 };
 
         private class Exclusion

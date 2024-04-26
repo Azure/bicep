@@ -27,7 +27,6 @@ public interface IFeatureProvider
 
     bool AssertsEnabled { get; }
 
-    bool PublishSourceEnabled { get; }
 
     bool OptionalModuleNamesEnabled { get; }
 
@@ -49,7 +48,6 @@ public interface IFeatureProvider
                 (ProviderRegistryEnabled, CoreResources.ExperimentalFeatureNames_ProviderRegistry, true, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
-                (PublishSourceEnabled, CoreResources.ExperimentalFeatureNames_PublishSource, false, false),
                 (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),
                 (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
             })

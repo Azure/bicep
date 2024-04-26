@@ -190,6 +190,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax) => this.Apply(syntax, LayoutParenthesizedTypeSyntax);
 
+        public void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax) => this.Apply(syntax, LayoutSpreadExpressionSyntax);
+
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {
             syntax.Accept(this);

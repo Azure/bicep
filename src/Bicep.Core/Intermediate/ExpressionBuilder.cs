@@ -101,8 +101,7 @@ public class ExpressionBuilder
             case ObjectSyntax @object:
                 return ConvertObject(@object);
             case ArraySyntax array:
-                var items = array.Items.Select(x => ConvertWithoutLowering(x.Value));
-                return new ArrayExpression(array, items.ToImmutableArray());
+                return ConvertArray(array);
             case TernaryOperationSyntax ternary:
                 return new TernaryExpression(
                     ternary,
@@ -741,10 +740,81 @@ public class ExpressionBuilder
             dependencies);
     }
 
-    private ObjectExpression ConvertObject(ObjectSyntax @object)
-        => new(
-            @object,
-            @object.Properties.Select(ConvertObjectProperty).ToImmutableArray());
+    private Expression ConvertArray(ArraySyntax array)
+    {
+        var hasSpread = false;
+        var chunks = new List<Expression>();
+        var currentChunk = new List<Expression>();
+        void completePreviousChunk()
+        {
+            if (currentChunk.Count > 0)
+            {
+                chunks.Add(new ArrayExpression(array, currentChunk.ToImmutableArray()));
+                currentChunk.Clear();
+            }
+        }
+
+        foreach (var child in array.Children)
+        {
+            if (child is SpreadExpressionSyntax spread)
+            {
+                completePreviousChunk();
+                chunks.Add(ConvertWithoutLowering(spread.Expression));
+                hasSpread = true;
+            }
+            else if (child is ArrayItemSyntax arrayItem)
+            {
+                currentChunk.Add(ConvertWithoutLowering(arrayItem.Value));
+            }
+        }
+        completePreviousChunk();
+
+        return chunks.Count switch
+        {
+            0 => new ArrayExpression(array, []),
+            // preserve [ ...[ bar ] ] rather than converting it to [ foo: bar ]
+            1 when !hasSpread => chunks[0],
+            _ => new FunctionCallExpression(array, "flatten", [new ArrayExpression(array, chunks.ToImmutableArray())]),
+        };
+    }
+
+    private Expression ConvertObject(ObjectSyntax @object)
+    {
+        var hasSpread = false;
+        var chunks = new List<Expression>();
+        var currentChunk = new List<ObjectPropertyExpression>();
+        void completePreviousChunk()
+        {
+            if (currentChunk.Count > 0)
+            {
+                chunks.Add(new ObjectExpression(@object, currentChunk.ToImmutableArray()));
+                currentChunk.Clear();
+            }
+        }
+
+        foreach (var child in @object.Children)
+        {
+            if (child is SpreadExpressionSyntax spread)
+            {
+                completePreviousChunk();
+                chunks.Add(ConvertWithoutLowering(spread.Expression));
+                hasSpread = true;
+            }
+            else if (child is ObjectPropertySyntax objectProperty)
+            {
+                currentChunk.Add(ConvertObjectProperty(objectProperty));
+            }
+        }
+        completePreviousChunk();
+
+        return chunks.Count switch
+        {
+            0 => new ObjectExpression(@object, []),
+            // preserve { ...{ foo: bar } } rather than converting it to { foo: bar }
+            1 when !hasSpread => chunks[0],
+            _ => new FunctionCallExpression(@object, "shallowMerge", [new ArrayExpression(@object, chunks.ToImmutableArray())]),
+        };
+    }
 
     private ObjectPropertyExpression ConvertObjectProperty(ObjectPropertySyntax syntax)
     {

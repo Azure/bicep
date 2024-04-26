@@ -52,8 +52,7 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton<IWorkspace>(workspace)
                 .WithFeatureOverrides(new FeatureProviderOverrides(
                     // This is necessary to avoid hard-coding a particular version number into a compiled template
-                    AssemblyVersion: BicepTestConstants.DevAssemblyFileVersion,
-                    PublishSourceEnabled: true))
+                    AssemblyVersion: BicepTestConstants.DevAssemblyFileVersion))
                 .AddSingleton<BicepCompilationManager>());
 
             return helper.Construct<BicepCompilationManager>();

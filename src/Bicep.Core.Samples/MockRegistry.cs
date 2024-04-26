@@ -21,10 +21,10 @@ public class MockRegistry
         IContainerRegistryClientFactory ContainerRegistry,
         ITemplateSpecRepositoryFactory TemplateSpec);
 
-    public static async Task<ClientFactories> Build(bool enablePublishSource = false)
+    public static async Task<ClientFactories> Build(bool publishSource = false)
         => new(
-            await CreateMockBicepRegistry(enablePublishSource),
-            CreateMockTemplateSpecRegistry(enablePublishSource));
+            await CreateMockBicepRegistry(publishSource),
+            CreateMockTemplateSpecRegistry());
 
     private static async Task<IContainerRegistryClientFactory> CreateMockBicepRegistry(bool publishSource)
     {
@@ -39,13 +39,13 @@ public class MockRegistry
             modules[registryPath] = new(sourceFile.Contents, new(registryPath));
         }
 
-        var clientFactory = DataSetsExtensions.CreateMockRegistryClients(modules.ToImmutableDictionary(), publishSource);
+        var clientFactory = DataSetsExtensions.CreateMockRegistryClients(modules.ToImmutableDictionary());
         await DataSetsExtensions.PublishModulesToRegistryAsync(modules.ToImmutableDictionary(), clientFactory, publishSource);
 
         return clientFactory;
     }
 
-    private static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRegistry(bool enablePublishSource)
+    private static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRegistry()
     {
         var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
         var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryIndex>();
@@ -70,6 +70,6 @@ public class MockRegistry
             modules[registryPath] = new(templateSpec.ToJson(), new(registryPath));
         }
 
-        return DataSetsExtensions.CreateMockTemplateSpecRepositoryFactory(modules.ToImmutableDictionary(), enablePublishSource);
+        return DataSetsExtensions.CreateMockTemplateSpecRepositoryFactory(modules.ToImmutableDictionary());
     }
 }

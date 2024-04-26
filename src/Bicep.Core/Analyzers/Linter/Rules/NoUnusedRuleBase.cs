@@ -14,7 +14,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules;
 public abstract class NoUnusedRuleBase : LinterRuleBase
 {
     protected NoUnusedRuleBase(string code, string description, DiagnosticStyling diagnosticStyling, Uri? docUri = null) :
-        base(code, description, LinterRuleCategory.BestPractice/*asdfg?*/, docUri, diagnosticStyling)
+        base(code, description, LinterRuleCategory.BestPractice, docUri, diagnosticStyling)
     {
     }
 

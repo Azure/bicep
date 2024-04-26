@@ -370,7 +370,7 @@
                 "adminusername-should-not-be-literal": {
                   "allOf": [
                     {
-                      "description": "Property 'adminUserName' should not use a literal value. Use a param instead. See https://aka.ms/bicep/linter/adminusername-should-not-be-literal"
+                      "description": "Property 'adminUserName' should not use a literal value. Use a param instead. Defaults to 'Warning'. See https://aka.ms/bicep/linter/adminusername-should-not-be-literal"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -380,7 +380,7 @@
                 "artifacts-parameters": {
                   "allOf": [
                     {
-                      "description": "Follow best practices when including the _artifactsLocation and _artifactsLocationSasToken parameters. See https://aka.ms/bicep/linter/artifacts-parameters"
+                      "description": "Follow best practices when including the _artifactsLocation and _artifactsLocationSasToken parameters. Defaults to 'Warning'. See https://aka.ms/bicep/linter/artifacts-parameters"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -390,7 +390,7 @@
                 "decompiler-cleanup": {
                   "allOf": [
                     {
-                      "description": "Some decompiler imperfections may need to be cleaned up manually. See https://aka.ms/bicep/linter/decompiler-cleanup"
+                      "description": "Some decompiler imperfections may need to be cleaned up manually. Defaults to 'Warning'. See https://aka.ms/bicep/linter/decompiler-cleanup"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -400,7 +400,7 @@
                 "explicit-values-for-loc-params": {
                   "allOf": [
                     {
-                      "description": "When consuming a module, any location-related parameters that have a default value must be assigned an explicit value. See https://aka.ms/bicep/linter/explicit-values-for-loc-params"
+                      "description": "When consuming a module, any location-related parameters that have a default value must be assigned an explicit value. Defaults to 'Off'. See https://aka.ms/bicep/linter/explicit-values-for-loc-params"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-off"
@@ -410,7 +410,7 @@
                 "max-asserts": {
                   "allOf": [
                     {
-                      "description": "Maximum number of 'assert' statements used. See https://aka.ms/bicep/linter/max-asserts"
+                      "description": "Maximum number of 'assert' statements used. Defaults to 'Error'. See https://aka.ms/bicep/linter/max-asserts"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-error"
@@ -420,7 +420,7 @@
                 "max-outputs": {
                   "allOf": [
                     {
-                      "description": "Maximum number of outputs used. See https://aka.ms/bicep/linter/max-outputs"
+                      "description": "Maximum number of outputs used. Defaults to 'Error'. See https://aka.ms/bicep/linter/max-outputs"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-error"
@@ -430,7 +430,7 @@
                 "max-params": {
                   "allOf": [
                     {
-                      "description": "Maximum number of parameters used. See https://aka.ms/bicep/linter/max-params"
+                      "description": "Maximum number of parameters used. Defaults to 'Error'. See https://aka.ms/bicep/linter/max-params"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-error"
@@ -440,7 +440,7 @@
                 "max-resources": {
                   "allOf": [
                     {
-                      "description": "Maximum number of resources used. See https://aka.ms/bicep/linter/max-resources"
+                      "description": "Maximum number of resources used. Defaults to 'Error'. See https://aka.ms/bicep/linter/max-resources"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-error"
@@ -450,7 +450,7 @@
                 "max-variables": {
                   "allOf": [
                     {
-                      "description": "Maximum number of variables used. See https://aka.ms/bicep/linter/max-variables"
+                      "description": "Maximum number of variables used. Defaults to 'Error'. See https://aka.ms/bicep/linter/max-variables"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-error"
@@ -460,7 +460,7 @@
                 "no-conflicting-metadata": {
                   "allOf": [
                     {
-                      "description": "Metadata properties whose value is set by a separate decorator should not be set via the '@metadata()' decorator. See https://aka.ms/bicep/linter/no-conflicting-metadata"
+                      "description": "Metadata properties whose value is set by a separate decorator should not be set via the '@metadata()' decorator. Defaults to 'Warning'. See https://aka.ms/bicep/linter/no-conflicting-metadata"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -470,7 +470,7 @@
                 "no-deployments-resources": {
                   "allOf": [
                     {
-                      "description": "Bicep modules are recommended instead of representing nested or linked deployments as a resource. See https://aka.ms/bicep/linter/no-deployments-resources"
+                      "description": "Bicep modules are recommended instead of representing nested or linked deployments as a resource. Defaults to 'Warning'. See https://aka.ms/bicep/linter/no-deployments-resources"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -480,7 +480,7 @@
                 "no-hardcoded-env-urls": {
                   "allOf": [
                     {
-                      "description": "Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. See https://aka.ms/bicep/linter/no-hardcoded-env-urls",
+                      "description": "Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. Defaults to 'Warning'. See https://aka.ms/bicep/linter/no-hardcoded-env-urls",
                       "type": "object",
                       "properties": {
                         "disallowedhosts": {
@@ -514,9 +514,7 @@
                         "excludedhosts": {
                           "description": "Customize the list of hosts to allow even if they contain an excluded host as a substring",
                           "type": "array",
-                          "default": [
-                            "schema.management.azure.com"
-                          ],
+                          "default": [ "schema.management.azure.com" ],
                           "items": {
                             "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/excludedhosts/items",
                             "title": "Items",
@@ -535,7 +533,7 @@
                 "no-hardcoded-location": {
                   "allOf": [
                     {
-                      "description": "A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string 'global'. See https://aka.ms/bicep/linter/no-hardcoded-location"
+                      "description": "A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string 'global'. Defaults to 'Off'. See https://aka.ms/bicep/linter/no-hardcoded-location"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-off"
@@ -545,7 +543,7 @@
                 "no-loc-expr-outside-params": {
                   "allOf": [
                     {
-                      "description": "Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter. See https://aka.ms/bicep/linter/no-loc-expr-outside-params"
+                      "description": "Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter. Defaults to 'Off'. See https://aka.ms/bicep/linter/no-loc-expr-outside-params"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-off"
@@ -555,7 +553,7 @@
                 "nested-deployment-template-scoping": {
                   "allOf": [
                     {
-                      "description": "Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used. See https://aka.ms/bicep/linter/nested-deployment-template-scoping"
+                      "description": "Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used. Defaults to 'Error'. See https://aka.ms/bicep/linter/nested-deployment-template-scoping"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-error"
@@ -565,7 +563,7 @@
                 "no-unnecessary-dependson": {
                   "allOf": [
                     {
-                      "description": "No unnecessary dependsOn. See https://aka.ms/bicep/linter/no-unnecessary-dependson"
+                      "description": "No unnecessary dependsOn. Defaults to 'Warning'. See https://aka.ms/bicep/linter/no-unnecessary-dependson"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -575,7 +573,7 @@
                 "no-unused-existing-resources": {
                   "allOf": [
                     {
-                      "description": "All existing resources must be used. See https://aka.ms/bicep/linter/no-unused-existing-resources"
+                      "description": "All existing resources must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter/no-unused-existing-resources"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -585,7 +583,7 @@
                 "no-unused-params": {
                   "allOf": [
                     {
-                      "description": "All parameters must be used. See https://aka.ms/bicep/linter/no-unused-params"
+                      "description": "All parameters must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter/no-unused-params"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -595,7 +593,7 @@
                 "no-unused-vars": {
                   "allOf": [
                     {
-                      "description": "All variables must be used. See https://aka.ms/bicep/linter/no-unused-vars"
+                      "description": "All variables must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter/no-unused-vars"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -605,7 +603,7 @@
                 "outputs-should-not-contain-secrets": {
                   "allOf": [
                     {
-                      "description": "Outputs should not contain secrets. See https://aka.ms/bicep/linter/outputs-should-not-contain-secrets"
+                      "description": "Outputs should not contain secrets. Defaults to 'Warning'. See https://aka.ms/bicep/linter/outputs-should-not-contain-secrets"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -615,7 +613,7 @@
                 "prefer-interpolation": {
                   "allOf": [
                     {
-                      "description": "Use string interpolation instead of the concat function. See https://aka.ms/bicep/linter/prefer-interpolation"
+                      "description": "Use string interpolation instead of the concat function. Defaults to 'Warning'. See https://aka.ms/bicep/linter/prefer-interpolation"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -625,7 +623,7 @@
                 "prefer-unquoted-property-names": {
                   "allOf": [
                     {
-                      "description": "Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. See https://aka.ms/bicep/linter/prefer-unquoted-property-names"
+                      "description": "Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. Defaults to 'Warning'. See https://aka.ms/bicep/linter/prefer-unquoted-property-names"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -635,7 +633,7 @@
                 "protect-commandtoexecute-secrets": {
                   "allOf": [
                     {
-                      "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/protect-commandtoexecute-secrets"
+                      "description": "Use protectedSettings for commandToExecute secrets. Defaults to 'Warning'. See https://aka.ms/bicep/linter/protect-commandtoexecute-secrets"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -645,7 +643,7 @@
                 "secure-params-in-nested-deploy": {
                   "allOf": [
                     {
-                      "description": "Outer-scoped nested deployment resources should not be used for secure parameters or list* functions. See https://aka.ms/bicep/linter/secure-params-in-nested-deploy"
+                      "description": "Outer-scoped nested deployment resources should not be used for secure parameters or list* functions. Defaults to 'Warning'. See https://aka.ms/bicep/linter/secure-params-in-nested-deploy"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -655,7 +653,7 @@
                 "secure-secrets-in-params": {
                   "allOf": [
                     {
-                      "description": "Parameters that represent secrets must be secure. See https://aka.ms/bicep/linter/secure-secrets-in-params"
+                      "description": "Parameters that represent secrets must be secure. Defaults to 'Warning'. See https://aka.ms/bicep/linter/secure-secrets-in-params"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -665,7 +663,7 @@
                 "secure-parameter-default": {
                   "allOf": [
                     {
-                      "description": "Secure parameters should not have hardcoded defaults (except for empty or newGuid()). See https://aka.ms/bicep/linter/secure-parameter-default"
+                      "description": "Secure parameters should not have hardcoded defaults (except for empty or newGuid()). Defaults to 'Warning'. See https://aka.ms/bicep/linter/secure-parameter-default"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -675,7 +673,7 @@
                 "simplify-interpolation": {
                   "allOf": [
                     {
-                      "description": "Remove unnecessary string interpolation. See https://aka.ms/bicep/linter/simplify-interpolation"
+                      "description": "Remove unnecessary string interpolation. Defaults to 'Warning'. See https://aka.ms/bicep/linter/simplify-interpolation"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -685,7 +683,7 @@
                 "simplify-json-null": {
                   "allOf": [
                     {
-                      "description": "Simplify json('null') to null. See https://aka.ms/bicep/linter/simplify-json-null"
+                      "description": "Simplify json('null') to null. Defaults to 'Warning'. See https://aka.ms/bicep/linter/simplify-json-null"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -695,7 +693,7 @@
                 "use-parent-property": {
                   "allOf": [
                     {
-                      "description": "Use the parent property instead of formatting child resource names with '/' characters. See https://aka.ms/bicep/linter/use-parent-property"
+                      "description": "Use the parent property instead of formatting child resource names with '/' characters. Defaults to 'Warning'. See https://aka.ms/bicep/linter/use-parent-property"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -705,7 +703,7 @@
                 "use-recent-api-versions": {
                   "allOf": [
                     {
-                      "description": "Use recent API versions. See https://aka.ms/bicep/linter/use-recent-api-versions",
+                      "description": "Use recent API versions. Defaults to 'Off'. See https://aka.ms/bicep/linter/use-recent-api-versions",
                       "type": "object",
                       "properties": {
                         "maxAgeInDays": {
@@ -724,7 +722,7 @@
                 "use-resource-id-functions": {
                   "allOf": [
                     {
-                      "description": "Properties representing a resource ID must be generated appropriately. See https://aka.ms/bicep/linter/use-resource-id-functions"
+                      "description": "Properties representing a resource ID must be generated appropriately. Defaults to 'Warning'. See https://aka.ms/bicep/linter/use-resource-id-functions"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -734,7 +732,17 @@
                 "use-resource-symbol-reference": {
                   "allOf": [
                     {
-                      "description": "Use a direct resource symbol reference instead of 'reference' or 'list*' functions. See https://aka.ms/bicep/linter/use-resource-symbol-reference"
+                      "description": "Use a direct resource symbol reference instead of 'reference' or 'list*' functions. Defaults to 'Warning'. See https://aka.ms/bicep/linter/use-resource-symbol-reference"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "use-secure-value-for-secure-inputs": {
+                  "allOf": [
+                    {
+                      "description": "Resource properties expecting secure input should be assigned secure values. Defaults to 'Warning'. See https://aka.ms/bicep/linter/use-secure-value-for-secure-inputs"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -744,7 +752,7 @@
                 "use-stable-resource-identifiers": {
                   "allOf": [
                     {
-                      "description": "Resource identifiers should be reproducible outside of their initial deployment context. See https://aka.ms/bicep/linter/use-stable-resource-identifiers"
+                      "description": "Resource identifiers should be reproducible outside of their initial deployment context. Defaults to 'Warning'. See https://aka.ms/bicep/linter/use-stable-resource-identifiers"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -754,7 +762,7 @@
                 "use-stable-vm-image": {
                   "allOf": [
                     {
-                      "description": "Virtual machines shouldn't use preview images. See https://aka.ms/bicep/linter/use-stable-vm-image"
+                      "description": "Virtual machines shouldn't use preview images. Defaults to 'Warning'. See https://aka.ms/bicep/linter/use-stable-vm-image"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -809,10 +817,6 @@
         },
         "providerRegistry": {
           "type": "boolean"
-        },
-        "publishSource": {
-          "type": "boolean",
-          "description": "Enables publishing source code with modules using the bicep publish `--with-source` option. See https://aka.ms/bicep/experimental-features#publishsource"
         },
         "optionalModuleNames": {
           "type": "boolean",

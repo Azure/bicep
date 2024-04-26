@@ -88,6 +88,7 @@ namespace Bicep.Core.Syntax
         public static Token NullKeywordToken => CreateToken(TokenType.NullKeyword);
         public static Token ArrowToken => CreateToken(TokenType.Arrow);
         public static Token EndOfFileToken => CreateToken(TokenType.EndOfFile);
+        public static Token EllipsisToken => CreateToken(TokenType.Ellipsis);
 
         public static Token TargetScopeKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.TargetScopeKeyword);
         public static Token ImportKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ImportKeyword);

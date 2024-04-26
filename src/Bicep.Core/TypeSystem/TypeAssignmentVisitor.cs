@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using Azure.Deployments.Templates.Export;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -205,9 +206,9 @@ namespace Bicep.Core.TypeSystem
 
                         if (binder.GetParent(lambda) is { } lambdaParent &&
                             typeManager.GetDeclaredType(lambdaParent) is LambdaType lambdaType &&
-                            argumentIndex < lambdaType.ArgumentTypes.Length)
+                            argumentIndex < lambdaType.MaximumArgCount)
                         {
-                            return lambdaType.ArgumentTypes[argumentIndex];
+                            return lambdaType.GetArgumentType(argumentIndex);
                         }
 
                         return LanguageConstants.Any;
@@ -1260,15 +1261,32 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                var propertyTypes = new List<TypeSymbol>();
-                foreach (var objectProperty in syntax.Properties)
+                var childTypes = new List<TypeSymbol>();
+                foreach (var child in syntax.Children)
                 {
-                    var propertyType = typeManager.GetTypeInfo(objectProperty);
-                    CollectErrors(errors, propertyType);
-                    propertyTypes.Add(propertyType);
+                    var childType = child switch {
+                        ObjectPropertySyntax x => typeManager.GetTypeInfo(x),
+                        SpreadExpressionSyntax x => typeManager.GetTypeInfo(x.Expression),
+                        _ => null,
+                    };
+
+                    if (childType is null)
+                    {
+                        continue;
+                    }
+
+                    if (child is SpreadExpressionSyntax spread && 
+                        childType is not ErrorType &&
+                        !TypeValidator.AreTypesAssignable(childType, LanguageConstants.Object))
+                    {
+                        childType = ErrorType.Create(DiagnosticBuilder.ForPosition(child).SpreadOperatorRequiresAssignableValue(spread, LanguageConstants.Object));
+                    }
+
+                    CollectErrors(errors, childType);
+                    childTypes.Add(childType);
                 }
 
-                if (PropagateErrorType(errors, propertyTypes))
+                if (PropagateErrorType(errors, childTypes))
                 {
                     return ErrorType.Create(errors);
                 }
@@ -1276,33 +1294,61 @@ namespace Bicep.Core.TypeSystem
                 // Discriminated objects should have been resolved by the declared type manager.
                 var declaredType = typeManager.GetDeclaredType(syntax);
 
-                // type results are cached
-                var namedProperties = syntax.Properties
-                    .GroupByExcludingNull(p => p.TryGetKeyText(), LanguageConstants.IdentifierComparer)
-                    .Select(group =>
+                var namedProperties = new Dictionary<string, TypeProperty>(LanguageConstants.IdentifierComparer);
+                var additionalProperties = new List<TypeSymbol>();
+                foreach (var child in syntax.Children)
+                {
+                    if (child is ObjectPropertySyntax propertySyntax)
                     {
-                        var resolvedType = TypeHelper.CreateTypeUnion(group.Select(p => typeManager.GetTypeInfo(p)));
+                        var resolvedType = typeManager.GetTypeInfo(propertySyntax);
 
-                        if (declaredType is ObjectType objectType && objectType.Properties.TryGetValue(group.Key, out var property))
+                        if (propertySyntax.TryGetKeyText() is {} name)
                         {
-                            // we've found a declared object type for the containing object, with a matching property name definition.
-                            // preserve the type property details (name, descriptions etc.), and update the assigned type.
-                            return new TypeProperty(property.Name, resolvedType, property.Flags, property.Description);
+                            if (declaredType is ObjectType objectType && objectType.Properties.TryGetValue(name, out var property))
+                            {
+                                // we've found a declared object type for the containing object, with a matching property name definition.
+                                // preserve the type property details (name, descriptions etc.), and update the assigned type.
+                                namedProperties[name] = new TypeProperty(property.Name, resolvedType, property.Flags, property.Description);
+                            }
+                            else
+                            {
+                                // we've not been able to find a declared object type for the containing object, or it doesn't contain a property matching this one.
+                                // best we can do is to simply generate a property for the assigned type.
+                                namedProperties[name] = new TypeProperty(name, resolvedType, TypePropertyFlags.Required);
+                            }
                         }
+                        else
+                        {
+                            additionalProperties.Add(resolvedType);
+                        }
+                    }
 
-                        // we've not been able to find a declared object type for the containing object, or it doesn't contain a property matching this one.
-                        // best we can do is to simply generate a property for the assigned type.
-                        return new TypeProperty(group.Key, resolvedType, TypePropertyFlags.Required);
-                    });
+                    if (child is SpreadExpressionSyntax spreadSyntax)
+                    {
+                        var type = typeManager.GetTypeInfo(spreadSyntax.Expression);
+                        if (type is ObjectType spreadType)
+                        {
+                            foreach (var (name, property) in spreadType.Properties)
+                            {
+                                namedProperties[name] = property;
+                            }
 
-                var additionalProperties = syntax.Properties
-                    .Where(p => p.TryGetKeyText() is null)
-                    .Select(p => typeManager.GetTypeInfo(p));
+                            if (spreadType.AdditionalPropertiesType is {})
+                            {
+                                additionalProperties.Add(spreadType.AdditionalPropertiesType.Type);
+                            }
+                        }
+                        else
+                        {
+                            additionalProperties.Add(LanguageConstants.Any);
+                        }
+                    }
+                }
 
                 var additionalPropertiesType = additionalProperties.Any() ? TypeHelper.CreateTypeUnion(additionalProperties) : null;
 
                 // TODO: Add structural naming?
-                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
+                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties.Values, additionalPropertiesType);
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
@@ -1344,22 +1390,70 @@ namespace Bicep.Core.TypeSystem
             {
                 var errors = new List<ErrorDiagnostic>();
 
-                var itemTypes = new List<TypeSymbol>(syntax.Children.Length);
-                TupleTypeNameBuilder typeName = new();
-                foreach (var arrayItem in syntax.Items)
+                var childTypes = new List<TypeSymbol>(syntax.Children.Length);
+
+                foreach (var child in syntax.Children)
                 {
-                    var itemType = typeManager.GetTypeInfo(arrayItem);
-                    itemTypes.Add(itemType);
-                    typeName.AppendItem(itemType.Name);
-                    CollectErrors(errors, itemType);
+                    var childType = child switch {
+                        ArrayItemSyntax x => typeManager.GetTypeInfo(x.Value),
+                        SpreadExpressionSyntax x => typeManager.GetTypeInfo(x.Expression),
+                        _ => null,
+                    };
+
+                    if (childType is null)
+                    {
+                        continue;
+                    }
+
+                    if (child is SpreadExpressionSyntax spread && 
+                        childType is not ErrorType &&
+                        !TypeValidator.AreTypesAssignable(childType, LanguageConstants.Array))
+                    {
+                        childType = ErrorType.Create(DiagnosticBuilder.ForPosition(child).SpreadOperatorRequiresAssignableValue(spread, LanguageConstants.Array));
+                    }
+
+                    CollectErrors(errors, childType);
+                    childTypes.Add(childType);
                 }
 
-                if (PropagateErrorType(errors, itemTypes))
+                if (PropagateErrorType(errors, childTypes))
                 {
                     return ErrorType.Create(errors);
                 }
 
-                return new TupleType(typeName.ToString(), itemTypes.ToImmutableArray<ITypeReference>(), TypeSymbolValidationFlags.Default);
+                var tupleEntries = new List<TypeSymbol>();
+                var itemEntries = new List<TypeSymbol>();
+                foreach (var child in syntax.Children)
+                {
+                    if (child is ArrayItemSyntax arrayItemSyntax)
+                    {
+                        tupleEntries.Add(typeManager.GetTypeInfo(child));
+                    }
+                    else if (child is SpreadExpressionSyntax spreadSyntax)
+                    {
+                        var type = typeManager.GetTypeInfo(spreadSyntax.Expression);
+                        if (type is TupleType spreadType)
+                        {
+                            tupleEntries.AddRange(spreadType.Items.Select(x => x.Type));
+                        }
+                        else if (type is ArrayType arrayType)
+                        {
+                            itemEntries.Add(arrayType.Item.Type);
+                        }
+                        else
+                        {
+                            itemEntries.Add(LanguageConstants.Any);
+                        }
+                    }
+                }
+
+                if (itemEntries.Any())
+                {
+                    var itemType = TypeHelper.CreateTypeUnion(tupleEntries.Concat(itemEntries));
+                    return new TypedArrayType(itemType, TypeSymbolValidationFlags.Default);
+                }
+
+                return new TupleType(tupleEntries.ToImmutableArray<ITypeReference>(), TypeSymbolValidationFlags.Default);
             });
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
@@ -1813,7 +1907,7 @@ namespace Bicep.Core.TypeSystem
                 var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
                 var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, LanguageConstants.Any);
 
-                return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), returnType);
+                return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), ImmutableArray<ITypeReference>.Empty, returnType);
             });
 
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
@@ -1826,8 +1920,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var errors = new List<ErrorDiagnostic>();
-                var argumentTypes = new List<TypeSymbol>();
-                foreach (var argumentType in declaredLambdaType.ArgumentTypes)
+                foreach (var argumentType in declaredLambdaType.ArgumentTypes.Concat(declaredLambdaType.OptionalArgumentTypes))
                 {
                     CollectErrors(errors, argumentType.Type);
                 }
@@ -1835,12 +1928,7 @@ namespace Bicep.Core.TypeSystem
                 var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, declaredLambdaType.ReturnType.Type);
                 CollectErrors(errors, returnType);
 
-                if (PropagateErrorType(errors, argumentTypes))
-                {
-                    return ErrorType.Create(errors);
-                }
-
-                return new LambdaType(declaredLambdaType.ArgumentTypes, returnType);
+                return new LambdaType(declaredLambdaType.ArgumentTypes, declaredLambdaType.OptionalArgumentTypes, returnType);
             });
 
         private Symbol? GetSymbolForDecorator(DecoratorSyntax decorator)

@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10440735979787247431"
+      "templateHash": "4260162552164475821"
     }
   },
   "parameters": {
@@ -286,7 +286,10 @@
     },
     "joinedString": "[join(createArray('I', 'love', 'Bicep!'), ' ')]",
     "prefix": "[take('food', 3)]",
-    "isPrefixed": "[startsWith('food', 'foo')]"
+    "isPrefixed": "[startsWith('food', 'foo')]",
+    "spread": "[shallowMerge(createArray(createObject('foo', 'abc'), variables('issue1332')))]",
+    "test": "[shallowMerge(createArray(variables('spread'), createObject('bar', 'def')))]",
+    "arraySpread": "[flatten(createArray(variables('arrayOfBooleans'), variables('arrayOfHardCodedNumbers'), variables('arrayOfHardCodedStrings')))]"
   },
   "resources": {}
 }
