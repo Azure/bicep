@@ -19,7 +19,6 @@ public record FeatureProviderOverrides(
     bool? AssertsEnabled = default,
     bool? DynamicTypeLoadingEnabled = default,
     bool? ProviderRegistry = default,
-    bool? MicrosoftGraphPreviewEnabled = default,
     bool? OptionalModuleNamesEnabled = default,
     bool? ResourceDerivedTypesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
@@ -37,7 +36,6 @@ public record FeatureProviderOverrides(
         bool? AssertsEnabled = default,
         bool? DynamicTypeLoadingEnabled = default,
         bool? ProviderRegistry = default,
-        bool? MicrosoftGraphPreviewEnabled = default,
         bool? OptionalModuleNamesEnabled = default,
         bool? ResourceDerivedTypesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
@@ -54,7 +52,6 @@ public record FeatureProviderOverrides(
         AssertsEnabled,
         DynamicTypeLoadingEnabled,
         ProviderRegistry,
-        MicrosoftGraphPreviewEnabled,
         OptionalModuleNamesEnabled,
         ResourceDerivedTypesEnabled,
         AssemblyVersion)

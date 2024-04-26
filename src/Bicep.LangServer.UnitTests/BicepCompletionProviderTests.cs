@@ -415,7 +415,7 @@ output length int =
             var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("provider m| as graph");
 
             var completionProvider = CreateProvider();
-            var featureOverrides = new FeatureProviderOverrides(ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: true);
+            var featureOverrides = new FeatureProviderOverrides(ExtensibilityEnabled: true);
             var serviceWithGraph = new ServiceBuilder().WithFeatureOverrides(featureOverrides);
 
             var compilationWithMSGraph = serviceWithGraph.BuildCompilation(contents);

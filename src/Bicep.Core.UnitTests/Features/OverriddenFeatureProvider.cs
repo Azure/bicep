@@ -38,8 +38,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ProviderRegistryEnabled => overrides.ProviderRegistry ?? features.ProviderRegistryEnabled;
 
-    public bool MicrosoftGraphPreviewEnabled => overrides.MicrosoftGraphPreviewEnabled ?? features.MicrosoftGraphPreviewEnabled;
-
     public bool OptionalModuleNamesEnabled => overrides.OptionalModuleNamesEnabled ?? features.OptionalModuleNamesEnabled;
 
     public bool ResourceDerivedTypesEnabled => overrides.ResourceDerivedTypesEnabled ?? features.ResourceDerivedTypesEnabled;

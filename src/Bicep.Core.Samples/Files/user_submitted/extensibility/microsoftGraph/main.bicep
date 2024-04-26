@@ -69,4 +69,12 @@ resource group 'Microsoft.Graph/groups@beta' = {
 resource appV1 'Microsoft.Graph/applications@v1.0' = {
   displayName: 'TestAppV1'
   uniqueName: 'testAppV1'
+
+  resource myTestFIC 'federatedIdentityCredentials' = {
+    name: '${appV1.uniqueName}/mytestfic'
+    audiences: ['audience']
+    description: 'My test fic'
+    issuer: 'issuer'
+    subject: 'subject'
+  }
 }

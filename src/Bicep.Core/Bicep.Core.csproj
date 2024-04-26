@@ -35,7 +35,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Graph.Bicep.Types" Version="0.1.4-preview" />
+    <PackageReference Include="Microsoft.Graph.Bicep.Types" Version="0.1.5-preview" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SharpYaml" Version="2.1.1" />
     <PackageReference Include="Azure.Deployments.Templates" Version="1.0.1243.1" />

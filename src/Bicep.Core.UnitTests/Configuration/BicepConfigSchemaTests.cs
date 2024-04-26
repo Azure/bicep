@@ -51,9 +51,8 @@ namespace Bicep.Core.UnitTests.Configuration
 
         // TODO: Remove these when they're fixed
         private readonly string[] GrandfatheredFeaturesNeedingHelpOrDescription = {
-                "microsoftGraphPreview",
-                "providerRegistry",
-            };
+            "providerRegistry",
+        };
 
         private static string GetBicepConfigSchemaContents()
         {

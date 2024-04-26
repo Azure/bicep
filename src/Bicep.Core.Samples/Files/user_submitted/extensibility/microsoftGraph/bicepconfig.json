@@ -1,6 +1,5 @@
 {
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "microsoftGraphPreview": true
+    "extensibility": true
   }
 }
