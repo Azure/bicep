@@ -16,7 +16,7 @@
   "devDependencies": {
     "@types/node": "^20.12.7",
     "@types/pako": "^2.0.3",
-    "@types/react": "^18.2.79",
+    "@types/react": "^18.3.1",
     "@types/react-dom": "^18.2.25",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^7.7.0",
@@ -42,7 +42,7 @@
     "bootstrap": "^5.3.3",
     "monaco-editor": "^0.48.0",
     "pako": "^2.1.0",
-    "react": "^18.2.0",
+    "react": "^18.3.1",
     "react-bootstrap": "^2.10.2",
     "react-dom": "^18.2.0"
   }
