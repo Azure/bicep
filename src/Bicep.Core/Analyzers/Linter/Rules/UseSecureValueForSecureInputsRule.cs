@@ -16,7 +16,7 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
 {
     public new const string Code = "use-secure-value-for-secure-inputs";
 
-    private static readonly ImmutableDictionary<string, ImmutableArray<ImmutableArray<string>>> propertyLookup = new [] {
+    private static readonly ImmutableDictionary<string, ImmutableArray<ImmutableArray<string>>> propertyLookup = new[] {
         ("Microsoft.Compute/virtualMachines", "properties.osProfile.adminPassword"),
         ("Microsoft.Compute/virtualMachineScaleSets", "properties.virtualMachineProfile.osProfile.adminPassword")
     }.GroupBy(x => x.Item1)

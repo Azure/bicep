@@ -671,7 +671,8 @@ namespace Bicep.Core.TypeSystem
                         _ => targetType.Item.Type,
                     };
 
-                    var newConfig = config with { 
+                    var newConfig = config with
+                    {
                         SkipTypeErrors = true,
                         OnTypeMismatch = (expected, actual, position) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatch(ShouldWarn(targetType), expected, actual)),
                     };
@@ -684,7 +685,8 @@ namespace Bicep.Core.TypeSystem
                     hasSpread = true;
                     var spreadTarget = new TypedArrayType(targetType.Item, targetType.ValidationFlags);
 
-                    var newConfig = config with { 
+                    var newConfig = config with
+                    {
                         SkipTypeErrors = true,
                         OnTypeMismatch = (expected, actual, position) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatchSpread(ShouldWarn(targetType), expected, actual)),
                     };
@@ -710,8 +712,9 @@ namespace Bicep.Core.TypeSystem
                     targetType.MinLength.Value));
             }
 
-            var itemProps = childTypes.Select((t, i) => t switch {
-                (type: {} itemType, isSpread: false) => itemType,
+            var itemProps = childTypes.Select((t, i) => t switch
+            {
+                (type: { } itemType, isSpread: false) => itemType,
                 (type: ArrayType arrayType, isSpread: true) => arrayType.Item,
                 _ => LanguageConstants.Any,
             });

@@ -90,7 +90,7 @@ namespace Bicep.Core.TypeSystem.Types
             {
                 return ArgumentTypes[position];
             }
-            
+
             return OptionalArgumentTypes[position - ArgumentTypes.Length];
         }
 

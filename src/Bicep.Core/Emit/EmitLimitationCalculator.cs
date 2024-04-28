@@ -690,7 +690,7 @@ namespace Bicep.Core.Emit
             {
                 foreach (var module in model.Root.ModuleDeclarations)
                 {
-                    if (module.DeclaringModule.TryGetBody() is {} body)
+                    if (module.DeclaringModule.TryGetBody() is { } body)
                     {
                         yield return body;
 
@@ -703,7 +703,7 @@ namespace Bicep.Core.Emit
 
                 foreach (var resource in model.Root.ResourceDeclarations)
                 {
-                    if (resource.DeclaringResource.TryGetBody() is {} body)
+                    if (resource.DeclaringResource.TryGetBody() is { } body)
                     {
                         yield return body;
                     }
