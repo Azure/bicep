@@ -8,24 +8,6 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxExtensions
     {
-        public static bool IsSingleLineComment(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.SingleLineComment;
-
-        public static bool IsMultiLineComment(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.MultiLineComment;
-
-        public static bool IsComment(this SyntaxTrivia? trivia) => IsSingleLineComment(trivia) || IsMultiLineComment(trivia);
-
-        public static bool IsOf(this Token token, TokenType type) => token.Type == type;
-
-        public static bool IsKeyword(this Token token, string keyword) =>
-            token.Type == TokenType.Identifier &&
-            LanguageConstants.IdentifierComparer.Equals(token.Text, keyword);
-
-        public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo)
-            => LanguageConstants.IdentifierComparer.Equals(funcSyntax.Name.IdentifierName, compareTo);
-
-        public static bool NameEquals(this IdentifierSyntax identifier, string compareTo)
-            => LanguageConstants.IdentifierComparer.Equals(identifier.IdentifierName, compareTo);
-
         private static TypeProperty? TryGetTypeProperty(SemanticModel model, SyntaxBase objectSyntax, string propertyName)
         {
             // Cannot use assigned type here because it won't handle the case where the property value

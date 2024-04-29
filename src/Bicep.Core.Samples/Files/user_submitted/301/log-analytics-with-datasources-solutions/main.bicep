@@ -63,14 +63,13 @@ resource logAnalyticsSolutions 'Microsoft.OperationsManagement/solutions@2015-11
   }
 ]
 
-resource logAnalyticsAutomation 'Microsoft.OperationalInsights/workspaces/linkedServices@2020-08-01' =
-  if (!empty(automationAccountName)) {
-    parent: logAnalyticsWorkspace
-    name: 'Automation'
-    properties: {
-      resourceId: resourceId('Microsoft.Automation/automationAccounts', automationAccountName)
-    }
+resource logAnalyticsAutomation 'Microsoft.OperationalInsights/workspaces/linkedServices@2020-08-01' = if (!empty(automationAccountName)) {
+  parent: logAnalyticsWorkspace
+  name: 'Automation'
+  properties: {
+    resourceId: resourceId('Microsoft.Automation/automationAccounts', automationAccountName)
   }
+}
 
 resource logAnalyticsDataSource 'Microsoft.OperationalInsights/workspaces/dataSources@2020-08-01' = [
   for dataSource in dataSources: {
@@ -81,38 +80,36 @@ resource logAnalyticsDataSource 'Microsoft.OperationalInsights/workspaces/dataSo
   }
 ]
 
-resource lock 'Microsoft.Authorization/locks@2016-09-01' =
-  if (enableDeleteLock) {
-    scope: logAnalyticsWorkspace
+resource lock 'Microsoft.Authorization/locks@2016-09-01' = if (enableDeleteLock) {
+  scope: logAnalyticsWorkspace
 
-    name: lockName
-    properties: {
-      level: 'CanNotDelete'
-    }
+  name: lockName
+  properties: {
+    level: 'CanNotDelete'
   }
+}
 
-resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' =
-  if (enableDiagnostics) {
-    name: diagnosticsName
-    scope: logAnalyticsWorkspace
-    properties: {
-      workspaceId: logAnalyticsWorkspace.id
-      storageAccountId: resourceId(
-        diagnosticStorageAccountResourceGroup,
-        'Microsoft.Storage/storageAccounts',
-        diagnosticStorageAccountName
-      )
-      logs: [
-        {
-          category: 'Audit'
-          enabled: true
-        }
-      ]
-      metrics: [
-        {
-          category: 'AllMetrics'
-          enabled: true
-        }
-      ]
-    }
+resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = if (enableDiagnostics) {
+  name: diagnosticsName
+  scope: logAnalyticsWorkspace
+  properties: {
+    workspaceId: logAnalyticsWorkspace.id
+    storageAccountId: resourceId(
+      diagnosticStorageAccountResourceGroup,
+      'Microsoft.Storage/storageAccounts',
+      diagnosticStorageAccountName
+    )
+    logs: [
+      {
+        category: 'Audit'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
   }
+}

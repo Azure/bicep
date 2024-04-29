@@ -32,78 +32,75 @@ resource publicIp 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
 }
 
 // if vnetNewOrExisting == 'new', create a new vnet and subnet
-resource newVirtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' =
-  if (vnetNewOrExisting == 'new') {
-    name: vnetName
-    location: location
-    properties: {
-      addressSpace: {
-        addressPrefixes: [vnetIpPrefix]
-      }
-      subnets: [
-        {
-          name: bastionSubnetName
-          properties: {
-            addressPrefix: bastionSubnetIpPrefix
-            networkSecurityGroup: {
-              properties: {
-                securityRules: [
-                  {
-                    properties: {
-                      direction: 'Inbound'
-                      protocol: '*'
-                      access: 'Allow'
-                    }
+resource newVirtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = if (vnetNewOrExisting == 'new') {
+  name: vnetName
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [vnetIpPrefix]
+    }
+    subnets: [
+      {
+        name: bastionSubnetName
+        properties: {
+          addressPrefix: bastionSubnetIpPrefix
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
                   }
-                  {
-                    properties: {
-                      direction: 'Outbound'
-                      protocol: '*'
-                      access: 'Allow'
-                    }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
                   }
-                ]
-              }
+                }
+              ]
             }
           }
         }
-      ]
-    }
+      }
+    ]
   }
+}
 
 // if vnetNewOrExisting == 'existing', reference an existing vnet and create a new subnet under it
-resource existingVirtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' existing =
-  if (vnetNewOrExisting == 'existing') {
-    name: vnetName
-  }
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' =
-  if (vnetNewOrExisting == 'existing') {
-    parent: existingVirtualNetwork
-    name: bastionSubnetName
-    properties: {
-      addressPrefix: bastionSubnetIpPrefix
-      networkSecurityGroup: {
-        properties: {
-          securityRules: [
-            {
-              properties: {
-                direction: 'Inbound'
-                protocol: '*'
-                access: 'Allow'
-              }
+resource existingVirtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' existing = if (vnetNewOrExisting == 'existing') {
+  name: vnetName
+}
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' = if (vnetNewOrExisting == 'existing') {
+  parent: existingVirtualNetwork
+  name: bastionSubnetName
+  properties: {
+    addressPrefix: bastionSubnetIpPrefix
+    networkSecurityGroup: {
+      properties: {
+        securityRules: [
+          {
+            properties: {
+              direction: 'Inbound'
+              protocol: '*'
+              access: 'Allow'
             }
-            {
-              properties: {
-                direction: 'Outbound'
-                protocol: '*'
-                access: 'Allow'
-              }
+          }
+          {
+            properties: {
+              direction: 'Outbound'
+              protocol: '*'
+              access: 'Allow'
             }
-          ]
-        }
+          }
+        ]
       }
     }
   }
+}
 
 resource bastionHost 'Microsoft.Network/bastionHosts@2020-05-01' = {
   name: bastionHostName

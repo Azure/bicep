@@ -177,6 +177,47 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
 
+module modBWithCondition2 './child/moduleb.bicep' =
+//@[000:006) Identifier |module|
+//@[007:025) Identifier |modBWithCondition2|
+//@[026:049) StringComplete |'./child/moduleb.bicep'|
+//@[050:051) Assignment |=|
+//@[051:053) NewLine |\r\n|
+// awkward comment
+//@[018:020) NewLine |\r\n|
+if (1 + 1 == 2) {
+//@[000:002) Identifier |if|
+//@[003:004) LeftParen |(|
+//@[004:005) Integer |1|
+//@[006:007) Plus |+|
+//@[008:009) Integer |1|
+//@[010:012) Equals |==|
+//@[013:014) Integer |2|
+//@[014:015) RightParen |)|
+//@[016:017) LeftBrace |{|
+//@[017:019) NewLine |\r\n|
+  name: 'modBWithCondition2'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:028) StringComplete |'modBWithCondition2'|
+//@[028:030) NewLine |\r\n|
+  params: {
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:013) NewLine |\r\n|
+    location: 'East US'
+//@[004:012) Identifier |location|
+//@[012:013) Colon |:|
+//@[014:023) StringComplete |'East US'|
+//@[023:025) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
 module modC './child/modulec.json' = {
 //@[000:006) Identifier |module|
 //@[007:011) Identifier |modC|

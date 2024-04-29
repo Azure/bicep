@@ -96,30 +96,27 @@ resource apimInstanceDiagnostics 'Microsoft.ApiManagement/service/diagnostics@20
 //optional modules
 
 //Include Group modules
-module apimGroups './groups.bicep' =
-  if (deployGroups) {
-    params: {
-      apimInstanceName: apiManagement.name
-    }
-    name: 'apimGroups'
+module apimGroups './groups.bicep' = if (deployGroups) {
+  params: {
+    apimInstanceName: apiManagement.name
   }
+  name: 'apimGroups'
+}
 
 //Include users modules
-module apimUsers './users.bicep' =
-  if (deployUsers) {
-    params: {
-      apimInstanceName: apiManagement.name
-    }
-    name: 'apimUsers'
+module apimUsers './users.bicep' = if (deployUsers) {
+  params: {
+    apimInstanceName: apiManagement.name
   }
+  name: 'apimUsers'
+}
 
 //include Name value pair modules
-module apimNVPairs './NameValues.bicep' =
-  if (deployNameValuePairs) {
-    params: {
-      apimInstanceName: apiManagement.name
-    }
-    name: 'apimNameValuePairs'
+module apimNVPairs './NameValues.bicep' = if (deployNameValuePairs) {
+  params: {
+    apimInstanceName: apiManagement.name
   }
+  name: 'apimNameValuePairs'
+}
 output appInsightsInstrumentationKey string = applicationInsights.properties.InstrumentationKey
 output apimURL string = apiManagement.properties.portalUrl

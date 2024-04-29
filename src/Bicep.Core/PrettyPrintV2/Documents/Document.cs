@@ -12,7 +12,9 @@ namespace Bicep.Core.PrettyPrintV2.Documents
     {
         public static implicit operator Document(string content) => TextDocument.From(content);
 
-        public abstract IEnumerable<TextDocument> Flatten();
+        public abstract IEnumerable<Document> Flatten();
+
+        public virtual int Width => 0;
 
         public IEnumerator<Document> GetEnumerator()
         {

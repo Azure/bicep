@@ -672,7 +672,151 @@ var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 12345678
 //@[59:69) Integer |1234567890|
 //@[70:71) Colon |:|
 //@[72:82) Integer |1234567890|
-//@[82:84) NewLine |\n\n|
+//@[82:85) NewLine |\n\n\n|
+
+
+var w80_________ = union(/*******************************************/ {}, {}, {
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |w80_________|
+//@[17:18) Assignment |=|
+//@[19:24) Identifier |union|
+//@[24:25) LeftParen |(|
+//@[71:72) LeftBrace |{|
+//@[72:73) RightBrace |}|
+//@[73:74) Comma |,|
+//@[75:76) LeftBrace |{|
+//@[76:77) RightBrace |}|
+//@[77:78) Comma |,|
+//@[79:80) LeftBrace |{|
+//@[80:81) NewLine |\n|
+    foo: true
+//@[04:07) Identifier |foo|
+//@[07:08) Colon |:|
+//@[09:13) TrueKeyword |true|
+//@[13:14) NewLine |\n|
+    bar: false
+//@[04:07) Identifier |bar|
+//@[07:08) Colon |:|
+//@[09:14) FalseKeyword |false|
+//@[14:15) NewLine |\n|
+})
+//@[00:01) RightBrace |}|
+//@[01:02) RightParen |)|
+//@[02:03) NewLine |\n|
+var w81_________ = union(/********************************************/ {}, {}, {
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |w81_________|
+//@[17:18) Assignment |=|
+//@[19:24) Identifier |union|
+//@[24:25) LeftParen |(|
+//@[72:73) LeftBrace |{|
+//@[73:74) RightBrace |}|
+//@[74:75) Comma |,|
+//@[76:77) LeftBrace |{|
+//@[77:78) RightBrace |}|
+//@[78:79) Comma |,|
+//@[80:81) LeftBrace |{|
+//@[81:82) NewLine |\n|
+    foo: true
+//@[04:07) Identifier |foo|
+//@[07:08) Colon |:|
+//@[09:13) TrueKeyword |true|
+//@[13:14) NewLine |\n|
+    bar: false
+//@[04:07) Identifier |bar|
+//@[07:08) Colon |:|
+//@[09:14) FalseKeyword |false|
+//@[14:15) NewLine |\n|
+})
+//@[00:01) RightBrace |}|
+//@[01:02) RightParen |)|
+//@[02:04) NewLine |\n\n|
+
+var w80__________ = union(/******************************************/ {}, {}, {
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |w80__________|
+//@[18:19) Assignment |=|
+//@[20:25) Identifier |union|
+//@[25:26) LeftParen |(|
+//@[71:72) LeftBrace |{|
+//@[72:73) RightBrace |}|
+//@[73:74) Comma |,|
+//@[75:76) LeftBrace |{|
+//@[76:77) RightBrace |}|
+//@[77:78) Comma |,|
+//@[79:80) LeftBrace |{|
+//@[80:81) NewLine |\n|
+    foo: true
+//@[04:07) Identifier |foo|
+//@[07:08) Colon |:|
+//@[09:13) TrueKeyword |true|
+//@[13:14) NewLine |\n|
+    w80: union(/***********************************************************/ {}, {
+//@[04:07) Identifier |w80|
+//@[07:08) Colon |:|
+//@[09:14) Identifier |union|
+//@[14:15) LeftParen |(|
+//@[77:78) LeftBrace |{|
+//@[78:79) RightBrace |}|
+//@[79:80) Comma |,|
+//@[81:82) LeftBrace |{|
+//@[82:83) NewLine |\n|
+        baz: 123
+//@[08:11) Identifier |baz|
+//@[11:12) Colon |:|
+//@[13:16) Integer |123|
+//@[16:17) NewLine |\n|
+    })
+//@[04:05) RightBrace |}|
+//@[05:06) RightParen |)|
+//@[06:07) NewLine |\n|
+})
+//@[00:01) RightBrace |}|
+//@[01:02) RightParen |)|
+//@[02:04) NewLine |\n\n|
+
+var w81__________ = union(/*******************************************/ {}, {}, {
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |w81__________|
+//@[18:19) Assignment |=|
+//@[20:25) Identifier |union|
+//@[25:26) LeftParen |(|
+//@[72:73) LeftBrace |{|
+//@[73:74) RightBrace |}|
+//@[74:75) Comma |,|
+//@[76:77) LeftBrace |{|
+//@[77:78) RightBrace |}|
+//@[78:79) Comma |,|
+//@[80:81) LeftBrace |{|
+//@[81:82) NewLine |\n|
+    foo: true
+//@[04:07) Identifier |foo|
+//@[07:08) Colon |:|
+//@[09:13) TrueKeyword |true|
+//@[13:14) NewLine |\n|
+    w81: union(/**********************************************************/ {}, {
+//@[04:07) Identifier |w81|
+//@[07:08) Colon |:|
+//@[09:14) Identifier |union|
+//@[14:15) LeftParen |(|
+//@[76:77) LeftBrace |{|
+//@[77:78) RightBrace |}|
+//@[78:79) Comma |,|
+//@[80:81) LeftBrace |{|
+//@[81:82) NewLine |\n|
+        baz: 123
+//@[08:11) Identifier |baz|
+//@[11:12) Colon |:|
+//@[13:16) Integer |123|
+//@[16:17) NewLine |\n|
+    })
+//@[04:05) RightBrace |}|
+//@[05:06) RightParen |)|
+//@[06:07) NewLine |\n|
+})
+//@[00:01) RightBrace |}|
+//@[01:02) RightParen |)|
+//@[02:04) NewLine |\n\n|
 
 ////////////////////////////////////////////////////////////////////////////////
 //@[80:81) NewLine |\n|
@@ -844,6 +988,8 @@ var forceBreak9 = [1, 2, {
 //@[00:01) RightBrace |}|
 //@[01:02) RightSquare |]|
 //@[02:03) NewLine |\n|
+// Does not break immediate parent group, but breaks grandparent.
+//@[65:66) NewLine |\n|
 var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
 //@[00:03) Identifier |var|
 //@[04:16) Identifier |forceBreak10|
@@ -953,6 +1099,37 @@ var forceBreak15 = true ? { foo: 0 } : {
 //@[07:08) Colon |:|
 //@[09:10) Integer |1|
 //@[10:11) RightBrace |}|
-//@[11:12) NewLine |\n|
+//@[11:13) NewLine |\n\n|
+
+var forceBreak16 = union({ foo: 0 }, {
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |forceBreak16|
+//@[17:18) Assignment |=|
+//@[19:24) Identifier |union|
+//@[24:25) LeftParen |(|
+//@[25:26) LeftBrace |{|
+//@[27:30) Identifier |foo|
+//@[30:31) Colon |:|
+//@[32:33) Integer |0|
+//@[34:35) RightBrace |}|
+//@[35:36) Comma |,|
+//@[37:38) LeftBrace |{|
+//@[38:39) NewLine |\n|
+    foo: 123
+//@[04:07) Identifier |foo|
+//@[07:08) Colon |:|
+//@[09:12) Integer |123|
+//@[12:13) NewLine |\n|
+    bar: 456
+//@[04:07) Identifier |bar|
+//@[07:08) Colon |:|
+//@[09:12) Integer |456|
+//@[12:13) NewLine |\n|
+} // comment
+//@[00:01) RightBrace |}|
+//@[12:13) NewLine |\n|
+)
+//@[00:01) RightParen |)|
+//@[01:02) NewLine |\n|
 
 //@[00:00) EndOfFile ||

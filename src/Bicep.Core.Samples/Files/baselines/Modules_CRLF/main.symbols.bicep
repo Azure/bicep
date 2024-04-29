@@ -40,6 +40,16 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
   }
 }
 
+module modBWithCondition2 './child/moduleb.bicep' =
+//@[07:25) Module modBWithCondition2. Type: module. Declaration start char: 0, length: 166
+// awkward comment
+if (1 + 1 == 2) {
+  name: 'modBWithCondition2'
+  params: {
+    location: 'East US'
+  }
+}
+
 module modC './child/modulec.json' = {
 //@[07:11) Module modC. Type: module. Declaration start char: 0, length: 100
   name: 'modC'
