@@ -19,9 +19,9 @@
       },
       "JsonSchema.Net": {
         "type": "Direct",
-        "requested": "[6.1.1, )",
-        "resolved": "6.1.1",
-        "contentHash": "DzrKpzA03xD87xWiFX6xQQClErr2rfg8889e0QLQpkqrojjKIYzrG2Rag3rxRlBMvCXG+/BuV1ciZNFF3FApvQ==",
+        "requested": "[6.1.2, )",
+        "resolved": "6.1.2",
+        "contentHash": "UQ2QfZpjSy7YbqaAF0ROJ0agUpdyWLqnhoBwlzoE9AVwssRcel7z0wNKi7BPXx/TlgmUIpdWgBxAuWaD3pdOlQ==",
         "dependencies": {
           "Json.More.Net": "2.0.0",
           "JsonPointer.Net": "4.0.0"
