@@ -58,7 +58,7 @@ jobs:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli/bin/release/net8.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
-          overwrite: true
+          # asdfg overwrite: true
 
       - name: Upload Bicep project assets file
         uses: actions/upload-artifact@v4
@@ -66,7 +66,7 @@ jobs:
           name: bicep-project-assets-${{ matrix.rid }}
           path: ./src/Bicep.Cli/obj/project.assets.json
           if-no-files-found: error
-          overwrite: true
+          # asdfg overwrite: true
 
   build-nugets:
     name: Build NuGet Packages
@@ -90,7 +90,7 @@ jobs:
           name: bicep-nupkg-any
           path: out/*
           if-no-files-found: error
-          overwrite: true
+          # asdfg overwrite: true
 
   build-vscode-ext:
     name: "Build: VSCode Extension"
@@ -136,7 +136,7 @@ jobs:
           name: vscode-bicep.vsix
           path: ./src/vscode-bicep/vscode-bicep.vsix
           if-no-files-found: error
-          overwrite: true
+          # asdfg overwrite: true
 
   test-vscode-ext:
     name: "Test: VSCode Extension"
@@ -258,7 +258,7 @@ jobs:
           name: build-binlog-files
           path: ./src/binlog/bicep_in_visual_studio_build.binlog
           if-no-files-found: error
-          overwrite: true
+          # asdfg overwrite: true
 
       - name: Upload BicepLanguageServerClient VSIX
         uses: actions/upload-artifact@v4
@@ -266,7 +266,7 @@ jobs:
           name: Bicep.VSLanguageServerClient.Vsix.vsix
           path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/vs-bicep.vsix
           if-no-files-found: error
-          overwrite: true
+          # asdfg overwrite: true
 
       - name: Run bicep in visual studio unit tests
         uses: microsoft/vstest-action@v1.0.0
@@ -325,7 +325,7 @@ jobs:
           name: bicep-setup-win-x64
           path: ./src/installer-win/bin/release/net8.0/bicep-setup-win-x64.exe
           if-no-files-found: error
-          overwrite: true
+          # asdfg overwrite: true
 
   build-cli-nugets:
     name: Build CLI NuGet Packages (${{ matrix.rid }})
@@ -415,7 +415,7 @@ jobs:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/*.nupkg
           if-no-files-found: error
-          overwrite: true
+          # asdfg overwrite: true
 
       - name: Download CLI Package
         if: matrix.runTests
@@ -465,7 +465,7 @@ jobs:
           name: playground
           path: ./src/playground/dist/*
           if-no-files-found: error
-          overwrite: true
+          # asdfg overwrite: true
 
   build-highlight-libs:
     name: Build Highlight Libraries
@@ -606,7 +606,7 @@ jobs:
           name: Bicep.TestResults
           path: ./TestResults/*.trx
           if-no-files-found: error
-          overwrite: true
+          # asdfg overwrite: true
 
       - name: Upload Code Coverage
         uses: codecov/codecov-action@v4
