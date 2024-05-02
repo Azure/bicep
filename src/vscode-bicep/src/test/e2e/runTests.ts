@@ -33,8 +33,9 @@ async function go() {
       console.log(`Running tests against VSCode-${vscodeVersion}`);
 
       const vscodeExecutablePath = await downloadAndUnzipVSCode(vscodeVersion);
-      const [cliPath, ...cliArguments] =
+      const [cliRawPath, ...cliArguments] =
         resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
+      const cliPath = `"${cliRawPath}"`;
 
       const isRoot = os.userInfo().username === "root";
 
@@ -73,6 +74,9 @@ async function go() {
         shell: true,
       });
       console.log(result.error ?? result.output?.filter((o) => !!o).join("\n"));
+      if (result.error) {
+        process.exit(1);
+      }
 
       await runTests({
         vscodeExecutablePath,
