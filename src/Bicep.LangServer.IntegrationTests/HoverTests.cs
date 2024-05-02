@@ -255,7 +255,7 @@ output string test = testRes[3].prop|erties.rea|donly
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```  \nThis is a property which only supports writing.  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```  \nThis is a property which is required.  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```  \nproperties property  \n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```  \nThis is a property which only supports reading.  \n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```asdfg\nreadonly: string\n```  \nThis is a property which only supports reading.  \n"));
         }
 
         [TestMethod]
