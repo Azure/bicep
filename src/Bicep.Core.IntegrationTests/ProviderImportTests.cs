@@ -404,18 +404,9 @@ provider madeUpNamespace
         }
 
         [TestMethod]
-        public async Task MicrosoftGraph_imports_succeed_with_preview_feature_enabled()
+        public async Task MicrosoftGraph_imports_succeed_default()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"provider microsoftGraph as graph");
-
-            result.Should().HaveDiagnostics(new[] {
-                ("BCP204", DiagnosticLevel.Error, "Provider namespace \"microsoftGraph\" is not recognized."),
-            });
-
-            var serviceWithPreview = new ServiceBuilder()
-                .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: true));
-
-            result = await CompilationHelper.RestoreAndCompile(serviceWithPreview, @"provider microsoftGraph as graph");
 
             result.Should().NotHaveAnyDiagnostics();
         }

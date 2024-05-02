@@ -5,13 +5,12 @@
   "metadata": {
     "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
     "_EXPERIMENTAL_FEATURES_ENABLED": [
-      "Extensibility",
-      "MicrosoftGraph Preview"
+      "Extensibility"
     ],
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9158608803224636845"
+      "templateHash": "13653571511506928892"
     }
   },
   "parameters": {
@@ -31,6 +30,22 @@
     }
   },
   "resources": {
+    "appV1::myTestFIC": {
+      "import": "graph",
+      "type": "Microsoft.Graph/applications/federatedIdentityCredentials@v1.0",
+      "properties": {
+        "name": "[format('{0}/mytestfic', reference('appV1').uniqueName)]",
+        "audiences": [
+          "audience"
+        ],
+        "description": "My test fic",
+        "issuer": "issuer",
+        "subject": "subject"
+      },
+      "dependsOn": [
+        "appV1"
+      ]
+    },
     "resourceApp": {
       "import": "graph",
       "type": "Microsoft.Graph/applications@beta",

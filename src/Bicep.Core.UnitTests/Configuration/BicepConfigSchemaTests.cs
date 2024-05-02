@@ -51,9 +51,8 @@ namespace Bicep.Core.UnitTests.Configuration
 
         // TODO: Remove these when they're fixed
         private readonly string[] GrandfatheredFeaturesNeedingHelpOrDescription = {
-                "microsoftGraphPreview",
-                "providerRegistry",
-            };
+            "providerRegistry",
+        };
 
         private static string GetBicepConfigSchemaContents()
         {
@@ -372,7 +371,7 @@ namespace Bicep.Core.UnitTests.Configuration
             }
         }
 
-        [TestMethod]    
+        [TestMethod]
         public void ExperimentalFeatures_ShouldBeDocumentedInHelpFile()
         {
             // From schema

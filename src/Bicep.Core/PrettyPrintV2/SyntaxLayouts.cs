@@ -89,11 +89,13 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutFunctionCallSyntax(FunctionCallSyntax syntax)
         {
+            var lastArgumentDocument = this.LayoutFunctionTailObjectOrArrayArgumentSyntax(syntax.Arguments);
+
             return this.Glue(
                 syntax.Name,
                 this.Bracket(
                     syntax.OpenParen,
-                    () => LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments),
+                    () => LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments, lastArgumentDocument),
                     syntax.CloseParen,
                     separator: LineOrSpace,
                     padding: LineOrEmpty,
@@ -124,18 +126,22 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Keyword,
                 syntax.Config);
 
-        private IEnumerable<Document> LayoutIntanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) =>
-            this.Glue(
+        private IEnumerable<Document> LayoutIntanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            var lastArgumentDocument = this.LayoutFunctionTailObjectOrArrayArgumentSyntax(syntax.Arguments);
+
+            return this.Glue(
                 syntax.BaseExpression,
                 syntax.Dot,
                 syntax.Name,
                 this.Bracket(
                     syntax.OpenParen,
-                    () => this.LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments),
+                    () => this.LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments, lastArgumentDocument),
                     syntax.CloseParen,
                     separator: LineOrSpace,
                     padding: LineOrEmpty,
                     indentSingleItem: false));
+        }
 
         private IEnumerable<Document> LayoutLambdaSyntax(LambdaSyntax syntax)
         {
@@ -310,16 +316,20 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Value);
 
         private IEnumerable<Document> LayoutResourceOrModuleDeclarationSyntax(
-            IEnumerable<SyntaxBase> leadingNodes,
+            ImmutableArray<SyntaxBase> leadingNodes,
             SyntaxBase keyword,
             SyntaxBase name,
             SyntaxBase typeOrPath,
             SyntaxBase? existingKeyword,
             SyntaxBase assignment,
-            IEnumerable<SyntaxBase> newlines,
+            ImmutableArray<Token> newlines,
             SyntaxBase value)
         {
-            if (value is IfConditionSyntax)
+            // The parser only allows newlines before between = and the if keyword.
+            // If there are dangling comments/directives attached to the newlines, we have
+            // to group the newlines and the IfConditionSyntx to ensure the comments
+            // are not dropped.
+            if (value is IfConditionSyntax && newlines.Any(SyntaxFacts.HasCommentOrDirective))
             {
                 var valueGroup = this.IndentGroup(newlines.Append(value));
 
@@ -642,18 +652,63 @@ namespace Bicep.Core.PrettyPrintV2
             this.LayoutMany(leadingNodes)
                 .Where(x => x != HardLine); // Remove empty lines between decorators.
 
-        private IEnumerable<Document> LayoutCommaSeparatedArguments<T>(ImmutableArray<SyntaxBase> children, ImmutableArray<T> arguments)
+        private Document? LayoutFunctionTailObjectOrArrayArgumentSyntax(ImmutableArray<FunctionArgumentSyntax> argumentSyntaxes)
+        {
+            if (argumentSyntaxes.Length < 2)
+            {
+                return null;
+            }
+
+            var lastArgumentSyntax = argumentSyntaxes[^1];
+            var tailToken = lastArgumentSyntax.Expression switch
+            {
+                ObjectSyntax objectSyntax => objectSyntax.CloseBrace,
+                LambdaSyntax { Body: ObjectSyntax lambdaObjectBody } => lambdaObjectBody.CloseBrace,
+                TypedLambdaSyntax { Body: ObjectSyntax typedLambdaObjectBody } => typedLambdaObjectBody.CloseBrace,
+
+                ArraySyntax arraySyntax => arraySyntax.CloseBracket,
+                LambdaSyntax { Body: ArraySyntax lambdaArrayBody } => lambdaArrayBody.CloseBracket,
+                TypedLambdaSyntax { Body: ArraySyntax typedLambdaArrayBody } => typedLambdaArrayBody.CloseBracket,
+
+                _ => null,
+            };
+
+            if (tailToken is null || tailToken.HasTrailingLineComment())
+            {
+                return null;
+            }
+
+            var lastArgumentDocument = this.LayoutSingle(lastArgumentSyntax);
+
+            // If the last function argument is an object or a lamda with an object body, we would like
+            // to make sure it doesn't force break the function argument list into multiple lines when there
+            // is enough space. This is done by replacing the GlueDocument (returned by the Bracket operator and forces line breaks)
+            // with a FunctionTailObjectOrArrayDocument, which is handled as a special case in PrettyPrinterV2.
+            if (lastArgumentDocument is GlueDocument glueDocument)
+            {
+                if (lastArgumentSyntax.Expression is ObjectSyntax or ArraySyntax)
+                {
+                    lastArgumentDocument = new FunctionTailObjectOrArrayDocument(glueDocument.Documents);
+                }
+                else if (glueDocument.Documents[^1] is GlueDocument lambdaObjectBodyDocument)
+                {
+                    lastArgumentDocument = new GlueDocument(glueDocument.Documents.SetItem(glueDocument.Documents.Length - 1, new FunctionTailObjectOrArrayDocument(lambdaObjectBodyDocument.Documents)));
+                }
+            }
+
+            return lastArgumentDocument;
+        }
+
+        private IEnumerable<Document> LayoutCommaSeparatedArguments<T>(ImmutableArray<SyntaxBase> children, ImmutableArray<T> arguments, Document? lastArgumentDocumentOverride = null)
             where T : SyntaxBase
         {
             foreach (var child in children)
             {
                 if (child is T argument)
                 {
-                    var argumentDocument = this.LayoutSingle(argument);
-
                     yield return argument != arguments[^1]
-                        ? DocumentOperators.Glue(argumentDocument, TextDocument.From(","))
-                        : argumentDocument;
+                        ? DocumentOperators.Glue(this.LayoutSingle(argument), ",")
+                        : lastArgumentDocumentOverride ?? this.LayoutSingle(argument);
                 }
                 else
                 {

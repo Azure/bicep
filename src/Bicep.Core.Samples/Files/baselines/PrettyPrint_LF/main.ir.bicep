@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:4189) ProgramExpression
+//@[00:4977) ProgramExpression
 //////////////////////////// Baselines for width 40 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var w38 = [true, /* xxxxx */ true, 12]      // suffix
@@ -393,6 +393,84 @@ var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 12345678
 //@[59:0069) |   ├─IntegerLiteralExpression { Value = 1234567890 }
 //@[72:0082) |   └─IntegerLiteralExpression { Value = 1234567890 }
 
+
+var w80_________ = union(/*******************************************/ {}, {}, {
+//@[00:0112) ├─DeclaredVariableExpression { Name = w80_________ }
+//@[19:0112) | └─FunctionCallExpression { Name = union }
+//@[71:0073) |   ├─ObjectExpression
+//@[75:0077) |   ├─ObjectExpression
+//@[79:0111) |   └─ObjectExpression
+    foo: true
+//@[04:0013) |     ├─ObjectPropertyExpression
+//@[04:0007) |     | ├─StringLiteralExpression { Value = foo }
+//@[09:0013) |     | └─BooleanLiteralExpression { Value = True }
+    bar: false
+//@[04:0014) |     └─ObjectPropertyExpression
+//@[04:0007) |       ├─StringLiteralExpression { Value = bar }
+//@[09:0014) |       └─BooleanLiteralExpression { Value = False }
+})
+var w81_________ = union(/********************************************/ {}, {}, {
+//@[00:0113) ├─DeclaredVariableExpression { Name = w81_________ }
+//@[19:0113) | └─FunctionCallExpression { Name = union }
+//@[72:0074) |   ├─ObjectExpression
+//@[76:0078) |   ├─ObjectExpression
+//@[80:0112) |   └─ObjectExpression
+    foo: true
+//@[04:0013) |     ├─ObjectPropertyExpression
+//@[04:0007) |     | ├─StringLiteralExpression { Value = foo }
+//@[09:0013) |     | └─BooleanLiteralExpression { Value = True }
+    bar: false
+//@[04:0014) |     └─ObjectPropertyExpression
+//@[04:0007) |       ├─StringLiteralExpression { Value = bar }
+//@[09:0014) |       └─BooleanLiteralExpression { Value = False }
+})
+
+var w80__________ = union(/******************************************/ {}, {}, {
+//@[00:0204) ├─DeclaredVariableExpression { Name = w80__________ }
+//@[20:0204) | └─FunctionCallExpression { Name = union }
+//@[71:0073) |   ├─ObjectExpression
+//@[75:0077) |   ├─ObjectExpression
+//@[79:0203) |   └─ObjectExpression
+    foo: true
+//@[04:0013) |     ├─ObjectPropertyExpression
+//@[04:0007) |     | ├─StringLiteralExpression { Value = foo }
+//@[09:0013) |     | └─BooleanLiteralExpression { Value = True }
+    w80: union(/***********************************************************/ {}, {
+//@[04:0106) |     └─ObjectPropertyExpression
+//@[04:0007) |       ├─StringLiteralExpression { Value = w80 }
+//@[09:0106) |       └─FunctionCallExpression { Name = union }
+//@[77:0079) |         ├─ObjectExpression
+//@[81:0105) |         └─ObjectExpression
+        baz: 123
+//@[08:0016) |           └─ObjectPropertyExpression
+//@[08:0011) |             ├─StringLiteralExpression { Value = baz }
+//@[13:0016) |             └─IntegerLiteralExpression { Value = 123 }
+    })
+})
+
+var w81__________ = union(/*******************************************/ {}, {}, {
+//@[00:0204) ├─DeclaredVariableExpression { Name = w81__________ }
+//@[20:0204) | └─FunctionCallExpression { Name = union }
+//@[72:0074) |   ├─ObjectExpression
+//@[76:0078) |   ├─ObjectExpression
+//@[80:0203) |   └─ObjectExpression
+    foo: true
+//@[04:0013) |     ├─ObjectPropertyExpression
+//@[04:0007) |     | ├─StringLiteralExpression { Value = foo }
+//@[09:0013) |     | └─BooleanLiteralExpression { Value = True }
+    w81: union(/**********************************************************/ {}, {
+//@[04:0105) |     └─ObjectPropertyExpression
+//@[04:0007) |       ├─StringLiteralExpression { Value = w81 }
+//@[09:0105) |       └─FunctionCallExpression { Name = union }
+//@[76:0078) |         ├─ObjectExpression
+//@[80:0104) |         └─ObjectExpression
+        baz: 123
+//@[08:0016) |           └─ObjectPropertyExpression
+//@[08:0011) |             ├─StringLiteralExpression { Value = baz }
+//@[13:0016) |             └─IntegerLiteralExpression { Value = 123 }
+    })
+})
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -492,6 +570,7 @@ var forceBreak9 = [1, 2, {
 //@[04:0007) |       ├─StringLiteralExpression { Value = bar }
 //@[09:0014) |       └─BooleanLiteralExpression { Value = False }
 }]
+// Does not break immediate parent group, but breaks grandparent.
 var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
 //@[00:0082) ├─DeclaredVariableExpression { Name = forceBreak10 }
 //@[19:0082) | └─ArrayExpression
@@ -546,16 +625,35 @@ var forceBreak14 = true ? {
 } : false
 //@[04:0009) |   └─BooleanLiteralExpression { Value = False }
 var forceBreak15 = true ? { foo: 0 } : {
-//@[00:0052) └─DeclaredVariableExpression { Name = forceBreak15 }
-//@[19:0052)   └─TernaryExpression
-//@[19:0023)     ├─BooleanLiteralExpression { Value = True }
-//@[26:0036)     ├─ObjectExpression
-//@[28:0034)     | └─ObjectPropertyExpression
-//@[28:0031)     |   ├─StringLiteralExpression { Value = foo }
-//@[33:0034)     |   └─IntegerLiteralExpression { Value = 0 }
-//@[39:0052)     └─ObjectExpression
+//@[00:0052) ├─DeclaredVariableExpression { Name = forceBreak15 }
+//@[19:0052) | └─TernaryExpression
+//@[19:0023) |   ├─BooleanLiteralExpression { Value = True }
+//@[26:0036) |   ├─ObjectExpression
+//@[28:0034) |   | └─ObjectPropertyExpression
+//@[28:0031) |   |   ├─StringLiteralExpression { Value = foo }
+//@[33:0034) |   |   └─IntegerLiteralExpression { Value = 0 }
+//@[39:0052) |   └─ObjectExpression
     bar: 1}
-//@[04:0010)       └─ObjectPropertyExpression
+//@[04:0010) |     └─ObjectPropertyExpression
+//@[04:0007) |       ├─StringLiteralExpression { Value = bar }
+//@[09:0010) |       └─IntegerLiteralExpression { Value = 1 }
+
+var forceBreak16 = union({ foo: 0 }, {
+//@[00:0079) └─DeclaredVariableExpression { Name = forceBreak16 }
+//@[19:0079)   └─FunctionCallExpression { Name = union }
+//@[25:0035)     ├─ObjectExpression
+//@[27:0033)     | └─ObjectPropertyExpression
+//@[27:0030)     |   ├─StringLiteralExpression { Value = foo }
+//@[32:0033)     |   └─IntegerLiteralExpression { Value = 0 }
+//@[37:0066)     └─ObjectExpression
+    foo: 123
+//@[04:0012)       ├─ObjectPropertyExpression
+//@[04:0007)       | ├─StringLiteralExpression { Value = foo }
+//@[09:0012)       | └─IntegerLiteralExpression { Value = 123 }
+    bar: 456
+//@[04:0012)       └─ObjectPropertyExpression
 //@[04:0007)         ├─StringLiteralExpression { Value = bar }
-//@[09:0010)         └─IntegerLiteralExpression { Value = 1 }
+//@[09:0012)         └─IntegerLiteralExpression { Value = 456 }
+} // comment
+)
 

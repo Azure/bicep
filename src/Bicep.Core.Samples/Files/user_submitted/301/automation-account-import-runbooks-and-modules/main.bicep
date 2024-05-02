@@ -94,54 +94,52 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
   }
 ]
 
-resource lock 'Microsoft.Authorization/locks@2016-09-01' =
-  if (enableDeleteLock) {
-    scope: automationAccount
+resource lock 'Microsoft.Authorization/locks@2016-09-01' = if (enableDeleteLock) {
+  scope: automationAccount
 
-    name: lockName
-    properties: {
-      level: 'CanNotDelete'
-    }
+  name: lockName
+  properties: {
+    level: 'CanNotDelete'
   }
+}
 
-resource diagnostics 'microsoft.insights/diagnosticSettings@2017-05-01-preview' =
-  if (enableDiagnostics) {
-    scope: automationAccount
+resource diagnostics 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = if (enableDiagnostics) {
+  scope: automationAccount
 
-    name: diagnosticsName
-    properties: {
-      workspaceId: resourceId(
-        logAnalyticsSubscriptionId,
-        logAnalyticsResourceGroup,
-        'Microsoft.OperationalInsights/workspaces',
-        logAnalyticsWorkspaceName
-      )
-      storageAccountId: resourceId(
-        diagnosticStorageAccountResourceGroup,
-        'Microsoft.Storage/storageAccounts',
-        diagnosticStorageAccountName
-      )
-      logs: [
-        {
-          category: 'JobLogs'
-          enabled: true
-        }
-        {
-          category: 'JobStreams'
-          enabled: true
-        }
-        {
-          category: 'DscNodeStatus'
-          enabled: true
-        }
-      ]
-      metrics: [
-        {
-          category: 'AllMetrics'
-          enabled: true
-        }
-      ]
-    }
+  name: diagnosticsName
+  properties: {
+    workspaceId: resourceId(
+      logAnalyticsSubscriptionId,
+      logAnalyticsResourceGroup,
+      'Microsoft.OperationalInsights/workspaces',
+      logAnalyticsWorkspaceName
+    )
+    storageAccountId: resourceId(
+      diagnosticStorageAccountResourceGroup,
+      'Microsoft.Storage/storageAccounts',
+      diagnosticStorageAccountName
+    )
+    logs: [
+      {
+        category: 'JobLogs'
+        enabled: true
+      }
+      {
+        category: 'JobStreams'
+        enabled: true
+      }
+      {
+        category: 'DscNodeStatus'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
   }
+}
 
 output systemIdentityPrincipalId string = automationAccount.identity.principalId

@@ -235,6 +235,62 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
   }
 }
 
+module modBWithCondition2 './child/moduleb.bicep' =
+//@    {
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2022-09-01",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "13693869390953445824"
+//@            }
+//@          },
+//@          "parameters": {
+//@            "location": {
+//@              "type": "string"
+//@            }
+//@          },
+//@          "resources": [
+//@            {
+//@              "type": "Mock.Rp/mockResource",
+//@              "apiVersion": "2020-01-01",
+//@              "name": "mockResource",
+//@              "location": "[parameters('location')]"
+//@            }
+//@          ],
+//@          "outputs": {
+//@            "myResourceId": {
+//@              "type": "string",
+//@              "value": "[resourceId('Mock.Rp/mockResource', 'mockResource')]"
+//@            }
+//@          }
+//@        }
+//@      }
+//@    },
+// awkward comment
+if (1 + 1 == 2) {
+//@      "condition": "[equals(add(1, 1), 2)]",
+  name: 'modBWithCondition2'
+//@      "name": "modBWithCondition2",
+  params: {
+//@        "parameters": {
+//@        },
+    location: 'East US'
+//@          "location": {
+//@            "value": "East US"
+//@          }
+  }
+}
+
 module modC './child/modulec.json' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",

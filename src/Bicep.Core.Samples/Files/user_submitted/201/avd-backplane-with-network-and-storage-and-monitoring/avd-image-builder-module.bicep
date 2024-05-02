@@ -96,73 +96,69 @@ resource imageTemplateName_resource 'Microsoft.VirtualMachineImages/imageTemplat
 }
 
 //Create Role Definition with Image Builder to run Image Build and execute container cli script
-resource aibdef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' =
-  if (InvokeRunImageBuildThroughDeploymentScript) {
-    name: guid(roleNameAIBCustom)
-    properties: {
-      roleName: roleNameAIBCustom
-      description: 'Custom role for AIB to invoke build of VM Template from deployment'
-      permissions: [
-        {
-          actions: [
-            'Microsoft.VirtualMachineImages/imageTemplates/Run/action'
-            'Microsoft.Storage/storageAccounts/*'
-            'Microsoft.ContainerInstance/containerGroups/*'
-            'Microsoft.Resources/deployments/*'
-            'Microsoft.Resources/deploymentScripts/*'
-          ]
-        }
-      ]
-      assignableScopes: [resourceGroup().id]
-    }
+resource aibdef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' = if (InvokeRunImageBuildThroughDeploymentScript) {
+  name: guid(roleNameAIBCustom)
+  properties: {
+    roleName: roleNameAIBCustom
+    description: 'Custom role for AIB to invoke build of VM Template from deployment'
+    permissions: [
+      {
+        actions: [
+          'Microsoft.VirtualMachineImages/imageTemplates/Run/action'
+          'Microsoft.Storage/storageAccounts/*'
+          'Microsoft.ContainerInstance/containerGroups/*'
+          'Microsoft.Resources/deployments/*'
+          'Microsoft.Resources/deploymentScripts/*'
+        ]
+      }
+    ]
+    assignableScopes: [resourceGroup().id]
   }
+}
 
 // Map AIB Runner Custom Role Assignment to Managed Identity
-resource aibrunnerassignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' =
-  if (InvokeRunImageBuildThroughDeploymentScript) {
-    name: guid(resourceGroup().id, aibdef.id, managedidentity.id)
-    properties: {
-      roleDefinitionId: aibdef.id
-      principalId: managedidentity.properties.principalId
-      principalType: 'ServicePrincipal'
-    }
+resource aibrunnerassignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (InvokeRunImageBuildThroughDeploymentScript) {
+  name: guid(resourceGroup().id, aibdef.id, managedidentity.id)
+  properties: {
+    roleDefinitionId: aibdef.id
+    principalId: managedidentity.properties.principalId
+    principalType: 'ServicePrincipal'
   }
+}
 
 // Map Managed Identity Operator Role to to Managed Identity - Not required if not running Powershell Deployment Script for AIB
-resource miorole 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' =
-  if (InvokeRunImageBuildThroughDeploymentScript) {
-    name: guid(
-      resourceGroup().id,
-      '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830',
-      managedidentity.id
-    )
-    properties: {
-      roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830'
-      principalId: managedidentity.properties.principalId
-      principalType: 'ServicePrincipal'
-    }
+resource miorole 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (InvokeRunImageBuildThroughDeploymentScript) {
+  name: guid(
+    resourceGroup().id,
+    '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830',
+    managedidentity.id
+  )
+  properties: {
+    roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830'
+    principalId: managedidentity.properties.principalId
+    principalType: 'ServicePrincipal'
   }
+}
 
 // Run Deployment Script to Start build of Virtual Machine Image using AIB
-resource scriptName_BuildVMImage 'Microsoft.Resources/deploymentScripts@2020-10-01' =
-  if (InvokeRunImageBuildThroughDeploymentScript) {
-    name: 'BuildVMImage'
-    location: resourceGroup().location
-    kind: 'AzurePowerShell'
-    identity: {
-      type: 'UserAssigned'
-      userAssignedIdentities: {
-        '${uamiId}': {}
-      }
+resource scriptName_BuildVMImage 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (InvokeRunImageBuildThroughDeploymentScript) {
+  name: 'BuildVMImage'
+  location: resourceGroup().location
+  kind: 'AzurePowerShell'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${uamiId}': {}
     }
-    properties: {
-      forceUpdateTag: '1'
-      azPowerShellVersion: '5.9'
-      arguments: ''
-      scriptContent: 'Invoke-AzResourceAction -ResourceName ${imageTemplateName} -ResourceGroupName ${rgname} -ResourceType Microsoft.VirtualMachineImages/imageTemplates -ApiVersion "2020-02-14" -Action Run -Force'
-      timeout: 'PT5M'
-      cleanupPreference: 'Always'
-      retentionInterval: 'P1D'
-    }
-    dependsOn: [imageTemplateName_resource]
   }
+  properties: {
+    forceUpdateTag: '1'
+    azPowerShellVersion: '5.9'
+    arguments: ''
+    scriptContent: 'Invoke-AzResourceAction -ResourceName ${imageTemplateName} -ResourceGroupName ${rgname} -ResourceType Microsoft.VirtualMachineImages/imageTemplates -ApiVersion "2020-02-14" -Action Run -Force'
+    timeout: 'PT5M'
+    cleanupPreference: 'Always'
+    retentionInterval: 'P1D'
+  }
+  dependsOn: [imageTemplateName_resource]
+}

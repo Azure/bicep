@@ -1264,7 +1264,8 @@ namespace Bicep.Core.TypeSystem
                 var childTypes = new List<TypeSymbol>();
                 foreach (var child in syntax.Children)
                 {
-                    var childType = child switch {
+                    var childType = child switch
+                    {
                         ObjectPropertySyntax x => typeManager.GetTypeInfo(x),
                         SpreadExpressionSyntax x => typeManager.GetTypeInfo(x.Expression),
                         _ => null,
@@ -1275,7 +1276,7 @@ namespace Bicep.Core.TypeSystem
                         continue;
                     }
 
-                    if (child is SpreadExpressionSyntax spread && 
+                    if (child is SpreadExpressionSyntax spread &&
                         childType is not ErrorType &&
                         !TypeValidator.AreTypesAssignable(childType, LanguageConstants.Object))
                     {
@@ -1302,7 +1303,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         var resolvedType = typeManager.GetTypeInfo(propertySyntax);
 
-                        if (propertySyntax.TryGetKeyText() is {} name)
+                        if (propertySyntax.TryGetKeyText() is { } name)
                         {
                             if (declaredType is ObjectType objectType && objectType.Properties.TryGetValue(name, out var property))
                             {
@@ -1333,7 +1334,7 @@ namespace Bicep.Core.TypeSystem
                                 namedProperties[name] = property;
                             }
 
-                            if (spreadType.AdditionalPropertiesType is {})
+                            if (spreadType.AdditionalPropertiesType is { })
                             {
                                 additionalProperties.Add(spreadType.AdditionalPropertiesType.Type);
                             }
@@ -1394,7 +1395,8 @@ namespace Bicep.Core.TypeSystem
 
                 foreach (var child in syntax.Children)
                 {
-                    var childType = child switch {
+                    var childType = child switch
+                    {
                         ArrayItemSyntax x => typeManager.GetTypeInfo(x.Value),
                         SpreadExpressionSyntax x => typeManager.GetTypeInfo(x.Expression),
                         _ => null,
@@ -1405,7 +1407,7 @@ namespace Bicep.Core.TypeSystem
                         continue;
                     }
 
-                    if (child is SpreadExpressionSyntax spread && 
+                    if (child is SpreadExpressionSyntax spread &&
                         childType is not ErrorType &&
                         !TypeValidator.AreTypesAssignable(childType, LanguageConstants.Array))
                     {

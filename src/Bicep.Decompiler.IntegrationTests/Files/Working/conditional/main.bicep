@@ -50,51 +50,47 @@ var arrayVar = [
 var storageAccountName_var = 'flowlogs${uniqueString(resourceGroup().id)}'
 //@[04:26) [decompiler-cleanup (Warning)] The name of variable 'storageAccountName_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |storageAccountName_var|
 
-resource foo_bar 'Foo.Rp/bar@2019-06-01' =
+resource foo_bar 'Foo.Rp/bar@2019-06-01' = if (false) {
 //@[17:40) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
-  if (false) {
-    name: '${foo}bar'
-    location: 'westus'
-    properties: {
-      foo: 'bar'
-    }
+  name: '${foo}bar'
+  location: 'westus'
+  properties: {
+    foo: 'bar'
   }
+}
 
-resource baz 'Foo.Rp/bar@2019-06-01' =
+resource baz 'Foo.Rp/bar@2019-06-01' = if (something == foo) {
 //@[13:36) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
-  if (something == foo) {
-    name: 'baz'
-    location: 'westus'
-    dependsOn: [
-      foo_bar
-    ]
-  }
+  name: 'baz'
+  location: 'westus'
+  dependsOn: [
+    foo_bar
+  ]
+}
 
-module module1Deploy 'nested/module1.json' =
-  if ((1 + 2) == 3) {
-    name: 'module1Deploy'
-    params: {
-//@[04:10) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". (CodeDescription: none) |params|
-      location: location
-//@[06:14) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |location|
-      objectParam: objectVar
-//@[06:17) [BCP037 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |objectParam|
-      arrayParam: arrayVar
-//@[06:16) [BCP037 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |arrayParam|
-    }
+module module1Deploy 'nested/module1.json' = if ((1 + 2) == 3) {
+  name: 'module1Deploy'
+  params: {
+//@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". (CodeDescription: none) |params|
+    location: location
+//@[04:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |location|
+    objectParam: objectVar
+//@[04:15) [BCP037 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |objectParam|
+    arrayParam: arrayVar
+//@[04:14) [BCP037 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |arrayParam|
   }
+}
 
-module module2Deploy 'nested/module2.json' =
-  if ((1 + 2) == 3) {
-    name: 'module2Deploy'
-    params: {
-//@[04:10) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". (CodeDescription: none) |params|
-      location: location
-//@[06:14) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". (CodeDescription: none) |location|
-      objectParam: objectVar
-      arrayParam: arrayVar
-    }
+module module2Deploy 'nested/module2.json' = if ((1 + 2) == 3) {
+  name: 'module2Deploy'
+  params: {
+//@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". (CodeDescription: none) |params|
+    location: location
+//@[04:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". (CodeDescription: none) |location|
+    objectParam: objectVar
+    arrayParam: arrayVar
   }
+}
 
 resource storageaccountname 'microsoft.storage/storageaccounts@2019-06-01' = {
   name: storageAccountName_var
@@ -106,18 +102,17 @@ resource storageaccountname 'microsoft.storage/storageaccounts@2019-06-01' = {
   properties: {}
 }
 
-module deployFlowLogs './nested_deployFlowLogs.bicep' =
-  if (true) {
-    name: 'deployFlowLogs'
-    scope: resourceGroup('NetworkWatcherRG')
-    params: {
-      location: location
-      NetworkWatcherName: NetworkWatcherName
-      FlowLogName: FlowLogName
-      existingNSG: existingNSG
-      RetentionDays: RetentionDays
-      FlowLogsversion: FlowLogsversion
-      storageAccountResourceId: storageaccountname.id
-    }
+module deployFlowLogs './nested_deployFlowLogs.bicep' = if (true) {
+  name: 'deployFlowLogs'
+  scope: resourceGroup('NetworkWatcherRG')
+  params: {
+    location: location
+    NetworkWatcherName: NetworkWatcherName
+    FlowLogName: FlowLogName
+    existingNSG: existingNSG
+    RetentionDays: RetentionDays
+    FlowLogsversion: FlowLogsversion
+    storageAccountResourceId: storageaccountname.id
   }
+}
 

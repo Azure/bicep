@@ -119,15 +119,14 @@ resource vm 'Microsoft.Compute/virtualMachines@2019-07-01' = {
 }
 
 //add Nvidia drivers using extension in condition is true
-resource vmgpu 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' =
-  if (installNVidiaGPUDriver) {
-    name: '${vm.name}/NvidiaGpuDriverWindows'
-    location: defaultLocation
-    properties: {
-      publisher: 'Microsoft.HpcCompute'
-      type: 'NvidiaGpuDriverWindows'
-      typeHandlerVersion: '1.3'
-      autoUpgradeMinorVersion: true
-      settings: {}
-    }
+resource vmgpu 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = if (installNVidiaGPUDriver) {
+  name: '${vm.name}/NvidiaGpuDriverWindows'
+  location: defaultLocation
+  properties: {
+    publisher: 'Microsoft.HpcCompute'
+    type: 'NvidiaGpuDriverWindows'
+    typeHandlerVersion: '1.3'
+    autoUpgradeMinorVersion: true
+    settings: {}
   }
+}

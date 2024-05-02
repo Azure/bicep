@@ -71,6 +71,30 @@ var w80___ = true ? { foo: true, bar: false } : [123, 234, 456, { xyz: 'xxxx' }]
 var w81___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
 var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
 
+
+var w80_________ = union(/*******************************************/ {}, {}, {
+    foo: true
+    bar: false
+})
+var w81_________ = union(/********************************************/ {}, {}, {
+    foo: true
+    bar: false
+})
+
+var w80__________ = union(/******************************************/ {}, {}, {
+    foo: true
+    w80: union(/***********************************************************/ {}, {
+        baz: 123
+    })
+})
+
+var w81__________ = union(/*******************************************/ {}, {}, {
+    foo: true
+    w81: union(/**********************************************************/ {}, {
+        baz: 123
+    })
+})
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,6 +125,7 @@ var forceBreak9 = [1, 2, {
     foo: true
     bar: false
 }]
+// Does not break immediate parent group, but breaks grandparent.
 var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
   foo: true})]
 
@@ -117,3 +142,9 @@ var forceBreak14 = true ? {
 } : false
 var forceBreak15 = true ? { foo: 0 } : {
     bar: 1}
+
+var forceBreak16 = union({ foo: 0 }, {
+    foo: 123
+    bar: 456
+} // comment
+)

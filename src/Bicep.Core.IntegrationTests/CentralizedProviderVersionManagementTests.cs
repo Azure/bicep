@@ -16,8 +16,7 @@ namespace Bicep.Core.IntegrationTests
         private ServiceBuilder Services => new ServiceBuilder()
             .WithFeatureOverrides(new(
                 ExtensibilityEnabled: true,
-                DynamicTypeLoadingEnabled: true,
-                MicrosoftGraphPreviewEnabled: true));
+                DynamicTypeLoadingEnabled: true));
 
         [TestMethod]
         [DynamicData(nameof(ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsBuiltIn_TestCases))]

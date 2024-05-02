@@ -160,17 +160,31 @@ namespace Bicep.Core.PrettyPrintV2
                     }
 
                     var flattened = ImmutableArray.CreateBuilder<Document>();
+                    var forceFlatten = false;
 
                     foreach (var child in group.Flatten())
                     {
+                        if (forceFlatten)
+                        {
+                            flattened.Add(child);
+                            continue;
+                        }
+
                         remainingWidth -= child.Width;
 
                         if (remainingWidth < 0)
                         {
-                            // Short circuiting to avoid flattening the remaning children.
+                            // Short circuiting to avoid flattening the remaining children.
                             Print(indentLevel, group.Documents);
 
                             return;
+                        }
+
+                        if (child is FunctionTailObjectOrArrayDocument)
+                        {
+                            // It is safe to flatten everything after FunctionTailObjectOrArrayDocument, since
+                            // there is no LineDocuments after it to be flattened to alternative layouts.
+                            forceFlatten = true;
                         }
 
                         flattened.Add(child);

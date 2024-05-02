@@ -190,11 +190,6 @@ public class NamespaceProvider : INamespaceProvider
 
             if (LanguageConstants.IdentifierComparer.Equals(providerName, MicrosoftGraphNamespaceType.BuiltInName))
             {
-                if (!features.MicrosoftGraphPreviewEnabled)
-                {
-                    return ErrorType.Create(diagBuilder.UnrecognizedProvider(providerName));
-                }
-
                 return MicrosoftGraphNamespaceType.Create(aliasName);
             }
 

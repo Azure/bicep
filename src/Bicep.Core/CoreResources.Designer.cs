@@ -193,15 +193,6 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to MicrosoftGraph Preview.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_MicrosoftGraphPreview {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_MicrosoftGraphPreview", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Enable optional module names.
         /// </summary>
         internal static string ExperimentalFeatureNames_OptionalModuleNames {

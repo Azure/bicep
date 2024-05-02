@@ -226,8 +226,8 @@
       },
       "Json.More.Net": {
         "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "U9pOGTOqkxibxCZiBATbTGDc76tqt4KcuC245FU3Bzw6yWuGHp2M8/bMdy4OztmO1ckwp3VvgWQ7sO75mOEI7g=="
+        "resolved": "2.0.1.1",
+        "contentHash": "3iIZ98iA67SG9Buv7VGX+o+U2wXNZz89x6Gayf4szjkCHFwKfVUdnnRpP/0RkogANAB2PBcAFYdq5xGDgCzjyA=="
       },
       "JsonDiffPatch.Net": {
         "type": "Transitive",
@@ -239,10 +239,10 @@
       },
       "JsonPatch.Net": {
         "type": "Transitive",
-        "resolved": "3.0.0",
-        "contentHash": "ZX2G7QoMDqShVL7QvGfXLJG/PwY3Tg0HhnOwdXJbTxcypNwiejqP++MCMxfOEZP07OlOGZGhzTDtJEWXuRy0ZQ==",
+        "resolved": "3.0.0.2",
+        "contentHash": "z6MW8Hwc3DlV3otGZD6btC5Qbqak+3EaN9Gm7sFG6xG/TY9WvS1ypDXA/dodUdN/2aAVeUCsNIRt92A39eEMaQ==",
         "dependencies": {
-          "JsonPointer.Net": "4.0.0"
+          "JsonPointer.Net": "4.0.1.3"
         }
       },
       "JsonPath.Net": {
@@ -255,11 +255,11 @@
       },
       "JsonPointer.Net": {
         "type": "Transitive",
-        "resolved": "4.0.0",
-        "contentHash": "A2DjDKIdL8b93niaFaysAE9QynQ/U15Tw/MsNfra8NQPmoJZUoj86/ElTeJifGc2U86OTgFH5UdHAhIQRM7QQQ==",
+        "resolved": "4.0.1.3",
+        "contentHash": "HgeRspKZH9B0FNEVAmIW6yVUIVAhptGEt4qAmyQKh9x8QzWMhWtgDzBBG7JQUkdW4I9N2PyVO1a1sqqHLcwg0Q==",
         "dependencies": {
           "Humanizer.Core": "2.14.1",
-          "Json.More.Net": "2.0.0"
+          "Json.More.Net": "2.0.1.1"
         }
       },
       "MediatR": {
@@ -497,8 +497,8 @@
       },
       "Microsoft.Graph.Bicep.Types": {
         "type": "Transitive",
-        "resolved": "0.1.4-preview",
-        "contentHash": "xKFWkpFUmimbuWB/zQva1e/AFTLlUiirRprqOCp1gWOVMMbF1ciyOl7XZ3rumYHvunSt/O+X2XHczA5sDxYgMQ==",
+        "resolved": "0.1.5-preview",
+        "contentHash": "kC8uLcpyb/V4Wy3jDpvk6fF3sPM1B6uAK42zf1Sjwb9RfiNIxCfdCtrpctTxLVenjPQBJA5l0UPGRUHmQKWYmg==",
         "dependencies": {
           "Azure.Bicep.Types": "0.5.6"
         }
@@ -1364,13 +1364,13 @@
           "Azure.Deployments.Templates": "[1.0.1243.1, )",
           "Azure.Identity": "[1.11.2, )",
           "Azure.ResourceManager.Resources": "[1.7.0, )",
-          "JsonPatch.Net": "[3.0.0, )",
+          "JsonPatch.Net": "[3.0.0.2, )",
           "JsonPath.Net": "[1.0.0, )",
           "Microsoft.Extensions.Configuration": "[8.0.0, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
           "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
-          "Microsoft.Graph.Bicep.Types": "[0.1.4-preview, )",
+          "Microsoft.Graph.Bicep.Types": "[0.1.5-preview, )",
           "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2007, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "SharpYaml": "[2.1.1, )",

@@ -42,31 +42,22 @@ var mapSayHi = map(
 )
 var mapEmpty = map([], foo => 'Hi ${foo}!')
 //@[04:12) [no-unused-vars (Warning)] Variable "mapEmpty" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mapEmpty|
-var mapObject = map(
-  range(0, length(doggos)),
-  i => {
-    i: i
-    doggo: doggos[i]
-    greeting: 'Ahoy, ${doggos[i]}!'
-  }
-)
-var mapArray = flatten(map(
+var mapObject = map(range(0, length(doggos)), i => {
+  i: i
+  doggo: doggos[i]
+  greeting: 'Ahoy, ${doggos[i]}!'
+})
+var mapArray = flatten(map(range(1, 3), i => [
 //@[04:12) [no-unused-vars (Warning)] Variable "mapArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mapArray|
-  range(1, 3),
-  i => [
-    (i * 2)
-    ((i * 2) + 1)
-  ]
-))
-var mapMultiLineArray = flatten(map(
+  (i * 2)
+  ((i * 2) + 1)
+]))
+var mapMultiLineArray = flatten(map(range(1, 3), i => [
 //@[04:21) [no-unused-vars (Warning)] Variable "mapMultiLineArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mapMultiLineArray|
-  range(1, 3),
-  i => [
-    (i * 3)
-    ((i * 3) + 1)
-    ((i * 3) + 2)
-  ]
-))
+  (i * 3)
+  ((i * 3) + 1)
+  ((i * 3) + 2)
+]))
 var filterEqualityCheck = filter(
 //@[04:23) [no-unused-vars (Warning)] Variable "filterEqualityCheck" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |filterEqualityCheck|
   [
@@ -180,16 +171,12 @@ var objectMap = toObject(
   i => (i / 100)
 //@[02:16) [BCP070 (Error)] Argument of type "(123 | 456 | 789) => int" is not assignable to parameter of type "any => string". (CodeDescription: none) |i => (i / 100)|
 )
-var objectMap2 = toObject(
+var objectMap2 = toObject(range(0, 10), i => i, i => {
 //@[04:14) [no-unused-vars (Warning)] Variable "objectMap2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |objectMap2|
-  range(0, 10),
-  i => i,
-//@[02:08) [BCP070 (Error)] Argument of type "int => int" is not assignable to parameter of type "any => string". (CodeDescription: none) |i => i|
-  i => {
-    isEven: ((i % 2) == 0)
-    isGreaterThan4: (i > 4)
-  }
-)
+//@[40:46) [BCP070 (Error)] Argument of type "int => int" is not assignable to parameter of type "any => string". (CodeDescription: none) |i => i|
+  isEven: ((i % 2) == 0)
+  isGreaterThan4: (i > 4)
+})
 var objectMap3 = toObject(sortByObjectKey, x => x.name)
 //@[04:14) [no-unused-vars (Warning)] Variable "objectMap3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |objectMap3|
 var itemForLoop = [for i in range(0, length(range(0, 10))): range(0, 10)[i]]
