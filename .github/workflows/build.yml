@@ -616,8 +616,9 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: Bicep.TestResults
+          pattern: Bicep.TestResults-*
           path: TestResults
+          merge-multiple: true
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
