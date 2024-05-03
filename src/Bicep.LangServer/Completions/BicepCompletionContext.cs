@@ -618,7 +618,7 @@ namespace Bicep.LanguageServer.Completions
 
                 SyntaxMatcher.IsTailMatch<ObjectSyntax, Token>(
                     matchingNodes,
-                    (objectSyntax, token) => token.Type == TokenType.NewLine && CanInsertChildNodeAtOffset(objectSyntax, offset)) ||
+                    (objectSyntax, token) => (token == objectSyntax.OpenBrace || token.Type == TokenType.NewLine || token.Type == TokenType.Comma) && CanInsertChildNodeAtOffset(objectSyntax, offset)) ||
 
                 // we are in a partial or full property name
                 SyntaxMatcher.IsTailMatch<ObjectSyntax, ObjectPropertySyntax, IdentifierSyntax, Token>(
@@ -1309,21 +1309,24 @@ namespace Bicep.LanguageServer.Completions
         private static bool CanInsertChildNodeAtOffset(ObjectSyntax objectSyntax, int offset)
         {
             var enclosingNode = objectSyntax.Children.FirstOrDefault(child => child.IsEnclosing(offset));
-
             if (enclosingNode is Token { Type: TokenType.NewLine })
             {
-                // /r/n|/r/n
+                // \n|\n
                 return true;
             }
 
-            var nodes = objectSyntax.Children.Prepend(objectSyntax.OpenBrace).Append(objectSyntax.CloseBrace).ToArray();
-            var lastNodeBeforeOffset = nodes.LastOrDefault(node => node.GetEndPosition() <= offset);
-            var firstNodeAfterOffset = nodes.FirstOrDefault(node => node.GetPosition() >= offset);
+            SyntaxBase[] nodes = [objectSyntax.OpenBrace, ..objectSyntax.Children, objectSyntax.CloseBrace];
+            var nodeBefore = nodes.LastOrDefault(node => node.GetEndPosition() <= offset);
+            var nodeAfter = nodes.FirstOrDefault(node => node.GetPosition() >= offset);
 
-            // To insert a new child in an object, we must be in between newlines.
-            // This will not be the case once https://github.com/Azure/bicep/issues/146 is implemented.
-            return lastNodeBeforeOffset is Token { Type: TokenType.NewLine } &&
-                firstNodeAfterOffset is Token { Type: TokenType.NewLine };
+            return (nodeBefore, nodeAfter) switch {
+                (Token { Type: TokenType.NewLine }, {} after) when after == objectSyntax.CloseBrace => true,
+                (Token { Type: TokenType.Comma }, {} after) when after == objectSyntax.CloseBrace => true,
+                ({} before, {} after) when before == objectSyntax.OpenBrace && after == objectSyntax.CloseBrace => true,
+                ({} before, Token { Type: TokenType.NewLine }) when before == objectSyntax.OpenBrace => true,
+                (Token { Type: TokenType.NewLine }, Token { Type: TokenType.NewLine }) => true,
+                _ => false,
+            };
         }
 
         private static bool CanInsertChildNodeAtOffset(ArraySyntax arraySyntax, int offset)

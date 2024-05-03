@@ -1365,6 +1365,39 @@ resource testRes2 'Test.Rp/readWriteTests@2020-01-01' = {
         }
 
         [TestMethod]
+        public async Task Spread_operator_supports_outer_object_property_completions()
+        {
+            var fileWithCursors = @"
+type myType = {
+  foo: string
+  bar: string
+}
+
+output foo myType = {
+  ...{|}
+  bar: 'bar'
+}
+";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            var updatedFile = file.ApplyCompletion(completions, "foo");
+            updatedFile.Should().HaveSourceText(@"
+type myType = {
+  foo: string
+  bar: string
+}
+
+output foo myType = {
+  ...{foo:|}
+  bar: 'bar'
+}
+");
+        }
+
+        [TestMethod]
         public async Task PropertyNameCompletionsShouldNotIncludeTrailingColonIfItIsPresent()
         {
             static void AssertPropertyNameCompletionsWithoutColons(CompletionList list)
@@ -1399,12 +1432,12 @@ resource testRes3 'Test.Rp/readWriteTests@2020-01-01' = {
         public async Task RequestCompletionsInResourceBodies_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
         {
             var fileWithCursors = @"
-resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {|
+resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {
  | name: 'myRes' |
   tags | : {
     a: 'A'   |
   }
-|}
+}
 ";
             await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty, '|');
         }

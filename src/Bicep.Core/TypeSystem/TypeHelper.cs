@@ -548,5 +548,19 @@ namespace Bicep.Core.TypeSystem
 
             return new(ResourceTypeReference.Combine(parentResourceType.TypeReference, typeReference));
         }
+
+        private static ObjectType TransformProperties(ObjectType input, Func<TypeProperty, TypeProperty> transformFunc)
+        {
+            return new ObjectType(
+                input.Name,
+                input.ValidationFlags,
+                input.Properties.Values.Select(transformFunc),
+                input.AdditionalPropertiesType,
+                input.AdditionalPropertiesFlags,
+                input.MethodResolver.functionOverloads);
+        }
+
+        public static ObjectType MakeRequiredPropertiesOptional(ObjectType input)
+            => TransformProperties(input, p => p.With(p.Flags & ~TypePropertyFlags.Required));
     }
 }
