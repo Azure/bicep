@@ -613,7 +613,14 @@ jobs:
     if: always()
 
     steps:
-      - name: Download Artifacts
+      - name: Merge Test Results into Single Artifact (fewer artifacts to deal with in build)
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: TestResults
+          pattern: TestResults-*
+          delete-merged: true
+
+      - name: Download Test Results Artifact
         uses: actions/download-artifact@v4
         with:
           pattern: TestResults-*
