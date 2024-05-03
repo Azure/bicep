@@ -299,13 +299,13 @@ jobs:
         uses: actions/setup-dotnet@v4
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-release-win-x64
           path: ./src/installer-win/bicep
 
       - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-project-assets-win-x64
           path: ./src/installer-win/bicep
@@ -382,19 +382,19 @@ jobs:
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-project-assets-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download .Net Packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-nupkg-any
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -411,7 +411,7 @@ jobs:
 
       - name: Download CLI Package
         if: matrix.runTests
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -527,7 +527,7 @@ jobs:
           node-version: 18
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -594,7 +594,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Bicep.TestResults
+          name: TestResults-${{ matrix.config.name }}-${{ matrix.os }}
           path: ./TestResults/*.trx
           if-no-files-found: error
 
@@ -614,9 +614,9 @@ jobs:
 
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          pattern: Bicep.TestResults-*
+          pattern: TestResults-*
           path: TestResults
           merge-multiple: true
 
@@ -706,7 +706,7 @@ jobs:
           node-version: 18
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -753,7 +753,7 @@ jobs:
         run: apk add --update nodejs npm
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-release-linux-musl-x64
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
