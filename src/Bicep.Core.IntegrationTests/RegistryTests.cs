@@ -69,7 +69,7 @@ namespace Bicep.Core.IntegrationTests
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
-                    x.Code.Should().Be("BCP192");
+                    x.Code.Should().Be("BCP192asdfg");
                     x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-one.invalid/demo/plan:v2"));
                 },
                 x =>
