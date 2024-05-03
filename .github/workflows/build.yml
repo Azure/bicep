@@ -604,7 +604,7 @@ jobs:
           flags: dotnet
 
   comment-test-summary:
-    name: "PR Comment: Tests Summary"
+    name: "PR Comment: Dotnet Tests Summary"
     needs: test-dotnet
     runs-on: ubuntu-latest
     permissions:
@@ -623,14 +623,13 @@ jobs:
       - name: Download Test Results Artifact
         uses: actions/download-artifact@v4
         with:
-          pattern: TestResults-*
+          pattern: TestResults
           path: TestResults
           merge-multiple: true
-
-      - name: Publish Test Results
+      - name: Publish Dotnet Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
-          check_name: Test Results
+          check_name: Dotnet Test Results
           files: "TestResults/**/*.trx"
   
   comment-preview-links:
