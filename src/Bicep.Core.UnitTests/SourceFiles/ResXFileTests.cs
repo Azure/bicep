@@ -36,7 +36,7 @@ namespace Bicep.Core.UnitTests.SourceFiles
             string[] resxFiles = System.IO.Directory.GetFiles(BaselineHelper.GetAbsolutePathRelativeToRepoRoot("src"), "*.resx", SearchOption.AllDirectories)
                 .Where(path => !path.ContainsOrdinally("packages"))
                 .ToArray();
-            resxFiles.Should().HaveCountGreaterThan(2, "There should be at least 3 ResX files found in the project");
+            resxFiles.Should().HaveCountGreaterThan(2000, "There should be at least 3 ResX files found in the project");
 
             foreach (string resXRelativePath in resxFiles)
             {
