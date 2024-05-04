@@ -5951,6 +5951,21 @@ var startAndEndBracketInString = 'x[]y'
         });
     }
 
+    // https://github.com/Azure/bicep/issues/13656
+    [TestMethod]
+    public void Type_validation_should_work_for_udfs_with_udts()
+    {
+        var result = CompilationHelper.Compile("""
+func foo(bar { baz: string }) string => ''
+
+var test = foo({ asdf: 'test' })
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+          ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"baz\"."),
+        ]);
+    }
+
     // https://github.com/Azure/bicep/issues/13663
     [TestMethod]
     public void Test_Issue13663()
