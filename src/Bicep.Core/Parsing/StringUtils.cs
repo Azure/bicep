@@ -1,13 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.ComponentModel.Composition;
 using System.Text;
 using System.Text.RegularExpressions;
+using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.PrettyPrintV2;
 
 namespace Bicep.Core.Parsing
 {
-    public static class StringUtils
+    public static partial class StringUtils
     {
-        private static Regex NewLineRegex { get; } = new Regex("(\r\n|\r|\n)");
+        [GeneratedRegex(@"(\r\n|\r|\n)")]
+        private static partial Regex NewLineRegex();
 
         public static string EscapeBicepString(string value)
             => EscapeBicepString(value, "'", "'");
@@ -49,11 +53,45 @@ namespace Bicep.Core.Parsing
             return buffer.ToString();
         }
 
-        public static int CountNewlines(string value) => NewLineRegex.Matches(value).Count;
+        public static int CountNewlines(string value) => NewLineRegex().Matches(value).Count;
 
-        public static string MatchNewline(string value) => NewLineRegex.Match(value).Value;
+        public static string MatchNewline(string value) => NewLineRegex().Match(value).Value;
 
         public static string ReplaceNewlines(string value, string newlineReplacement) =>
-            NewLineRegex.Replace(value, newlineReplacement);
+            NewLineRegex().Replace(value, newlineReplacement);
+
+        public static IEnumerable<string> SplitOnNewLine(string value) =>
+            value.Split(
+                new string[] { "\r\n", "\r", "\n" },
+                StringSplitOptions.None
+            );
+
+        public static string NormalizeIndent(string value)
+        {
+            var allLines = SplitOnNewLine(value).ToArray();
+            var firstLine = allLines[0];
+            var linesToNormalize = allLines[1..];
+
+            var commonPrefixLength = 0;
+            if (linesToNormalize.Any(x => x.Length > 0))
+            {
+                var minLength = linesToNormalize.Where(x => x.Length > 0).Select(x => x.Length).Min();
+                for (var i = 0; i < minLength; i++)
+                {
+                    if (linesToNormalize.Any(x => x.Length > 0 && !Lexer.IsWhiteSpace(x[i])))
+                    {
+                        break;
+                    }
+
+                    commonPrefixLength = i + 1;
+                }
+            }
+
+            return string.Join(
+                '\n',
+                linesToNormalize
+                    .Select(x => x.Length == 0 ? x : x[commonPrefixLength..])
+                    .Prepend(firstLine));
+        }
     }
 }

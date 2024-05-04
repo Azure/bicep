@@ -4675,8 +4675,8 @@ param foo1 foo = {
                 .Should().BeEquivalentToIgnoringNewlines(
                     @"Type: `string[]`  " + @"
 Source port ranges.
-    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
-    When a wildcard is used, that needs to be the only value.  " + @"
+Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
+When a wildcard is used, that needs to be the only value.  " + @"
 ");
         }
 

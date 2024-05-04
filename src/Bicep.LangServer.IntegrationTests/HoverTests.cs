@@ -948,8 +948,8 @@ param foo|bar = true
 sourcePortRanges: string[]
 ```  " + @"
 Source port ranges.
-    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
-    When a wildcard is used, that needs to be the only value.  " + @"
+Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
+When a wildcard is used, that needs to be the only value.  " + @"
 ");
         }
 
@@ -975,9 +975,57 @@ Source port ranges.
 sourcePortRanges: string[]
 ```  " + @"
 Source port ranges.
-    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
-    When a wildcard is used, that needs to be the only value.  " + @"
+Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
+When a wildcard is used, that needs to be the only value.  " + @"
 ");
+        }
+
+        [TestMethod]
+        public async Task Description_markdown_indenting_is_normalized()
+        {
+            // https://github.com/Azure/bicep/issues/13982
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+type obj = {
+ 
+  @description('This is the name')
+  name: string
+
+  @description('''lorem ipsum
+
+  lorem ipsum
+  ''')
+  complex: string
+
+  @description('This is the propertis')
+  properties: {
+    @description('A simple property')
+    property1: string
+
+    @description('''This is a more complex property
+
+    This property requries more then one line of text to explain
+    There might also be a link to something [link](www.google.com)
+    ''')
+    proper|ty2: string
+  }
+}
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var hover = await file.RequestHover(cursor);
+            hover!.Contents!.MarkupContent!.Value
+                .Should().EqualIgnoringTrailingWhitespace("""
+```bicep
+property2: string
+```  
+This is a more complex property
+
+This property requries more then one line of text to explain
+There might also be a link to something [link](www.google.com)
+
+
+""");
         }
 
         [TestMethod]
