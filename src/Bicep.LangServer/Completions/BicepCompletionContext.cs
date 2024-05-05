@@ -1315,15 +1315,16 @@ namespace Bicep.LanguageServer.Completions
                 return true;
             }
 
-            SyntaxBase[] nodes = [objectSyntax.OpenBrace, ..objectSyntax.Children, objectSyntax.CloseBrace];
+            SyntaxBase[] nodes = [objectSyntax.OpenBrace, .. objectSyntax.Children, objectSyntax.CloseBrace];
             var nodeBefore = nodes.LastOrDefault(node => node.GetEndPosition() <= offset);
             var nodeAfter = nodes.FirstOrDefault(node => node.GetPosition() >= offset);
 
-            return (nodeBefore, nodeAfter) switch {
-                (Token { Type: TokenType.NewLine }, {} after) when after == objectSyntax.CloseBrace => true,
-                (Token { Type: TokenType.Comma }, {} after) when after == objectSyntax.CloseBrace => true,
-                ({} before, {} after) when before == objectSyntax.OpenBrace && after == objectSyntax.CloseBrace => true,
-                ({} before, Token { Type: TokenType.NewLine }) when before == objectSyntax.OpenBrace => true,
+            return (nodeBefore, nodeAfter) switch
+            {
+                (Token { Type: TokenType.NewLine }, { } after) when after == objectSyntax.CloseBrace => true,
+                (Token { Type: TokenType.Comma }, { } after) when after == objectSyntax.CloseBrace => true,
+                ({ } before, { } after) when before == objectSyntax.OpenBrace && after == objectSyntax.CloseBrace => true,
+                ({ } before, Token { Type: TokenType.NewLine }) when before == objectSyntax.OpenBrace => true,
                 (Token { Type: TokenType.NewLine }, Token { Type: TokenType.NewLine }) => true,
                 _ => false,
             };
