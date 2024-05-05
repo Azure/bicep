@@ -1802,8 +1802,8 @@ namespace Bicep.Core.TypeSystem
                 syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
                 diagnostics),
 
-            // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
-            DiscriminatedObjectType => LanguageConstants.Any,
+            UnionType unionType when unionType.Members.All(x => x is ObjectType)
+                => TypeHelper.CreateTypeUnion(unionType.Members.Select(member => GetNamedPropertyType(syntax, member.Type, diagnostics))),
 
             // We can assign to an object, but we don't have a type for that object.
             // The best we can do is allow it and return the 'any' type.
@@ -1907,7 +1907,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
-                var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, LanguageConstants.Any);
+                var returnType = this.GetTypeInfo(syntax.Body);
 
                 return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), ImmutableArray<ITypeReference>.Empty, returnType);
             });

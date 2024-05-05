@@ -3317,6 +3317,35 @@ output fooBadIdProps object = {
         });
     }
 
+    // https://github.com/Azure/bicep/issues/9736
+    [TestMethod]
+    public void Test_Issue_9736_property_access_works_with_object_union_types()
+    {
+        var result = CompilationHelper.Compile("""
+var entries = [
+  { id: 1, prop: 'val1' }
+  { id: 2, prop: 'val1' }
+]
+output keyMap object = toObject(
+  entries,
+  entry => entry.id) // fails at runtime, because entry.id is an int. Can be fixed with string(entry.id)
+
+var values = [
+  { id: 2, properties: { prop: 'val1' } }
+  { id: 3, properties: { prop: 'val1' } }
+]
+output valueMap object = toObject(
+  values,
+  entry => entry.id, // fails at runtime, because entry.id is an int. Can be fixed with string(entry.id)
+  entry => entry.properties)
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => (1 | 2)" is not assignable to parameter of type "any => string"."""),
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => (2 | 3)" is not assignable to parameter of type "any => string"."""),
+        ]);
+    }
+
     /// <summary>
     /// https://github.com/Azure/bicep/issues/4600
     /// </summary>
@@ -4785,13 +4814,13 @@ var foo = [for rg in []: {
     public void Lambda_variable_declarations_should_overwrite_globally_scoped_functions()
     {
         var result = CompilationHelper.Compile(@"
-var foo = map([], resourceGroup => resourceGroup('test'))
+param rgs string[]
+var foo = map(rgs, resourceGroup => resourceGroup('test'))
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
-        });
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "string => error" is not assignable to parameter of type "(any[, int]) => any"."""),
+        ]);
     }
 
     // https://github.com/Azure/bicep/issues/10657
