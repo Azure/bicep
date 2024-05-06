@@ -2227,8 +2227,6 @@ namespace Bicep.Core.TypeSystem
                                 return error;
                             }
 
-                            var offendingArgSyntax = syntax.Arguments[tm.ArgumentIndex];
-                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(offendingArgSyntax).PossibleNullReferenceAssignment(tm.ParameterType, tm.ArgumentType, offendingArgSyntax));
                             return resultSansNullability;
                         }
                     }
@@ -2271,6 +2269,15 @@ namespace Bicep.Core.TypeSystem
                 // we have an exact match or a single ambiguous match
                 var matchedOverload = matches.Single();
                 matchedFunctionOverloads.TryAdd(syntax, matchedOverload);
+
+                // do detailed type validation now we have a match
+                for (var i = 0; i < syntax.Arguments.Length; i++)
+                {
+                    var argumentSyntax = syntax.Arguments[i];
+                    var targetType = matchedOverload.GetArgumentType(i);
+
+                    TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, argumentSyntax, targetType);
+                }
 
                 // return its type
                 var result = matchedOverload.ResultBuilder(model, diagnosticWriter, syntax, argumentTypes);
