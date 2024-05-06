@@ -1802,6 +1802,9 @@ namespace Bicep.Core.TypeSystem
                 syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
                 diagnostics),
 
+            UnionType unionType when unionType.Members.All(x => x is ObjectType)
+                => TypeHelper.CreateTypeUnion(unionType.Members.Select(member => GetNamedPropertyType(syntax, member.Type, diagnostics))),
+
             // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
             DiscriminatedObjectType => LanguageConstants.Any,
 
@@ -1907,7 +1910,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
-                var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, LanguageConstants.Any);
+                var returnType = this.GetTypeInfo(syntax.Body);
 
                 return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), ImmutableArray<ITypeReference>.Empty, returnType);
             });

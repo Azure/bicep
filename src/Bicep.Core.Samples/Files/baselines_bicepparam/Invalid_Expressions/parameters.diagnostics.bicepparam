@@ -29,9 +29,7 @@ param testEmpty = empty([])
 param testEndsWith = endsWith('foo', [])
 //@[37:39) [BCP070 (Error)] Argument of type "<empty array>" is not assignable to parameter of type "string". (CodeDescription: none) |[]|
 param testFilter = filter([1, 2], i => i < 'foo')
-//@[19:49) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "(1 | 2)[]". (CodeDescription: none) |filter([1, 2], i => i < 'foo')|
-//@[19:49) [BCP338 (Error)] Failed to evaluate parameter "testFilter": The template language function 'less' expects two parameters of matching types. The function was invoked with values of type 'Integer' and 'String' that do not match. (CodeDescription: none) |filter([1, 2], i => i < 'foo')|
-//@[39:48) [BCP045 (Error)] Cannot apply operator "<" to operands of type "1 | 2" and "'foo'". (CodeDescription: none) |i < 'foo'|
+//@[34:48) [BCP070 (Error)] Argument of type "(1 | 2) => error" is not assignable to parameter of type "(any[, int]) => bool". (CodeDescription: none) |i => i < 'foo'|
 param testFirst = first('asdfds')
 //@[18:33) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "'a'". (CodeDescription: none) |first('asdfds')|
 param testFlatten = flatten({foo: 'bar'})
@@ -77,16 +75,13 @@ param testPadLeft = padLeft(13, 'foo')
 param testRange = range(0, 'foo')
 //@[27:32) [BCP070 (Error)] Argument of type "'foo'" is not assignable to parameter of type "int". (CodeDescription: none) |'foo'|
 param testReduce = reduce(['a', 'b', 'c'], '', (a, b) => '${toObject(a)}-${b}')
-//@[19:79) [BCP338 (Error)] Failed to evaluate parameter "testReduce": Unable to evaluate template language function 'toObject': function requires between 2 and 3 argument(s) while 1 were provided. Please see https://aka.ms/arm-resource-functions/#toObject for usage details. (CodeDescription: none) |reduce(['a', 'b', 'c'], '', (a, b) => '${toObject(a)}-${b}')|
-//@[68:71) [BCP071 (Error)] Expected 2 to 3 arguments, but got 1. (CodeDescription: none) |(a)|
+//@[47:78) [BCP070 (Error)] Argument of type "(('a' | 'b' | 'c'), ('a' | 'b' | 'c')) => error" is not assignable to parameter of type "(any, any[, int]) => any". (CodeDescription: none) |(a, b) => '${toObject(a)}-${b}'|
 param testReplace = replace('abc', 'b', {})
 //@[40:42) [BCP070 (Error)] Argument of type "object" is not assignable to parameter of type "string". (CodeDescription: none) |{}|
 param testSkip = skip([1, 2, 3], '1')
 //@[33:36) [BCP070 (Error)] Argument of type "'1'" is not assignable to parameter of type "int". (CodeDescription: none) |'1'|
 param testSort = sort(['c', 'd', 'a'], (a, b) => a + b)
-//@[17:55) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "('a' | 'c' | 'd')[]". (CodeDescription: none) |sort(['c', 'd', 'a'], (a, b) => a + b)|
-//@[17:55) [BCP338 (Error)] Failed to evaluate parameter "testSort": Unhandled exception during evaluating template language function 'sort' is not handled. (CodeDescription: none) |sort(['c', 'd', 'a'], (a, b) => a + b)|
-//@[49:54) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'a' | 'c' | 'd'" and "'a' | 'c' | 'd'". Use string interpolation instead. (CodeDescription: none) |a + b|
+//@[39:54) [BCP070 (Error)] Argument of type "(('a' | 'c' | 'd'), ('a' | 'c' | 'd')) => error" is not assignable to parameter of type "(any, any) => bool". (CodeDescription: none) |(a, b) => a + b|
 param testSplit = split('a/b/c', 1 + 2)
 //@[33:38) [BCP070 (Error)] Argument of type "3" is not assignable to parameter of type "array | string". (CodeDescription: none) |1 + 2|
 param testStartsWith = startsWith('abc', {})

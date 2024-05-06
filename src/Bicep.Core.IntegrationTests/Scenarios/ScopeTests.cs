@@ -173,26 +173,21 @@ output env string = environment
         {
             var result = CompilationHelper.Compile(("main.bicep", @"
 param postgreSqlServerId string
-var PSQL_DATABASES = [
-{
- database: {
-  name: 'db1'
- }
-}
-{
- database: {
-  name: 'db2'
- }
-}
-]
+param PSQL_DATABASES {
+  database: {
+    name: string
+    charset: string?
+    collation: string?
+  }
+}[]
 
 resource postgreSQL 'Microsoft.DBForPostgreSQL/servers@2017-12-01' existing = {
   name: last(split(postgreSqlServerId, '/'))!
   resource database 'databases' = [for (item, index) in PSQL_DATABASES: {
     name: item.database.name
     properties: {
-      charset: contains(item.database, 'charset') ? item.database.charset : 'utf8'
-      collation: contains(item.database, 'collation') ? item.database.charset : 'English_United States.1252'
+      charset: item.database.?charset ?? 'utf8'
+      collation: item.database.?collation ?? 'English_United States.1252'
     }
   }]
 }
@@ -210,10 +205,10 @@ resource dbLocks 'Microsoft.Authorization/locks@2016-09-01' = [for (item, index)
             result.Should().NotHaveAnyDiagnostics();
             using (new AssertionScope())
             {
-                result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'dbLock')].scope", "[format('Microsoft.DBforPostgreSQL/servers/{0}/databases/{1}', last(split(parameters('postgreSqlServerId'), '/')), variables('PSQL_DATABASES')[copyIndex()].database.name)]");
-                result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'dbLock')].dependsOn", new JArray
+                result.Template.Should().HaveValueAtPath("$.resources['dbLocks'].scope", "[format('Microsoft.DBforPostgreSQL/servers/{0}/databases/{1}', last(split(parameters('postgreSqlServerId'), '/')), parameters('PSQL_DATABASES')[copyIndex()].database.name)]");
+                result.Template.Should().HaveValueAtPath("$.resources['dbLocks'].dependsOn", new JArray
                 {
-                    "[resourceId('Microsoft.DBforPostgreSQL/servers/databases', last(split(parameters('postgreSqlServerId'), '/')), variables('PSQL_DATABASES')[copyIndex()].database.name)]"
+                    "[format('postgreSQL::database[{0}]', copyIndex())]"
                 });
             }
         }

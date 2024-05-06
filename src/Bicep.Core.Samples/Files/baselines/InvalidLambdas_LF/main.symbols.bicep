@@ -107,7 +107,7 @@ var outsideArgs2 = (x, y, z) => '${x}${y}${z}'
 //@[04:16) Variable outsideArgs2. Type: (any, any, any) => string. Declaration start char: 0, length: 46
 var partial = i =>
 //@[14:15) Local i. Type: any. Declaration start char: 14, length: 1
-//@[04:11) Variable partial. Type: any => any. Declaration start char: 0, length: 18
+//@[04:11) Variable partial. Type: any => error. Declaration start char: 0, length: 18
 
 
 var inObject = {
