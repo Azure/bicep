@@ -5,7 +5,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class InstanceFunctionCallSyntax : FunctionCallSyntaxBase, ISymbolReference
+    public class InstanceFunctionCallSyntax : FunctionCallSyntaxBase
     {
         public InstanceFunctionCallSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openParen, IEnumerable<SyntaxBase> children, Token closeParen)
             : base(name, openParen, children, closeParen)

@@ -6,7 +6,10 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Rewriters;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 
@@ -25,189 +28,64 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var visitor = new Visitor(this, model, diagnosticLevel);
-            visitor.Visit(model.SourceFile.ProgramSyntax);
-            return visitor.diagnostics;
-        }
+            var concatFunctions = SemanticModelHelper.GetFunctionsByName(model, SystemNamespaceType.BuiltInName, "concat", model.Root.Syntax);
 
-        private class Visitor : AstVisitor
-        {
-            public List<IDiagnostic> diagnostics = new();
-
-            private const string concatFunction = "concat";
-            private readonly PreferInterpolationRule parent;
-            private readonly SemanticModel model;
-            private readonly DiagnosticLevel diagnosticLevel;
-
-            public Visitor(PreferInterpolationRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel)
-            {
-                this.parent = parent;
-                this.model = model;
-                this.diagnosticLevel = diagnosticLevel;
-            }
-
-            public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
+            foreach (var concatFunction in concatFunctions)
             {
                 // must have more than 1 argument to use interpolation
-                if (syntax.NameEquals(concatFunction)
-                   && syntax.Arguments.Length > 1
-                   && !this.model.HasParsingError(syntax))
+                if (concatFunction.Arguments.Length > 1 && !model.HasParsingError(concatFunction))
                 {
                     // We should only suggest rewriting concat() calls that result in a string (concat can also operate on and
                     // return arrays)
-                    var resultType = this.model.GetTypeInfo(syntax);
+                    var resultType = model.GetTypeInfo(concatFunction);
                     if (resultType is not AnyType && TypeValidator.AreTypesAssignable(resultType, LanguageConstants.String))
                     {
-                        if (CreateFix(syntax) is CodeFix fix)
-                        {
-                            this.diagnostics.Add(parent.CreateFixableDiagnosticForSpan(diagnosticLevel, syntax.Span, fix));
-
-                            // Only report on the top-most string-valued concat call
-                            return;
-                        }
+                        var fix = CreateFix(concatFunction);
+                        yield return CreateFixableDiagnosticForSpan(diagnosticLevel, concatFunction.Span, fix);
                     }
                 }
-
-                base.VisitFunctionCallSyntax(syntax);
-            }
-
-            private CodeFix? CreateFix(FunctionCallSyntax functionCallSyntax)
-            {
-                if (GetCodeReplacement(functionCallSyntax) is CodeReplacement cr)
-                {
-                    string title = string.Format(CoreResources.InterpolateNotConcatFixTitle, cr.Text);
-                    return new CodeFix(title, true, CodeFixKind.QuickFix, cr);
-                }
-                return null;
-            }
-
-            private CodeReplacement? GetCodeReplacement(FunctionCallSyntax functionCallSyntax)
-            {
-                if (RewriteConcatToInterpolate(functionCallSyntax) is StringSyntax newSyntax)
-                {
-                    return new CodeReplacement(functionCallSyntax.Span, newSyntax.ToString());
-                }
-                return null;
-            }
-
-            private StringSyntax? RewriteConcatToInterpolate(FunctionCallSyntax func)
-            {
-                var rewrite = CallbackConvertorRewriter<FunctionCallSyntax, StringSyntax>.Rewrite(func, RewriteConcatCallback);
-                return rewrite;
-            }
-
-            private StringSyntax RewriteConcatCallback(FunctionCallSyntax syntax)
-            {
-                var flattened = SyntaxFactory.FlattenStringOperations(syntax);
-                if (flattened is FunctionCallSyntax concatSyntax)
-                {
-                    return CreateStringInterpolation(concatSyntax.Arguments.Select(a => a.Expression).ToImmutableArray());
-                }
-                else if (flattened is StringSyntax stringSyntax)
-                {
-                    return stringSyntax;
-                }
-
-                // TODO:  What is the correct way to handle a failed codefix?
-                throw new NotSupportedException("Rewrite to string interpolation not successful");
-            }
-
-            /// <summary>
-            /// TODO: Move to SyntaxFactory
-            /// </summary>
-            /// <param name="argExpressions"></param>
-            /// <returns></returns>
-            private StringSyntax CreateStringInterpolation(ImmutableArray<SyntaxBase> argExpressions)
-            {
-                var tokens = new List<Token>();
-                var expressions = new List<SyntaxBase>();
-                var segments = new List<string>();
-
-                SyntaxBase? prevArg = default;
-                var argList = argExpressions.Select((arg, i) => new { arg, argindex = i });
-
-                void addStringSyntax(StringSyntax stringSyntax)
-                {
-                    expressions.AddRange(stringSyntax.Expressions);
-                    segments.AddRange(stringSyntax.SegmentValues);
-                }
-
-                foreach (var argSet in argList)
-                {
-                    // if a string literal append
-                    if (argSet.arg is StringSyntax stringSyntax)
-                    {
-                        addStringSyntax(stringSyntax);
-                        prevArg = stringSyntax;
-                    }
-                    else if (argSet.arg is FunctionCallSyntax funcSyntax && funcSyntax.NameEquals(concatFunction))
-                    {
-                        stringSyntax = RewriteConcatCallback(funcSyntax);
-                        addStringSyntax(stringSyntax);
-                        prevArg = stringSyntax;
-                    }
-                    // otherwise: some other function, variable, other embedded
-                    else
-                    {
-                        // not preceded by a string segment
-                        if (prevArg is not StringSyntax)
-                        {
-                            segments.Add("");
-                        }
-
-                        expressions.Add(argSet.arg);
-                        prevArg = argSet.arg;
-                    }
-                }
-
-                // close out interpolation if needed
-                if (prevArg is not StringSyntax)
-                {
-                    segments.Add("");
-                }
-
-                // build tokens from segment list
-                var last = segments.Count - 1;
-                var index = 0;
-                segments.ForEach(segment =>
-                {
-                    tokens.Add(SyntaxFactory.CreateStringInterpolationToken(index == 0, index == last, segment));
-                    index++;
-                });
-
-                return new StringSyntax(tokens, expressions, segments);
             }
         }
 
-        /// <summary>
-        /// Rewriter that allows use of a callback to rewrite any type of node.
-        /// It can also replace the node type based on callback conversion
-        /// </summary>
-        private class CallbackConvertorRewriter<TSyntax, TReturn> : SyntaxRewriteVisitor
-            where TSyntax : SyntaxBase
-            where TReturn : SyntaxBase
+        private CodeFix CreateFix(FunctionCallSyntaxBase functionCallSyntax)
         {
-            private readonly Func<TSyntax, TReturn> callback;
+            var newSyntax = CreateStringInterpolation(functionCallSyntax);
 
-            public static TSyntaxOut? Rewrite<TSyntaxIn, TSyntaxOut>(TSyntaxIn syntax, Func<TSyntaxIn, TSyntaxOut> callback)
-                where TSyntaxIn : TSyntax
-                where TSyntaxOut : TReturn
+            var cr = new CodeReplacement(functionCallSyntax.Span, newSyntax.ToString());
+
+            return new CodeFix(CoreResources.InterpolateNotConcatFixTitle, true, CodeFixKind.QuickFix, cr);
+        }
+
+        private StringSyntax CreateStringInterpolation(FunctionCallSyntaxBase functionCallSyntax)
+        {
+            List<string> segments = [""];
+            List<SyntaxBase> expressions = [];
+
+            foreach (var arg in functionCallSyntax.Arguments)
             {
-                var rewriter = new CallbackConvertorRewriter<TSyntaxIn, TSyntaxOut>(callback);
-                if (rewriter != null)
+                var expression = arg.Expression;
+
+                // if a string literal append
+                if (expression is StringSyntax stringSyntax)
                 {
-                    return rewriter.Rewrite<TSyntaxIn, TSyntaxOut>(syntax);
+                    var prevSegment = segments.Last();
+                    segments.RemoveAt(segments.Count - 1);
+
+                    var firstSegment = prevSegment + stringSyntax.SegmentValues.First();
+
+                    segments.Add(firstSegment);
+                    segments.AddRange(stringSyntax.SegmentValues.Skip(1));
+                    expressions.AddRange(stringSyntax.Expressions);
                 }
-                return null;
+                // otherwise: some other function, variable, other embedded
+                else
+                {
+                    segments.Add("");
+                    expressions.Add(expression);
+                }
             }
 
-            private CallbackConvertorRewriter(Func<TSyntax, TReturn> callback)
-            {
-                this.callback = callback;
-            }
-
-            protected override SyntaxBase RewriteInternal(SyntaxBase syntax)
-                => this.callback((TSyntax)syntax);
+            return SyntaxFactory.CreateString(segments, expressions);
         }
     }
 }

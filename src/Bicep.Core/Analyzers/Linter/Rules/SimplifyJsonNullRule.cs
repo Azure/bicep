@@ -5,6 +5,7 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -22,42 +23,17 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var spanFixes = new Dictionary<TextSpan, CodeFix>();
-            var visitor = new Visitor(spanFixes, model);
-            visitor.Visit(model.SourceFile.ProgramSyntax);
-
-            return spanFixes.Select(kvp => CreateFixableDiagnosticForSpan(diagnosticLevel, kvp.Key, kvp.Value));
-        }
-
-        private sealed class Visitor : AstVisitor
-        {
-            private readonly Dictionary<TextSpan, CodeFix> spanFixes;
-            private readonly SemanticModel model;
-
-            public Visitor(Dictionary<TextSpan, CodeFix> spanFixes, SemanticModel model)
+            foreach (var jsonFunction in SemanticModelHelper.GetFunctionsByName(model, SystemNamespaceType.BuiltInName, "json", model.Root.Syntax))
             {
-                this.spanFixes = spanFixes;
-                this.model = model;
-            }
-            public override void VisitFunctionCallSyntax(FunctionCallSyntax functionCallSyntax)
-            {
-                if (functionCallSyntax.NameEquals("json") &&
-                    functionCallSyntax.Arguments.Length == 1 &&
-                    functionCallSyntax.Arguments[0].Expression is StringSyntax argSyntax)
+                if (jsonFunction.Arguments.Length == 1 &&
+                    jsonFunction.Arguments[0].Expression is StringSyntax argSyntax &&
+                    argSyntax.TryGetLiteralValue()?.Trim() == "null")
                 {
-                    var argValue = argSyntax.TryGetLiteralValue();
-                    if (argValue?.Trim() == "null")
-                    {
-                        AddCodeFix(functionCallSyntax.Span, "null");
-                    }
-                }
-            }
+                    var codeReplacement = new CodeReplacement(jsonFunction.Span, LanguageConstants.NullKeyword);
+                    var fix = new CodeFix(CoreResources.SimplifyJsonNullFixTitle, true, CodeFixKind.QuickFix, codeReplacement);
 
-            private void AddCodeFix(TextSpan span, string name)
-            {
-                var codeReplacement = new CodeReplacement(span, name);
-                var fix = new CodeFix(CoreResources.SimplifyJsonNullFixTitle, true, CodeFixKind.QuickFix, codeReplacement);
-                spanFixes[span] = fix;
+                    yield return CreateFixableDiagnosticForSpan(diagnosticLevel, jsonFunction.Span, fix);
+                }
             }
         }
     }
