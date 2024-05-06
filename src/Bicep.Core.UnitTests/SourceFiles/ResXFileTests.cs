@@ -33,10 +33,7 @@ namespace Bicep.Core.UnitTests.SourceFiles
         [TestMethod]
         public void ResXAndDesignerFilesShouldBeConsistentAndNotCauseUnnecessaryMergeConflicts()
         {
-            // When running in official build, bicep is a Git submodule of the BicepMirror repo.
-            var srcPath = Environment.GetEnvironmentVariable("TF_BUILD") is not null ? "bicep/src" : "src";
-
-            string[] resxFiles = System.IO.Directory.GetFiles(BaselineHelper.GetAbsolutePathRelativeToRepoRoot(srcPath), "*.resx", SearchOption.AllDirectories)
+            string[] resxFiles = System.IO.Directory.GetFiles(BaselineHelper.GetAbsolutePathRelativeToRepoRoot("src"), "*.resx", SearchOption.AllDirectories)
                 .Where(path => !path.ContainsOrdinally("packages"))
                 .ToArray();
             resxFiles.Should().HaveCountGreaterThan(2, "There should be at least 3 ResX files found in the project");

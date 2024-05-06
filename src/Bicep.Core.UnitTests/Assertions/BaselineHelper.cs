@@ -44,7 +44,11 @@ namespace Bicep.Core.UnitTests.Assertions
                 // search upwards for the .git directory. This should only exist at the repository root.
                 if (Directory.Exists(Path.Join(currentDir.FullName, ".git")))
                 {
-                    return currentDir.FullName;
+                    // If TF_BUILD is not null, the code is running in the official build pipeline in ADO,
+                    // and bicep is a Git submodule in the BicepMirror repo.
+                    return Environment.GetEnvironmentVariable("TF_BUILD") is not null
+                        ? Path.Join(currentDir.FullName, "bicep")
+                        : currentDir.FullName;
                 }
 
                 currentDir = parentDir;
