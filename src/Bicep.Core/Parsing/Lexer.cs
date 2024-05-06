@@ -1073,7 +1073,7 @@ namespace Bicep.Core.Parsing
 
         private static bool IsHexDigit(char c) => IsDigit(c) || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F';
 
-        private static bool IsWhiteSpace(char c) => c == ' ' || c == '\t';
+        public static bool IsWhiteSpace(char c) => c == ' ' || c == '\t';
 
         private static bool IsNewLine(char c) => c == '\n' || c == '\r';
     }

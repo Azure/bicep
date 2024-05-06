@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Parsing;
+
 namespace Bicep.Core.Syntax
 {
     public static class StringSyntaxExtensions
@@ -18,5 +20,8 @@ namespace Bicep.Core.Syntax
         /// <param name="syntax">The string syntax node</param>
         public static string? TryGetLiteralValue(this StringSyntax syntax)
             => syntax.IsInterpolated() ? null : syntax.SegmentValues[0];
+
+        public static bool IsVerbatimString(this StringSyntax syntax)
+            => syntax.StringTokens.First().Type == TokenType.MultilineString;
     }
 }

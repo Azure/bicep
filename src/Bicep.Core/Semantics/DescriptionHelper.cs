@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
+using Bicep.Core.Parsing;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -33,6 +34,11 @@ namespace Bicep.Core.Semantics
                 decorator.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
                 && stringSyntax.TryGetLiteralValue() is string description)
             {
+                if (stringSyntax.IsVerbatimString())
+                {
+                    return StringUtils.NormalizeIndent(description);                    
+                }
+
                 return description;
             }
 
