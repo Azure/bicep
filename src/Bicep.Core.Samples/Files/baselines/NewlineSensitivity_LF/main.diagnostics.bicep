@@ -23,9 +23,13 @@ var nestedTest = concat(
 //@[04:014) [no-unused-vars (Warning)] Variable "nestedTest" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedTest|
 //@[17:108) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(\nconcat(\nconcat(\nconcat(\nconcat(\n'level',\n'one'),\n'two'),\n'three'),\n'four'),\n'five')|
 concat(
+//@[00:074) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(\nconcat(\nconcat(\nconcat(\n'level',\n'one'),\n'two'),\n'three'),\n'four')|
 concat(
+//@[00:057) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(\nconcat(\nconcat(\n'level',\n'one'),\n'two'),\n'three')|
 concat(
+//@[00:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(\nconcat(\n'level',\n'one'),\n'two')|
 concat(
+//@[00:023) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(\n'level',\n'one')|
 'level',
 'one'),
 'two'),

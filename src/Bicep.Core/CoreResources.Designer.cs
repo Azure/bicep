@@ -256,7 +256,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use string interpolation: {0}.
+        ///   Looks up a localized string similar to Use string interpolation.
         /// </summary>
         internal static string InterpolateNotConcatFixTitle {
             get {

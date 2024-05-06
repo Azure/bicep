@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
@@ -144,7 +145,7 @@ namespace Bicep.Core.Syntax
 
         public static bool IsWhitespace(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.Whitespace;
 
-        public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo) => IdentifierEquals(funcSyntax.Name.IdentifierName, compareTo);
+        public static bool NameEquals(this ISymbolReference symbolRef, string compareTo) => IdentifierEquals(symbolRef.Name.IdentifierName, compareTo);
 
         public static bool NameEquals(this IdentifierSyntax identifier, string compareTo) => IdentifierEquals(identifier.IdentifierName, compareTo);
 
