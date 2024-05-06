@@ -4892,6 +4892,32 @@ module mod 'mod.bicep' = [for i in range(0, count): {
         });
     }
 
+    // https://github.com/Azure/bicep/issues/8187
+    [TestMethod]
+    public void Test_Issue8187()
+    {
+        var result = CompilationHelper.Compile(
+            ("blank.bicep", ""),
+            ("main.bicep", """
+var modOptions = [for index in range(0, 3): {
+  name: 'mod_${index}'
+}]
+
+module mods 'blank.bicep' = [for mod in modOptions: {
+  name: mod.name
+}]
+
+//  ACTION - Replace output from above with below, notice the () wrap around for loop. This causes the stack trace below and prevents typing, each key stroke the text cursor is moved away.
+output modDetails array = ([for (mod, index) in modOptions: {
+ deploymentName: mods[index].name
+}])
+"""));
+
+        result.Should().HaveDiagnostics([
+            ("BCP138", DiagnosticLevel.Error, """For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties."""),
+        ]);
+    }
+
     // https://github.com/Azure/bicep/issues/10994
     [TestMethod]
     public void Test_Issue10994()
