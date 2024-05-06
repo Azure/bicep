@@ -1805,6 +1805,9 @@ namespace Bicep.Core.TypeSystem
             UnionType unionType when unionType.Members.All(x => x is ObjectType)
                 => TypeHelper.CreateTypeUnion(unionType.Members.Select(member => GetNamedPropertyType(syntax, member.Type, diagnostics))),
 
+            // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
+            DiscriminatedObjectType => LanguageConstants.Any,
+
             // We can assign to an object, but we don't have a type for that object.
             // The best we can do is allow it and return the 'any' type.
             TypeSymbol maybeObject when TypeValidator.AreTypesAssignable(maybeObject, LanguageConstants.Object) => LanguageConstants.Any,
