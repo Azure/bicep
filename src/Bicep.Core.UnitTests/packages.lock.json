@@ -66,9 +66,9 @@
       },
       "Moq": {
         "type": "Direct",
-        "requested": "[4.18.4, )",
-        "resolved": "4.18.4",
-        "contentHash": "IOo+W51+7Afnb0noltJrKxPBSfsgMzTKCw+Re5AMx8l/vBbAbMDOynLik4+lBYIWDJSO0uV7Zdqt7cNb6RZZ+A==",
+        "requested": "[4.20.70, )",
+        "resolved": "4.20.70",
+        "contentHash": "4rNnAwdpXJBuxqrOCzCyICXHSImOTRktCgCWXWykuF1qwoIsVvEnR7PjbMk/eLOxWvhmj5Kwt+kDV3RGUYcNwg==",
         "dependencies": {
           "Castle.Core": "5.1.1"
         }
@@ -93,9 +93,9 @@
       },
       "Newtonsoft.Json.Schema": {
         "type": "Direct",
-        "requested": "[3.0.15, )",
-        "resolved": "3.0.15",
-        "contentHash": "O/RBoXYm93pJy/JF3vRJxISALxup8CxKrBGXAyd/pFGrCa9hnSeHq/rQqkTnnpOcvtQwcEDfMZ+R5h871XEO5A==",
+        "requested": "[3.0.16, )",
+        "resolved": "3.0.16",
+        "contentHash": "WhxJY3VdIdtWv4OelY87fFYai3ztqzpVAODXcVo5VlczWjsHqJx/PHAruvrfCJrkCT/RNXj0NYmnUiJt3WcD3A==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.3"
         }
@@ -265,10 +265,10 @@
       },
       "JsonPatch.Net": {
         "type": "Transitive",
-        "resolved": "3.0.0.2",
-        "contentHash": "z6MW8Hwc3DlV3otGZD6btC5Qbqak+3EaN9Gm7sFG6xG/TY9WvS1ypDXA/dodUdN/2aAVeUCsNIRt92A39eEMaQ==",
+        "resolved": "3.1.0",
+        "contentHash": "BS/8aoXm5mEA/8f7SzhfXEitsEbqERME7xzuRbCDvBXtS2mcAoPAq11L324rhARJfRZ/nGso/KFfggIIdyytww==",
         "dependencies": {
-          "JsonPointer.Net": "4.0.1.3"
+          "JsonPointer.Net": "5.0.0"
         }
       },
       "JsonPath.Net": {
@@ -281,11 +281,11 @@
       },
       "JsonPointer.Net": {
         "type": "Transitive",
-        "resolved": "4.0.1.3",
-        "contentHash": "HgeRspKZH9B0FNEVAmIW6yVUIVAhptGEt4qAmyQKh9x8QzWMhWtgDzBBG7JQUkdW4I9N2PyVO1a1sqqHLcwg0Q==",
+        "resolved": "5.0.0",
+        "contentHash": "fm4T5w20AY6C+p5/pJr0vrXRNGgtSfHl34I1LxC9zdPwS9S3j0GiR1Mz/CVPWKDXXGDpCt1APHpCq7kn5adCfA==",
         "dependencies": {
           "Humanizer.Core": "2.14.1",
-          "Json.More.Net": "2.0.1.1"
+          "Json.More.Net": "2.0.1.2"
         }
       },
       "MediatR": {
@@ -1183,7 +1183,7 @@
           "Azure.Deployments.Templates": "[1.0.1243.1, )",
           "Azure.Identity": "[1.11.2, )",
           "Azure.ResourceManager.Resources": "[1.7.2, )",
-          "JsonPatch.Net": "[3.0.0.2, )",
+          "JsonPatch.Net": "[3.1.0, )",
           "JsonPath.Net": "[1.0.1.2, )",
           "Microsoft.Extensions.Configuration": "[8.0.0, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
