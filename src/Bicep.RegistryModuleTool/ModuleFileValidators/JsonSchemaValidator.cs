@@ -66,7 +66,10 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
                         continue;
                     }
 
-                    var errorInstanceLocation = result.InstanceLocation.ToString(JsonPointerStyle.UriEncoded);
+                    // We used to specify JsonPointerStyle.UriEncoded here but it was removed in JsonPointer 5.0.0
+                    // Based on https://github.com/gregsdennis/json-everything/blob/12115ca64470e01c0e7fe59b0d58d8a0435a92dd/JsonPointer/JsonPointer.cs, it
+                    // appears that it was only adding a # suffix to the result (as compared to the JsonPointerStyle.Plain), which we can easily do ourselves.
+                    var errorInstanceLocation = '#' + result.InstanceLocation.ToString();
 
                     if (isAdditionalPropertyError)
                     {
