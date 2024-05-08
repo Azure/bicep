@@ -20,6 +20,6 @@ public class TestEnvironment : IEnvironment
     public string? GetVariable(string variable)
         => variables.TryGetValue(variable, out var value) ? value : null;
 
-    public string[] GetVariableNames()
-        => variables.Keys.ToArray();
+    public IEnumerable<string> GetVariableNames()
+        => variables.Keys;
 }

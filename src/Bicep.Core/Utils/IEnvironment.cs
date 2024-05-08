@@ -6,5 +6,5 @@ public interface IEnvironment
 {
     string? GetVariable(string variable);
 
-    string[] GetVariableNames();
+    IEnumerable<string> GetVariableNames();
 }
