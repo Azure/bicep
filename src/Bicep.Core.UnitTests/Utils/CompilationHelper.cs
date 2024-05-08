@@ -17,20 +17,34 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class CompilationHelper
     {
+        public interface ICompilationResult
+        {
+            IEnumerable<IDiagnostic> Diagnostics { get; }
+            
+            Compilation Compilation { get; }
+
+            BicepSourceFile SourceFile { get; }
+        }
+
         public record CompilationResult(
             JToken? Template,
             IEnumerable<IDiagnostic> Diagnostics,
-            Compilation Compilation)
+            Compilation Compilation) : ICompilationResult
         {
-            public BicepFile BicepFile => (BicepFile)Compilation.SourceFileGrouping.EntryPoint;
+            public BicepSourceFile SourceFile => Compilation.SourceFileGrouping.EntryPoint;
+
+            public BicepFile BicepFile => (BicepFile)SourceFile;
         }
 
         public record ParamsCompilationResult(
             JToken? Parameters,
             IEnumerable<IDiagnostic> Diagnostics,
-            Compilation Compilation)
+            Compilation Compilation) : ICompilationResult
         {
-            public BicepParamFile ParamsFile => (BicepParamFile)Compilation.SourceFileGrouping.EntryPoint;
+
+            public BicepSourceFile SourceFile => Compilation.SourceFileGrouping.EntryPoint;
+
+            public BicepParamFile ParamsFile => (BicepParamFile)SourceFile;
         }
 
         public record CursorLookupResult(

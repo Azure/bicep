@@ -17,6 +17,15 @@ namespace Bicep.Core.Syntax.Rewriters
             return rewriter.Rewrite(syntax);
         }
 
+        public static TOutSyntax? Rewrite<TSyntax, TOutSyntax>(TSyntax syntax, Func<SyntaxBase, SyntaxBase> callback)
+            where TSyntax : SyntaxBase
+            where TOutSyntax : SyntaxBase
+        {
+            var rewriter = new CallbackRewriter(callback);
+
+            return rewriter.Rewrite<TSyntax, TOutSyntax>(syntax);
+        }
+
         /// <summary>
         /// Creates a new rewriter with the specified callback.
         /// </summary>

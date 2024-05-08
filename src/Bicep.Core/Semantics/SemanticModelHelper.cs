@@ -4,6 +4,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
@@ -13,6 +14,13 @@ namespace Bicep.Core.Semantics
 {
     public static class SemanticModelHelper
     {
+        public static IEnumerable<FunctionCallSyntaxBase> GetFunctionsByName(SemanticModel model, string @namespace, string functionName, SyntaxBase syntax)
+        {
+            return SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(syntax)
+                .Where(s => s.NameEquals(functionName))
+                .Where(s => SemanticModelHelper.TryGetFunctionInNamespace(model, @namespace, s) is { });
+        }
+
         public static FunctionCallSyntaxBase? TryGetFunctionInNamespace(SemanticModel semanticModel, string @namespace, SyntaxBase syntax)
         {
             if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol function &&

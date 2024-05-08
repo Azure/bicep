@@ -25,7 +25,7 @@ param testEmpty = empty([])
 param testEndsWith = endsWith('foo', [])
 //@[6:18) ParameterAssignment testEndsWith. Type: error. Declaration start char: 0, length: 40
 param testFilter = filter([1, 2], i => i < 'foo')
-//@[6:16) ParameterAssignment testFilter. Type: (1 | 2)[]. Declaration start char: 0, length: 49
+//@[6:16) ParameterAssignment testFilter. Type: error. Declaration start char: 0, length: 49
 param testFirst = first('asdfds')
 //@[6:15) ParameterAssignment testFirst. Type: 'a'. Declaration start char: 0, length: 33
 param testFlatten = flatten({foo: 'bar'})
@@ -67,13 +67,13 @@ param testPadLeft = padLeft(13, 'foo')
 param testRange = range(0, 'foo')
 //@[6:15) ParameterAssignment testRange. Type: error. Declaration start char: 0, length: 33
 param testReduce = reduce(['a', 'b', 'c'], '', (a, b) => '${toObject(a)}-${b}')
-//@[6:16) ParameterAssignment testReduce. Type: any. Declaration start char: 0, length: 79
+//@[6:16) ParameterAssignment testReduce. Type: error. Declaration start char: 0, length: 79
 param testReplace = replace('abc', 'b', {})
 //@[6:17) ParameterAssignment testReplace. Type: error. Declaration start char: 0, length: 43
 param testSkip = skip([1, 2, 3], '1')
 //@[6:14) ParameterAssignment testSkip. Type: error. Declaration start char: 0, length: 37
 param testSort = sort(['c', 'd', 'a'], (a, b) => a + b)
-//@[6:14) ParameterAssignment testSort. Type: ('a' | 'c' | 'd')[]. Declaration start char: 0, length: 55
+//@[6:14) ParameterAssignment testSort. Type: error. Declaration start char: 0, length: 55
 param testSplit = split('a/b/c', 1 + 2)
 //@[6:15) ParameterAssignment testSplit. Type: error. Declaration start char: 0, length: 39
 param testStartsWith = startsWith('abc', {})

@@ -166,8 +166,7 @@
     <value>Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds.</value>
   </data>
   <data name="InterpolateNotConcatFixTitle" xml:space="preserve">
-    <value>Use string interpolation: {0}</value>
-    <comment>{0} is a programmatic language expression</comment>
+    <value>Use string interpolation</value>
   </data>
   <data name="InterpolateNotConcatRuleDescription" xml:space="preserve">
     <value>Use string interpolation instead of the concat function.</value>

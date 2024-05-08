@@ -274,6 +274,8 @@ var isFalse = !isTrue
 //@[04:11) [no-unused-vars (Warning)] Variable "isFalse" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |isFalse|
 var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
 //@[04:12) [no-unused-vars (Warning)] Variable "someText" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |someText|
+//@[24:61) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |sys.concat('a', sys.concat('b', 'c'))|
+//@[40:60) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |sys.concat('b', 'c')|
 
 // Bicep functions that cannot be converted into ARM functions
 var scopesWithoutArmRepresentation = {

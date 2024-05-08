@@ -359,6 +359,7 @@ resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
 //@[008:089) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)|
+//@[015:065) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(runtimeValidRes1.id, runtimeValidRes1.name)|
   kind:'AzureCLI'
   location: 'eastus'
   properties: {

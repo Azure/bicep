@@ -134,9 +134,6 @@ namespace Bicep.Core.TypeSystem
                 case FunctionArgumentSyntax functionArgument:
                     return GetFunctionArgumentType(functionArgument);
 
-                case ParenthesizedExpressionSyntax parenthesizedExpression:
-                    return GetTypeAssignment(parenthesizedExpression.Expression);
-
                 case NonNullAssertionSyntax nonNullAssertion:
                     return GetNonNullType(nonNullAssertion);
 
@@ -1423,6 +1420,10 @@ namespace Bicep.Core.TypeSystem
                     return GetNonNullableTypeAssignment(parameterDeclaration)?.ReplaceDeclaringSyntax(syntax);
                 case ParameterAssignmentSyntax:
                     return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                case SpreadExpressionSyntax when binder.GetParent(parent) is { } grandParent &&
+                    GetDeclaredTypeAssignment(grandParent)?.Reference is ArrayType enclosingArrayType:
+
+                    return TryCreateAssignment(enclosingArrayType, syntax);
                 default:
                     return null;
             }
@@ -1743,6 +1744,13 @@ namespace Bicep.Core.TypeSystem
                     };
 
                     return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
+
+                case SpreadExpressionSyntax when binder.GetParent(parent) is { } grandParent &&
+                    GetDeclaredTypeAssignment(grandParent)?.Reference is ObjectType enclosingObjectType:
+
+                    var type = TypeHelper.MakeRequiredPropertiesOptional(enclosingObjectType);
+
+                    return TryCreateAssignment(type, syntax);
             }
 
             return null;

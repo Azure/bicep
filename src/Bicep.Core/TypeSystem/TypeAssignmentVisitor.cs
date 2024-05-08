@@ -1802,6 +1802,9 @@ namespace Bicep.Core.TypeSystem
                 syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
                 diagnostics),
 
+            UnionType unionType when unionType.Members.All(x => x is ObjectType)
+                => TypeHelper.CreateTypeUnion(unionType.Members.Select(member => GetNamedPropertyType(syntax, member.Type, diagnostics))),
+
             // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
             DiscriminatedObjectType => LanguageConstants.Any,
 
@@ -1907,7 +1910,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
-                var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, LanguageConstants.Any);
+                var returnType = this.GetTypeInfo(syntax.Body);
 
                 return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), ImmutableArray<ITypeReference>.Empty, returnType);
             });
@@ -2227,8 +2230,6 @@ namespace Bicep.Core.TypeSystem
                                 return error;
                             }
 
-                            var offendingArgSyntax = syntax.Arguments[tm.ArgumentIndex];
-                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(offendingArgSyntax).PossibleNullReferenceAssignment(tm.ParameterType, tm.ArgumentType, offendingArgSyntax));
                             return resultSansNullability;
                         }
                     }
@@ -2271,6 +2272,15 @@ namespace Bicep.Core.TypeSystem
                 // we have an exact match or a single ambiguous match
                 var matchedOverload = matches.Single();
                 matchedFunctionOverloads.TryAdd(syntax, matchedOverload);
+
+                // do detailed type validation now we have a match
+                for (var i = 0; i < syntax.Arguments.Length; i++)
+                {
+                    var argumentSyntax = syntax.Arguments[i];
+                    var targetType = matchedOverload.GetArgumentType(i);
+
+                    TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, argumentSyntax, targetType);
+                }
 
                 // return its type
                 var result = matchedOverload.ResultBuilder(model, diagnosticWriter, syntax, argumentTypes);

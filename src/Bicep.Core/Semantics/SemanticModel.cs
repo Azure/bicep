@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Text;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.CodeAction;
+using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -537,7 +539,9 @@ namespace Bicep.Core.Semantics
 
             if (usingDeclarationSyntax is not null && missingRequiredParams.Any())
             {
-                yield return DiagnosticBuilder.ForPosition(usingDeclarationSyntax.Path).MissingParameterAssignment(missingRequiredParams);
+                var codeFix = CodeFixHelper.GetCodeFixForMissingBicepParams(Root.Syntax, missingRequiredParams);
+
+                yield return DiagnosticBuilder.ForPosition(usingDeclarationSyntax.Path).MissingParameterAssignment(missingRequiredParams, codeFix);
             }
 
             foreach (var assignedParam in missingAssignedParams)

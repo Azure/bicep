@@ -3317,6 +3317,35 @@ output fooBadIdProps object = {
         });
     }
 
+    // https://github.com/Azure/bicep/issues/9736
+    [TestMethod]
+    public void Test_Issue_9736_property_access_works_with_object_union_types()
+    {
+        var result = CompilationHelper.Compile("""
+var entries = [
+  { id: 1, prop: 'val1' }
+  { id: 2, prop: 'val1' }
+]
+output keyMap object = toObject(
+  entries,
+  entry => entry.id) // fails at runtime, because entry.id is an int. Can be fixed with string(entry.id)
+
+var values = [
+  { id: 2, properties: { prop: 'val1' } }
+  { id: 3, properties: { prop: 'val1' } }
+]
+output valueMap object = toObject(
+  values,
+  entry => entry.id, // fails at runtime, because entry.id is an int. Can be fixed with string(entry.id)
+  entry => entry.properties)
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => (1 | 2)" is not assignable to parameter of type "any => string"."""),
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => (2 | 3)" is not assignable to parameter of type "any => string"."""),
+        ]);
+    }
+
     /// <summary>
     /// https://github.com/Azure/bicep/issues/4600
     /// </summary>
@@ -4785,13 +4814,13 @@ var foo = [for rg in []: {
     public void Lambda_variable_declarations_should_overwrite_globally_scoped_functions()
     {
         var result = CompilationHelper.Compile(@"
-var foo = map([], resourceGroup => resourceGroup('test'))
+param rgs string[]
+var foo = map(rgs, resourceGroup => resourceGroup('test'))
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
-        });
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "string => error" is not assignable to parameter of type "(any[, int]) => any"."""),
+        ]);
     }
 
     // https://github.com/Azure/bicep/issues/10657
@@ -4890,6 +4919,32 @@ module mod 'mod.bicep' = [for i in range(0, count): {
             ("BCP028", DiagnosticLevel.Error, """Identifier "foo" is declared multiple times. Remove or rename the duplicates."""),
             ("BCP028", DiagnosticLevel.Error, """Identifier "foo" is declared multiple times. Remove or rename the duplicates."""),
         });
+    }
+
+    // https://github.com/Azure/bicep/issues/8187
+    [TestMethod]
+    public void Test_Issue8187()
+    {
+        var result = CompilationHelper.Compile(
+            ("blank.bicep", ""),
+            ("main.bicep", """
+var modOptions = [for index in range(0, 3): {
+  name: 'mod_${index}'
+}]
+
+module mods 'blank.bicep' = [for mod in modOptions: {
+  name: mod.name
+}]
+
+//  ACTION - Replace output from above with below, notice the () wrap around for loop. This causes the stack trace below and prevents typing, each key stroke the text cursor is moved away.
+output modDetails array = ([for (mod, index) in modOptions: {
+ deploymentName: mods[index].name
+}])
+"""));
+
+        result.Should().HaveDiagnostics([
+            ("BCP138", DiagnosticLevel.Error, """For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties."""),
+        ]);
     }
 
     // https://github.com/Azure/bicep/issues/10994
@@ -5949,6 +6004,21 @@ var startAndEndBracketInString = 'x[]y'
              ("BCP037", DiagnosticLevel.Warning, """The property "fizz" is not allowed on objects of type "{ }". No other properties are allowed."""),
              ("BCP037", DiagnosticLevel.Warning, """The property "snap" is not allowed on objects of type "{ }". No other properties are allowed."""),
         });
+    }
+
+    // https://github.com/Azure/bicep/issues/13656
+    [TestMethod]
+    public void Type_validation_should_work_for_udfs_with_udts()
+    {
+        var result = CompilationHelper.Compile("""
+func foo(bar { baz: string }) string => ''
+
+var test = foo({ asdf: 'test' })
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+          ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"baz\"."),
+        ]);
     }
 
     // https://github.com/Azure/bicep/issues/13663
