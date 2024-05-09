@@ -6053,4 +6053,93 @@ output moduleTags object = moduleTags
             ["name name"] = "name",
         });
     }
+
+    [TestMethod]
+    public void Test_Issue14059_repro1()
+    {
+        // https://github.com/Azure/bicep/issues/14059
+        var result = CompilationHelper.Compile("""
+param foo string
+param index int
+
+var test = [
+  { foo: foo }
+  { }
+][index]
+
+output val string = test.foo
+""");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue14059_repro2()
+    {
+        // https://github.com/Azure/bicep/issues/14059
+        var result = CompilationHelper.Compile("""
+var items = [
+  { obj: 1 }
+  { obj: 2 }
+  { obj: 3 }
+  { obj: 4 }
+  { obj: 5, x: 5 }
+]
+var s = sort(
+  filter(
+    map(items, x => x.obj < 2 ? { order: 1, value: x } : x.obj > 4 ? { order: 2, value: x } : {}),
+    x => !(empty(x))
+  ),
+  (arg1, arg2) => arg1.order < arg2.order
+)
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue14059_repro3()
+    {
+        // https://github.com/Azure/bicep/issues/14059
+        var result = CompilationHelper.Compile("""
+param isProd bool
+param location string
+
+var appConfigValues = [
+  {
+    Key: 'KEY1'
+    Value: isProd ? 'URL1' : 'URL2'
+  }
+  {
+    Key: 'InvoicingImports:AzureBlobStorageImport:ContainerName'
+    Value: 'ikros'
+  }
+  isProd ? {
+    Key: 'ServiceDiscovery:FunctionApps:OpenApi:Url'
+    Value: 'https://kros-esw-prod-openapi-azfun.azurewebsites.net'
+  } : {}
+]
+
+resource appConfiguration 'Microsoft.AppConfiguration/configurationStores@2022-05-01' = {
+  name: 'settings-config'
+  location: location
+  sku: {
+    name: 'standard'
+  }
+  properties: {
+    softDeleteRetentionInDays: 7
+  }
+}
+
+resource addAppConfigValues 'Microsoft.AppConfiguration/configurationStores/keyValues@2022-05-01' = [for i in range(0, length(appConfigValues)) : {
+  name: !empty(appConfigValues[i]) ? '${appConfigValues[i].Key}' : 'notExisting'
+  parent: appConfiguration
+  properties: {
+    value: appConfigValues[i].Value
+  }
+}]
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
