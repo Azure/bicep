@@ -133,9 +133,35 @@ namespace Bicep.LanguageServer.Providers
             return expired;
         }
 
+        private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
+        {
+            Trace.WriteLine($"Retrieving list of public registry modules...");
+
+            try
+            {
+                var catalogEndpoint = $"https://{loginServer}/v2/_catalog";
+                var metadata = await this.httpClient.GetFromJsonAsync<string[]>(catalogEndpoint, JsonSerializerOptions);
+
+                if (metadata is not null)
+                {
+                    return metadata.ToImmutableArray();
+                }
+                else
+                {
+                    throw new Exception($"asdfgList of MCR modules at {LiveDataEndpoint} was empty");
+                }
+            }
+            catch (Exception e)
+            {
+                Trace.TraceError(string.Format("asdfgError retrieving MCR modules metadata: {0}", e.Message));
+                return null;
+            }
+        }
+
         private async Task<ImmutableArray<ModuleMetadata>?> TryGetModulesLive()
         {
             Trace.WriteLine($"Retrieving list of public registry modules...");
+            var asdfg = await TryGetCatalog("sawbiceppublic.azurecr.io");
 
             try
             {
