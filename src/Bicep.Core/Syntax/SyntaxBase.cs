@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using JetBrains.Annotations;
 
 namespace Bicep.Core.Syntax
 {
+    [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public abstract class SyntaxBase : IPositionable
     {
         public abstract void Accept(ISyntaxVisitor visitor);
@@ -82,5 +84,7 @@ namespace Bicep.Core.Syntax
         /// Returns a string that mirrors the original text of the syntax node.
         /// </summary>
         public override string ToString() => SyntaxStringifier.Stringify(this);
+
+        public string GetDebuggerDisplay() => ToString();
     }
 }

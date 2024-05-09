@@ -1398,6 +1398,71 @@ output foo myType = {
         }
 
         [TestMethod]
+        public async Task Spread_object_property_completions_work_with_ternary()
+        {
+            //https://github.com/Azure/bicep/issues/14056
+            var fileWithCursors = """
+var nsgDeploy = true
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
+  name: 'vnet/subnet2'
+  properties: {
+    addressPrefix: ''
+    ...nsgDeploy ? {
+      |
+    }
+  }
+}
+""";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            var updatedFile = file.ApplyCompletion(completions, "ipAllocations");
+            updatedFile.Should().HaveSourceText("""
+var nsgDeploy = true
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
+  name: 'vnet/subnet2'
+  properties: {
+    addressPrefix: ''
+    ...nsgDeploy ? {
+      ipAllocations:|
+    }
+  }
+}
+""");
+        }
+
+        [TestMethod]
+        public async Task Spread_array_completions_work_with_parentheses()
+        {
+            var fileWithCursors = """
+param foo { foo: 'asdf' }[] = [
+  ...[
+   (|)
+  ]
+]
+""";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            var updatedFile = file.ApplyCompletion(completions, "required-properties");
+            updatedFile.Should().HaveSourceText("""
+param foo { foo: 'asdf' }[] = [
+  ...[
+   ({
+  foo: $1
+}|)
+  ]
+]
+""");
+        }
+
+        [TestMethod]
         public async Task PropertyNameCompletionsShouldNotIncludeTrailingColonIfItIsPresent()
         {
             static void AssertPropertyNameCompletionsWithoutColons(CompletionList list)
