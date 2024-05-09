@@ -2,12 +2,6 @@
   "version": 1,
   "dependencies": {
     ".NETFramework,Version=v4.7.2": {
-      "Azure.Deployments.Internal.GenerateNotice": {
-        "type": "Direct",
-        "requested": "[0.1.38, )",
-        "resolved": "0.1.38",
-        "contentHash": "BqTIqpSk+JoK4QYpkt5htsccgBM4IrMINlo4d/Z4Ii3qV91V20VUhDqON+0Zax4hpGTsz710iDk0V7ypteLM/g=="
-      },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
         "requested": "[3.3.4, )",
@@ -78,11 +72,11 @@
       },
       "Microsoft.VisualStudio.Threading": {
         "type": "Transitive",
-        "resolved": "17.9.27",
-        "contentHash": "bbYZ+BwczFgC0VAJbas95X0yTnvNLjWk2RnkMMOdr0zdGAvkZiR1sabHqU5XEZ1om9Aa/DeE70yajLA8eRLNfA==",
+        "resolved": "17.9.28",
+        "contentHash": "n1bG965yT/7QHChX4x8zJ28LDaNdlJ6AgzthU3XzCsV9fVAMXYJEFi6BbWt8EM+7t0Wz9Oy021VMH2Z/iyz/Qw==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "7.0.0",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.9.27",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.9.28",
           "Microsoft.VisualStudio.Validation": "17.8.8",
           "Microsoft.Win32.Registry": "5.0.0",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0",
