@@ -70,11 +70,11 @@ namespace Bicep.Core.Registry
             try
             {
                 string[] test = await GetCatalogAsync(configuration, artifactReference);
-                Trace.WriteLine(test);
+                Trace.WriteLine($"{artifactReference.ArtifactId}: {string.Join(',', test)}");
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                Trace.WriteLine($"{artifactReference.ArtifactId}: {ex.Message}");
             }
 
             async Task<OciArtifactResult> DownloadManifestInternalAsync(bool anonymousAccess)
