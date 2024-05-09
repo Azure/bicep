@@ -35,7 +35,7 @@ namespace Bicep.Core.Registry
 
         public async Task<string[]> GetCatalogAsync(
             RootConfiguration configuration,
-            IOciArtifactReference artifactReference)
+            IOciArtifactReference artifactReference/*asdfg*/)
         {
             async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
             {
@@ -46,19 +46,19 @@ namespace Bicep.Core.Registry
             try
             {
                 // Try authenticated client first.
-                Trace.WriteLine($"asdfg Authenticated attempt to pull artifact for module {artifactReference.FullyQualifiedReference}.");
+                Trace.WriteLine($"asdfg Authenticated attempt to pull catalog for module {artifactReference.FullyQualifiedReference}.");
                 return await GetCatalogInternalAsync(anonymousAccess: false);
             }
             catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
             {
                 // Fall back to anonymous client.
-                Trace.WriteLine($"asdfg Authenticated attempt to pull artifact for module {artifactReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
+                Trace.WriteLine($"asdfg Authenticated attempt to pull catalog for module {artifactReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
                 return await GetCatalogInternalAsync(anonymousAccess: true);
             }
             catch (CredentialUnavailableException)
             {
                 // Fall back to anonymous client.
-                Trace.WriteLine($"asdfg Authenticated attempt to pull artifact for module {artifactReference.FullyQualifiedReference} failed due to missing login step. Fallback to anonymous pull.");
+                Trace.WriteLine($"asdfg Authenticated attempt to pull catalog for module {artifactReference.FullyQualifiedReference} failed due to missing login step. Fallback to anonymous pull.");
                 return await GetCatalogInternalAsync(anonymousAccess: true);
             }
         }
