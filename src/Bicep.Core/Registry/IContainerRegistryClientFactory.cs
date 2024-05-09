@@ -3,6 +3,7 @@
 
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
+using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry
 {
@@ -13,7 +14,10 @@ namespace Bicep.Core.Registry
     public interface IContainerRegistryClientFactory
     {
         ContainerRegistryContentClient CreateAuthenticatedBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
-
         ContainerRegistryContentClient CreateAnonymousBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
+
+        public ContainerRegistryClient CreateAuthenticatedClient(RootConfiguration configuration, Uri registryUri);
+        public ContainerRegistryClient CreateAnonymousClient(RootConfiguration configuration, Uri registryUri);
+
     }
 }

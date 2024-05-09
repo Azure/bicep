@@ -34,10 +34,51 @@ namespace Bicep.Core.Registry
             this.clientFactory = clientFactory;
         }
 
+        public async Task<string[]> GetCatalogAsync(
+            RootConfiguration configuration,
+            string loginServer)
+        {
+            async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
+            {
+                var client = CreateClient(configuration, loginServer, anonymousAccess);
+                return await GetCatalogAsync(client);
+            }
+
+            try
+            {
+                // Try authenticated client first.
+                Trace.WriteLine($"asdfg Authenticated attempt to pull catalog for module {loginServer}.");
+                return await GetCatalogInternalAsync(anonymousAccess: false);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"asdfg Authenticated attempt to pull catalog for module {loginServer} failed, received code {exception.Status}. Fallback to anonymous pull.");
+                return await GetCatalogInternalAsync(anonymousAccess: true);
+            }
+            catch (CredentialUnavailableException)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"asdfg Authenticated attempt to pull catalog for module {loginServer} failed due to missing login step. Fallback to anonymous pull.");
+                return await GetCatalogInternalAsync(anonymousAccess: true);
+            }
+        }
+
         public async Task<OciArtifactResult> PullArtifactAsync(
             RootConfiguration configuration,
             IOciArtifactReference artifactReference)
         {
+            try
+            {
+                string[] test = await GetCatalogAsync(configuration, artifactReference.FullyQualifiedReference); //asdfg remove
+                
+                Trace.WriteLine($"{artifactReference.ArtifactId}: {string.Join(',', test)}");
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"{artifactReference.ArtifactId}: {ex.Message}");
+            }
+
             async Task<OciArtifactResult> DownloadManifestInternalAsync(bool anonymousAccess)
             {
                 var client = CreateBlobClient(configuration, artifactReference, anonymousAccess);
@@ -72,7 +113,6 @@ namespace Bicep.Core.Registry
             IEnumerable<OciDescriptor> layers,
             OciManifestAnnotationsBuilder annotations)
         {
-
             // push is not supported anonymously
             var blobClient = this.CreateBlobClient(configuration, artifactReference, anonymousAccess: false);
 
@@ -116,7 +156,8 @@ namespace Bicep.Core.Registry
             _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
         }
 
-        private static Uri GetRegistryUri(IOciArtifactReference artifactReference) => new($"https://{artifactReference.Registry}");
+        private static Uri GetRegistryUri(IOciArtifactReference artifactReference) => GetRegistryUri(artifactReference.Registry);
+        private static Uri GetRegistryUri(string loginServer) => new($"https://{loginServer}");
 
         private ContainerRegistryContentClient CreateBlobClient(
             RootConfiguration configuration,
@@ -124,6 +165,13 @@ namespace Bicep.Core.Registry
             bool anonymousAccess) => anonymousAccess
             ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository)
             : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository);
+
+        private ContainerRegistryClient CreateClient(
+            RootConfiguration configuration,
+            string loginServer,
+            bool anonymousAccess) => anonymousAccess
+            ? this.clientFactory.CreateAnonymousClient(configuration, GetRegistryUri(loginServer))
+            : this.clientFactory.CreateAuthenticatedClient(configuration, GetRegistryUri(loginServer));
 
         private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactReference artifactReference, ContainerRegistryContentClient client)
         {
@@ -167,6 +215,19 @@ namespace Bicep.Core.Registry
                 BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers, config),
                 _ => throw new InvalidArtifactException($"artifacts of type: \'{deserializedManifest.ArtifactType}\' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}")
             };
+        }
+
+        //asdfg doesn't work for MCR
+        private static async Task<string[]> GetCatalogAsync(ContainerRegistryClient client)
+        {
+            List<string> catalog = [];
+
+            await foreach (var repository in client.GetRepositoryNamesAsync(CancellationToken.None/*asdfg?*/))
+            {
+                catalog.Add(repository);
+            }
+
+            return catalog.ToArray();
         }
 
         private static async Task<BinaryData> PullLayerAsync(ContainerRegistryContentClient client, OciDescriptor layer, CancellationToken cancellationToken = default)
