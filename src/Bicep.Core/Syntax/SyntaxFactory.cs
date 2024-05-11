@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using System.ComponentModel;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 
@@ -64,6 +65,7 @@ namespace Bicep.Core.Syntax
             => CreateToken(TokenType.Comma, leadingTrivia, trailingTrivia);
         public static Token DotToken => CreateToken(TokenType.Dot);
         public static Token QuestionToken => CreateToken(TokenType.Question);
+        public static Token DoubleQuestionToken => CreateToken(TokenType.DoubleQuestion);
         public static Token ColonToken => CreateToken(TokenType.Colon);
         public static Token SemicolonToken => CreateToken(TokenType.Semicolon);
         public static Token AssignmentToken => CreateToken(TokenType.Assignment, EmptyTrivia, SingleSpaceTrivia);
@@ -358,11 +360,20 @@ namespace Bicep.Core.Syntax
         public static PropertyAccessSyntax CreatePropertyAccess(SyntaxBase @base, string propertyName)
             => new(@base, DotToken, null, CreateIdentifier(propertyName));
 
+        public static PropertyAccessSyntax CreateSafePropertyAccess(SyntaxBase @base, string propertyName)
+            => new(@base, DotToken, QuestionToken, CreateIdentifier(propertyName));
+
         public static ParameterAssignmentSyntax CreateParameterAssignmentSyntax(string name, SyntaxBase value)
             => new(
                 ParameterKeywordToken,
                 CreateIdentifierWithTrailingSpace(name),
                 AssignmentToken,
                 value);
+
+        public static BinaryOperationSyntax CreateBinaryOperationSyntax(SyntaxBase left, TokenType operatorType, SyntaxBase right)
+            => new(
+                left,
+                CreateToken(operatorType, SingleSpaceTrivia, SingleSpaceTrivia),
+                right);
     }
 }

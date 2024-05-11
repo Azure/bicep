@@ -700,6 +700,16 @@
                     }
                   ]
                 },
+                "use-safe-access": {
+                  "allOf": [
+                    {
+                      "description": "Use the safe access (.?) operator instead of checking object contents with the 'contains' function. Defaults to 'Warning'. See https://aka.ms/bicep/linter/use-parent-property"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "use-recent-api-versions": {
                   "allOf": [
                     {
