@@ -11,6 +11,7 @@ using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Expressions;
 using Azure.Deployments.Templates.Extensions;
+using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Intermediate;
@@ -50,6 +51,7 @@ public class ParameterAssignmentEvaluator
     private readonly ConcurrentDictionary<WildcardImportPropertyReference, Result> wildcardImportVariableResults = new();
     private readonly ConcurrentDictionary<Expression, Result> synthesizedVariableResults = new();
     private readonly ConcurrentDictionary<SemanticModel, ResultWithDiagnostic<Template>> templateResults = new();
+    private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> armEvaluators = new();
     private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
     private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
     private readonly ImmutableDictionary<string, ImportedSymbol> importsByName;
@@ -189,7 +191,7 @@ public class ParameterAssignmentEvaluator
 
         try
         {
-            return Result.For(importedFrom.Variables[originalSymbolName].Value);
+            return Result.For(armEvaluators.GetOrAdd(importedFrom, t => new(t)).GetEvaluatedVariableValue(originalSymbolName));
         }
         catch (Exception e)
         {
@@ -230,7 +232,7 @@ public class ParameterAssignmentEvaluator
 
         try
         {
-            return Result.For(importedFrom.Variables[propertyReference.PropertyName].Value);
+            return Result.For(armEvaluators.GetOrAdd(importedFrom, t => new(t)).GetEvaluatedVariableValue(propertyReference.PropertyName));
         }
         catch (Exception e)
         {
@@ -329,6 +331,8 @@ public class ParameterAssignmentEvaluator
             imported.OriginalSymbolName is { } originalSymbolName)
         {
             var template = GetTemplateWithCaching(imported.SourceModel).Unwrap();
+            var evaluator = armEvaluators.GetOrAdd(template, importedFrom => new(importedFrom));
+
 
             return evaluateFunction(template, originalSymbolName);
         }
@@ -360,16 +364,6 @@ public class ParameterAssignmentEvaluator
                 Formatting = Formatting.Indented
             };
             var (template, _) = new TemplateWriter(model).GetTemplate(writer);
-
-            TemplateEngine.ProcessTemplateLanguageExpressions(
-                managementGroupName: null,
-                subscriptionId: null,
-                resourceGroupName: null,
-                template: template,
-                apiVersion: TemplateWriter.NestedDeploymentResourceApiVersion,
-                inputParameters: new(),
-                metadata: new(),
-                diagnostics: TemplateDiagnosticsWriter.Create());
 
             return new(template);
         }
