@@ -36,7 +36,7 @@ namespace Bicep.Core.Semantics
             {
                 if (stringSyntax.IsVerbatimString())
                 {
-                    return StringUtils.NormalizeIndent(description);                    
+                    return StringUtils.NormalizeIndent(description);
                 }
 
                 return description;

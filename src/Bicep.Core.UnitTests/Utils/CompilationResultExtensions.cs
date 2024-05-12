@@ -40,7 +40,7 @@ public static class ICompilationResultExtensions
     {
         if (diagnostic is not IFixable fixable)
         {
-            throw new InvalidOperationException("Diagnostic is not fixable");        
+            throw new InvalidOperationException("Diagnostic is not fixable");
         }
 
         // TODO - support multiple fixes / replacements

@@ -21,13 +21,14 @@ public static class CodeFixHelper
 
         var newSyntaxList = new List<SyntaxBase>();
 
-        var precedingNewlineSyntax = terminatingNewlines switch {
+        var precedingNewlineSyntax = terminatingNewlines switch
+        {
             0 => SyntaxFactory.DoubleNewlineToken,
             1 => SyntaxFactory.NewlineToken,
             _ => null,
         };
 
-        if (precedingNewlineSyntax is {})
+        if (precedingNewlineSyntax is { })
         {
             newSyntaxList.Add(precedingNewlineSyntax);
         }
@@ -38,7 +39,8 @@ public static class CodeFixHelper
             newSyntaxList.Add(paramSyntax);
 
             var isLastEntry = i == missingRequiredParams.Length - 1;
-            var trailingNewlineSyntax = isLastEntry switch {
+            var trailingNewlineSyntax = isLastEntry switch
+            {
                 false => SyntaxFactory.DoubleNewlineToken,
                 true => SyntaxFactory.NewlineToken,
             };
@@ -47,7 +49,7 @@ public static class CodeFixHelper
         }
 
         var additionalProgram = new ProgramSyntax(newSyntaxList, SyntaxFactory.EndOfFileToken);
-        
+
         return new(
             "Insert missing required parameters",
             true,
