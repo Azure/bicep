@@ -11,7 +11,7 @@ namespace Bicep.Core.Semantics
     {
         public delegate TypeSymbol GetFunctionArgumentType(int argIndex);
 
-        public delegate TypeSymbol? FunctionArgumentTypeCalculator(GetFunctionArgumentType getArgumentTypeFunc);
+        public delegate TypeSymbol? FunctionArgumentTypeCalculator(TypeSymbol? declaredReturnType, GetFunctionArgumentType getArgumentTypeFunc);
 
         public FunctionOverloadBuilder(string name)
         {

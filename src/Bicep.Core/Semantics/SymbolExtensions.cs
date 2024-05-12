@@ -50,7 +50,7 @@ namespace Bicep.Core.Semantics
         /// <param name="functionSymbol">The function symbol to inspect</param>
         /// <param name="argIndex">The index of the function argument</param>
         /// <param name="getAssignedArgumentType">Function to look up the assigned type of a given argument</param>
-        public static TypeSymbol GetDeclaredArgumentType(this IFunctionSymbol functionSymbol, int argIndex, GetFunctionArgumentType? getAssignedArgumentType = null)
+        public static TypeSymbol GetDeclaredArgumentType(this IFunctionSymbol functionSymbol, TypeSymbol? declaredReturnType, int argIndex, GetFunctionArgumentType? getAssignedArgumentType = null)
         {
             // if we have a mix of wildcard and non-wildcard overloads, prioritize the non-wildcard overloads.
             // the wildcards have super generic type definitions, so don't result in helpful completions.
@@ -68,7 +68,7 @@ namespace Bicep.Core.Semantics
 
                         if (parameter.Calculator is not null &&
                             getAssignedArgumentType is not null &&
-                            parameter.Calculator(getAssignedArgumentType) is { } calculatedType)
+                            parameter.Calculator(declaredReturnType, getAssignedArgumentType) is { } calculatedType)
                         {
                             return calculatedType;
                         }

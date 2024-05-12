@@ -1365,9 +1365,7 @@ resource testRes2 'Test.Rp/readWriteTests@2020-01-01' = {
         }
 
         [TestMethod]
-        public async Task Spread_operator_supports_outer_object_property_completions()
-        {
-            var fileWithCursors = @"
+        public Task Spread_operator_supports_outer_object_property_completions() => RunCompletionTest("""
 type myType = {
   foo: string
   bar: string
@@ -1377,14 +1375,8 @@ output foo myType = {
   ...{|}
   bar: 'bar'
 }
-";
-
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
-
-            var completions = await file.RequestCompletion(cursor);
-            var updatedFile = file.ApplyCompletion(completions, "foo");
-            updatedFile.Should().HaveSourceText(@"
+""",
+          "foo", """
 type myType = {
   foo: string
   bar: string
@@ -1394,14 +1386,10 @@ output foo myType = {
   ...{foo:|}
   bar: 'bar'
 }
-");
-        }
+""");
 
-        [TestMethod]
-        public async Task Spread_object_property_completions_work_with_ternary()
-        {
-            //https://github.com/Azure/bicep/issues/14056
-            var fileWithCursors = """
+        [TestMethod] // https://github.com/Azure/bicep/issues/14056
+        public Task Spread_object_property_completions_work_with_ternary() => RunCompletionTest("""
 var nsgDeploy = true
 
 resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
@@ -1413,14 +1401,8 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
     }
   }
 }
-""";
-
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
-
-            var completions = await file.RequestCompletion(cursor);
-            var updatedFile = file.ApplyCompletion(completions, "ipAllocations");
-            updatedFile.Should().HaveSourceText("""
+""",
+          "ipAllocations", """
 var nsgDeploy = true
 
 resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
@@ -1433,25 +1415,16 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
   }
 }
 """);
-        }
 
         [TestMethod]
-        public async Task Spread_array_completions_work_with_parentheses()
-        {
-            var fileWithCursors = """
+        public Task Spread_array_completions_work_with_parentheses() => RunCompletionTest("""
 param foo { foo: 'asdf' }[] = [
   ...[
    (|)
   ]
 ]
-""";
-
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
-
-            var completions = await file.RequestCompletion(cursor);
-            var updatedFile = file.ApplyCompletion(completions, "required-properties");
-            updatedFile.Should().HaveSourceText("""
+""",
+          "required-properties", """
 param foo { foo: 'asdf' }[] = [
   ...[
    ({
@@ -1460,7 +1433,58 @@ param foo { foo: 'asdf' }[] = [
   ]
 ]
 """);
-        }
+
+        [TestMethod] // https://github.com/Azure/bicep/issues/14066
+        public Task Object_completions_work_in_ternary_syntax() => RunCompletionTest("""
+var bgp = {}
+
+resource vnet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
+  name: 'vnet'
+  properties: {
+    bgpCommunities: empty(bgp) ? null : {
+      |
+    }
+  }
+}
+""",
+          "virtualNetworkCommunity", """
+var bgp = {}
+
+resource vnet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
+  name: 'vnet'
+  properties: {
+    bgpCommunities: empty(bgp) ? null : {
+      virtualNetworkCommunity:|
+    }
+  }
+}
+""");
+
+        [TestMethod] // https://github.com/Azure/bicep/issues/14064
+        public Task Object_property_completions_work_inside_lambdas() => RunCompletionTest("""
+var subnets = []
+
+resource vnet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
+  name: 'vnet'
+  properties: {
+    subnets: map(subnets, subnet => {
+      |
+    })
+  }
+}
+""",
+          "properties", """
+var subnets = []
+
+resource vnet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
+  name: 'vnet'
+  properties: {
+    subnets: map(subnets, subnet => {
+      properties:|
+    })
+  }
+}
+""");
 
         [TestMethod]
         public async Task PropertyNameCompletionsShouldNotIncludeTrailingColonIfItIsPresent()
@@ -3655,6 +3679,16 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             var completions = await file.RequestCompletions(cursors);
 
             assertAction(completions);
+        }
+
+        private async Task RunCompletionTest(string fileWithCursor, string completionLabel, string expectedOutput)
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursor);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            var updatedFile = file.ApplyCompletion(completions, completionLabel);
+            updatedFile.Should().HaveSourceText(expectedOutput);
         }
 
         private static string FormatPosition(Position position) => $"({position.Line}, {position.Character})";

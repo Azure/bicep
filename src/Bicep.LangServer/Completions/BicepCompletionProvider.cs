@@ -1373,7 +1373,7 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            var argType = functionSymbol.GetDeclaredArgumentType(functionArgument.ArgumentIndex);
+            var argType = functionSymbol.GetDeclaredArgumentType(null, functionArgument.ArgumentIndex);
 
             return GetValueCompletionsForType(model, context, argType, functionArgument.Syntax.Arguments.Skip(functionArgument.ArgumentIndex).FirstOrDefault(), loopsAllowed: false);
         }

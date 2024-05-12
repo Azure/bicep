@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Bicep.Core.Diagnostics;
@@ -142,6 +143,9 @@ namespace Bicep.Core.TypeSystem
 
                 case TypedLambdaSyntax typedLambda:
                     return GetTypedLambdaType(typedLambda);
+
+                case LambdaSyntax lambda:
+                    return GetLambdaType(lambda);
             }
 
             return null;
@@ -1481,9 +1485,11 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
+            var declaredParentType = GetClosestMaybeTypedAncestor(parent) is {} grandParent ? GetDeclaredType(grandParent) : null;
             var arguments = parentFunction.Arguments.ToImmutableArray();
             var argIndex = arguments.IndexOf(syntax);
             var declaredType = functionSymbol.GetDeclaredArgumentType(
+                declaredParentType,
                 argIndex,
                 getAssignedArgumentType: i => typeManager.GetTypeInfo(parentFunction.Arguments[i]));
 
@@ -1612,6 +1618,18 @@ namespace Bicep.Core.TypeSystem
                 // pass the type through
                 _ => new DeclaredTypeAssignment(parentType, syntax, parentTypeAssignment.Flags)
             };
+        }
+
+        private DeclaredTypeAssignment? GetLambdaType(LambdaSyntax syntax)
+        {
+            var parent = GetClosestMaybeTypedAncestor(syntax);
+
+            if (parent is {} && GetDeclaredType(parent) is {} parentType)
+            {
+                return TryCreateAssignment(parentType, syntax);
+            }
+
+            return null;
         }
 
         private DeclaredTypeAssignment? GetObjectType(ObjectSyntax syntax)
@@ -1747,6 +1765,12 @@ namespace Bicep.Core.TypeSystem
                     var type = TypeHelper.MakeRequiredPropertiesOptional(enclosingObjectType);
 
                     return TryCreateAssignment(type, syntax);
+                
+                case LambdaSyntax lambda when lambda.Body == syntax &&
+                    GetDeclaredType(lambda) is LambdaType lambdaType:
+                    
+                    return TryCreateAssignment(lambdaType.ReturnType.Type, syntax);
+                    
             }
 
             return null;

@@ -939,7 +939,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Filters an array with a custom filtering function.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to filter.")
                     .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Bool), "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t], [LanguageConstants.Int], LanguageConstants.Bool)))
+                        calculator: (returnType, getArgumentType) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t], [LanguageConstants.Int], LanguageConstants.Bool)))
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => new(argumentTypes[0] switch
                     {
                         // If a tuple is filtered, each member of the resulting array will be assignable to <input tuple>.Item, but information about specific indices and tuple length is no longer reliable.
@@ -955,7 +955,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Applies a custom mapping function to each element of an array and returns the result array.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to map.")
                     .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Any), "The predicate applied to each input array element, in order to generate the output array.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t], [LanguageConstants.Int], LanguageConstants.Any)))
+                        calculator: (returnType, getArgumentType) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t], [LanguageConstants.Int], (returnType as TypedArrayType)?.Item.Type ?? LanguageConstants.Any)))
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => argumentTypes[1] switch
                     {
                         LambdaType lambdaType => new(new TypedArrayType(lambdaType.ReturnType.Type, TypeSymbolValidationFlags.Default)),
@@ -967,7 +967,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Applies a custom mapping function to the values of an object and returns the result object.")
                     .WithRequiredParameter("object", LanguageConstants.Object, "The object to map.")
                     .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The predicate applied to each input object value, in order to generate the output object.",
-                        calculator: getArgumentType => CalculateLambdaFromObjectValues(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                        calculator: (returnType, getArgumentType) => CalculateLambdaFromObjectValues(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => argumentTypes[1] switch
                     {
                         LambdaType lambdaType => new(TypeHelper.CreateDictionaryType("object", TypeSymbolValidationFlags.Default, lambdaType.ReturnType.Type)),
@@ -979,7 +979,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Sorts an array with a custom sort function.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to sort.")
                     .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any, LanguageConstants.Any], [], LanguageConstants.Bool), "The predicate used to compare two array elements for ordering. If true, the second element will be ordered after the first in the output array.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t, t], [], LanguageConstants.Bool)))
+                        calculator: (returnType, getArgumentType) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t, t], [], LanguageConstants.Bool)))
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => new(argumentTypes[0] switch
                     {
                         // When a tuple is sorted, the resultant array will be of the same length as the input tuple, but the information about which member resides at which index can no longer be relied upon.
@@ -993,7 +993,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to reduce.")
                     .WithRequiredParameter("initialValue", LanguageConstants.Any, "The initial value.")
                     .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any, LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Any), "The predicate used to aggregate the current value and the next value. ",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t, t], [LanguageConstants.Int], LanguageConstants.Any)))
+                        calculator: (returnType, getArgumentType) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t, t], [LanguageConstants.Int], LanguageConstants.Any)))
                     .WithReturnType(LanguageConstants.Any)
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => argumentTypes[2] switch
                     {
@@ -1006,9 +1006,9 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Converts an array to an object with a custom key function and optional custom value function.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to map to an object.")
                     .WithRequiredParameter("keyPredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.String), "The predicate applied to each input array element to return the object key.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.String)))
+                        calculator: (returnType, getArgumentType) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.String)))
                     .WithOptionalParameter("valuePredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The optional predicate applied to each input array element to return the object value.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                        calculator: (returnType, getArgumentType) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
                     .WithReturnType(LanguageConstants.Any)
                     .WithReturnResultBuilder((_, _, _, argumentTypes) =>
                     {
@@ -1030,9 +1030,9 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Converts an array to an object containing a lookup from key to array values filtered by said key. Values can be optionally translated using a mapping function.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to map to an object.")
                     .WithRequiredParameter("keyPredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.String), "The predicate applied to each input array element to return the object key.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.String)))
+                        calculator: (returnType, getArgumentType) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.String)))
                     .WithOptionalParameter("valuePredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The optional predicate applied to each input array element to return the object value.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                        calculator: (returnType, getArgumentType) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
                     .WithReturnType(LanguageConstants.Any)
                     .WithReturnResultBuilder((_, _, _, argumentTypes) =>
                     {
