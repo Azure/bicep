@@ -2168,7 +2168,7 @@ namespace Bicep.Core.Diagnostics
                     TextSpan,
                     DiagnosticLevel.Warning,
                     "BCP395",
-                    $"Declaring provider namespaces using the \'<providerName>@<version>\' expression has been deprecated. Please use an identifier instead.",
+                    $"Declaring provider namespaces using the \'<providerName>@<version>\' expression has been deprecated. Please use 'provider <providerSymbol>' instead.",
                     documentationUri: null,
                     DiagnosticStyling.Default,
                     codeFix);
