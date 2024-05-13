@@ -132,7 +132,7 @@ namespace Bicep.Core.IntegrationTests
             provider 'az@{BicepTestConstants.BuiltinAzProviderVersion}'
             ");
             result.Should().HaveDiagnostics([
-                new("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead.")
+                new("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use 'provider <providerSymbol>' instead.")
             ]);
         }
 
