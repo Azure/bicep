@@ -413,15 +413,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ExpectPass(text);
         }
 
-    [TestMethod]
-    public void Codefix_ignores_nested_concats() => AssertCodeFix("""
+        [TestMethod]
+        public void Codefix_ignores_nested_concats() => AssertCodeFix("""
 var test = conc|at('abc', concat('def', 'ghi'), 'jkl')
 """, """
 var test = 'abc${concat('def', 'ghi')}jkl'
 """);
 
-    [TestMethod]
-    public void Codefix_understands_namespaces() => AssertCodeFix("""
+        [TestMethod]
+        public void Codefix_understands_namespaces() => AssertCodeFix("""
 var test = sys.conc|at('abc', concat('def', 'ghi'), 'jkl')
 """, """
 var test = 'abc${concat('def', 'ghi')}jkl'

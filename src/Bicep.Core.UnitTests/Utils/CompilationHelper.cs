@@ -20,7 +20,7 @@ namespace Bicep.Core.UnitTests.Utils
         public interface ICompilationResult
         {
             IEnumerable<IDiagnostic> Diagnostics { get; }
-            
+
             Compilation Compilation { get; }
 
             BicepSourceFile SourceFile { get; }
