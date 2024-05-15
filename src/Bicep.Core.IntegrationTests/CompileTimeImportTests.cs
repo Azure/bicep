@@ -2312,4 +2312,53 @@ INVALID FILE
         resultFromJson.Template.Should().NotBeNull();
         resultFromJson.Template.Should().HaveJsonAtPath("definitions.t.properties.p.properties.a", expectedCompilationOfTupleA);
     }
+
+    [TestMethod]
+    public void Bicepparam_can_import_from_bicep_template_with_required_parameters()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                import {exported} from 'mod.bicep'
+
+                param aParam = exported
+                """),
+            ("main.bicep", "param aParam int"),
+            ("mod.bicep", """
+                param requiredParam string
+
+                @export()
+                var exported = 2
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().NotBeNull();
+        result.Parameters.Should().HaveValueAtPath("parameters.aParam.value", 2);
+    }
+
+    [TestMethod]
+    public void Bicepparam_can_import_non_literal_variables_from_json()
+    {
+        var compiledModule = CompilationHelper.Compile("""
+            @export()
+            var exported = 2 + 2
+            """);
+        compiledModule.Template.Should().NotBeNull();
+
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                import {exported} from 'mod.json'
+
+                param aParam = exported
+                """),
+            ("main.bicep", "param aParam int"),
+            ("mod.json", compiledModule.Template!.ToString()));
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().NotBeNull();
+        result.Parameters.Should().HaveValueAtPath("parameters.aParam.value", 4);
+    }
 }

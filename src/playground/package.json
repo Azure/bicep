@@ -14,10 +14,10 @@
   },
   "private": true,
   "devDependencies": {
-    "@types/node": "^20.12.8",
+    "@types/node": "^20.12.11",
     "@types/pako": "^2.0.3",
-    "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.2.25",
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.3.0",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
@@ -38,12 +38,12 @@
     "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
-    "@microsoft/applicationinsights-web": "^3.2.0",
+    "@microsoft/applicationinsights-web": "^3.2.1",
     "bootstrap": "^5.3.3",
     "monaco-editor": "^0.48.0",
     "pako": "^2.1.0",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.2",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.3.1"
   }
 }

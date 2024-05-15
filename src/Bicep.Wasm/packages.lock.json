@@ -147,8 +147,8 @@
       },
       "Azure.Identity": {
         "type": "Transitive",
-        "resolved": "1.11.2",
-        "contentHash": "mihECA1msfwdjTPXHwK9N3n4ln8jMB0DuT0r2caDGPriRT1vca4/Jgmo6FmFZPo8RQsQt1fVn1Gxv5WqkyHVeA==",
+        "resolved": "1.11.3",
+        "contentHash": "4EsGMAr+oog5UqHs46qwA7S/lJiwpXjPBY3t9tQBmJ8nsgmT/LLnrc32eiTlfOdfKxUz4fxBD2YjSnVZacu97w==",
         "dependencies": {
           "Azure.Core": "1.38.0",
           "Microsoft.Identity.Client": "4.60.3",
@@ -205,8 +205,8 @@
       },
       "JsonPath.Net": {
         "type": "Transitive",
-        "resolved": "1.0.1.2",
-        "contentHash": "C/+1yqdTwTjfvnIhZg7ap/lYfqy8kK1FpKs4hCfnEQru4+W9KHg5x7fpDiKlcWhpMdyd4GEnUtkhwgHcrOfQZg==",
+        "resolved": "1.0.2",
+        "contentHash": "wBmvyzBmT91tE3YHWX+p7PaJruAbf3AGWXkktCzDjyKB6D/QUhykvb3wikZH8c+B/ExMmvpIkswHyOn6gf9mJA==",
         "dependencies": {
           "Json.More.Net": "2.0.1.2"
         }
@@ -1011,10 +1011,10 @@
           "Azure.Bicep.Types.K8s": "[0.1.626, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
           "Azure.Deployments.Templates": "[1.0.1243.1, )",
-          "Azure.Identity": "[1.11.2, )",
+          "Azure.Identity": "[1.11.3, )",
           "Azure.ResourceManager.Resources": "[1.7.2, )",
           "JsonPatch.Net": "[3.1.0, )",
-          "JsonPath.Net": "[1.0.1.2, )",
+          "JsonPath.Net": "[1.0.2, )",
           "Microsoft.Extensions.Configuration": "[8.0.0, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
