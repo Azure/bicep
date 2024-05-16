@@ -177,10 +177,9 @@ namespace Bicep.Core.Workspaces
             {
                 if (restorable is ProviderDeclarationSyntax providerDeclaration)
                 {
-                    var isBuiltInProvider = providerDeclaration.Specification switch
+                    var isBuiltInProvider = providerDeclaration.SpecificationString switch
                     {
-                        LegacyProviderSpecification => true,
-                        ConfigurationManagedProviderSpecification configSpec => config.ProvidersConfig.IsSysOrBuiltIn(configSpec.NamespaceIdentifier),
+                        IdentifierSyntax identifier => config.ProvidersConfig.IsSysOrBuiltIn(identifier.IdentifierName),
                         _ => false,
                     };
 
@@ -227,7 +226,7 @@ namespace Bicep.Core.Workspaces
                 return new(providerName, providerEntry, null);
             }
 
-            if (!OciArtifactReference.TryParse(ArtifactType.Provider, null, providerEntry.Path, config, file.FileUri).IsSuccess(out var artifactReference, out errorBuilder))
+            if (!dispatcher.TryGetArtifactReference(ArtifactType.Provider, providerEntry.Value, file.FileUri).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 // reference is not valid
                 return new(providerName, providerEntry, new(file, null, null, new(errorBuilder), RequiresRestore: false));

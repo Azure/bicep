@@ -71,8 +71,8 @@ namespace Bicep.Core.UnitTests
         public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
 
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
-            new("az", "az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile), null),
-            new("sys", "sys", SystemNamespaceType.Create("sys", Features, BicepSourceFileKind.BicepFile), null),
+            new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile), null),
+            new("sys", SystemNamespaceType.Create("sys", Features, BicepSourceFileKind.BicepFile), null),
         ]);
 
         // By default turns off only problematic analyzers

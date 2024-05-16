@@ -880,6 +880,11 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
+                if (syntax.Keyword.Text.Equals(LanguageConstants.ImportKeyword))
+                {
+                    diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated(syntax));
+                }
+
                 if (namespaceSymbol.DeclaredType is not NamespaceType namespaceType)
                 {
                     // We should have an error type here - return it directly.
@@ -887,16 +892,6 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 this.ValidateDecorators(syntax.Decorators, namespaceType, diagnostics);
-
-                if (syntax.Keyword.Text.Equals(LanguageConstants.ImportKeyword))
-                {
-                    diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated(syntax));
-                }
-
-                if (syntax.Specification is LegacyProviderSpecification specificationSyntax)
-                {
-                    diagnostics.Write(syntax.SpecificationString, x => x.LegacyProviderSpecificationIsDeprecated(specificationSyntax));
-                }
 
                 if (syntax.Config is not null)
                 {

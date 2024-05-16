@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
@@ -47,7 +48,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static IResourceTypeProviderFactory CreateResourceTypeLoaderFactory(IResourceTypeProvider provider)
         {
             var factory = StrictMock.Of<IResourceTypeProviderFactory>();
-            factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<Uri>(), It.IsAny<bool>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
+            factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<ArtifactReference?>(), It.IsAny<Uri>(), It.IsAny<bool>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
             factory.Setup(m => m.GetBuiltInAzResourceTypesProvider()).Returns(provider);
             return factory.Object;
         }

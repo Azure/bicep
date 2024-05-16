@@ -22,7 +22,7 @@ namespace Bicep.Core.Registry
         /// Gets the capabilities of this registry for the specified artifact reference.
         /// </summary>
         /// <param name="reference">The module reference</param>
-        RegistryCapabilities GetCapabilities(ArtifactReference reference);
+        RegistryCapabilities GetCapabilities(ArtifactType artifactType, ArtifactReference reference);
 
         /// <summary>
         /// Attempts to parse the specified unqualified reference or returns a failure builder.
@@ -49,7 +49,7 @@ namespace Bicep.Core.Registry
         /// Returns true if the specified module exists in the registry.
         /// </summary>
         /// <param name="reference">The reference to the module.</param>
-        Task<bool> CheckArtifactExists(ArtifactReference reference);
+        Task<bool> CheckArtifactExists(ArtifactType artifactType, ArtifactReference reference);
 
         /// <summary>
         /// Downloads the specified modules from the registry and caches them locally.

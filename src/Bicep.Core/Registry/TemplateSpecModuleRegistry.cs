@@ -37,7 +37,7 @@ namespace Bicep.Core.Registry
 
         public override string Scheme => ArtifactReferenceSchemes.TemplateSpecs;
 
-        public override RegistryCapabilities GetCapabilities(TemplateSpecModuleReference reference) => RegistryCapabilities.Default;
+        public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, TemplateSpecModuleReference reference) => RegistryCapabilities.Default;
 
         public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference)
         {
@@ -62,7 +62,8 @@ namespace Bicep.Core.Registry
         public override Task PublishProvider(TemplateSpecModuleReference reference, BinaryData typesTgz)
             => throw new NotSupportedException("Template Spec providers cannot be published.");
 
-        public override Task<bool> CheckArtifactExists(TemplateSpecModuleReference reference) => throw new NotSupportedException("Template Spec modules cannot be published.");
+        public override Task<bool> CheckArtifactExists(ArtifactType artifactType, TemplateSpecModuleReference reference)
+            => throw new NotSupportedException("Template Spec modules cannot be published.");
 
         public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(TemplateSpecModuleReference reference)
         {

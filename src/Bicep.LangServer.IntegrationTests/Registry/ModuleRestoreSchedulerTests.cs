@@ -165,7 +165,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public string Scheme => "mock";
 
-            public RegistryCapabilities GetCapabilities(ArtifactReference _) => throw new NotImplementedException();
+            public RegistryCapabilities GetCapabilities(ArtifactType artifactType, ArtifactReference _) => throw new NotImplementedException();
 
             public bool IsArtifactRestoreRequired(ArtifactReference _) => true;
 
@@ -175,7 +175,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public Task PublishProvider(ArtifactReference _, BinaryData __)
                 => throw new NotImplementedException();
 
-            public Task<bool> CheckArtifactExists(ArtifactReference _) => throw new NotImplementedException();
+            public Task<bool> CheckArtifactExists(ArtifactType artifactType, ArtifactReference reference) => throw new NotImplementedException();
 
             public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> _)
             {

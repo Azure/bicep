@@ -65,7 +65,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
+            provider 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}'
             "));
 
             result.Should().GenerateATemplate();
@@ -77,7 +77,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' with {{}}
+            provider 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}' with {{}}
             ");
 
             result.Should().NotGenerateATemplate();
@@ -91,7 +91,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as testAlias
+            provider 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}' as testAlias
             ");
 
             result.Should().GenerateATemplate();
@@ -115,25 +115,11 @@ namespace Bicep.Core.IntegrationTests
             """));
 
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/customAlias:az@{BicepTestConstants.BuiltinAzProviderVersion}'
+            provider 'br/customAlias:az:{BicepTestConstants.BuiltinAzProviderVersion}'
             ");
 
             result.Should().GenerateATemplate();
             result.Compilation.GetEntrypointSemanticModel().Root.ProviderDeclarations.Should().Contain(x => x.Name.Equals("az"));
-        }
-
-        [TestMethod]
-        public async Task Az_namespace_specified_using_legacy_declaration_syntax_yields_diagnostic()
-        {
-            var services = new ServiceBuilder()
-               .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'az@{BicepTestConstants.BuiltinAzProviderVersion}'
-            ");
-            result.Should().HaveDiagnostics([
-                new("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use 'provider <providerSymbol>' instead.")
-            ]);
         }
 
         [TestMethod]
@@ -143,7 +129,7 @@ namespace Bicep.Core.IntegrationTests
                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
 
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider 'br/notFound:az@0.2.661'
+            provider 'br/notFound:az:0.2.661'
             ");
 
             result.Should().NotGenerateATemplate();
@@ -175,7 +161,7 @@ namespace Bicep.Core.IntegrationTests
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider '{testArtifact.ToSpecificationString('@')}'
+            provider '{testArtifact.ToSpecificationString(':')}'
             ");
 
             // ASSERT
@@ -199,7 +185,7 @@ namespace Bicep.Core.IntegrationTests
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider '{testArtifactAddress.ToSpecificationString('@')}'
+            provider '{testArtifactAddress.ToSpecificationString(':')}'
             ");
 
             // ASSERT
@@ -241,7 +227,7 @@ namespace Bicep.Core.IntegrationTests
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider '{artifactRegistryAddress.ToSpecificationString('@')}'
+            provider '{artifactRegistryAddress.ToSpecificationString(':')}'
             ");
 
             // ASSERT

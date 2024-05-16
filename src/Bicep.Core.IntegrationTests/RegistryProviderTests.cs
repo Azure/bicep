@@ -5,6 +5,7 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
@@ -13,6 +14,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.IntegrationTests;
 
@@ -35,15 +37,17 @@ public class RegistryProviderTests : TestBase
             .WithContainerRegistryClientFactory(clientFactory);
     }
 
-    private async Task<ServiceBuilder> GetServiceBuilderWithPublishedProvider(BinaryData tgzData, IFileSystem? fileSystem = null)
+    private Task<ServiceBuilder> GetServiceBuilderWithPublishedProvider(BinaryData tgzData, IFileSystem? fileSystem = null)
+        => GetServiceBuilderWithPublishedProvider(tgzData, "example.azurecr.io/providers/foo:1.2.3", fileSystem);
+
+    private async Task<ServiceBuilder> GetServiceBuilderWithPublishedProvider(BinaryData tgzData, string target, IFileSystem? fileSystem = null)
     {
-        var registry = "example.azurecr.io";
-        var repository = $"providers/foo";
+        var reference = OciArtifactReference.TryParseModule(target).Unwrap();
 
         fileSystem ??= new MockFileSystem();
-        var services = GetServiceBuilder(fileSystem, registry, repository, AllFeaturesEnabled);
+        var services = GetServiceBuilder(fileSystem, reference.Registry, reference.Repository, AllFeaturesEnabled);
 
-        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), reference.FullyQualifiedReference, tgzData);
 
         return services;
     }
@@ -84,7 +88,7 @@ public class RegistryProviderTests : TestBase
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+provider 'br:example.azurecr.io/test/provider/http:1.2.3'
 
 resource dadJoke 'request@v1' = {
   uri: 'https://icanhazdadjoke.com'
@@ -100,12 +104,43 @@ output joke string = dadJoke.body.joke
     }
 
     [TestMethod]
+    public async Task Providers_published_to_filesystem_can_be_compiled()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true));
+
+        var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();
+        var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+        Directory.CreateDirectory(tempDirectory);
+        
+        var providerPath = Path.Combine(tempDirectory, "provider.tgz");
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), Path.Combine(tempDirectory, providerPath), typesTgz);
+
+        var bicepPath = Path.Combine(tempDirectory, "main.bicep");
+        await File.WriteAllTextAsync(bicepPath, """
+provider './provider.tgz'
+
+resource fooRes 'fooType@v1' = {
+  identifier: 'foo'
+  properties: {
+    required: 'bar'
+  }
+}
+""");
+
+        var bicepUri = PathHelper.FilePathToFileUrl(bicepPath);
+
+        var result = CompilationHelper.Compile(services, BicepTestConstants.FileResolver, [bicepUri], bicepUri);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
     public async Task Existing_resources_are_permitted_through_3p_type_registry()
     {
         var services = await GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgz());
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo@1.2.3'
+provider 'br:example.azurecr.io/providers/foo:1.2.3'
 
 resource fooRes 'fooType@v1' existing = {
 }
@@ -117,7 +152,7 @@ resource fooRes 'fooType@v1' existing = {
         });
 
         result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo@1.2.3'
+provider 'br:example.azurecr.io/providers/foo:1.2.3'
 
 resource fooRes 'fooType@v1' existing = {
   identifier: 'foo'
@@ -143,7 +178,7 @@ resource fooRes 'fooType@v1' existing = {
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/test/provider/http@1.2.3' with {}
+provider 'br:example.azurecr.io/test/provider/http:1.2.3' with {}
 
 resource dadJoke 'request@v1' = {
   uri: 'https://icanhazdadjoke.com'
@@ -166,7 +201,7 @@ output joke string = dadJoke.body.joke
         var services = await GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgz());
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo@1.2.3'
+provider 'br:example.azurecr.io/providers/foo:1.2.3'
 
 resource fooRes 'fooType@v1' existing = {
   identifier: 'foo'
@@ -225,7 +260,7 @@ output baz string = fooRes.convertBarToBaz('bar')
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, @$"
-provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+provider 'br:example.azurecr.io/test/provider/http:1.2.3'
 ");
         result.Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
@@ -271,7 +306,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, @$"
-provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+provider 'br:example.azurecr.io/test/provider/http:1.2.3'
 ");
         result.Should().HaveDiagnostics([
             ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
@@ -281,7 +316,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 
 
         var result2 = await CompilationHelper.RestoreAndCompile(services, @$"
-provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+provider 'br:example.azurecr.io/test/provider/http:1.2.3'
 ");
         result2.Should().HaveDiagnostics([
             ("BCP400", DiagnosticLevel.Error, """Fetching types from the registry requires enabling EXPERIMENTAL feature "ProviderRegistry"."""),
@@ -296,7 +331,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
 var registryHost = 'example.azurecr.io'
-provider 'br:${registryHost}/test/provider/http@1.2.3'
+provider 'br:${registryHost}/test/provider/http:1.2.3'
 """);
         result.Should().NotGenerateATemplate();
         result.Should().ContainDiagnostic("BCP303", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the provider.");
@@ -305,11 +340,11 @@ provider 'br:${registryHost}/test/provider/http@1.2.3'
     [TestMethod]
     public async Task Cannot_import_az_without_dynamic_type_loading_enabled()
     {
-        var services = new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: false));
+        var services = await GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgz(), "mcr.microsoft.com/bicep/provider/az:1.2.3");
+        services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: false));
 
         var result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'br:mcr.microsoft.com/bicep/provider/az@0.0.0'
+provider 'br:mcr.microsoft.com/bicep/provider/az:1.2.3'
 ");
         result.Should().NotGenerateATemplate();
         result.Should().HaveDiagnostics([
@@ -323,7 +358,7 @@ provider 'br:mcr.microsoft.com/bicep/provider/az@0.0.0'
         var services = await GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration());
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo@1.2.3'
+provider 'br:example.azurecr.io/providers/foo:1.2.3'
 
 resource dadJoke 'fooType@v1' = {
   identifier: 'foo'
@@ -346,7 +381,7 @@ output joke string = dadJoke.joke
         var services = await GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration());
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo@1.2.3' with {
+provider 'br:example.azurecr.io/providers/foo:1.2.3' with {
   namespace: 'ThirdPartyNamespace'
   config: 'Some path to config file'
   context: 'Some ThirdParty context'
@@ -362,12 +397,12 @@ output joke string = dadJoke.joke
 
         result.Template.Should().NotBeNull();
 
-        result.Template.Should().HaveValueAtPath("$.imports['foo']['provider']", "ThirdPartyProvider");
-        result.Template.Should().HaveValueAtPath("$.imports['foo']['version']", "1.0.0");
+        result.Template.Should().HaveValueAtPath("$.imports['ThirdPartyProvider']['provider']", "ThirdPartyProvider");
+        result.Template.Should().HaveValueAtPath("$.imports['ThirdPartyProvider']['version']", "1.0.0");
 
-        result.Template.Should().HaveValueAtPath("$.imports['foo']['config']['namespace']", "ThirdPartyNamespace");
-        result.Template.Should().HaveValueAtPath("$.imports['foo']['config']['config']", "Some path to config file");
-        result.Template.Should().HaveValueAtPath("$.imports['foo']['config']['context']", "Some ThirdParty context");
+        result.Template.Should().HaveValueAtPath("$.imports['ThirdPartyProvider']['config']['namespace']", "ThirdPartyNamespace");
+        result.Template.Should().HaveValueAtPath("$.imports['ThirdPartyProvider']['config']['config']", "Some path to config file");
+        result.Template.Should().HaveValueAtPath("$.imports['ThirdPartyProvider']['config']['context']", "Some ThirdParty context");
 
         result.Should().NotHaveAnyDiagnostics();
     }
@@ -379,7 +414,7 @@ output joke string = dadJoke.joke
 
         // Missing the required configuration property: namespace
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo@1.2.3' with {
+provider 'br:example.azurecr.io/providers/foo:1.2.3' with {
   config: 'Some path to config file'
   context: 'Some ThirdParty context'
 }
@@ -405,7 +440,7 @@ output joke string = dadJoke.joke
 
         // Mispelled the required configuration property: namespace
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo@1.2.3' with {
+provider 'br:example.azurecr.io/providers/foo:1.2.3' with {
   namespac: 'ThirdPartyNamespace'
   config: 'Some path to config file'
   context: 'Some ThirdParty context'
@@ -433,7 +468,7 @@ output joke string = dadJoke.joke
 
         // Mispelled the optional configuration property: context
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo@1.2.3' with {
+provider 'br:example.azurecr.io/providers/foo:1.2.3' with {
   namespace: 'ThirdPartyNamespace'
   config: 'Some path to config file'
   contex: 'Some ThirdParty context'
@@ -459,7 +494,7 @@ output joke string = dadJoke.joke
         var services = await GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration());
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo@1.2.3' with {
+provider 'br:example.azurecr.io/providers/foo:1.2.3' with {
   namespace: 'ThirdPartyNamespace'
   config: 'Some path to config file'
 }
@@ -485,7 +520,7 @@ resource test 'test@v1' = {
         var services = await GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgz());
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo@1.2.3'
+provider 'br:example.azurecr.io/providers/foo:1.2.3'
 
 resource test 'test@v1' = {
   bodyProp: 'fallback body'

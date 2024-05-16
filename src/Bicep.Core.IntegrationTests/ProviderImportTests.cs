@@ -67,13 +67,13 @@ namespace Bicep.Core.IntegrationTests
             var result = await CompilationHelper.RestoreAndCompile(services, @"
 provider
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP201", DiagnosticLevel.Error, """
-                Expected a provider specification string of with a valid format at this location. Valid formats:
-                * "br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>"
-                * "br/<providerAlias>:<providerName>@<providerVersion>"
+                Expected a provider specification string with a valid format at this location. Valid formats:
+                * "br:<providerRegistryHost>/<providerRepositoryPath>:<providerVersion>"
+                * "br/<providerAlias>:<providerName>:<providerVersion>"
                 """)
-            });
+            ]);
         }
 
         [TestMethod]
@@ -139,30 +139,6 @@ provider
             """);
             result.Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
-            });
-        }
-
-        [TestMethod]
-        public async Task Using_import_instead_of_provider_raises_warning()
-        {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            import 'az@1.0.0' as foo
-            """);
-            result.Should().HaveDiagnostics(new[] {
-                ("BCP381", DiagnosticLevel.Warning, "Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead."),
-                ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use 'provider <providerSymbol>' instead."),
-            });
-        }
-
-        [TestMethod]
-        public async Task Using_legacy_import_syntax_raises_warning_for_az_provider()
-        {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), $"""
-            provider 'az@1.0.0' as az
-            """);
-
-            result.Should().HaveDiagnostics(new[] {
-                ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use 'provider <providerSymbol>' instead."),
             });
         }
 
@@ -311,11 +287,11 @@ provider madeUpNamespace
                 ImmutableArray<Decorator>.Empty,
                 new EmptyResourceTypeProvider());
 
-            var nsProvider = TestExtensibilityNamespaceProvider.Create(result => result switch
+            var nsProvider = TestExtensibilityNamespaceProvider.Create((providerName, aliasName) => providerName switch
             {
-                { ProviderName: "ns1" } => result with { Type = ns1 },
-                { ProviderName: "ns2" } => result with { Type = ns2 },
-                _ => result,
+                "ns1" => ns1,
+                "ns2" => ns2,
+                _ => null,
             });
 
             var services = (await GetServices())
@@ -378,10 +354,10 @@ provider madeUpNamespace
                 ImmutableArray<Decorator>.Empty,
                 new EmptyResourceTypeProvider());
 
-            var nsProvider = TestExtensibilityNamespaceProvider.Create(result => result switch
+            var nsProvider = TestExtensibilityNamespaceProvider.Create((providerName, aliasName) => providerName switch
             {
-                { ProviderName: "mockNs" } => result with { Type = mockNs },
-                _ => result,
+                "mockNs" => mockNs,
+                _ => null,
             });
 
             var services = (await GetServices())

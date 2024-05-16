@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
@@ -61,7 +63,7 @@ public class PublishProviderCommandTests : TestBase
 
         // publishing without --force should fail
         result = await Bicep(settings, requiredArgs.ToArray());
-        result.Should().Fail().And.HaveStderrMatch("*The Provider \"*\" already exists in registry. Use --force to overwrite the existing provider.*");
+        result.Should().Fail().And.HaveStderrMatch("*The Provider \"*\" already exists. Use --force to overwrite the existing provider.*");
 
         // test with force
         requiredArgs.Add("--force");
@@ -82,6 +84,36 @@ public class PublishProviderCommandTests : TestBase
         // verify we can load a type
         var saBodyType2 = (ObjectType)saType2.Body.Type;
         saBodyType2.Properties.Keys.Should().Contain("name", "location", "properties", "sku", "tags");
+    }
+
+    [TestMethod]
+    public async Task Publish_provider_should_succeed_to_filesystem()
+    {
+        var fs = new MockFileSystem();
+
+        var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();
+        ThirdPartyTypeHelper.WriteTypesTgzToFs(fs, "/source", typesTgz);
+        var indexPath = "/source/index.json";
+
+        fs.Directory.CreateDirectory("/target");
+        var targetPath = "/target/provider.tgz";
+
+        var publishResult = await Bicep(services => services.WithFileSystem(fs), ["publish-provider", indexPath, "--target", targetPath]);
+        publishResult.Should().Succeed().And.NotHaveStdout();
+
+        var services = new ServiceBuilder().WithFileSystem(fs).WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true));
+        var compileResult = await CompilationHelper.RestoreAndCompile(services, """
+provider '../../target/provider.tgz'
+
+resource fooRes 'fooType@v1' = {
+  identifier: 'foo'
+  properties: {
+    required: 'bar'
+  }
+}
+""");
+
+        compileResult.Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]

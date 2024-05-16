@@ -202,7 +202,7 @@ public class ResourceDerivedTypeResolverTests
                 ImmutableHashSet<string>.Empty));
 
         var resolver = NamespaceResolver.Create([
-            new("az", "az", stubbedNamespaceType, null),
+            new("az", stubbedNamespaceType, null),
         ]);
 
         var binderMock = StrictMock.Of<IBinder>();
@@ -229,7 +229,7 @@ public class ResourceDerivedTypeResolverTests
             .Returns((ResourceType?)null);
 
         var resolver = NamespaceResolver.Create([
-            new("az", "az", stubbedNamespaceType, null),
+            new("az", stubbedNamespaceType, null),
         ]);
 
         var binderMock = StrictMock.Of<IBinder>();

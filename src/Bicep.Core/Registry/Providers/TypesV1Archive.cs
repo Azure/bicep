@@ -9,6 +9,35 @@ using Azure.Bicep.Types.Serialization;
 
 namespace Bicep.Core.Registry.Providers;
 
+public static class ProviderV1Archive
+{
+    public static async Task<BinaryData> Build(BinaryData typesTgz)
+    {
+        using var stream = new MemoryStream();
+
+        using (var gzStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
+        {
+            using var tarWriter = new TarWriter(gzStream, leaveOpen: true);
+
+            await AddFileToTar(tarWriter, "types.tgz", typesTgz);
+        }
+
+        stream.Seek(0, SeekOrigin.Begin);
+
+        return BinaryData.FromStream(stream);
+    }
+
+    private static async Task AddFileToTar(TarWriter tarWriter, string archivePath, BinaryData binaryData)
+    {
+        var tarEntry = new PaxTarEntry(TarEntryType.RegularFile, archivePath)
+        {
+            DataStream = binaryData.ToStream(),
+        };
+
+        await tarWriter.WriteEntryAsync(tarEntry);
+    }
+}
+
 public static class TypesV1Archive
 {
     public static async Task<BinaryData> GenerateProviderTarStream(IFileSystem fileSystem, string indexJsonPath)
@@ -54,7 +83,17 @@ public static class TypesV1Archive
 
         var index = TypeSerializer.DeserializeIndex(indexStream);
 
-        return index.Resources.Values.Select(x => x.RelativePath).Distinct();
+        var typeReferences = index.Resources.Values.ToList();
+        if (index.Settings?.ConfigurationType is {} configType)
+        {
+            typeReferences.Add(configType);
+        }
+        if (index.FallbackResourceType is {} fallbackType)
+        {
+            typeReferences.Add(fallbackType);
+        }
+
+        return typeReferences.Select(x => x.RelativePath).Distinct();
     }
 }
 

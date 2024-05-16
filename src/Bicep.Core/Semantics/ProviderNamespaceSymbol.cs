@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
@@ -9,12 +10,26 @@ namespace Bicep.Core.Semantics
 {
     public class ProviderNamespaceSymbol : DeclaredSymbol, INamespaceSymbol
     {
+        private class ProviderNameSource : ISymbolNameSource
+        {
+            private readonly ProviderDeclarationSyntax provider;
+
+            public ProviderNameSource(ProviderDeclarationSyntax provider)
+            {
+                this.provider = provider;
+            }
+
+            public bool IsValid => true;
+
+            public TextSpan Span => provider.Alias?.Span ?? provider.SpecificationString.Span;
+        }
+
         public ProviderNamespaceSymbol(ISymbolContext context, ProviderDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
             : base(
                 context,
-                declaringSyntax.Alias?.IdentifierName ?? declaringSyntax.Specification.NamespaceIdentifier,
+                declaringSyntax.Alias?.IdentifierName ?? declaredType.Name,
                 declaringSyntax,
-                declaringSyntax.Alias as ISymbolNameSource ?? declaringSyntax.Specification)
+                new ProviderNameSource(declaringSyntax))
         {
             this.DeclaredType = declaredType;
         }

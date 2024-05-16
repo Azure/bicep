@@ -521,10 +521,10 @@ namespace Bicep.Core.Semantics.Namespaces
             }
         }
 
-        public static NamespaceType Create(string aliasName, ResourceScope scope, IResourceTypeProvider resourceTypeProvider, BicepSourceFileKind sourceFileKind)
+        public static NamespaceType Create(string? aliasName, ResourceScope scope, IResourceTypeProvider resourceTypeProvider, BicepSourceFileKind sourceFileKind)
         {
             return new NamespaceType(
-                aliasName,
+                aliasName ?? BuiltInName,
                 new NamespaceSettings(
                     IsSingleton: true,
                     BicepProviderName: BuiltInName,
