@@ -10,6 +10,8 @@ on:
 permissions:
   id-token: write
   contents: read
+  actions: read
+  security-events: write
 
 env:
   CI: true
@@ -43,6 +45,11 @@ jobs:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
 
@@ -66,6 +73,9 @@ jobs:
           path: ./src/Bicep.Cli/obj/project.assets.json
           if-no-files-found: error
 
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
   build-nugets:
     name: Build NuGet Packages
     runs-on: ubuntu-latest
@@ -75,6 +85,11 @@ jobs:
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -89,6 +104,9 @@ jobs:
           path: out/*
           if-no-files-found: error
 
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
   build-vscode-ext:
     name: "Build: VSCode Extension"
     runs-on: ubuntu-latest
@@ -98,6 +116,11 @@ jobs:
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp, javascript
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -133,6 +156,9 @@ jobs:
           name: vscode-bicep.vsix
           path: ./src/vscode-bicep/vscode-bicep.vsix
           if-no-files-found: error
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
 
   test-vscode-ext:
     name: "Test: VSCode Extension"
@@ -235,6 +261,11 @@ jobs:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+
       # needed by the GenerateNotice package
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -283,6 +314,9 @@ jobs:
       #     runInParallel: false
       #     searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/
       #     ifNoFilesFound: error
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
 
   build-windows-setup:
     name: Build Windows Setup
@@ -431,6 +465,11 @@ jobs:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
 
@@ -458,6 +497,9 @@ jobs:
           path: ./src/playground/dist/*
           if-no-files-found: error
 
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
   build-highlight-libs:
     name: Build Highlight Libraries
     runs-on: ubuntu-latest
@@ -467,6 +509,11 @@ jobs:
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -496,6 +543,9 @@ jobs:
           npm run lint
           npm test
         working-directory: ./src/monarch
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
 
   test-cli-e2e:
     name: 'Test CLI (e2e) (${{ matrix.runtime.rid }})'
