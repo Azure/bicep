@@ -39,7 +39,7 @@ namespace Bicep.Core.Registry
         public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
             => Registries(parentModuleUri).Keys.OrderBy(s => s).ToImmutableArray();
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri)
+        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri) //asdfg use this?
         {
             var registries = Registries(parentModuleUri);
             var parts = reference.Split(':', 2, StringSplitOptions.None);
@@ -83,7 +83,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactReferenceSyntax, Uri parentModuleUri)
+        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactReferenceSyntax, Uri parentModuleUri) //asdfg use this?
         {
             if (artifactReferenceSyntax is ProviderDeclarationSyntax providerDeclarationSyntax)
             {

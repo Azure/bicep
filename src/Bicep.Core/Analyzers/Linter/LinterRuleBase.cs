@@ -69,20 +69,32 @@ namespace Bicep.Core.Analyzers.Linter
         public string GetMessage(params object[] values)
             => (values.Any() ? FormatMessage(values) : this.Description);
 
-        public IEnumerable<IDiagnostic> Analyze(SemanticModel model)
+        public IEnumerable<IDiagnostic> Analyze(SemanticModel model, IServiceProvider? /* asdfg? */ serviceProvider)
         {
             if (GetDiagnosticLevel(model) == DiagnosticLevel.Off)
             {
                 return Enumerable.Empty<IDiagnostic>();
             }
 
-            return AnalyzeInternal(model, GetDiagnosticLevel(model));
+            //asdfg
+            var result = AnalyzeInternal(model, serviceProvider, GetDiagnosticLevel(model));
+            if (result == null)
+            {
+                result = AnalyzeInternal(model, GetDiagnosticLevel(model));
+            }
+
+            return result;
         }
 
         /// <summary>
         /// Abstract method each rule must implement to provide analyzer
         /// diagnostics through the Analyze API
         /// </summary>
+        public virtual IEnumerable<IDiagnostic>? AnalyzeInternal(SemanticModel model, IServiceProvider? serviceProvider, DiagnosticLevel diagnosticLevel) //asdfg
+        {
+            return null;
+        }
+
         public abstract IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel);
 
         protected DiagnosticLevel GetDiagnosticLevel(SemanticModel model) => GetDiagnosticLevel(model.Configuration.Analyzers);

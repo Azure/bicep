@@ -4,12 +4,12 @@
 using System.Text;
 using System.Text.Json;
 using Bicep.Core.Extensions;
-using Bicep.LanguageServer.Providers;
+using Bicep.Core.Registry.PublicRegistry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.LangServer.UnitTests.Completions
+namespace Bicep.Core.UnitTests.Registry.PublicRegistry
 {
     [TestClass]
     public class PublicRegistryModuleMetadataProviderTests
@@ -1164,7 +1164,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         {
             PublicRegistryModuleMetadataProvider provider = new(MockHttpMessageHandler.ToHttpClient());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = await provider.GetModules();
+            var modules = provider.GetCachedModules();
             modules.Should().HaveCount(50);
         }
 
@@ -1173,7 +1173,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         {
             PublicRegistryModuleMetadataProvider provider = new(MockHttpMessageHandler.ToHttpClient());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = await provider.GetModules();
+            var modules = provider.GetCachedModules();
             var m = modules.Should().Contain(m => m.Name == "samples/hello-world").Which;
             m.Description.Should().Be("A \"שָׁלוֹם עוֹלָם\" sample Bicep registry module");
             m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/samples/hello-world/1.0.4/modules/samples/hello-world/README.md");
@@ -1184,7 +1184,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         {
             PublicRegistryModuleMetadataProvider provider = new(MockHttpMessageHandler.ToHttpClient());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = await provider.GetModules();
+            var modules = provider.GetCachedModules();
             var m = modules.Should().Contain(m => m.Name == "lz/sub-vending").Which;
             m.Description.Should().Be("This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.");
             m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.2/modules/lz/sub-vending/README.md");

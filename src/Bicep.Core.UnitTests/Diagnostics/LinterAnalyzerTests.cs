@@ -152,7 +152,7 @@ param param1 string = 'val'";
             var semanticModel = compilationResult.Compilation.GetSemanticModel(compilationResult.BicepFile);
 
             var throwRule = new LinterThrowsTestRule();
-            var test = () => throwRule.Analyze(semanticModel).ToArray();
+            var test = () => throwRule.Analyze(semanticModel, BicepTestConstants.EmptyServiceProvider).ToArray();
             test.Should().Throw<ArgumentOutOfRangeException>();
         }
     }

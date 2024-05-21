@@ -28,6 +28,6 @@ namespace Bicep.Core.Analyzers.Interfaces
 
         Uri? Uri { get; }
 
-        IEnumerable<IDiagnostic> Analyze(SemanticModel model);
+        IEnumerable<IDiagnostic> Analyze(SemanticModel model, IServiceProvider? /* asdfg? */ serviceProvider);
     }
 }

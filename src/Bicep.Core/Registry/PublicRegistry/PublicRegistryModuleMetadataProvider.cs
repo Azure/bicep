@@ -7,7 +7,8 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Bicep.Core.Extensions;
 
-namespace Bicep.LanguageServer.Providers
+//asdfg creating multiple of these
+namespace Bicep.Core.Registry.PublicRegistry
 {
     /// <summary>
     /// Provider to get modules metadata that we store at a public endpoint.
@@ -49,14 +50,14 @@ namespace Bicep.LanguageServer.Providers
 
         public PublicRegistryModuleMetadataProvider(HttpClient httpClient)
         {
+            Trace.WriteLine("PublicRegistryModuleMetadataProvider constructor");
             this.httpClient = httpClient;
 
-            this.CheckUpdateCacheAsync(true);
+            this.UpdateCacheInBackground(true);
         }
 
         public async Task<bool> TryUpdateCacheAsync()
         {
-
             if (await TryGetModulesLive() is { } modules)
             {
                 this.cachedModules = modules;
@@ -69,7 +70,32 @@ namespace Bicep.LanguageServer.Providers
             }
         }
 
-        private void CheckUpdateCacheAsync(bool initialDelay = false)
+        public IEnumerable<RegistryModule> GetCachedModules() //asdfg doc what happens if can't retrieve from cache
+        {
+            UpdateCacheInBackground();
+
+            var modules = this.cachedModules.ToArray();
+            return modules.Select(metadata =>
+                new RegistryModule(metadata.ModuleName, GetDescription(metadata), GetDocumentationUri(metadata)));
+        }
+
+        public IEnumerable<RegistryModuleVersion> GetCachedModuleVersions(string modulePath)
+        {
+            UpdateCacheInBackground();
+
+            var modules = this.cachedModules.ToArray();
+            ModuleMetadata? metadata = modules.FirstOrDefault(x => x.ModuleName.Equals(modulePath, StringComparison.Ordinal));
+            if (metadata == null)
+            {
+                return Enumerable.Empty<RegistryModuleVersion>();
+            }
+
+            var versions = metadata.Tags.OrderDescending().ToArray() ?? Enumerable.Empty<string>();
+            return versions.Select(v =>
+                new RegistryModuleVersion(v, GetDescription(metadata, v), GetDocumentationUri(metadata, v)));
+        }
+
+        private void UpdateCacheInBackground(bool initialDelay = false)
         {
             if (!IsCacheExpired() && this.cachedModules.Any())
             {
@@ -139,7 +165,10 @@ namespace Bicep.LanguageServer.Providers
 
             try
             {
+                //asdfg why wasn't pragma necessary in previous project?
+#pragma warning disable IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
                 var metadata = await this.httpClient.GetFromJsonAsync<ModuleMetadata[]>(LiveDataEndpoint, JsonSerializerOptions);
+#pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
 
                 if (metadata is not null)
                 {
@@ -155,32 +184,6 @@ namespace Bicep.LanguageServer.Providers
                 Trace.TraceError(string.Format("Error retrieving MCR modules metadata: {0}", e.Message));
                 return null;
             }
-        }
-
-        // Modules paths are, e.g. "app/dapr-containerapp"
-        public Task<IEnumerable<PublicRegistryModule>> GetModules()
-        {
-            CheckUpdateCacheAsync();
-            var modules = this.cachedModules.ToArray();
-            return Task.FromResult(
-                modules.Select(metadata =>
-                    new PublicRegistryModule(metadata.ModuleName, GetDescription(metadata), GetDocumentationUri(metadata))));
-        }
-
-        public Task<IEnumerable<PublicRegistryModuleVersion>> GetVersions(string modulePath)
-        {
-            CheckUpdateCacheAsync();
-            var modules = this.cachedModules.ToArray();
-            ModuleMetadata? metadata = modules.FirstOrDefault(x => x.ModuleName.Equals(modulePath, StringComparison.Ordinal));
-            if (metadata == null)
-            {
-                return Task.FromResult(Enumerable.Empty<PublicRegistryModuleVersion>());
-            }
-
-            var versions = metadata.Tags.OrderDescending().ToArray() ?? Enumerable.Empty<string>();
-            return Task.FromResult(
-                versions.Select(v =>
-                    new PublicRegistryModuleVersion(v, GetDescription(metadata, v), GetDocumentationUri(metadata, v))));
         }
 
         private static string? GetDescription(ModuleMetadata moduleMetadata, string? version = null)

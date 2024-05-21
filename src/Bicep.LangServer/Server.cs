@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Net;
 using Bicep.Core.Features;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Tracing;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;

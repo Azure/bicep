@@ -74,7 +74,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 yield return CreateDiagnosticForSpan(
                     diagnosticLevel,
                     new TextSpan(),
-                    $"{UseRecentApiVersionRule.Code}: Configuration value for {MaxAgeInDaysKey} is not valid: {maxAgeInDays}",
+                    $"{Code}: Configuration value for {MaxAgeInDaysKey} is not valid: {maxAgeInDays}",
                     Array.Empty<AzureResourceApiVersion>());
 
                 maxAgeInDays = DefaultMaxAgeInDays;
