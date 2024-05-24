@@ -4,8 +4,10 @@
 using System.Text;
 using System.Text.Json;
 using Bicep.Core.Extensions;
+using Bicep.Core.UnitTests;
 using Bicep.LanguageServer.Providers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RichardSzalay.MockHttp;
 
@@ -14,6 +16,13 @@ namespace Bicep.LangServer.UnitTests.Completions
     [TestClass]
     public class PublicRegistryModuleMetadataProviderTests
     {
+        private IServiceProvider GetServiceProvider()
+        {
+            var httpClient = MockHttpMessageHandler.ToHttpClient();
+            return new ServiceBuilder().WithRegistration(x =>
+                x.AddSingleton<IPublicRegistryModuleMetadataClient>(new PublicRegistryModuleMetadataClient(httpClient))
+            ).Build().Construct<IServiceProvider>();
+        }
         private const string ModuleIndexJson = """
             [
               {
@@ -1162,7 +1171,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [TestMethod]
         public async Task GetModules_Count_SanityCheck()
         {
-            PublicRegistryModuleMetadataProvider provider = new(MockHttpMessageHandler.ToHttpClient());
+            PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModules();
             modules.Should().HaveCount(50);
@@ -1171,10 +1180,11 @@ namespace Bicep.LangServer.UnitTests.Completions
         [TestMethod]
         public async Task GetModules_OnlyLastTagHasDescription()
         {
-            PublicRegistryModuleMetadataProvider provider = new(MockHttpMessageHandler.ToHttpClient());
+            PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModules();
-            var m = modules.Should().Contain(m => m.Name == "samples/hello-world").Which;
+            var m = modules.Should().Contain(m => m.Name == "samples/hello-world")
+                .Which;
             m.Description.Should().Be("A \"שָׁלוֹם עוֹלָם\" sample Bicep registry module");
             m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/samples/hello-world/1.0.4/modules/samples/hello-world/README.md");
         }
@@ -1182,10 +1192,11 @@ namespace Bicep.LangServer.UnitTests.Completions
         [TestMethod]
         public async Task GetModules_MultipleTagsHaveDescriptions()
         {
-            PublicRegistryModuleMetadataProvider provider = new(MockHttpMessageHandler.ToHttpClient());
+            PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModules();
-            var m = modules.Should().Contain(m => m.Name == "lz/sub-vending").Which;
+            var m = modules.Should().Contain(m => m.Name == "lz/sub-vending")
+                .Which;
             m.Description.Should().Be("This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.");
             m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.2/modules/lz/sub-vending/README.md");
         }

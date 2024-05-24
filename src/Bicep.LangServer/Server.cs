@@ -96,12 +96,12 @@ namespace Bicep.LanguageServer
 
         private static void RegisterServices(IServiceCollection services)
         {
-            // using type based registration so dependencies can be injected automatically
-            // without manually constructing up the graph
+            // using type based registration for Http clients so dependencies can be injected automatically
+            // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
             services.AddServerDependencies();
 
             services
-                .AddHttpClient<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
+                .AddHttpClient<IPublicRegistryModuleMetadataClient, PublicRegistryModuleMetadataClient>()
                 .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
                 {
                     AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
