@@ -63,7 +63,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>()
         .AddSingleton<IAzResourceProvider, AzResourceProvider>()
         .AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>()
-        .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
+        .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()    
         .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
         .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
         .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
@@ -72,5 +72,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IArmClientProvider, ArmClientProvider>()
         .AddSingleton<IDeploymentHelper, DeploymentHelper>()
         .AddSingleton<ISettingsProvider, SettingsProvider>()
-        .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>();
+        .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
+        .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
+        ;
 }

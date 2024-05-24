@@ -6,31 +6,15 @@ using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Bicep.Core.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.LanguageServer.Providers
 {
     /// <summary>
     /// Provider to get modules metadata that we store at a public endpoint.
-    /// This endpoint caches module names and versions of modules available in this github repository - https://github.com/Azure/bicep-registry-modules
     /// </summary>
     public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadataProvider
     {
-        private record ModuleTagPropertiesEntry(string Description, string DocumentationUri);
-
-        private record ModuleMetadata(
-            string ModuleName,
-            List<string> Tags,
-            ImmutableDictionary<string /*key: tag*/, ModuleTagPropertiesEntry> Properties);
-
-        private const string LiveDataEndpoint = "https://aka.ms/br-module-index-data";
-
-        private static readonly JsonSerializerOptions JsonSerializerOptions = new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
-        private readonly HttpClient httpClient;
-
         private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
 
         private readonly TimeSpan InitialThrottleDelay = TimeSpan.FromSeconds(5);
@@ -47,16 +31,17 @@ namespace Bicep.LanguageServer.Providers
 
         private int consecutiveFailures = 0;
 
-        public PublicRegistryModuleMetadataProvider(HttpClient httpClient)
-        {
-            this.httpClient = httpClient;
+        private readonly IServiceProvider serviceProvider;
 
-            this.CheckUpdateCacheAsync(true);
+        public PublicRegistryModuleMetadataProvider(IServiceProvider serviceProvider)
+        {
+            this.serviceProvider = serviceProvider;
+
+            this.TryUpdateCacheInBackground(true);
         }
 
         public async Task<bool> TryUpdateCacheAsync()
         {
-
             if (await TryGetModulesLive() is { } modules)
             {
                 this.cachedModules = modules;
@@ -69,7 +54,7 @@ namespace Bicep.LanguageServer.Providers
             }
         }
 
-        private void CheckUpdateCacheAsync(bool initialDelay = false)
+        private void TryUpdateCacheInBackground(bool initialDelay = false)
         {
             if (!IsCacheExpired() && this.cachedModules.Any())
             {
@@ -127,7 +112,7 @@ namespace Bicep.LanguageServer.Providers
             var expired = this.lastSuccessfulQuery.HasValue && this.lastSuccessfulQuery.Value + this.CacheValidFor < DateTime.Now;
             if (expired)
             {
-                Trace.TraceInformation("Public modules cache is expired.");
+                Trace.TraceInformation($"{nameof(PublicRegistryModuleMetadataProvider)}: Public modules cache is expired.");
             }
 
             return expired;
@@ -135,52 +120,34 @@ namespace Bicep.LanguageServer.Providers
 
         private async Task<ImmutableArray<ModuleMetadata>?> TryGetModulesLive()
         {
-            Trace.WriteLine($"Retrieving list of public registry modules...");
-
-            try
-            {
-                var metadata = await this.httpClient.GetFromJsonAsync<ModuleMetadata[]>(LiveDataEndpoint, JsonSerializerOptions);
-
-                if (metadata is not null)
-                {
-                    return metadata.ToImmutableArray();
-                }
-                else
-                {
-                    throw new Exception($"List of MCR modules at {LiveDataEndpoint} was empty");
-                }
-            }
-            catch (Exception e)
-            {
-                Trace.TraceError(string.Format("Error retrieving MCR modules metadata: {0}", e.Message));
-                return null;
-            }
+            var client = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataClient>();
+            return await client.GetModuleMetadata();
         }
 
         // Modules paths are, e.g. "app/dapr-containerapp"
-        public Task<IEnumerable<PublicRegistryModule>> GetModules()
+        public Task<IEnumerable<RegistryModule>> GetModules()
         {
-            CheckUpdateCacheAsync();
+            TryUpdateCacheInBackground();
             var modules = this.cachedModules.ToArray();
             return Task.FromResult(
                 modules.Select(metadata =>
-                    new PublicRegistryModule(metadata.ModuleName, GetDescription(metadata), GetDocumentationUri(metadata))));
+                    new RegistryModule(metadata.ModuleName, GetDescription(metadata), GetDocumentationUri(metadata))));
         }
 
-        public Task<IEnumerable<PublicRegistryModuleVersion>> GetVersions(string modulePath)
+        public Task<IEnumerable<RegistryModuleVersion>> GetVersions(string modulePath)
         {
-            CheckUpdateCacheAsync();
+            TryUpdateCacheInBackground();
             var modules = this.cachedModules.ToArray();
             ModuleMetadata? metadata = modules.FirstOrDefault(x => x.ModuleName.Equals(modulePath, StringComparison.Ordinal));
             if (metadata == null)
             {
-                return Task.FromResult(Enumerable.Empty<PublicRegistryModuleVersion>());
+                return Task.FromResult(Enumerable.Empty<RegistryModuleVersion>());
             }
 
             var versions = metadata.Tags.OrderDescending().ToArray() ?? Enumerable.Empty<string>();
             return Task.FromResult(
                 versions.Select(v =>
-                    new PublicRegistryModuleVersion(v, GetDescription(metadata, v), GetDocumentationUri(metadata, v))));
+                    new RegistryModuleVersion(v, GetDescription(metadata, v), GetDocumentationUri(metadata, v))));
         }
 
         private static string? GetDescription(ModuleMetadata moduleMetadata, string? version = null)
