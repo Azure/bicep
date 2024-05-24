@@ -18,30 +18,19 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public partial class UseRecentApiVersionRuleTests : LinterRuleTestsBase
+    public partial class UseRecentModuleVersionsRuleTests : LinterRuleTestsBase
     {
-        public record DiagnosticAndFixes
+        public record DiagnosticAndFixes//asdfg?
         (
             string ExpectedDiagnosticMessage,
             string ExpectedFixTitle,
             string ExpectedSubstringInReplacedBicep
         );
 
-        public static void VerifyAllTypesAndDatesAreFake(params string[] bicepStrings)
+        //asdfg
+        private static void CompileAndTest(string bicep, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null)
         {
-            foreach (var bicep in bicepStrings)
-            {
-                var bicep2 = new Regex("https://schema.management.azure.com/schemas/[-0-9]{10}/deploymentTemplate.json").Replace(bicep, " ");
-                bicep2.Should().NotMatchRegex("\\b20[0-9][0-9]\\b", "all dates and types in these tests should be fake");
-                bicep2.Should().NotMatchRegex("[Mm]icrosoft.[-a-zA-Z]+/[a-zA-z]+", "all dates and types in these tests should be fake");
-            }
-        }
-
-        private static void CompileAndTestWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null)
-        {
-            VerifyAllTypesAndDatesAreFake(bicep, string.Join(", ", resourceTypes), fakeToday, string.Join(", ", expectedMessagesForCode));
-
-            AssertLinterRuleDiagnostics(UseRecentApiVersionRule.Code,
+            AssertLinterRuleDiagnostics(UseRecentModuleVersionsRule.Code,
                 bicep,
                 expectedMessagesForCode,
                 new Options(
@@ -53,54 +42,49 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     AzResourceTypeLoader: resourceTypes.Any() ? FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object : null));
         }
 
-        private static void CompileAndTestFixWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, DiagnosticAndFixes[] expectedDiagnostics, int? maxAgeInDays = null)
-        {
-            VerifyAllTypesAndDatesAreFake(bicep);
-            VerifyAllTypesAndDatesAreFake(resourceTypes);
-            VerifyAllTypesAndDatesAreFake(fakeToday);
+        //asdfg
+        //private static void CompileAndTestFixWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, DiagnosticAndFixes[] expectedDiagnostics, int? maxAgeInDays = null)
+        //{
+        //    AssertLinterRuleDiagnostics(
+        //        UseRecentModuleVersionsRule.Code,
+        //        bicep,
+        //        (diags) =>
+        //        {
+        //            // Diagnostic titles
+        //            diags.Select(d => d.Message).Should().BeEquivalentTo(expectedDiagnostics.Select(d => d.ExpectedDiagnosticMessage));
 
-            AssertLinterRuleDiagnostics(
-                UseRecentApiVersionRule.Code,
-                bicep,
-                (diags) =>
-                {
-                    // Diagnostic titles
-                    diags.Select(d => d.Message).Should().BeEquivalentTo(expectedDiagnostics.Select(d => d.ExpectedDiagnosticMessage));
+        //            // Fixes
+        //            for (int i = 0; i < diags.Count(); ++i)
+        //            {
+        //                var actual = diags.Skip(i).First();
+        //                var expected = expectedDiagnostics[i];
 
-                    // Fixes
-                    for (int i = 0; i < diags.Count(); ++i)
-                    {
-                        var actual = diags.Skip(i).First();
-                        var expected = expectedDiagnostics[i];
+        //                var fixable = actual.Should().BeAssignableTo<IFixable>().Which;
+        //                fixable.Fixes.Should().HaveCount(1, "Expecting 1 fix");
+        //                var fix = fixable.Fixes.First();
 
-                        var fixable = actual.Should().BeAssignableTo<IFixable>().Which;
-                        fixable.Fixes.Should().HaveCount(1, "Expecting 1 fix");
-                        var fix = fixable.Fixes.First();
+        //                fix.Kind.Should().Be(CodeFixKind.QuickFix);
+        //                fix.Title.Should().Be(expected.ExpectedFixTitle);
 
-                        fix.Kind.Should().Be(CodeFixKind.QuickFix);
-                        fix.Title.Should().Be(expected.ExpectedFixTitle);
+        //                fix.Replacements.Should().HaveCount(1, "Expecting 1 replacement");
+        //                var replacement = fix.Replacements.First();
+        //                var replacementText = replacement.Text;
+        //                var newBicep = string.Concat(bicep.AsSpan(0, replacement.Span.Position), replacementText, bicep.AsSpan(replacement.Span.Position + replacement.Span.Length));
 
-                        fix.Replacements.Should().HaveCount(1, "Expecting 1 replacement");
-                        var replacement = fix.Replacements.First();
-                        var replacementText = replacement.Text;
-                        var newBicep = string.Concat(bicep.AsSpan(0, replacement.Span.Position), replacementText, bicep.AsSpan(replacement.Span.Position + replacement.Span.Length));
-
-                        newBicep.Should().Contain(expected.ExpectedSubstringInReplacedBicep, "the suggested API version should be replaced in the bicep file");
-                    }
-                },
-                new Options(
-                    OnCompileErrors.IncludeErrors,
-                    IncludePosition.LineNumber,
-                    ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays),
-                    // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
-                    // Note: The compiler does not know about these fake types, only the linter.
-                    AzResourceTypeLoader: FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object));
-        }
+        //                newBicep.Should().Contain(expected.ExpectedSubstringInReplacedBicep, "the suggested API version should be replaced in the bicep file");
+        //            }
+        //        },
+        //        new Options(
+        //            OnCompileErrors.IncludeErrors,
+        //            IncludePosition.LineNumber,
+        //            ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays),
+        //            // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
+        //            // Note: The compiler does not know about these fake types, only the linter.
+        //            AzResourceTypeLoader: FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object));
+        //}
 
         private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null)
         {
-            VerifyAllTypesAndDatesAreFake(today);
-
             return new RootConfiguration(
                 original.Cloud,
                 original.ModuleAliases,
@@ -136,17 +120,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestClass]
-        public class GetAcceptableApiVersionsTests
+        public class GetAcceptableModuleVersionsTests
         {
             private static void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAgeInDays = UseRecentApiVersionRule.DefaultMaxAgeInDays)
             {
-                VerifyAllTypesAndDatesAreFake(fullyQualifiedResourceType, today);
-                VerifyAllTypesAndDatesAreFake(resourceTypes);
-                VerifyAllTypesAndDatesAreFake(expectedApiVersions);
-
                 var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, Enumerable.Empty<ResourceTypeReference>());
                 apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
-                var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, AzureResourceApiVersion.Parse(today).Date, maxAgeInDays, scope, fullyQualifiedResourceType);
+                var (_, allowedVersions) = UseRecentModuleVersionsRule.GetAcceptableModuleVersions(apiVersionProvider, AzureResourceApiVersion.Parse(today).Date, maxAgeInDays, scope, fullyQualifiedResourceType);
                 var allowedVersionsStrings = allowedVersions.Select(v => v.ToString()).ToArray();
                 allowedVersionsStrings.Should().BeEquivalentTo(expectedApiVersions, options => options.WithStrictOrdering());
             }
@@ -818,9 +798,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             [DataTestMethod]
             [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
-            public void InvariantsTest(TestData data)
+            public void Invariants(TestData data)
             {
-                var (allVersions, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAgeInDays, data.ResourceScope, data.FullyQualifiedResourceType);
+                var (allVersions, allowedVersions) = UseRecentModuleVersionsRule.GetAcceptableModuleVersions(RealApiVersionProvider, data.Today, data.MaxAgeInDays, data.ResourceScope, data.FullyQualifiedResourceType);
 
                 allVersions.Should().NotBeNull();
                 allowedVersions.Should().NotBeNull();
@@ -895,7 +875,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestClass]
-        public class AnalyzeApiVersionTests
+        public class AnalyzeModuleVersionTests
         {
             private static DateOnly GetToday() => DateOnly.FromDateTime(DateTime.Today);
 

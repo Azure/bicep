@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Bicep.Core.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 //asdfg creating multiple of these
 namespace Bicep.Core.Registry.PublicRegistry
@@ -16,22 +17,6 @@ namespace Bicep.Core.Registry.PublicRegistry
     /// </summary>
     public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadataProvider
     {
-        private record ModuleTagPropertiesEntry(string Description, string DocumentationUri);
-
-        private record ModuleMetadata(
-            string ModuleName,
-            List<string> Tags,
-            ImmutableDictionary<string /*key: tag*/, ModuleTagPropertiesEntry> Properties);
-
-        private const string LiveDataEndpoint = "https://aka.ms/br-module-index-data";
-
-        private static readonly JsonSerializerOptions JsonSerializerOptions = new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
-        private readonly HttpClient httpClient;
-
         private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
 
         private readonly TimeSpan InitialThrottleDelay = TimeSpan.FromSeconds(5);
@@ -48,10 +33,12 @@ namespace Bicep.Core.Registry.PublicRegistry
 
         private int consecutiveFailures = 0;
 
-        public PublicRegistryModuleMetadataProvider(HttpClient httpClient)
+        private readonly IServiceProvider serviceProvider;
+
+        public PublicRegistryModuleMetadataProvider(IServiceProvider serviceProvider)
         {
-            Trace.WriteLine("PublicRegistryModuleMetadataProvider constructor");
-            this.httpClient = httpClient;
+            Trace.WriteLine("PublicRegistryModuleMetadataProvider constructor"); //asdfg remove
+            this.serviceProvider = serviceProvider;
 
             this.TryUpdateCacheInBackground(true);
         }
@@ -163,30 +150,8 @@ namespace Bicep.Core.Registry.PublicRegistry
 
         private async Task<ImmutableArray<ModuleMetadata>?> TryGetModulesLive()
         {
-            Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Retrieving list of public registry modules...");
-
-            try
-            {
-                //asdfg why wasn't pragma necessary in previous project?
-#pragma warning disable IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
-                var metadata = await this.httpClient.GetFromJsonAsync<ModuleMetadata[]>(LiveDataEndpoint, JsonSerializerOptions);
-#pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
-
-                if (metadata is not null)
-                {
-                    Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Retrieved info on {metadata.Length} public registry modules.");
-                    return metadata.ToImmutableArray();
-                }
-                else
-                {
-                    throw new Exception($"List of MCR modules at {LiveDataEndpoint} was empty");
-                }
-            }
-            catch (Exception e)
-            {
-                Trace.TraceError(string.Format("Error retrieving MCR modules metadata: {0}", e.Message));
-                return null;
-            }
+            var httpClient = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataClient>();
+            return await httpClient.GetModuleMetadata();
         }
 
         private static string? GetDescription(ModuleMetadata moduleMetadata, string? version = null)
