@@ -69,8 +69,17 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             if (serviceProvider == null) //asdfg
             {
-                yield break;
+                //asdfg?
+                return Enumerable.Empty<IDiagnostic>();
             }
+
+            return GetFailures(model, serviceProvider, diagnosticLevel)
+                        .Select(f => CreateFixableDiagnosticForSpan(diagnosticLevel, f.Span, f.Fixes, f.AcceptableVersions));
+        }
+
+        private IEnumerable<Failure> GetFailures(SemanticModel model, IServiceProvider serviceProvider, DiagnosticLevel diagnosticLevel)
+        {
+            var publicRegistryModuleMetadataProvider = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
 
             foreach (var (syntax, artifactResolutionInfo) in model.Compilation.SourceFileGrouping.ArtifactLookup
                 .Where(entry => entry.Value.Origin == model.SourceFile))
@@ -78,14 +87,30 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 //asdfg? artifactResolutionInfo.RequiresRestore
                 //asdfg? if (artifactResolutionInfo.Result.IsSuccess(out Uri? success))
 
-                var publicMcrPrefix = $"br:{LanguageConstants.BicepPublicMcrRegistry}/";
+                //var publicMcrPrefix = $"br:{LanguageConstants.BicepPublicMcrRegistry}/";
                 if (artifactResolutionInfo.Reference is IOciArtifactReference ociReference
                     && ociReference.Registry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.Ordinal)
-                    && ociReference.Tag is string tag) {
+                    && ociReference.Tag is string tag)
+                {
                     //asdfg
+                    const string bicepPrefix = "bicep/";
                     var x = ociReference.Repository;
-                    var y = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
-                    var z = y.GetCachedModuleVersions(x);
+                    if (!x.StartsWith("bicep/", StringComparison.Ordinal))
+                    {
+                        continue; //asdfg
+                    }
+                    var bicepModulePath = x.Substring(bicepPrefix.Length);
+
+                    if (!publicRegistryModuleMetadataProvider.IsModulesCacheAvailable)
+                    {
+                        yield return new Failure(syntax.SourceSyntax.Span, "asdfg no info", [], []);
+
+                    }
+                    else
+                    {
+                        var z = publicRegistryModuleMetadataProvider.GetCachedModuleVersions(bicepModulePath);
+                        var acceptableVersions = GetAcceptableVersions(publicRegistryModuleMetadataProvider, bicepModulePath, tag);
+                    }
                 }
             }
             yield break;

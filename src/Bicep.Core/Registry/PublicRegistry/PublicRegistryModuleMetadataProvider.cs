@@ -53,8 +53,10 @@ namespace Bicep.Core.Registry.PublicRegistry
             Trace.WriteLine("PublicRegistryModuleMetadataProvider constructor");
             this.httpClient = httpClient;
 
-            this.UpdateCacheInBackground(true);
+            this.TryUpdateCacheInBackground(true);
         }
+
+        public bool IsModulesCacheAvailable => cachedModules.Length > 0;
 
         public async Task<bool> TryUpdateCacheAsync()
         {
@@ -72,7 +74,7 @@ namespace Bicep.Core.Registry.PublicRegistry
 
         public IEnumerable<RegistryModule> GetCachedModules() //asdfg doc what happens if can't retrieve from cache
         {
-            UpdateCacheInBackground();
+            TryUpdateCacheInBackground();
 
             var modules = this.cachedModules.ToArray();
             return modules.Select(metadata =>
@@ -81,7 +83,7 @@ namespace Bicep.Core.Registry.PublicRegistry
 
         public IEnumerable<RegistryModuleVersion> GetCachedModuleVersions(string modulePath)
         {
-            UpdateCacheInBackground();
+            TryUpdateCacheInBackground();
 
             var modules = this.cachedModules.ToArray();
             ModuleMetadata? metadata = modules.FirstOrDefault(x => x.ModuleName.Equals(modulePath, StringComparison.Ordinal));
@@ -95,7 +97,7 @@ namespace Bicep.Core.Registry.PublicRegistry
                 new RegistryModuleVersion(v, GetDescription(metadata, v), GetDocumentationUri(metadata, v)));
         }
 
-        private void UpdateCacheInBackground(bool initialDelay = false)
+        private void TryUpdateCacheInBackground(bool initialDelay = false)
         {
             if (!IsCacheExpired() && this.cachedModules.Any())
             {
@@ -130,18 +132,18 @@ namespace Bicep.Core.Registry.PublicRegistry
                     else
                     {
                         this.consecutiveFailures++;
+
+                        // Throttle requests to avoid spamming the endpoint with unsuccessful requests
+                        var delay = GetExponentialDelay(InitialThrottleDelay, this.consecutiveFailures, MaxThrottleDelay);
+                        Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Delaying {delay}..."); // asdfg only delay if repeating
+                        await Task.Delay(delay);
                     }
                 }
                 finally
                 {
-                    // Throttle requests to avoid spamming the endpoint with unsuccessful requests
-                    var delay = GetExponentialDelay(InitialThrottleDelay, this.consecutiveFailures, MaxThrottleDelay);
-                    Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Delaying {delay}...");
-                    await Task.Delay(delay);
-
                     lock (this.queryingLiveSyncObject)
                     {
-                        Trace.Assert(this.isQueryingLiveData, "this.isQueryingLiveData should be true");
+                        Trace.Assert(this.isQueryingLiveData, $"{nameof(PublicRegistryModuleMetadataProvider)}: isQueryingLiveData should be true");
                         this.isQueryingLiveData = false;
                     }
                 }
@@ -153,7 +155,7 @@ namespace Bicep.Core.Registry.PublicRegistry
             var expired = this.lastSuccessfulQuery.HasValue && this.lastSuccessfulQuery.Value + this.CacheValidFor < DateTime.Now;
             if (expired)
             {
-                Trace.TraceInformation("Public modules cache is expired.");
+                Trace.TraceInformation($"{nameof(PublicRegistryModuleMetadataProvider)}: Public modules cache is expired.");
             }
 
             return expired;
@@ -161,7 +163,7 @@ namespace Bicep.Core.Registry.PublicRegistry
 
         private async Task<ImmutableArray<ModuleMetadata>?> TryGetModulesLive()
         {
-            Trace.WriteLine($"Retrieving list of public registry modules...");
+            Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Retrieving list of public registry modules...");
 
             try
             {
@@ -172,6 +174,7 @@ namespace Bicep.Core.Registry.PublicRegistry
 
                 if (metadata is not null)
                 {
+                    Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Retrieved info on {metadata.Length} public registry modules.");
                     return metadata.ToImmutableArray();
                 }
                 else

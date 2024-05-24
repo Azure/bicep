@@ -12,6 +12,8 @@ public record RegistryModuleVersion(string Version, string? Description, string?
 
 public interface IPublicRegistryModuleMetadataProvider
 {
+    bool IsModulesCacheAvailable { get; }
+
     IEnumerable<RegistryModule> GetCachedModules();
 
     IEnumerable<RegistryModuleVersion> GetCachedModuleVersions(string modulePath);
