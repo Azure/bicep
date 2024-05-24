@@ -120,8 +120,15 @@ namespace Bicep.LanguageServer.Providers
 
         private async Task<ImmutableArray<ModuleMetadata>?> TryGetModulesLive()
         {
-            var client = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataClient>();
-            return await client.GetModuleMetadata();
+            try
+            {
+                var client = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataClient>();
+                return await client.GetModuleMetadata();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         // Modules paths are, e.g. "app/dapr-containerapp"
