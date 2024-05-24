@@ -16,9 +16,9 @@
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
-        "requested": "[8.0.4, )",
-        "resolved": "8.0.4",
-        "contentHash": "PZb5nfQ+U19nhnmnR9T1jw+LTmozhuG2eeuzuW5A7DqxD/UXW2ucjmNJqnqOuh8rdPzM3MQXoF8AfFCedJdCUw=="
+        "requested": "[8.0.5, )",
+        "resolved": "8.0.5",
+        "contentHash": "4ISW1Ndgz86FkIbu5rVlMqhhtojdy5rUlxC/N+9kPh9qbYcvHiCvYbHKzAPVIx9OPYIjT9trXt7JI42Y5Ukq6A=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
@@ -149,8 +149,8 @@
       },
       "Azure.ResourceManager.Resources": {
         "type": "Transitive",
-        "resolved": "1.7.2",
-        "contentHash": "w9WgNNRpryKV3wJISRmAZpYTONHD56NrTulejsznUicbIXL60aMuFg8kDeE2uILEsZWU64WnzWVYT8bmJX+cww==",
+        "resolved": "1.7.3",
+        "contentHash": "al15qUYpeY5+8TFrtVQXhl2X+EILwakLrTcG8aaasOnW5CJvUK8++108eUHia/O7OOP2yePu3yH2lv9yyW+jeg==",
         "dependencies": {
           "Azure.Core": "1.39.0",
           "Azure.ResourceManager": "1.11.1",
@@ -886,7 +886,7 @@
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
           "Azure.Deployments.Templates": "[1.0.1243.1, )",
           "Azure.Identity": "[1.11.3, )",
-          "Azure.ResourceManager.Resources": "[1.7.2, )",
+          "Azure.ResourceManager.Resources": "[1.7.3, )",
           "JsonPatch.Net": "[3.1.0, )",
           "JsonPath.Net": "[1.0.2, )",
           "Microsoft.Extensions.Configuration": "[8.0.0, )",
