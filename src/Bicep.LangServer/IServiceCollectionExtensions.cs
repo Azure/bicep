@@ -50,7 +50,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepDecompiler>();
 
-    public static IServiceCollection AddServerDependencies(this IServiceCollection services) => services
+    public static IServiceCollection AddServerDependencies(this IServiceCollection services) => services //asdfg add IPublicRegistryModuleMetadataProvider here (make sure cache only checked one at a time)
         .AddBicepCore()
         .AddBicepDecompiler()
         .AddSingleton<IWorkspace, Workspace>()

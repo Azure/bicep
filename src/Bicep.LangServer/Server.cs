@@ -102,6 +102,7 @@ namespace Bicep.LanguageServer
             services.AddServerDependencies();
 
             services
+                //asdfg this is not a singleton
                 .AddHttpClient<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
                 .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
                 {
