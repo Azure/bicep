@@ -2,17 +2,17 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
+using Bicep.Core.Registry.Providers;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
-using Bicep.Core.Registry.Providers;
 
 namespace Bicep.Core.Registry
 {
@@ -32,7 +32,8 @@ namespace Bicep.Core.Registry
         public override string Scheme => ArtifactReferenceSchemes.Local;
 
         public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, LocalModuleReference reference)
-            => artifactType switch {
+            => artifactType switch
+            {
                 ArtifactType.Module => RegistryCapabilities.Default,
                 ArtifactType.Provider => RegistryCapabilities.Publish,
                 _ => throw new UnreachableException(),
@@ -44,7 +45,7 @@ namespace Bicep.Core.Registry
             {
                 return new(x => x.UnsupportedArtifactType(artifactType));
             }
-            
+
             if (!LocalModuleReference.TryParse(reference, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
@@ -93,7 +94,8 @@ namespace Bicep.Core.Registry
         }
 
         public override Task<bool> CheckArtifactExists(ArtifactType artifactType, LocalModuleReference reference)
-            => artifactType switch {
+            => artifactType switch
+            {
                 ArtifactType.Module => throw new NotSupportedException("Local modules cannot be published."),
                 ArtifactType.Provider => Task.FromResult(false),
                 _ => throw new UnreachableException(),

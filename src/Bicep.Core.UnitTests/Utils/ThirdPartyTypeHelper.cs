@@ -318,7 +318,7 @@ public static class ThirdPartyTypeHelper
             }
 
             var outputPath = Path.Combine(basePath, entry.Name);
-            if (Path.GetDirectoryName(outputPath) is {} outputParentDir &&
+            if (Path.GetDirectoryName(outputPath) is { } outputParentDir &&
                 !fileSystem.Directory.Exists(outputParentDir))
             {
                 fileSystem.Directory.CreateDirectory(outputParentDir);

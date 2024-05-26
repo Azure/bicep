@@ -14,8 +14,8 @@ public record RegistryModuleVersion(
     string? DocumentationUri);
 
 public interface IPublicRegistryModuleMetadataProvider
-    {
-        Task<IEnumerable<RegistryModule>> GetModules();
+{
+    Task<IEnumerable<RegistryModule>> GetModules();
 
-        Task<IEnumerable<RegistryModuleVersion>> GetVersions(string modulePath);
-    }
+    Task<IEnumerable<RegistryModuleVersion>> GetVersions(string modulePath);
+}
