@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Registry.Oci;
 using System.Collections.Immutable;
+using Bicep.Core.Registry.Oci;
 
 namespace Bicep.LanguageServer.Providers;
 

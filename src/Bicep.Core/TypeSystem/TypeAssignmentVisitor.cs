@@ -1782,12 +1782,12 @@ namespace Bicep.Core.TypeSystem
 
         private static TypeSymbol? TryGetReadablePropertyType(ObjectType objectType, string propertyName)
         {
-            if (objectType.Properties.TryGetValue(propertyName) is {} property && !property.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+            if (objectType.Properties.TryGetValue(propertyName) is { } property && !property.Flags.HasFlag(TypePropertyFlags.WriteOnly))
             {
                 return property.TypeReference.Type;
             }
 
-            if (objectType.AdditionalPropertiesType is {} additionalPropertiesType && !objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.WriteOnly))
+            if (objectType.AdditionalPropertiesType is { } additionalPropertiesType && !objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.WriteOnly))
             {
                 return additionalPropertiesType.Type;
             }
@@ -1801,7 +1801,7 @@ namespace Bicep.Core.TypeSystem
             foreach (var member in unionType.Members)
             {
                 if (member is not ObjectType objectType ||
-                    TryGetReadablePropertyType(objectType, propertyName) is not {} propertyType)
+                    TryGetReadablePropertyType(objectType, propertyName) is not { } propertyType)
                 {
                     // fall back to any if we can't definitively obtain the property type.
                     // this may give some false positives - we can further refine this if desired.

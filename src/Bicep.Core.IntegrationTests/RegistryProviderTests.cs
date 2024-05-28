@@ -111,7 +111,7 @@ output joke string = dadJoke.body.joke
         var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();
         var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         Directory.CreateDirectory(tempDirectory);
-        
+
         var providerPath = Path.Combine(tempDirectory, "provider.tgz");
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), Path.Combine(tempDirectory, providerPath), typesTgz);
 

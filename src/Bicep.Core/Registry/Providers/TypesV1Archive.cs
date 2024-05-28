@@ -84,11 +84,11 @@ public static class TypesV1Archive
         var index = TypeSerializer.DeserializeIndex(indexStream);
 
         var typeReferences = index.Resources.Values.ToList();
-        if (index.Settings?.ConfigurationType is {} configType)
+        if (index.Settings?.ConfigurationType is { } configType)
         {
             typeReferences.Add(configType);
         }
-        if (index.FallbackResourceType is {} fallbackType)
+        if (index.FallbackResourceType is { } fallbackType)
         {
             typeReferences.Add(fallbackType);
         }
