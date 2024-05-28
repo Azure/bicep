@@ -3,6 +3,6 @@ module /*${1:privateDnsZone}*/privateDnsZone /*${2:'br/public:avm/res/network/pr
   name: /*${4:'deploymentName'}*/'deploymentName'
   params: {
     name: /*${5:'name'}*/'name'
-    location: /*${6:'global'}*/'global'
+    location: /*${6:location}*/'global'
   }
 }
