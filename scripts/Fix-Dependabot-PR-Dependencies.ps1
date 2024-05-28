@@ -15,7 +15,7 @@ while ($true) {
     }
 
     # Wait for 1 minute before checking again
-    Start-Sleep -Seconds 15
+    Start-Sleep -Seconds 60
 }
 
 Write-Host "Closing and reopening PRs to force a rebuild..."
