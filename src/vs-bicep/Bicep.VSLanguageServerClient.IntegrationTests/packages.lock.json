@@ -61,16 +61,16 @@
       },
       "Microsoft.VisualStudio.Composition": {
         "type": "Direct",
-        "requested": "[17.7.40, )",
-        "resolved": "17.7.40",
-        "contentHash": "BjQMHw97eZFaP+5Ng0iJaHOFGmRowZHfHRHWZGlz3h9eC1bEwNSaBXZT+tha9NhR+jPRnK1xNwCeoPtN8U0yMQ==",
+        "requested": "[17.10.37, )",
+        "resolved": "17.10.37",
+        "contentHash": "H9gyi3JuR1ONy5WlpP+KgAwEWlGoTyppj6ucgrzp5Gzl+EVOY2HXv69XK/324w3+BHXoiyZU0AO6QSw68LuVQA==",
         "dependencies": {
-          "Microsoft.VisualStudio.Composition.Analyzers": "17.7.40",
-          "Microsoft.VisualStudio.Validation": "17.6.11",
-          "System.Collections.Immutable": "7.0.0",
-          "System.ComponentModel.Composition": "7.0.0",
-          "System.Composition": "7.0.0",
-          "System.Composition.AttributedModel": "7.0.0",
+          "Microsoft.VisualStudio.Composition.Analyzers": "17.10.37",
+          "Microsoft.VisualStudio.Validation": "17.8.8",
+          "System.Collections.Immutable": "8.0.0",
+          "System.ComponentModel.Composition": "8.0.0",
+          "System.Composition": "8.0.0",
+          "System.Composition.AttributedModel": "8.0.0",
           "System.Reflection.Metadata": "7.0.0",
           "System.Threading.Tasks.Dataflow": "7.0.0"
         }
@@ -478,8 +478,8 @@
       },
       "Microsoft.VisualStudio.Composition.Analyzers": {
         "type": "Transitive",
-        "resolved": "17.7.40",
-        "contentHash": "rgFie5cK34I310RrLjjBnfH+bmOM7gUtcx8+PH65f1TeVQkWZzxr1b2/QsH/tHt3bsipvKghhp2VkUtLO5x8wA=="
+        "resolved": "17.10.37",
+        "contentHash": "Go7K2ErNHsWgCv+hvgOu45yaU6836X5/59MSZgQHue6az07ZhC65jeKpSBsoJHlEk3zHhEB5iI8VOnRodr+wxA=="
       },
       "Microsoft.VisualStudio.CoreUtility": {
         "type": "Transitive",
@@ -1171,7 +1171,7 @@
           "Bicep.VSLanguageServerClient": "[1.0.0, )",
           "Microsoft.NET.Test.Sdk": "[17.9.0, )",
           "Microsoft.Test.Apex.VisualStudio": "[17.9.34701.34, )",
-          "Microsoft.VisualStudio.Composition": "[17.7.40, )",
+          "Microsoft.VisualStudio.Composition": "[17.10.37, )",
           "Microsoft.VisualStudio.Editor": "[17.2.3194, )",
           "Microsoft.VisualStudio.Shell.Framework": "[17.9.37000, )",
           "Microsoft.VisualStudio.Workspace": "[17.1.11-preview-0002, )",
