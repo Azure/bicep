@@ -213,6 +213,7 @@ Usage:
 
     Options:
       --bicep-file <file>            Verifies if the specified bicep file path matches the one provided in the params file using declaration
+      --outdir <dir>                 Saves the output at the specified directory.
       --outfile <file>               Saves the param output json as the specified file path.
       --stdout                       Prints the param and bicep json output to stdout.
       --no-restore                   Builds the bicep file (referenced in using declaration) without restoring external modules.
@@ -221,6 +222,7 @@ Usage:
     Examples:
       bicep build-params params.bicepparam
       bicep build-params params.bicepparam --stdout
+      bicep build-params params.bicepparam --outdir
       bicep build-params params.bicepparam --outfile otherParams.json
       bicep build-params params.bicepparam --no-restore
       bicep build-params params.bicepparam --diagnostics-format sarif
