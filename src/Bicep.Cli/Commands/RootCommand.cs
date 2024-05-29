@@ -213,9 +213,9 @@ Usage:
 
     Options:
       --bicep-file <file>            Verifies if the specified bicep file path matches the one provided in the params file using declaration
-      --outdir <dir>                 Saves the output at the specified directory.
-      --outfile <file>               Saves the param output json as the specified file path.
-      --stdout                       Prints the param and bicep json output to stdout.
+      --outdir <dir>                 Saves the output of building the parameter file only (.bicepparam) as json to the specified directory.
+      --outfile <file>               Saves the output of building the parameter file only (.bicepparam) as json to the specified file path.
+      --stdout                       Prints the output of building both the parameter file (.bicepparam) and the template it points to (.bicep) as json to stdout.
       --no-restore                   Builds the bicep file (referenced in using declaration) without restoring external modules.
       --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
 
