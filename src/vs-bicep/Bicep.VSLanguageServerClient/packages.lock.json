@@ -60,11 +60,11 @@
       },
       "Microsoft.VisualStudio.Shell.Interop": {
         "type": "Direct",
-        "requested": "[17.9.37000, )",
-        "resolved": "17.9.37000",
-        "contentHash": "+FLB9P3CM5Ern1t0Ny/D3ce7Vn2OzMeD07iKl25DWghYaNSiDFaucuXiXzNa/nddxb4tOzg8ZN3rKQ1ZyN595g==",
+        "requested": "[17.10.40170, )",
+        "resolved": "17.10.40170",
+        "contentHash": "Paqp12+psmGEdYifPdNiE057DbzVYl2DXjSCrgwrjJ2kGzWlURP9N6sFbbmWyLc7A0x3luJHRGM6n/24+hZvMw==",
         "dependencies": {
-          "Microsoft.VisualStudio.Interop": "17.9.37000"
+          "Microsoft.VisualStudio.Interop": "17.10.40170"
         }
       },
       "Microsoft.VisualStudio.Telemetry": {
@@ -423,8 +423,8 @@
       },
       "Microsoft.VisualStudio.Interop": {
         "type": "Transitive",
-        "resolved": "17.9.37000",
-        "contentHash": "lIHdpk2g0PpIy2PiYCf6TFXZmS0tHC3shGhTrh1knmQ6M/BpYnuKmdJ5Ysknfm+MVEDUg+uYTcvaLqhF6C+O7w=="
+        "resolved": "17.10.40170",
+        "contentHash": "sHqM5VIAbBn5I7soTAjvNFL1c36Dsp9sKN2x2tj9Y7gxVami/o5Z+0uTMUOzHmcIOrSGeU9ldQ+OUKLUCZic8Q=="
       },
       "Microsoft.VisualStudio.ProjectAggregator": {
         "type": "Transitive",
