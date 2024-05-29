@@ -222,7 +222,7 @@ Usage:
     Examples:
       bicep build-params params.bicepparam
       bicep build-params params.bicepparam --stdout
-      bicep build-params params.bicepparam --outdir
+      bicep build-params params.bicepparam --outdir dir1
       bicep build-params params.bicepparam --outfile otherParams.json
       bicep build-params params.bicepparam --no-restore
       bicep build-params params.bicepparam --diagnostics-format sarif
