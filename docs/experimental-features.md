@@ -16,7 +16,7 @@ Requires `extensibility` to be enabled. If enabled, users are able to fetch the 
 The provider definitions also support aliasing via `bicepconfig.json` similar to [`moduleAliases`](https://learn.microsoft.com/azure/azure-resource-manager/bicep/bicep-config-modules#aliases-for-modules). For example `provider 'br/public:az@1.0.0' as az`.
 
 ### `extensibility`
-Allows Bicep to use a provider model to deploy non-ARM resources. Currently, we support Kubernetes provider ([Bicep extensibility Kubernetes provider](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-extensibility-kubernetes-provider)) and Microsoft Graph provider([Bicep templates for Microsoft Graph](https://aka.ms/graphbicep)).
+Allows Bicep to use a provider model to deploy non-ARM resources. Currently, we support Kubernetes provider ([Bicep extensibility Kubernetes provider](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-extensibility-kubernetes-provider)) and Microsoft Graph provider ([Bicep templates for Microsoft Graph](https://aka.ms/graphbicep)).
 
 ### `legacyFormatter`
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
