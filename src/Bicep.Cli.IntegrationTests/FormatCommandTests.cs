@@ -300,6 +300,46 @@ namespace Bicep.Cli.IntegrationTests
             formatted.Should().BeEquivalentToIgnoringNewlines(expected);
         }
 
+        [TestMethod]
+        public async Task Format_WithInsertFinalNewline_AddsFinalNewline()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                ["main.bicep"] = "output myOutput string = 'hello!'",
+            });
+
+            var result = await Bicep(services => services.WithFileSystem(fileSystem), "format", "main.bicep", "--insert-final-newline");
+
+            AssertSuccess(result);
+
+            var formatted = fileSystem.File.ReadAllText("main.bicep");
+            formatted.Should().BeEquivalentTo("output myOutput string = 'hello!'\n");
+
+            result = await Bicep(services => services.WithFileSystem(fileSystem), "format", "main.bicep", "--insert-final-newline", "true");
+
+            AssertSuccess(result);
+
+            formatted = fileSystem.File.ReadAllText("main.bicep");
+            formatted.Should().BeEquivalentTo("output myOutput string = 'hello!'\n");
+        }
+
+        [TestMethod]
+        public async Task Format_WithInsertFinalNewlineFalse_RemovesFinalNewline()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                ["main.bicep"] = "output myOutput string = 'hello!'\n",
+            });
+
+            var result = await Bicep(services => services.WithFileSystem(fileSystem), "format", "main.bicep", "--insert-final-newline", "false");
+
+            AssertSuccess(result);
+
+            var formatted = fileSystem.File.ReadAllText("main.bicep");
+            formatted.Should().BeEquivalentTo("output myOutput string = 'hello!'");
+        }
+
+
         private static IEnumerable<object[]> GetDataSets() => DataSets.AllDataSets
             .Where(x => !x.Name.Equals(DataSets.PrettyPrint_LF.Name, StringComparison.Ordinal))
             .ToDynamicTestData();
