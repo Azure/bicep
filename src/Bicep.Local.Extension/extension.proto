@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option csharp_namespace = "Bicep.Local.Extension.Rpc";
+
+package extension;
+
+service BicepExtension {
+  rpc Save (ExtensibilityOperationRequest) returns (ExtensibilityOperationResponse);
+  rpc PreviewSave (ExtensibilityOperationRequest) returns (ExtensibilityOperationResponse);
+  rpc Get (ExtensibilityOperationRequest) returns (ExtensibilityOperationResponse);
+  rpc Delete (ExtensibilityOperationRequest) returns (ExtensibilityOperationResponse);
+  rpc Ping(Empty) returns (Empty);
+}
+
+message Empty {}
+
+message ExtensibleImportData {
+  string provider = 1;
+  string version = 2;
+  optional string config = 3;
+}
+
+message ExtensibleResourceData {
+  string type = 1;
+  optional string properties = 2;
+}
+
+message ExtensibleResourceMetadata {
+  repeated string readOnlyProperties = 1;
+  repeated string immutableProperties = 2;
+  repeated string dynamicProperties = 3;
+}
+
+message ExtensibilityError {
+  string code = 1;
+  string message = 2;
+  string target = 3;
+}
+
+message ExtensibilityOperationRequest {
+  ExtensibleImportData import = 1;
+  ExtensibleResourceData resource = 2;
+}
+
+message ExtensibilityOperationResponse {
+  optional ExtensibleResourceData resource = 1;
+  optional ExtensibleResourceMetadata resourceMetadata = 2;
+  repeated ExtensibilityError errors = 3;
+}

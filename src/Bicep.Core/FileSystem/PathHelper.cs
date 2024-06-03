@@ -247,5 +247,8 @@ namespace Bicep.Core.FileSystem
 
             return relativeUri;
         }
+
+        public static Uri ResolveFilePath(Uri parentFileUri, string childFilePath)
+            => TryResolveFilePath(parentFileUri, childFilePath) ?? throw new InvalidOperationException($"Failed to resolve file path for URI {parentFileUri} and child path {childFilePath}");
     }
 }

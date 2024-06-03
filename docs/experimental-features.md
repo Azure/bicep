@@ -21,6 +21,9 @@ Allows Bicep to use a provider model to deploy non-ARM resources. Currently, we 
 ### `legacyFormatter`
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
 
+### `localDeploy`
+Enables local deployment capability. See [Bicep Local Providers](https://github.com/anthony-c-martin/bicep-local-providers) for more information.
+
 ### `optionalModuleNames`
 Enabling this feature makes the `name` property in the body of `module` declarations optional. When a `module` omits the `name` property with the feature enabled, the Bicep compiler will automatically generate an expression for the name of the resulting nested deployment in the JSON. If you specify the `name` property, the compiler will use the specified expression in the resulting JSON. For more information, see [Added optional module names as an experimental feature](https://github.com/Azure/bicep/pull/12600).
 
