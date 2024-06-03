@@ -1,32 +1,33 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Providers;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
+using System.IO.Abstractions;
+using Bicep.Core.Features;
+using Bicep.Core.Registry.Oci;
+using System.Runtime.InteropServices;
 
 namespace Bicep.Core.Registry
 {
-    public class LocalModuleRegistry : ArtifactRegistry<LocalModuleReference>
-    {
-        private readonly IFileResolver fileResolver;
-        private readonly Uri parentModuleUri;
-        private readonly BicepCompiler? bicepCompiler;
+    public record LocalModuleEntity(ProviderPackage Provider);
 
-        public LocalModuleRegistry(IFileResolver fileResolver, Uri parentModuleUri, BicepCompiler? bicepCompiler)
+    public class LocalModuleRegistry : ExternalArtifactRegistry<LocalModuleReference, LocalModuleEntity>
+    {
+        private readonly IFeatureProvider featureProvider;
+        private readonly Uri parentModuleUri;
+
+        public LocalModuleRegistry(IFileResolver fileResolver, IFileSystem fileSystem, IFeatureProvider featureProvider, Uri parentModuleUri)
+            : base(fileResolver, fileSystem)
         {
-            this.fileResolver = fileResolver;
+            this.featureProvider = featureProvider;
             this.parentModuleUri = parentModuleUri;
-            this.bicepCompiler = bicepCompiler;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.Local;
@@ -46,7 +47,7 @@ namespace Bicep.Core.Registry
                 return new(x => x.UnsupportedArtifactType(artifactType));
             }
 
-            if (!LocalModuleReference.TryParse(reference, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
+            if (!LocalModuleReference.TryParse(artifactType, reference, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
@@ -57,7 +58,12 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(LocalModuleReference reference)
         {
-            var localUri = fileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path);
+            if (reference.ArtifactType == ArtifactType.Provider)
+            {
+                return new(GetTypesTgzUri(reference));
+            }
+
+            var localUri = FileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path);
             if (localUri is null)
             {
                 return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ParentModuleUri.LocalPath));
@@ -66,31 +72,52 @@ namespace Bicep.Core.Registry
             return new(localUri);
         }
 
-        public override Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<LocalModuleReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<LocalModuleReference> references)
         {
-            // local modules are already present on the file system
-            // and do not require init
-            return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>>(ImmutableDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>.Empty);
+            var statuses = new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+
+            foreach (var reference in references)
+            {
+                if (reference.ArtifactType == ArtifactType.Provider)
+                {
+                    if (TryReadContent(reference) is not {} binaryData)
+                    {
+                        statuses.Add(reference, x => x.ArtifactRestoreFailedWithMessage(reference.FullyQualifiedReference, $"Failed to find {reference.FullyQualifiedReference}"));
+                        continue;
+                    }
+
+                    var package = ProviderV1Archive.Read(binaryData);
+                    await this.WriteArtifactContentToCacheAsync(reference, new(package));
+                }
+            }
+
+            return statuses;
         }
 
-        public override Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<LocalModuleReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<LocalModuleReference> references)
         {
-            // local modules are already present on the file system, there's no cache concept for this one
-            // we do nothing
-            return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>>(ImmutableDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>.Empty);
+            return await base.InvalidateArtifactsCacheInternal(references);
         }
 
-        public override bool IsArtifactRestoreRequired(LocalModuleReference reference) => false;
+        public override bool IsArtifactRestoreRequired(LocalModuleReference reference)
+        {
+            if (reference.ArtifactType != ArtifactType.Provider)
+            {
+                return false;
+            }
+
+            return !this.FileResolver.FileExists(this.GetTypesTgzUri(reference));
+        }
 
         public override Task PublishModule(LocalModuleReference moduleReference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, string? description)
             => throw new NotSupportedException("Local modules cannot be published.");
 
-        public override async Task PublishProvider(LocalModuleReference reference, BinaryData typesTgz)
+        public override async Task PublishProvider(LocalModuleReference reference, ProviderPackage provider)
         {
-            var archive = await ProviderV1Archive.Build(typesTgz);
+            var archive = await ProviderV1Archive.Build(provider);
 
             var fileUri = PathHelper.TryResolveFilePath(reference.ParentModuleUri, reference.Path)!;
-            fileResolver.Write(fileUri, archive.ToStream());
+            FileResolver.Write(fileUri, archive.ToStream());
         }
 
         public override Task<bool> CheckArtifactExists(ArtifactType artifactType, LocalModuleReference reference)
@@ -117,5 +144,46 @@ namespace Bicep.Core.Registry
         {
             return new(new SourceNotAvailableException());
         }
+
+        protected override void WriteArtifactContentToCache(LocalModuleReference reference, LocalModuleEntity entity)
+        {
+            var typesUri = this.GetTypesTgzUri(reference);
+            this.FileResolver.Write(typesUri, entity.Provider.Types.ToStream());
+        }
+
+        protected override string GetArtifactDirectoryPath(LocalModuleReference reference)
+        {
+            if (TryReadContent(reference) is not {} binaryData)
+            {
+                throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
+            }
+
+            // Provider packages are unpacked to '~/.bicep/local/sha256_<digest>'.
+            // We must use '_' as a separator here because Windows does not allow ':' in file paths.
+            var digest = OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, binaryData, separator: '_');
+
+            return FileSystem.Path.Combine(
+                this.featureProvider.CacheRootDirectory,
+                "local",
+                digest);
+        }
+
+        private BinaryData? TryReadContent(LocalModuleReference reference)
+        {
+            if (FileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path) is not {} fileUri ||
+                FileResolver.TryReadAsBinaryData(fileUri).TryUnwrap() is not {} binaryData)
+            {
+                return null;
+            }
+
+            return binaryData;
+        }
+        
+        private Uri GetTypesTgzUri(LocalModuleReference reference) => GetFileUri(reference, "types.tgz");
+
+        protected override Uri GetArtifactLockFileUri(LocalModuleReference reference) => GetFileUri(reference, "lock");
+        
+        private Uri GetFileUri(LocalModuleReference reference, string path)
+            => new(FileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), path), UriKind.Absolute);
     }
 }

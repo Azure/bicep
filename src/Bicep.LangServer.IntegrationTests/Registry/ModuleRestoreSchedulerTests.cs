@@ -172,7 +172,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public Task PublishModule(ArtifactReference _, BinaryData __, BinaryData? ___, string? ____, string? _____)
                 => throw new NotImplementedException();
 
-            public Task PublishProvider(ArtifactReference _, BinaryData __)
+            public Task PublishProvider(ArtifactReference _, ProviderPackage __)
                 => throw new NotImplementedException();
 
             public Task<bool> CheckArtifactExists(ArtifactType artifactType, ArtifactReference reference) => throw new NotImplementedException();

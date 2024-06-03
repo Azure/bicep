@@ -998,7 +998,7 @@ namespace Bicep.Core.Emit
             {
                 foreach (var provider in providers)
                 {
-                    var settings = provider.NamespaceType.Settings;
+                    var settings = provider.Settings;
 
                     emitter.EmitObjectProperty(provider.Name, () =>
                     {

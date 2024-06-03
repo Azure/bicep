@@ -106,7 +106,9 @@ output joke string = dadJoke.body.joke
     [TestMethod]
     public async Task Providers_published_to_filesystem_can_be_compiled()
     {
-        var services = new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true));
+        var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
+        Directory.CreateDirectory(cacheDirectory);
+        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory, ExtensibilityEnabled: true, ProviderRegistry: true));
 
         var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();
         var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
@@ -129,7 +131,11 @@ resource fooRes 'fooType@v1' = {
 
         var bicepUri = PathHelper.FilePathToFileUrl(bicepPath);
 
-        var result = CompilationHelper.Compile(services, BicepTestConstants.FileResolver, [bicepUri], bicepUri);
+
+        var compiler = services.Build().GetCompiler();
+        var compilation = await compiler.CreateCompilation(bicepUri);
+
+        var result = CompilationHelper.GetCompilationResult(compilation);
 
         result.Should().NotHaveAnyDiagnostics();
     }

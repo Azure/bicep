@@ -47,7 +47,8 @@ public static class GrpcChannelHelper
             ConnectCallback = connectionFactory.ConnectAsync
         };
 
-        return GrpcChannel.ForAddress("http://localhost", new GrpcChannelOptions
+        // The URL is not used, but it must be a valid URI.
+        return GrpcChannel.ForAddress("invalid://unused", new GrpcChannelOptions
         {
             HttpHandler = socketsHttpHandler
         });

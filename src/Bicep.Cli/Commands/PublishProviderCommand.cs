@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
@@ -57,11 +59,13 @@ namespace Bicep.Cli.Commands
                 throw new BicepException($"Provider package creation failed: {exception.Message}");
             }
 
-            await this.PublishProviderAsync(providerReference, tarPayload, overwriteIfExists);
+            var package = new ProviderPackage(Types: tarPayload);
+
+            await this.PublishProviderAsync(providerReference, package, overwriteIfExists);
             return 0;
         }
 
-        private async Task PublishProviderAsync(ArtifactReference target, BinaryData tarPayload, bool overwriteIfExists)
+        private async Task PublishProviderAsync(ArtifactReference target, ProviderPackage package, bool overwriteIfExists)
         {
             try
             {
@@ -70,7 +74,7 @@ namespace Bicep.Cli.Commands
                 {
                     throw new BicepException($"The Provider \"{target.FullyQualifiedReference}\" already exists. Use --force to overwrite the existing provider.");
                 }
-                await this.moduleDispatcher.PublishProvider(target, tarPayload);
+                await this.moduleDispatcher.PublishProvider(target, package);
             }
             catch (ExternalArtifactException exception)
             {
