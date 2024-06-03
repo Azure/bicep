@@ -20,7 +20,8 @@ namespace Bicep.Core.Registry.Oci
                 throw new InvalidArtifactException($"Unknown config.mediaType: '{manifest.Config.MediaType}'.", InvalidArtifactExceptionKind.WrongArtifactType);
             }
 
-            this.mainLayer = this.Layers.Single();
+            var expectedLayerMediaType = BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip;
+            this.mainLayer = this.Layers.Where(l => l.MediaType.Equals(expectedLayerMediaType, MediaTypeComparison)).Single();
         }
 
         public override OciArtifactLayer GetMainLayer() => this.mainLayer;

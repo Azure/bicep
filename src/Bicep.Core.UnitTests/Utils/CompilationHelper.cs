@@ -62,6 +62,11 @@ namespace Bicep.Core.UnitTests.Utils
 
             var (uriDictionary, entryUri) = CreateFileDictionary(filesToAppend, "main.bicep");
 
+            return await RestoreAndCompile(services, uriDictionary, entryUri);
+        }
+
+        public static async Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, IReadOnlyDictionary<Uri, string> uriDictionary, Uri entryUri)
+        {
             var compiler = services.Build().GetCompiler();
             var compilation = await compiler.CreateCompilation(entryUri, CreateWorkspace(uriDictionary));
 

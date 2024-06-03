@@ -10,6 +10,7 @@ namespace Bicep.Cli.Constants
         public const string BuildParams = "build-params";
         public const string Format = "format";
         public const string JsonRpc = "jsonrpc";
+        public const string LocalDeploy = "local-deploy";
         public const string GenerateParamsFile = "generate-params";
         public const string Decompile = "decompile";
         public const string DecompileParams = "decompile-params";

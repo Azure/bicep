@@ -35,9 +35,7 @@ namespace Bicep.Core.TypeSystem.Providers
                 try
                 {
                     using var fileStream = fileSystem.File.OpenRead(typesTgzUri.LocalPath);
-                    var typesLoader = artifactReference is LocalModuleReference ?
-                        OciTypeLoader.FromFilesystemBundle(fileStream) :
-                        OciTypeLoader.FromStream(fileStream);
+                    var typesLoader = OciTypeLoader.FromStream(fileStream);
 
                     if (key.UseAzLoader)
                     {

@@ -30,6 +30,8 @@ public interface IFeatureProvider
 
     bool OptionalModuleNamesEnabled { get; }
 
+    bool LocalDeployEnabled { get; }
+
     bool ResourceDerivedTypesEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
@@ -49,6 +51,7 @@ public interface IFeatureProvider
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
                 (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),
+                (LocalDeployEnabled, "Enable local deploy", false, false),
                 (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
             })
             {

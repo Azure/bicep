@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Providers;
 
@@ -21,11 +23,13 @@ namespace Bicep.Core.TypeSystem.Types
             IEnumerable<FunctionOverload> functionOverloads,
             IEnumerable<BannedFunction> bannedFunctions,
             IEnumerable<Decorator> decorators,
-            IResourceTypeProvider resourceTypeProvider)
+            IResourceTypeProvider resourceTypeProvider,
+            ArtifactReference? artifact = null)
             : base(aliasName, TypeSymbolValidationFlags.PreventAssignment, properties, null, TypePropertyFlags.None, obj => new FunctionResolver(obj, functionOverloads, bannedFunctions))
         {
             Settings = settings;
             ResourceTypeProvider = resourceTypeProvider;
+            Artifact = artifact;
             DecoratorResolver = new DecoratorResolver(this, decorators);
         }
 
@@ -36,6 +40,8 @@ namespace Bicep.Core.TypeSystem.Types
         public NamespaceSettings Settings { get; }
 
         public IResourceTypeProvider ResourceTypeProvider { get; }
+
+        public ArtifactReference? Artifact { get; }
 
         public string ProviderName => Settings.BicepProviderName;
 
