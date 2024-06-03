@@ -747,7 +747,7 @@
     "packagelocal": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net8.0 ./bicepLanguageServer && npm run package"
   },
   "devDependencies": {
-    "@types/cytoscape": "^3.21.1",
+    "@types/cytoscape": "^3.21.2",
     "@types/fs-extra": "^11.0.4",
     "@types/jest": "^29.5.12",
     "@types/mocha": "^10.0.6",
