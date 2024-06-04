@@ -40,17 +40,17 @@
             "stopAtEntry": false
         },
         {
-            "name": "CLI-Test",
+            "name": "CLI Local Deploy",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "Build CLI",
             "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/net8.0/bicep",
             "args": [
-                "test",
-                "${file}"
+                "local-deploy",
+                "${workspaceFolder}/../bicep-local-providers/samples/e2e/echo-server-e2e.bicepparam"
             ],
             "env": {
-                "BICEP_TRACING_ENABLED": "true",
+                "BICEP_TRACING_ENABLED": "true"
             },
             "cwd": "${workspaceFolder}/src/Bicep.Cli",
             "console": "internalConsole",
