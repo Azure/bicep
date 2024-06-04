@@ -38,7 +38,7 @@
     <PackageReference Include="Microsoft.Graph.Bicep.Types" Version="0.1.5-preview" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SharpYaml" Version="2.1.1" />
-    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.1243.1" />
+    <PackageReference Include="Azure.Deployments.Templates" Version="1.34.0" />
     <PackageReference Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2007" />
     <PackageReference Include="Azure.Bicep.Types" Version="0.5.9" />
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.692" />

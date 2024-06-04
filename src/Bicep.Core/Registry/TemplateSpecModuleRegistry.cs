@@ -146,5 +146,8 @@ namespace Bicep.Core.Registry
         {
             return new(new SourceNotAvailableException());
         }
+
+        public override Uri? TryGetProviderBinary(TemplateSpecModuleReference reference)
+            => null;
     }
 }

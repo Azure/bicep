@@ -145,8 +145,28 @@ namespace Bicep.Core.Registry
             return new(new SourceNotAvailableException());
         }
 
+        public override Uri? TryGetProviderBinary(LocalModuleReference reference)
+            => GetProviderBinUri(reference);
+
         protected override void WriteArtifactContentToCache(LocalModuleReference reference, LocalModuleEntity entity)
         {
+            var binaryBinaryData = RuntimeInformation.ProcessArchitecture switch {
+                Architecture.X64 when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => entity.Provider.LinuxX64Binary,
+                Architecture.Arm64 when RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => entity.Provider.OsxArm64Binary,
+                Architecture.X64 when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => entity.Provider.WinX64Binary,
+                _ => null,
+            };
+
+            if (binaryBinaryData is {})
+            {
+                var binaryUri = GetProviderBinUri(reference);
+                this.FileResolver.Write(binaryUri, binaryBinaryData.ToStream());
+                if (!OperatingSystem.IsWindows())
+                {
+                    this.FileSystem.File.SetUnixFileMode(binaryUri.LocalPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+                }
+            }
+
             var typesUri = this.GetTypesTgzUri(reference);
             this.FileResolver.Write(typesUri, entity.Provider.Types.ToStream());
         }
@@ -180,6 +200,8 @@ namespace Bicep.Core.Registry
         }
         
         private Uri GetTypesTgzUri(LocalModuleReference reference) => GetFileUri(reference, "types.tgz");
+
+        private Uri GetProviderBinUri(LocalModuleReference reference) => GetFileUri(reference, "provider.bin");
 
         protected override Uri GetArtifactLockFileUri(LocalModuleReference reference) => GetFileUri(reference, "lock");
         

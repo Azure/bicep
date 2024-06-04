@@ -96,5 +96,7 @@ namespace Bicep.Core.Registry
         /// <param name="reference">The module reference</param>
         /// <returns>A source archive</returns>
         ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference);
+
+        Uri? TryGetProviderBinary(ArtifactReference reference);
     }
 }

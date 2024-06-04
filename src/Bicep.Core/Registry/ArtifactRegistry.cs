@@ -65,6 +65,10 @@ namespace Bicep.Core.Registry
 
         public ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
 
+        public abstract Uri? TryGetProviderBinary(T reference);
+
+        public Uri? TryGetProviderBinary(ArtifactReference reference) => this.TryGetProviderBinary(ConvertReference(reference));
+
         public abstract RegistryCapabilities GetCapabilities(ArtifactType artifactType, T reference);
 
         private static T ConvertReference(ArtifactReference reference) => reference switch
