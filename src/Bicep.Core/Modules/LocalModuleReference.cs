@@ -15,11 +15,14 @@ namespace Bicep.Core.Modules
     {
         private static readonly IEqualityComparer<string> PathComparer = StringComparer.Ordinal;
 
-        private LocalModuleReference(string path, Uri parentModuleUri)
+        private LocalModuleReference(ArtifactType artifactType, string path, Uri parentModuleUri)
             : base(ArtifactReferenceSchemes.Local, parentModuleUri)
         {
+            ArtifactType = artifactType;
             this.Path = path;
         }
+
+        public ArtifactType ArtifactType { get; }
 
         /// <summary>
         /// Gets the relative path to the module.
@@ -44,10 +47,10 @@ namespace Bicep.Core.Modules
 
         public override bool IsExternal => false;
 
-        public static ResultWithDiagnostic<LocalModuleReference> TryParse(string unqualifiedReference, Uri parentModuleUri)
+        public static ResultWithDiagnostic<LocalModuleReference> TryParse(ArtifactType artifactType, string unqualifiedReference, Uri parentModuleUri)
         {
             return Validate(unqualifiedReference)
-                .Transform(_ => new LocalModuleReference(unqualifiedReference, parentModuleUri));
+                .Transform(_ => new LocalModuleReference(artifactType, unqualifiedReference, parentModuleUri));
         }
 
         public static ResultWithDiagnostic<bool> Validate(string pathName)

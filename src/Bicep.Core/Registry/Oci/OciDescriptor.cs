@@ -42,12 +42,12 @@ namespace Bicep.Core.Registry.Oci
         public long Size { get; }
         public ImmutableDictionary<string, string> Annotations { get; }
 
-        public static string ComputeDigest(string algorithmIdentifier, BinaryData data)
+        public static string ComputeDigest(string algorithmIdentifier, BinaryData data, char separator = ':')
         {
             using var algorithm = CreateHashAlgorithm(algorithmIdentifier);
             var hashValue = algorithm.ComputeHash(data.ToArray());
             string hexString = BitConverter.ToString(hashValue).Replace("-", "");
-            return $"{algorithmIdentifier}:{hexString.ToLowerInvariant()}";
+            return $"{algorithmIdentifier}{separator}{hexString.ToLowerInvariant()}";
         }
 
         private static HashAlgorithm CreateHashAlgorithm(string algorithm) => algorithm switch

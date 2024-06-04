@@ -1,12 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
+    public record ProviderPackage(
+        BinaryData Types);
+
     public interface IModuleDispatcher : IArtifactReferenceFactory
     {
         RegistryCapabilities GetRegistryCapabilities(ArtifactType artifactType, ArtifactReference reference);
@@ -23,7 +27,7 @@ namespace Bicep.Core.Registry
 
         Task PublishModule(ArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri);
 
-        Task PublishProvider(ArtifactReference reference, BinaryData compiledArmTemplate);
+        Task PublishProvider(ArtifactReference reference, ProviderPackage provider);
 
         void PruneRestoreStatuses();
 

@@ -15,31 +15,9 @@ namespace Bicep.Core.TypeSystem
     public class OciTypeLoader : TypeLoader
     {
         private readonly ImmutableDictionary<string, byte[]> typesCache;
-        public const string TypesArtifactFilename = "types.tgz";
         private OciTypeLoader(ImmutableDictionary<string, byte[]> typesCache)
         {
             this.typesCache = typesCache;
-        }
-
-        public static OciTypeLoader FromFilesystemBundle(Stream stream)
-        {
-            using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-            using var tarReader = new TarReader(gzipStream);
-
-            while (tarReader.GetNextEntry() is { } entry)
-            {
-                if (entry.Name == TypesArtifactFilename)
-                {
-                    if (entry.DataStream is null)
-                    {
-                        throw new InvalidOperationException($"Stream for {entry.Name} is null.");
-                    }
-
-                    return FromStream(entry.DataStream);
-                }
-            }
-
-            throw new InvalidOperationException($"Failed to find {TypesArtifactFilename} in the bundle.");
         }
 
         public static OciTypeLoader FromStream(Stream stream)

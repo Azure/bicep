@@ -290,14 +290,14 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public override async Task PublishProvider(OciArtifactReference reference, BinaryData typesTgz)
+        public override async Task PublishProvider(OciArtifactReference reference, ProviderPackage provider)
         {
             // This needs to be valid JSON, otherwise there may be compatibility issues.
             var config = new Oci.OciDescriptor("{}", BicepMediaTypes.BicepProviderConfigV1);
 
             List<Oci.OciDescriptor> layers = new()
             {
-                new(typesTgz, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
+                new(provider.Types, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
             };
 
             var annotations = new OciManifestAnnotationsBuilder()

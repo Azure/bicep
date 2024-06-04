@@ -22,7 +22,7 @@ namespace Bicep.Core.Registry
 
         public abstract Task PublishModule(T reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description);
 
-        public abstract Task PublishProvider(T reference, BinaryData typesTgz);
+        public abstract Task PublishProvider(T reference, ProviderPackage provider);
 
         public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<T> references);
 
@@ -46,8 +46,8 @@ namespace Bicep.Core.Registry
         public Task PublishModule(ArtifactReference artifactReference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
             => this.PublishModule(ConvertReference(artifactReference), compiled, bicepSources, documentationUri, description);
 
-        public Task PublishProvider(ArtifactReference reference, BinaryData typesTgz)
-            => this.PublishProvider(ConvertReference(reference), typesTgz);
+        public Task PublishProvider(ArtifactReference reference, ProviderPackage provider)
+            => this.PublishProvider(ConvertReference(reference), provider);
 
         public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references) =>
             this.RestoreArtifacts(references.Select(ConvertReference));
