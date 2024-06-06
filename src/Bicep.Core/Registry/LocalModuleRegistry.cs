@@ -150,17 +150,20 @@ namespace Bicep.Core.Registry
 
         protected override void WriteArtifactContentToCache(LocalModuleReference reference, LocalModuleEntity entity)
         {
-            var binaryBinaryData = RuntimeInformation.ProcessArchitecture switch {
-                Architecture.X64 when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => entity.Provider.LinuxX64Binary,
-                Architecture.Arm64 when RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => entity.Provider.OsxArm64Binary,
-                Architecture.X64 when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => entity.Provider.WinX64Binary,
-                _ => null,
-            };
-
-            if (binaryBinaryData is {})
+            if (entity.Provider.LocalDeployEnabled)
             {
+                if (SupportedArchitectures.TryGetCurrent() is not {} architecture)
+                {
+                    throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                }
+
+                if (entity.Provider.Binaries.SingleOrDefault(x => x.Architecture.Name == architecture.Name) is not {} binary)
+                {
+                    throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                }
+
                 var binaryUri = GetProviderBinUri(reference);
-                this.FileResolver.Write(binaryUri, binaryBinaryData.ToStream());
+                this.FileResolver.Write(binaryUri, binary.Data.ToStream());
                 if (!OperatingSystem.IsWindows())
                 {
                     this.FileSystem.File.SetUnixFileMode(binaryUri.LocalPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);

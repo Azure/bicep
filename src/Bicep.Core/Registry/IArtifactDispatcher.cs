@@ -3,16 +3,20 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
+    public record ProviderBinary(
+        SupportedArchitecture Architecture,
+        BinaryData Data);
+
     public record ProviderPackage(
         BinaryData Types,
-        BinaryData? WinX64Binary,
-        BinaryData? LinuxX64Binary,
-        BinaryData? OsxArm64Binary);
+        bool LocalDeployEnabled,
+        ImmutableArray<ProviderBinary> Binaries);
 
     public interface IModuleDispatcher : IArtifactReferenceFactory
     {

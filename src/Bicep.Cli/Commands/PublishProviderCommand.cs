@@ -11,6 +11,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Providers;
 using Bicep.Core.TypeSystem;
 using Microsoft.Extensions.Logging;
@@ -41,14 +42,15 @@ namespace Bicep.Cli.Commands
 
         public async Task<int> RunAsync(PublishProviderArguments args)
         {
-            BinaryData? TryGetBinary(string architecture)
+            ProviderBinary? TryGetBinary(SupportedArchitecture architecture)
             {
-                if (args.ExtensionBinaries.TryGetValue(architecture) is not {} binaryPath)
+                if (args.Binaries.TryGetValue(architecture.Name) is not {} binaryPath)
                 {
                     return null;
                 }
 
-                return BinaryData.FromStream(fileSystem.FileStream.New(PathHelper.ResolvePath(binaryPath), FileMode.Open, FileAccess.Read, FileShare.Read));
+                var data = BinaryData.FromStream(fileSystem.FileStream.New(PathHelper.ResolvePath(binaryPath), FileMode.Open, FileAccess.Read, FileShare.Read));
+                return new(architecture, data);
             }
 
             await ioContext.Error.WriteLineAsync("The 'publish-provider' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
@@ -69,11 +71,12 @@ namespace Bicep.Cli.Commands
                 throw new BicepException($"Provider package creation failed: {exception.Message}");
             }
 
+            var binaries = SupportedArchitectures.All.Select(TryGetBinary).WhereNotNull().ToImmutableArray();
+
             var package = new ProviderPackage(
                 Types: tarPayload,
-                OsxArm64Binary: TryGetBinary("osx-arm64"),
-                LinuxX64Binary: TryGetBinary("linux-x64"),
-                WinX64Binary: TryGetBinary("win-x64"));
+                LocalDeployEnabled: binaries.Any(),
+                Binaries: binaries);
 
             await this.PublishProviderAsync(providerReference, package, overwriteIfExists);
             return 0;

@@ -293,27 +293,29 @@ namespace Bicep.Core.Registry
 
         public override async Task PublishProvider(OciArtifactReference reference, ProviderPackage provider)
         {
-            // This needs to be valid JSON, otherwise there may be compatibility issues.
-            var config = new Oci.OciDescriptor("{}", BicepMediaTypes.BicepProviderConfigV1);
+            OciProvidersV1Config configData = provider.LocalDeployEnabled ? new(
+                localDeployEnabled: true,
+                supportedArchitectures: provider.Binaries.Select(x => x.Architecture.Name).ToImmutableArray()) :
+                // avoid writing properties to the config - localDeploy is a preview feature, so
+                // there should be no detectable impact to 'mainline' functionality when disabled.
+                new(null, null);
+
+            var config = new Oci.OciDescriptor(
+                JsonSerializer.Serialize(configData, OciProvidersV1ConfigSerializationContext.Default.OciProvidersV1Config),
+                BicepMediaTypes.BicepProviderConfigV1);
 
             List<Oci.OciDescriptor> layers = new()
             {
                 new(provider.Types, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
             };
 
-            if (provider.OsxArm64Binary is {})
+            if (configData.LocalDeployEnabled == true)
             {
-                layers.Add(new(provider.OsxArm64Binary, BicepMediaTypes.BicepProviderArtifactLayerV1OsxArm64Binary, new OciManifestAnnotationsBuilder().WithTitle($"osx-arm64.bin").Build()));
-            }
-
-            if (provider.LinuxX64Binary is {})
-            {
-                layers.Add(new(provider.LinuxX64Binary, BicepMediaTypes.BicepProviderArtifactLayerV1LinuxX64Binary, new OciManifestAnnotationsBuilder().WithTitle($"linux-x64.bin").Build()));
-            }
-
-            if (provider.WinX64Binary is {})
-            {
-                layers.Add(new(provider.WinX64Binary, BicepMediaTypes.BicepProviderArtifactLayerV1WinX64Binary, new OciManifestAnnotationsBuilder().WithTitle($"win-x64.bin").Build()));
+                foreach (var binary in provider.Binaries)
+                {
+                    var layerName = BicepMediaTypes.GetProviderArtifactLayerV1Binary(binary.Architecture);
+                    layers.Add(new(binary.Data, layerName, new OciManifestAnnotationsBuilder().WithTitle($"provider.bin").Build()));
+                }
             }
 
             var annotations = new OciManifestAnnotationsBuilder()
@@ -400,17 +402,22 @@ namespace Bicep.Core.Registry
 
             if (result is OciProviderArtifactResult providerArtifact)
             {
-                var layerName = RuntimeInformation.ProcessArchitecture switch {
-                    Architecture.X64 when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => BicepMediaTypes.BicepProviderArtifactLayerV1LinuxX64Binary,
-                    Architecture.Arm64 when RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => BicepMediaTypes.BicepProviderArtifactLayerV1OsxArm64Binary,
-                    Architecture.X64 when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => BicepMediaTypes.BicepProviderArtifactLayerV1WinX64Binary,
-                    _ => throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}"),
-                };
+                var config = JsonSerializer.Deserialize(providerArtifact.Config.Data, OciProvidersV1ConfigSerializationContext.Default.OciProvidersV1Config);
 
-                // TODO get working on other architectures
-                if (result.TryGetSingleLayerByMediaType(layerName) is BinaryData sourceData)
+                // if the artifact supports local deployment, fetch the provider binary
+                if (config?.LocalDeployEnabled == true)
                 {
-                    // write binary files
+                    if (SupportedArchitectures.TryGetCurrent() is not {} architecture)
+                    {
+                        throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                    }
+
+                    var layerName = BicepMediaTypes.GetProviderArtifactLayerV1Binary(architecture);
+                    if (result.TryGetSingleLayerByMediaType(layerName) is not {} sourceData)
+                    {
+                        throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                    }
+
                     using var binaryStream = sourceData.ToStream();
                     var binaryUri = this.GetArtifactFileUri(reference, ArtifactFileType.ProviderBinary);
                     this.FileResolver.Write(binaryUri, binaryStream);

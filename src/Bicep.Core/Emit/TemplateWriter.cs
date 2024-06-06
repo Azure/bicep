@@ -996,12 +996,7 @@ namespace Bicep.Core.Emit
 
             if (this.Context.SemanticModel.Features.LocalDeployEnabled)
             {
-                providers = providers.Add(new(
-                    null,
-                    "az0synthesized",
-                    new(false, "__az", null, "LocalNested", "0.0.0"),
-                    null,
-                    null));
+                providers = providers.Add(GetProviderForLocalDeploy());
             }
 
             emitter.EmitObjectProperty("imports", () =>
@@ -1021,6 +1016,16 @@ namespace Bicep.Core.Emit
                     }, provider.SourceSyntax);
                 }
             });
+        }
+
+        private DeclaredProviderExpression GetProviderForLocalDeploy()
+        {
+            return new(
+                null,
+                "az0synthesized",
+                new(false, "__az", null, "LocalNested", "0.0.0"),
+                null,
+                null);
         }
 
         private void EmitResources(
@@ -1216,58 +1221,62 @@ namespace Bicep.Core.Emit
             }, paramsObject.SourceSyntax);
         }
 
+        private void EmitModuleForLocalDeploy(PositionTrackingJsonTextWriter jsonWriter, DeclaredModuleExpression module, ExpressionEmitter emitter)
+        {
+            emitter.EmitObject(() => 
+            {
+                emitter.EmitProperty("import", "az0synthesized");
+                
+                var body = module.Body;
+                if (body is ForLoopExpression forLoop)
+                {
+                    body = forLoop.Body;
+                    emitter.EmitCopyProperty(() => emitter.EmitCopyObject(forLoop.Name, forLoop.Expression, input: null, batchSize: forLoop.BatchSize));
+                }
+                if (body is ConditionExpression condition)
+                {
+                    body = condition.Body;
+                    emitter.EmitProperty("condition", condition.Expression);
+                }
+
+                emitter.EmitProperty("type", NestedDeploymentResourceType);
+
+                emitter.EmitObjectProperty("properties", () =>
+                {
+                    EmitModuleParameters(emitter, module);
+
+                    var moduleSemanticModel = GetModuleSemanticModel(module.Symbol);
+
+                    var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
+                    var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
+                    var moduleTextWriter = new StringWriter();
+                    var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
+
+                    moduleWriter.Write(moduleJsonWriter);
+                    jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
+                    emitter.EmitProperty("template", moduleTextWriter.ToString());
+                });
+
+                this.EmitDependsOn(emitter, module.DependsOn);
+
+                // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
+                // and emit its properties to merge decorator properties.
+                foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
+                {
+                    emitter.EmitProperty(property);
+                }
+            }, module.SourceSyntax);
+        }
+
         private void EmitModule(PositionTrackingJsonTextWriter jsonWriter, DeclaredModuleExpression module, ExpressionEmitter emitter)
         {
-            var moduleSymbol = module.Symbol;
             if (this.Context.SemanticModel.Features.LocalDeployEnabled)
             {
-                emitter.EmitObject(() => 
-                {
-                    emitter.EmitProperty("import", "az0synthesized");
-                    
-                    var body = module.Body;
-                    if (body is ForLoopExpression forLoop)
-                    {
-                        body = forLoop.Body;
-                        emitter.EmitCopyProperty(() => emitter.EmitCopyObject(forLoop.Name, forLoop.Expression, input: null, batchSize: forLoop.BatchSize));
-                    }
-                    if (body is ConditionExpression condition)
-                    {
-                        body = condition.Body;
-                        emitter.EmitProperty("condition", condition.Expression);
-                    }
-
-                    emitter.EmitProperty("type", NestedDeploymentResourceType);
-
-                    emitter.EmitObjectProperty("properties", () =>
-                    {
-                        EmitModuleParameters(emitter, module);
-
-                        var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
-
-                        var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
-                        var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
-                        var moduleTextWriter = new StringWriter();
-                        var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
-
-                        moduleWriter.Write(moduleJsonWriter);
-                        jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
-                        emitter.EmitProperty("template", moduleTextWriter.ToString());
-                    });
-
-                    this.EmitDependsOn(emitter, module.DependsOn);
-
-                    // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
-                    // and emit its properties to merge decorator properties.
-                    foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
-                    {
-                        emitter.EmitProperty(property);
-                    }
-                }, module.SourceSyntax);
-
+                EmitModuleForLocalDeploy(jsonWriter, module, emitter);
                 return;
             }
 
+            var moduleSymbol = module.Symbol;
             emitter.EmitObject(() =>
             {
                 var body = module.Body;
