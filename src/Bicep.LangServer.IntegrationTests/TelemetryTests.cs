@@ -490,6 +490,203 @@ resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' =
                 bicepFileOpenTelemetryEventProperties);
         }
 
+
+        [TestMethod]
+        public async Task BicepFileOpen_Providers()
+        {
+            //asdfg casing
+            var mainBicepFileContents = """
+                provider microsoftGraph
+                provider az as myAz1
+                provider kubernetes  with {
+                  namespace: 'k8s2'
+                  kubeConfig: 'kubeConfig'
+                }
+                provider sys                        \t
+            """;
+            var bicepConfigFileContents = """
+                {
+                  "experimentalFeaturesEnabled": {
+                    "extensibility": true
+                  }
+                }
+                """;
+
+            var bicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
+            {
+                { "providers", "[\"az\",\"kubernetes\",\"microsoftGraph\",\"sys\"]" },
+            };
+            await VerifyBicepFileOpenTelemetry(
+                bicepConfigFileContents,
+                mainBicepFileContents,
+                "",
+                null,
+                bicepFileOpenTelemetryEventProperties);
+        }
+
+        [TestMethod]
+        public async Task BicepFileOpen_NoProviders()
+        {
+            //asdfg casing
+            var mainBicepFileContents = "";
+            var bicepConfigFileContents = """
+                {
+                  "experimentalFeaturesEnabled": {
+                    "extensibility": true
+                  }
+                }
+                """;
+
+            var bicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
+            {
+                { "providers", "[]" },
+            };
+            await VerifyBicepFileOpenTelemetry(
+                bicepConfigFileContents,
+                mainBicepFileContents,
+                "",
+                null,
+                bicepFileOpenTelemetryEventProperties);
+        }
+
+        [TestMethod]
+        public async Task BicepFileOpen_Providers_Duplicates()
+        {
+            var mainBicepFileContents = """
+                provider az as myAz1
+
+                provider kubernetes with {
+                  namespace: 'k8s'
+                  kubeConfig: 'kubeConfig'
+                }
+
+                provider kubernetes with {
+                  namespace: 'k8s2'
+                  kubeConfig: 'kubeConfig'
+                }
+
+                provider az as myAz2
+            """;
+            var bicepConfigFileContents = """
+                {
+                  "experimentalFeaturesEnabled": {
+                    "extensibility": true
+                  }
+                }
+                """;
+
+            var bicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
+            {
+                { "providers", "[\"az\",\"kubernetes\"]" },
+            };
+            await VerifyBicepFileOpenTelemetry(
+                bicepConfigFileContents,
+                mainBicepFileContents,
+                "",
+                null,
+                bicepFileOpenTelemetryEventProperties);
+        }
+
+        [TestMethod]
+        public async Task BicepFileOpen_Providers_Errors()
+        {
+            //asdfg casing
+            var mainBicepFileContents = """
+                provider noSuchProvider as {
+                  name: 'noSuchProvider'
+                  registrationPolicy: 'RegistrationFree'
+                  resourceTypes: {
+                    noSuchResourceType: {
+                      apiVersions: ['2020-01-01']
+                    }
+                  }
+                } as MyAz2
+
+                provider microsoftGraph with {
+                }           
+
+                provider az as // incomplete
+
+                provider kubernetes with {
+                  namespace: 'k8s2'
+                  kubeConfig: 'kubeConfig'
+                }
+
+                provider sys with { // doesn't support config
+                }
+
+                provider kubernetes
+
+                provider kubernetes with {
+                  namespace: 'k8s2'
+                  kubeConfig: concat('tenantId')
+                }           
+                """;
+            var bicepConfigFileContents = """
+                {
+                  "experimentalFeaturesEnabled": {
+                    "extensibility": true
+                  }
+                }
+                """;
+
+            var bicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
+            {
+                { "providers", "[\"az\",\"kubernetes\",\"microsoftGraph\",\"sys\"]" },
+            };
+            await VerifyBicepFileOpenTelemetry(
+                bicepConfigFileContents,
+                mainBicepFileContents,
+                "",
+                null,
+                bicepFileOpenTelemetryEventProperties);
+        }
+
+        [TestMethod]
+        public async Task BicepFileOpen_Providers_Unrecognized()
+        {
+            // Note: casing of providers must match
+            var mainBicepFileContents = """
+                provider noSuchProvider as {
+                  name: 'noSuchProvider'
+                  registrationPolicy: 'RegistrationFree'
+                  resourceTypes: {
+                    noSuchResourceType: {
+                      apiVersions: ['2020-01-01']
+                    }
+                  }
+                } as MyAz2
+                provider NorThisOne
+
+                // Casing must match
+                provider Kubernetes
+                provider Az
+                provider SYS
+                provider microsoftgraph
+
+                // recognized
+                provider sys
+                """;
+            var bicepConfigFileContents = """
+                {
+                  "experimentalFeaturesEnabled": {
+                    "extensibility": true
+                  }
+                }
+                """;
+
+            var bicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
+            {
+                { "providers", "[\"sys\"]" },
+            };
+            await VerifyBicepFileOpenTelemetry(
+                bicepConfigFileContents,
+                mainBicepFileContents,
+                "",
+                null,
+                bicepFileOpenTelemetryEventProperties);
+        }
+
         private async Task VerifyBicepFileOpenTelemetry(
             string? bicepConfigFileContents,
             string mainBicepFileContents,

@@ -9,6 +9,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -483,8 +484,25 @@ namespace Bicep.LanguageServer
             properties.Add("DisableNextLineCount", disableNextLineDirectiveEndPositionAndCodes.Count().ToString());
             properties.Add("DisableNextLineCodes", GetDiagnosticCodesWithCount(disableNextLineDirectiveEndPositionAndCodes));
             properties.Add("ExperimentalFeatures", string.Join(',', sematicModel.Features.EnabledFeatureMetadata.Select(x => x.name)));
+            properties.Add("Providers", JsonConvert.SerializeObject(GetProviders(sematicModel)));
 
             return properties;
+
+
+            string[] GetProviders(SemanticModel semanticModel)
+            {
+                // Only add recognized builtin providers for now
+                var referencedProviders = sematicModel.Root.ProviderDeclarations.Where(s => s.NameSource.IsValid)
+                    .Select(s =>
+                        (s.DeclaringSyntax as ProviderDeclarationSyntax)?.SpecificationString?.ToString().Trim()
+                    ).ToArrayExcludingNull();
+                string[] availableProviders = new string[] { SystemNamespaceType.BuiltInName, AzNamespaceType.BuiltInName, K8sNamespaceType.BuiltInName, MicrosoftGraphNamespaceType.BuiltInName }
+                    .Order().ToArray();
+                var referencedAvailableProviders = availableProviders
+                    .Where(p => referencedProviders.Contains(p, LanguageConstants.IdentifierComparer))
+                    .ToArray();
+                return referencedAvailableProviders;
+            }
 
             static (int ErrorCount, int WarningCount) CountErrorsAndWarnings(IEnumerable<Diagnostic> diagnostics)
             {
