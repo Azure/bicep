@@ -7,7 +7,7 @@ namespace Bicep.Core.Registry.Oci
     {
         private readonly OciArtifactLayer mainLayer;
 
-        public OciProviderArtifactResult(BinaryData manifestBits, string manifestDigest, IEnumerable<OciArtifactLayer> layers, OciArtifactLayer config) :
+        public OciProviderArtifactResult(BinaryData manifestBits, string manifestDigest, IEnumerable<OciArtifactLayer> layers, OciArtifactLayer? config) :
             base(manifestBits, manifestDigest, layers)
         {
             var manifest = this.Manifest;
@@ -27,6 +27,6 @@ namespace Bicep.Core.Registry.Oci
 
         public override OciArtifactLayer GetMainLayer() => this.mainLayer;
 
-        public OciArtifactLayer Config { get; }
+        public OciArtifactLayer? Config { get; }
     }
 }

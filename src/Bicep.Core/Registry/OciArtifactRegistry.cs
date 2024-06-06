@@ -402,7 +402,9 @@ namespace Bicep.Core.Registry
 
             if (result is OciProviderArtifactResult providerArtifact)
             {
-                var config = JsonSerializer.Deserialize(providerArtifact.Config.Data, OciProvidersV1ConfigSerializationContext.Default.OciProvidersV1Config);
+                var config = providerArtifact.Config is {} ? 
+                    JsonSerializer.Deserialize(providerArtifact.Config.Data, OciProvidersV1ConfigSerializationContext.Default.OciProvidersV1Config) :
+                    null;
 
                 // if the artifact supports local deployment, fetch the provider binary
                 if (config?.LocalDeployEnabled == true)

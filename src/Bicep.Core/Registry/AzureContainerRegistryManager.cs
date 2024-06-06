@@ -155,7 +155,9 @@ namespace Bicep.Core.Registry
                 .Select(async layer => new OciArtifactLayer(layer.Digest, layer.MediaType, await PullLayerAsync(client, layer)));
             var layers = await Task.WhenAll(layerTasks);
 
-            var config =  new OciArtifactLayer(deserializedManifest.Config.Digest, deserializedManifest.Config.MediaType, await PullLayerAsync(client, deserializedManifest.Config));
+            var config = !deserializedManifest.Config.IsEmpty() ? 
+                new OciArtifactLayer(deserializedManifest.Config.Digest, deserializedManifest.Config.MediaType, await PullLayerAsync(client, deserializedManifest.Config)) :
+                null;
 
             return deserializedManifest.ArtifactType switch
             {
