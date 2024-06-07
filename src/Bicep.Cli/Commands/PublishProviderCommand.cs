@@ -22,22 +22,15 @@ namespace Bicep.Cli.Commands
     {
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFileSystem fileSystem;
-        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IOContext ioContext;
-        private readonly ILogger logger;
-
         public PublishProviderCommand(
             IOContext ioContext,
-            ILogger logger,
             IModuleDispatcher moduleDispatcher,
-            IFileSystem fileSystem,
-            IFeatureProviderFactory featureProviderFactory)
+            IFileSystem fileSystem)
         {
             this.moduleDispatcher = moduleDispatcher;
             this.fileSystem = fileSystem;
-            this.featureProviderFactory = featureProviderFactory;
             this.ioContext = ioContext;
-            this.logger = logger;
         }
 
         public async Task<int> RunAsync(PublishProviderArguments args)
@@ -49,8 +42,8 @@ namespace Bicep.Cli.Commands
                     return null;
                 }
 
-                var data = BinaryData.FromStream(fileSystem.FileStream.New(PathHelper.ResolvePath(binaryPath), FileMode.Open, FileAccess.Read, FileShare.Read));
-                return new(architecture, data);
+                using var binaryStream = fileSystem.FileStream.New(PathHelper.ResolvePath(binaryPath), FileMode.Open, FileAccess.Read, FileShare.Read);
+                return new(architecture, BinaryData.FromStream(binaryStream));
             }
 
             await ioContext.Error.WriteLineAsync("The 'publish-provider' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
