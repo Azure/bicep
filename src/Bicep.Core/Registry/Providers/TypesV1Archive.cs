@@ -24,6 +24,19 @@ public static class ProviderV1Archive
             using var tarWriter = new TarWriter(gzStream, leaveOpen: true);
 
             await AddFileToTar(tarWriter, "types.tgz", provider.Types);
+
+            if (provider.OsxArm64Binary is {})
+            {
+                await AddFileToTar(tarWriter, "osx-arm64.bin", provider.OsxArm64Binary);
+            }
+            if (provider.LinuxX64Binary is {})
+            {
+                await AddFileToTar(tarWriter, "linux-x64.bin", provider.LinuxX64Binary);
+            }
+            if (provider.WinX64Binary is {})
+            {
+                await AddFileToTar(tarWriter, "win-x64.bin", provider.WinX64Binary);
+            }
         }
 
         stream.Seek(0, SeekOrigin.Begin);
@@ -44,7 +57,11 @@ public static class ProviderV1Archive
             dataDict[entry.Name] = BinaryData.FromStream(stream);
         }
 
-        return new(dataDict["types.tgz"]);
+        return new(
+            dataDict["types.tgz"],
+            dataDict.TryGetValue("win-x64.bin"),
+            dataDict.TryGetValue("linux-x64.bin"),
+            dataDict.TryGetValue("osx-arm64.bin"));
     }
 
     private static async Task AddFileToTar(TarWriter tarWriter, string archivePath, BinaryData binaryData)

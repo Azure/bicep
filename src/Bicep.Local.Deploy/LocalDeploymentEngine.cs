@@ -130,7 +130,7 @@ internal class LocalDeploymentEngine
         var entity = await dataProvider.FindDeployment(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName);
         while (!entity.ProvisioningState.IsTerminal())
         {
-            await Task.Delay(500, cancellationToken);
+            await Task.Delay(20, cancellationToken);
 
             entity = await dataProvider.FindDeployment(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName);
         }
