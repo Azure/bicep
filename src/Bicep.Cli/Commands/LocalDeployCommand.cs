@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Bicep.Local.Deploy;
-using Azure.Bicep.Local.Deploy.Extensibility;
+using Bicep.Local.Deploy;
+using Bicep.Local.Deploy.Extensibility;
 using Azure.Deployments.Core.Json;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;

@@ -21,7 +21,7 @@ using Messages = Azure.Deployments.Extensibility.Messages;
 using Data = Azure.Deployments.Extensibility.Data;
 using Rpc = Bicep.Local.Extension.Rpc;
 
-namespace Azure.Bicep.Local.Deploy.Extensibility;
+namespace Bicep.Local.Deploy.Extensibility;
 
 public class GrpcExtensibilityProvider : LocalExtensibilityProvider
 {

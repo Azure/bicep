@@ -17,7 +17,7 @@ using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Utilities;
 using IAsyncDisposable = System.IAsyncDisposable;
 
-namespace Azure.Bicep.Local.Deploy.Extensibility;
+namespace Bicep.Local.Deploy.Extensibility;
 
 public class LocalExtensibilityHandler : IAsyncDisposable
 {

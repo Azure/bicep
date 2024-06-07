@@ -4,7 +4,7 @@
 using Azure.Deployments.Extensibility.Contract;
 using Azure.Deployments.Extensibility.Messages;
 
-namespace Azure.Bicep.Local.Deploy.Extensibility;
+namespace Bicep.Local.Deploy.Extensibility;
 
 public abstract class LocalExtensibilityProvider : IExtensibilityProvider, IAsyncDisposable
 {

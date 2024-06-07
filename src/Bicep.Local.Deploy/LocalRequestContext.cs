@@ -4,7 +4,7 @@
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Engine.Host.External;
 
-namespace Azure.Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy;
 
 public class LocalRequestContext : IDeploymentsRequestContext
 {

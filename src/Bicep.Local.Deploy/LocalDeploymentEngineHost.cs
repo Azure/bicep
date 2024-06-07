@@ -9,7 +9,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Bicep.Local.Deploy.Extensibility;
+using Bicep.Local.Deploy.Extensibility;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Azure.Deployments.Core.Definitions.Resources;
@@ -40,7 +40,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Microsoft.WindowsAzure.ResourceStack.Common.Services.ADAuthentication;
 using Newtonsoft.Json.Linq;
 
-namespace Azure.Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy;
 
 #nullable disable
 

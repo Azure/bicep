@@ -26,9 +26,9 @@ using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.EventSources;
 using Microsoft.WindowsAzure.ResourceStack.Common.Storage.Volatile;
 using Azure.Deployments.Extensibility.Contract;
-using Azure.Bicep.Local.Deploy.Extensibility;
+using Bicep.Local.Deploy.Extensibility;
 
-namespace Azure.Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy;
 
 public static class IServiceCollectionExtensions
 {

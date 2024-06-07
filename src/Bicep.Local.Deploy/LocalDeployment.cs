@@ -4,12 +4,12 @@
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Bicep.Local.Deploy.Extensibility;
+using Bicep.Local.Deploy.Extensibility;
 using Azure.Deployments.Core.Definitions;
 using Microsoft.Azure.Deployments.Service.Shared.Jobs;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Azure.Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy;
 
 public static class LocalDeployment
 {
