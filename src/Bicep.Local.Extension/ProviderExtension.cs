@@ -1,21 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Diagnostics;
-using System.IO.Pipes;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime;
-using Microsoft.AspNetCore.Builder;
 using Bicep.Local.Extension.Rpc;
 using CommandLine;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Bicep.Local.Extension.Protocol;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace Bicep.Local.Extension;
 
-public class ProviderExtension
+public abstract class ProviderExtension
 {
     internal class CommandLineOptions
     {
@@ -26,15 +18,13 @@ public class ProviderExtension
         public bool WaitForDebugger { get; set; }
     }
 
-    public static async Task Run(Action<ResourceDispatcherBuilder> registerHandlers, string[] args)
+    public static async Task Run(ProviderExtension extension, Action<ResourceDispatcherBuilder> registerHandlers, string[] args)
         => await RunWithCancellationAsync(async cancellationToken =>
         {
             if (IsTracingEnabled)
             {
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
             }
-
-            var extension = new ProviderExtension();
 
             await extension.RunAsync(args, registerHandlers, cancellationToken);
         });
@@ -51,7 +41,9 @@ public class ProviderExtension
             .WithParsedAsync(async options => await RunServer(registerHandlers, options, cancellationToken));
     }
 
-    private static async Task RunServer(Action<ResourceDispatcherBuilder> registerHandlers, CommandLineOptions options, CancellationToken cancellationToken)
+    protected abstract Task RunServer(string socketPath, ResourceDispatcher dispatcher, CancellationToken cancellationToken);
+
+    private async Task RunServer(Action<ResourceDispatcherBuilder> registerHandlers, CommandLineOptions options, CancellationToken cancellationToken)
     {
         if (options.WaitForDebugger)
         {
@@ -74,21 +66,7 @@ public class ProviderExtension
 
         if (options.Socket is { } socketPath)
         {
-            var builder = WebApplication.CreateBuilder();
-            builder.WebHost.ConfigureKestrel(options =>
-            {
-                options.ListenUnixSocket(socketPath, listenOptions =>
-                {
-                    listenOptions.Protocols = HttpProtocols.Http2;
-                });
-            });
-    
-            builder.Services.AddGrpc();
-            builder.Services.AddSingleton(dispatcher);
-            var app = builder.Build();
-            app.MapGrpcService<BicepExtensionImpl>();
-
-            await Task.WhenAny(app.RunAsync(), WaitForCancellation(cancellationToken));
+            await Task.WhenAny(RunServer(socketPath, dispatcher, cancellationToken), WaitForCancellation(cancellationToken));
             return;
         }
 

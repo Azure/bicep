@@ -271,6 +271,12 @@ namespace Bicep.Core.Registry
             return registry.TryGetSource(reference);
         }
 
+        public Uri? TryGetProviderBinary(ArtifactReference reference)
+        {
+            var registry = this.GetRegistry(reference);
+            return registry.TryGetProviderBinary(reference);
+        }
+
         private bool HasRestoreFailed(ArtifactReference reference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             if (this.restoreFailures.TryGetValue(new(configuration.Cloud, reference), out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))

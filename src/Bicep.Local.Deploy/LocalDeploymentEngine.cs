@@ -9,7 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Bicep.Local.Deploy.Extensibility;
+using Bicep.Local.Deploy.Extensibility;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
@@ -29,7 +29,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
-namespace Azure.Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy;
 
 internal class LocalDeploymentEngine
 {
@@ -130,7 +130,7 @@ internal class LocalDeploymentEngine
         var entity = await dataProvider.FindDeployment(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName);
         while (!entity.ProvisioningState.IsTerminal())
         {
-            await Task.Delay(500, cancellationToken);
+            await Task.Delay(20, cancellationToken);
 
             entity = await dataProvider.FindDeployment(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName);
         }

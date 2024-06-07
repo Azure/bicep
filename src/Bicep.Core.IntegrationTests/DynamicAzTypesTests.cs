@@ -43,10 +43,9 @@ namespace Bicep.Core.IntegrationTests
             (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
 
             (_, var client) = blobClients.First();
+            var configResult = await client.UploadBlobAsync(BinaryData.FromString("{}"));
             var blobResult = await client.UploadBlobAsync(artifactPayload);
-            var manifest = BicepTestConstants.GetBicepProviderManifest(
-                            blobResult.Value.Digest,
-                            blobResult.Value.SizeInBytes);
+            var manifest = BicepTestConstants.GetBicepProviderManifest(blobResult.Value, configResult.Value);
             await client.SetManifestAsync(manifest, artifactRegistryAddress.ProviderVersion);
 
             var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);

@@ -21,7 +21,7 @@ using Messages = Azure.Deployments.Extensibility.Messages;
 using Data = Azure.Deployments.Extensibility.Data;
 using Rpc = Bicep.Local.Extension.Rpc;
 
-namespace Azure.Bicep.Local.Deploy.Extensibility;
+namespace Bicep.Local.Deploy.Extensibility;
 
 public class GrpcExtensibilityProvider : LocalExtensibilityProvider
 {
@@ -34,7 +34,7 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProvider
         this.process = process;
     }
 
-    public static async Task<GrpcExtensibilityProvider> Start(Uri pathToBinary)
+    public static async Task<LocalExtensibilityProvider> Start(Uri pathToBinary)
     {
         var socketName = $"{Guid.NewGuid()}.tmp";
         var socketPath = Path.Combine(Path.GetTempPath(), socketName);
@@ -75,7 +75,7 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProvider
 
             await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
-            return new(client, process);
+            return new GrpcExtensibilityProvider(client, process);
         } catch (Exception ex) {
             await TerminateProcess(process);
             throw new InvalidOperationException($"Failed to connect to provider {pathToBinary.LocalPath}", ex);

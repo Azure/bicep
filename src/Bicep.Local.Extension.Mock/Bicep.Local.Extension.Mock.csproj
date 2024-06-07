@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Bicep.Local.Extension.Mock</RootNamespace>
+    <StartupObject>Bicep.Local.Extension.Mock.Program</StartupObject>
+    <AssemblyName>bicep-ext-mock</AssemblyName>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <PublishSingleFile>true</PublishSingleFile>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Bicep.Local.Extension/Bicep.Local.Extension.csproj" />
+    <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.63.0" />
+  </ItemGroup>
+</Project>

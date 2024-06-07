@@ -6,7 +6,7 @@ using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.Host.Azure.Interfaces;
 using Azure.Deployments.Engine;
 
-namespace Azure.Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy;
 
 public class LocalDeploymentConfiguration : IAzureDeploymentConfiguration
 {

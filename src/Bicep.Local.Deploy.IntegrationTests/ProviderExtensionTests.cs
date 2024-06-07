@@ -35,7 +35,7 @@ public class ProviderExtensionTests : TestBase
         await Task.WhenAll(
             Task.Run(async () =>
             {
-                var extension = new ProviderExtension();
+                var extension = new KestrelProviderExtension();
 
                 await extension.RunAsync(["--socket", socketPath], registerHandlers, cts.Token);
             }),

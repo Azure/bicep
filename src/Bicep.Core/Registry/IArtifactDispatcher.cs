@@ -3,13 +3,20 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
+    public record ProviderBinary(
+        SupportedArchitecture Architecture,
+        BinaryData Data);
+
     public record ProviderPackage(
-        BinaryData Types);
+        BinaryData Types,
+        bool LocalDeployEnabled,
+        ImmutableArray<ProviderBinary> Binaries);
 
     public interface IModuleDispatcher : IArtifactReferenceFactory
     {
@@ -33,5 +40,7 @@ namespace Bicep.Core.Registry
 
         // Retrieves the sources that have been restored along with the module into the cache (if available)
         ResultWithException<SourceArchive> TryGetModuleSources(ArtifactReference reference);
+
+        Uri? TryGetProviderBinary(ArtifactReference reference);
     }
 }

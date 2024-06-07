@@ -56,5 +56,23 @@ namespace Bicep.Core.Registry.Oci
             AlgorithmIdentifierSha512 => SHA512.Create(),
             _ => throw new NotImplementedException($"Unknown hash algorithm '{algorithm}'.")
         };
+
+        public bool IsEmpty()
+        {
+            if (Size == 0)
+            {
+                return true;
+            }
+
+            if (Size == 2 &&
+                OciArtifactReferenceFacts.DigestComparer.Equals(Digest, "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"))
+            {
+                // This SHA is a special case - it refers to "{}" (empty object).
+                // See https://github.com/opencontainers/image-spec/blob/main/manifest.md#guidance-for-an-empty-descriptor for more information.
+                return true;
+            }
+
+            return false;
+        }
     }
 }

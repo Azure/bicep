@@ -153,7 +153,7 @@ public static class RegistryHelper
             throw new InvalidOperationException($"Failed to get reference '{errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}'.");
         }
 
-        await dispatcher.PublishProvider(targetReference, new(tgzData));
+        await dispatcher.PublishProvider(targetReference, new(tgzData, false, []));
     }
 
     private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());

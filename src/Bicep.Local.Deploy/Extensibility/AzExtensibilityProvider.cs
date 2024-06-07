@@ -12,7 +12,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Azure.Bicep.Local.Deploy.Extensibility;
+namespace Bicep.Local.Deploy.Extensibility;
 
 public class AzExtensibilityProvider : LocalExtensibilityProvider
 {

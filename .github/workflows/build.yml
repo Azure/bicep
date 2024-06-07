@@ -520,6 +520,9 @@ jobs:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -549,6 +552,7 @@ jobs:
           entrypoint: sh
           args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
+          BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
   test-dotnet:
@@ -711,6 +715,9 @@ jobs:
         with:
           node-version: 18
 
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+
       - name: Download Bicep CLI
         uses: actions/download-artifact@v4
         with:
@@ -778,6 +785,7 @@ jobs:
       - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
         run: npm ci && npm run test:live:${{ matrix.environment }}
         env:
+          BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 

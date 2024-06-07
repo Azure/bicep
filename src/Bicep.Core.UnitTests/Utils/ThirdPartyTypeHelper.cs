@@ -66,6 +66,9 @@ public static class ThirdPartyTypeHelper
         };
     }
 
+    public static BinaryData GetHttpProviderTypesTgz()
+        => GetTypesTgzBytesFromFiles(GetHttpProviderTypes().Select(x => (x.Key, x.Value)).ToArray());
+
     /// <summary>
     /// Returns a .tgz file containing a set of pre-defined types for testing purposes.
     /// </summary>
