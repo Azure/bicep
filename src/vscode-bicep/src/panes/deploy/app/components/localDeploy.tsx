@@ -2,8 +2,9 @@ import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/w
 import { FormSection } from "./sections/FormSection";
 import { LocalDeployResponse, LocalDeploymentOperationContent } from "../../../../language";
 import { getPreformattedJson } from "./utils";
+import { FC } from "react";
 
-export function getLocalDeployResult(result: LocalDeployResponse) {
+export const LocalDeployResult: FC<{ result: LocalDeployResponse }> = ({ result }) => {
   const error = result.deployment.error;
   return (
     <FormSection title="Result">
@@ -23,7 +24,7 @@ export function getLocalDeployResult(result: LocalDeployResponse) {
   );
 }
 
-export function getLocalDeployOperations(result: LocalDeployResponse) {
+export const LocalDeployOperations: FC<{ result: LocalDeployResponse }> = ({ result }) => {
   if (!result.operations) {
     return null;
   }
@@ -48,7 +49,8 @@ export function getLocalDeployOperations(result: LocalDeployResponse) {
   );
 }
 
-export function getLocalDeployOutputs(result: LocalDeployResponse) {
+
+export const LocalDeployOutputs: FC<{ result: LocalDeployResponse }> = ({ result }) => {
   if (!result.deployment.outputs) {
     return null;
   }

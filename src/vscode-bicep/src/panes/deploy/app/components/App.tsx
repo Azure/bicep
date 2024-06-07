@@ -13,7 +13,7 @@ import { ParametersInputView } from "./sections/ParametersInputView";
 import { useAzure } from "./hooks/useAzure";
 import { DeploymentScopeInputView } from "./sections/DeploymentScopeInputView";
 import { FormSection } from "./sections/FormSection";
-import { getLocalDeployOperations, getLocalDeployOutputs, getLocalDeployResult } from "./localDeploy";
+import { LocalDeployOperations, LocalDeployOutputs, LocalDeployResult } from "./localDeploy";
 
 export const App: FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -144,9 +144,9 @@ export const App: FC = () => {
         </FormSection>
 
         {!localDeployRunning && messages.localDeployResult && <>
-          {getLocalDeployResult(messages.localDeployResult)}
-          {getLocalDeployOperations(messages.localDeployResult)}
-          {getLocalDeployOutputs(messages.localDeployResult)}
+          <LocalDeployResult result={messages.localDeployResult} />
+          <LocalDeployOperations result={messages.localDeployResult} />
+          <LocalDeployOutputs result={messages.localDeployResult} />
         </>}
       </>}
     </main>
