@@ -1260,7 +1260,8 @@
           "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2007, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "SharpYaml": "[2.1.1, )",
-          "System.IO.Abstractions": "[21.0.2, )"
+          "System.IO.Abstractions": "[21.0.2, )",
+          "System.Private.Uri": "[4.3.2, )"
         }
       },
       "Azure.Bicep.Local.Extension": {
