@@ -19,7 +19,7 @@ namespace Bicep.Core.CodeAction
             {
                 throw new ArgumentException("Code fix title should not be empty");
             }
-            if (title.EndsWith(".") || title.EndsWith("!"))
+            if (title.EndsWith('.') || title.EndsWith('!'))
             {
                 throw new ArgumentException($"Code fix title should not end with a period or exclamation mark: \"{title}\"", nameof(title));
             }
