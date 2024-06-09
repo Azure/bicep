@@ -13,7 +13,7 @@ namespace Bicep.Core.Syntax
             : base(Enumerable.Empty<SyntaxBase>())
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.UsingKeyword);
-            AssertSyntaxType(path, nameof(path), typeof(StringSyntax), typeof(SkippedTriviaSyntax), typeof(NullLiteralSyntax));
+            AssertSyntaxType(path, nameof(path), typeof(StringSyntax), typeof(SkippedTriviaSyntax), typeof(NoneLiteralSyntax));
 
             this.Keyword = keyword;
             this.Path = path;

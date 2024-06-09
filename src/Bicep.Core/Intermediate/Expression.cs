@@ -79,6 +79,14 @@ public record NullLiteralExpression(
         => visitor.VisitNullLiteralExpression(this);
 }
 
+public record NoneLiteralExpression(
+    SyntaxBase? SourceSyntax
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitNoneLiteralExpression(this);
+}
+
 public record ExtendsDeclarationExpression(
     SyntaxBase? SourceSyntax
 ) : Expression(SourceSyntax)

@@ -80,17 +80,17 @@ namespace Bicep.Core.Parsing
             {
                 TokenType.EndOfFile or
                 TokenType.NewLine or
-                TokenType.StringComplete => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
-                TokenType.NullKeyword => WithRecovery(
-                    () => new NullLiteralSyntax(
+                TokenType.NoneKeyword => WithRecovery(
+                    () => new NoneLiteralSyntax(
                         Expect(
-                            TokenType.NullKeyword,
-                            e => e.ExpectedKeyword(LanguageConstants.NullKeyword)
+                            TokenType.NoneKeyword,
+                            e => e.ExpectedKeyword(LanguageConstants.NoneKeyword)
                         )
                     ),
                     GetSuppressionFlag(keyword),
                     TokenType.NewLine
                 ),
+                TokenType.StringComplete => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
                 _ => Skip(reader.Read(), b => b.ExpectedSymbolListOrWildcard()),
             };
 

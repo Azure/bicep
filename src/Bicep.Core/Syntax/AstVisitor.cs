@@ -37,6 +37,10 @@ namespace Bicep.Core.Syntax
         {
         }
 
+        public override void VisitNoneLiteralSyntax(NoneLiteralSyntax syntax)
+        {
+        }
+
         public override void VisitSeparatedSyntaxList(SeparatedSyntaxList syntax)
         {
             foreach (var element in syntax.Elements)
@@ -483,6 +487,10 @@ namespace Bicep.Core.Syntax
         }
 
         public override void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax)
+        {
+        }
+
+        public override void VisitNoneTypeLiteralSyntax(NoneTypeLiteralSyntax syntax)
         {
         }
 

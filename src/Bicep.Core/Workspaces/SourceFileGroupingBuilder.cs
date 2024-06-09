@@ -175,7 +175,7 @@ namespace Bicep.Core.Workspaces
             // process all artifact references - modules & providers
             foreach (var restorable in GetArtifactReferences(file.ProgramSyntax))
             {
-                if (restorable.Path is NullLiteralSyntax)
+                if (restorable.Path is NoneLiteralSyntax)
                 {
                     continue;
                 }

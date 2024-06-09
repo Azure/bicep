@@ -123,6 +123,7 @@ namespace Bicep.Core
         public const string TrueKeyword = "true";
         public const string FalseKeyword = "false";
         public const string NullKeyword = "null";
+        public const string NoneKeyword = "none";
         public const string VoidKeyword = "void";
 
         public const string ListFunctionPrefix = "list";
@@ -134,6 +135,7 @@ namespace Bicep.Core
             [TrueKeyword] = TokenType.TrueKeyword,
             [FalseKeyword] = TokenType.FalseKeyword,
             [NullKeyword] = TokenType.NullKeyword,
+            [NoneKeyword] = TokenType.NoneKeyword,
             [WithKeyword] = TokenType.WithKeyword,
             [AsKeyword] = TokenType.AsKeyword,
         }.ToImmutableDictionary();

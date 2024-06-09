@@ -35,12 +35,17 @@ namespace Bicep.Core.Syntax
             IArtifactReferenceSyntax foreignTemplateReference,
             DiagnosticBuilder.ErrorBuilderDelegate onUnspecifiedPath)
         {
-            if (foreignTemplateReference.Path is not StringSyntax && foreignTemplateReference.Path is not NullLiteralSyntax)
+            if (foreignTemplateReference.Path is not StringSyntax && foreignTemplateReference.Path is not NoneLiteralSyntax)
             {
                 return new(onUnspecifiedPath);
             }
 
-            var pathSyntax = foreignTemplateReference.Path is StringSyntax ? foreignTemplateReference.Path as StringSyntax : new StringSyntax(Enumerable.Empty<Token>(), Enumerable.Empty<SyntaxBase>(), Enumerable.Empty<string>());
+            if (foreignTemplateReference.Path is NoneLiteralSyntax)
+            {
+                return new(string.Empty);
+            }
+
+            var pathSyntax = foreignTemplateReference.Path is StringSyntax syntax ? syntax : null;
 
             if (pathSyntax?.TryGetLiteralValue() is not string pathValue)
             {

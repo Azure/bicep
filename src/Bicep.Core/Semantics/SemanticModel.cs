@@ -532,7 +532,7 @@ namespace Bicep.Core.Semantics
             // emit diagnostic only if there is a using statement
             var usingDeclarationSyntax = this.Root.UsingDeclarationSyntax;
 
-            if (usingDeclarationSyntax is not null && usingDeclarationSyntax.Path is NullLiteralSyntax)
+            if (usingDeclarationSyntax is not null && usingDeclarationSyntax.Path is NoneLiteralSyntax)
             {
                 yield break;
             }

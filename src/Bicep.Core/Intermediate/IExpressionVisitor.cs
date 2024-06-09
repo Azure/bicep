@@ -13,6 +13,8 @@ public interface IExpressionVisitor
 
     void VisitNullLiteralExpression(NullLiteralExpression expression);
 
+    void VisitNoneLiteralExpression(NoneLiteralExpression expression);
+
     void VisitExtendsDeclarationExpression(ExtendsDeclarationExpression expression);
 
     void VisitInterpolatedStringExpression(InterpolatedStringExpression expression);

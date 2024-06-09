@@ -34,6 +34,8 @@ namespace Bicep.Core.Syntax
 
         void VisitNullLiteralSyntax(NullLiteralSyntax syntax);
 
+        void VisitNoneLiteralSyntax(NoneLiteralSyntax syntax);
+
         void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax);
 
         void VisitObjectPropertySyntax(ObjectPropertySyntax syntax);
@@ -167,6 +169,8 @@ namespace Bicep.Core.Syntax
         void VisitBooleanTypeLiteralSyntax(BooleanTypeLiteralSyntax syntax);
 
         void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax);
+
+        void VisitNoneTypeLiteralSyntax(NoneTypeLiteralSyntax syntax);
 
         void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax);
 

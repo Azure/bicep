@@ -94,6 +94,10 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
+    public virtual void VisitNoneLiteralExpression(NoneLiteralExpression expression)
+    {
+    }
+
     public virtual void VisitObjectExpression(ObjectExpression expression)
     {
         Visit(expression.Properties);

@@ -10,6 +10,7 @@ namespace Bicep.Core.Configuration;
 public record ExperimentalFeaturesEnabled(
     bool SymbolicNameCodegen,
     bool Extensibility,
+    bool ModularParameters,
     bool ResourceTypedParamsAndOutputs,
     bool SourceMapping,
     bool LegacyFormatter,

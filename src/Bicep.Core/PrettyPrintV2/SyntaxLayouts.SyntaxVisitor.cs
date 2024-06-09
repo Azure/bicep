@@ -76,6 +76,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitNullLiteralSyntax(NullLiteralSyntax syntax) => this.Layout(syntax.NullKeyword);
 
+        public void VisitNoneLiteralSyntax(NoneLiteralSyntax syntax) => this.Layout(syntax.NoneKeyword);
+
         public void VisitObjectPropertySyntax(ObjectPropertySyntax syntax) => this.Apply(syntax, this.LayoutObjectPropertySyntax);
 
         public void VisitObjectSyntax(ObjectSyntax syntax) => this.Apply(syntax, this.LayoutObjectSyntax);
@@ -185,6 +187,8 @@ namespace Bicep.Core.PrettyPrintV2
         public void VisitBooleanTypeLiteralSyntax(BooleanTypeLiteralSyntax syntax) => this.Layout(syntax.Literal);
 
         public void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax) => this.Layout(syntax.NullKeyword);
+
+        public void VisitNoneTypeLiteralSyntax(NoneTypeLiteralSyntax syntax) => this.Layout(syntax.NoneKeyword);
 
         public void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax) => this.Apply(syntax, LayoutUnaryTypeOperationSyntax);
 

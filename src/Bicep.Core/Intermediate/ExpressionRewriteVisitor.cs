@@ -152,6 +152,12 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return expression;
     }
 
+    void IExpressionVisitor.VisitNoneLiteralExpression(NoneLiteralExpression expression) => ReplaceCurrent(expression, ReplaceNoneLiteralExpression);
+    public virtual Expression ReplaceNoneLiteralExpression(NoneLiteralExpression expression)
+    {
+        return expression;
+    }
+
     void IExpressionVisitor.VisitObjectExpression(ObjectExpression expression) => ReplaceCurrent(expression, ReplaceObjectExpression);
     public virtual Expression ReplaceObjectExpression(ObjectExpression expression)
     {
