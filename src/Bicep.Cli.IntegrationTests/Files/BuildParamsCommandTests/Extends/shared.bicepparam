@@ -1,3 +1,3 @@
-using null
+using none
 
 param stringParam = 'foo'
