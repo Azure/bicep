@@ -106,6 +106,7 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "experimentalFeaturesEnabled": {
+          "modularParameters": false,
           "symbolicNameCodegen": false,
           "extensibility": false,
           "resourceTypedParamsAndOutputs": false,

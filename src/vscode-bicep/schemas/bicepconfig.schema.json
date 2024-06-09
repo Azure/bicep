@@ -783,6 +783,10 @@
       "type": "object",
       "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file. See https://aka.ms/bicep/experimental-features for more information.",
       "properties": {
+        "modularParameters": {
+          "type": "boolean",
+          "description": "Allows the use of modular parameters. See https://aka.ms/bicep/experimental-features#modularparameters"
+        },
         "symbolicNameCodegen": {
           "type": "boolean",
           "description": "Allows the ARM template layer to use a new schema to represent resources as an object dictionary rather than an array of objects. See https://aka.ms/bicep/experimental-features#symbolicnamecodegen"
