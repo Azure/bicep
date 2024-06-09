@@ -4,8 +4,8 @@
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Local.Deploy.Extensibility;
 using Azure.Deployments.Core.Definitions;
+using Bicep.Local.Deploy.Extensibility;
 using Microsoft.Azure.Deployments.Service.Shared.Jobs;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,7 +22,7 @@ public static class LocalDeployment
         var services = new ServiceCollection()
             .RegisterLocalDeployServices(extensibilityHandler)
             .BuildServiceProvider();
-        
+
         var engine = services.GetRequiredService<LocalDeploymentEngine>();
         var dispatcher = services.GetRequiredService<WorkerJobDispatcherClient>();
 

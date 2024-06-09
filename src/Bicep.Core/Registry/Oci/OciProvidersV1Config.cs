@@ -59,7 +59,8 @@ public static class SupportedArchitectures
 
     public static SupportedArchitecture? TryGetCurrent()
     {
-        return RuntimeInformation.ProcessArchitecture switch {
+        return RuntimeInformation.ProcessArchitecture switch
+        {
             Architecture.X64 when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => LinuxX64,
             Architecture.Arm64 when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => LinuxArm64,
             Architecture.X64 when RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => OsxX64,

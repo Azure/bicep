@@ -37,7 +37,7 @@ public class EchoResourceHandler : IResourceHandler
         var response = new ExtensibleResourceData(
             request.Resource.Type,
             JsonNode.Parse(JsonSerializer.Serialize(responseBody, SerializationContext.Default.EchoResponse))!.AsObject());
-        
+
         return new ExtensibilityOperationResponse(response, null, null);
     }
 }

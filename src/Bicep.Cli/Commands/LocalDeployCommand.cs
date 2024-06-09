@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Local.Deploy;
-using Bicep.Local.Deploy.Extensibility;
 using Azure.Deployments.Core.Json;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
@@ -12,6 +10,8 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Local.Deploy;
+using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Extension.Rpc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -53,8 +53,8 @@ public class LocalDeployCommand : ICommand
         var parameters = compilation.Emitter.Parameters();
 
         if (summary.HasErrors ||
-            parameters.Parameters is not {} parametersString ||
-            parameters.Template?.Template is not {} templateString)
+            parameters.Parameters is not { } parametersString ||
+            parameters.Template?.Template is not { } templateString)
         {
             return 1;
         }
@@ -76,7 +76,7 @@ public class LocalDeployCommand : ICommand
 
     private async Task WriteSummary(LocalDeployment.Result result)
     {
-        if (result.Deployment.Properties.Outputs is {} outputs)
+        if (result.Deployment.Properties.Outputs is { } outputs)
         {
             foreach (var output in outputs)
             {
@@ -84,7 +84,7 @@ public class LocalDeployCommand : ICommand
             }
         }
 
-        if (result.Deployment.Properties.Error is {} error)
+        if (result.Deployment.Properties.Error is { } error)
         {
             foreach (var subError in error.Details)
             {

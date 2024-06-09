@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Local.Extension;
-using Bicep.Local.Extension.Rpc;
-using Bicep.Local.Extension.Protocol;
 using Bicep.Local.Extension.Mock.Handlers;
 using Bicep.Local.Extension.Mock.Types;
+using Bicep.Local.Extension.Protocol;
+using Bicep.Local.Extension.Rpc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -19,7 +19,7 @@ public static class Program
     {
         // hack to allow this extension to output types
         var typesOutputPath = Environment.GetEnvironmentVariable("MOCK_TYPES_OUTPUT_PATH");
-        if (typesOutputPath is {})
+        if (typesOutputPath is { })
         {
             TypeGenerator.WriteTypes(typesOutputPath);
             return;
