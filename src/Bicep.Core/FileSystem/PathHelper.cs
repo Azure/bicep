@@ -204,7 +204,7 @@ namespace Bicep.Core.FileSystem
             uri.Scheme != Uri.UriSchemeFile ? uri.AbsoluteUri.TrimEnd('/') : uri.AbsolutePath;
 
         private static string NormalizeExtension(string extension) =>
-            extension.StartsWith(".") ? extension : $".{extension}";
+            extension.StartsWith('.') ? extension : $".{extension}";
 
         public static bool IsSubPathOf(Uri parent, Uri child)
         {

@@ -42,7 +42,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                             return null;
                         }
 
-                        if (!childName.SegmentValues[1].StartsWith("/"))
+                        if (!childName.SegmentValues[1].StartsWith('/'))
                         {
                             return null;
                         }

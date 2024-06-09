@@ -392,7 +392,7 @@ namespace Bicep.LanguageServer.Completions
                     return token.Text;
 
                 case TokenType.StringComplete:
-                    if (!token.Text.EndsWith("'", StringComparison.Ordinal))
+                    if (!token.Text.EndsWith('\''))
                     {
                         // An unterminated string will result in skipped trivia containing an unterminated token.
                         // Compensate here by building the expected token before lexing it.
