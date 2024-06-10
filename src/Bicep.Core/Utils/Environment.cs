@@ -8,5 +8,5 @@ public class Environment : IEnvironment
         => System.Environment.GetEnvironmentVariable(variable);
 
     public IEnumerable<string> GetVariableNames()
-        => System.Environment.GetEnvironmentVariables().Keys.Cast<string>();
+        => System.Environment.GetEnvironmentVariables().Keys.OfType<string>();
 }
