@@ -5,7 +5,7 @@
         "moduleResolution": "node",
         "esModuleInterop": true,
         "outDir": "out",
-        "lib": ["es2016"],
+        "lib": ["es2019"],
         "sourceMap": true,
         "skipLibCheck": true,
         "strict": true,

@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -86,7 +87,7 @@ namespace Bicep.Core.Registry
         {
             if (artifactReferenceSyntax is ProviderDeclarationSyntax providerDeclarationSyntax)
             {
-                var artifactAddressResult = GetArtifactAddress(providerDeclarationSyntax, parentModuleUri);
+                var artifactAddressResult = TryGetArtifactAddress(providerDeclarationSyntax, parentModuleUri);
                 if (!artifactAddressResult.IsSuccess(out var providerArtifactPath, out var providerDeclarationPathFailureBuilder))
                 {
                     return new(providerDeclarationPathFailureBuilder);
@@ -112,31 +113,30 @@ namespace Bicep.Core.Registry
             _ => throw new NotImplementedException($"Unexpected artifact reference syntax type '{artifactReferenceSyntax.GetType().Name}'.")
         };
 
-        private ResultWithDiagnostic<string> GetArtifactAddress(ProviderDeclarationSyntax providerDeclarationSyntax, Uri parentModuleUri)
+        private ResultWithDiagnostic<string> TryGetArtifactAddress(ProviderDeclarationSyntax providerDeclarationSyntax, Uri parentModuleUri)
         {
-            if (providerDeclarationSyntax.Specification is null)
+            switch (providerDeclarationSyntax.SpecificationString)
             {
-                return new(x => x.InvalidProviderSpecification());
-            }
-
-            var config = configurationManager.GetConfiguration(parentModuleUri);
-            switch (providerDeclarationSyntax.Specification)
-            {
-                case InlinedProviderSpecification inlinedSpec:
-                    return new(inlinedSpec.UnexpandedArtifactAddress);
-                default:
-                    if (!config.ProvidersConfig.TryGetProviderSource(providerDeclarationSyntax.Specification.NamespaceIdentifier).IsSuccess(out var providerSource, out var errorBuilder))
+                case StringSyntax inlinedSpec:
+                    if (inlinedSpec.TryGetLiteralValue() is not string pathValue)
                     {
-                        return new(errorBuilder);
+                        return new(x => x.ProviderSpecificationInterpolationUnsupported());
                     }
-                    return new($"{providerSource.Scheme}:{providerSource.Path}");
+
+                    return new(pathValue);
+                case IdentifierSyntax configSpec:
+                    var config = configurationManager.GetConfiguration(parentModuleUri);
+
+                    return config.ProvidersConfig.TryGetProviderSource(configSpec.IdentifierName).Transform(x => x.Value);
+                default:
+                    return new(x => x.ExpectedProviderSpecification());
             }
         }
 
-        public RegistryCapabilities GetRegistryCapabilities(ArtifactReference artifactReference)
+        public RegistryCapabilities GetRegistryCapabilities(ArtifactType artifactType, ArtifactReference artifactReference)
         {
             var registry = this.GetRegistry(artifactReference);
-            return registry.GetCapabilities(artifactReference);
+            return registry.GetCapabilities(artifactType, artifactReference);
         }
 
         public ArtifactRestoreStatus GetArtifactRestoreStatus(
@@ -229,23 +229,23 @@ namespace Bicep.Core.Registry
             await registry.PublishModule(reference, compiledArmTemplate, bicepSources, documentationUri, description);
         }
 
-        public async Task PublishProvider(ArtifactReference reference, BinaryData typesTgz)
+        public async Task PublishProvider(ArtifactReference reference, ProviderPackage provider)
         {
             var registry = this.GetRegistry(reference);
 
-            await registry.PublishProvider(reference, typesTgz);
+            await registry.PublishProvider(reference, provider);
         }
 
         public async Task<bool> CheckModuleExists(ArtifactReference reference)
         {
             var registry = this.GetRegistry(reference);
-            return await registry.CheckArtifactExists(reference);
+            return await registry.CheckArtifactExists(ArtifactType.Module, reference);
         }
 
         public async Task<bool> CheckProviderExists(ArtifactReference reference)
         {
             var registry = this.GetRegistry(reference);
-            return await registry.CheckArtifactExists(reference);
+            return await registry.CheckArtifactExists(ArtifactType.Provider, reference);
         }
 
         public void PruneRestoreStatuses()
@@ -270,6 +270,12 @@ namespace Bicep.Core.Registry
         {
             var registry = this.GetRegistry(reference);
             return registry.TryGetSource(reference);
+        }
+
+        public Uri? TryGetProviderBinary(ArtifactReference reference)
+        {
+            var registry = this.GetRegistry(reference);
+            return registry.TryGetProviderBinary(reference);
         }
 
         private bool HasRestoreFailed(ArtifactReference reference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)

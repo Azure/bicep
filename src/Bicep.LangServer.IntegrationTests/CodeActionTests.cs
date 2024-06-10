@@ -552,12 +552,12 @@ param foo2 string", "param foo2 string")]
                 services => services.WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true)));
 
             (var codeActions, var bicepFile) = await RunSyntaxTest(@"
-impo|rt 'sys@1.0.0' as sys
+imp|ort 'br:example.azurecr.io/test/radius:1.0.0'
 ", server: server);
 
             var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith("Replace the import with the provider keyword")));
             updatedFile.Should().HaveSourceText(@"
-provider 'sys@1.0.0' as sys
+provider 'br:example.azurecr.io/test/radius:1.0.0'
 ");
         }
 

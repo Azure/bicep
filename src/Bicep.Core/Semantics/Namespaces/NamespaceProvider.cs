@@ -8,6 +8,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
@@ -19,7 +20,6 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public record NamespaceResult(
     string Name,
-    string ProviderName,
     TypeSymbol Type,
     ProviderDeclarationSyntax? Origin);
 
@@ -46,21 +46,20 @@ public class NamespaceProvider : INamespaceProvider
         {
             // TODO proper diag here
             var nsType = ErrorType.Create(DiagnosticBuilder.ForDocumentStart().ProvidersAreDisabled());
-            yield return new(sysProvider.Name, SystemNamespaceType.BuiltInName, nsType, null);
+            yield return new(sysProvider.Name, nsType, null);
         }
 
         var assignedProviders = new HashSet<string>(LanguageConstants.IdentifierComparer);
         foreach (var provider in providerDeclarations)
         {
-            var providerName = provider.Specification.NamespaceIdentifier;
-            var aliasName = provider.Alias?.IdentifierName ?? providerName;
-            if (provider.Specification.IsValid)
+            var type = GetNamespaceType(rootConfig, features, artifactFileLookup, sourceFile, targetScope, provider);
+            if (type is NamespaceType validType)
             {
-                assignedProviders.Add(providerName);
+                assignedProviders.Add(validType.ProviderName);
             }
 
-            var nsType = GetNamespaceType(rootConfig, features, artifactFileLookup, sourceFile, targetScope, provider);
-            yield return new(aliasName, providerName, nsType, provider);
+            var name = provider.Alias?.IdentifierName ?? type.Name;
+            yield return new(name, type, provider);
         }
 
         // sys isn't included in the implicit providers config, because we don't want users to customize it.
@@ -75,8 +74,8 @@ public class NamespaceProvider : INamespaceProvider
                 continue;
             }
 
-            var nsType = GetNamespaceTypeForImplicitProvider(rootConfig, features, sourceFile, targetScope, implicitProvider, implicitProvider.Name, implicitProvider.Name, null);
-            yield return new(implicitProvider.Name, providerName, nsType, null);
+            var nsType = GetNamespaceTypeForImplicitProvider(rootConfig, features, sourceFile, targetScope, implicitProvider, null);
+            yield return new(providerName, nsType, null);
         }
     }
 
@@ -86,16 +85,14 @@ public class NamespaceProvider : INamespaceProvider
         BicepSourceFile sourceFile,
         ResourceScope targetScope,
         ImplicitProvider implicitProvider,
-        string providerName,
-        string aliasName,
         ProviderDeclarationSyntax? syntax)
     {
         if (implicitProvider.Config is null)
         {
-            return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().InvalidProvider_ImplicitProviderMissingConfig(rootConfig.ConfigFileUri, providerName));
+            return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().InvalidProvider_ImplicitProviderMissingConfig(rootConfig.ConfigFileUri, implicitProvider.Name));
         }
 
-        return GetNamespaceTypeForConfigManagedProvider(rootConfig, features, sourceFile, targetScope, implicitProvider.Artifact, providerName, aliasName, syntax);
+        return GetNamespaceTypeForConfigManagedProvider(rootConfig, features, sourceFile, targetScope, implicitProvider.Artifact, syntax, implicitProvider.Name);
     }
 
     private TypeSymbol GetNamespaceType(
@@ -111,37 +108,16 @@ public class NamespaceProvider : INamespaceProvider
             return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ProvidersAreDisabled());
         }
 
-        // Check for interpolated specification strings
-        if (syntax.SpecificationString is StringSyntax specificationString && specificationString.IsInterpolated())
+        if (syntax.SpecificationString.IsSkipped)
         {
-            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.SpecificationString).ProviderSpecificationInterpolationUnsupported());
+            // this will have raised a parsing diagnostic
+            return ErrorType.Empty();
         }
 
-        if (!syntax.Specification.IsValid)
+        if (artifactFileLookup.ArtifactLookup.TryGetValue(syntax, out var artifact))
         {
-            return (syntax.SpecificationString is StringSyntax)
-                ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.SpecificationString).InvalidProviderSpecification())
-                : ErrorType.Empty();
-        }
-
-        var providerName = syntax.Specification.NamespaceIdentifier;
-        var aliasName = syntax.Alias?.IdentifierName ?? providerName;
-        if (syntax.Specification is ConfigurationManagedProviderSpecification or LegacyProviderSpecification)
-        {
-            if (!TryGetProviderConfig(rootConfig, providerName).IsSuccess(out var providerConfig, out var errorBuilder))
-            {
-                return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
-            }
-
-            var artifact = providerConfig.BuiltIn ? null : artifactFileLookup.ArtifactLookup[syntax];
-            return GetNamespaceTypeForConfigManagedProvider(rootConfig, features, sourceFile, targetScope, artifact, providerName, aliasName, syntax);
-        }
-
-        if (syntax.Specification is InlinedProviderSpecification)
-        {
-            var artifact = artifactFileLookup.ArtifactLookup[syntax];
-
-            if (GetNamespaceTypeForArtifact(features, artifact, sourceFile, targetScope, providerName, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
+            var aliasName = syntax.Alias?.IdentifierName;
+            if (GetNamespaceTypeForArtifact(features, artifact, sourceFile, targetScope, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
             {
                 return namespaceType;
             }
@@ -149,62 +125,70 @@ public class NamespaceProvider : INamespaceProvider
             return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax.SpecificationString)));
         }
 
-        // we've exhaustively checked all the different implementations of IProviderSpecification
-        throw new UnreachableException();
+        if (syntax.SpecificationString is not IdentifierSyntax identifier)
+        {
+            // this will have raised a parsing diagnostic
+            return ErrorType.Empty();
+        }
+
+        return GetNamespaceTypeForConfigManagedProvider(rootConfig, features, sourceFile, targetScope, null, syntax, identifier.IdentifierName);
     }
 
-    private TypeSymbol GetNamespaceTypeForConfigManagedProvider(
+    protected virtual TypeSymbol GetNamespaceTypeForConfigManagedProvider(
         RootConfiguration rootConfig,
         IFeatureProvider features,
         BicepSourceFile sourceFile,
         ResourceScope targetScope,
         ArtifactResolutionInfo? artifact,
-        string providerName,
-        string aliasName,
-        ProviderDeclarationSyntax? syntax)
+        ProviderDeclarationSyntax? syntax,
+        string providerName)
     {
+        var aliasName = syntax?.Alias?.IdentifierName ?? providerName;
         var diagBuilder = syntax is { } ? DiagnosticBuilder.ForPosition(syntax) : DiagnosticBuilder.ForDocumentStart();
 
         if (artifact is { })
         {
             // not a built-in provider
-            if (GetNamespaceTypeForArtifact(features, artifact, sourceFile, targetScope, providerName, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
+            if (GetNamespaceTypeForArtifact(features, artifact, sourceFile, targetScope, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
             {
                 return namespaceType;
             }
 
             return ErrorType.Create(errorBuilder(diagBuilder));
         }
-        else
+
+        // built-in provider
+        if (LanguageConstants.IdentifierComparer.Equals(providerName, SystemNamespaceType.BuiltInName))
         {
-            // built-in provider
-            if (LanguageConstants.IdentifierComparer.Equals(providerName, SystemNamespaceType.BuiltInName))
-            {
-                return SystemNamespaceType.Create(aliasName, features, sourceFile.FileKind);
-            }
-
-            if (LanguageConstants.IdentifierComparer.Equals(providerName, AzNamespaceType.BuiltInName))
-            {
-                return AzNamespaceType.Create(aliasName, targetScope, resourceTypeProviderFactory.GetBuiltInAzResourceTypesProvider(), sourceFile.FileKind);
-            }
-
-            if (LanguageConstants.IdentifierComparer.Equals(providerName, MicrosoftGraphNamespaceType.BuiltInName))
-            {
-                return MicrosoftGraphNamespaceType.Create(aliasName);
-            }
-
-            if (LanguageConstants.IdentifierComparer.Equals(providerName, K8sNamespaceType.BuiltInName))
-            {
-                return K8sNamespaceType.Create(aliasName);
-            }
-
-            return ErrorType.Create(diagBuilder.InvalidProvider_NotABuiltInProvider(rootConfig.ConfigFileUri, providerName));
+            return SystemNamespaceType.Create(aliasName, features, sourceFile.FileKind);
         }
+
+        if (LanguageConstants.IdentifierComparer.Equals(providerName, AzNamespaceType.BuiltInName))
+        {
+            return AzNamespaceType.Create(aliasName, targetScope, resourceTypeProviderFactory.GetBuiltInAzResourceTypesProvider(), sourceFile.FileKind);
+        }
+
+        if (LanguageConstants.IdentifierComparer.Equals(providerName, MicrosoftGraphNamespaceType.BuiltInName))
+        {
+            return MicrosoftGraphNamespaceType.Create(aliasName);
+        }
+
+        if (LanguageConstants.IdentifierComparer.Equals(providerName, K8sNamespaceType.BuiltInName))
+        {
+            return K8sNamespaceType.Create(aliasName);
+        }
+
+        return ErrorType.Create(diagBuilder.InvalidProvider_NotABuiltInProvider(rootConfig.ConfigFileUri, providerName));
     }
 
-    private ResultWithDiagnostic<NamespaceType> GetNamespaceTypeForArtifact(IFeatureProvider features, ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string providerName, string aliasName)
+    private ResultWithDiagnostic<NamespaceType> GetNamespaceTypeForArtifact(IFeatureProvider features, ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)
     {
-        var useAzLoader = LanguageConstants.IdentifierComparer.Equals(providerName, AzNamespaceType.BuiltInName);
+        if (!artifact.Result.IsSuccess(out var typesTgzUri, out var errorBuilder))
+        {
+            return new(errorBuilder);
+        }
+
+        var useAzLoader = artifact.Reference is OciArtifactReference ociArtifact && ociArtifact.Repository.EndsWith("/az");
         if (useAzLoader && !features.DynamicTypeLoadingEnabled)
         {
             return new(x => x.FetchingAzTypesRequiresExperimentalFeature());
@@ -215,12 +199,7 @@ public class NamespaceProvider : INamespaceProvider
             return new(x => x.FetchingTypesRequiresExperimentalFeature());
         }
 
-        if (!artifact.Result.IsSuccess(out var typesTgzUri, out var errorBuilder))
-        {
-            return new(errorBuilder);
-        }
-
-        if (!resourceTypeProviderFactory.GetResourceTypeProvider(typesTgzUri, useAzLoader: useAzLoader).IsSuccess(out var typeProvider, out errorBuilder))
+        if (!resourceTypeProviderFactory.GetResourceTypeProvider(artifact.Reference, typesTgzUri, useAzLoader: useAzLoader).IsSuccess(out var typeProvider, out errorBuilder))
         {
             return new(errorBuilder);
         }
@@ -230,17 +209,6 @@ public class NamespaceProvider : INamespaceProvider
             return new(AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind));
         }
 
-        return new(ThirdPartyNamespaceType.Create(providerName, aliasName, typeProvider));
-    }
-
-    private ResultWithDiagnostic<ProviderConfigEntry> TryGetProviderConfig(RootConfiguration rootConfig, string providerName)
-    {
-        if (LanguageConstants.IdentifierComparer.Equals(providerName, SystemNamespaceType.BuiltInName))
-        {
-            // synthesize an entry for 'sys'
-            return new(new ProviderConfigEntry("builtin:"));
-        }
-
-        return rootConfig.ProvidersConfig.TryGetProviderSource(providerName);
+        return new(ThirdPartyNamespaceType.Create(aliasName, typeProvider, artifact.Reference));
     }
 }

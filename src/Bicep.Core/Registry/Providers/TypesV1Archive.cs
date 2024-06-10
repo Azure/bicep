@@ -1,11 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Formats.Tar;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Text;
+using System.Web.Services.Description;
+using Azure.Bicep.Types;
 using Azure.Bicep.Types.Serialization;
+using Azure.Deployments.Core.Extensions;
+using Bicep.Core.Extensions;
+using Bicep.Core.Intermediate;
 
 namespace Bicep.Core.Registry.Providers;
 
@@ -54,7 +60,17 @@ public static class TypesV1Archive
 
         var index = TypeSerializer.DeserializeIndex(indexStream);
 
-        return index.Resources.Values.Select(x => x.RelativePath).Distinct();
+        var typeReferences = index.Resources.Values.ToList();
+        if (index.Settings?.ConfigurationType is { } configType)
+        {
+            typeReferences.Add(configType);
+        }
+        if (index.FallbackResourceType is { } fallbackType)
+        {
+            typeReferences.Add(fallbackType);
+        }
+
+        return typeReferences.Select(x => x.RelativePath).Distinct();
     }
 }
 

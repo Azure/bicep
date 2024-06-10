@@ -19,6 +19,7 @@ public record ExperimentalFeaturesEnabled(
     bool DynamicTypeLoading,
     bool ProviderRegistry,
     bool OptionalModuleNames,
+    bool LocalDeploy,
     bool ResourceDerivedTypes)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)

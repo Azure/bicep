@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Registry.Oci;
+
 namespace Bicep.Cli.Arguments
 {
     public class PublishProviderArguments : ArgumentsBase
@@ -23,6 +25,23 @@ namespace Bicep.Cli.Arguments
                         }
 
                         TargetProviderReference = args[i + 1];
+                        i++;
+                        break;
+
+                    case {} when args[i].StartsWith("--bin-"):
+                        var architectureName = args[i].Substring("--bin-".Length);
+
+                        if (!SupportedArchitectures.All.Any(x => x.Name == architectureName))
+                        {
+                            throw new CommandLineException($"Unrecognized parameter \"{args[i]}\"");
+                        }
+
+                        if (Binaries.ContainsKey(architectureName))
+                        {
+                            throw new CommandLineException($"Parameter \"{args[i]}\" cannot be specified multiple times.");
+                        }
+
+                        Binaries[architectureName] = args[i + 1];
                         i++;
                         break;
 
@@ -56,6 +75,8 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException("The target provider was not specified.");
             }
         }
+
+        public Dictionary<string, string> Binaries { get; } = new();
 
         public string IndexFile { get; }
 

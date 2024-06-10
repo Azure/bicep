@@ -15,14 +15,10 @@ namespace Bicep.Core.TypeSystem
     public class OciTypeLoader : TypeLoader
     {
         private readonly ImmutableDictionary<string, byte[]> typesCache;
-        public const string TypesArtifactFilename = "types.tgz";
         private OciTypeLoader(ImmutableDictionary<string, byte[]> typesCache)
         {
             this.typesCache = typesCache;
         }
-
-        public static OciTypeLoader FromDisk(IFileSystem fs, Uri typesTgzUri)
-            => FromStream(fs.File.OpenRead(typesTgzUri.LocalPath));
 
         public static OciTypeLoader FromStream(Stream stream)
         {

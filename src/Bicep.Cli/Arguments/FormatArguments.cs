@@ -164,6 +164,12 @@ namespace Bicep.Cli.Arguments
                             throw new CommandLineException($"The --insertFinalNewline parameter cannot be specified twice");
                         }
 
+                        if (args.Length == i + 1)
+                        {
+                            InsertFinalNewline = true;
+                            break;
+                        }
+
                         if (bool.TryParse(args[i + 1], out var insertFinalNewline))
                         {
                             InsertFinalNewline = insertFinalNewline;
@@ -181,6 +187,12 @@ namespace Bicep.Cli.Arguments
                         if (InsertFinalNewline is not null)
                         {
                             throw new CommandLineException($"The --insert-final-newline parameter cannot be specified twice");
+                        }
+
+                        if (args.Length == i + 1)
+                        {
+                            InsertFinalNewline = true;
+                            break;
                         }
 
                         if (bool.TryParse(args[i + 1], out insertFinalNewline))

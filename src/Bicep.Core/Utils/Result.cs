@@ -38,11 +38,11 @@ public class Result<TSuccess, TError>
     public bool IsSuccess([NotNullWhen(true)] out TSuccess? success) => IsSuccess(out success, out _);
 
     /// <summary>
-    /// Returns the succcessful result, assuming success. Throws an exception if not.
+    /// Returns the successful result, assuming success. Throws an exception if not.
     /// This should only be called if you've already verified that the result is successful.
     /// </summary>
     public TSuccess Unwrap()
-        => TryUnwrap() ?? throw new InvalidOperationException("Cannot unwrap a failed result.");
+        => TryUnwrap() ?? throw new InvalidOperationException($"Cannot unwrap a failed result: {errorResult}.");
 
     public TSuccess? TryUnwrap()
         => successResult;

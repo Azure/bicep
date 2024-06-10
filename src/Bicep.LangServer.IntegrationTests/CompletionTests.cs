@@ -1365,9 +1365,7 @@ resource testRes2 'Test.Rp/readWriteTests@2020-01-01' = {
         }
 
         [TestMethod]
-        public async Task Spread_operator_supports_outer_object_property_completions()
-        {
-            var fileWithCursors = @"
+        public Task Spread_operator_supports_outer_object_property_completions() => RunCompletionTest("""
 type myType = {
   foo: string
   bar: string
@@ -1377,14 +1375,8 @@ output foo myType = {
   ...{|}
   bar: 'bar'
 }
-";
-
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
-
-            var completions = await file.RequestCompletion(cursor);
-            var updatedFile = file.ApplyCompletion(completions, "foo");
-            updatedFile.Should().HaveSourceText(@"
+""",
+          "foo", """
 type myType = {
   foo: string
   bar: string
@@ -1394,8 +1386,93 @@ output foo myType = {
   ...{foo:|}
   bar: 'bar'
 }
-");
+""");
+
+        [TestMethod] // https://github.com/Azure/bicep/issues/14056
+        public Task Spread_object_property_completions_work_with_ternary() => RunCompletionTest("""
+var nsgDeploy = true
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
+  name: 'vnet/subnet2'
+  properties: {
+    addressPrefix: ''
+    ...nsgDeploy ? {
+      |
+    }
+  }
+}
+""",
+          "ipAllocations", """
+var nsgDeploy = true
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' = {
+  name: 'vnet/subnet2'
+  properties: {
+    addressPrefix: ''
+    ...nsgDeploy ? {
+      ipAllocations:|
+    }
+  }
+}
+""");
+
+        [TestMethod]
+        public Task Spread_array_completions_work_with_parentheses() => RunCompletionTest("""
+param foo { foo: 'asdf' }[] = [
+  ...[
+   (|)
+  ]
+]
+""",
+          "required-properties", """
+param foo { foo: 'asdf' }[] = [
+  ...[
+   ({
+  foo: $1
+}|)
+  ]
+]
+""");
+
+        [TestMethod] // https://github.com/Azure/bicep/issues/14066
+        public Task Object_completions_work_inside_ternary() => RunCompletionTest("""
+var foo1 = {}
+var foo2 = []
+
+resource str 'Microsoft.Storage/storageAccounts@2023-04-01' = {
+  name: 'str0909'
+  properties: {
+    networkAcls: empty(foo1) ? null : {
+      defaultAction: 'Allow'
+      resourceAccessRules: empty(foo2) ? null : [
+        {
+          resourceId: ''
+          |
         }
+      ]
+    }
+  }
+}
+""",
+          "tenantId", """
+var foo1 = {}
+var foo2 = []
+
+resource str 'Microsoft.Storage/storageAccounts@2023-04-01' = {
+  name: 'str0909'
+  properties: {
+    networkAcls: empty(foo1) ? null : {
+      defaultAction: 'Allow'
+      resourceAccessRules: empty(foo2) ? null : [
+        {
+          resourceId: ''
+          tenantId:|
+        }
+      ]
+    }
+  }
+}
+""");
 
         [TestMethod]
         public async Task PropertyNameCompletionsShouldNotIncludeTrailingColonIfItIsPresent()
@@ -3592,6 +3669,16 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             assertAction(completions);
         }
 
+        private async Task RunCompletionTest(string fileWithCursor, string completionLabel, string expectedOutput)
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursor);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            var updatedFile = file.ApplyCompletion(completions, completionLabel);
+            updatedFile.Should().HaveSourceText(expectedOutput);
+        }
+
         private static string FormatPosition(Position position) => $"({position.Line}, {position.Character})";
 
         private static async Task<JToken> GetActualCompletions(ILanguageClient client, DocumentUri uri, Position position)
@@ -4054,7 +4141,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).ReturnsAsync(new List<PublicRegistryModule> { new("app/dapr-containerapp", "d1", "contoso.com/help1"), new("app/dapr-containerapp-env", "d2", "contoso.com/help2") });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).ReturnsAsync(new List<RegistryModule> { new("app/dapr-containerapp", "d1", "contoso.com/help1"), new("app/dapr-containerapp-env", "d2", "contoso.com/help2") });
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -4098,7 +4185,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<PublicRegistryModuleVersion> { new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null) });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<RegistryModuleVersion> { new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null) });
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,

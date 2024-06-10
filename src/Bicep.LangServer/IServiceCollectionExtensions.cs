@@ -72,5 +72,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IArmClientProvider, ArmClientProvider>()
         .AddSingleton<IDeploymentHelper, DeploymentHelper>()
         .AddSingleton<ISettingsProvider, SettingsProvider>()
-        .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>();
+        .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
+        .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
+        ;
 }

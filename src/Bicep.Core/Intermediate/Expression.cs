@@ -407,7 +407,7 @@ public record DeclaredMetadataExpression(
 public record DeclaredProviderExpression(
     SyntaxBase? SourceSyntax,
     string Name,
-    NamespaceType NamespaceType,
+    NamespaceSettings Settings,
     Expression? Config,
     Expression? Description = null
 ) : DescribableExpression(SourceSyntax, Description)

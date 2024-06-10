@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO.Abstractions;
+using System.Runtime.InteropServices;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
@@ -52,7 +53,7 @@ namespace Bicep.Core.Registry
 
         public string CacheRootDirectory => this.features.CacheRootDirectory;
 
-        public override RegistryCapabilities GetCapabilities(OciArtifactReference reference)
+        public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, OciArtifactReference reference)
         {
             // cannot publish without tag
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
@@ -94,7 +95,7 @@ namespace Bicep.Core.Registry
                 !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Metadata));
         }
 
-        public override async Task<bool> CheckArtifactExists(OciArtifactReference reference)
+        public override async Task<bool> CheckArtifactExists(ArtifactType artifactType, OciArtifactReference reference)
         {
             try
             {
@@ -290,15 +291,32 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public override async Task PublishProvider(OciArtifactReference reference, BinaryData typesTgz)
+        public override async Task PublishProvider(OciArtifactReference reference, ProviderPackage provider)
         {
-            // This needs to be valid JSON, otherwise there may be compatibility issues.
-            var config = new Oci.OciDescriptor("{}", BicepMediaTypes.BicepProviderConfigV1);
+            OciProvidersV1Config configData = provider.LocalDeployEnabled ? new(
+                localDeployEnabled: true,
+                supportedArchitectures: provider.Binaries.Select(x => x.Architecture.Name).ToImmutableArray()) :
+                // avoid writing properties to the config - localDeploy is a preview feature, so
+                // there should be no detectable impact to 'mainline' functionality when disabled.
+                new(null, null);
+
+            var config = new Oci.OciDescriptor(
+                JsonSerializer.Serialize(configData, OciProvidersV1ConfigSerializationContext.Default.OciProvidersV1Config),
+                BicepMediaTypes.BicepProviderConfigV1);
 
             List<Oci.OciDescriptor> layers = new()
             {
-                new(typesTgz, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
+                new(provider.Types, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
             };
+
+            if (configData.LocalDeployEnabled == true)
+            {
+                foreach (var binary in provider.Binaries)
+                {
+                    var layerName = BicepMediaTypes.GetProviderArtifactLayerV1Binary(binary.Architecture);
+                    layers.Add(new(binary.Data, layerName, new OciManifestAnnotationsBuilder().WithTitle($"provider.bin").Build()));
+                }
+            }
 
             var annotations = new OciManifestAnnotationsBuilder()
                 .WithBicepSerializationFormatV1()
@@ -379,6 +397,36 @@ namespace Bicep.Core.Registry
                     // The manifest can be used to determine what's in each layer file.
                     //  (https://github.com/Azure/bicep/issues/11900)
                     this.FileResolver.Write(this.GetArtifactFileUri(reference, ArtifactFileType.Source), sourceData.ToStream());
+                }
+            }
+
+            if (result is OciProviderArtifactResult providerArtifact)
+            {
+                var config = providerArtifact.Config is {} ? 
+                    JsonSerializer.Deserialize(providerArtifact.Config.Data, OciProvidersV1ConfigSerializationContext.Default.OciProvidersV1Config) :
+                    null;
+
+                // if the artifact supports local deployment, fetch the provider binary
+                if (config?.LocalDeployEnabled == true)
+                {
+                    if (SupportedArchitectures.TryGetCurrent() is not {} architecture)
+                    {
+                        throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                    }
+
+                    var layerName = BicepMediaTypes.GetProviderArtifactLayerV1Binary(architecture);
+                    if (result.TryGetSingleLayerByMediaType(layerName) is not {} sourceData)
+                    {
+                        throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                    }
+
+                    using var binaryStream = sourceData.ToStream();
+                    var binaryUri = this.GetArtifactFileUri(reference, ArtifactFileType.ProviderBinary);
+                    this.FileResolver.Write(binaryUri, binaryStream);
+                    if (!OperatingSystem.IsWindows())
+                    {
+                        this.FileSystem.File.SetUnixFileMode(binaryUri.LocalPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+                    }
                 }
             }
 
@@ -488,6 +536,7 @@ namespace Bicep.Core.Registry
                 ArtifactFileType.Metadata => "metadata",
                 ArtifactFileType.Provider => "types.tgz",
                 ArtifactFileType.Source => "source.tgz",
+                ArtifactFileType.ProviderBinary => "provider.bin",
                 _ => throw new NotImplementedException($"Unexpected artifact file type '{fileType}'.")
             };
 
@@ -506,6 +555,9 @@ namespace Bicep.Core.Registry
             return new(new SourceNotAvailableException());
         }
 
+        public override Uri? TryGetProviderBinary(OciArtifactReference reference)
+            => GetArtifactFileUri(reference, ArtifactFileType.ProviderBinary);
+
         private enum ArtifactFileType
         {
             ModuleMain,
@@ -514,6 +566,7 @@ namespace Bicep.Core.Registry
             Metadata,
             Provider,
             Source,
+            ProviderBinary,
         };
     }
 }

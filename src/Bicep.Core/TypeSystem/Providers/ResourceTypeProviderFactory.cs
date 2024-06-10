@@ -6,10 +6,12 @@ using System.Diagnostics;
 using System.IO.Abstractions;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.ThirdParty;
+using JetBrains.Annotations;
 
 namespace Bicep.Core.TypeSystem.Providers
 {
@@ -24,7 +26,7 @@ namespace Bicep.Core.TypeSystem.Providers
             this.fileSystem = fileSystem;
         }
 
-        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(Uri typesTgzUri, bool useAzLoader)
+        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ArtifactReference? artifactReference, Uri typesTgzUri, bool useAzLoader)
         {
             var key = new ResourceTypeLoaderKey(typesTgzUri, useAzLoader);
             // TODO invalidate this cache on module force restore
@@ -32,7 +34,9 @@ namespace Bicep.Core.TypeSystem.Providers
             {
                 try
                 {
-                    var typesLoader = OciTypeLoader.FromDisk(fileSystem, key.TypesTgzUri);
+                    using var fileStream = fileSystem.File.OpenRead(typesTgzUri.LocalPath);
+                    var typesLoader = OciTypeLoader.FromStream(fileStream);
+
                     if (key.UseAzLoader)
                     {
                         return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typesLoader)));

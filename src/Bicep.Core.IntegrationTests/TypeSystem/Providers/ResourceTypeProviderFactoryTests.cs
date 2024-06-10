@@ -45,7 +45,7 @@ public class ResourceTypeProviderFactoryTests
             (
                 "main.bicep",
                 @$"
-                provider 'br:example.azurecr.io/test/provider/foo@1.2.3' as foo
+                provider 'br:example.azurecr.io/test/provider/foo:1.2.3' as foo
 
                 module mod './mod.bicep' = {{
                     name: 'mod'
@@ -56,7 +56,7 @@ public class ResourceTypeProviderFactoryTests
             (
                 "mod.bicep",
                 @$"
-                provider 'br:example.azurecr.io/test/provider/bar@1.2.3' as foo
+                provider 'br:example.azurecr.io/test/provider/bar:1.2.3' as foo
                 "
             ));
 

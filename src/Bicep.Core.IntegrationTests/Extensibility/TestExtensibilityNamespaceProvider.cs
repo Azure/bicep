@@ -4,6 +4,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
@@ -12,35 +13,39 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.IntegrationTests.Extensibility;
 
-public class TestExtensibilityNamespaceProvider : INamespaceProvider
+public class TestExtensibilityNamespaceProvider : NamespaceProvider
 {
+    public delegate NamespaceType? NamespaceTypeCreator(string providerName, string aliasName);
+
     public static INamespaceProvider CreateWithDefaults()
-        => Create(result => result switch
+        => Create((providerName, aliasName) => providerName switch
         {
-            { ProviderName: FooNamespaceType.BuiltInName } => result with { Type = FooNamespaceType.Create(result.Name) },
-            { ProviderName: BarNamespaceType.BuiltInName } => result with { Type = BarNamespaceType.Create(result.Name) },
-            _ => result,
+            FooNamespaceType.BuiltInName => FooNamespaceType.Create(aliasName),
+            BarNamespaceType.BuiltInName => BarNamespaceType.Create(aliasName),
+            _ => null,
         });
 
-    public static INamespaceProvider Create(Func<NamespaceResult, NamespaceResult> namespaceCreatorFunc)
+    public static INamespaceProvider Create(NamespaceTypeCreator namespaceCreatorFunc)
         => new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory, namespaceCreatorFunc);
 
     public TestExtensibilityNamespaceProvider(
         IResourceTypeProviderFactory resourceTypeProviderFactory,
-        Func<NamespaceResult, NamespaceResult> namespaceCreatorFunc)
+        NamespaceTypeCreator namespaceCreatorFunc)
+        : base(resourceTypeProviderFactory)
     {
-        baseProvider = new NamespaceProvider(resourceTypeProviderFactory);
         this.namespaceCreatorFunc = namespaceCreatorFunc;
     }
 
-    private readonly INamespaceProvider baseProvider;
-    private readonly Func<NamespaceResult, NamespaceResult> namespaceCreatorFunc;
+    private readonly NamespaceTypeCreator namespaceCreatorFunc;
 
-    public IEnumerable<NamespaceResult> GetNamespaces(RootConfiguration rootConfig, IFeatureProvider features, IArtifactFileLookup artifactFileLookup, BicepSourceFile sourceFile, ResourceScope targetScope)
+    protected override TypeSymbol GetNamespaceTypeForConfigManagedProvider(RootConfiguration rootConfig, IFeatureProvider features, BicepSourceFile sourceFile, ResourceScope targetScope, ArtifactResolutionInfo? artifact, ProviderDeclarationSyntax? syntax, string providerName)
     {
-        foreach (var result in baseProvider.GetNamespaces(rootConfig, features, artifactFileLookup, sourceFile, targetScope))
+        var aliasName = syntax?.Alias?.IdentifierName ?? providerName;
+        if (namespaceCreatorFunc(providerName, aliasName) is { } namespaceType)
         {
-            yield return namespaceCreatorFunc(result);
+            return namespaceType;
         }
+
+        return base.GetNamespaceTypeForConfigManagedProvider(rootConfig, features, sourceFile, targetScope, artifact, syntax, providerName);
     }
 }

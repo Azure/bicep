@@ -9,7 +9,10 @@ using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Expressions;
+using Azure.Deployments.Templates.Extensions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.ArmHelpers;
@@ -38,10 +41,15 @@ internal class TemplateVariablesEvaluator
     {
         this.template = template;
 
+        var functionsLookup = template.GetFunctionDefinitions().ToOrdinalInsensitiveDictionary(x => x.Key, x => x.Function);
+
         TemplateExpressionEvaluationHelper helper = new()
         {
             OnGetParameter = OnGetParameter,
             OnGetVariable = OnGetVariable,
+            OnGetFunction = (functionName, _) => functionsLookup.TryGetValue(functionName)
+                ?? throw new ArgumentException($"Function {functionName} was not found."),
+            ValidationContext = SchemaValidationContext.ForTemplate(template),
         };
         evaluationContext = helper.EvaluationContext;
     }

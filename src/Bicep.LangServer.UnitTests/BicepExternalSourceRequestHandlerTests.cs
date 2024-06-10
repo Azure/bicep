@@ -90,7 +90,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var telemetryProviderMock = new TelemetryProviderMock();
 
             const string ModuleRefStr = "./hello.bicep";
-            LocalModuleReference.TryParse(ModuleRefStr, new Uri("fake:///not/real.bicep")).IsSuccess(out var localRef).Should().BeTrue();
+            LocalModuleReference.TryParse(ArtifactType.Module, ModuleRefStr, new Uri("fake:///not/real.bicep")).IsSuccess(out var localRef).Should().BeTrue();
             localRef.Should().NotBeNull();
 
             ArtifactReference? outRef = localRef;

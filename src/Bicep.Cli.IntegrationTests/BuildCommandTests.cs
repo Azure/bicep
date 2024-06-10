@@ -126,13 +126,14 @@ namespace Bicep.Cli.IntegrationTests
             foreach (var ((uri, _), client) in blobClients)
             {
                 if (uri.Host.Contains("invalid")) { continue; }
-                await client.SetManifestAsync(BicepTestConstants.BicepProviderManifestWithEmptyTypesLayer, "2.0.0");
-                await client.UploadBlobAsync(new MemoryStream());
+                var layer = await client.UploadBlobAsync(BinaryData.FromString(""));
+                var config = await client.UploadBlobAsync(BinaryData.FromString("{}"));
+                await client.SetManifestAsync(BicepTestConstants.GetBicepProviderManifest(layer, config), "2.0.0");
             }
 
             // 3. create a main.bicep and save it to a output directory
             var bicepFile = $"""
-                provider '{providerDeclarationSyntax}@2.0.0'
+                provider '{providerDeclarationSyntax}:2.0.0'
                 """;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);

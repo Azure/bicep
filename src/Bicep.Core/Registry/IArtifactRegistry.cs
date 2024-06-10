@@ -22,7 +22,7 @@ namespace Bicep.Core.Registry
         /// Gets the capabilities of this registry for the specified artifact reference.
         /// </summary>
         /// <param name="reference">The module reference</param>
-        RegistryCapabilities GetCapabilities(ArtifactReference reference);
+        RegistryCapabilities GetCapabilities(ArtifactType artifactType, ArtifactReference reference);
 
         /// <summary>
         /// Attempts to parse the specified unqualified reference or returns a failure builder.
@@ -49,7 +49,7 @@ namespace Bicep.Core.Registry
         /// Returns true if the specified module exists in the registry.
         /// </summary>
         /// <param name="reference">The reference to the module.</param>
-        Task<bool> CheckArtifactExists(ArtifactReference reference);
+        Task<bool> CheckArtifactExists(ArtifactType artifactType, ArtifactReference reference);
 
         /// <summary>
         /// Downloads the specified modules from the registry and caches them locally.
@@ -77,8 +77,7 @@ namespace Bicep.Core.Registry
         /// Publishes a provider types package to the registry.
         /// </summary>
         /// <param name="reference">The provider reference</param>
-        /// <param name="typesTgz">A BinaryData object with the contents of the types.tgz</param>
-        Task PublishProvider(ArtifactReference reference, BinaryData typesTgz);
+        Task PublishProvider(ArtifactReference reference, ProviderPackage provider);
 
         /// <summary>
         /// Returns documentationUri for the module.
@@ -97,5 +96,7 @@ namespace Bicep.Core.Registry
         /// <param name="reference">The module reference</param>
         /// <returns>A source archive</returns>
         ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference);
+
+        Uri? TryGetProviderBinary(ArtifactReference reference);
     }
 }

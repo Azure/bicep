@@ -44,6 +44,8 @@ namespace Bicep.Core.Features
 
         public bool OptionalModuleNamesEnabled => configuration.ExperimentalFeaturesEnabled.OptionalModuleNames;
 
+        public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
+
         public bool ResourceDerivedTypesEnabled => configuration.ExperimentalFeaturesEnabled.ResourceDerivedTypes;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)

@@ -7,7 +7,7 @@ namespace Bicep.Core.Registry.Oci
     {
         private readonly OciArtifactLayer mainLayer;
 
-        public OciProviderArtifactResult(BinaryData manifestBits, string manifestDigest, IEnumerable<OciArtifactLayer> layers) :
+        public OciProviderArtifactResult(BinaryData manifestBits, string manifestDigest, IEnumerable<OciArtifactLayer> layers, OciArtifactLayer? config) :
             base(manifestBits, manifestDigest, layers)
         {
             var manifest = this.Manifest;
@@ -20,9 +20,13 @@ namespace Bicep.Core.Registry.Oci
                 throw new InvalidArtifactException($"Unknown config.mediaType: '{manifest.Config.MediaType}'.", InvalidArtifactExceptionKind.WrongArtifactType);
             }
 
-            this.mainLayer = this.Layers.Single();
+            var expectedLayerMediaType = BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip;
+            this.mainLayer = this.Layers.Where(l => l.MediaType.Equals(expectedLayerMediaType, MediaTypeComparison)).Single();
+            Config = config;
         }
 
         public override OciArtifactLayer GetMainLayer() => this.mainLayer;
+
+        public OciArtifactLayer? Config { get; }
     }
 }

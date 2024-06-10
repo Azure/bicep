@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
     /// See https://endjin.com/blog/2020/09/simple-pattern-for-using-system-commandline-with-dependency-injection for reference.
     /// </remarks>
     public static IServiceCollection AddCommands(this IServiceCollection services) =>
-        // this is harcoded to make the code trim-safe
+        // this is hardcoded to make the code trim-safe
         services
             .AddSingleton<BuildCommand>()
             .AddSingleton<TestCommand>()
@@ -53,6 +53,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<RestoreCommand>()
             .AddSingleton<LintCommand>()
             .AddSingleton<JsonRpcCommand>()
+            .AddSingleton<LocalDeployCommand>()
             .AddSingleton<RootCommand>();
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services

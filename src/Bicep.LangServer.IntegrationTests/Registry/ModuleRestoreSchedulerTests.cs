@@ -165,17 +165,17 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public string Scheme => "mock";
 
-            public RegistryCapabilities GetCapabilities(ArtifactReference _) => throw new NotImplementedException();
+            public RegistryCapabilities GetCapabilities(ArtifactType artifactType, ArtifactReference _) => throw new NotImplementedException();
 
             public bool IsArtifactRestoreRequired(ArtifactReference _) => true;
 
             public Task PublishModule(ArtifactReference _, BinaryData __, BinaryData? ___, string? ____, string? _____)
                 => throw new NotImplementedException();
 
-            public Task PublishProvider(ArtifactReference _, BinaryData __)
+            public Task PublishProvider(ArtifactReference _, ProviderPackage __)
                 => throw new NotImplementedException();
 
-            public Task<bool> CheckArtifactExists(ArtifactReference _) => throw new NotImplementedException();
+            public Task<bool> CheckArtifactExists(ArtifactType artifactType, ArtifactReference reference) => throw new NotImplementedException();
 
             public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> _)
             {
@@ -203,6 +203,8 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             }
 
             public ResultWithException<SourceArchive> TryGetSource(ArtifactReference artifactReference) => new(new SourceNotAvailableException());
+
+            public Uri? TryGetProviderBinary(ArtifactReference reference) => null;
         }
 
         private class MockArtifactRef : ArtifactReference

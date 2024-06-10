@@ -1,15 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.LanguageServer.Providers
+namespace Bicep.LanguageServer.Providers;
+
+public record RegistryModule(
+    string Name, // e.g. "avm/app/dapr-containerapp"
+    string? Description,
+    string? DocumentationUri);
+
+public record RegistryModuleVersion(
+    string Version,
+    string? Description,
+    string? DocumentationUri);
+
+public interface IPublicRegistryModuleMetadataProvider
 {
-    public record PublicRegistryModule(string Name, string? Description, string? DocumentationUri);
-    public record PublicRegistryModuleVersion(string Version, string? Description, string? DocumentationUri);
+    Task<IEnumerable<RegistryModule>> GetModules();
 
-    public interface IPublicRegistryModuleMetadataProvider
-    {
-        Task<IEnumerable<PublicRegistryModule>> GetModules();
-
-        Task<IEnumerable<PublicRegistryModuleVersion>> GetVersions(string modulePath);
-    }
+    Task<IEnumerable<RegistryModuleVersion>> GetVersions(string modulePath);
 }

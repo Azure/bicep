@@ -1403,7 +1403,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetArrayType(ArraySyntax syntax)
         {
-            var parent = this.binder.GetParent(syntax);
+            var parent = GetClosestMaybeTypedAncestor(syntax);
 
             // we are only handling paths in the AST that are going to produce a declared type
             // arrays can exist under a variable declaration, but variables don't have declared types,
@@ -1420,7 +1420,7 @@ namespace Bicep.Core.TypeSystem
                     return GetNonNullableTypeAssignment(parameterDeclaration)?.ReplaceDeclaringSyntax(syntax);
                 case ParameterAssignmentSyntax:
                     return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
-                case SpreadExpressionSyntax when binder.GetParent(parent) is { } grandParent &&
+                case SpreadExpressionSyntax when GetClosestMaybeTypedAncestor(parent) is { } grandParent &&
                     GetDeclaredTypeAssignment(grandParent)?.Reference is ArrayType enclosingArrayType:
 
                     return TryCreateAssignment(enclosingArrayType, syntax);
@@ -1616,11 +1616,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetObjectType(ObjectSyntax syntax)
         {
-            var parent = this.binder.GetParent(syntax);
-            if (parent is null)
-            {
-                return null;
-            }
+            var parent = GetClosestMaybeTypedAncestor(syntax);
 
             switch (parent)
             {
@@ -1745,12 +1741,31 @@ namespace Bicep.Core.TypeSystem
 
                     return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
 
-                case SpreadExpressionSyntax when binder.GetParent(parent) is { } grandParent &&
-                    GetDeclaredTypeAssignment(grandParent)?.Reference is ObjectType enclosingObjectType:
 
+                case SpreadExpressionSyntax when GetClosestMaybeTypedAncestor(parent) is { } grandParent &&
+                    GetDeclaredTypeAssignment(grandParent)?.Reference is ObjectType enclosingObjectType:
                     var type = TypeHelper.MakeRequiredPropertiesOptional(enclosingObjectType);
 
                     return TryCreateAssignment(type, syntax);
+            }
+
+            return null;
+        }
+
+        private SyntaxBase? GetClosestMaybeTypedAncestor(SyntaxBase syntax)
+        {
+            // to avoid infinite recursion, this method deliberately only searches UP the syntax hierarchy.
+            // otherwise, you can end up in an infinite loop e.g. trying to calculate the type of "foo" in "(foo).prop".
+            foreach (var parent in binder.EnumerateAncestorsUpwards(syntax))
+            {
+                switch (parent)
+                {
+                    case ParenthesizedExpressionSyntax:
+                    case TernaryOperationSyntax ternary when syntax == ternary.TrueExpression || syntax == ternary.FalseExpression:
+                        continue;
+                    default:
+                        return parent;
+                }
             }
 
             return null;

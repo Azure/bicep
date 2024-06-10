@@ -20,7 +20,7 @@ namespace Bicep.Core.UnitTests.Utils
         public interface ICompilationResult
         {
             IEnumerable<IDiagnostic> Diagnostics { get; }
-            
+
             Compilation Compilation { get; }
 
             BicepSourceFile SourceFile { get; }
@@ -62,10 +62,33 @@ namespace Bicep.Core.UnitTests.Utils
 
             var (uriDictionary, entryUri) = CreateFileDictionary(filesToAppend, "main.bicep");
 
+            return await RestoreAndCompile(services, uriDictionary, entryUri);
+        }
+
+        public static async Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, IReadOnlyDictionary<Uri, string> uriDictionary, Uri entryUri)
+        {
             var compiler = services.Build().GetCompiler();
             var compilation = await compiler.CreateCompilation(entryUri, CreateWorkspace(uriDictionary));
 
             return GetCompilationResult(compilation);
+        }
+
+        public static async Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, params (string fileName, string fileContents)[] files)
+        {
+            files.Select(x => x.fileName).Should().Contain("parameters.bicepparam");
+            var filesToAppend = files.Select(file => ("/path/to", file.fileName, file.fileContents));
+
+            var (uriDictionary, entryUri) = CreateFileDictionary(filesToAppend, "parameters.bicepparam");
+
+            return await RestoreAndCompileParams(services, uriDictionary, entryUri);
+        }
+
+        public static async Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, IReadOnlyDictionary<Uri, string> uriDictionary, Uri entryUri)
+        {
+            var compiler = services.WithMockFileSystem(uriDictionary).Build().GetCompiler();
+            var compilation = await compiler.CreateCompilation(entryUri);
+
+            return CompileParams(compilation);
         }
 
         public static IWorkspace CreateWorkspace(IReadOnlyDictionary<Uri, string> uriDictionary)

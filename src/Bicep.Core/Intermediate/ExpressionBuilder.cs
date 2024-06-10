@@ -176,7 +176,7 @@ public class ExpressionBuilder
                 return EvaluateDecorators(provider, new DeclaredProviderExpression(
                     provider,
                     symbol.Name,
-                    GetTypeInfo<NamespaceType>(provider),
+                    GetTypeInfo<NamespaceType>(provider).Settings,
                     provider.Config is not null ? ConvertWithoutLowering(provider.Config) : null));
 
             case ParameterDeclarationSyntax parameter:
