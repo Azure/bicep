@@ -402,20 +402,20 @@ namespace Bicep.Core.Registry
 
             if (result is OciProviderArtifactResult providerArtifact)
             {
-                var config = providerArtifact.Config is {} ? 
+                var config = providerArtifact.Config is { } ?
                     JsonSerializer.Deserialize(providerArtifact.Config.Data, OciProvidersV1ConfigSerializationContext.Default.OciProvidersV1Config) :
                     null;
 
                 // if the artifact supports local deployment, fetch the provider binary
                 if (config?.LocalDeployEnabled == true)
                 {
-                    if (SupportedArchitectures.TryGetCurrent() is not {} architecture)
+                    if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
                     {
                         throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
                     }
 
                     var layerName = BicepMediaTypes.GetProviderArtifactLayerV1Binary(architecture);
-                    if (result.TryGetSingleLayerByMediaType(layerName) is not {} sourceData)
+                    if (result.TryGetSingleLayerByMediaType(layerName) is not { } sourceData)
                     {
                         throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
                     }

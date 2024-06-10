@@ -7,18 +7,18 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension;
-using Bicep.Local.Extension.Rpc;
 using Bicep.Local.Extension.Protocol;
+using Bicep.Local.Extension.Rpc;
 using FluentAssertions;
+using Grpc.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using Protocol = Bicep.Local.Extension.Protocol;
 using OmniSharp.Extensions.JsonRpc;
-using Grpc.Core;
+using Protocol = Bicep.Local.Extension.Protocol;
 
 namespace Bicep.Local.Deploy.IntegrationTests;
 
@@ -64,7 +64,7 @@ public class ProviderExtensionTests : TestBase
         handlerMock.SetupGet(x => x.ResourceType).Returns("apps/Deployment@v1");
 
         handlerMock.Setup(x => x.Save(It.IsAny<Protocol.ExtensibilityOperationRequest>(), It.IsAny<CancellationToken>()))
-            .Returns<Protocol.ExtensibilityOperationRequest, CancellationToken>((req, _) => 
+            .Returns<Protocol.ExtensibilityOperationRequest, CancellationToken>((req, _) =>
                 Task.FromResult(new Protocol.ExtensibilityOperationResponse(req.Resource, null, null)));
 
         await RunExtensionTest(
@@ -73,7 +73,8 @@ public class ProviderExtensionTests : TestBase
             {
                 var request = new Extension.Rpc.ExtensibilityOperationRequest
                 {
-                    Import = new() {
+                    Import = new()
+                    {
                         Provider = "Kubernetes",
                         Version = "1.0.0",
                         Config = """
@@ -83,7 +84,8 @@ public class ProviderExtensionTests : TestBase
                         }
                         """
                     },
-                    Resource = new() {
+                    Resource = new()
+                    {
                         Type = "apps/Deployment@v1",
                         Properties = """
                         {

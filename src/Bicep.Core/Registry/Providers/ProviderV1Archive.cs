@@ -52,7 +52,7 @@ public static class ProviderV1Archive
                 binaries.Add(new(architecture, binary));
             }
         }
-        
+
         return new(
             Types: dataDict["types.tgz"],
             LocalDeployEnabled: binaries.Count != 0,

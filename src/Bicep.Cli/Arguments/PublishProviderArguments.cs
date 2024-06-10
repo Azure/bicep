@@ -28,7 +28,7 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
-                    case {} when args[i].StartsWith("--bin-"):
+                    case { } when args[i].StartsWith("--bin-"):
                         var architectureName = args[i].Substring("--bin-".Length);
 
                         if (!SupportedArchitectures.All.Any(x => x.Name == architectureName))

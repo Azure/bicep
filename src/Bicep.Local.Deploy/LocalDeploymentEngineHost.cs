@@ -9,7 +9,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Local.Deploy.Extensibility;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Azure.Deployments.Core.Definitions.Resources;
@@ -33,6 +32,7 @@ using Azure.Deployments.Engine.Host.External;
 using Azure.Deployments.Engine.Interfaces;
 using Azure.Deployments.Extensibility.Messages;
 using Azure.Deployments.ResourceMetadata.Contracts;
+using Bicep.Local.Deploy.Extensibility;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
@@ -165,7 +165,8 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         => throw new NotImplementedException();
 
     public override EnablementConfig GetEnablementConfig(PreviewDeploymentFunction feature)
-        => new() {
+        => new()
+        {
             FeatureName = feature.ToString()
         };
 
