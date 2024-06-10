@@ -226,6 +226,7 @@ jobs:
 
   build-vs-ext:
     name: Build Visual Studio Extension
+    if: false # Temporarily disable VS Bicep integration tests, they're flaky
     runs-on: windows-latest
 
     steps:
