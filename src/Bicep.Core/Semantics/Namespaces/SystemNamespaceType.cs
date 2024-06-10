@@ -1158,7 +1158,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 {
                     //log available environment variables if verbose logging is enabled
                     if(model.Configuration.Analyzers.GetValue(LinterAnalyzer.LinterEnabledSetting, false) && model.Configuration.Analyzers.GetValue(LinterAnalyzer.LinterVerboseSetting, false)) {
-                        var availableEnvironmentVariables = model.Environment.GetVariableNames();
                         diagnostics.Write(
                             new Diagnostic(
                                 arguments[0].Span,
