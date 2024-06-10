@@ -402,7 +402,7 @@ namespace Bicep.Core.Registry
 
             if (result is OciProviderArtifactResult providerArtifact)
             {
-                var config = providerArtifact.Config is {} ? 
+                var config = providerArtifact.Config is { } ?
                     JsonSerializer.Deserialize(providerArtifact.Config.Data, OciProvidersV1ConfigSerializationContext.Default.OciProvidersV1Config) :
                     null;
 
@@ -410,13 +410,13 @@ namespace Bicep.Core.Registry
                 if (config?.LocalDeployEnabled == true &&
                     config?.SupportedArchitectures is {} binaryArchitectures)
                 {
-                    if (SupportedArchitectures.TryGetCurrent() is not {} architecture)
+                    if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
                     {
                         throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute provider extension \"{reference}\".");
                     }
 
                     if (binaryArchitectures.Contains(architecture.Name) ||
-                        result.TryGetSingleLayerByMediaType(BicepMediaTypes.GetProviderArtifactLayerV1Binary(architecture)) is not {} sourceData)
+                        result.TryGetSingleLayerByMediaType(BicepMediaTypes.GetProviderArtifactLayerV1Binary(architecture)) is not { } sourceData)
                     {
                         throw new InvalidOperationException($"The provider extension \"{reference}\" does not support architecture {architecture.Name}.");
                     }

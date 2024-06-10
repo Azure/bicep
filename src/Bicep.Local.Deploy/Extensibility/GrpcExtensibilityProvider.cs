@@ -17,8 +17,8 @@ using Bicep.Local.Extension.Rpc;
 using Grpc.Net.Client;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
-using Messages = Azure.Deployments.Extensibility.Messages;
 using Data = Azure.Deployments.Extensibility.Data;
+using Messages = Azure.Deployments.Extensibility.Messages;
 using Rpc = Bicep.Local.Extension.Rpc;
 
 namespace Bicep.Local.Deploy.Extensibility;
@@ -56,7 +56,8 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProvider
             },
         };
 
-        try {
+        try
+        {
             // 30s timeout for starting up the RPC connection
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
@@ -76,7 +77,9 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProvider
             await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
             return new GrpcExtensibilityProvider(client, process);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             await TerminateProcess(process);
             throw new InvalidOperationException($"Failed to connect to provider {pathToBinary.LocalPath}", ex);
         }
@@ -103,13 +106,16 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProvider
     }
 
     private static Rpc.ExtensibilityOperationRequest Convert(Messages.ExtensibilityOperationRequest request)
-        => new() {
-            Import = new Rpc.ExtensibleImportData {
+        => new()
+        {
+            Import = new Rpc.ExtensibleImportData
+            {
                 Provider = request.Import.Provider,
                 Version = request.Import.Version,
                 Config = request.Import.Config?.ToJson(),
             },
-            Resource = new Rpc.ExtensibleResourceData {
+            Resource = new Rpc.ExtensibleResourceData
+            {
                 Type = request.Resource.Type,
                 Properties = request.Resource.Properties?.ToJson(),
             },
@@ -117,9 +123,9 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProvider
 
     private static Messages.ExtensibilityOperationResponse Convert(Rpc.ExtensibilityOperationResponse response)
         => new(
-            response.Resource is {} resource ? new(resource.Type, resource.Properties?.FromJson<JObject>()) : null,
-            response.ResourceMetadata is {} metadata ? new(metadata.ReadOnlyProperties.ToArray(), metadata.ImmutableProperties.ToArray(), metadata.DynamicProperties.ToArray()) : null,
-            response.Errors is {} errors ? errors.Select(error => new Data.ExtensibilityError(error.Code, error.Message, error.Target)).ToArray() : null);
+            response.Resource is { } resource ? new(resource.Type, resource.Properties?.FromJson<JObject>()) : null,
+            response.ResourceMetadata is { } metadata ? new(metadata.ReadOnlyProperties.ToArray(), metadata.ImmutableProperties.ToArray(), metadata.DynamicProperties.ToArray()) : null,
+            response.Errors is { } errors ? errors.Select(error => new Data.ExtensibilityError(error.Code, error.Message, error.Target)).ToArray() : null);
 
     public override async ValueTask DisposeAsync()
     {
@@ -128,10 +134,13 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProvider
 
     private static async Task TerminateProcess(Process process)
     {
-        try {
+        try
+        {
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             await process.WaitForExitAsync(cts.Token);
-        } finally {
+        }
+        finally
+        {
             process.Kill();
         }
     }

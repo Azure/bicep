@@ -56,7 +56,8 @@ public static class TypeGenerator
             settings,
             null);
 
-        return new Dictionary<string, string>{
+        return new Dictionary<string, string>
+        {
             ["index.json"] = GetString(stream => TypeSerializer.SerializeIndex(stream, index)),
             ["types.json"] = GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes())),
         };

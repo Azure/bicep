@@ -4,6 +4,7 @@
 using System.Linq;
 using Azure.Deployments.Core.EventSources;
 using Azure.Deployments.Core.Exceptions;
+using Azure.Deployments.Engine;
 using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.Host.Azure;
 using Azure.Deployments.Engine.Host.Azure.Definitions;
@@ -14,10 +15,11 @@ using Azure.Deployments.Engine.Host.Azure.Validation;
 using Azure.Deployments.Engine.Host.Azure.Workers;
 using Azure.Deployments.Engine.Host.External;
 using Azure.Deployments.Engine.Interfaces;
-using Azure.Deployments.Engine;
 using Azure.Deployments.Engine.Storage.Volatile;
+using Azure.Deployments.Extensibility.Contract;
 using Azure.Deployments.Templates.Contracts;
 using Azure.Deployments.Templates.Export;
+using Bicep.Local.Deploy.Extensibility;
 using Microsoft.Azure.Deployments.Service.Shared.Jobs;
 using Microsoft.Azure.Deployments.Shared.Host;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,8 +27,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.EventSources;
 using Microsoft.WindowsAzure.ResourceStack.Common.Storage.Volatile;
-using Azure.Deployments.Extensibility.Contract;
-using Bicep.Local.Deploy.Extensibility;
 
 namespace Bicep.Local.Deploy;
 

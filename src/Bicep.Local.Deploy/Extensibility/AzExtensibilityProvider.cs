@@ -42,31 +42,34 @@ public class AzExtensibilityProvider : LocalExtensibilityProvider
     {
         switch (request.Resource.Type)
         {
-            case "Microsoft.Resources/deployments": {
-                var template = request.Resource.Properties["template"]!.ToString();
-                var parameters = new JObject {
-                    ["$schema"] = "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-                    ["contentVersion"] = "1.0.0.0",
-                    ["parameters"] = request.Resource.Properties["parameters"],
-                };
-
-                var result = await LocalDeployment.Deploy(extensibilityHandler, template, parameters.ToJson(), cancellationToken);
-
-                if (result.Deployment.Properties.ProvisioningState != ProvisioningState.Succeeded)
+            case "Microsoft.Resources/deployments":
                 {
-                    return new(
-                        null,
-                        null,
-                        result.Deployment.Properties.Error.Details.SelectArray(x => new ExtensibilityError(x.Code, x.Message, x.Target)));
-                }
+                    var template = request.Resource.Properties["template"]!.ToString();
+                    var parameters = new JObject
+                    {
+                        ["$schema"] = "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                        ["contentVersion"] = "1.0.0.0",
+                        ["parameters"] = request.Resource.Properties["parameters"],
+                    };
 
-                return new(
-                    new ExtensibleResourceData(request.Resource.Type, new JObject{
-                        ["outputs"] = result.Deployment.Properties.Outputs?.ToJToken(),
-                    }),
-                    null,
-                    null);
-            }
+                    var result = await LocalDeployment.Deploy(extensibilityHandler, template, parameters.ToJson(), cancellationToken);
+
+                    if (result.Deployment.Properties.ProvisioningState != ProvisioningState.Succeeded)
+                    {
+                        return new(
+                            null,
+                            null,
+                            result.Deployment.Properties.Error.Details.SelectArray(x => new ExtensibilityError(x.Code, x.Message, x.Target)));
+                    }
+
+                    return new(
+                        new ExtensibleResourceData(request.Resource.Type, new JObject
+                        {
+                            ["outputs"] = result.Deployment.Properties.Outputs?.ToJToken(),
+                        }),
+                        null,
+                        null);
+                }
         }
 
         throw new NotImplementedException();

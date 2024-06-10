@@ -1223,10 +1223,10 @@ namespace Bicep.Core.Emit
 
         private void EmitModuleForLocalDeploy(PositionTrackingJsonTextWriter jsonWriter, DeclaredModuleExpression module, ExpressionEmitter emitter)
         {
-            emitter.EmitObject(() => 
+            emitter.EmitObject(() =>
             {
                 emitter.EmitProperty("import", "az0synthesized");
-                
+
                 var body = module.Body;
                 if (body is ForLoopExpression forLoop)
                 {

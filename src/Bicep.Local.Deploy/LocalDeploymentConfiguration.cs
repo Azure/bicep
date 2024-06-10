@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using Azure.Deployments.Core.Exceptions;
+using Azure.Deployments.Engine;
 using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.Host.Azure.Interfaces;
-using Azure.Deployments.Engine;
 
 namespace Bicep.Local.Deploy;
 

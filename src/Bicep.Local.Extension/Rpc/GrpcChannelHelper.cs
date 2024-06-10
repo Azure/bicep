@@ -59,11 +59,14 @@ public static class GrpcChannelHelper
         var connected = false;
         while (!connected)
         {
-            try {
+            try
+            {
                 await Task.Delay(50, cancellationToken);
                 await client.PingAsync(new(), cancellationToken: cancellationToken);
                 connected = true;
-            } catch (RpcException ex) when (ex.StatusCode == StatusCode.Unavailable) {
+            }
+            catch (RpcException ex) when (ex.StatusCode == StatusCode.Unavailable)
+            {
                 // ignore
             }
         }

@@ -2,17 +2,17 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using System.IO.Abstractions;
+using System.Runtime.InteropServices;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Providers;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
-using System.IO.Abstractions;
-using Bicep.Core.Features;
-using Bicep.Core.Registry.Oci;
-using System.Runtime.InteropServices;
 
 namespace Bicep.Core.Registry
 {
@@ -80,7 +80,7 @@ namespace Bicep.Core.Registry
             {
                 if (reference.ArtifactType == ArtifactType.Provider)
                 {
-                    if (TryReadContent(reference) is not {} binaryData)
+                    if (TryReadContent(reference) is not { } binaryData)
                     {
                         statuses.Add(reference, x => x.ArtifactRestoreFailedWithMessage(reference.FullyQualifiedReference, $"Failed to find {reference.FullyQualifiedReference}"));
                         continue;
@@ -152,12 +152,12 @@ namespace Bicep.Core.Registry
         {
             if (entity.Provider.LocalDeployEnabled)
             {
-                if (SupportedArchitectures.TryGetCurrent() is not {} architecture)
+                if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
                 {
                     throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute provider extension \"{reference}\".");
                 }
 
-                if (entity.Provider.Binaries.SingleOrDefault(x => x.Architecture.Name == architecture.Name) is not {} binary)
+                if (entity.Provider.Binaries.SingleOrDefault(x => x.Architecture.Name == architecture.Name) is not { } binary)
                 {
                     throw new InvalidOperationException($"The provider extension \"{reference}\" does not support architecture {architecture.Name}.");
                 }
@@ -176,7 +176,7 @@ namespace Bicep.Core.Registry
 
         protected override string GetArtifactDirectoryPath(LocalModuleReference reference)
         {
-            if (TryReadContent(reference) is not {} binaryData)
+            if (TryReadContent(reference) is not { } binaryData)
             {
                 throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
             }
@@ -193,21 +193,21 @@ namespace Bicep.Core.Registry
 
         private BinaryData? TryReadContent(LocalModuleReference reference)
         {
-            if (FileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path) is not {} fileUri ||
-                FileResolver.TryReadAsBinaryData(fileUri).TryUnwrap() is not {} binaryData)
+            if (FileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path) is not { } fileUri ||
+                FileResolver.TryReadAsBinaryData(fileUri).TryUnwrap() is not { } binaryData)
             {
                 return null;
             }
 
             return binaryData;
         }
-        
+
         private Uri GetTypesTgzUri(LocalModuleReference reference) => GetFileUri(reference, "types.tgz");
 
         private Uri GetProviderBinUri(LocalModuleReference reference) => GetFileUri(reference, "provider.bin");
 
         protected override Uri GetArtifactLockFileUri(LocalModuleReference reference) => GetFileUri(reference, "lock");
-        
+
         private Uri GetFileUri(LocalModuleReference reference, string path)
             => new(FileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), path), UriKind.Absolute);
     }
