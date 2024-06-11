@@ -25,7 +25,8 @@ public class SnippetsProvider : ISnippetsProvider
     // The common properties should be authored consistently to provide for understandability and consumption of the code.
     // See https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#resources
     // for more information
-    private readonly ImmutableArray<string> propertiesSortPreferenceList = ImmutableArray.Create(
+    private readonly ImmutableArray<string> propertiesSortPreferenceList =
+    [
         "scope",
         "parent",
         "name",
@@ -38,7 +39,8 @@ public class SnippetsProvider : ISnippetsProvider
         "identity",
         "tags",
         "properties",
-        "dependsOn");
+        "dependsOn"
+    ];
 
     private static readonly SnippetCache snippetCache = SnippetCache.FromManifest();
 

@@ -495,7 +495,7 @@ namespace Bicep.Core.Emit
         }
 
         private ResolvedInternalReference ForNamedRoot(string rootName)
-            => new(ImmutableArray.Create(TypeDefinitionsProperty, rootName), declaredTypesByName[rootName].Value);
+            => new([TypeDefinitionsProperty, rootName], declaredTypesByName[rootName].Value);
 
         private ITypeReferenceExpressionResolution ResolveTypeReferenceExpression(TypeExpression expression)
         {

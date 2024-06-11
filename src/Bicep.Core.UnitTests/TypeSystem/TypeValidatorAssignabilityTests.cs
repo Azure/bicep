@@ -489,7 +489,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var arrayLiteral = TestSyntaxFactory.CreateArray(new SyntaxBase[] { TestSyntaxFactory.CreateString("foo"), TestSyntaxFactory.CreateInt(5), TestSyntaxFactory.CreateNull() });
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(SyntaxHierarchy.Build(arrayLiteral), arrayLiteral, new TupleType(
-                ImmutableArray.Create<ITypeReference>(TypeFactory.CreateStringType(maxLength: 2), TypeFactory.CreateIntegerType(minValue: 6)),
+                [TypeFactory.CreateStringType(maxLength: 2), TypeFactory.CreateIntegerType(minValue: 6)],
                 default));
 
             diagnostics.Should().HaveDiagnostics(new[]
@@ -547,9 +547,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     new TypedArrayType(TypeFactory.CreateIntegerType(1, 10), default)),
 
                 // A source tuple should narrow its items
-                Row(new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateStringType(1, 10)), default),
-                    new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(-5, 11), TypeFactory.CreateStringType(maxLength: 20)), default),
-                    new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateStringType(1, 10)), default)),
+                Row(new TupleType([TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateStringType(1, 10)], default),
+                    new TupleType([TypeFactory.CreateIntegerType(-5, 11), TypeFactory.CreateStringType(maxLength: 20)], default),
+                    new TupleType([TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateStringType(1, 10)], default)),
 
                 // A source type whose domain overlaps but extends below the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateArrayType(1, 10),

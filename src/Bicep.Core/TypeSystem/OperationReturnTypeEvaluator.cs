@@ -11,14 +11,17 @@ namespace Bicep.Core.TypeSystem;
 
 public static class OperationReturnTypeEvaluator
 {
-    private static readonly ImmutableArray<IUnaryEvaluator> unaryEvaluators = ImmutableArray.Create<IUnaryEvaluator>(
+    private static readonly ImmutableArray<IUnaryEvaluator> unaryEvaluators =
+    [
         new NotEvaluator(),
-        new MinusEvaluator());
+        new MinusEvaluator()
+    ];
 
     private static readonly IBinaryEvaluator equalsEvaluator
         = new BinaryEvaluator(BinaryOperator.Equals, (LanguageConstants.Any, LanguageConstants.Any), "equals", LanguageConstants.Bool);
 
-    private static readonly ImmutableArray<IBinaryEvaluator> binaries = ImmutableArray.Create<IBinaryEvaluator>(
+    private static readonly ImmutableArray<IBinaryEvaluator> binaries =
+    [
         // logical
         new LogicalOrEvaluator(),
         new LogicalAndEvaluator(),
@@ -49,7 +52,8 @@ public static class OperationReturnTypeEvaluator
         new ModuloEvaluator(),
 
         // coalesce
-        new CoalesceEvaluator());
+        new CoalesceEvaluator(),
+    ];
 
     public static TypeSymbol? TryFoldUnaryExpression(UnaryOperator unaryOperator, TypeSymbol operandType, IDiagnosticWriter diagnosticWriter)
         => unaryEvaluators.Where(e => e.IsMatch(unaryOperator, operandType)).FirstOrDefault()?.Evaluate(operandType);

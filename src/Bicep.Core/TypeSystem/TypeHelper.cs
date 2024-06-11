@@ -493,7 +493,7 @@ namespace Bicep.Core.TypeSystem
                 if (member is AnyType)
                 {
                     // a union type with "| any" is the same as "any" type
-                    return ImmutableArray.Create<ITypeReference>(LanguageConstants.Any);
+                    return [LanguageConstants.Any];
                 }
 
                 if (hasUnrefinedUntypedArrayMember && member is ArrayType)

@@ -1323,7 +1323,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     JTokenType.String => new StringLiteralExpression(null, value.ToString(CultureInfo.InvariantCulture)),
                     JTokenType.Integer => new IntegerLiteralExpression(null, value.ToObject<long>()),
                     // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
-                    JTokenType.Float => new FunctionCallExpression(null, "json", ImmutableArray.Create<Expression>(new StringLiteralExpression(null, value.ToObject<double>().ToString(CultureInfo.InvariantCulture)))),
+                    JTokenType.Float => new FunctionCallExpression(null, "json", [new StringLiteralExpression(null, value.ToObject<double>().ToString(CultureInfo.InvariantCulture))]),
                     JTokenType.Boolean => new BooleanLiteralExpression(null, value.ToObject<bool>()),
                     JTokenType.Null => new NullLiteralExpression(null),
                     _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported value token type: {value.Type}"),
@@ -1887,9 +1887,9 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new(LanguageConstants.TypeNameResource,
                     new TypeTemplate(LanguageConstants.TypeNameResource,
-                        ImmutableArray.Create(new TypeParameter("ResourceTypeIdentifier",
+                        [new TypeParameter("ResourceTypeIdentifier",
                             "A string of the format '<type-name>@<api-version>' that identifies the kind of resource whose body type definition is to be used.",
-                            LanguageConstants.StringResourceIdentifier)),
+                            LanguageConstants.StringResourceIdentifier)],
                         (binder, syntax, argumentTypes) =>
                         {
                             if (syntax.Arguments.FirstOrDefault()?.Expression is not StringTypeLiteralSyntax stringArg || stringArg.SegmentValues.Length > 1)

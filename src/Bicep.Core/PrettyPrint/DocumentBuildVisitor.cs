@@ -676,7 +676,7 @@ namespace Bicep.Core.PrettyPrint
                     }
 
                     var line = Spread(currentLineDocs);
-                    this.PushDocument(firstLineWritten ? new NestDocument(1, ImmutableArray.Create(line)) : line);
+                    this.PushDocument(firstLineWritten ? new NestDocument(1, [line]) : line);
                     firstLineWritten = true;
                     stackTare++;
                 }

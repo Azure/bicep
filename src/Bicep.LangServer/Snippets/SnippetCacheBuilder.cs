@@ -153,7 +153,7 @@ public class SnippetCacheBuilder
                 {
                     resourceTypeReferenceToChildTypeSymbolsMap.AddOrUpdate(
                         resourceTypeReference,
-                        _ => ImmutableArray.Create(childResourceTypeReference),
+                        _ => [childResourceTypeReference],
                         (_, children) => children.Add(childResourceTypeReference));
                 }
 

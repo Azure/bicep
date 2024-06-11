@@ -34,7 +34,7 @@ public class ResourceDerivedTypeResolverTests
 
     private static IEnumerable<object[]> GetTypesNotInNeedOfBinding()
     {
-        static object[] Row(TypeSymbol type) => new object[] { type };
+        static object[] Row(TypeSymbol type) => [type];
 
         yield return Row(LanguageConstants.Any);
         yield return Row(LanguageConstants.Null);
@@ -73,7 +73,7 @@ public class ResourceDerivedTypeResolverTests
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnresolved = new TupleType(ImmutableArray.Create<ITypeReference>(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any)),
+        var containsUnresolved = new TupleType([new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any)],
             TypeSymbolValidationFlags.Default);
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<TupleType>()
             .Subject.Items.First().Should().BeSameAs(hydrated);
@@ -250,33 +250,36 @@ public class ResourceDerivedTypeResolverTests
         var targetType = TypeFactory.CreateBooleanLiteralType(false);
         var hydrated = new ObjectType("object",
             TypeSymbolValidationFlags.Default,
-            ImmutableArray.Create(new TypeProperty("property",
+            [new TypeProperty("property",
                 new TupleType(
-                    ImmutableArray.Create<ITypeReference>(new ObjectType("dictionary",
+                    [new ObjectType("dictionary",
                         TypeSymbolValidationFlags.Default,
                         [],
                         TypeFactory.CreateArrayType(new DiscriminatedObjectType("taggedUnion",
                             TypeSymbolValidationFlags.Default,
                             "type",
-                            ImmutableArray.Create<ITypeReference>(
+                            [
                                 new ObjectType("fooVariant",
                                     TypeSymbolValidationFlags.Default,
-                                    ImmutableArray.Create(
+                                    [
                                         new TypeProperty("type", TypeFactory.CreateStringLiteralType("foo")),
-                                        new TypeProperty("property", LanguageConstants.Int)),
+                                        new TypeProperty("property", LanguageConstants.Int)
+                                    ],
                                     null),
                                 new ObjectType("barVariant",
                                     TypeSymbolValidationFlags.Default,
-                                    ImmutableArray.Create(
+                                    [
                                         new TypeProperty("type", TypeFactory.CreateStringLiteralType("bar")),
-                                        new TypeProperty("property", targetType)),
-                                    null)))))),
-                    TypeSymbolValidationFlags.Default))),
+                                        new TypeProperty("property", targetType)
+                                    ],
+                                    null)
+                            ])))],
+                    TypeSymbolValidationFlags.Default))],
             null);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
         UnresolvedResourceDerivedType unresolved = new(unhydratedTypeRef,
-            ImmutableArray.Create("properties", "property", "prefixItems", "0", "additionalProperties", "items", "discriminator", "mapping", "bar", "properties", "property"),
+            ["properties", "property", "prefixItems", "0", "additionalProperties", "items", "discriminator", "mapping", "bar", "properties", "property"],
             LanguageConstants.Any);
 
         var bound = sut.ResolveResourceDerivedTypes(unresolved);

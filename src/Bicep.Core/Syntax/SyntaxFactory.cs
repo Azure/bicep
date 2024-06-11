@@ -10,8 +10,7 @@ namespace Bicep.Core.Syntax
     {
         public static readonly IEnumerable<SyntaxTrivia> EmptyTrivia = [];
 
-        public static readonly IEnumerable<SyntaxTrivia> SingleSpaceTrivia = ImmutableArray.Create(
-            new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, " "));
+        public static readonly IEnumerable<SyntaxTrivia> SingleSpaceTrivia = [new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, " ")];
 
         public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new(TextSpan.Nil, []);
 

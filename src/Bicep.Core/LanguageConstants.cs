@@ -251,7 +251,7 @@ namespace Bicep.Core
 
         public static readonly ImmutableHashSet<string> ReservedTypeNames = ImmutableHashSet.Create<string>(IdentifierComparer, ResourceKeyword);
 
-        public static readonly ImmutableArray<string> DiscriminatorPreferenceOrder = ImmutableArray.Create("type", "kind");
+        public static readonly ImmutableArray<string> DiscriminatorPreferenceOrder = ["type", "kind"];
 
         private static IEnumerable<TypeProperty> CreateParameterModifierMetadataProperties()
         {

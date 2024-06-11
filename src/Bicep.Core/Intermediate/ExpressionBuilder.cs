@@ -289,7 +289,7 @@ public class ExpressionBuilder
                 UnionType unionType => new UnionTypeExpression(syntax, unionType, ImmutableArray.CreateRange(unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)))),
                 // If a union type expression's members all refer to the same literal value, the type of the expression will be a single literal rather than a union
                 TypeSymbol otherwise => new UnionTypeExpression(syntax,
-                    new UnionType(string.Empty, ImmutableArray.Create<ITypeReference>(otherwise)),
+                    new UnionType(string.Empty, [otherwise]),
                     ImmutableArray.CreateRange(unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)))),
             },
             ParenthesizedTypeSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
@@ -972,7 +972,7 @@ public class ExpressionBuilder
         {
             if (convertedBase is AccessExpression baseAccess)
             {
-                return new AccessChainExpression(arrayAccess, baseAccess, ImmutableArray.Create(convertedIndex));
+                return new AccessChainExpression(arrayAccess, baseAccess, [convertedIndex]);
             }
 
             if (convertedBase is AccessChainExpression accessChain)
@@ -1067,7 +1067,7 @@ public class ExpressionBuilder
 
             if (convertedBase is AccessExpression baseAccess)
             {
-                return new AccessChainExpression(propertyAccess, baseAccess, ImmutableArray.Create(nextLink));
+                return new AccessChainExpression(propertyAccess, baseAccess, [nextLink]);
             }
 
             if (convertedBase is AccessChainExpression accessChain)
