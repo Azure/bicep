@@ -357,19 +357,19 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithDiscriminatedObjectTypeAndNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("keyAProp", LanguageConstants.String),
-            }, null);
+            ], null);
 
-            var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
                 new TypeProperty("keyBProp", LanguageConstants.String),
-            }, null);
+            ], null);
 
-            var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
+            var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", [objectTypeA, objectTypeB]);
 
             ResourceType resourceType = new(
                 azNamespaceType,
@@ -395,23 +395,23 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithDiscriminatedObjectTypeAndRequiredProperties_ShouldReturnRequiredPropertiesSnippet()
         {
-            var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("name", TypeFactory.CreateStringLiteralType("keyA"), TypePropertyFlags.Required),
                 new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("id", LanguageConstants.String)
-            }, null);
+            ], null);
 
-            var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("kind", TypeFactory.CreateStringLiteralType("discKey"), TypePropertyFlags.ReadOnly),
                 new TypeProperty("hostPoolType", LanguageConstants.String)
-            }, null);
+            ], null);
 
-            var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
+            var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", [objectTypeA, objectTypeB]);
 
             ResourceType resourceType = new(
                 azNamespaceType,
@@ -456,12 +456,12 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public void GetModuleBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                 new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.WriteOnly),
                 new TypeProperty("id", LanguageConstants.String)
-            }, null);
+            ], null);
             TypeSymbol typeSymbol = new ModuleType("module", ResourceScope.Module, objectType);
 
             IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetModuleBodyCompletionSnippets(typeSymbol);
@@ -479,12 +479,12 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public void GetModuleBodyCompletionSnippets_WithRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
         {
-            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("id", LanguageConstants.String)
-            }, null);
+            ], null);
             TypeSymbol typeSymbol = new ModuleType("module", ResourceScope.Module, objectType);
 
             IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetModuleBodyCompletionSnippets(typeSymbol);
@@ -512,12 +512,12 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                 new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.WriteOnly),
                 new TypeProperty("id", LanguageConstants.String)
-            }, null);
+            ], null);
 
             IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetObjectBodyCompletionSnippets(objectType);
 
@@ -534,12 +534,12 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
         {
-            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("id", LanguageConstants.String)
-            }, null);
+            ], null);
 
             IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetObjectBodyCompletionSnippets(objectType);
 
@@ -566,19 +566,19 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithDiscriminatedObjectTypeAndNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("keyAProp", LanguageConstants.String),
-            }, null);
+            ], null);
 
-            var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
                 new TypeProperty("keyBProp", LanguageConstants.String),
-            }, null);
+            ], null);
 
-            var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
+            var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", [objectTypeA, objectTypeB]);
 
             IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetObjectBodyCompletionSnippets(discriminatedObjectType);
 
@@ -595,23 +595,23 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public void GetObjectBodyCompletionSnippets_WithDiscriminatedObjectTypeAndRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
         {
-            var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("name", TypeFactory.CreateStringLiteralType("keyA"), TypePropertyFlags.Required),
                 new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("id", LanguageConstants.String)
-            }, null);
+            ], null);
 
-            var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("kind", TypeFactory.CreateStringLiteralType("discKey"), TypePropertyFlags.ReadOnly),
                 new TypeProperty("hostPoolType", LanguageConstants.String)
-            }, null);
+            ], null);
 
-            var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
+            var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", [objectTypeA, objectTypeB]);
 
             IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetObjectBodyCompletionSnippets(discriminatedObjectType);
 

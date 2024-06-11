@@ -177,7 +177,7 @@ namespace Bicep.Cli.IntegrationTests
                 mediaType,
                 artifactType,
                 configContents,
-                new (string, string)[] { (BicepMediaTypes.BicepModuleLayerV1Json, "data") });
+                [(BicepMediaTypes.BicepModuleLayerV1Json, "data")]);
 
             client.Blobs.Should().HaveCount(2);
             client.Manifests.Should().HaveCount(1);

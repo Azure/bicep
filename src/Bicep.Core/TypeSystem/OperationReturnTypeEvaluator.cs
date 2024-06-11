@@ -190,7 +190,7 @@ public static class OperationReturnTypeEvaluator
 
         public TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, IDiagnosticWriter diagnosticWriter)
         {
-            var literal = ArmFunctionReturnTypeEvaluator.TryEvaluate(armFunctionName, out var builders, new[] { leftOperandType, rightOperandType });
+            var literal = ArmFunctionReturnTypeEvaluator.TryEvaluate(armFunctionName, out var builders, [leftOperandType, rightOperandType]);
             diagnosticWriter.WriteMultiple(builders.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
 
             return literal ?? TryDeriveNonLiteralType(expressionSyntax, leftOperandType, rightOperandType) ?? genericReturnType;
@@ -260,7 +260,7 @@ public static class OperationReturnTypeEvaluator
             var transformedArgTypes = new TypeSymbol[2];
             for (int i = 0; i < 2; i++)
             {
-                transformedArgTypes[i] = ArmFunctionReturnTypeEvaluator.TryEvaluate("toLower", out var builderDelegates, new[] { i % 2 == 0 ? leftOperandType : rightOperandType }) ?? LanguageConstants.String;
+                transformedArgTypes[i] = ArmFunctionReturnTypeEvaluator.TryEvaluate("toLower", out var builderDelegates, [i % 2 == 0 ? leftOperandType : rightOperandType]) ?? LanguageConstants.String;
                 diagnosticWriter.WriteMultiple(builderDelegates.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
             }
 

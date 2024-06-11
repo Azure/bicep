@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
             if (lineLogs.Count() >= truncate)
             {
-                lineLogs = lineLogs.Concat(new[] { "...truncated..." });
+                lineLogs = lineLogs.Concat(["...truncated..."]);
             }
 
             return string.Join('\n', lineLogs);

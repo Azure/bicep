@@ -248,9 +248,9 @@ resource child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 }
 ");
 
-            result.Diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+            result.Diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                 ("BCP165", DiagnosticLevel.Error, "A resource's computed scope must match that of the Bicep file for it to be deployable. This resource's scope is computed from the \"scope\" property value assigned to ancestor resource \"res1\". You must use modules to deploy resources to a different scope."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -295,9 +295,9 @@ resource res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                   ("BCP164", DiagnosticLevel.Error, "A child resource's scope is computed based on the scope of its ancestor resource. This means that using the \"scope\" property on a child resource is unsupported."),
-                });
+                ]);
             }
         }
 
@@ -315,9 +315,9 @@ resource vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                   ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed.")
-                });
+                ]);
             }
         }
 
@@ -339,10 +339,10 @@ resource vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                   ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"vmExt\" -> \"vm\")."),
                   ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"vm\" -> \"vmExt\").")
-                });
+                ]);
             }
         }
 
@@ -363,9 +363,9 @@ resource res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                   ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Rp2/resource2\" but the provided value is of type \"Microsoft.Rp1/resource1@2020-06-01\"."),
-                });
+                ]);
             }
         }
 
@@ -386,10 +386,10 @@ resource res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                   ("BCP047", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the resource type."),
                   ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"res1\" is not valid."),
-                });
+                ]);
             }
         }
 
@@ -415,10 +415,10 @@ resource res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                   ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
                   ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
-                });
+                ]);
             }
         }
 
@@ -434,9 +434,9 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                   ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 0 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
-                });
+                ]);
             }
 
             (template, diags, _) = CompilationHelper.Compile(@"
@@ -448,9 +448,9 @@ resource res1 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                   ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 1 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
-                });
+                ]);
             }
         }
 
@@ -469,9 +469,9 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 
             // There are definitely too many '/' characters in the name - we should return an error.
             result.Should().NotGenerateATemplate();
-            result.Diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+            result.Diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                 ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 0 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
-            });
+            ]);
 
             result = CompilationHelper.Compile(TestTypeHelper.CreateEmptyResourceTypeLoader(),
                 ("main.bicep", @"

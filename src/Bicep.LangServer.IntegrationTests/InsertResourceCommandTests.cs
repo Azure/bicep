@@ -123,7 +123,7 @@ namespace Bicep.LangServer.IntegrationTests
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
 
-            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", new[] { "myTypes" }, new[] { "myName" });
+            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", ["myTypes"], ["myName"]);
             var mockResource = new JObject
             {
                 ["id"] = resourceId.FullyQualifiedId,
@@ -201,7 +201,7 @@ namespace Bicep.LangServer.IntegrationTests
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
 
-            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", new[] { "myTypes" }, new[] { "myName" });
+            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", ["myTypes"], ["myName"]);
             var mockResource = new JObject
             {
                 ["id"] = resourceId.FullyQualifiedId,
@@ -320,7 +320,7 @@ namespace Bicep.LangServer.IntegrationTests
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
 
-            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", new[] { "myTypes", "childType" }, new[] { "myName", "childName" });
+            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", ["myTypes", "childType"], ["myName", "childName"]);
             var mockResource = new JObject
             {
                 ["id"] = resourceId.FullyQualifiedId,
@@ -428,7 +428,7 @@ namespace Bicep.LangServer.IntegrationTests
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
 
-            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "MadeUp.Rp", new[] { "madeUpTypes" }, new[] { "myName" });
+            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "MadeUp.Rp", ["madeUpTypes"], ["myName"]);
 
             var fileUri = new Uri("file:///template.bicep");
             var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
@@ -469,7 +469,7 @@ output myOutput string = 'myOutput'
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
 
-            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", new[] { "myTypes" }, new[] { "myName" });
+            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", ["myTypes"], ["myName"]);
 
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Throws(new InvalidOperationException("Something went wrong!"));
@@ -546,7 +546,7 @@ output myOutput string = 'myOutput'
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
 
-            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", new[] { "myTypes" }, new[] { "myName" });
+            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", ["myTypes"], ["myName"]);
 
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Throws(new InvalidOperationException("Something went wrong!"));

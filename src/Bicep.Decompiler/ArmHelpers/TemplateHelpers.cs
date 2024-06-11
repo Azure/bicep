@@ -168,7 +168,7 @@ namespace Bicep.Decompiler.ArmHelpers
 
                 return new FunctionExpression(
                     "parameters",
-                    new[] { new JTokenExpression(paramName) },
+                    [new JTokenExpression(paramName)],
                     function.Properties);
             }
 

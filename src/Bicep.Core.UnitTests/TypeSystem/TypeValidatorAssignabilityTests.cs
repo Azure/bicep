@@ -249,10 +249,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetStringDomainNarrowingData()
         {
             static object[] Row(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, params (string code, DiagnosticLevel level, string message)[] diagnostics)
-                => new object[] { sourceType, targetType, expectedType, diagnostics };
+                => [sourceType, targetType, expectedType, diagnostics];
 
-            return new[]
-            {
+            return
+            [
                 // A matching source and target type should narrow to the same and produce no warnings
                 Row(LanguageConstants.String, LanguageConstants.String, LanguageConstants.String),
 
@@ -304,7 +304,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
                 // A literal source type should narrow to the literal
                 Row(TypeFactory.CreateStringLiteralType("boo!"), LanguageConstants.String, TypeFactory.CreateStringLiteralType("boo!")),
-            };
+            ];
         }
 
         [TestMethod]
@@ -339,10 +339,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetIntegerDomainNarrowingData()
         {
             static object[] Row(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, params (string code, DiagnosticLevel level, string message)[] diagnostics)
-                => new object[] { sourceType, targetType, expectedType, diagnostics };
+                => [sourceType, targetType, expectedType, diagnostics];
 
-            return new[]
-            {
+            return
+            [
                 // A matching source and target type should narrow to the same and produce no warnings
                 Row(LanguageConstants.Int, LanguageConstants.Int, LanguageConstants.Int),
 
@@ -394,7 +394,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
                 // A literal source type should narrow to the literal
                 Row(TypeFactory.CreateIntegerLiteralType(0), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(0)),
-            };
+            ];
         }
 
         [DataTestMethod]
@@ -423,10 +423,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void MinimalResourceShouldBeValid()
         {
-            var obj = TestSyntaxFactory.CreateObject(new[]
-            {
+            var obj = TestSyntaxFactory.CreateObject(
+            [
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test"))
-            });
+            ]);
 
             var hierarchy = SyntaxHierarchy.Build(obj);
 
@@ -438,15 +438,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void ResourceWithValidZonesShouldBeAccepted()
         {
-            var obj = TestSyntaxFactory.CreateObject(new[]
-            {
+            var obj = TestSyntaxFactory.CreateObject(
+            [
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
-                TestSyntaxFactory.CreateProperty("zones", TestSyntaxFactory.CreateArray(new []
-                {
+                TestSyntaxFactory.CreateProperty("zones", TestSyntaxFactory.CreateArray(
+                [
                     TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateString("1")),
                     TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateString("2"))
-                }))
-            });
+                ]))
+            ]);
 
             var hierarchy = SyntaxHierarchy.Build(obj);
 
@@ -457,30 +457,30 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void InvalidArrayValuesShouldBeRejected()
         {
-            var obj = TestSyntaxFactory.CreateObject(new[]
-            {
+            var obj = TestSyntaxFactory.CreateObject(
+            [
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
 
                 // zones is an array of strings - set wrong item types
-                TestSyntaxFactory.CreateProperty("zones", TestSyntaxFactory.CreateArray(new[]
-                {
+                TestSyntaxFactory.CreateProperty("zones", TestSyntaxFactory.CreateArray(
+                [
                     TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateBool(true)),
                     TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateInt(2))
-                })),
+                ])),
 
                 // this property is an array - specify a string instead
                 TestSyntaxFactory.CreateProperty("managedByExtended", TestSyntaxFactory.CreateString("not an array"))
-            });
+            ]);
 
             var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
-            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new[] {
+            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics([
                 ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"2\"."),
                 ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"true\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"managedByExtended\" expected a value of type \"string[]\" but the provided value is of type \"'not an array'\"."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -492,15 +492,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 [TypeFactory.CreateStringType(maxLength: 2), TypeFactory.CreateIntegerType(minValue: 6)],
                 default));
 
-            diagnostics.Should().HaveDiagnostics(new[]
-            {
+            diagnostics.Should().HaveDiagnostics(
+            [
                 // the string at index 0 is too long
                 ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
                 // the int at index 1 is too small
                 ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 5) is too small to assign to a target for which the minimum allowable value is 6."),
                 // the whole array is too long
                 ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
-            });
+            ]);
         }
 
         [DataTestMethod]
@@ -531,10 +531,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetArrayDomainNarrowingData()
         {
             static object[] Row(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedReturnType, params (string code, DiagnosticLevel level, string message)[] diagnostics)
-                => new object[] { sourceType, targetType, expectedReturnType, diagnostics };
+                => [sourceType, targetType, expectedReturnType, diagnostics];
 
-            return new[]
-            {
+            return
+            [
                 // A matching source and target type should narrow to the same and produce no warnings
                 Row(LanguageConstants.Array, LanguageConstants.Array, LanguageConstants.Array),
 
@@ -599,13 +599,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     new TupleType(LanguageConstants.DeclarationTypes.Values.ToImmutableArray<ITypeReference>(), default),
                     TypeFactory.CreateArrayType(maxLength: LanguageConstants.DeclarationTypes.Count - 1),
                     ("BCP333", DiagnosticLevel.Error, $"The provided value (whose length will always be less than or equal to {LanguageConstants.DeclarationTypes.Count - 1}) is too short to assign to a target for which the minimum allowable length is {LanguageConstants.DeclarationTypes.Count}.")),
-            };
+            ];
         }
 
         [TestMethod]
         public void RequiredPropertyShouldBeRequired()
         {
-            var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
+            var obj = TestSyntaxFactory.CreateObject([]);
 
             var hierarchy = SyntaxHierarchy.Build(obj);
 
@@ -618,10 +618,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void RequiredPropertyWithParseErrorsShouldProduceNoErrors()
         {
-            var obj = TestSyntaxFactory.CreateObject(new[]
-            {
+            var obj = TestSyntaxFactory.CreateObject(
+            [
                 TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateString("a")),
-            });
+            ]);
 
             var hierarchy = SyntaxHierarchy.Build(obj);
             var parsingErrorLookupMock = StrictMock.Of<IDiagnosticLookup>();
@@ -636,39 +636,39 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void WrongTypeOfAdditionalPropertiesShouldBeRejected()
         {
-            var obj = TestSyntaxFactory.CreateObject(new[]
-            {
+            var obj = TestSyntaxFactory.CreateObject(
+            [
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
-                TestSyntaxFactory.CreateProperty("tags", TestSyntaxFactory.CreateObject(new[]
-                {
+                TestSyntaxFactory.CreateProperty("tags", TestSyntaxFactory.CreateObject(
+                [
                     TestSyntaxFactory.CreateProperty("wrongTagType", TestSyntaxFactory.CreateBool(true)),
                     TestSyntaxFactory.CreateProperty("wrongTagType2", TestSyntaxFactory.CreateInt(3))
-                }))
-            });
+                ]))
+            ]);
 
             var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
-            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new[] {
+            diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics([
                 ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType\" expected a value of type \"string\" but the provided value is of type \"true\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType2\" expected a value of type \"string\" but the provided value is of type \"3\"."),
-            });
+            ]);
         }
 
         [TestMethod]
         public void WrongTypeOfAdditionalPropertiesWithParseErrorsShouldProduceNoErrors()
         {
-            var tags = TestSyntaxFactory.CreateProperty("tags", TestSyntaxFactory.CreateObject(new[]
-            {
+            var tags = TestSyntaxFactory.CreateProperty("tags", TestSyntaxFactory.CreateObject(
+            [
                 TestSyntaxFactory.CreateProperty("wrongTagType", TestSyntaxFactory.CreateBool(true)),
-            }));
+            ]));
 
-            var obj = TestSyntaxFactory.CreateObject(new[]
-            {
+            var obj = TestSyntaxFactory.CreateObject(
+            [
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
                 tags,
-            });
+            ]);
 
             var hierarchy = SyntaxHierarchy.Build(obj);
 
@@ -684,18 +684,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void AdditionalPropertiesWithFallbackTypeFlagShouldProduceWarning()
         {
-            var obj = TestSyntaxFactory.CreateObject(new[]
-            {
+            var obj = TestSyntaxFactory.CreateObject(
+            [
                 TestSyntaxFactory.CreateProperty("inSchema", TestSyntaxFactory.CreateString("ping")),
                 TestSyntaxFactory.CreateProperty("notInSchema", TestSyntaxFactory.CreateString("pong")),
-            });
+            ]);
 
             var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, new ObjectType(
                 "additionalPropertiesFallbackTypeTest",
                 TypeSymbolValidationFlags.Default,
-                new[] { new TypeProperty("inSchema", LanguageConstants.String) },
+                [new TypeProperty("inSchema", LanguageConstants.String)],
                 LanguageConstants.Any,
                 TypePropertyFlags.FallbackProperty));
 
@@ -710,26 +710,25 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 "discObj",
                 TypeSymbolValidationFlags.Default,
                 "myDiscriminator",
-                new[]
-                {
-                    new ObjectType("typeA", TypeSymbolValidationFlags.Default, new []
-                    {
+                [
+                    new ObjectType("typeA", TypeSymbolValidationFlags.Default,
+                    [
                         new TypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valA")),
                         new TypeProperty("fieldA", LanguageConstants.String, TypePropertyFlags.Required),
-                    }, null),
-                    new ObjectType("typeB", TypeSymbolValidationFlags.Default, new []
-                    {
+                    ], null),
+                    new ObjectType("typeB", TypeSymbolValidationFlags.Default,
+                    [
                         new TypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valB")),
                         new TypeProperty("fieldB", LanguageConstants.String, TypePropertyFlags.Required),
-                    }, null),
-                });
+                    ], null),
+                ]);
 
             {
                 // no discriminator field supplied
-                var obj = TestSyntaxFactory.CreateObject(new[]
-                {
+                var obj = TestSyntaxFactory.CreateObject(
+                [
                     TestSyntaxFactory.CreateProperty("fieldA", TestSyntaxFactory.CreateString("someVal")),
-                });
+                ]);
 
                 var hierarchy = SyntaxHierarchy.Build(obj);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
@@ -744,11 +743,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             {
                 // incorrect type specified for the discriminator field
-                var obj = TestSyntaxFactory.CreateObject(new[]
-                {
+                var obj = TestSyntaxFactory.CreateObject(
+                [
                     TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateObject([])),
                     TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
-                });
+                ]);
 
                 var hierarchy = SyntaxHierarchy.Build(obj);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
@@ -763,10 +762,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             {
                 // discriminator value that matches neither option supplied
-                var obj = TestSyntaxFactory.CreateObject(new[]
-                {
+                var obj = TestSyntaxFactory.CreateObject(
+                [
                     TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valC")),
-                });
+                ]);
 
                 var hierarchy = SyntaxHierarchy.Build(obj);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
@@ -781,10 +780,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             {
                 // missing required property for the 'valB' branch
-                var obj = TestSyntaxFactory.CreateObject(new[]
-                {
+                var obj = TestSyntaxFactory.CreateObject(
+                [
                     TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
-                });
+                ]);
 
                 var hierarchy = SyntaxHierarchy.Build(obj);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
@@ -806,11 +805,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             {
                 // supplied the required property for the 'valB' branch
-                var obj = TestSyntaxFactory.CreateObject(new[]
-                {
+                var obj = TestSyntaxFactory.CreateObject(
+                [
                     TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
                     TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
-                });
+                ]);
 
                 var hierarchy = SyntaxHierarchy.Build(obj);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
@@ -903,33 +902,33 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private static IEnumerable<object[]> GetData()
         {
-            static object[] CreateRow(string name, ObjectSyntax @object) => new object[] { name, @object };
+            static object[] CreateRow(string name, ObjectSyntax @object) => [name, @object];
 
             // empty object
-            yield return CreateRow("Empty", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]));
+            yield return CreateRow("Empty", TestSyntaxFactory.CreateObject([]));
 
-            yield return CreateRow("StringProperty", TestSyntaxFactory.CreateObject(new[] { TestSyntaxFactory.CreateProperty("test", TestSyntaxFactory.CreateString("value")) }));
+            yield return CreateRow("StringProperty", TestSyntaxFactory.CreateObject([TestSyntaxFactory.CreateProperty("test", TestSyntaxFactory.CreateString("value"))]));
 
-            yield return CreateRow("IntProperty", TestSyntaxFactory.CreateObject(new[] { TestSyntaxFactory.CreateProperty("test", TestSyntaxFactory.CreateInt(42)) }));
+            yield return CreateRow("IntProperty", TestSyntaxFactory.CreateObject([TestSyntaxFactory.CreateProperty("test", TestSyntaxFactory.CreateInt(42))]));
 
-            yield return CreateRow("MixedProperties", TestSyntaxFactory.CreateObject(new[]
-            {
+            yield return CreateRow("MixedProperties", TestSyntaxFactory.CreateObject(
+            [
                 TestSyntaxFactory.CreateProperty("int", TestSyntaxFactory.CreateInt(444)),
                 TestSyntaxFactory.CreateProperty("str", TestSyntaxFactory.CreateString("str value")),
                 TestSyntaxFactory.CreateProperty("bool", TestSyntaxFactory.CreateBool(true)),
                 TestSyntaxFactory.CreateProperty("not", TestSyntaxFactory.CreateBool(false)),
-                TestSyntaxFactory.CreateProperty("obj", TestSyntaxFactory.CreateObject(new[]
-                {
+                TestSyntaxFactory.CreateProperty("obj", TestSyntaxFactory.CreateObject(
+                [
                     TestSyntaxFactory.CreateProperty("nested", TestSyntaxFactory.CreateString("nested value")),
-                    TestSyntaxFactory.CreateProperty("nested2", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]))
-                }))
-            }));
+                    TestSyntaxFactory.CreateProperty("nested2", TestSyntaxFactory.CreateObject([]))
+                ]))
+            ]));
 
-            yield return CreateRow("DuplicatedObjectProperties", TestSyntaxFactory.CreateObject(new[]
-            {
+            yield return CreateRow("DuplicatedObjectProperties", TestSyntaxFactory.CreateObject(
+            [
                 TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateInt(444)),
                 TestSyntaxFactory.CreateProperty("bar", TestSyntaxFactory.CreateString("str value")),
-            }));
+            ]));
         }
 
         private TypeSymbol CreateDummyResourceType()

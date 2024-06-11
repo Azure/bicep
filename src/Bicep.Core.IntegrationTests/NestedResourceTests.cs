@@ -202,11 +202,11 @@ output fromGrandchildInvalid string = parent::child::cousin.properties.temperatu
 
             var model = Services.BuildCompilation(program).GetEntrypointSemanticModel();
 
-            model.GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[]{
+            model.GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                 ("BCP158", DiagnosticLevel.Error, "Cannot access nested resources of type \"'hi'\". A resource type is required."),
                 ("BCP159", DiagnosticLevel.Error, "The resource \"parent\" does not contain a nested resource named \"child2\". Known nested resources are: \"child\"."),
                 ("BCP159", DiagnosticLevel.Error, "The resource \"child\" does not contain a nested resource named \"cousin\". Known nested resources are: \"grandchild\"."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -235,9 +235,9 @@ resource other 'My.RP/parentType@2020-01-01' = {
 ";
 
             var diagnostics = Services.BuildCompilation(program).GetEntrypointSemanticModel().GetAllDiagnostics();
-            diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+            diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                 ("BCP057", DiagnosticLevel.Error, "The name \"child\" does not exist in the current context."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -259,9 +259,9 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 ";
 
             var diagnostics = Services.BuildCompilation(program).GetEntrypointSemanticModel().GetAllDiagnostics();
-            diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+            diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -283,10 +283,10 @@ resource parent 'My.RP/parentType@invalid-version' = {
 ";
 
             var diagnostics = Services.BuildCompilation(program).GetEntrypointSemanticModel().GetAllDiagnostics();
-            diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."),
                 ("BCP157", DiagnosticLevel.Error, "The resource type cannot be determined due to an error in the containing resource."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -314,10 +314,10 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 ";
 
             var diagnostics = Services.BuildCompilation(program).GetEntrypointSemanticModel().GetAllDiagnostics();
-            diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+            diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
                 ("BCP157", DiagnosticLevel.Error, "The resource type cannot be determined due to an error in the containing resource."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -339,9 +339,9 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            Services.BuildCompilation(program).GetEntrypointSemanticModel().GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+            Services.BuildCompilation(program).GetEntrypointSemanticModel().GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"child\" -> \"parent\")."),
-            });
+            ]);
         }
 
         [TestMethod] // With more than one level of nesting the name just isn't visible.
@@ -369,9 +369,9 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            Services.BuildCompilation(program).GetEntrypointSemanticModel().GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+            Services.BuildCompilation(program).GetEntrypointSemanticModel().GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                 ("BCP057", DiagnosticLevel.Error, "The name \"grandchild\" does not exist in the current context."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -404,10 +404,10 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
             var child = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "child").DeclaringSyntax)!;
-            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal([parent,]);
 
             var grandchild = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "grandchild").DeclaringSyntax)!;
-            model.ResourceAncestors.GetAncestors(grandchild).Select(x => x.Resource).Should().Equal(new[] { parent, child, }); // order matters
+            model.ResourceAncestors.GetAncestors(grandchild).Select(x => x.Resource).Should().Equal([parent, child,]); // order matters
         }
 
         [TestMethod]
@@ -452,16 +452,16 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
             var child = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "child").DeclaringSyntax)!;
-            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal([parent,]);
 
             var childGrandChild = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(child.Symbol.DeclaringResource.GetBody().Resources.Single())!;
-            model.ResourceAncestors.GetAncestors(childGrandChild).Select(x => x.Resource).Should().Equal(new[] { parent, child, });
+            model.ResourceAncestors.GetAncestors(childGrandChild).Select(x => x.Resource).Should().Equal([parent, child,]);
 
             var sibling = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "sibling").DeclaringSyntax)!;
-            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
+            model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal([parent,]);
 
             var siblingGrandChild = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(sibling.Symbol.DeclaringResource.GetBody().Resources.Single())!;
-            model.ResourceAncestors.GetAncestors(siblingGrandChild).Select(x => x.Resource).Should().Equal(new[] { parent, sibling, });
+            model.ResourceAncestors.GetAncestors(siblingGrandChild).Select(x => x.Resource).Should().Equal([parent, sibling,]);
         }
 
         [TestMethod] // Should turn into positive test when support is added.
@@ -488,12 +488,12 @@ resource parent 'My.RP/parentType@2020-01-01' = [for item in items: {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[]
-                {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(
+                [
                     ("BCP179", DiagnosticLevel.Warning,"Unique resource or deployment name is required when looping. The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\""),
                     ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression."),
                     ("BCP157", DiagnosticLevel.Error, "The resource type cannot be determined due to an error in the containing resource."),
-                });
+                ]);
             }
         }
 
@@ -522,10 +522,10 @@ output loopy string = parent::child[0].name
 
             using (new AssertionScope())
             {
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[]
-                {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(
+                [
                     ("BCP179",DiagnosticLevel.Warning,"Unique resource or deployment name is required when looping. The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\"")
-                });
+                ]);
                 template.Should().NotBeNull();
             }
         }
@@ -566,10 +566,10 @@ resource broken 'Microsoft.Network/virtualNetworks@2020-06-01' =
 output foo string = broken::fake
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP118", DiagnosticLevel.Error, "Expected the \"{\" character, the \"[\" character, or the \"if\" keyword at this location."),
                 ("BCP159", DiagnosticLevel.Error, "The resource \"broken\" does not contain a nested resource named \"fake\". Known nested resources are: \"(none)\"."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -765,9 +765,9 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 }
 ");
 
-            result.Diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+            result.Diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                 ("BCP165", DiagnosticLevel.Error, "A resource's computed scope must match that of the Bicep file for it to be deployable. This resource's scope is computed from the \"scope\" property value assigned to ancestor resource \"res1\". You must use modules to deploy resources to a different scope."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -810,9 +810,9 @@ resource res2 'Microsoft.Rp2/resource2@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                   ("BCP164", DiagnosticLevel.Error, "A child resource's scope is computed based on the scope of its ancestor resource. This means that using the \"scope\" property on a child resource is unsupported."),
-                });
+                ]);
             }
         }
 
@@ -836,10 +836,10 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                   ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
                   ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
-                });
+                ]);
             }
         }
     }

@@ -34,12 +34,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         protected void ExpectPass(string bicepText, Options? options = null)
         {
-            AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, new string[] { }, options);
+            AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, [], options);
         }
 
         protected void ExpectFail(string bicepText, string expectedMessage)
         {
-            AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, new string[] { expectedMessage });
+            AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, [expectedMessage]);
         }
 
         protected void ExpectFailWithFix(string bicepText, string expectedMessage, ExpectedCodeFix expectedFix)
@@ -50,9 +50,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               diagnostics =>
               {
                   diagnostics.Should().HaveCount(1);
-                  diagnostics.Should().HaveFixableDiagnostics(new[] {
+                  diagnostics.Should().HaveFixableDiagnostics([
                     (NoLocationExprOutsideParamsRule.Code, DiagnosticLevel.Warning, expectedMessage, expectedFix.Description, expectedFix.ReplacementText)
-                  }); ;
+                  ]); ;
               }
             );
         }
@@ -219,10 +219,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "
             );
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
                 (NoLocationExprOutsideParamsRule.Code, DiagnosticLevel.Warning, "Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")
-            });
+            ]);
         }
 
         [TestMethod]
@@ -239,10 +239,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }]                "
             );
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
                 (NoLocationExprOutsideParamsRule.Code, DiagnosticLevel.Warning, "Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")
-            });
+            ]);
         }
 
         [TestMethod]

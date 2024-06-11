@@ -15,7 +15,7 @@ namespace Bicep.Core.Modules
 
         private static readonly UriTemplate TemplateSpecUriTemplate = new("{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}");
 
-        private static readonly HashSet<char> ResourceGroupNameAllowedCharacterSet = new(new[] { '-', '_', '.', '(', ')' });
+        private static readonly HashSet<char> ResourceGroupNameAllowedCharacterSet = new(['-', '_', '.', '(', ')']);
 
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 

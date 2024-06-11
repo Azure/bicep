@@ -661,11 +661,11 @@ namespace Bicep.Core.Parsing
             var conditionExpression = this.WithRecovery(
                 () => this.ParenthesizedExpression(WithoutExpressionFlag(expressionFlags, ExpressionFlags.AllowResourceDeclarations)),
                 RecoveryFlags.None,
-                insideForExpression ? new[] { TokenType.RightSquare, TokenType.LeftBrace, TokenType.NewLine } : new[] { TokenType.LeftBrace, TokenType.NewLine });
+                insideForExpression ? [TokenType.RightSquare, TokenType.LeftBrace, TokenType.NewLine] : [TokenType.LeftBrace, TokenType.NewLine]);
             var body = this.WithRecovery(
                 () => this.Object(expressionFlags),
                 GetSuppressionFlag(conditionExpression, conditionExpression is ParenthesizedExpressionSyntax { CloseParen: not SkippedTriviaSyntax }),
-                insideForExpression ? new[] { TokenType.RightSquare, TokenType.NewLine } : new[] { TokenType.NewLine });
+                insideForExpression ? [TokenType.RightSquare, TokenType.NewLine] : [TokenType.NewLine]);
             return new IfConditionSyntax(keyword, conditionExpression, body);
         }
 
@@ -889,7 +889,7 @@ namespace Bicep.Core.Parsing
                         {
                             functionCall = (
                                 new IdentifierSyntax(new SkippedTriviaSyntax(TextSpan.Between(safeAccessMarker.Span, identifier.Span),
-                                    new SyntaxBase[] { safeAccessMarker, identifier },
+                                    [safeAccessMarker, identifier],
                                     DiagnosticBuilder.ForPosition(safeAccessMarker).SafeDereferenceNotPermittedOnInstanceFunctions().AsEnumerable())),
                                 functionCall.OpenParen,
                                 functionCall.ArgumentNodes,

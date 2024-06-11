@@ -378,7 +378,7 @@ module secret 'BAD_PATH_MODULE.bicep' = {
 "));
 
             result.Should().NotGenerateATemplate();
-            result.Should().NotHaveDiagnosticsWithCodes(new[] { "BCP180" }, "Function placement should not be evaluated on a module that couldn't be read.");
+            result.Should().NotHaveDiagnosticsWithCodes(["BCP180"], "Function placement should not be evaluated on a module that couldn't be read.");
 
         }
 

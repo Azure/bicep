@@ -54,27 +54,27 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
         {
             var customTypes = new[] {
                 TestTypeHelper.CreateCustomResourceTypeWithTopLevelProperties("My.Rp/myType", "2020-01-01", validationFlags,
-                    new [] { new TypeProperty("readOnlyTopLevelProp", LanguageConstants.String, TypePropertyFlags.ReadOnly) },
+                    [new TypeProperty("readOnlyTopLevelProp", LanguageConstants.String, TypePropertyFlags.ReadOnly)],
                     new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                     new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.AllowImplicitNull),
                     new TypeProperty("requiredProp", LanguageConstants.String, TypePropertyFlags.Required),
                     new TypeProperty("additionalProps", new ObjectType(
                         "additionalProps",
                         validationFlags,
-                        new [] {
+                        [
                             new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.Required),
                             new TypeProperty("propB", LanguageConstants.String, TypePropertyFlags.AllowImplicitNull),
-                        },
+                        ],
                         LanguageConstants.Int
                     )),
                     new TypeProperty("nestedObj", new ObjectType(
                         "nestedObj",
                         validationFlags,
-                        new [] {
+                        [
                             new TypeProperty("readOnlyNestedProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                             new TypeProperty("writeOnlyNestedProp", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.AllowImplicitNull),
                             new TypeProperty("requiredNestedProp", LanguageConstants.String, TypePropertyFlags.Required),
-                        },
+                        ],
                         null
                     ))),
             };
@@ -181,16 +181,16 @@ resource myDependentRes 'My.Rp/myDependentType@2020-01-01' = {
         {
             var customTypes = new[] {
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
-                    new TypeProperty("myDisc1", new DiscriminatedObjectType("myDisc1", validationFlags, "discKey", new [] {
-                            new ObjectType("choiceA", validationFlags, new [] {
+                    new TypeProperty("myDisc1", new DiscriminatedObjectType("myDisc1", validationFlags, "discKey", [
+                            new ObjectType("choiceA", validationFlags, [
                                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("choiceA"), TypePropertyFlags.Required),
                                 new TypeProperty("valueA", LanguageConstants.String, TypePropertyFlags.Required),
-                            }, null),
-                            new ObjectType("choiceB", validationFlags, new [] {
+                            ], null),
+                            new ObjectType("choiceB", validationFlags, [
                                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("choiceB"), TypePropertyFlags.Required),
                                 new TypeProperty("valueB", LanguageConstants.String, TypePropertyFlags.Required),
-                            }, null),
-                        }
+                            ], null),
+                        ]
                     ))),
             };
 

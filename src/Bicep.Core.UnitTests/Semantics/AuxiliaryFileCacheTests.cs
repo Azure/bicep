@@ -79,10 +79,10 @@ public class AuxiliaryFileCacheTests
         sut.GetEntries().Should().BeEquivalentTo(new[] { fileUri });
 
         // clear a different file, verify the original is still cached
-        sut.ClearEntries(new[] { new Uri("file:///different/file.txt") });
+        sut.ClearEntries([new Uri("file:///different/file.txt")]);
         sut.GetEntries().Should().BeEquivalentTo(new[] { fileUri });
 
-        sut.ClearEntries(new[] { fileUri });
+        sut.ClearEntries([fileUri]);
         sut.GetEntries().Should().BeEmpty();
     }
 
@@ -101,10 +101,10 @@ public class AuxiliaryFileCacheTests
         sut.Read(fileUri).Unwrap();
         sut.GetEntries().Should().BeEquivalentTo(new[] { fileUri });
 
-        sut.PruneInactiveEntries(new[] { fileUri });
+        sut.PruneInactiveEntries([fileUri]);
         sut.GetEntries().Should().BeEquivalentTo(new[] { fileUri });
 
-        sut.PruneInactiveEntries(new[] { new Uri("file:///different/file.txt") });
+        sut.PruneInactiveEntries([new Uri("file:///different/file.txt")]);
         sut.GetEntries().Should().BeEmpty();
     }
 }

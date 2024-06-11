@@ -168,7 +168,7 @@ namespace Bicep.Core.Registry.Oci
 
             static (int index, char? delimiter) FindLastSegmentDelimiter(string lastSegment)
             {
-                char[] delimiters = { ':', '@' };
+                char[] delimiters = [':', '@'];
                 int index = lastSegment.IndexOfAny(delimiters);
 
                 return (index, index == -1 ? null : lastSegment[index]);

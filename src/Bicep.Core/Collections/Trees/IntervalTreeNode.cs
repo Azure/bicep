@@ -7,7 +7,7 @@ namespace Bicep.Core.Collections.Trees
     {
         public readonly static IntervalTreeNode<TData> Nil = new(-1, -1, new List<TData>());
 
-        private readonly IntervalTreeNode<TData>[] children = new[] { Nil, Nil };
+        private readonly IntervalTreeNode<TData>[] children = [Nil, Nil];
 
         public IntervalTreeNode(int start, int end, TData data)
             : this(start, end, new List<TData>() { data })

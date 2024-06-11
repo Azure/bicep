@@ -91,14 +91,13 @@ public class ResourceDerivedTypeResolverTests
         var containsUnresolved = new DiscriminatedObjectType("discriminatedObject",
             TypeSymbolValidationFlags.Default,
             "property",
-            new ITypeReference[]
-            {
+            [
                 new UnresolvedResourceDerivedPartialObjectType(unhydratedTypeRef, [], "property", "foo"),
                 new ObjectType("bar",
                     TypeSymbolValidationFlags.Default,
                     new TypeProperty("property", TypeFactory.CreateStringLiteralType("bar")).AsEnumerable(),
                     null)
-            });
+            ]);
 
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<DiscriminatedObjectType>()
             .Subject.UnionMembersByKey["'foo'"].Should().BeSameAs(hydrated);

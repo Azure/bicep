@@ -25,9 +25,9 @@ namespace Bicep.Core.IntegrationTests
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                     ("BCP290", DiagnosticLevel.Error, "Expected a parameter or type declaration after the decorator."),
-                });
+                ]);
             }
         }
 
@@ -79,11 +79,11 @@ param inputb string
 
             using (new AssertionScope())
             {
-                diagnosticsByFile[mainUri].ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diagnosticsByFile[mainUri].ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                     ("BCP126", DiagnosticLevel.Error, "Function \"maxLength\" cannot be used as a variable decorator."),
                     ("BCP127", DiagnosticLevel.Error, "Function \"allowed\" cannot be used as a resource decorator."),
                     ("BCP128", DiagnosticLevel.Error, "Function \"secure\" cannot be used as a module decorator."),
-                });
+                ]);
                 success.Should().BeFalse();
             }
         }
@@ -160,11 +160,11 @@ output test bool = true
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                     ("BCP152", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
                     ("BCP132", DiagnosticLevel.Error, "Expected a declaration after the decorator."),
                     ("BCP152", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator.")
-                });
+                ]);
             }
         }
 
@@ -220,13 +220,13 @@ param inputb string
 
             using (new AssertionScope())
             {
-                diagnosticsByFile[mainUri].ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                diagnosticsByFile[mainUri].ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics([
                     ("BCP152", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator."),
                     ("BCP152", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
                     ("BCP152", DiagnosticLevel.Error, "Function \"environment\" cannot be used as a decorator."),
                     ("BCP152", DiagnosticLevel.Error, "Function \"union\" cannot be used as a decorator."),
                     ("BCP152", DiagnosticLevel.Error, "Function \"guid\" cannot be used as a decorator."),
-                });
+                ]);
                 success.Should().BeFalse();
             }
         }
@@ -286,10 +286,10 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 ");
             using (new AssertionScope())
             {
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-                {
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+                [
                     ("BCP132", DiagnosticLevel.Error, "Expected a declaration after the decorator."),
-                });
+                ]);
                 template.Should().BeNull();
             }
         }
@@ -307,10 +307,10 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 ");
             using (new AssertionScope())
             {
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-                {
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+                [
                     ("BCP153", DiagnosticLevel.Error, "Expected a resource or module declaration after the decorator."),
-                });
+                ]);
                 template.Should().BeNull();
             }
         }
@@ -328,10 +328,10 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 ");
             using (new AssertionScope())
             {
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-                {
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+                [
                     ("BCP123", DiagnosticLevel.Error, "Expected a namespace or decorator name at this location."),
-                });
+                ]);
                 template.Should().BeNull();
             }
         }

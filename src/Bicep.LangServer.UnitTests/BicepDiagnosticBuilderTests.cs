@@ -22,12 +22,12 @@ namespace Bicep.LangServer.UnitTests
             var sampleUri = new Uri("https://aka.ms/this/is/a/test");
             var analyzerName = "unit test";
 
-            IEnumerable<IDiagnostic> diags = new[]
-            {
+            IEnumerable<IDiagnostic> diags =
+            [
                 new AnalyzerDiagnostic(analyzerName, new TextSpan(0,0), DiagnosticLevel.Warning,
                                                   "Analyzer Msg Code", "Analyzer message string", sampleUri),
                 new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Error, "TestCode", "Bicep language message for diagnostic", sampleUri)
-            };
+            ];
 
             var lineStarts = new[] { 0 }.ToImmutableArray<int>();
             var omnisharpDiagnostics = diags.ToDiagnostics(lineStarts);
@@ -50,12 +50,12 @@ namespace Bicep.LangServer.UnitTests
         public void CreateOmnisharpDiagnosticWithoutCodeDesription()
         {
             var analyzerName = "unit test";
-            IEnumerable<IDiagnostic> diags = new[]
-            {
+            IEnumerable<IDiagnostic> diags =
+            [
                 new AnalyzerDiagnostic(analyzerName, new TextSpan(0,0), DiagnosticLevel.Warning,
                                                   "Analyzer Msg Code", "Analyzer message string", null /* no doc Uri */),
                 new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Error, "TestCode", "No docs for this error message")
-            };
+            ];
 
             var lineStarts = new[] { 0 }.ToImmutableArray<int>();
             var omnisharpDiagnostics = diags.ToDiagnostics(lineStarts);

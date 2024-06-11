@@ -58,11 +58,11 @@ namespace Bicep.RegistryModuleTool.UnitTests.Extensions
 
             yield return CreateTestCase(unionType, unionType.Name);
 
-            static object[] CreateTestCase(ITypeReference typeReference, string expectedPrimitiveTypeName) => new object[]
-            {
+            static object[] CreateTestCase(ITypeReference typeReference, string expectedPrimitiveTypeName) =>
+            [
                 typeReference,
                 expectedPrimitiveTypeName,
-            };
+            ];
         }
     }
 }

@@ -22,7 +22,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
     public void Single()
     {
         var result = CompilationHelper.Compile(
-            new (string fileName, string fileContents)[] {
+            [
                     ("createVM.bicep", ""),
                     ("main.bicep", """
                         // A comment
@@ -35,7 +35,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                             adminUsername: 'adminUsername'
                           }
                         }
-                        """)});
+                        """)]);
 
         var links = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(result.Compilation.SourceFileGrouping);
 
@@ -55,13 +55,13 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
     public void StartingWithDotDot()
     {
         var result = CompilationHelper.Compile(
-            new (string fileName, string fileContents)[] {
+            [
                     ("createVM.bicep", ""),
                     ("main.bicep", """
                         // A comment
                         module creatingVM '../createVM.bicep' = { // '../createVM.bicep' = [1:18]-[1:37]
                         }
-                        """)});
+                        """)]);
 
         var links = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(result.Compilation.SourceFileGrouping);
 
@@ -81,7 +81,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
     public void Multiple()
     {
         var result = CompilationHelper.Compile(
-            new (string fileName, string fileContents)[] {
+            [
                     ("createVM.bicep", """
                         module main '../../whatever.bicep' = {
                         }
@@ -111,7 +111,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                           }
                         }
                         """),
-            });
+            ]);
 
         var links = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(result.Compilation.SourceFileGrouping);
 
@@ -139,7 +139,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
     public void IsButsAndArrays()
     {
         var result = CompilationHelper.Compile(
-            new (string fileName, string fileContents)[] {
+            [
                     ("main.bicep", """
                         module keyVault_accessPolicies 'access-policy/main.bicep' = if (!empty(accessPolicies)) {
                         name: '${uniqueString(deployment().name, location)}-KeyVault-AccessPolicies'
@@ -182,7 +182,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                           }
                         }]
                         """),
-            });
+            ]);
 
         var links = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(result.Compilation.SourceFileGrouping);
 

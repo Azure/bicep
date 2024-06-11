@@ -183,12 +183,12 @@ output resourceARef string = resourceA.properties.myProp
         public void Existing_resources_can_be_referenced_at_other_scopes()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                     new TypeProperty("kind", LanguageConstants.String, TypePropertyFlags.ReadOnly, "kind property"),
-                }, null))
-            });
+                ], null))
+            ]);
 
             // explicitly pass a valid scope
             var (template, _, _) = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -226,11 +226,11 @@ output resourceARef string = resourceA.kind
         public void Errors_are_raised_for_existing_resources_at_invalid_scopes()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
-                }, null))
-            });
+                ], null))
+            ]);
 
             // explicitly pass an invalid scope
             var (_, diags, _) = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -240,10 +240,10 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 }
 "));
 
-            diags.Should().HaveDiagnostics(new[] {
+            diags.Should().HaveDiagnostics([
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"resourceA\" is declared but never used."),
                 ("BCP135", DiagnosticLevel.Error, "Scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
-            });
+            ]);
 
             // use an invalid targetScope without setting the scope property
             (_, diags, _) = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -254,21 +254,21 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 }
 "));
 
-            diags.Should().HaveDiagnostics(new[] {
+            diags.Should().HaveDiagnostics([
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"resourceA\" is declared but never used."),
                 ("BCP135", DiagnosticLevel.Error, "Scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
-            });
+            ]);
         }
 
         [TestMethod]
         public void Errors_are_raised_for_extensions_of_existing_resources_at_invalid_scopes()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
-                }, null))
-            });
+                ], null))
+            ]);
 
             // extension resource of an existing resource at an invalid scope
             var (_, diags, _) = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -283,20 +283,20 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
 }
 "));
 
-            diags.Should().HaveDiagnostics(new[] {
+            diags.Should().HaveDiagnostics([
                 ("BCP139", DiagnosticLevel.Error, "A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope."),
-            });
+            ]);
         }
 
         [TestMethod]
         public void Extensions_of_existing_resources_are_permitted()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
-                }, null))
-            });
+                ], null))
+            ]);
 
             // extension resource of an existing resource at an invalid scope
             var (template, diags, _) = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -326,11 +326,11 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
         public void Tenant_scope_resources_can_be_deployed_from_anywhere(string targetScope, bool tenantScopeExpected)
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.Tenant, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.Tenant, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
-                }, null))
-            });
+                ], null))
+            ]);
 
             var (template, diags, _) = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
 targetScope = 'TARGET_SCOPE'

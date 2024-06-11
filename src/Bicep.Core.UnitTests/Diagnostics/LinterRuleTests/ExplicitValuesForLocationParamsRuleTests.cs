@@ -84,10 +84,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     output o string = location
                    ")
             );
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
                 ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"location\"."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -165,10 +165,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     output o string = p1
                    ")
             );
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p1' of module 'm3' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -203,13 +203,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     output o string = p1
                    ")
             );
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p1' of module 'm1' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p2' of module 'm1' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p1' of module 'm2' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p2' of module 'm2' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -235,11 +235,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     output o string = '${p1}${p2}'
                    ")
             );
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
               ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
               (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p1' of module 'm3' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
-              (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p2' of module 'm3' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),});
+              (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p2' of module 'm3' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),]);
         }
 
         [TestMethod]
@@ -290,14 +290,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   ")
             );
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
               ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"pWithNoDefault\"."),
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p1' of module 'm' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p2' of module 'm' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p3' of module 'm' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p4' of module 'm' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
-             });
+             ]);
         }
 
         [TestMethod]
@@ -324,11 +324,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     output o string = myParam
                    ")
             );
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'myParam' of module 'm1' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
 
-            });
+            ]);
         }
 
         [TestMethod]
@@ -353,10 +353,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     output o string = whoops // error
                    ")
             );
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
                 ("BCP104", DiagnosticLevel.Error, "The referenced module has errors.")
-            });
+            ]);
         }
 
         [TestMethod]
@@ -374,10 +374,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                    ")
             );
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning,  "Parameter 'location' of module 'm2' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -397,10 +397,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                    ")
             );
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
                 (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'location' of module 'm3' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
-            });
+            ]);
         }
 
         [TestMethod]

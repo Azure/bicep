@@ -64,7 +64,7 @@ public record SourceFileGrouping(
 
     public ImmutableHashSet<ISourceFile> GetFilesDependingOn(ISourceFile sourceFile)
     {
-        var filesToCheck = new Queue<ISourceFile>(new[] { sourceFile });
+        var filesToCheck = new Queue<ISourceFile>([sourceFile]);
         var knownFiles = new HashSet<ISourceFile>();
 
         while (filesToCheck.TryDequeue(out var current))

@@ -64,7 +64,7 @@ namespace Bicep.Core.SourceCode
 
         private static readonly ImmutableHashSet<char> PathCharsToAvoid = Path.GetInvalidFileNameChars()
             .Union(Path.GetInvalidPathChars())
-            .Union(new char[] { '"', '*', ':', '&', '<', '>', '?', '\\', '/', '|', '+', '[', ']', '#' })
+            .Union(['"', '*', ':', '&', '<', '>', '?', '\\', '/', '|', '+', '[', ']', '#'])
             .Where(ch => ch != '/')
             .ToImmutableHashSet();
 

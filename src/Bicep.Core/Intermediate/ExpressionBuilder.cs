@@ -1520,7 +1520,7 @@ public class ExpressionBuilder
                 else if (Context.SemanticModel.TargetScope == ResourceScope.ResourceGroup)
                 {
                     // TODO: It's very suspicious that this doesn't reference scopeData.IndexExpression
-                    expressionEmitter.EmitProperty("subscriptionId", new FunctionExpression("subscription", [], new LanguageExpression[] { new JTokenExpression("subscriptionId") }));
+                    expressionEmitter.EmitProperty("subscriptionId", new FunctionExpression("subscription", [], [new JTokenExpression("subscriptionId")]));
                 }
                 return;
             case ResourceScope.ResourceGroup:

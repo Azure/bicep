@@ -46,9 +46,9 @@ namespace Bicep.Core.IntegrationTests
 
             var result = CompilationHelper.Compile(services, fileContent);
 
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP349", DiagnosticLevel.Error, "Using an assert declaration requires enabling EXPERIMENTAL feature \"Assertions\".")
-            });
+            ]);
 
             result = CompilationHelper.Compile(ServicesWithAsserts, fileContent);
 
@@ -58,9 +58,9 @@ namespace Bicep.Core.IntegrationTests
                 assert a1 = true
             """);
 
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP349", DiagnosticLevel.Error, "Using an assert declaration requires enabling EXPERIMENTAL feature \"Assertions\".")
-            });
+            ]);
 
             result = CompilationHelper.Compile(ServicesWithAsserts, """
                 assert a1 = true
@@ -98,9 +98,9 @@ namespace Bicep.Core.IntegrationTests
                     }
                 }
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP018", DiagnosticLevel.Error, "Expected the \":\" character at this location."),
-            });
+            ]);
 
             result = CompilationHelper.Compile(ServicesWithAsserts, """
                 param location string
@@ -118,30 +118,30 @@ namespace Bicep.Core.IntegrationTests
                     }
                 }
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
-            });
+            ]);
 
             result = CompilationHelper.Compile(ServicesWithAsserts, """
                 assert
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP344", DiagnosticLevel.Error, "Expected an assert identifier at this location."),
-            });
+            ]);
 
             result = CompilationHelper.Compile(ServicesWithAsserts, """
                 assert a1
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location."),
-            });
+            ]);
 
             result = CompilationHelper.Compile(ServicesWithAsserts, """
                 assert a1 =
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -166,12 +166,12 @@ namespace Bicep.Core.IntegrationTests
                 assert location = contains(location, 'west')
             """);
 
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"location\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP025", DiagnosticLevel.Error, "The property \"ra1\" is declared multiple times in this object. Remove or rename the duplicate properties."),
                 ("BCP025", DiagnosticLevel.Error, "The property \"ra1\" is declared multiple times in this object. Remove or rename the duplicate properties."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"location\" is declared multiple times. Remove or rename the duplicates."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -217,8 +217,8 @@ namespace Bicep.Core.IntegrationTests
                 """));
 
             result.Should().NotGenerateATemplate();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 ("BCP036", DiagnosticLevel.Error, "The property \"ra1\" expected a value of type \"bool\" but the provided value is of type \"0\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"ra5\" expected a value of type \"bool\" but the provided value is of type \"null\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"ra6\" expected a value of type \"bool\" but the provided value is of type \"[4, 5, 6]\"."),
@@ -231,7 +231,7 @@ namespace Bicep.Core.IntegrationTests
                 ("BCP350", DiagnosticLevel.Error, "Value of type \"[1, 2, 3]\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
                 ("BCP350", DiagnosticLevel.Error, "Value of type \"object\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
                 ("BCP350", DiagnosticLevel.Error, "Value of type \"string\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
-            });
+            ]);
         }
 
         [TestMethod]

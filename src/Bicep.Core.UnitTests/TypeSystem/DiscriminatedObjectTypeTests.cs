@@ -13,19 +13,19 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void DiscriminatedObjectType_should_be_correctly_instantiated()
         {
-            var objectA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectA = new ObjectType("objA", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("keyAProp", LanguageConstants.String),
-            }, null);
+            ], null);
 
-            var objectB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectB = new ObjectType("objB", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
                 new TypeProperty("keyBProp", LanguageConstants.String),
-            }, null);
+            ], null);
 
-            var discObj = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectA, objectB });
+            var discObj = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", [objectA, objectB]);
 
             discObj.UnionMembersByKey.Keys.Should().BeEquivalentTo("'keyA'", "'keyB'");
             discObj.TypeKind.Should().Be(TypeKind.DiscriminatedObject);
@@ -37,33 +37,33 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void DiscriminatedObject_should_throw_for_various_badly_formatted_object_arguments()
         {
-            var objectA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
-            {
+            var objectA = new ObjectType("objA", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("keyAProp", LanguageConstants.String),
-            }, null);
+            ], null);
 
-            var missingKeyObject = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
-            {
+            var missingKeyObject = new ObjectType("objB", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("keyBProp", LanguageConstants.String),
-            }, null);
-            Action missingKeyConstructorAction = () => new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectA, missingKeyObject });
+            ], null);
+            Action missingKeyConstructorAction = () => new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", [objectA, missingKeyObject]);
             missingKeyConstructorAction.Should().Throw<ArgumentException>();
 
-            var invalidKeyTypeObject = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
-            {
+            var invalidKeyTypeObject = new ObjectType("objB", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", LanguageConstants.String),
                 new TypeProperty("keyBProp", LanguageConstants.String),
-            }, null);
-            Action invalidKeyTypeConstructorAction = () => new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectA, invalidKeyTypeObject });
+            ], null);
+            Action invalidKeyTypeConstructorAction = () => new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", [objectA, invalidKeyTypeObject]);
             invalidKeyTypeConstructorAction.Should().Throw<ArgumentException>();
 
-            var duplicateKeyObject = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
-            {
+            var duplicateKeyObject = new ObjectType("objB", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("keyBProp", LanguageConstants.String),
-            }, null);
-            Action duplicateKeyConstructorAction = () => new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectA, duplicateKeyObject });
+            ], null);
+            Action duplicateKeyConstructorAction = () => new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", [objectA, duplicateKeyObject]);
             duplicateKeyConstructorAction.Should().Throw<ArgumentException>();
         }
     }

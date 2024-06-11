@@ -92,7 +92,7 @@ public class DiagnosticLogger
         // Add the results from the run to the sarif log, serialize and write to stderr.
         var sarifLog = new SarifLog
         {
-            Runs = new[] {
+            Runs = [
                 new Run {
                     Tool = new Tool(new ToolComponent
                     {
@@ -100,7 +100,7 @@ public class DiagnosticLogger
                     }, null, null),
                     Results = results,
                 }
-            }
+            ]
         };
 
         var settings = new JsonSerializerSettings
@@ -128,8 +128,8 @@ public class DiagnosticLogger
             {
                 Text = $"{diagnostic.Message}{codeDescription}",
             },
-            Locations = new[]
-            {
+            Locations =
+            [
                 new Location
                 {
                     PhysicalLocation = new PhysicalLocation
@@ -145,7 +145,7 @@ public class DiagnosticLogger
                         }
                     }
                 }
-            }
+            ]
         };
     }
 

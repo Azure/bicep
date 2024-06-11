@@ -53,9 +53,9 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
   " + $"{property}: {value}" + @"
 }
 ");
-            compilation.Should().HaveDiagnostics(new[] {
+            compilation.Should().HaveDiagnostics([
                 ("BCP187", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            });
+            ]);
         }
 
         [DynamicData(nameof(FallbackProperties))]
@@ -73,9 +73,9 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
   }
 }
 ");
-            compilation.Should().HaveDiagnostics(new[] {
+            compilation.Should().HaveDiagnostics([
                 ("BCP037", DiagnosticLevel.Warning, $"The property \"{property}\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            });
+            ]);
         }
 
         [DynamicData(nameof(FallbackProperties))]
@@ -95,9 +95,9 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
   properties: props
 }
 ");
-            compilation.Should().HaveDiagnostics(new[] {
+            compilation.Should().HaveDiagnostics([
                 ("BCP037", DiagnosticLevel.Warning, $"The property \"{property}\" from source declaration \"props\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            });
+            ]);
         }
 
         [DynamicData(nameof(FallbackProperties))]
@@ -116,9 +116,9 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 
 var value = fallbackProperty." + property + @"
 ");
-            compilation.Should().HaveDiagnostics(new[] {
+            compilation.Should().HaveDiagnostics([
                 ("BCP187", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            });
+            ]);
         }
 
         [DynamicData(nameof(FallbackProperties))]
@@ -174,9 +174,9 @@ output outputa string = '${inputa}-${inputb}'
 
             var compilation = Services.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
 
-            compilation.Should().HaveDiagnostics(new[] {
+            compilation.Should().HaveDiagnostics([
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"scope\".")
-            });
+            ]);
         }
 
         [DynamicData(nameof(FallbackProperties))]
@@ -215,9 +215,9 @@ output outputa string = '${inputa}-${inputb}'
 
             var compilation = Services.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
 
-            compilation.Should().HaveDiagnostics(new[] {
+            compilation.Should().HaveDiagnostics([
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" is not allowed on objects of type \"params\". Permissible properties include \"inputc\".")
-            });
+            ]);
         }
 
         [DynamicData(nameof(FallbackProperties))]
@@ -258,10 +258,10 @@ output outputa string = '${inputa}-${inputb}'
 
             var compilation = Services.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
 
-            compilation.Should().HaveDiagnostics(new[] {
+            compilation.Should().HaveDiagnostics([
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" from source declaration \"inputs\" is not allowed on objects of type \"params\". Permissible properties include \"inputc\"."),
                 ("BCP183", DiagnosticLevel.Error, "The value of the module \"params\" property must be an object literal."),
-            });
+            ]);
         }
 
         [DynamicData(nameof(FallbackProperties))]
@@ -297,9 +297,9 @@ output outputa string = '${inputa}-${inputb}'
 
             var compilation = Services.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
 
-            compilation.Should().HaveDiagnostics(new[] {
+            compilation.Should().HaveDiagnostics([
                 ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"name\", \"outputs\".")
-            });
+            ]);
         }
 
         /// <summary>
@@ -309,13 +309,13 @@ output outputa string = '${inputa}-${inputb}'
         public void Test_Issue5960_case1()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
                     new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
-                }, null))
-            });
+                ], null))
+            ]);
 
             // explicitly pass a valid scope
             var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -324,10 +324,10 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
   systemRequired: 'value'
 }
 "));
-            result.Should().GenerateATemplate().And.HaveDiagnostics(new[]
-            {
+            result.Should().GenerateATemplate().And.HaveDiagnostics(
+            [
                 ("BCP035", DiagnosticLevel.Warning, "The specified \"resource\" declaration is missing the following required properties: \"required\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
-            });
+            ]);
         }
 
         /// <summary>
@@ -337,13 +337,13 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         public void Test_Issue5960_case2()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
                     new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
-                }, null))
-            });
+                ], null))
+            ]);
 
             // explicitly pass a valid scope
             var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -352,10 +352,10 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
   required: 'value'
 }
 "));
-            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
-            {
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(
+            [
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"systemRequired\".")
-            });
+            ]);
         }
 
         /// <summary>
@@ -365,13 +365,13 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         public void Test_Issue5960_case3()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
                     new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
-                }, null))
-            });
+                ], null))
+            ]);
 
             // explicitly pass a valid scope
             var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -379,10 +379,10 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
   name: 'resourceA'
 }
 "));
-            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
-            {
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(
+            [
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"required\", \"systemRequired\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
-            });
+            ]);
         }
 
         /// <summary>
@@ -392,12 +392,12 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         public void Test_Issue5960_case4()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
-                }, null))
-            });
+                ], null))
+            ]);
 
             // explicitly pass a valid scope
             var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -405,10 +405,10 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
   name: 'name'
 }
 "));
-            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
-            {
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(
+            [
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"systemRequired\".")
-            });
+            ]);
         }
 
         /// <summary>
@@ -422,10 +422,10 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
 module mod 'mod.bicep' = {
 }
 "), ("mod.bicep", ""));
-            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
-            {
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(
+            [
                 ("BCP035", DiagnosticLevel.Error, "The specified \"module\" declaration is missing the following required properties: \"name\".")
-            });
+            ]);
         }
 
         /// <summary>
@@ -435,12 +435,12 @@ module mod 'mod.bicep' = {
         public void Test_Issue5960_case6()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.Object, TypePropertyFlags.Required, "required property"),
-                }, null))
-            });
+                ], null))
+            ]);
 
             // explicitly pass a valid scope
             var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -450,10 +450,10 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
     required: str
 }
 "));
-            result.Should().GenerateATemplate().And.HaveDiagnostics(new[]
-            {
+            result.Should().GenerateATemplate().And.HaveDiagnostics(
+            [
                 ("BCP036", DiagnosticLevel.Warning, "The property \"required\" expected a value of type \"object\" but the provided value is of type \"string\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
-            });
+            ]);
         }
         /// <summary>
         /// https://github.com/Azure/bicep/issues/5960
@@ -462,12 +462,12 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         public void Test_Issue5960_case7()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("systemRequired", LanguageConstants.Object, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty, "system required property"),
-                }, null))
-            });
+                ], null))
+            ]);
 
             // explicitly pass a valid scope
             var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -477,10 +477,10 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
     systemRequired: str
 }
 "));
-            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
-            {
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(
+            [
                 ("BCP036", DiagnosticLevel.Error, "The property \"systemRequired\" expected a value of type \"object\" but the provided value is of type \"string\".")
-            });
+            ]);
         }
         /// <summary>
         /// https://github.com/Azure/bicep/issues/5960
@@ -489,13 +489,13 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         public void Test_Issue5960_case8()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes([
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("systemRequired", LanguageConstants.Object, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty, "system required property"),
                     new TypeProperty("required", LanguageConstants.Object, TypePropertyFlags.Required, "required property"),
-                }, null))
-            });
+                ], null))
+            ]);
 
             // explicitly pass a valid scope
             var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
@@ -506,11 +506,11 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
     required: str
 }
 "));
-            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
-            {
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(
+            [
                 ("BCP036", DiagnosticLevel.Error, "The property \"systemRequired\" expected a value of type \"object\" but the provided value is of type \"string\"."),
                 ("BCP036", DiagnosticLevel.Warning, "The property \"required\" expected a value of type \"object\" but the provided value is of type \"string\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
-            });
+            ]);
         }
 
         /// <summary>
@@ -553,10 +553,10 @@ resource res 'My.Rp/myResource@2020-01-01' = {
   kind: 'otherValue'
 }
 "));
-            result.Should().GenerateATemplate().And.HaveDiagnostics(new[]
-            {
+            result.Should().GenerateATemplate().And.HaveDiagnostics(
+            [
                 ("BCP036", DiagnosticLevel.Warning, "The property \"kind\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'otherValue'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
-            });
+            ]);
         }
     }
 }

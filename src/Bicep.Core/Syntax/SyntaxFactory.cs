@@ -138,11 +138,11 @@ namespace Bicep.Core.Syntax
             var rangeSyntax = new FunctionCallSyntax(
                 CreateIdentifier("range"),
                 LeftParenToken,
-                new SyntaxBase[] {
+                [
                     new FunctionArgumentSyntax(new IntegerLiteralSyntax(CreateFreeformToken(TokenType.Integer, "0"), 0)),
                     CommaToken,
                     new FunctionArgumentSyntax(count),
-                },
+                ],
                 RightParenToken);
 
             return CreateForSyntax(indexIdentifier, rangeSyntax, body);
@@ -279,9 +279,9 @@ namespace Bicep.Core.Syntax
             var endToken = CreateStringInterpolationToken(false, true, "");
 
             return new StringSyntax(
-                new[] { startToken, endToken },
+                [startToken, endToken],
                 syntax.AsEnumerable(),
-                new[] { "", "" });
+                ["", ""]);
         }
 
         public static Token CreateStringInterpolationToken(bool isStart, bool isEnd, string value)

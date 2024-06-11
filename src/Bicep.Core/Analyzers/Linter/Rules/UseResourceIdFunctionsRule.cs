@@ -50,7 +50,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         //   an exact resource type, plus some of them occur in multiple resource types.
 
         // Resource type is a regex pattern (case-insensitive), property name is an exact match (case-insensitive)
-        private static readonly Exclusion[] allowedResourcesAndProperties = new[] {
+        private static readonly Exclusion[] allowedResourcesAndProperties = [
             new Exclusion(null, "appId"),                       // Example: Microsoft.Insights
                 new Exclusion(null, "appId"),                       // Example: Microsoft.Insights
                 new Exclusion(null, "clientId"),                    // Example: Microsoft.BotService - common var name
@@ -104,7 +104,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 // Specific properties of specific resource types
                 new Exclusion("^Microsoft.ApiManagement/service/subscriptions$", "ownerId"), // #8382
-            };
+            ];
 
         internal record Failure(
             ObjectPropertySyntax Property,

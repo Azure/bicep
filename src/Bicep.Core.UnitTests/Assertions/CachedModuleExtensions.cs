@@ -51,10 +51,10 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<CachedModuleAssertions> BeValid()
         {
-            var expectedFiles = new List<string>(new string[]
-                {
+            var expectedFiles = new List<string>(
+                [
                     "lock", "main.json", "manifest", "metadata",
-            });
+            ]);
 
             if (Subject.HasSourceLayer)
             {

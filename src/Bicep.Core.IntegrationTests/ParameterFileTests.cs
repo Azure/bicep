@@ -75,10 +75,10 @@ using './one.bicepparam'
         using (new AssertionScope())
         {
             result.Parameters.Should().BeNull();
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
+            result.Diagnostics.Should().HaveDiagnostics(
+            [
                     ("BCP261", DiagnosticLevel.Error, "A using declaration must be present in this parameters file.")
-                });
+                ]);
         }
     }
 
@@ -92,9 +92,9 @@ param fromEnv=readEnvironmentVariable('stringEnvVariable')
 "),
 ("foo.bicep", @"param fromEnv string"));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]{
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP338", DiagnosticLevel.Error,
-                "Failed to evaluate parameter \"stringEnvVariable\": Environment variable does not exist, and no default value set")});
+                "Failed to evaluate parameter \"stringEnvVariable\": Environment variable does not exist, and no default value set")]);
     }
 
     [TestMethod]
@@ -151,10 +151,10 @@ param foo string
 "));
 
         result.Should().NotGenerateParameters();
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("BCP065", DiagnosticLevel.Error, """Function "utcNow" is not valid at this location. It can only be used as a parameter default value."""),
             ("BCP062", DiagnosticLevel.Error, """The referenced declaration with name "abc" is not valid."""),
-        });
+        ]);
     }
 
     [TestMethod]

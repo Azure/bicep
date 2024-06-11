@@ -24,15 +24,15 @@ resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
 }
 ").Compilation;
 
-            var output = PrintHelper.PrintWithAnnotations(compilation.GetEntrypointSemanticModel().SourceFile, new[] {
+            var output = PrintHelper.PrintWithAnnotations(compilation.GetEntrypointSemanticModel().SourceFile, [
                 new PrintHelper.Annotation(new TextSpan(26, 18), "what is this!?"),
                 // 0 length span should produce a '^' rather than a '~'
                 new PrintHelper.Annotation(new TextSpan(80, 0), "oh, hi!"),
                 new PrintHelper.Annotation(new TextSpan(129, 14), "i can't believe you've done this"),
-            }, 1, true);
+            ], 1, true);
 
             output.Should().Be(
-@"1| 
+@"1|
 2| resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
                             ~~~~~~~~~~~~~~~~~~ what is this!?
 3|   name: 'hello'
@@ -63,7 +63,7 @@ care
 about
 '''
 
-// 
+//
 // give me a cursor here please!
 //
 
@@ -83,12 +83,12 @@ about
 '''
 ").Compilation;
 
-            var output = PrintHelper.PrintWithAnnotations(compilation.GetEntrypointSemanticModel().SourceFile, new[] {
+            var output = PrintHelper.PrintWithAnnotations(compilation.GetEntrypointSemanticModel().SourceFile, [
                 new PrintHelper.Annotation(new TextSpan(108, 4), "here's your cursor!"),
-            }, 1, true);
+            ], 1, true);
 
             output.Should().Be(
-@"16| // 
+@"16| //
 17| // give me a cursor here please!
                         ~~~~ here's your cursor!
 18| //

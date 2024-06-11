@@ -289,8 +289,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             static object[] CreateRow(TypeSymbol expectedReturnType, params TypeSymbol[] argumentTypes)
                 => [argumentTypes.ToList(), expectedReturnType];
 
-            return new[]
-            {
+            return
+            [
                 CreateRow(TypeFactory.CreateStringLiteralType("++++0"),
                     TypeFactory.CreateIntegerLiteralType(0),
                     TypeFactory.CreateIntegerLiteralType(5),
@@ -304,7 +304,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(TypeFactory.CreateStringType(20, 20),
                     TypeFactory.CreateStringType(1, 10),
                     TypeFactory.CreateIntegerLiteralType(20)),
-            };
+            ];
         }
 
         [TestMethod]
@@ -347,8 +347,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             static object[] CreateRow(TypeSymbol argumentType, TypeSymbol returnType)
                 => [argumentType, returnType];
 
-            return new[]
-            {
+            return
+            [
                 CreateRow(TypeFactory.CreateStringLiteralType("boo!"),
                     TypeFactory.CreateIntegerLiteralType(4)),
                 CreateRow(TypeFactory.CreateStringType(3, 3),
@@ -362,54 +362,50 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TypeFactory.CreateIntegerType(0)),
                 CreateRow(new ObjectType("object",
                     default,
-                    new TypeProperty[] { new("prop", LanguageConstants.Any, TypePropertyFlags.Required) },
+                    [new("prop", LanguageConstants.Any, TypePropertyFlags.Required)],
                     null),
                     TypeFactory.CreateIntegerLiteralType(1)),
                 CreateRow(new ObjectType("object",
                     default,
-                    new TypeProperty[]
-                    {
+                    [
                         new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
                         new("prop2", LanguageConstants.Any),
-                    },
+                    ],
                     null),
                     TypeFactory.CreateIntegerType(1, 2)),
                 CreateRow(new ObjectType("object",
                     default,
-                    new TypeProperty[]
-                    {
+                    [
                         new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
                         new("prop2", LanguageConstants.Any),
-                    },
+                    ],
                     LanguageConstants.Any),
                     TypeFactory.CreateIntegerType(1)),
 
-                CreateRow(new DiscriminatedObjectType("discriminated", default, "type", new[]
-                {
+                CreateRow(new DiscriminatedObjectType("discriminated", default, "type",
+                [
                     new ObjectType("object",
                         default,
-                        new TypeProperty[]
-                        {
+                        [
                             new("type", TypeFactory.CreateStringLiteralType("fizz"), TypePropertyFlags.Required),
                             new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
-                        },
+                        ],
                         null),
                     new ObjectType("object",
                         default,
-                        new TypeProperty[]
-                        {
+                        [
                             new("type", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
                             new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
                             new("prop2", LanguageConstants.Any),
-                        },
+                        ],
                         null),
-                }), TypeFactory.CreateIntegerType(2, 3)),
+                ]), TypeFactory.CreateIntegerType(2, 3)),
 
                 CreateRow(TypeFactory.CreateArrayType(1, 10, default),
                     TypeFactory.CreateIntegerType(1, 10)),
                 CreateRow(new TupleType("tuple", [LanguageConstants.Object, LanguageConstants.String, LanguageConstants.Int], default),
                     TypeFactory.CreateIntegerLiteralType(3)),
-            };
+            ];
         }
 
         [DataTestMethod]
@@ -428,8 +424,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             static object[] CreateRow(TypeSymbol typeToJoin, TypeSymbol delimiterType, TypeSymbol returnType)
                 => [typeToJoin, delimiterType, returnType];
 
-            return new[]
-            {
+            return
+            [
                 CreateRow(LanguageConstants.Array, LanguageConstants.String, LanguageConstants.String),
                 CreateRow(new TypedArrayType(TypeFactory.CreateStringType(1, 10), default, 1, 10),
                     TypeFactory.CreateStringLiteralType("/"),
@@ -449,7 +445,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(new TupleType("tuple", [TypeFactory.CreateIntegerType(0, 9), TypeFactory.CreateIntegerType(0, 9)], default),
                     TypeFactory.CreateStringType(),
                     TypeFactory.CreateStringType(2)),
-            };
+            ];
         }
 
         [DataTestMethod]
@@ -467,8 +463,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             static object[] CreateRow(TypeSymbol expectedReturnType, params TypeSymbol[] argumentTypes)
                 => [argumentTypes.ToList(), expectedReturnType];
 
-            return new[]
-            {
+            return
+            [
                 CreateRow(LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int),
                 CreateRow(LanguageConstants.String, LanguageConstants.Any, LanguageConstants.Int),
                 CreateRow(LanguageConstants.String, LanguageConstants.String, LanguageConstants.Any),
@@ -486,7 +482,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(TypeFactory.CreateStringType(null, 10), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(50)),
                 CreateRow(TypeFactory.CreateStringType(4, 5), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateIntegerLiteralType(5)),
                 CreateRow(TypeFactory.CreateStringType(2, 2), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateIntegerLiteralType(2)),
-            };
+            ];
         }
 
         [DataTestMethod]
@@ -505,8 +501,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             static object[] CreateRow(TypeSymbol originalValue, TypeSymbol numberToSkip, TypeSymbol expectedReturn)
                 => [originalValue, numberToSkip, expectedReturn];
 
-            return new[]
-            {
+            return
+            [
                 CreateRow(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String),
                 CreateRow(LanguageConstants.String, LanguageConstants.Any, LanguageConstants.String),
                 CreateRow(LanguageConstants.SecureString, LanguageConstants.Int, LanguageConstants.SecureString),
@@ -529,7 +525,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateArrayType(minLength: null, 9)),
                 CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(15), TypeFactory.CreateArrayType(minLength: null, 0)),
                 CreateRow(TypeFactory.CreateArrayType(5, 10), TypeFactory.CreateIntegerType(2, 3), TypeFactory.CreateArrayType(2, 8)),
-            };
+            ];
         }
 
         [DataTestMethod]
@@ -548,8 +544,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             static object[] CreateRow(TypeSymbol originalValue, TypeSymbol numberToTake, TypeSymbol expectedReturn)
                 => [originalValue, numberToTake, expectedReturn];
 
-            return new[]
-            {
+            return
+            [
                 CreateRow(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String),
                 CreateRow(LanguageConstants.String, LanguageConstants.Any, LanguageConstants.String),
                 CreateRow(LanguageConstants.SecureString, LanguageConstants.Int, LanguageConstants.SecureString),
@@ -574,7 +570,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(15), TypeFactory.CreateArrayType(1, 10)),
                 CreateRow(TypeFactory.CreateArrayType(5, 10), TypeFactory.CreateIntegerType(2, 3), TypeFactory.CreateArrayType(2, 3)),
                 CreateRow(TypeFactory.CreateArrayType(5, 8), TypeFactory.CreateIntegerType(2, 10), TypeFactory.CreateArrayType(2, 8)),
-            };
+            ];
         }
 
         [TestMethod]
@@ -604,8 +600,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             static object[] CreateRow(TypeSymbol startIndex, TypeSymbol count, TypeSymbol expectedReturn)
                 => [startIndex, count, expectedReturn];
 
-            return new[]
-            {
+            return
+            [
                 CreateRow(LanguageConstants.Any, LanguageConstants.Int, TypeFactory.CreateArrayType(LanguageConstants.Int)),
                 CreateRow(LanguageConstants.Int, LanguageConstants.Any, TypeFactory.CreateArrayType(LanguageConstants.Int)),
                 CreateRow(LanguageConstants.Int, LanguageConstants.Int, TypeFactory.CreateArrayType(LanguageConstants.Int)),
@@ -628,7 +624,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(TypeFactory.CreateIntegerLiteralType(10),
                     TypeHelper.CreateTypeUnion(TypeFactory.CreateIntegerType(0, 11), TypeFactory.CreateIntegerType(19, 30), TypeFactory.CreateIntegerType(9, 20), TypeFactory.CreateIntegerLiteralType(10)),
                     TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(10, 39), 0, 30)),
-            };
+            ];
         }
 
         private FunctionResult EvaluateFunction(string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments)
@@ -643,21 +639,21 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 [.. argumentTypes]);
         }
 
-        private static IEnumerable<object[]> GetInputsThatFlattenToArrayOfAny() => new[]
-        {
-            new object[] { LanguageConstants.Any },
+        private static IEnumerable<object[]> GetInputsThatFlattenToArrayOfAny() =>
+        [
+            [LanguageConstants.Any],
             [LanguageConstants.Array],
             [TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), LanguageConstants.Any)],
             [TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), LanguageConstants.Array)],
             [TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.Array, default))],
             [new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.Any), default)],
             [new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.Array), default)],
-        };
+        ];
 
-        private static IEnumerable<object[]> GetFlattenPositiveTestCases() => new[]
-        {
+        private static IEnumerable<object[]> GetFlattenPositiveTestCases() =>
+        [
             // flatten(string[][]) -> string[]
-            new object[] { new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.String, default) },
+            [new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.String, default)],
             // flatten((string[] | int[])[]) -> (string | int)[]
             [
                 new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), new TypedArrayType(LanguageConstants.Int, default)), default),
@@ -694,12 +690,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     default),
                 new TypedArrayType(TypeHelper.CreateTypeUnion(TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(2), TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerLiteralType(4)), default),
             ],
-        };
+        ];
 
-        private static IEnumerable<object[]> GetFlattenNegativeTestCases() => new[]
-        {
+        private static IEnumerable<object[]> GetFlattenNegativeTestCases() =>
+        [
             // flatten(string[]) -> <error>
-            new object[] { new TypedArrayType(LanguageConstants.String, default), @"Values of type ""string[]"" cannot be flattened because ""string"" is not an array type." },
+            [new TypedArrayType(LanguageConstants.String, default), @"Values of type ""string[]"" cannot be flattened because ""string"" is not an array type."],
             // flatten((string[] | string)[]) -> <error>
             [new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.String), default), @"Values of type ""(string | string[])[]"" cannot be flattened because ""string"" is not an array type."],
             // flatten((string[] | string | int)[]) -> <error>
@@ -713,16 +709,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.Bool, default)),
                 @"Values of type ""bool[] | string[][]"" cannot be flattened because ""bool"" is not an array type.",
             ],
-        };
+        ];
 
-        private static IEnumerable<object[]> GetFirstTestCases() => new[]
-        {
+        private static IEnumerable<object[]> GetFirstTestCases() =>
+        [
             // first(resourceGroup[]) -> resourceGroup | null
-            new object[]
-            {
+            [
                 new TypedArrayType(LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup), default),
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
-            },
+            ],
             // first(string[] {@minLength(1)}) -> string
             [
                 new TypedArrayType(LanguageConstants.String, default, minLength: 1),
@@ -757,16 +752,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TypeFactory.CreateStringType(1),
                 TypeFactory.CreateStringType(1, 1),
             ],
-        };
+        ];
 
-        private static IEnumerable<object[]> GetLastTestCases() => new[]
-        {
+        private static IEnumerable<object[]> GetLastTestCases() =>
+        [
             // last(resourceGroup[]) -> resourceGroup | null
-            new object[]
-            {
+            [
                 new TypedArrayType(LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup), default),
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
-            },
+            ],
             // last(string[] {@minLength(1)}) -> string
             [
                 new TypedArrayType(LanguageConstants.String, default, minLength: 1),
@@ -801,7 +795,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TypeFactory.CreateStringType(1),
                 TypeFactory.CreateStringType(1, 1),
             ],
-        };
+        ];
 
         private static IEnumerable<object[]> GetLiteralTransformations()
         {
@@ -839,8 +833,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 return [displayName, functionName, argumentTypeLiterals, argumentLiteralSyntaxes, ToTypeLiteral(returnedLiteral)];
             }
 
-            return new[]
-            {
+            return
+            [
                 CreateRow("IEZpenog", "base64", " Fizz "),
                 CreateRow(" Fizz ", "base64ToString", "IEZpenog"),
                 CreateRow("data:text/plain;charset=utf-8;base64,IEZpenog", "dataUri", " Fizz "),
@@ -858,7 +852,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow("1/2/3/True", "format", "{0}/{1}/{2}/{3}", 1, 2, 3, true),
                 CreateRow("   00", "padLeft", "00", 5, " "),
                 CreateRow(5, "length", "table"),
-                CreateRow(5, "length", new[] { new[] { 1, 2, 3, 4, 5 } }),
+                CreateRow(5, "length", [new[] { 1, 2, 3, 4, 5 }]),
                 CreateRow("https://github.com/Azure/bicep", "uri", "https://github.com/another/repo", "/Azure/bicep"),
                 CreateRow("foo", "substring", "foot", 0, 3),
                 CreateRow("foo", "take", "foot", 3),
@@ -876,17 +870,17 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(true, "contains", new[] { "fizz", "buzz", "pop" }, "fizz"),
                 CreateRow(new[] { "pop" }, "intersection", new[] { "fizz", "buzz", "pop" }, new[] { "snap", "crackle", "pop" }),
                 CreateRow(new[] { "fizz", "buzz", "pop" }, "union", new[] { "fizz", "buzz" }, new[] { "pop" }),
-                CreateRow("fizz", "first", new[] { new[] { "fizz", "buzz", "pop" } }),
-                CreateRow(null, "first", new[] { Array.Empty<string>() }),
-                CreateRow("pop", "last", new[] { new[] { "fizz", "buzz", "pop" } }),
-                CreateRow(null, "last", new[] { Array.Empty<string>() }),
+                CreateRow("fizz", "first", [new[] { "fizz", "buzz", "pop" }]),
+                CreateRow(null, "first", [Array.Empty<string>()]),
+                CreateRow("pop", "last", [new[] { "fizz", "buzz", "pop" }]),
+                CreateRow(null, "last", [Array.Empty<string>()]),
                 CreateRow(0, "indexOf", new[] { "fizz", "buzz", "pop", "fizz" }, "fizz"),
                 CreateRow(3, "lastIndexOf", new[] { "fizz", "buzz", "pop", "fizz" }, "fizz"),
                 CreateRow(1, "min", new[] { 10, 4, 1, 6 }),
                 CreateRow(10, "max", new[] { 10, 4, 1, 6 }),
                 CreateRow("foo/bar/baz", "join", new[] { "foo", "bar", "baz"}, "/"),
                 CreateRow("abc/123/True", "join", new object[] { "abc", 123, true }, "/"),
-            };
+            ];
         }
 
         public static string GetDisplayName(MethodInfo method, object[] row)

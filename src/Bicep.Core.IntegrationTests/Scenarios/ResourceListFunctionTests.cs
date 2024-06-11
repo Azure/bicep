@@ -91,11 +91,11 @@ var disallowed = {
   c: stg.totallyMadeUpMethod()
 }
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP109", DiagnosticLevel.Error, "The type \"Microsoft.Storage/storageAccounts\" does not contain function \"lis\"."),
                 ("BCP109", DiagnosticLevel.Error, "The type \"Microsoft.Storage/storageAccounts\" does not contain function \"lsit\"."),
                 ("BCP109", DiagnosticLevel.Error, "The type \"Microsoft.Storage/storageAccounts\" does not contain function \"totallyMadeUpMethod\"."),
-            });
+            ]);
         }
     }
 }

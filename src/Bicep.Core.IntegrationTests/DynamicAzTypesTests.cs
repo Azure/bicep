@@ -80,9 +80,9 @@ namespace Bicep.Core.IntegrationTests
             ");
 
             result.Should().NotGenerateATemplate();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -166,9 +166,9 @@ namespace Bicep.Core.IntegrationTests
             // ASSERT
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(
-                new[] {
+                [
                 ("BCP192", DiagnosticLevel.Error, """Unable to restore the artifact with reference "br:mcr.microsoft.com/bicep/providers/az:0.2.661": The OCI artifact is not a valid Bicep artifact. Expected a provider, but retrieved a module."""),
-            });
+            ]);
         }
 
         [TestMethod]

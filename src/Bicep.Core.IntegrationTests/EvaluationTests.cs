@@ -998,11 +998,11 @@ param param2 = {
 
         var result = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
                 ("BCP368", DiagnosticLevel.Error, "The value of the \"param1\" parameter cannot be known until the template deployment has started because it uses a reference to a secret value in Azure Key Vault. Expressions that refer to the \"param1\" parameter may be used in .bicep files but not in .bicepparam files."),
                 ("BCP368", DiagnosticLevel.Error, "The value of the \"param1\" parameter cannot be known until the template deployment has started because it uses a reference to a secret value in Azure Key Vault. Expressions that refer to the \"param1\" parameter may be used in .bicep files but not in .bicepparam files."),
-            });
+            ]);
     }
 
     [TestMethod]
@@ -1025,11 +1025,11 @@ param param2 = {
 
         var result = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
                 ("BCP369", DiagnosticLevel.Error, "The value of the \"param1\" parameter cannot be known until the template deployment has started because it uses the default value defined in the template. Expressions that refer to the \"param1\" parameter may be used in .bicep files but not in .bicepparam files."),
                 ("BCP369", DiagnosticLevel.Error, "The value of the \"param1\" parameter cannot be known until the template deployment has started because it uses the default value defined in the template. Expressions that refer to the \"param1\" parameter may be used in .bicep files but not in .bicepparam files."),
-            });
+            ]);
     }
 
     [TestMethod]

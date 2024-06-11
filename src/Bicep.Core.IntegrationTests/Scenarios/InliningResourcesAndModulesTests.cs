@@ -490,10 +490,10 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
 }
 "));
 
-            result.ExcludingLinterDiagnostics().Should().GenerateATemplate().And.HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().GenerateATemplate().And.HaveDiagnostics([
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"My.Rp/myResourceType@2020-01-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"My.Rp/myResourceType@2020-01-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.")
-            });
+            ]);
             using (new AssertionScope())
             {
                 result.Template.Should().NotHaveValueAtPath("$.variables", "variable should not be generated");

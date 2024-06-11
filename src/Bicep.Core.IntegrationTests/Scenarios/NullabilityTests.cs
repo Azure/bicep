@@ -23,10 +23,10 @@ public class NullabilityTests
     public void Unexpectedly_nullable_types_raise_fixable_warning(string templateWithNullablyTypedValue, string templateWithNonNullAssertion, TypeSymbol expectedType, TypeSymbol actualType)
     {
         var result = CompilationHelper.Compile(templateWithNullablyTypedValue);
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP321", DiagnosticLevel.Warning, $@"Expected a value of type ""{expectedType}"" but the provided value is of type ""{actualType}""."),
-        });
+        ]);
         result.Template.Should().NotBeNull();
 
         result.ExcludingLinterDiagnostics().Diagnostics.Single().Should().BeAssignableTo<IFixable>();
@@ -37,16 +37,16 @@ public class NullabilityTests
 
     private static IEnumerable<object[]> GetTemplatesWithSingleUnexpectedlyNullableValue()
     {
-        static object[] Case(string templateWithNullablyTypedValue, string templateWithNonNullAssertion, TypeSymbol expectedType, TypeSymbol actualType) => new object[]
-        {
+        static object[] Case(string templateWithNullablyTypedValue, string templateWithNonNullAssertion, TypeSymbol expectedType, TypeSymbol actualType) =>
+        [
             templateWithNullablyTypedValue,
             templateWithNonNullAssertion,
             expectedType,
             actualType,
-        };
+        ];
 
-        return new[]
-        {
+        return
+        [
             // nullably typed property assignment
             Case(
 @"
@@ -208,7 +208,7 @@ param anotherParam string = first(filter(split(csv, ','), x => true))!
                 LanguageConstants.String,
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.String)
             ),
-        };
+        ];
     }
 
     [TestMethod]
@@ -221,11 +221,11 @@ output out array = split(first(input), last(input))
 ");
 
         result.Template.Should().NotBeNull();
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""string"" but the provided value is of type ""null | string""."),
             ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""array | string"" but the provided value is of type ""null | string""."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -237,9 +237,9 @@ param input string[]
 output out array = split(first(input), 21)
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP070", DiagnosticLevel.Error, @"Argument of type ""21"" is not assignable to parameter of type ""array | string""."),
-        });
+        ]);
     }
 }

@@ -23,7 +23,7 @@ namespace Bicep.RegistryModuleTool.Extensions
             var enumerableArray = enumerable.ToArray();
             var maximumColumnWidths = enumerableArray
                 .Select(item => properties.Select(property => property.GetValue(item)?.ToString()?.Length ?? 0))
-                .Union(new[] { properties.Select(property => property.Name.Length) })
+                .Union([properties.Select(property => property.Name.Length)])
                 .Aggregate(new int[properties.Length].AsEnumerable(), (maximumWidths, widths) => maximumWidths.Zip(widths, Math.Max))
                 .ToArray();
 

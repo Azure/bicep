@@ -48,7 +48,7 @@ namespace Bicep.Core.UnitTests.Registry
         public void ShouldCreateExpectedSingleItemChain()
         {
             var f = new TokenCredentialFactory();
-            var credential = f.CreateChain(new[] { CredentialType.VisualStudioCode }, null, exampleAuthorityUri);
+            var credential = f.CreateChain([CredentialType.VisualStudioCode], null, exampleAuthorityUri);
             AssertCredentialTypes(credential, typeof(VisualStudioCodeCredential));
         }
 
@@ -56,7 +56,7 @@ namespace Bicep.Core.UnitTests.Registry
         public void ShouldCreateExpectedMultiItemChain()
         {
             var f = new TokenCredentialFactory();
-            var credential = f.CreateChain(new[] { CredentialType.AzureCLI, CredentialType.ManagedIdentity, CredentialType.VisualStudio }, null, exampleAuthorityUri);
+            var credential = f.CreateChain([CredentialType.AzureCLI, CredentialType.ManagedIdentity, CredentialType.VisualStudio], null, exampleAuthorityUri);
             AssertCredentialTypes(credential, typeof(AzureCliCredential), typeof(ManagedIdentityCredential), typeof(VisualStudioCredential));
         }
 
@@ -67,7 +67,7 @@ namespace Bicep.Core.UnitTests.Registry
             yield return CreateTestsCase(new ManagedIdentity(ManagedIdentityType.SystemAssigned, Guid.Empty.ToString(), null));
             yield return CreateTestsCase(new ManagedIdentity(ManagedIdentityType.SystemAssigned, null, $"/subscriptions/{Guid.Empty}/providers/resourceGroups/myRG/providers/Microsoft.Storage/storageAccounts/mySA"));
 
-            static object[] CreateTestsCase(ManagedIdentity? managedIdentity) => new object[] { new CredentialOptions(managedIdentity) };
+            static object[] CreateTestsCase(ManagedIdentity? managedIdentity) => [new CredentialOptions(managedIdentity)];
         }
 
         private static void AssertCredentialTypes(TokenCredential credential, params Type[] expectedTypes)

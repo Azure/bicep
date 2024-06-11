@@ -261,7 +261,7 @@ namespace Bicep.Core.Emit
                                     {
                                         // it's an invocation of the copyIndex function with 1 argument with a literal value
                                         // replace the argument with the correct value
-                                        function.Parameters = new LanguageExpression[] { new JTokenExpression("value") };
+                                        function.Parameters = [new JTokenExpression("value")];
                                     }
                                 }
                             };
@@ -329,27 +329,27 @@ namespace Bicep.Core.Emit
                 case TernaryExpression ternary:
                     return new TernaryExpression(ternary.SourceSyntax, ternary.Condition, ConvertModuleParameter(ternary.True), ConvertModuleParameter(ternary.False));
                 default:
-                    return ExpressionFactory.CreateObject(new[] {
+                    return ExpressionFactory.CreateObject([
                         ExpressionFactory.CreateObjectProperty("value", parameter)
-                    }, parameter.SourceSyntax);
+                    ], parameter.SourceSyntax);
             }
         }
 
         private static Expression ConvertModuleParameterGetSecret(ResourceFunctionCallExpression functionCall)
         {
             var properties = new List<ObjectPropertyExpression>();
-            properties.Add(ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new[] {
+            properties.Add(ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject([
                 ExpressionFactory.CreateObjectProperty("id", new PropertyAccessExpression(functionCall.Resource.SourceSyntax, functionCall.Resource, "id", AccessExpressionFlags.None)),
-            }, functionCall.SourceSyntax)));
+            ], functionCall.SourceSyntax)));
             properties.Add(ExpressionFactory.CreateObjectProperty("secretName", functionCall.Parameters[0]));
             if (functionCall.Parameters.Length > 1)
             {
                 properties.Add(ExpressionFactory.CreateObjectProperty("secretVersion", functionCall.Parameters[1]));
             }
 
-            return ExpressionFactory.CreateObject(new[] {
+            return ExpressionFactory.CreateObject([
                 ExpressionFactory.CreateObjectProperty("reference", ExpressionFactory.CreateObject(properties))
-            }, functionCall.SourceSyntax);
+            ], functionCall.SourceSyntax);
         }
 
         public void EmitProperty(ObjectPropertyExpression property)

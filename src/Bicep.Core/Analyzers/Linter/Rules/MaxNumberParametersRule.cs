@@ -28,7 +28,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             if (model.Root.ParameterDeclarations.Count() > MaxNumber)
             {
                 var firstItem = model.Root.ParameterDeclarations.First();
-                return new IDiagnostic[] { CreateDiagnosticForSpan(diagnosticLevel, firstItem.NameSource.Span, MaxNumber) };
+                return [CreateDiagnosticForSpan(diagnosticLevel, firstItem.NameSource.Span, MaxNumber)];
             }
             return [];
         }

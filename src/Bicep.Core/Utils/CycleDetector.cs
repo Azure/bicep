@@ -75,7 +75,7 @@ namespace Bicep.Core.Utils
         {
             var cycle = visitStack
                 .TakeWhile(x => x != currentNode)
-                .Concat(new[] { currentNode })
+                .Concat([currentNode])
                 .ToImmutableArray();
 
             foreach (var element in cycle)

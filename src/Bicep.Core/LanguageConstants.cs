@@ -318,14 +318,13 @@ namespace Bicep.Core
             var moduleBody = new ObjectType(
                 typeName,
                 TypeSymbolValidationFlags.Default,
-                new[]
-                {
+                [
                     new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
                     new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
                     new TypeProperty(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny),
-                },
+                ],
                 null);
 
             return new ModuleType(typeName, moduleScope, moduleBody);

@@ -112,9 +112,9 @@ resource resA 'My.Rp/resA@2020-01-01' = {
                 """;
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/resA", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("lowercaseobj", new ObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, new[] {
+                new TypeProperty("lowercaseobj", new ObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, [
                   new TypeProperty("lowercasestr", LanguageConstants.String)
-                }, null)));
+                ], null)));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             var (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", bicepFile));

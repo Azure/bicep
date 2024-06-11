@@ -124,7 +124,7 @@ public class SnippetsProvider : ISnippetsProvider
         foreach (var kvp in discriminatedObjectType.UnionMembersByKey.OrderBy(x => x.Key))
         {
             string disciminatedObjectKey = kvp.Key;
-            string label = "required-properties-" + disciminatedObjectKey.Trim(new char[] { '\'' });
+            string label = "required-properties-" + disciminatedObjectKey.Trim(['\'']);
             Snippet? snippet = GetRequiredPropertiesSnippet(kvp.Value, label, disciminatedObjectKey);
 
             if (snippet is not null)

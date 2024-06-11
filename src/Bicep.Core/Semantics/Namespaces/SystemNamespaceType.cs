@@ -1077,15 +1077,15 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static ObjectType GetParseCidrReturnType()
         {
-            return new ObjectType("parseCidr", TypeSymbolValidationFlags.Default, new[]
-            {
+            return new ObjectType("parseCidr", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("network", LanguageConstants.String),
                 new TypeProperty("netmask", LanguageConstants.String),
                 new TypeProperty("broadcast", LanguageConstants.String),
                 new TypeProperty("firstUsable", LanguageConstants.String),
                 new TypeProperty("lastUsable", LanguageConstants.String),
                 new TypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
-            }, null);
+            ], null);
         }
 
         private static ResultWithDiagnostic<Uri> TryGetFileUriWithDiagnostics(IBinder binder, string filePath)
@@ -1173,7 +1173,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             var arguments = functionCall.Arguments.ToImmutableArray();
             string? tokenSelectorPath = null;
-            IPositionable[] positionables = arguments.Length > 1 ? new IPositionable[] { arguments[0], arguments[1] } : new IPositionable[] { arguments[0] };
+            IPositionable[] positionables = arguments.Length > 1 ? [arguments[0], arguments[1]] : [arguments[0]];
             if (arguments.Length > 1)
             {
                 if (argumentTypes[1] is not StringLiteralType tokenSelectorType)
@@ -1345,10 +1345,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 new ObjectType(
                     "object",
                     TypeSymbolValidationFlags.Default,
-                    new[] {
+                    [
                         new TypeProperty("key", keyType, description: "The key of the object property being iterated over."),
                         new TypeProperty("value", valueType, description: "The value of the object property being iterated over."),
-                    },
+                    ],
                     null),
                 TypeSymbolValidationFlags.Default);
 

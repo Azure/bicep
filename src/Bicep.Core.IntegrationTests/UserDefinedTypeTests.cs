@@ -93,10 +93,10 @@ type string = int
 param stringParam string = 'foo'
 ");
 
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"stringParam\" is declared but never used."),
             ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int\" but the provided value is of type \"'foo'\"."),
-        });
+        ]);
 
         // fix by fully-qualifying
         result = CompilationHelper.Compile(@"
@@ -105,9 +105,9 @@ type string = int
 param stringParam sys.string = 'foo'
 ");
 
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"stringParam\" is declared but never used."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -148,7 +148,7 @@ param stringParam constrainedString
 param intParam constrainedInt
 ");
 
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
@@ -162,7 +162,7 @@ param intParam constrainedInt
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"allowed\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"intParam\" is declared but never used."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -191,7 +191,7 @@ param fizzParam 'fizz'
 param fizzBuzzPopParam 'fizz'|'buzz'|'pop'
 ");
 
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("BCP295", DiagnosticLevel.Error, "The 'allowed' decorator may not be used on targets of a union or literal type. The allowed values for this parameter or type definition will be derived from the union or literal type automatically."),
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"trueParam\" is declared but never used."),
             ("BCP295", DiagnosticLevel.Error, "The 'allowed' decorator may not be used on targets of a union or literal type. The allowed values for this parameter or type definition will be derived from the union or literal type automatically."),
@@ -206,7 +206,7 @@ param fizzBuzzPopParam 'fizz'|'buzz'|'pop'
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"fizzParam\" is declared but never used."),
             ("BCP295", DiagnosticLevel.Error, "The 'allowed' decorator may not be used on targets of a union or literal type. The allowed values for this parameter or type definition will be derived from the union or literal type automatically."),
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"fizzBuzzPopParam\" is declared but never used."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -218,10 +218,10 @@ type anObject = {
 }
 ");
 
-        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+        blockedBecauseOfCycle.Should().HaveDiagnostics([
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
             ("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values."),
-        });
+        ]);
 
         var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(@"
 type anObject = {
@@ -229,9 +229,9 @@ type anObject = {
 }
 ");
 
-        blockedBecauseOfUnionSemantics.Should().HaveDiagnostics(new[] {
+        blockedBecauseOfUnionSemantics.Should().HaveDiagnostics([
             ("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -243,9 +243,9 @@ type anObject = {
 }
 ");
 
-        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+        blockedBecauseOfCycle.Should().HaveDiagnostics([
             ("BCP285", DiagnosticLevel.Error, "The type expression could not be reduced to a literal value."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -257,9 +257,9 @@ type anObject = {
 }
 ");
 
-        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+        blockedBecauseOfCycle.Should().HaveDiagnostics([
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-        });
+        ]);
 
         var permitted = CompilationHelper.Compile(@"
 type anObject = {
@@ -289,9 +289,9 @@ type anArray = anArray[]?
 type nullable = nullable?
 ");
 
-        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+        blockedBecauseOfCycle.Should().HaveDiagnostics([
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -303,9 +303,9 @@ type anObject = {
 }
 ");
 
-        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+        blockedBecauseOfCycle.Should().HaveDiagnostics([
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-        });
+        ]);
 
         var permitted = CompilationHelper.Compile(@"
 type anObject = {
@@ -347,9 +347,9 @@ type anObject = {
 }
 ");
 
-        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+        blockedBecauseOfCycle.Should().HaveDiagnostics([
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-        });
+        ]);
 
         var permitted = CompilationHelper.Compile(@"
 type anObject = {
@@ -393,9 +393,9 @@ type anObject = {
 }?
 ");
 
-        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+        blockedBecauseOfCycle.Should().HaveDiagnostics([
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-        });
+        ]);
 
         blockedBecauseOfCycle = CompilationHelper.Compile(@"
 type anObject = {
@@ -405,9 +405,9 @@ type anObject = {
 }?!
 ");
 
-        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+        blockedBecauseOfCycle.Should().HaveDiagnostics([
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-        });
+        ]);
 
         var permitted = CompilationHelper.Compile(@"
 type anObject = {
@@ -429,9 +429,9 @@ param anObject {}
 output prop string = anObject.prop
 ");
 
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("BCP187", DiagnosticLevel.Warning, "The property \"prop\" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -445,9 +445,9 @@ param anObject {} = {prop: 'someVal'}
 param anotherObject object = {prop: 'someVal'}
 ");
 
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("BCP037", DiagnosticLevel.Warning, "The property \"prop\" is not allowed on objects of type \"{ }\". No other properties are allowed."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -472,9 +472,9 @@ param aDict {
 } = {prop: 'someVal'}
 ");
 
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("BCP036", DiagnosticLevel.Error, @"The property ""prop"" expected a value of type ""int"" but the provided value is of type ""'someVal'""."),
-        });
+        ]);
 
         result = CompilationHelper.Compile(@"
 #disable-next-line no-unused-params
@@ -550,10 +550,10 @@ output quux string = foos[0].?bar.baz.quux
 ";
 
         var result = CompilationHelper.Compile(templateWithPossiblyNullDeref);
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
           ("BCP318", DiagnosticLevel.Warning, @"The value of type ""null | { bar: { baz: { quux: 'quux' } } }"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail."),
-        });
+        ]);
 
         result.Diagnostics.Single().Should().BeAssignableTo<IFixable>();
         var fixAlternatives = new HashSet<string> { templateWithNonNullAssertion, templateWithSafeDeref };
@@ -583,9 +583,9 @@ output quux string = foos[0].?bar.baz.quux
 param myParam string? = 'foo'
 ");
 
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("BCP326", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -670,10 +670,10 @@ type shortString = string
 param myString shortString = 'foo'
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -685,10 +685,10 @@ param myString shortString = 'foo'
 param myParam int
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP331", DiagnosticLevel.Error, "A type's \"minValue\" must be less than or equal to its \"maxValue\", but a minimum of 1 and a maximum of 0 were specified."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -700,10 +700,10 @@ param myParam int
 param myParam array
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP331", DiagnosticLevel.Error, "A type's \"minLength\" must be less than or equal to its \"maxLength\", but a minimum of 1 and a maximum of 0 were specified."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -715,10 +715,10 @@ param myParam array
 param myParam string
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP331", DiagnosticLevel.Error, "A type's \"minLength\" must be less than or equal to its \"maxLength\", but a minimum of 1 and a maximum of 0 were specified."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -731,10 +731,10 @@ param myParam string
             }
             """);
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP025", DiagnosticLevel.Error, "The property \"bar\" is declared multiple times in this object. Remove or rename the duplicate properties.")
-        });
+        ]);
     }
 
     [TestMethod]
@@ -837,11 +837,11 @@ param myParam string
             }
             """);
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
             ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
-        });
+        ]);
     }
 
     // https://github.com/azure/bicep/issues/12070
@@ -854,11 +854,11 @@ param myParam string
             }
             """);
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
             ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -962,10 +962,10 @@ param myParam string
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             ("BCP037", DiagnosticLevel.Warning, """The property "unknownProperty" is not allowed on objects of type "StorageAccountPropertiesCreateParametersOrStorageAccountProperties". Permissible properties include "accessTier", "allowBlobPublicAccess", "allowCrossTenantReplication", "allowedCopyScope", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "customDomain", "defaultToOAuthAuthentication", "dnsEndpointType", "encryption", "immutableStorageWithVersioning", "isHnsEnabled", "isLocalUserEnabled", "isNfsV3Enabled", "isSftpEnabled", "keyPolicy", "largeFileSharesState", "minimumTlsVersion", "networkAcls", "publicNetworkAccess", "routingPreference", "sasPolicy", "supportsHttpsTrafficOnly"."""),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1015,12 +1015,12 @@ param myParam string
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             ("BCP334", DiagnosticLevel.Warning, "The provided value can have a length as small as 2 and may be too short to assign to a target with a configured minimum length of 3."),
             ("BCP088", DiagnosticLevel.Warning, """The property "connectionParameterType" expected a value of type "'array' | 'bool' | 'connection' | 'int' | 'oauthSetting' | 'object' | 'secureobject' | 'securestring' | 'string'" but the provided value is of type "'sting'". Did you mean "'string'"?"""),
             ("BCP036", DiagnosticLevel.Warning, """The property "ipRuleAction" expected a value of type "'Allow'" but the provided value is of type "'Deny'"."""),
-        });
+        ]);
 
     }
 
@@ -1057,10 +1057,10 @@ param myParam string
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             ("BCP053", DiagnosticLevel.Warning, """The type "StorageAccountPropertiesCreateParametersOrStorageAccountProperties" does not contain property "unknownProperty". Available properties include "accessTier", "allowBlobPublicAccess", "allowCrossTenantReplication", "allowedCopyScope", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "blobRestoreStatus", "creationTime", "customDomain", "defaultToOAuthAuthentication", "dnsEndpointType", "encryption", "failoverInProgress", "geoReplicationStats", "immutableStorageWithVersioning", "isHnsEnabled", "isLocalUserEnabled", "isNfsV3Enabled", "isSftpEnabled", "keyCreationTime", "keyPolicy", "largeFileSharesState", "lastGeoFailoverTime", "minimumTlsVersion", "networkAcls", "primaryEndpoints", "primaryLocation", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "routingPreference", "sasPolicy", "secondaryEndpoints", "secondaryLocation", "statusOfPrimary", "statusOfSecondary", "storageAccountSkuConversionStatus", "supportsHttpsTrafficOnly"."""),
-        });
+        ]);
     }
 
     // https://github.com/azure/bicep/issues/12920
@@ -1195,10 +1195,10 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1298,10 +1298,10 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1367,10 +1367,10 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1473,10 +1473,10 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1557,10 +1557,10 @@ param myParam string
                 """));
 
         result.Template.Should().BeNull();
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP394", DiagnosticLevel.Error, "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted."),
-        });
+        ]);
     }
 
     [TestMethod]

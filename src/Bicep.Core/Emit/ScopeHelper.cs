@@ -211,7 +211,7 @@ namespace Bicep.Core.Emit
                         }
                         else
                         {
-                            var subscriptionId = new FunctionExpression("subscription", [], new LanguageExpression[] { new JTokenExpression("subscriptionId") });
+                            var subscriptionId = new FunctionExpression("subscription", [], [new JTokenExpression("subscriptionId")]);
                             var resourceGroup = converter.ConvertExpression(scopeData.ResourceGroupProperty);
                             scope = ExpressionConverter.GenerateResourceGroupScope(subscriptionId, resourceGroup);
                         }

@@ -158,7 +158,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 // We haven't tried restoring this module yet. Let's try it now.
                 Trace.WriteLine($"Attempting to restore module {targetArtifactReference.FullyQualifiedReference}");
-                await moduleDispatcher.RestoreArtifacts(new[] { targetArtifactReference }, forceRestore: false);
+                await moduleDispatcher.RestoreArtifacts([targetArtifactReference], forceRestore: false);
 
                 restoreStatus = moduleDispatcher.GetArtifactRestoreStatus(targetArtifactReference, out errorBuilder);
                 errorMessage = errorBuilder?.Invoke(ForDocumentStart()).Message;

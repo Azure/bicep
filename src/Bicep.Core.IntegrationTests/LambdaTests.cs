@@ -19,37 +19,37 @@ namespace Bicep.Core.IntegrationTests
         public void Parentheses_without_arrow_are_not_interpreted_as_lambdas()
         {
             CompilationHelper.Compile("var noElements = ()")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                     ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
-                });
+                ]);
 
             CompilationHelper.Compile("var justAComma = (,)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
                     ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
-                });
+                ]);
 
             CompilationHelper.Compile("var twoElements = (1, 2)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                     ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
-                });
+                ]);
 
             CompilationHelper.Compile("var threeElements = (1, 2, 3)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                     ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
-                });
+                ]);
 
             CompilationHelper.Compile("var unterminated1 = (")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
-                });
+                ]);
 
             CompilationHelper.Compile("var unterminated2 = (,")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
                     ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
-                });
+                ]);
         }
 
         [TestMethod]
@@ -65,22 +65,22 @@ namespace Bicep.Core.IntegrationTests
                 .ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             CompilationHelper.Compile("var asfsasdf = map([1], true ? i => i + 1 : i => i)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
-                });
+                ]);
 
             CompilationHelper.Compile("var asfsasdf = map([1], true ? (i => i + 1) : (i => i))")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
-                });
+                ]);
 
             CompilationHelper.Compile("var asfsasdf = map([1], [i => i])")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                     ("BCP070", DiagnosticLevel.Error, "Argument of type \"[any => any]\" is not assignable to parameter of type \"(any[, int]) => any\"."),
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
-                });
+                ]);
         }
 
         [TestMethod]
@@ -153,10 +153,10 @@ var foo2 = map(['foo'], () => 'Hi!')
                 '|');
 
             var result = CompilationHelper.Compile(file);
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP070", DiagnosticLevel.Error, """Argument of type "(123, int, any) => 123" is not assignable to parameter of type "(any[, int]) => any"."""),
                 ("BCP070", DiagnosticLevel.Error, """Argument of type "() => 'Hi!'" is not assignable to parameter of type "(any[, int]) => any"."""),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -165,10 +165,10 @@ var foo2 = map(['foo'], () => 'Hi!')
             var result = CompilationHelper.Compile(@"
 var ternary = map([123], true ? abc => '${abc}' : def => 'hello!')
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -178,9 +178,9 @@ var ternary = map([123], true ? abc => '${abc}' : def => 'hello!')
 var foo = i => 123
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -304,14 +304,14 @@ output accessTiers2 array = map(range(0, 2), x => map(range(0, 2), y => stg[x / 
 output accessTiers3 array = map(ids, foo => reference('${foo}').accessTier)
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP247", DiagnosticLevel.Error, "Using lambda variables inside resource or module array access is not currently supported. Found the following lambda variable(s) being accessed: \"i\"."),
                 ("BCP247", DiagnosticLevel.Error, "Using lambda variables inside resource or module array access is not currently supported. Found the following lambda variable(s) being accessed: \"j\"."),
                 ("BCP248", DiagnosticLevel.Error, "Using lambda variables inside the \"listKeys\" function is not currently supported. Found the following lambda variable(s) being accessed: \"id\"."),
                 ("BCP247", DiagnosticLevel.Error, "Using lambda variables inside resource or module array access is not currently supported. Found the following lambda variable(s) being accessed: \"k\"."),
                 ("BCP247", DiagnosticLevel.Error, "Using lambda variables inside resource or module array access is not currently supported. Found the following lambda variable(s) being accessed: \"x\", \"y\"."),
                 ("BCP248", DiagnosticLevel.Error, "Using lambda variables inside the \"reference\" function is not currently supported. Found the following lambda variable(s) being accessed: \"foo\"."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -328,9 +328,9 @@ output modOutputs array = map(range(0, 2), i => myMod[i].outputs.foo)"),
 output foo string = 'HELLO!'
 "));
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP247", DiagnosticLevel.Error, "Using lambda variables inside resource or module array access is not currently supported. Found the following lambda variable(s) being accessed: \"i\"."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -353,9 +353,9 @@ resource stg2 'Microsoft.Storage/storageAccounts@2021-09-01' = {
 }
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"nonDtcArr\" -> \"stg\"). Properties of stg which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -368,11 +368,11 @@ func recursiveA() string => recursiveB()
 func recursiveB() string => recursiveA()
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"recursiveB\" -> \"recursiveA\")."),
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"recursiveA\" -> \"recursiveB\")."),
-            });
+            ]);
         }
     }
 }

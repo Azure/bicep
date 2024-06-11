@@ -47,8 +47,8 @@ namespace Bicep.Core.TypeSystem.Providers.Az
          *   - Their values may be normalized by RPs
          *   - Some RPs are doing Put-as-Patch
          */
-        public static readonly string[] WriteOnlyDeployTimeConstantPropertyNames = new[]
-        {
+        public static readonly string[] WriteOnlyDeployTimeConstantPropertyNames =
+        [
             "location",
             "kind",
             "subscriptionId",
@@ -62,7 +62,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             "managedByExtended",
             "tags",
             "asserts",
-        };
+        ];
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], LanguageConstants.String, TypePropertyFlags.None);
         public static readonly TypeSymbol ResourceAsserts = new ObjectType(nameof(ResourceAsserts), TypeSymbolValidationFlags.Default, [], LanguageConstants.Bool, TypePropertyFlags.DeployTimeConstant);
@@ -120,15 +120,15 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
             yield return new TypeProperty("properties", LanguageConstants.Object);
 
-            yield return new TypeProperty("sku", new ObjectType("sku", TypeSymbolValidationFlags.Default, new[]
-            {
+            yield return new TypeProperty("sku", new ObjectType("sku", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("name", LanguageConstants.String),
                 new TypeProperty("tier", LanguageConstants.String),
                 new TypeProperty("size", LanguageConstants.String),
                 new TypeProperty("family", LanguageConstants.String),
                 new TypeProperty("model", LanguageConstants.String),
                 new TypeProperty("capacity", LanguageConstants.Int),
-            }, null));
+            ], null));
 
             yield return new TypeProperty("kind", LanguageConstants.String);
             yield return new TypeProperty("managedBy", LanguageConstants.String);
@@ -143,11 +143,11 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 TypeFactory.CreateStringLiteralType("ArcZone"),
                 LanguageConstants.String);
 
-            yield return new TypeProperty("extendedLocation", new ObjectType("extendedLocation", TypeSymbolValidationFlags.Default, new[]
-            {
+            yield return new TypeProperty("extendedLocation", new ObjectType("extendedLocation", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("type", extendedLocationType, TypePropertyFlags.Required),
                 new TypeProperty("name", LanguageConstants.String),
-            }, null));
+            ], null));
 
             yield return new TypeProperty("zones", stringArray);
 
@@ -155,12 +155,12 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
             yield return new TypeProperty("eTag", LanguageConstants.String);
 
-            yield return new TypeProperty("scale", new ObjectType("scale", TypeSymbolValidationFlags.Default, new[]
-            {
+            yield return new TypeProperty("scale", new ObjectType("scale", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("capacity", LanguageConstants.Int, TypePropertyFlags.Required),
                 new TypeProperty("maximum", LanguageConstants.Int),
                 new TypeProperty("minimum", LanguageConstants.Int),
-            }, null));
+            ], null));
 
             var resourceIdentityType = TypeHelper.CreateTypeUnion(
                 TypeFactory.CreateStringLiteralType("NotSpecified"),
@@ -170,21 +170,21 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 TypeFactory.CreateStringLiteralType("Actor"),
                 LanguageConstants.String);
 
-            var userAssignedIdentity = new ObjectType("userAssignedIdentityProperties", TypeSymbolValidationFlags.Default, new[]
-            {
+            var userAssignedIdentity = new ObjectType("userAssignedIdentityProperties", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("principalId", LanguageConstants.String),
                 new TypeProperty("clientId", LanguageConstants.String)
-            }, null);
+            ], null);
 
-            yield return new TypeProperty("identity", new ObjectType("identity", TypeSymbolValidationFlags.Default, new[]
-            {
+            yield return new TypeProperty("identity", new ObjectType("identity", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("principalId", LanguageConstants.String),
                 new TypeProperty("tenantId", LanguageConstants.String),
                 new TypeProperty("type", resourceIdentityType, TypePropertyFlags.Required),
                 new TypeProperty("identityIds", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
                 new TypeProperty("userAssignedIdentities", new ObjectType("userAssignedIdentities", TypeSymbolValidationFlags.Default, [], userAssignedIdentity)),
                 new TypeProperty("delegatedResources", LanguageConstants.Object),
-            }, null));
+            ], null));
         }
 
         public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader)

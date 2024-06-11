@@ -30,11 +30,11 @@ public class CompileTimeImportTests
                 var bar = 'bar'
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP360", DiagnosticLevel.Error, "The 'foo' symbol was not found in (or was not exported by) the imported template."),
             ("BCP360", DiagnosticLevel.Error, "The 'bar' symbol was not found in (or was not exported by) the imported template."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -51,10 +51,10 @@ public class CompileTimeImportTests
                 var bar = 'bar'
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP287", DiagnosticLevel.Error, "'bar' refers to a value but is being used as a type here."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -71,10 +71,10 @@ public class CompileTimeImportTests
                 type foo = string[]
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP288", DiagnosticLevel.Error, "'foo' refers to a type but is being used as a value here."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -89,10 +89,10 @@ public class CompileTimeImportTests
                 type foo = string[]
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP052", DiagnosticLevel.Error, "The type \"bar\" does not contain property \"foo\"."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -105,10 +105,10 @@ public class CompileTimeImportTests
             }
             """);
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP361", DiagnosticLevel.Error, "The \"@export()\" decorator must target a top-level statement.")
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1172,11 +1172,11 @@ public class CompileTimeImportTests
                 type foo = string[]
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP362", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."),
             ("BCP362", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."), // The same diagnostic should be raised on each import
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1204,11 +1204,11 @@ public class CompileTimeImportTests
                 }
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP362", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."),
             ("BCP362", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."), // The same diagnostic should be raised on each import
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1223,10 +1223,10 @@ public class CompileTimeImportTests
             var quux = baz
             """);
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP372", DiagnosticLevel.Error, "The \"@export()\" decorator may not be applied to variables that refer to parameters, modules, or resource, either directly or indirectly. The target of this decorator contains direct or transitive references to the following unexportable symbols: \"foo\"."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1253,10 +1253,10 @@ public class CompileTimeImportTests
             var quux = baz
             """);
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP372", DiagnosticLevel.Error, "The \"@export()\" decorator may not be applied to variables that refer to parameters, modules, or resource, either directly or indirectly. The target of this decorator contains direct or transitive references to the following unexportable symbols: \"foo\"."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1305,10 +1305,10 @@ public class CompileTimeImportTests
                 }
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP373", DiagnosticLevel.Error, "Unable to import the symbol named \"foo\": The name \"foo\" is ambiguous because it refers to exports of the following kinds: Type, Variable."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1346,10 +1346,10 @@ public class CompileTimeImportTests
                 }
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP374", DiagnosticLevel.Error, "The imported model cannot be loaded with a wildcard because it contains the following duplicated exports: \"foo\"."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1506,10 +1506,10 @@ public class CompileTimeImportTests
                 }
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1539,10 +1539,10 @@ public class CompileTimeImportTests
                 }
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP375", DiagnosticLevel.Error, "An import list item that identifies its target with a quoted string must include an 'as <alias>' clause."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1554,10 +1554,10 @@ public class CompileTimeImportTests
                 """),
             ("mod.bicep", string.Empty));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP355", DiagnosticLevel.Error, "Expected the name of an exported symbol at this location."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1668,10 +1668,10 @@ public class CompileTimeImportTests
                 type foo = string
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP376", DiagnosticLevel.Error, "The \"foo\" symbol cannot be imported because imports of kind Type are not supported in files of kind ParamsFile."),
-        });
+        ]);
     }
 
     // https://github.com/Azure/bicep/issues/12042
@@ -1944,11 +1944,11 @@ public class CompileTimeImportTests
                 var obj = {foo: 'foo', bar: 'bar'}
                 """));
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             ("BCP037", DiagnosticLevel.Error, """The property "bar" is not allowed on objects of type "{ }". No other properties are allowed."""),
             ("BCP037", DiagnosticLevel.Error, """The property "foo" is not allowed on objects of type "{ }". No other properties are allowed."""),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -1966,10 +1966,10 @@ public class CompileTimeImportTests
                 var obj = {type: 'foo', bar: 'bar'}
                 """));
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             ("BCP035", DiagnosticLevel.Error, """The specified "output" declaration is missing the following required properties: "pop"."""),
-        });
+        ]);
     }
 
     // https://github.com/Azure/bicep/issues/12897
@@ -2003,11 +2003,11 @@ import { bar } from 'test.bicep'
 INVALID FILE
 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
             ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-        });
+        ]);
     }
 
     // https://github.com/Azure/bicep/issues/12899
@@ -2078,10 +2078,10 @@ INVALID FILE
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             ("BCP037", DiagnosticLevel.Warning, """The property "unknownProperty" is not allowed on objects of type "StorageAccountPropertiesCreateParametersOrStorageAccountProperties". Permissible properties include "accessTier", "allowBlobPublicAccess", "allowCrossTenantReplication", "allowedCopyScope", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "customDomain", "defaultToOAuthAuthentication", "dnsEndpointType", "encryption", "immutableStorageWithVersioning", "isHnsEnabled", "isLocalUserEnabled", "isNfsV3Enabled", "isSftpEnabled", "keyPolicy", "largeFileSharesState", "minimumTlsVersion", "networkAcls", "publicNetworkAccess", "routingPreference", "sasPolicy", "supportsHttpsTrafficOnly"."""),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -2128,10 +2128,10 @@ INVALID FILE
                 }
                 """));
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             ("BCP385", DiagnosticLevel.Error, """Using resource-derived types requires enabling EXPERIMENTAL feature "ResourceDerivedTypes"."""),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -2178,10 +2178,10 @@ INVALID FILE
                 }
                 """));
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             ("BCP081", DiagnosticLevel.Warning, """Resource type "Microsoft.Foo/bars@2022-09-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."""),
-        });
+        ]);
     }
 
     // https://github.com/Azure/bicep/issues/12981

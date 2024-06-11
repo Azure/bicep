@@ -203,12 +203,12 @@ resource resource 'Some.Fake/Type@2019-06-01' = {
 output out resource 'Some.Fake/Type@2019-06-01' = resource
 """);
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 // There are two warnings because there are two places in code to correct the missing type.
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -224,10 +224,10 @@ resource resource 'Some.Fake/Type@2019-06-01' = {
 output out resource = resource
 """);
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -246,10 +246,10 @@ output out resource = resource
             output out resource = container
             """);
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
-            });
+            ]);
         }
     }
 }

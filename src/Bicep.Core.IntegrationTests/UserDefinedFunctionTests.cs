@@ -39,10 +39,10 @@ func getBaz() string => 'baz'
 func testFunc(baz string) string => '${foo}-${bar}-${baz}-${getBaz()}'
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
             ("BCP057", DiagnosticLevel.Error, """The name "foo" does not exist in the current context."""),
             ("BCP057", DiagnosticLevel.Error, """The name "bar" does not exist in the current context."""),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -84,8 +84,8 @@ func getAOrB(aOrB bool) ('a' | 'b') => aOrB ? 'a' : 'b'
 func useRuntimeFunction() string => reference('foo').bar
 ");
 
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("BCP341", DiagnosticLevel.Error, "This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment."),
-        });
+        ]);
     }
 }

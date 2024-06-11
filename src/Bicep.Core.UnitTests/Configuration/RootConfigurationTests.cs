@@ -34,14 +34,14 @@ public class RootConfigurationTests
     {
         var homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
-        return new[]
-        {
-            new object[] { "~", homeDirectory },
-            new object[] { "~/", $"{homeDirectory}/" },
-            new object[] { "~\\", $"{homeDirectory}\\" },
-            new object[] { "~/foo/bar", $"{homeDirectory}/foo/bar" },
-            new object[] { "~\\foo\\bar", $"{homeDirectory}\\foo\\bar" },
-            new object[] { "~\\foo/bar", $"{homeDirectory}\\foo/bar" },
-        };
+        return
+        [
+            ["~", homeDirectory],
+            ["~/", $"{homeDirectory}/"],
+            ["~\\", $"{homeDirectory}\\"],
+            ["~/foo/bar", $"{homeDirectory}/foo/bar"],
+            ["~\\foo\\bar", $"{homeDirectory}\\foo\\bar"],
+            ["~\\foo/bar", $"{homeDirectory}\\foo/bar"],
+        ];
     }
 }

@@ -30,13 +30,13 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 
             var inlineVariables = InlineDependencyVisitor.GetVariablesToInline(compilation.GetEntrypointSemanticModel());
 
-            inlineVariables.Should().Contain(new[]
-            {
+            inlineVariables.Should().Contain(
+            [
                 GetVariableSymbolByName(compilation, "keys"),
                 GetVariableSymbolByName(compilation, "indirection"),
                 GetVariableSymbolByName(compilation, "runtimeLoop"),
                 GetVariableSymbolByName(compilation, "runtimeLoop2")
-            });
+            ]);
         }
 
         [DataRow("things")]

@@ -2075,10 +2075,9 @@ namespace Bicep.Core.TypeSystem
             var testBody = new ObjectType(
                 typeName,
                 TypeSymbolValidationFlags.Default,
-                new[]
-                {
+                [
                     new TypeProperty(LanguageConstants.TestParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
-                },
+                ],
                 null);
 
             return new TestType(typeName, testBody);

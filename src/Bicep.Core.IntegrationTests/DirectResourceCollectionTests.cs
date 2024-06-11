@@ -20,8 +20,8 @@ namespace Bicep.Core.IntegrationTests
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
-                .HaveDiagnostics(new[]
-                {
+                .HaveDiagnostics(
+                [
                     ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
                     ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
                     ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
@@ -30,7 +30,7 @@ namespace Bicep.Core.IntegrationTests
                     ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
                     ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"containerWorkersAlias\" -> \"containerWorkers\". Apply an array indexer to the expression."),
                     ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"ipAddresses\" -> \"containerWorkers\". Apply an array indexer to the expression."),
-                });
+                ]);
         }
 
         [TestMethod]
@@ -156,10 +156,9 @@ resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' =
             result.WithErrorDiagnosticsOnly()
                 .Should()
                 .HaveDiagnostics(
-                    new[]
-                    {
+                    [
                         ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
-                    });
+                    ]);
         }
 
         [TestMethod]
@@ -176,10 +175,9 @@ var loopVar = [for i in range(0, 2): {
             result.WithErrorDiagnosticsOnly()
                 .Should()
                 .HaveDiagnostics(
-                    new[]
-                    {
+                    [
                         ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"containerWorkersAliased\" -> \"containerWorkers\". Apply an array indexer to the expression."),
-                    });
+                    ]);
         }
 
         [TestMethod]
@@ -198,10 +196,9 @@ resource containerController2 'Microsoft.ContainerInstance/containerGroups@2022-
             result.WithErrorDiagnosticsOnly()
                 .Should()
                 .HaveDiagnostics(
-                    new[]
-                    {
+                    [
                         ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
-                    });
+                    ]);
         }
 
         [TestMethod]
@@ -223,10 +220,9 @@ resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' =
             result.WithErrorDiagnosticsOnly()
                 .Should()
                 .HaveDiagnostics(
-                    new[]
-                    {
+                    [
                         ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"containerWorkerIps\" -> \"containerWorkers\". Apply an array indexer to the expression."),
-                    });
+                    ]);
         }
 
         [TestMethod]
@@ -250,10 +246,9 @@ resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' =
             result.WithErrorDiagnosticsOnly()
                 .Should()
                 .HaveDiagnostics(
-                    new[]
-                    {
+                    [
                         ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"containerWorkerIps\" -> \"containerWorkersAliased\" -> \"containerWorkers\". Apply an array indexer to the expression."),
-                    });
+                    ]);
         }
 
         [TestMethod]
@@ -299,10 +294,9 @@ resource containerWorkers2 'Microsoft.ContainerInstance/containerGroups@2022-09-
             result.WithErrorDiagnosticsOnly()
                 .Should()
                 .HaveDiagnostics(
-                    new[]
-                    {
+                    [
                         ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression.")
-                    });
+                    ]);
         }
 
         [TestMethod]
@@ -349,10 +343,9 @@ resource containerWorkers2 'Microsoft.ContainerInstance/containerGroups@2022-09-
             result.WithErrorDiagnosticsOnly()
                 .Should()
                 .HaveDiagnostics(
-                    new[]
-                    {
+                    [
                         ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"ipAddresses\" -> \"containerWorkers\". Apply an array indexer to the expression.")
-                    });
+                    ]);
         }
 
         [TestMethod]
@@ -421,8 +414,8 @@ output outputInlinedWithOuterExpression string = ipAddresses
 
         private static (string fileName, string fileContents)[] CreateReferencesBicepContentWithModules()
         {
-            return new[]
-            {
+            return
+            [
                 ("main.bicep", """
 resource containerWorkers 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = [for i in range(0, 4): {
   name: 'gh9440-w1-${i}'
@@ -491,7 +484,7 @@ resource storage 'Providers.Test/statefulResources@2014-04-01' = {
 
 output modOutput1 string = storage.properties.modInput1
 """)
-            };
+            ];
         }
     }
 }

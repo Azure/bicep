@@ -113,9 +113,9 @@ module mainRecursive 'main.bicep' = {
             var compilation = Services.BuildCompilation(files, mainUri);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
+            diagnosticsByFile[mainUri].Should().HaveDiagnostics([
                 ("BCP094", DiagnosticLevel.Error, "This module references itself, which is not allowed."),
-            });
+            ]);
 
             success.Should().BeFalse();
         }
@@ -167,15 +167,15 @@ module main 'main.bicep' = {
             var compilation = Services.BuildCompilation(files, mainUri);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
+            diagnosticsByFile[mainUri].Should().HaveDiagnostics([
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
-            });
-            diagnosticsByFile[moduleAUri].Should().HaveDiagnostics(new[] {
+            ]);
+            diagnosticsByFile[moduleAUri].Should().HaveDiagnostics([
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
-            });
-            diagnosticsByFile[moduleBUri].Should().HaveDiagnostics(new[] {
+            ]);
+            diagnosticsByFile[moduleBUri].Should().HaveDiagnostics([
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
-            });
+            ]);
             success.Should().BeFalse();
         }
 
@@ -226,9 +226,9 @@ module modulea 'modulea.bicep' = {
             var compilation = await compiler.CreateCompilation(mainFileUri);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
+            diagnosticsByFile[mainFileUri].Should().HaveDiagnostics([
                 ("BCP093", DiagnosticLevel.Error, "File path \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -368,9 +368,9 @@ module modulea 'modulea.bicep' = {
             var compilation = await compiler.CreateCompilation(mainUri);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
+            diagnosticsByFile[mainUri].Should().HaveDiagnostics([
                 ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Mock read failure!"),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -379,10 +379,10 @@ module modulea 'modulea.bicep' = {
             var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, RegistryEnabled: true));
             var result = CompilationHelper.Compile(services, @"module test 'fake:totally-fake' = {}");
 
-            result.Should().HaveDiagnostics(new[]
-            {
+            result.Should().HaveDiagnostics(
+            [
                 ("BCP189", DiagnosticLevel.Error, "The specified module reference scheme \"fake\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")
-            });
+            ]);
         }
 
         [TestMethod]
@@ -407,11 +407,11 @@ param p resource 'Microsoft.Storage/storageAccounts@2019-06-01'
 output out string = p.properties.accessTier
 
 "));
-            result.Should().HaveDiagnostics(new[]
-            {
+            result.Should().HaveDiagnostics(
+            [
                 ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"p\" expected a value of type \"error\" but the provided value is of type \"Microsoft.Storage/storageAccounts@2019-06-01\".")
-            });
+            ]);
         }
 
         [TestMethod]
@@ -431,10 +431,10 @@ resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' existing = {
 
 output storage resource = storage
 "));
-            result.Should().HaveDiagnostics(new[]
-            {
+            result.Should().HaveDiagnostics(
+            [
                 ("BCP104", DiagnosticLevel.Error, "The referenced module has errors.")
-            });
+            ]);
         }
 
         [TestMethod]
@@ -655,18 +655,18 @@ output storage resource 'Another.Fake/Type@2019-06-01' = fake
             var diagnosticsMap = result.Compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
             using (new AssertionScope())
             {
-                diagnosticsMap[InMemoryFileResolver.GetFileUri("/path/to/module.bicep")].Should().HaveDiagnostics(new[]
-                {
+                diagnosticsMap[InMemoryFileResolver.GetFileUri("/path/to/module.bicep")].Should().HaveDiagnostics(
+                [
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Another.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Another.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
-                });
-                diagnosticsMap[InMemoryFileResolver.GetFileUri("/path/to/main.bicep")].Should().HaveDiagnostics(new[]
-                {
+                ]);
+                diagnosticsMap[InMemoryFileResolver.GetFileUri("/path/to/main.bicep")].Should().HaveDiagnostics(
+                [
                     ("BCP230", DiagnosticLevel.Warning, "The referenced module uses resource type \"Some.Fake/Type@2019-06-01\" which does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                     ("BCP230", DiagnosticLevel.Warning, "The referenced module uses resource type \"Another.Fake/Type@2019-06-01\" which does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                     ("BCP036", DiagnosticLevel.Error, "The property \"p\" expected a value of type \"Some.Fake/Type\" but the provided value is of type \"'something'\"."),
-                });
+                ]);
             }
         }
 
@@ -693,10 +693,10 @@ param p resource 'Microsoft.Sql/servers@2021-02-01-preview'
 output out string = p.properties.minimalTlsVersion
 
 "));
-            result.Should().HaveDiagnostics(new[]
-            {
+            result.Should().HaveDiagnostics(
+            [
                 ("BCP036", DiagnosticLevel.Error, "The property \"p\" expected a value of type \"Microsoft.Sql/servers\" but the provided value is of type \"Microsoft.Storage/storageAccounts@2019-06-01\"."),
-            });
+            ]);
         }
 
         [TestMethod]

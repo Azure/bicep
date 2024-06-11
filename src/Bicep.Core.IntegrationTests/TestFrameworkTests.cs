@@ -25,42 +25,42 @@ namespace Bicep.Core.IntegrationTests
             var result = CompilationHelper.Compile(@"
 test test1 '' = {}
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
                 ("BCP050", DiagnosticLevel.Error, @"The specified path is empty."),
-            });
+            ]);
             result = CompilationHelper.Compile(@"
 test test1 '' =
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
                 ("BCP050", DiagnosticLevel.Error, @"The specified path is empty."),
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
-            });
+            ]);
             result = CompilationHelper.Compile(@"
 test test1 ''
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
                 ("BCP050", DiagnosticLevel.Error, @"The specified path is empty."),
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location."),
-            });
+            ]);
             result = CompilationHelper.Compile(@"
 test test1
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
                 ("BCP0347", DiagnosticLevel.Error,  "Expected a test path string at this location."),
                 ("BCP358", DiagnosticLevel.Error, "This declaration is missing a template file path reference.")
-            });
+            ]);
             result = CompilationHelper.Compile(@"
 test
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
                 ("BCP0346", DiagnosticLevel.Error,  "Expected a test identifier at this location."),
                 ("BCP358", DiagnosticLevel.Error, "This declaration is missing a template file path reference.")
-            });
+            ]);
         }
 
         [TestMethod]
@@ -69,27 +69,27 @@ test
             var result = CompilationHelper.Compile(ServicesWithTestFramework, @"
 test
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP0346", DiagnosticLevel.Error,  "Expected a test identifier at this location."),
                 ("BCP358", DiagnosticLevel.Error,  "This declaration is missing a template file path reference.")
 
-            });
+            ]);
 
             result = CompilationHelper.Compile(ServicesWithTestFramework, @"
 test test1
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP0347", DiagnosticLevel.Error,  "Expected a test path string at this location."),
                 ("BCP358", DiagnosticLevel.Error, "This declaration is missing a template file path reference.")
-            });
+            ]);
 
             result = CompilationHelper.Compile(ServicesWithTestFramework, @"
 test test1 ''
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP050", DiagnosticLevel.Error, @"The specified path is empty."),
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location."),
-            });
+            ]);
 
         }
         [TestMethod]
@@ -123,9 +123,9 @@ test test1 ''
                                                 param name string
                                                 "));
 
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
             ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"1\"."),
-        });
+        ]);
         }
 
         [TestMethod]
@@ -141,9 +141,9 @@ test test1 ''
                                                 param name string
                                                 "));
 
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
         ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"name\"."),
-        });
+        ]);
         }
 
         [TestMethod]
@@ -157,9 +157,9 @@ test test1 ''
                                                 param name string
                                                 "));
 
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
         ("BCP035", DiagnosticLevel.Error, "The specified \"test\" declaration is missing the following required properties: \"params\"."),
-        });
+        ]);
         }
 
     }

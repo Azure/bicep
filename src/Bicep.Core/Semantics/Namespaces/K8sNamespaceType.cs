@@ -25,12 +25,12 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static ObjectType GetConfigurationType()
         {
-            return new ObjectType("configuration", TypeSymbolValidationFlags.Default, new[]
-            {
+            return new ObjectType("configuration", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("namespace", LanguageConstants.String, TypePropertyFlags.Required, "The default Kubernetes namespace to deploy resources to."),
                 new TypeProperty("kubeConfig", LanguageConstants.String, TypePropertyFlags.Required, "The Kubernetes configuration file, base-64 encoded."),
                 new TypeProperty("context", LanguageConstants.String),
-            }, null);
+            ], null);
         }
 
         public static NamespaceType Create(string aliasName)

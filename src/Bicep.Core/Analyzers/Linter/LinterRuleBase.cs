@@ -143,7 +143,7 @@ namespace Bicep.Core.Analyzers.Linter
                 styling: this.DiagnosticStyling);
 
         protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix fix, params object[] values) =>
-            CreateFixableDiagnosticForSpan(level, span, new[] { fix }, values);
+            CreateFixableDiagnosticForSpan(level, span, [fix], values);
 
         protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix[] fixes, params object[] values) =>
             new(analyzerName: this.AnalyzerName,

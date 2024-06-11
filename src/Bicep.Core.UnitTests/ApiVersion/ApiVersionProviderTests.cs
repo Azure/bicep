@@ -67,10 +67,10 @@ namespace Bicep.Core.UnitTests.ApiVersions
             apiVersionProvider.InjectTypeReferences(ResourceScope.Tenant, FakeResourceTypes.GetFakeResourceTypeReferences("fake.tenant/whatever@2002-01-01"));
 
             var rgTypes = apiVersionProvider.GetResourceTypeNames(ResourceScope.ResourceGroup);
-            rgTypes.Should().Contain(new string[] { "Fake.Network/dnszones", "Fake.Network/publicIPAddresses", "Fake.Network/ddosProtectionPlans" });
+            rgTypes.Should().Contain(["Fake.Network/dnszones", "Fake.Network/publicIPAddresses", "Fake.Network/ddosProtectionPlans"]);
 
             var subTypes = apiVersionProvider.GetResourceTypeNames(ResourceScope.Subscription);
-            subTypes.Should().Contain(new String[] { "Fake.Web/publishingCredentials", "Fake.Security/deviceSecurityGroups" });
+            subTypes.Should().Contain(["Fake.Web/publishingCredentials", "Fake.Security/deviceSecurityGroups"]);
 
             var mgTypes = apiVersionProvider.GetResourceTypeNames(ResourceScope.ManagementGroup);
             mgTypes.Should().Contain("fake.mg/whatever");

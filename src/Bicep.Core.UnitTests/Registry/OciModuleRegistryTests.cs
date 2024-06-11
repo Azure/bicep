@@ -698,7 +698,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         private async Task RestoreModule(OciArtifactRegistry ociRegistry, OciArtifactReference reference)
         {
-            var (_, failureBuilder) = (await ociRegistry.RestoreArtifacts(new[] { reference })).SingleOrDefault();
+            var (_, failureBuilder) = (await ociRegistry.RestoreArtifacts([reference])).SingleOrDefault();
             if (failureBuilder is { })
             {
                 var builder = new DiagnosticBuilderInternal(new Core.Parsing.TextSpan());

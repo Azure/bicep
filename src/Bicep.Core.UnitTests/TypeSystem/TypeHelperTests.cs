@@ -27,8 +27,8 @@ public class TypeHelperTests
             => expected.AsEnumerable().Concat(toCollapse).ToArray();
 
         // In the explanatory comments for test cases, the `{inclusiveMin,inclusiveMax}` suffix is used to denote length constraints
-        return new[]
-        {
+        return
+        [
             // collapse(true, false) -> bool
             Row(LanguageConstants.Bool, LanguageConstants.True, LanguageConstants.False),
             // collapse(bool, false) -> bool
@@ -126,7 +126,7 @@ public class TypeHelperTests
             Row(TypeFactory.CreateArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int)),
                 TypeFactory.CreateArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int)),
                 new TupleType([LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String], default)),
-        };
+        ];
     }
 
     [TestMethod]
@@ -136,19 +136,17 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
-                },
+                ],
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
-                },
+                ],
                 null),
         };
 
@@ -167,19 +165,17 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
-                },
+                ],
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("type", TypeFactory.CreateStringLiteralType("b"), default),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
-                },
+                ],
                 null),
         };
 
@@ -193,27 +189,24 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
-                },
+                ],
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("type", TypeFactory.CreateStringLiteralType("b"), default),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
-                },
+                ],
                 null),
             new("{type: 'a', baz: int}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("type", TypeFactory.CreateStringLiteralType("a"), default),
                     new("baz", LanguageConstants.Int, TypePropertyFlags.Required),
-                },
+                ],
                 null),
         };
 
@@ -227,21 +220,19 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
-                },
+                ],
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("pop"), TypePropertyFlags.Required),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
-                },
+                ],
                 null),
         };
 
@@ -258,21 +249,19 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("kind", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
-                },
+                ],
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("kind", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("pop"), TypePropertyFlags.Required),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
-                },
+                ],
                 null),
         };
 
@@ -289,21 +278,19 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("variety", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
-                },
+                ],
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
-                {
+                [
                     new("variety", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("pop"), TypePropertyFlags.Required),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
-                },
+                ],
                 null),
         };
 

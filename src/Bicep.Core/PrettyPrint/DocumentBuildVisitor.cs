@@ -27,8 +27,8 @@ namespace Bicep.Core.PrettyPrint
         private static readonly ImmutableDictionary<string, TextDocument> CommonTextCache =
             LanguageConstants.ContextualKeywords
             .Concat(LanguageConstants.Keywords.Keys)
-            .Concat(new[] { "(", ")", "[", "]", "{", "}", "=", ":", "+", "-", "*", "/", "!" })
-            .Concat(new[] { "name", "properties", "string", "bool", "int", "array", "object" })
+            .Concat(["(", ")", "[", "]", "{", "}", "=", ":", "+", "-", "*", "/", "!"])
+            .Concat(["name", "properties", "string", "bool", "int", "array", "object"])
             .ToImmutableDictionary(value => value, value => new TextDocument(value));
 
         private readonly Stack<ILinkedDocument> documentStack = new();

@@ -54,7 +54,7 @@ namespace Bicep.LanguageServer.Handlers
             string decompileId,
             string output,
             string? errorMessage
-        ) : this(decompileId, output, errorMessage, null, new DecompiledFile[] { }, new string[] { })
+        ) : this(decompileId, output, errorMessage, null, [], [])
         {
         }
 

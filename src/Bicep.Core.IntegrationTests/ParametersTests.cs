@@ -167,10 +167,10 @@ param p resource 'Some.Fake/Type@2019-06-01'
 
 output id string = p.id
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -184,11 +184,11 @@ output id string = p.id
             param container resource 'stg:container'
             output name string = container.name // silence unused params warning
             """);
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"container\" is not valid."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -202,11 +202,11 @@ resource resource 'My.Rp/myResource@2020-01-01' = {
   name: 'resource'
 }");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"My.Rp/myResource@2020-01-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                 ("BCP229", DiagnosticLevel.Error, "The parameter \"p\" cannot be used as a resource scope or parent. Resources passed as parameters cannot be used as a scope or parent of a resource."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -225,12 +225,12 @@ resource resource 'Microsoft.Storage/storageAccounts/tableServices@2020-06-01' =
   }
 }");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts/tableServices@2020-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                 ("BCP229", DiagnosticLevel.Error, "The parameter \"p\" cannot be used as a resource scope or parent. Resources passed as parameters cannot be used as a scope or parent of a resource."),
                 ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 1 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -287,10 +287,10 @@ param foo string
 param bar string
 "));
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP065", DiagnosticLevel.Error, "Function \"utcNow\" is not valid at this location. It can only be used as a parameter default value."),
                 ("BCP065", DiagnosticLevel.Error, "Function \"newGuid\" is not valid at this location. It can only be used as a parameter default value."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -308,10 +308,10 @@ param foo string
 param bar object
 "));
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP057", DiagnosticLevel.Error, "The name \"resourceId\" does not exist in the current context."),
                 ("BCP057", DiagnosticLevel.Error, "The name \"deployment\" does not exist in the current context."),
-            });
+            ]);
         }
 
         [TestMethod]

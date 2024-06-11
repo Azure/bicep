@@ -66,56 +66,56 @@ namespace Bicep.Core.Semantics.Namespaces
                 new ObjectExpression(functionCall, []));
 
         private static FunctionResult GetTenantReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
-            => new(new TenantScopeType(functionCall.Arguments, new[]
-            {
+            => new(new TenantScopeType(functionCall.Arguments,
+            [
                 new TypeProperty("tenantId", LanguageConstants.String),
                 new TypeProperty("country", LanguageConstants.String),
                 new TypeProperty("countryCode", LanguageConstants.String),
                 new TypeProperty("displayName", LanguageConstants.String),
-            }));
+            ]));
 
         private static FunctionResult GetManagementGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
-            var summary = new ObjectType("summaryProperties", TypeSymbolValidationFlags.Default, new[]
-            {
+            var summary = new ObjectType("summaryProperties", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("id", LanguageConstants.String),
                 new TypeProperty("name", LanguageConstants.String),
                 new TypeProperty("type", LanguageConstants.String),
-            }, null);
+            ], null);
 
-            var details = new ObjectType("detailsProperties", TypeSymbolValidationFlags.Default, new[]
-            {
+            var details = new ObjectType("detailsProperties", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("version", LanguageConstants.String),
                 new TypeProperty("updatedTime", LanguageConstants.String),
                 new TypeProperty("updatedBy", LanguageConstants.String),
                 new TypeProperty("parent", summary)
-            }, null);
+            ], null);
 
-            var properties = new ObjectType("properties", TypeSymbolValidationFlags.Default, new[]
-            {
+            var properties = new ObjectType("properties", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("tenantId", LanguageConstants.String),
                 new TypeProperty("displayName", LanguageConstants.String),
                 new TypeProperty("details", details)
-            }, null);
+            ], null);
 
-            return new(new ManagementGroupScopeType(functionCall.Arguments, new[]
-            {
+            return new(new ManagementGroupScopeType(functionCall.Arguments,
+            [
                 new TypeProperty("id", LanguageConstants.String),
                 new TypeProperty("name", LanguageConstants.String),
                 new TypeProperty("type", LanguageConstants.String),
                 new TypeProperty("properties", properties),
-            }));
+            ]));
         }
 
         private static FunctionResult GetResourceGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
-            var properties = new ObjectType("properties", TypeSymbolValidationFlags.Default, new[]
-            {
+            var properties = new ObjectType("properties", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("provisioningState", LanguageConstants.String),
-            }, null);
+            ], null);
 
-            return new(new ResourceGroupScopeType(functionCall.Arguments, new[]
-            {
+            return new(new ResourceGroupScopeType(functionCall.Arguments,
+            [
                 new TypeProperty("id", LanguageConstants.String),
                 new TypeProperty("name", LanguageConstants.String),
                 new TypeProperty("type", LanguageConstants.String),
@@ -123,53 +123,53 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("managedBy", LanguageConstants.String),
                 new TypeProperty("tags", AzResourceTypeProvider.Tags),
                 new TypeProperty("properties", properties),
-            }));
+            ]));
         }
 
         private static FunctionResult GetSubscriptionReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
-            return new(new SubscriptionScopeType(functionCall.Arguments, new[]
-            {
+            return new(new SubscriptionScopeType(functionCall.Arguments,
+            [
                 new TypeProperty("id", LanguageConstants.String),
                 new TypeProperty("subscriptionId", LanguageConstants.String),
                 new TypeProperty("tenantId", LanguageConstants.String),
                 new TypeProperty("displayName", LanguageConstants.String),
-            }));
+            ]));
         }
 
         private static ObjectType GetProvidersSingleResourceReturnType()
         {
             // from https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource?tabs=json#providers
-            return new ObjectType("ProviderResource", TypeSymbolValidationFlags.Default, new[]
-            {
+            return new ObjectType("ProviderResource", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("resourceType", LanguageConstants.String),
                 new TypeProperty("locations", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
                 new TypeProperty("apiVersions", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
-            }, null);
+            ], null);
         }
 
         private static ObjectType GetProvidersSingleProviderReturnType()
         {
             // from https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource?tabs=json#providers
-            return new ObjectType("Provider", TypeSymbolValidationFlags.Default, new[]
-            {
+            return new ObjectType("Provider", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("namespace", LanguageConstants.String),
                 new TypeProperty("resourceTypes", new TypedArrayType(GetProvidersSingleResourceReturnType(), TypeSymbolValidationFlags.Default)),
-                }, null);
+                ], null);
         }
 
         private static ObjectType GetEnvironmentReturnType()
         {
-            return new ObjectType("environment", TypeSymbolValidationFlags.Default, new[]
-            {
+            return new ObjectType("environment", TypeSymbolValidationFlags.Default,
+            [
                 new TypeProperty("activeDirectoryDataLake", LanguageConstants.String),
-                new TypeProperty("authentication", new ObjectType("authenticationProperties", TypeSymbolValidationFlags.Default, new []
-                {
+                new TypeProperty("authentication", new ObjectType("authenticationProperties", TypeSymbolValidationFlags.Default,
+                [
                     new TypeProperty("audiences", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
                     new TypeProperty("identityProvider", LanguageConstants.String),
                     new TypeProperty("loginEndpoint", LanguageConstants.String),
                     new TypeProperty("tenant", LanguageConstants.String),
-                }, null)),
+                ], null)),
                 new TypeProperty("batch", LanguageConstants.String),
                 new TypeProperty("gallery", LanguageConstants.String),
                 new TypeProperty("graph", LanguageConstants.String),
@@ -179,8 +179,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("portal", LanguageConstants.String),
                 new TypeProperty("resourceManager", LanguageConstants.String),
                 new TypeProperty("sqlManagement", LanguageConstants.String),
-                new TypeProperty("suffixes", new ObjectType("suffixesProperties", TypeSymbolValidationFlags.Default, new []
-                {
+                new TypeProperty("suffixes", new ObjectType("suffixesProperties", TypeSymbolValidationFlags.Default,
+                [
                     new TypeProperty("acrLoginServer", LanguageConstants.String),
                     new TypeProperty("azureDatalakeAnalyticsCatalogAndJob", LanguageConstants.String),
                     new TypeProperty("azureDatalakeStoreFileSystem", LanguageConstants.String),
@@ -188,9 +188,9 @@ namespace Bicep.Core.Semantics.Namespaces
                     new TypeProperty("keyvaultDns", LanguageConstants.String),
                     new TypeProperty("sqlServerHostname", LanguageConstants.String),
                     new TypeProperty("storage", LanguageConstants.String),
-                }, null)),
+                ], null)),
                 new TypeProperty("vmImageAliasDoc", LanguageConstants.String),
-            }, null);
+            ], null);
         }
 
         private static ObjectType GetDeploymentReturnType(bool resourceGroupScope)
@@ -199,22 +199,22 @@ namespace Bicep.Core.Semantics.Namespaces
             // We're going to omit them and only include what is truly necessary. If we get feature requests to expose more properties, we should discuss this further.
             // Properties such as 'template', 'templateHash', 'parameters' depend on the codegen, and feel like they could be fragile.
             // template.contentVersion was requested in issue #3114
-            IEnumerable<TypeProperty> properties = new[]
-            {
+            IEnumerable<TypeProperty> properties =
+            [
                 new TypeProperty("name", LanguageConstants.String),
-                new TypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
-                {
-                    new TypeProperty("template", new ObjectType("templateProperties", TypeSymbolValidationFlags.Default, new []
-                    {
+                new TypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default,
+                [
+                    new TypeProperty("template", new ObjectType("templateProperties", TypeSymbolValidationFlags.Default,
+                    [
                         new TypeProperty("contentVersion", LanguageConstants.String)
-                    }, null)),
-                    new TypeProperty("templateLink", new ObjectType("templateLinkProperties", TypeSymbolValidationFlags.Default, new []
-                    {
+                    ], null)),
+                    new TypeProperty("templateLink", new ObjectType("templateLinkProperties", TypeSymbolValidationFlags.Default,
+                    [
                         new TypeProperty("id", LanguageConstants.String),
                         new TypeProperty("uri", LanguageConstants.String),
-                    }, null))
-                }, null)),
-            };
+                    ], null))
+                ], null)),
+            ];
 
             if (!resourceGroupScope)
             {
@@ -352,7 +352,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             secretVersion = sv;
                         }
 
-                        var kvResourceId = ResourceGroupLevelResourceId.Create(subscriptionId, resourceGroupName, "Microsoft.KeyVault", new[] { "vaults" }, new[] { keyVaultName });
+                        var kvResourceId = ResourceGroupLevelResourceId.Create(subscriptionId, resourceGroupName, "Microsoft.KeyVault", ["vaults"], [keyVaultName]);
                         return new(LanguageConstants.SecureString, new ParameterKeyVaultReferenceExpression(func, kvResourceId.FullyQualifiedId, secretName, secretVersion));
                     }, LanguageConstants.SecureString)
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "Id of the Subscription that has the target KeyVault")

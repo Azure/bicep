@@ -52,14 +52,14 @@ var baz = storage.listKeys().keys
 var qux = windowsVMDsc2.properties
 var quux = diag.properties
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including ""name"" cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""windowsVMDsc"" include ""apiVersion"", ""id"", ""name"", ""type""."),
                 ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including ""name"" cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""storage"" include ""apiVersion"", ""id"", ""name"", ""type""."),
                 ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including ""name"" cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""storage"" include ""apiVersion"", ""id"", ""name"", ""type""."),
                 ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including ""parent"" cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""windowsVMDsc2"" include ""apiVersion"", ""id"", ""name"", ""type""."),
                 ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including ""scope"" cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""diag"" include ""apiVersion"", ""id"", ""name"", ""type""."),
-            });
+            ]);
         }
     }
 }

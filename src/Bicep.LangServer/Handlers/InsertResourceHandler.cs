@@ -145,13 +145,13 @@ namespace Bicep.LanguageServer.Handlers
                     {
                         Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
                         {
-                            [request.TextDocument.Uri] = new[] {
+                            [request.TextDocument.Uri] = [
                                 new TextEdit
                                 {
                                     Range = replacement.ToRange(context.LineStarts),
                                     NewText = replacement.Text,
                                 },
-                            },
+                            ],
                         },
                     },
                 }, cancellationToken);
@@ -263,7 +263,7 @@ namespace Bicep.LanguageServer.Handlers
                 SyntaxFactory.CreateStringLiteral($"Generated from {resourceId.FullyQualifiedId}"));
 
             return new ResourceDeclarationSyntax(
-                new SyntaxBase[] { description, SyntaxFactory.NewlineToken, },
+                [description, SyntaxFactory.NewlineToken,],
                 SyntaxFactory.ResourceKeywordToken,
                 SyntaxFactory.CreateIdentifierWithTrailingSpace(UnifiedNamePattern().Replace(resourceId.UnqualifiedName, "")),
                 SyntaxFactory.CreateStringLiteral(typeReference.FormatName()),

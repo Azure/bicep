@@ -50,9 +50,9 @@ namespace Bicep.Core.UnitTests.Configuration
         private const string HelpFileName = "experimental-features.md";
 
         // TODO: Remove these when they're fixed
-        private readonly string[] GrandfatheredFeaturesNeedingHelpOrDescription = {
+        private readonly string[] GrandfatheredFeaturesNeedingHelpOrDescription = [
             "providerRegistry",
-        };
+        ];
 
         private static string GetBicepConfigSchemaContents()
         {
@@ -259,7 +259,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 string description = new Regex("^(.+) See https://.+").Match(descriptionWithLink)?.Groups[1].Value ?? "<couldn't find rule description>";
                 description.Should().MatchRegex("^[A-Z]", "all rule descriptions should start with a capital letter");
                 description.Should().EndWith(".", "all rule descriptions should end with a period");
-                description.Should().NotContainAny(new[] { "don't", "do not" }, StringComparison.InvariantCultureIgnoreCase, "Use \"Should\" type of language generally (less impolite)");
+                description.Should().NotContainAny(["don't", "do not"], StringComparison.InvariantCultureIgnoreCase, "Use \"Should\" type of language generally (less impolite)");
                 description.Should().NotContain("\"", "use single quotes instead of double quotes in rule descriptions");
             }
         }
@@ -339,7 +339,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 description.Should().MatchRegex($"^[A-Z]", "all feature descriptions should start with a capital letter: {featureName}");
                 description.Should().NotContain($"\"", "use single quotes instead of double quotes in feature descriptions: {featureName}");
 
-                description.Should().NotContainAny(new[] { "don't", "do not" }, "Use \"Should\" type of language generally (less impolite)");
+                description.Should().NotContainAny(["don't", "do not"], "Use \"Should\" type of language generally (less impolite)");
             }
         }
 

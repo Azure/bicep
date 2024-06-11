@@ -106,7 +106,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     case FunctionMatchResult.Match:
                         // for full match, just return the first one
-                        return new[] { overload };
+                        return [overload];
 
                     case FunctionMatchResult.PotentialMatch:
                         potentialMatchOverloads.Add(overload);

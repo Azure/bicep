@@ -55,9 +55,9 @@ namespace Bicep.Core.IntegrationTests
             var result = await CompilationHelper.RestoreAndCompile(services, """
             provider az
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -83,9 +83,9 @@ provider
             var result = await CompilationHelper.RestoreAndCompile(services, """
             provider sys blahblah
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -95,9 +95,9 @@ provider
             var result = await CompilationHelper.RestoreAndCompile(services, """
             provider kubernetes with
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -110,9 +110,9 @@ provider
                 namespace: 'bar'
             } something
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -125,9 +125,9 @@ provider
                 namespace: 'bar'
             } as
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -137,9 +137,9 @@ provider
             var result = await CompilationHelper.RestoreAndCompile(services, """
             provider sys as
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -150,9 +150,9 @@ provider
               foo: 'bar'
             }
             """);
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -161,9 +161,9 @@ provider
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"
 provider madeUpNamespace
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP204", DiagnosticLevel.Error, "Provider namespace \"madeUpNamespace\" is not recognized."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -225,12 +225,12 @@ provider madeUpNamespace
             provider sys as sys2
             """);
 
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is declared multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is declared multiple times. Remove the duplicates."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -244,10 +244,10 @@ provider madeUpNamespace
             } as az
             """);
 
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -262,10 +262,10 @@ provider madeUpNamespace
                     ArmTemplateProviderName: "Ns1-Unused",
                     ArmTemplateProviderVersion: "1.0"),
                 [],
-                new[] {
+                [
                     new FunctionOverloadBuilder("ns1Func").Build(),
                     new FunctionOverloadBuilder("dupeFunc").Build(),
-                },
+                ],
                 [],
                 [],
                 new EmptyResourceTypeProvider());
@@ -279,10 +279,10 @@ provider madeUpNamespace
                     ArmTemplateProviderName: "Ns2-Unused",
                     ArmTemplateProviderVersion: "1.0"),
                 [],
-                new[] {
+                [
                     new FunctionOverloadBuilder("ns2Func").Build(),
                     new FunctionOverloadBuilder("dupeFunc").Build(),
-                },
+                ],
                 [],
                 [],
                 new EmptyResourceTypeProvider());
@@ -313,9 +313,9 @@ provider madeUpNamespace
             output ns2Result string = ns2Func()
             ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP056", DiagnosticLevel.Error, "The reference to name \"dupeFunc\" is ambiguous because it exists in namespaces \"ns1\", \"ns2\". The reference must be fully-qualified."),
-            });
+            ]);
 
             // fix by fully-qualifying
             result = await CompilationHelper.RestoreAndCompile(services, @"
@@ -341,10 +341,9 @@ provider madeUpNamespace
                     ConfigurationType: new ObjectType(
                         "mockNs",
                         TypeSymbolValidationFlags.Default,
-                        new[]
-                        {
+                        [
                             new TypeProperty("optionalConfig", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant),
-                        },
+                        ],
                         null),
                     ArmTemplateProviderName: "Unused",
                     ArmTemplateProviderVersion: "1.0.0"),

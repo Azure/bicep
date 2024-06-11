@@ -98,7 +98,7 @@ namespace Bicep.Core.Semantics
             if (resourceBody == null)
             {
                 // If we have no body then there will be nothing to reference.
-                var error = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.ResourceName).NestedResourceNotFound(resourceSymbol.Name, syntax.ResourceName.IdentifierName, nestedResourceNames: new[] { "(none)", }));
+                var error = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.ResourceName).NestedResourceNotFound(resourceSymbol.Name, syntax.ResourceName.IdentifierName, nestedResourceNames: ["(none)",]));
                 this.bindings.Add(syntax, error);
                 return;
             }

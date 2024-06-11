@@ -30,10 +30,10 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing 
 output secret string = storageaccount.?listKeys().keys[0].value
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP322", DiagnosticLevel.Error, "The `.?` (safe dereference) operator may not be used on instance function invocations.")
-        });
+        ]);
     }
 
     [TestMethod]
@@ -49,10 +49,10 @@ output data object = {
 }
 ");
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             ("BCP323", DiagnosticLevel.Error, "The `[?]` (safe dereference) operator may not be used on resource or module collections.")
-        });
+        ]);
     }
 
     [TestMethod]
@@ -74,10 +74,10 @@ output data object = {
 }
 "));
 
-        result.Should().HaveDiagnostics(new[]
-        {
+        result.Should().HaveDiagnostics(
+        [
             ("BCP323", DiagnosticLevel.Error, "The `[?]` (safe dereference) operator may not be used on resource or module collections.")
-        });
+        ]);
     }
 
     [TestMethod]
@@ -239,12 +239,12 @@ output nested object = foo[0].?nested
 output nestedAlt object = foo[?0].nested
 output deeplyNested string = foo[0].?nested.deeplyNested
 ");
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("BCP321", DiagnosticLevel.Warning, "Expected a value of type \"object\" but the provided value is of type \"null | { nested: { deeplyNested: 'value' } }\"."),
             ("BCP321", DiagnosticLevel.Warning, "Expected a value of type \"object\" but the provided value is of type \"null | { deeplyNested: 'value' }\"."),
             ("BCP321", DiagnosticLevel.Warning, "Expected a value of type \"object\" but the provided value is of type \"null | { deeplyNested: 'value' }\"."),
             ("BCP321", DiagnosticLevel.Warning, "Expected a value of type \"string\" but the provided value is of type \"'value' | null\"."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -261,9 +261,9 @@ output nulls object = {
   arrayAccess: foo[?baz]
 }
 ");
-        result.Should().HaveDiagnostics(new[] {
+        result.Should().HaveDiagnostics([
             ("BCP083", DiagnosticLevel.Warning, @"The type ""object"" does not contain property ""baz"". Did you mean ""bar""?"),
             ("BCP083", DiagnosticLevel.Warning, @"The type ""object"" does not contain property ""baz"". Did you mean ""bar""?"),
-        });
+        ]);
     }
 }

@@ -74,9 +74,9 @@ output test1 string = concat('foo', 'bar')
 output test1 string = concat('foo' 'bar')
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP236", DiagnosticLevel.Error, "Expected a new line or comma character at this location."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -86,9 +86,9 @@ output test1 string = concat('foo' 'bar')
 output test1 string = concat('foo',)
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -98,9 +98,9 @@ output test1 string = concat('foo',)
 output test1 string = concat('foo', 'bar'
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP018", DiagnosticLevel.Error, "Expected the \")\" character at this location."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -257,11 +257,11 @@ output test2 array = [
 ]
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
                 ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
                 ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -271,9 +271,9 @@ output test2 array = [
 output test1 array = ['foo', 'bar'
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"]\" character at this location."),
-            });
+            ]);
         }
 
 
@@ -358,11 +358,11 @@ output test2 object = {
 }
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
                 ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
                 ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -372,9 +372,9 @@ output test2 object = {
 output test1 object = { abc: 'foo', def: 'bar'
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"}\" character at this location."),
-            });
+            ]);
         }
     }
 }

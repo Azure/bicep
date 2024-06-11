@@ -82,15 +82,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetUnaryTestCases()
         {
             static object[] Case(UnaryOperationSyntax expression, TypeSymbol operandType, TypeSymbol expected, params DiagnosticMatcherData[] matcherData)
-                => new object[] { expression, operandType, expected, matcherData };
+                => [expression, operandType, expected, matcherData];
 
 
             var symbolRef = TestSyntaxFactory.CreateVariableAccess("foo");
             UnaryOperationSyntax minus = new(TestSyntaxFactory.CreateToken(TokenType.Minus), symbolRef);
             UnaryOperationSyntax not = new(TestSyntaxFactory.CreateToken(TokenType.Exclamation), symbolRef);
 
-            return new[]
-            {
+            return
+            [
                 Case(minus, LanguageConstants.Int, LanguageConstants.Int),
                 Case(minus, TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(-1)),
                 Case(minus, TypeFactory.CreateIntegerType(-20, -10), TypeFactory.CreateIntegerType(10, 20)),
@@ -99,7 +99,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Case(not, LanguageConstants.Bool, LanguageConstants.Bool),
                 Case(not, TypeFactory.CreateBooleanLiteralType(true), TypeFactory.CreateBooleanLiteralType(false)),
                 Case(not, TypeHelper.CreateTypeUnion(TypeFactory.CreateBooleanLiteralType(true), TypeFactory.CreateBooleanLiteralType(false)), TypeHelper.CreateTypeUnion(TypeFactory.CreateBooleanLiteralType(true), TypeFactory.CreateBooleanLiteralType(false))),
-            };
+            ];
         }
 
         [DataTestMethod]
@@ -145,10 +145,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetBinaryTestCases()
         {
             static object[] Case(BinaryOperator @operator, TypeSymbol leftOperandType, TypeSymbol rightOperandType, TypeSymbol expected, params DiagnosticMatcherData[] matcherData)
-                => new object[] { @operator, leftOperandType, rightOperandType, expected, matcherData };
+                => [@operator, leftOperandType, rightOperandType, expected, matcherData];
 
-            return new[]
-            {
+            return
+            [
                 // ||
                 Case(BinaryOperator.LogicalOr, LanguageConstants.Bool, LanguageConstants.Bool, LanguageConstants.Bool),
                 Case(BinaryOperator.LogicalOr, LanguageConstants.True, LanguageConstants.Any, LanguageConstants.True),
@@ -305,7 +305,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TypeHelper.CreateTypeUnion(LanguageConstants.Null, TypeFactory.CreateStringLiteralType("Fizz"), TypeFactory.CreateStringLiteralType("Buzz")),
                     TypeFactory.CreateStringLiteralType("Pop"),
                     TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("Fizz"), TypeFactory.CreateStringLiteralType("Buzz"), TypeFactory.CreateStringLiteralType("Pop"))),
-            };
+            ];
         }
     }
 }

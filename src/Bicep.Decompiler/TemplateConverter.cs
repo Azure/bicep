@@ -375,7 +375,7 @@ namespace Bicep.Decompiler
                     // key is a non-string expression
                     // since ObjectPropertySyntax only accepts IdentifierSyntax or StringSyntax, we need
                     // to wrap it in a string syntax
-                    var keySyntax = SyntaxFactory.CreateString(new[] { string.Empty, string.Empty }, pair[0].AsEnumerable());
+                    var keySyntax = SyntaxFactory.CreateString([string.Empty, string.Empty], pair[0].AsEnumerable());
                     return new ObjectPropertySyntax(keySyntax, SyntaxFactory.ColonToken, pair[1]);
                 }));
                 return true;
@@ -811,7 +811,7 @@ namespace Bicep.Decompiler
 
         private IEnumerable<SyntaxBase> ProcessMetadataDescription(Func<string, JToken?> valueLookupFunc)
             => ProcessDecoratorsWithTransform(
-                new[] { "metadata" },
+                ["metadata"],
                 valueLookupFunc,
                 input =>
                 {
@@ -829,7 +829,7 @@ namespace Bicep.Decompiler
 
         private IEnumerable<SyntaxBase> ProcessMetadataMiscProperties(Func<string, JToken?> valueLookupFunc)
             => ProcessDecoratorsWithTransform(
-                new[] { "metadata" },
+                ["metadata"],
                 valueLookupFunc,
                 input =>
                 {
@@ -870,7 +870,7 @@ namespace Bicep.Decompiler
 
             decoratorsAndNewLines.AddRange(
                 ProcessDecoratorsWithTransform(
-                new[] { "minValue", "maxValue", "minLength", "maxLength", "allowedValues" },
+                ["minValue", "maxValue", "minLength", "maxLength", "allowedValues"],
                 name => value.Value?[name],
                 input =>
                 {
@@ -1021,7 +1021,7 @@ namespace Bicep.Decompiler
                             // copyIndex() -> copyIndex(<name>)
                             return new FunctionExpression(
                                 "copyIndex",
-                                new[] { new JTokenExpression(name) },
+                                [new JTokenExpression(name)],
                                 function.Properties);
                         }
                         else if (function.Parameters.Length == 1 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == null)
@@ -1030,7 +1030,7 @@ namespace Bicep.Decompiler
                             // copyIndex(<index>) -> copyIndex(<name>, <index>)
                             return new FunctionExpression(
                                 "copyIndex",
-                                new[] { new JTokenExpression(name), function.Parameters[0] },
+                                [new JTokenExpression(name), function.Parameters[0]],
                                 function.Properties);
                         }
                     }
@@ -1050,7 +1050,7 @@ namespace Bicep.Decompiler
                         // copyIndex(<name>) - replace with '<index>'
                         return new FunctionExpression(
                             "variables",
-                            new[] { new JTokenExpression(indexIdentifier) },
+                            [new JTokenExpression(indexIdentifier)],
                             function.Properties);
                     }
                     else if (function.Parameters.Length == 2 && ExpressionHelpers.TryGetStringValue(function.Parameters[0]) == name)
@@ -1058,16 +1058,15 @@ namespace Bicep.Decompiler
                         // copyIndex(<name>, <offset>) - replace with '<index> + <offset>'
                         var varExpression = new FunctionExpression(
                             "variables",
-                            new[] { new JTokenExpression(indexIdentifier), },
+                            [new JTokenExpression(indexIdentifier),],
                             []);
 
                         return new FunctionExpression(
                             "add",
-                            new[]
-                            {
+                            [
                                 varExpression,
                                 function.Parameters[1],
-                            },
+                            ],
                             function.Properties);
                     }
 
@@ -1075,7 +1074,7 @@ namespace Bicep.Decompiler
                 });
 
                 return SyntaxFactory.CreateRangedForSyntax(indexIdentifier, ParseJToken(count), getSyntaxForInputFunc(input));
-            }, new[] { indexIdentifier });
+            }, [indexIdentifier]);
         }
 
         private (SyntaxBase body, IEnumerable<SyntaxBase> decorators) ProcessResourceCopy(JObject resource, Func<JObject, SyntaxBase> resourceBodyFunc)
@@ -1244,7 +1243,7 @@ namespace Bicep.Decompiler
 
         private SyntaxBase ParseModule(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource, string typeString, string nameString)
         {
-            var expectedProps = new HashSet<string>(new[] {
+            var expectedProps = new HashSet<string>([
                 "name",
                 "type",
                 "apiVersion",
@@ -1253,15 +1252,15 @@ namespace Bicep.Decompiler
                 "dependsOn",
                 "comments",
                 "metadata",
-            }, StringComparer.OrdinalIgnoreCase);
+            ], StringComparer.OrdinalIgnoreCase);
 
-            var propsToOmit = new HashSet<string>(new[] {
+            var propsToOmit = new HashSet<string>([
                 "condition",
                 LanguageConstants.CopyLoopIdentifier,
                 "resourceGroup",
                 "subscriptionId",
                 "metadata",
-            }, StringComparer.OrdinalIgnoreCase);
+            ], StringComparer.OrdinalIgnoreCase);
 
             TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
             foreach (var prop in resource.Properties())
@@ -1531,8 +1530,8 @@ namespace Bicep.Decompiler
 
         private ObjectSyntax ProcessResourceBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource)
         {
-            var expectedResourceProps = new HashSet<string>(new[]
-            {
+            var expectedResourceProps = new HashSet<string>(
+            [
                 "name",
                 "type",
                 "apiVersion",
@@ -1554,10 +1553,10 @@ namespace Bicep.Decompiler
                 "scope",
                 "metadata",
                 "asserts",
-            }, StringComparer.OrdinalIgnoreCase);
+            ], StringComparer.OrdinalIgnoreCase);
 
-            var resourcePropsToOmit = new HashSet<string>(new[]
-            {
+            var resourcePropsToOmit = new HashSet<string>(
+            [
                 "condition",
                 LanguageConstants.CopyLoopIdentifier,
                 "type",
@@ -1566,7 +1565,7 @@ namespace Bicep.Decompiler
                 "comments",
                 "scope",
                 "metadata",
-            }, StringComparer.OrdinalIgnoreCase);
+            ], StringComparer.OrdinalIgnoreCase);
 
             var topLevelProperties = new List<ObjectPropertySyntax>();
             var scope = TryGetResourceScopeProperty(resource);

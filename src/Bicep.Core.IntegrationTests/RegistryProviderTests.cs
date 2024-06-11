@@ -121,10 +121,10 @@ resource fooRes 'fooType@v1' existing = {
 }
 """);
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
             ("BCP035", DiagnosticLevel.Warning, """The specified "resource" declaration is missing the following required properties: "identifier". If this is an inaccuracy in the documentation, please report it to the Bicep Team."""),
-        });
+        ]);
 
         result = await CompilationHelper.RestoreAndCompile(services, """
 provider 'br:example.azurecr.io/providers/foo:1.2.3'
@@ -165,9 +165,9 @@ output joke string = dadJoke.body.joke
 """);
 
         result.Should().NotGenerateATemplate();
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
             ("BCP205", DiagnosticLevel.Error, "Provider namespace \"http\" does not support configuration.")
-        });
+        ]);
     }
 
     [TestMethod]
@@ -344,9 +344,9 @@ output joke string = dadJoke.joke
 """);
 
         result.Should().NotGenerateATemplate();
-        result.Should().HaveDiagnostics(new[]{
+        result.Should().HaveDiagnostics([
             ("BCP206", DiagnosticLevel.Error, "Provider namespace \"ThirdPartyProvider\" requires configuration, but none was provided.")
-        });
+        ]);
     }
 
     [TestMethod]
@@ -403,9 +403,9 @@ output joke string = dadJoke.joke
 """);
 
         result.Should().NotGenerateATemplate();
-        result.Should().HaveDiagnostics(new[]{
+        result.Should().HaveDiagnostics([
             ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"namespace\".")
-        });
+        ]);
     }
 
     [TestMethod]
@@ -430,10 +430,10 @@ output joke string = dadJoke.joke
 """);
 
         result.Should().NotGenerateATemplate();
-        result.Should().HaveDiagnostics(new[]{
+        result.Should().HaveDiagnostics([
             ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"namespace\"."),
             ("BCP089", DiagnosticLevel.Error, "The property \"namespac\" is not allowed on objects of type \"config\". Did you mean \"namespace\"?")
-        });
+        ]);
     }
 
     [TestMethod]
@@ -458,9 +458,9 @@ output joke string = dadJoke.joke
 """);
 
         result.Should().NotGenerateATemplate();
-        result.Should().HaveDiagnostics(new[]{
+        result.Should().HaveDiagnostics([
             ("BCP089", DiagnosticLevel.Error, "The property \"contex\" is not allowed on objects of type \"config\". Did you mean \"context\"?")
-        });
+        ]);
     }
 
     [TestMethod]
@@ -483,9 +483,9 @@ resource test 'test@v1' = {
 
         result.Template.Should().HaveValueAtPath("$.resources['test']['properties']['bodyProp']", "fallback body");
 
-        result.Should().HaveDiagnostics(new[]{
+        result.Should().HaveDiagnostics([
             ("BCP081", DiagnosticLevel.Warning, "Resource type \"test@v1\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.")
-        });
+        ]);
     }
 
     [TestMethod]
@@ -503,9 +503,9 @@ resource test 'test@v1' = {
 """);
 
         result.Should().NotGenerateATemplate();
-        result.Should().HaveDiagnostics(new[]{
+        result.Should().HaveDiagnostics([
             ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."),
-        });
+        ]);
     }
 
     [TestMethod]
@@ -531,9 +531,9 @@ provider foo
 """);
 
         result.Should().NotGenerateATemplate();
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
             ("BCP192", DiagnosticLevel.Error, """Unable to restore the artifact with reference "br:example.azurecr.io/providers/foo:1.2.4": The artifact does not exist in the registry.""")
-        });
+        ]);
 
         // correct provider version
         fileSystem.File.WriteAllText("/bicepconfig.json", """

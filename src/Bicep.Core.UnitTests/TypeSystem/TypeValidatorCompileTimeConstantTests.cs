@@ -103,17 +103,17 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("int", TestSyntaxFactory.CreateInt(42));
             yield return CreateRow("negative int", TestSyntaxFactory.CreateUnaryMinus(TestSyntaxFactory.CreateInt(42)));
 
-            yield return CreateRow("empty object", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]));
+            yield return CreateRow("empty object", TestSyntaxFactory.CreateObject([]));
 
-            yield return CreateRow("object literal", TestSyntaxFactory.CreateObject(new[]
-            {
+            yield return CreateRow("object literal", TestSyntaxFactory.CreateObject(
+            [
                 TestSyntaxFactory.CreateProperty("one", TestSyntaxFactory.CreateNull()),
                 TestSyntaxFactory.CreateProperty("two", TestSyntaxFactory.CreateBool(true)),
                 TestSyntaxFactory.CreateProperty("three", TestSyntaxFactory.CreateBool(false)),
                 TestSyntaxFactory.CreateProperty("four", TestSyntaxFactory.CreateString("hello")),
                 TestSyntaxFactory.CreateProperty("five", TestSyntaxFactory.CreateInt(42)),
-                TestSyntaxFactory.CreateProperty("six", TestSyntaxFactory.CreateObject(new []
-                {
+                TestSyntaxFactory.CreateProperty("six", TestSyntaxFactory.CreateObject(
+                [
                     TestSyntaxFactory.CreateProperty("one", TestSyntaxFactory.CreateNull()),
                     TestSyntaxFactory.CreateProperty("two", TestSyntaxFactory.CreateBool(true)),
                     TestSyntaxFactory.CreateProperty("three", TestSyntaxFactory.CreateBool(false)),
@@ -127,10 +127,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                         TestSyntaxFactory.CreateString("other"),
                         TestSyntaxFactory.CreateInt(103)
                     }))
-                }))
-            }));
+                ]))
+            ]));
 
-            yield return CreateRow("empty array", TestSyntaxFactory.CreateArray(new ArrayItemSyntax[0]));
+            yield return CreateRow("empty array", TestSyntaxFactory.CreateArray([]));
 
             yield return CreateRow("array literal", TestSyntaxFactory.CreateArray(new SyntaxBase[]
             {
@@ -139,8 +139,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateBool(false),
                 TestSyntaxFactory.CreateString("other"),
                 TestSyntaxFactory.CreateInt(103),
-                TestSyntaxFactory.CreateObject(new[]
-                {
+                TestSyntaxFactory.CreateObject(
+                [
                     TestSyntaxFactory.CreateProperty("one", TestSyntaxFactory.CreateNull()),
                     TestSyntaxFactory.CreateProperty("two", TestSyntaxFactory.CreateBool(true)),
                     TestSyntaxFactory.CreateProperty("three", TestSyntaxFactory.CreateBool(false)),
@@ -154,7 +154,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                         TestSyntaxFactory.CreateString("other"),
                         TestSyntaxFactory.CreateInt(103)
                     }))
-                }),
+                ]),
                 TestSyntaxFactory.CreateArray(new SyntaxBase[]
                 {
                     TestSyntaxFactory.CreateNull(),
@@ -173,6 +173,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("empty file", new Parser("").Program());
         }
 
-        private static object[] CreateRow(string name, SyntaxBase expression) => new object[] { name, expression };
+        private static object[] CreateRow(string name, SyntaxBase expression) => [name, expression];
     }
 }

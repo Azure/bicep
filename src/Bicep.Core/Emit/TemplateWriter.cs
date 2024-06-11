@@ -392,28 +392,25 @@ namespace Bicep.Core.Emit
 
             // literals
             StringLiteralTypeExpression @string => ExpressionFactory.CreateObject(
-                new[]
-                {
+                [
                     TypeProperty(LanguageConstants.TypeNameString, @string.SourceSyntax),
                     AllowedValuesProperty(SingleElementArray(ExpressionFactory.CreateStringLiteral(@string.Value, @string.SourceSyntax)),
                         @string.SourceSyntax),
-                },
+                ],
                 @string.SourceSyntax),
             IntegerLiteralTypeExpression @int => ExpressionFactory.CreateObject(
-                new[]
-                {
+                [
                     TypeProperty(LanguageConstants.TypeNameInt, @int.SourceSyntax),
                     AllowedValuesProperty(SingleElementArray(ExpressionFactory.CreateIntegerLiteral(@int.Value, @int.SourceSyntax)),
                         @int.SourceSyntax),
-                },
+                ],
                 @int.SourceSyntax),
             BooleanLiteralTypeExpression @bool => ExpressionFactory.CreateObject(
-                new[]
-                {
+                [
                     TypeProperty(LanguageConstants.TypeNameBool, @bool.SourceSyntax),
                     AllowedValuesProperty(SingleElementArray(ExpressionFactory.CreateBooleanLiteral(@bool.Value, @bool.SourceSyntax)),
                         @bool.SourceSyntax),
-                },
+                ],
                 @bool.SourceSyntax),
             UnionTypeExpression unionType => GetTypePropertiesForUnionTypeExpression(unionType),
 
@@ -465,8 +462,8 @@ namespace Bicep.Core.Emit
                 : this(expression.RootResourceType.TypeReference, [], expression.RootResourceType.Body.Type) { }
 
             public ObjectExpression GetTypePropertiesForResolvedReferenceExpression(SyntaxBase? sourceSyntax)
-                => ExpressionFactory.CreateObject(new[]
-                {
+                => ExpressionFactory.CreateObject(
+                [
                     TypeProperty(GetNonLiteralTypeName(DerivedType), sourceSyntax),
                     ExpressionFactory.CreateObjectProperty(LanguageConstants.ParameterMetadataPropertyName,
                         ExpressionFactory.CreateObject(
@@ -479,7 +476,7 @@ namespace Bicep.Core.Emit
                                 sourceSyntax).AsEnumerable(),
                             sourceSyntax),
                         sourceSyntax),
-                });
+                ]);
         }
 
         private record ResolvedInternalReference(ImmutableArray<string> PointerSegments, TypeExpression Declaration) : ITypeReferenceExpressionResolution
@@ -691,8 +688,8 @@ namespace Bicep.Core.Emit
         {
             var typeString = expression.ExpressedResourceType.TypeReference.FormatName();
 
-            return ExpressionFactory.CreateObject(new[]
-            {
+            return ExpressionFactory.CreateObject(
+            [
                 TypeProperty(LanguageConstants.TypeNameString, expression.SourceSyntax),
                 ExpressionFactory.CreateObjectProperty(LanguageConstants.ParameterMetadataPropertyName,
                     ExpressionFactory.CreateObject(
@@ -701,7 +698,7 @@ namespace Bicep.Core.Emit
                             expression.SourceSyntax).AsEnumerable(),
                         expression.SourceSyntax),
                     expression.SourceSyntax),
-            });
+            ]);
         }
 
         private ObjectExpression GetTypePropertiesForArrayType(ArrayTypeExpression expression)
@@ -760,8 +757,8 @@ namespace Bicep.Core.Emit
             return ExpressionFactory.CreateObject(properties, expression.SourceSyntax);
         }
 
-        private ObjectExpression GetTypePropertiesForTupleType(TupleTypeExpression expression) => ExpressionFactory.CreateObject(new[]
-        {
+        private ObjectExpression GetTypePropertiesForTupleType(TupleTypeExpression expression) => ExpressionFactory.CreateObject(
+        [
             TypeProperty(LanguageConstants.ArrayType, expression.SourceSyntax),
             ExpressionFactory.CreateObjectProperty("prefixItems",
                 ExpressionFactory.CreateArray(
@@ -769,7 +766,7 @@ namespace Bicep.Core.Emit
                     expression.SourceSyntax),
                 expression.SourceSyntax),
             ExpressionFactory.CreateObjectProperty("items", ExpressionFactory.CreateBooleanLiteral(false), expression.SourceSyntax),
-        });
+        ]);
 
         private ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
         {

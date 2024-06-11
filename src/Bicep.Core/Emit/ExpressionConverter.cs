@@ -135,7 +135,7 @@ namespace Bicep.Core.Emit
 
                         var listArgs = listFunction.Parameters.Length switch
                         {
-                            0 => new Expression[] { resourceIdExpression, apiVersionExpression, },
+                            0 => [resourceIdExpression, apiVersionExpression,],
                             _ => new Expression[] { resourceIdExpression, }.Concat(listFunction.Parameters),
                         };
 
@@ -240,7 +240,7 @@ namespace Bicep.Core.Emit
                     //   - conditional outputs (where the accessed property will be omitted from the `outputs` object)
                     //   - outputs with a null value (where the accessed property will be present in the `outputs` object, but its `value` property will be omitted)
                     @base = CreateFunction("tryGet", @base.AsEnumerable().Concat(properties));
-                    properties = new[] { new JTokenExpression("value") };
+                    properties = [new JTokenExpression("value")];
                 }
                 else
                 {
@@ -274,16 +274,14 @@ namespace Bicep.Core.Emit
 
             // creates an expression like: `last(split(<resource id>, '/'))`
             LanguageExpression NameFromIdExpression(LanguageExpression idExpression) => new FunctionExpression("last",
-                new LanguageExpression[]
-                {
+                [
                     new FunctionExpression("split",
-                        new LanguageExpression[]
-                        {
+                        [
                             idExpression,
                             new JTokenExpression("/"),
-                        },
+                        ],
                         []),
-                },
+                ],
                 []);
 
             // The cases for a parameter resource are much simpler and can be handled up front. These do not
@@ -342,18 +340,16 @@ namespace Bicep.Core.Emit
                         // retrieve the value of that output), but this inefficiency is unavoidable since passing `null` to `split` will cause the deployment to fail
                         return (
                             new FunctionExpression("if",
-                                new LanguageExpression[]
-                                {
+                                [
                                     new FunctionExpression("contains",
-                                        new LanguageExpression[]
-                                        {
+                                        [
                                             AppendProperties(GetModuleReferenceExpression(output.Module, null, true), new JTokenExpression("outputs")),
                                             new JTokenExpression(output.OutputName),
-                                        },
+                                        ],
                                         []),
                                     NameFromIdExpression(GetFullyQualifiedResourceId(output)),
                                     new FunctionExpression("null", [], []),
-                                },
+                                ],
                                 []),
                             Enumerable.Empty<LanguageExpression>(),
                             true);
@@ -509,8 +505,8 @@ namespace Bicep.Core.Emit
             {
                 return new FunctionExpression(
                     "parameters",
-                    new LanguageExpression[] { new JTokenExpression(parameter.Symbol.Name), },
-                    new LanguageExpression[] { });
+                    [new JTokenExpression(parameter.Symbol.Name),],
+                    []);
             }
             else if (resource is ModuleOutputResourceMetadata output)
             {
@@ -577,7 +573,7 @@ namespace Bicep.Core.Emit
             {
                 ParameterResourceMetadata parameter => new FunctionExpression(
                     "parameters",
-                    new LanguageExpression[] { new JTokenExpression(parameter.Symbol.Name), },
+                    [new JTokenExpression(parameter.Symbol.Name),],
                     []),
 
                 ModuleOutputResourceMetadata output => AppendProperties(
@@ -861,11 +857,11 @@ namespace Bicep.Core.Emit
 
             if (fullyQualified)
             {
-                return GenerateTenantResourceId(managementGroupType, new[] { managementGroupName });
+                return GenerateTenantResourceId(managementGroupType, [managementGroupName]);
             }
             else
             {
-                return GenerateUnqualifiedResourceId(managementGroupType, new[] { managementGroupName });
+                return GenerateUnqualifiedResourceId(managementGroupType, [managementGroupName]);
             }
         }
 

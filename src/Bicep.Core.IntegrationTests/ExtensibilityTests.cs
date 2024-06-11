@@ -38,10 +38,10 @@ provider bar with {
   madeUpProperty: 'asdf'
 } as stg
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"connectionString\"."),
                 ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"configuration\". Permissible properties include \"connectionString\".")
-            });
+            ]);
         }
 
         [TestMethod]
@@ -96,9 +96,9 @@ provider bar with {
             name: 'myblob'
             }
             """);
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP264", DiagnosticLevel.Error, "Resource type \"container\" is declared in multiple imported namespaces (\"stg\", \"stg2\"), and must be fully-qualified."),
-            });
+            ]);
 
             result = CompilationHelper.Compile(Services, """
             provider bar with {
@@ -198,11 +198,11 @@ provider bar with {
             """);
 
             result.Should().NotGenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"uniqueName\"."),
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"myApp\" is declared but never used."),
                 ("BCP037", DiagnosticLevel.Error, "The property \"name\" is not allowed on objects of type \"application\". Permissible properties include \"uniqueName\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            });
+            ]);
 
             // oops! let's change it to 'uniqueName'
             result = CompilationHelper.Compile(Services, """
@@ -214,9 +214,9 @@ provider bar with {
             """);
 
             result.Should().GenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"myApp\" is declared but never used."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -242,11 +242,11 @@ provider bar with {
             """);
 
             result.Should().GenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"service\" is declared but never used."),
                 ("BCP073", DiagnosticLevel.Warning, "The property \"labels\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP073", DiagnosticLevel.Warning, "The property \"annotations\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -265,12 +265,12 @@ provider kubernetes with {
 ");
 
             result.Should().NotGenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"kubernetes\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"kubernetes\" is declared multiple times. Remove the duplicates."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"kubernetes\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"kubernetes\" is declared multiple times. Remove the duplicates."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -302,11 +302,11 @@ resource configmap 'core/ConfigMap@v1' existing = {
 ");
 
             result.Should().GenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"service\" is declared but never used."),
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"secret\" is declared but never used."),
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"configmap\" is declared but never used."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -363,9 +363,9 @@ resource secret 'core/Secret@v1' = {
                 """);
 
             result.Should().GenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP081", DiagnosticLevel.Warning, @"Resource type ""custom/Foo@v1"" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -394,12 +394,12 @@ resource secret 'core/Secret@v1' = {
                 """);
 
             result.Should().NotGenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics([
                 ("BCP264", DiagnosticLevel.Error, @"Resource type ""Microsoft.Compute/availabilitySets@2023-01-01"" is declared in multiple imported namespaces (""az"", ""kubernetes""), and must be fully-qualified."),
                 ("BCP035", DiagnosticLevel.Error, @"The specified ""resource"" declaration is missing the following required properties: ""name""."),
                 ("BCP081", DiagnosticLevel.Warning, @"Resource type ""Microsoft.Compute/availabilitySets@2023-01-01"" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                 ("BCP081", DiagnosticLevel.Warning, @"Resource type ""Microsoft.Foo/bar@2023-01-01"" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -442,10 +442,10 @@ resource secret 'core/Secret@v1' = {
             }
             """);
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP208", DiagnosticLevel.Error, "The specified namespace \"foo\" is not recognized. Specify a resource reference using one of the following namespaces: \"az\", \"stg\", \"sys\"."),
                 ("BCP208", DiagnosticLevel.Error, "The specified namespace \"bar\" is not recognized. Specify a resource reference using one of the following namespaces: \"az\", \"stg\", \"sys\"."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -465,10 +465,10 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 }
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2020-01-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                 ("BCP210", DiagnosticLevel.Error, "Resource type belonging to namespace \"stg\" cannot have a parent resource type belonging to different namespace \"az\"."),
-            });
+            ]);
         }
 
         [TestMethod]

@@ -214,7 +214,7 @@ internal static class TypeCollapser
                     ? TypeFactory.CreateBooleanLiteralType(includesTrue, flags)
                     : TypeFactory.CreateBooleanType(flags);
 
-                return nullable ? TypeHelper.CreateTypeUnion(new[] { collapsed, LanguageConstants.Null }) : collapsed;
+                return nullable ? TypeHelper.CreateTypeUnion([collapsed, LanguageConstants.Null]) : collapsed;
             }
 
             public UnionCollapseState Push(ITypeReference memberType)

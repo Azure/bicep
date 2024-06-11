@@ -114,10 +114,10 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
 }
 "));
 
-            failedResult.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            failedResult.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            });
+            ]);
         }
 
         [TestMethod]
@@ -207,10 +207,10 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
 }
 "));
 
-            failedResult.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            failedResult.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\"."),
-            });
+            ]);
         }
 
 
@@ -235,10 +235,10 @@ resource service 'Microsoft.ServiceFabric/clusters/applications/services@2020-12
 }
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP078", DiagnosticLevel.Warning, "The property \"partitionScheme\" requires a value of type \"'Named' | 'Singleton' | 'UniformInt64Range'\", but none was supplied."),
                 ("BCP089", DiagnosticLevel.Warning, "The property \"PartitionScheme\" is not allowed on objects of type \"'Named' | 'Singleton' | 'UniformInt64Range'\". Did you mean \"partitionScheme\"?"),
-            });
+            ]);
 
             var diagnosticWithCodeFix = result.Diagnostics.OfType<FixableDiagnostic>().Single();
             var codeFix = diagnosticWithCodeFix.Fixes.Single();
@@ -276,10 +276,10 @@ resource mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   properties: properties
 }
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 ("BCP225", DiagnosticLevel.Warning, "The discriminator property \"kind\" value cannot be determined at compilation time. Type checking for this object is disabled.")
-            }).And.GenerateATemplate();
+            ]).And.GenerateATemplate();
         }
 
         /// <summary>
@@ -321,10 +321,10 @@ resource mainResource 'Test.Rp/discriminatedPropertiesTests2@2020-01-01' = {
   }
 }
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 ("BCP225", DiagnosticLevel.Warning, "The discriminator property \"propType\" value cannot be determined at compilation time. Type checking for this object is disabled.")
-            }).And.GenerateATemplate();
+            ]).And.GenerateATemplate();
         }
 
         /// <summary>
@@ -345,10 +345,10 @@ resource mainResource 'Test.Rp/discriminatedPropertiesTests2@2020-01-01' = {
   }
 }
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
                 ("BCP225", DiagnosticLevel.Warning, "The discriminator property \"propType\" value cannot be determined at compilation time. Type checking for this object is disabled.")
-            }).And.GenerateATemplate();
+            ]).And.GenerateATemplate();
         }
 
     }

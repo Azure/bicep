@@ -34,11 +34,11 @@ public static class FooNamespaceType
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
                 ResourceScope.None,
                 ResourceFlags.None,
-                new ObjectType("application", TypeSymbolValidationFlags.Default, new[]
-                {
+                new ObjectType("application", TypeSymbolValidationFlags.Default,
+                [
                     new TypeProperty("uniqueName", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty),
                     new TypeProperty("appId", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                }, null)),
+                ], null)),
         }.ToImmutableDictionary(x => x.TypeReference);
 
         public FooTypeProvider()

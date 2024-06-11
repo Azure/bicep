@@ -28,10 +28,10 @@ public static class BarNamespaceType
 
     private static ObjectType GetConfigurationType()
     {
-        return new ObjectType("configuration", TypeSymbolValidationFlags.Default, new[]
-        {
+        return new ObjectType("configuration", TypeSymbolValidationFlags.Default,
+        [
             new TypeProperty("connectionString", LanguageConstants.String, TypePropertyFlags.Required),
-        }, null);
+        ], null);
     }
 
     private class BarTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
@@ -42,32 +42,32 @@ public static class BarNamespaceType
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
                 ResourceScope.None,
                 ResourceFlags.None,
-                new ObjectType("Service properties", TypeSymbolValidationFlags.Default, new[]
-                {
+                new ObjectType("Service properties", TypeSymbolValidationFlags.Default,
+                [
                     new TypeProperty("staticWebsiteEnabled", LanguageConstants.Bool),
                     new TypeProperty("staticWebsiteIndexDocument", LanguageConstants.String),
                     new TypeProperty("staticWebsiteErrorDocument404Path", LanguageConstants.String),
-                }, null)),
+                ], null)),
             new ResourceTypeComponents(
                 ResourceTypeReference.Parse("container"),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
                 ResourceScope.None,
                 ResourceFlags.None,
-                new ObjectType("Container properties", TypeSymbolValidationFlags.Default, new[]
-                {
+                new ObjectType("Container properties", TypeSymbolValidationFlags.Default,
+                [
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
-                }, null)),
+                ], null)),
             new ResourceTypeComponents(
                 ResourceTypeReference.Parse("blob"),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
                 ResourceScope.None,
                 ResourceFlags.None,
-                new ObjectType("Blob properties", TypeSymbolValidationFlags.Default, new[]
-                {
+                new ObjectType("Blob properties", TypeSymbolValidationFlags.Default,
+                [
                     new TypeProperty("containerName", LanguageConstants.String, TypePropertyFlags.Required),
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
                     new TypeProperty("base64Content", LanguageConstants.String, TypePropertyFlags.Required),
-                }, null)),
+                ], null)),
         }.ToImmutableDictionary(x => x.TypeReference);
 
         public BarTypeProvider()
