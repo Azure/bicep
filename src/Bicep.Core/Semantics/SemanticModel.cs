@@ -153,7 +153,7 @@ namespace Bicep.Core.Semantics
                     }
                 }
 
-                return outputs.ToImmutableArray();
+                return [.. outputs];
             });
         }
 
@@ -343,7 +343,7 @@ namespace Bicep.Core.Semantics
                 filteredDiagnostics.Add(diagnostic);
             }
 
-            return filteredDiagnostics.ToImmutableArray();
+            return [.. filteredDiagnostics];
         }
 
         /// <summary>

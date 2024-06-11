@@ -297,7 +297,7 @@ namespace Bicep.LanguageServer
 
             workspace.RemoveSourceFiles(closedFiles);
 
-            return closedFiles.ToImmutableArray();
+            return [.. closedFiles];
         }
 
         private CompilationContextBase CreateCompilationContext(IWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)

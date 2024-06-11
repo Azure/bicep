@@ -429,7 +429,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             var expectedOutputFile = Path.Combine(outputFileDir, "input.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build", "--outdir", outputFileDir, bicepPath }.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(["build", "--outdir", outputFileDir, bicepPath, .. args]);
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             output.Should().BeEmpty();
@@ -477,7 +477,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
         [DataTestMethod]
         public async Task Build_InvalidInputPaths_ShouldProduceExpectedError(string badPath, string[] args, string expectedErrorRegex)
         {
-            var (output, error, result) = await Bicep(new[] { "build" }.Concat(args).Append(badPath).ToArray());
+            var (output, error, result) = await Bicep(["build", .. args, badPath]);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
@@ -574,7 +574,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build", "--outdir", testOutputPath, inputFile }.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(["build", "--outdir", testOutputPath, inputFile, .. args]);
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);

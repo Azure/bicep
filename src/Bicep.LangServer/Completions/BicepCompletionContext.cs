@@ -44,12 +44,13 @@ namespace Bicep.LanguageServer.Completions
 
         // completions will replace only these token types
         // all others will result in an insertion upon completion commit
-        private static readonly ImmutableHashSet<TokenType> ReplaceableTokens = new[]
-        {
+        private static readonly ImmutableHashSet<TokenType> ReplaceableTokens =
+        [
             TokenType.Identifier,
             TokenType.Integer,
-            TokenType.StringComplete
-        }.Concat(LanguageConstants.Keywords.Values).ToImmutableHashSet();
+            TokenType.StringComplete,
+            .. LanguageConstants.Keywords.Values,
+        ];
 
         private BicepCompletionContext(
             BicepCompletionContextKind kind,
@@ -1401,7 +1402,7 @@ namespace Bicep.LanguageServer.Completions
                 var visitor = new ActiveScopesVisitor(offset);
                 visitor.Visit(file);
 
-                return visitor.ActiveScopes.ToImmutableArray();
+                return [.. visitor.ActiveScopes];
             }
         }
     }

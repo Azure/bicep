@@ -104,7 +104,7 @@ namespace Bicep.RegistryModuleTool.Commands
                 throw new BicepException(exception.Message, exception);
             }
 
-            var modulePath = string.Join(this.FileSystem.Path.DirectorySeparatorChar, directoryStack.ToArray());
+            var modulePath = string.Join(this.FileSystem.Path.DirectorySeparatorChar, [.. directoryStack]);
 
             return modulePath;
         }

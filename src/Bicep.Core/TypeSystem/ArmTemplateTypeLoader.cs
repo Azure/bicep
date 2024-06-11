@@ -152,7 +152,7 @@ public static class ArmTemplateTypeLoader
                 tupleMembers.Add(type);
             }
 
-            return new TupleType(nameBuilder.ToString(), tupleMembers.ToImmutableArray(), default);
+            return new TupleType(nameBuilder.ToString(), [.. tupleMembers], default);
         }
 
         if (schemaNode.Items?.SchemaNode is { } items)

@@ -98,7 +98,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         }
 
         return new(
-            fileUris.Select(x => x.LocalPath).OrderBy(x => x).ToImmutableArray());
+            [.. fileUris.Select(x => x.LocalPath).OrderBy(x => x)]);
     }
 
     public async Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken)
@@ -194,8 +194,8 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         }
 
         return new(
-            nodesBySymbol.Values.OrderBy(x => x.Name).ToImmutableArray(),
-            edges.OrderBy(x => x.Source).ThenBy(x => x.Target).ToImmutableArray());
+            [.. nodesBySymbol.Values.OrderBy(x => x.Name)],
+            [.. edges.OrderBy(x => x.Source).ThenBy(x => x.Target)]);
     }
 
     private static async Task<SemanticModel> GetSemanticModel(BicepCompiler compiler, string filePath)

@@ -1160,7 +1160,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         {
             // Earlier Bicep versions should not be confused by new metadata formats
             var metadataStream = new MemoryStream(Encoding.UTF8.GetBytes(ModuleIndexJson));
-            ModuleMetadata_Original[] metadata = JsonSerializer.Deserialize<ModuleMetadata_Original[]>(metadataStream)!.ToArray();
+            ModuleMetadata_Original[] metadata = [.. JsonSerializer.Deserialize<ModuleMetadata_Original[]>(metadataStream)!];
 
             metadata.Length.Should().BeGreaterThanOrEqualTo(29);
             metadata.Select(m => m.moduleName).Should().Contain("samples/array-loop");

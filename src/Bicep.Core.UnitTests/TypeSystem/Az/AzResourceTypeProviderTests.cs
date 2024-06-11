@@ -233,8 +233,8 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             });
         }
 
-        private static ImmutableHashSet<TypeSymbol> ExpectedBuiltInTypes { get; } = new[]
-        {
+        private static ImmutableHashSet<TypeSymbol> ExpectedBuiltInTypes { get; } =
+        [
             LanguageConstants.Any,
             LanguageConstants.Null,
             LanguageConstants.Bool,
@@ -243,7 +243,7 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             LanguageConstants.Object,
             LanguageConstants.Array,
             LanguageConstants.ResourceRef,
-        }.ToImmutableHashSet();
+        ];
 
         private static IEnumerable<TypeProperty> GetTopLevelProperties(TypeSymbol type) => type switch
         {

@@ -1306,7 +1306,16 @@ namespace Bicep.Core.Semantics.Namespaces
             return new(ErrorType.Create(errorDiagnostic));
         }
 
-        private static readonly ImmutableHashSet<JTokenType> SupportedJsonTokenTypes = new[] { JTokenType.Object, JTokenType.Array, JTokenType.String, JTokenType.Integer, JTokenType.Float, JTokenType.Boolean, JTokenType.Null }.ToImmutableHashSet();
+        private static readonly ImmutableHashSet<JTokenType> SupportedJsonTokenTypes =
+        [
+            JTokenType.Object,
+            JTokenType.Array,
+            JTokenType.String,
+            JTokenType.Integer,
+            JTokenType.Float,
+            JTokenType.Boolean,
+            JTokenType.Null
+        ];
         private static Expression ConvertJsonToExpression(JToken token)
             => token switch
             {
@@ -1442,8 +1451,8 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         // TODO: Add copyIndex here when we support loops.
-        private static readonly ImmutableArray<BannedFunction> BannedFunctions = new[]
-        {
+        private static readonly ImmutableArray<BannedFunction> BannedFunctions =
+        [
             /*
              * The true(), false(), and null() functions are not included in this list because
              * we parse true, false and null as keywords in the lexer, so they can't be used as functions anyway.
@@ -1469,7 +1478,7 @@ namespace Bicep.Core.Semantics.Namespaces
             BannedFunction.CreateForOperator("and", "&&"),
             BannedFunction.CreateForOperator("or", "||"),
             BannedFunction.CreateForOperator("coalesce", "??")
-        }.ToImmutableArray();
+        ];
 
         private static IEnumerable<NamespaceValue<Decorator>> GetSystemDecorators()
         {

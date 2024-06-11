@@ -551,8 +551,8 @@ namespace Bicep.LanguageServer.Completions
                 BicepFileParentUri: cwdUri,
                 EnteredParentUri: query,
                 ShowCwdPrefix: entered.StartsWith("./"),
-                Files: files.ToImmutableArray(),
-                Directories: dirs.ToImmutableArray());
+                Files: [.. files],
+                Directories: [.. dirs]);
         }
 
         private IEnumerable<CompletionItem> CreateFileCompletionItems(Uri mainFileUri, Range replacementRange, FileCompletionInfo info, Predicate<Uri> predicate, CompletionPriority priority)

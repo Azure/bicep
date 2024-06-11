@@ -71,12 +71,12 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
-        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
-        {
+        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
+        [
             ResourceNamePropertyName,
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName,
-        }.ToImmutableHashSet();
+        ];
 
         public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
         {

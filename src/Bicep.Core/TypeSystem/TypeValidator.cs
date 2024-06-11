@@ -741,7 +741,7 @@ namespace Bicep.Core.TypeSystem
                 narrowedVariables[i] = NarrowType(config, variables[i], targetType.GetArgumentType(i).Type);
             }
 
-            return new LambdaType(narrowedVariables.ToImmutableArray(), [], returnType);
+            return new LambdaType([.. narrowedVariables], [], returnType);
         }
 
         private TypeSymbol NarrowVariableAccessType(TypeValidatorConfig config, VariableAccessSyntax variableAccess, TypeSymbol targetType)

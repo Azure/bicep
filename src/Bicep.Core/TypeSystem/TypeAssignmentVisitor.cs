@@ -1450,7 +1450,7 @@ namespace Bicep.Core.TypeSystem
                     return new TypedArrayType(itemType, TypeSymbolValidationFlags.Default);
                 }
 
-                return new TupleType(tupleEntries.ToImmutableArray<ITypeReference>(), TypeSymbolValidationFlags.Default);
+                return new TupleType([.. tupleEntries], TypeSymbolValidationFlags.Default);
             });
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)

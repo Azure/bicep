@@ -217,7 +217,7 @@ namespace Bicep.Core.Emit
 
                 // construct the length ARM expression from the Bicep array expression
                 // type check has already ensured that the array expression is an array
-                this.EmitProperty("count", new FunctionCallExpression(forExpression.SourceSyntax, "length", new[] { forExpression }.ToImmutableArray()));
+                this.EmitProperty("count", new FunctionCallExpression(forExpression.SourceSyntax, "length", [forExpression]));
 
                 if (batchSize.HasValue)
                 {

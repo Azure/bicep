@@ -122,7 +122,7 @@ namespace Bicep.Decompiler.ArmHelpers
                 }
 
                 // overwrite the original expression
-                functionExpression = Concat(concatExpressions.ToArray());
+                functionExpression = Concat([.. concatExpressions]);
             }
 
             // flatten nested 'concat' functions

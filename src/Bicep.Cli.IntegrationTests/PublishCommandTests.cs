@@ -177,7 +177,7 @@ namespace Bicep.Cli.IntegrationTests
                 requiredArgs.Add("--with-source");
             }
 
-            string[] args = requiredArgs.ToArray();
+            string[] args = [.. requiredArgs];
 
             var (output, error, result) = await Bicep(settings, args);
             result.Should().Be(0);
@@ -219,14 +219,14 @@ namespace Bicep.Cli.IntegrationTests
 
             // publish the same content again with --force
             requiredArgs.Add("--force");
-            var (output3, error3, result3) = await Bicep(settings, requiredArgs.ToArray());
+            var (output3, error3, result3) = await Bicep(settings, [.. requiredArgs]);
             result3.Should().Be(0);
             output3.Should().BeEmpty();
             AssertNoErrors(error3);
 
             // compile to get what the new expected main.json should be
             List<string> buildArgs = new() { "build", bicepFilePath, "--outfile", $"{compiledFilePath}.modified" };
-            var (output4, error4, result4) = await Bicep(settings, buildArgs.ToArray());
+            var (output4, error4, result4) = await Bicep(settings, [.. buildArgs]);
             result4.Should().Be(0);
             output4.Should().BeEmpty();
             AssertNoErrors(error4);
@@ -320,7 +320,7 @@ namespace Bicep.Cli.IntegrationTests
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             var args = new List<string> { "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1", "--with-source" };
-            var (output, error, result) = await Bicep(settings, args.ToArray());
+            var (output, error, result) = await Bicep(settings, [.. args]);
             result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().MatchRegex("Cannot publish with source when the target is an ARM template file.");

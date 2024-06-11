@@ -18,12 +18,12 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
-        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
-        {
+        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
+        [
             UniqueNamePropertyName,
             AppIdPropertyName,
             NamePropertyName,
-        }.ToImmutableHashSet();
+        ];
 
         /*
          * The following top-level properties must be set deploy-time constant values,

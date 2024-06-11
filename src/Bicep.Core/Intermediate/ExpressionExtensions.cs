@@ -54,7 +54,7 @@ public static class ExpressionExtensions
                 propertyValue));
         }
 
-        return new ObjectExpression(expression.SourceSyntax, properties.ToImmutableArray());
+        return new ObjectExpression(expression.SourceSyntax, [.. properties]);
     }
 
     public static ObjectExpression DeepMerge(this ObjectExpression sourceObject, ObjectExpression targetObject)

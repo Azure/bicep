@@ -459,7 +459,7 @@ output foo string = foo
             var expectedOutputFile = FileHelper.GetResultFilePath(TestContext, "main.json", outputPath);
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build-params", inputFile }.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(["build-params", inputFile, .. args]);
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             output.Should().BeEmpty();

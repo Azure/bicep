@@ -70,7 +70,7 @@ namespace Bicep.Core.Samples
                 clients.Add((targetReference.Registry, targetReference.Repository));
             }
 
-            return RegistryHelper.CreateMockRegistryClients(clients.Concat(additionalClients).ToArray()).factoryMock;
+            return RegistryHelper.CreateMockRegistryClients([.. clients, .. additionalClients]).factoryMock;
         }
 
         public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory()

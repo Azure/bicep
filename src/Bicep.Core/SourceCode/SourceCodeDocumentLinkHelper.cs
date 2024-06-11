@@ -50,7 +50,7 @@ public static class SourceCodeDocumentLinkHelper
                 }
             }
 
-            dictionary.Add(referencingFile.FileUri, linksForReferencingFile.ToArray());
+            dictionary.Add(referencingFile.FileUri, [.. linksForReferencingFile]);
         }
 
         return dictionary.ToImmutableDictionary();

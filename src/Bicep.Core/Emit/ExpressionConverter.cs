@@ -887,7 +887,7 @@ namespace Bicep.Core.Emit
             => AppendProperties(function, properties as IEnumerable<LanguageExpression>);
 
         private static FunctionExpression AppendProperties(FunctionExpression function, IEnumerable<LanguageExpression> properties)
-            => new(function.Function, function.Parameters, function.Properties.Concat(properties).ToArray());
+            => new(function.Function, function.Parameters, [.. function.Properties, .. properties]);
 
         private static (string namespaceName, string functionName) GetFunctionName(string potentiallyQualifiedName) => potentiallyQualifiedName.IndexOf('.') switch
         {

@@ -351,7 +351,7 @@ namespace Bicep.Core.PrettyPrint
                         return children[0];
                     }
 
-                    return new NestDocument(1, children.ToImmutableArray());
+                    return new NestDocument(1, [.. children]);
                 });
                 return;
             }

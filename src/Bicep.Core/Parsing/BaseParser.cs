@@ -1208,7 +1208,7 @@ namespace Bicep.Core.Parsing
                 var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
                 var variableBlock = GetVariableBlock(openParen, expressionsOrCommas, closeParen);
 
-                return new LambdaSyntax(variableBlock, arrow, newlinesBeforeBody.ToImmutableArray(), expression);
+                return new LambdaSyntax(variableBlock, arrow, [.. newlinesBeforeBody], expression);
             }
 
             var innerSyntax = GetParenthesizedExpressionInnerContent(openParen, expressionsOrCommas, closeParen);

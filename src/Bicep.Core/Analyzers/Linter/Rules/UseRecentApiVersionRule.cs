@@ -431,7 +431,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var recentPreviewVersionsSorted = FilterRecent(previewVersionsSorted, today, maxAgeInDays).ToArray();
 
             // Start with all recent stable versions
-            List<AzureResourceApiVersion> acceptableVersions = recentStableVersionsSorted.ToList();
+            List<AzureResourceApiVersion> acceptableVersions = [.. recentStableVersionsSorted];
 
             // If no recent stable versions, add the most recent stable version, if any
             if (!acceptableVersions.Any())

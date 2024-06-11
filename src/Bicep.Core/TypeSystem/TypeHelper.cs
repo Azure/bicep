@@ -143,7 +143,7 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            return new TupleType(nameBuilder.ToString(), convertedItems.ToImmutableArray(), TypeSymbolValidationFlags.Default);
+            return new TupleType(nameBuilder.ToString(), [.. convertedItems], TypeSymbolValidationFlags.Default);
         }
 
         /// <summary>
@@ -256,7 +256,7 @@ namespace Bicep.Core.TypeSystem
                     return FlattenArray(flattenInputType, tupleType, argumentPosition);
                 }
 
-                return new TupleType(nameBuilder.ToString(), flattenedItems.ToImmutableArray(), flags);
+                return new TupleType(nameBuilder.ToString(), [.. flattenedItems], flags);
             }
 
             static TypeSymbol FlattenUnionOfArrays(TypeSymbol flattenInputType, UnionType unionType, IPositionable argumentPosition) => UnionOfFlattened(
@@ -510,7 +510,7 @@ namespace Bicep.Core.TypeSystem
                 distinctMembers.Add(member);
             }
 
-            return distinctMembers.Order(typeComparer).ToImmutableArray<ITypeReference>();
+            return [.. distinctMembers.Order(typeComparer)];
         }
 
         private static IEnumerable<TypeSymbol> FlattenMembers(IEnumerable<ITypeReference> members) =>

@@ -288,7 +288,7 @@ namespace Bicep.Core.Emit
 
             return new SourceMap(
                entrypointFileName,
-               sourceMapFileEntries.ToImmutableArray());
+               [.. sourceMapFileEntries]);
         }
     }
 }

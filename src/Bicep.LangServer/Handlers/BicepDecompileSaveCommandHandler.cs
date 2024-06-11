@@ -154,7 +154,7 @@ namespace Bicep.LanguageServer.Handlers
                     newOutputFiles.Add((newPath, outputFile.bicepContents));
                 }
 
-                return newOutputFiles.ToArray();
+                return [.. newOutputFiles];
             }
         }
 

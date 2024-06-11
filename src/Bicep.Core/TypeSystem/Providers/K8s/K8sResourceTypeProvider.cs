@@ -18,10 +18,10 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
-        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
-        {
+        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
+        [
             NamePropertyName,
-        }.ToImmutableHashSet();
+        ];
 
         public K8sResourceTypeProvider(K8sResourceTypeLoader resourceTypeLoader)
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())

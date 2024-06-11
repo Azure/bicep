@@ -131,7 +131,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     }
 
                     string[] excludedPropertiesForThisResource = exclusionsMatchingResourceType.Select(excl => excl.propertyName!).ToArray(); // propertyName can't be null in this list
-                    var visitor = new IdPropertyVisitor(model, excludedPropertiesForThisResource.ToArray());
+                    var visitor = new IdPropertyVisitor(model, [.. excludedPropertiesForThisResource]);
                     properties.Accept(visitor);
 
                     foreach (Failure failure in visitor.Failures)
@@ -155,7 +155,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             var propertyName = (string)values[0];
             var path = (string)values[1];
-            var allowedList = string.Join(", ", allowedFunctions.OrderByAscendingInsensitively(k => k).ToArray());
+            var allowedList = string.Join(", ", [.. allowedFunctions.OrderByAscendingInsensitively(k => k)]);
             var mainMessage = string.Format(CoreResources.UseResourceIdFunctionsRule_MessageFormat, propertyName, allowedList);
             var pathMessage = string.IsNullOrWhiteSpace(path) ? null : string.Format(CoreResources.UseResourceIdFunctionsRule_NonConformingExprPath, path);
             return pathMessage is null ? mainMessage : $"{mainMessage} {pathMessage}";

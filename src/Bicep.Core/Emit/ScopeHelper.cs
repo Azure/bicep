@@ -199,7 +199,7 @@ namespace Bicep.Core.Emit
                     arguments.Add(new JTokenExpression(fullyQualifiedType));
                     arguments.AddRange(nameSegments);
 
-                    return new FunctionExpression("subscriptionResourceId", arguments.ToArray(), []);
+                    return new FunctionExpression("subscriptionResourceId", [.. arguments], []);
                 case ResourceScope.ResourceGroup:
                     // We avoid using the 'resourceId' function at all here, because its behavior differs depending on the scope that it is called FROM.
                     LanguageExpression scope;

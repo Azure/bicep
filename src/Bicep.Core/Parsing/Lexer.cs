@@ -66,7 +66,7 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        public ImmutableArray<Token> GetTokens() => tokens.ToImmutableArray();
+        public ImmutableArray<Token> GetTokens() => [.. tokens];
 
         /// <summary>
         /// Converts a set of string literal tokens into their raw values. Returns null if any of the tokens are of the wrong type or malformed.

@@ -14,10 +14,10 @@ public static class FooNamespaceType
 {
     public const string BuiltInName = "foo";
 
-    public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
-    {
+    public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
+    [
         "uniqueName",
-    }.ToImmutableHashSet();
+    ];
 
     public static NamespaceSettings Settings { get; } = new(
         IsSingleton: true,
