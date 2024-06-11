@@ -51,7 +51,7 @@ public class ResourceDerivedTypeDiagnosticReporter
             UnionType union => union.Members.SelectMany(ReportResourceDerivedTypeDiagnostics),
             TypeType typeType => ReportResourceDerivedTypeDiagnostics(typeType.Unwrapped),
             LambdaType lambda => lambda.ArgumentTypes.Concat(lambda.OptionalArgumentTypes).Concat(lambda.ReturnType).SelectMany(ReportResourceDerivedTypeDiagnostics),
-            _ => Enumerable.Empty<DiagnosticBuilder.DiagnosticBuilderDelegate>(),
+            _ => [],
         })
         {
             yield return diagnostic;

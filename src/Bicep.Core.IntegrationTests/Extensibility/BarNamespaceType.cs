@@ -109,10 +109,10 @@ public static class BarNamespaceType
         return new NamespaceType(
             aliasName,
             Settings,
-            ImmutableArray<TypeProperty>.Empty,
-            ImmutableArray<FunctionOverload>.Empty,
-            ImmutableArray<BannedFunction>.Empty,
-            ImmutableArray<Decorator>.Empty,
+            [],
+            [],
+            [],
+            [],
             new BarTypeProvider());
     }
 }

@@ -43,7 +43,7 @@ public static class TypeFactory
     {
         if (maxLength.HasValue && maxLength.Value == 0)
         {
-            return new TupleType(ImmutableArray<ITypeReference>.Empty, validationFlags);
+            return new TupleType([], validationFlags);
         }
 
         if (ReferenceEquals(itemType, LanguageConstants.Any))

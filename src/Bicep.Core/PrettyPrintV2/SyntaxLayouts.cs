@@ -551,7 +551,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         public IEnumerable<Document> LayoutImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
             => Spread(syntax.OriginalSymbolName.AsEnumerable<SyntaxBase>()
-                .Concat(syntax.AsClause is SyntaxBase nonNullAsClause ? nonNullAsClause.AsEnumerable() : Enumerable.Empty<SyntaxBase>()));
+                .Concat(syntax.AsClause is SyntaxBase nonNullAsClause ? nonNullAsClause.AsEnumerable() : []));
 
         public IEnumerable<Document> LayoutWildcardImportSyntax(WildcardImportSyntax syntax)
             => Spread(syntax.Wildcard, syntax.AliasAsClause);

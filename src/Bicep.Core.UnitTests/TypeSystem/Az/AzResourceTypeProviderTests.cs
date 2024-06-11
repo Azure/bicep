@@ -255,7 +255,7 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
                 .AsEnumerable()
                 .Concat(discriminated.UnionMembersByKey.Values.SelectMany(member => GetTopLevelProperties(member))),
 
-            _ => Enumerable.Empty<TypeProperty>()
+            _ => []
         };
 
         private static void VisitAllReachableTypes(TypeSymbol typeSymbol, HashSet<TypeSymbol> visited)

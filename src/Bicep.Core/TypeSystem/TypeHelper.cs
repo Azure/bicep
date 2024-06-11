@@ -481,7 +481,7 @@ namespace Bicep.Core.TypeSystem
 
         public static ObjectType CreateDictionaryType(string name, TypeSymbolValidationFlags validationFlags, ITypeReference valueType)
         {
-            return new(name, validationFlags, ImmutableArray<TypeProperty>.Empty, valueType);
+            return new(name, validationFlags, [], valueType);
         }
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)

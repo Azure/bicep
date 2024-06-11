@@ -31,7 +31,7 @@ namespace Bicep.Core.Tracing
             "x-ms-ratelimit-remaining-calls-per-second"
         }.ToImmutableArray();
 
-        private static readonly ImmutableArray<string> AcrClientAdditionalLoggedQueryParams = ImmutableArray<string>.Empty;
+        private static readonly ImmutableArray<string> AcrClientAdditionalLoggedQueryParams = [];
 
         public static void ApplySharedResourceManagerSettings(this DiagnosticsOptions options) =>
             options.ApplySharedDiagnosticsSettings(ArmClientAdditionalLoggedHeaders, ArmClientAdditionalLoggedQueryParams);

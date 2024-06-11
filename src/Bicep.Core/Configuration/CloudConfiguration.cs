@@ -16,7 +16,7 @@ namespace Bicep.Core.Configuration
 
         public ImmutableSortedDictionary<string, CloudProfile> Profiles { get; init; } = ImmutableSortedDictionary<string, CloudProfile>.Empty;
 
-        public ImmutableArray<CredentialType> CredentialPrecedence { get; init; } = ImmutableArray<CredentialType>.Empty;
+        public ImmutableArray<CredentialType> CredentialPrecedence { get; init; } = [];
 
         public CredentialOptions? CredentialOptions { get; init; }
     }

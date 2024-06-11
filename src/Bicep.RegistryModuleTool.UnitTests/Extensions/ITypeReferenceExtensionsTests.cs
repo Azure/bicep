@@ -41,7 +41,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.Extensions
             var tupleType = new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.Int, LanguageConstants.Bool), TypeSymbolValidationFlags.Default);
             yield return CreateTestCase(tupleType, LanguageConstants.ArrayType);
 
-            var discriminatedObjectType = new DiscriminatedObjectType("", TypeSymbolValidationFlags.Default, "", Enumerable.Empty<ITypeReference>());
+            var discriminatedObjectType = new DiscriminatedObjectType("", TypeSymbolValidationFlags.Default, "", []);
             yield return CreateTestCase(discriminatedObjectType, LanguageConstants.ObjectType);
 
             var unionType = new UnionType(

@@ -18,7 +18,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Empty_parameters_should_return_null()
         {
-            var arguments = ArgumentParser.TryParse(Array.Empty<string>(), IO, FileSystem);
+            var arguments = ArgumentParser.TryParse([], IO, FileSystem);
             arguments.Should().BeNull();
         }
 

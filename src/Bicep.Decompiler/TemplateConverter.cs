@@ -338,10 +338,10 @@ namespace Bicep.Decompiler
                     SyntaxFactory.LeftParenToken,
                     new TernaryOperationSyntax(
                         ParseLanguageExpression(expression.Parameters[0]),
-                        ImmutableArray<Token>.Empty,
+                        [],
                         SyntaxFactory.QuestionToken,
                         ParseLanguageExpression(expression.Parameters[1]),
-                        ImmutableArray<Token>.Empty,
+                        [],
                         SyntaxFactory.ColonToken,
                         ParseLanguageExpression(expression.Parameters[2])),
                     SyntaxFactory.RightParenToken);
@@ -946,7 +946,7 @@ namespace Bicep.Decompiler
             }
 
             return new VariableDeclarationSyntax(
-                ImmutableArray<SyntaxBase>.Empty,
+                [],
                 SyntaxFactory.VariableKeywordToken,
                 SyntaxFactory.CreateIdentifierWithTrailingSpace(identifier),
                 SyntaxFactory.AssignmentToken,
@@ -1059,7 +1059,7 @@ namespace Bicep.Decompiler
                         var varExpression = new FunctionExpression(
                             "variables",
                             new[] { new JTokenExpression(indexIdentifier), },
-                            Array.Empty<LanguageExpression>());
+                            []);
 
                         return new FunctionExpression(
                             "add",
@@ -1431,7 +1431,7 @@ namespace Bicep.Decompiler
 
         private ObjectSyntax ProcessModuleBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource)
         {
-            var parameters = (resource["properties"]?["parameters"] as JObject)?.Properties() ?? Enumerable.Empty<JProperty>();
+            var parameters = (resource["properties"]?["parameters"] as JObject)?.Properties() ?? [];
             var paramProperties = new List<ObjectPropertySyntax>();
             foreach (var param in parameters)
             {

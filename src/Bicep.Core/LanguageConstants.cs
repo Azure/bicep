@@ -194,7 +194,7 @@ namespace Bicep.Core
 
         public const string AnyFunction = "any";
         public static readonly TypeSymbol Any = new AnyType();
-        public static readonly TypeSymbol Never = new UnionType("never", ImmutableArray<ITypeReference>.Empty);
+        public static readonly TypeSymbol Never = new UnionType("never", []);
 
         public static readonly TypeSymbol ResourceRef = CreateResourceScopeReference(ResourceScope.Module | ResourceScope.Resource);
 
@@ -212,8 +212,8 @@ namespace Bicep.Core
         public static readonly TypeSymbol LooseString = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment);
         // SecureString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol SecureString = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment | TypeSymbolValidationFlags.IsSecure);
-        public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
-        public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
+        public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, [], LanguageConstants.Any);
+        public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, [], LanguageConstants.Any);
         public static readonly TypeSymbol Int = TypeFactory.CreateIntegerType();
         // LooseInt should be regarded as equal to the 'int' type, but with different validation behavior
         public static readonly TypeSymbol LooseInt = TypeFactory.CreateIntegerType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment);

@@ -481,7 +481,7 @@ output length int =
 
         private static void AssertExpectedFunctions(List<CompletionItem> completions, bool expectParamDefaultFunctions, IEnumerable<string>? fullyQualifiedFunctionNames = null)
         {
-            fullyQualifiedFunctionNames ??= Enumerable.Empty<string>();
+            fullyQualifiedFunctionNames ??= [];
 
             var fullyQualifiedFunctionParts = fullyQualifiedFunctionNames.Select(fqfn =>
             {

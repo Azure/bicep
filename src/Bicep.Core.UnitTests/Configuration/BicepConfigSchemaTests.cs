@@ -101,7 +101,7 @@ namespace Bicep.Core.UnitTests.Configuration
         private static IEnumerable<JProperty> GetRuleCustomConfigurationProperties(JObject ruleConfigSchema)
         {
             var properties = ruleConfigSchema.SelectToken("allOf[0].properties")?.OfType<JProperty>();
-            return properties ?? Enumerable.Empty<JProperty>();
+            return properties ?? [];
         }
 
         private IImmutableDictionary<string, JObject> GetExperimentalFeaturesFromSchema()

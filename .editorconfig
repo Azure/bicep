@@ -37,6 +37,9 @@ dotnet_diagnostic.IDE0005.severity = none
 # Private member is unused
 dotnet_diagnostic.IDE0051.severity = warning
 
+# Use collection expression for empty
+dotnet_diagnostic.IDE0301.severity = warning
+
 # Unused local variables
 dotnet_diagnostic.CA1804.severity = warning
 # Private methods that are not called from any other code

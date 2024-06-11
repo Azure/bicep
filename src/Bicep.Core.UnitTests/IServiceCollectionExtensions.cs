@@ -120,7 +120,7 @@ public static class IServiceCollectionExtensions
         => Register(services, deploymentHelper);
 
     public static IServiceCollection WithEmptyAzResources(this IServiceCollection services)
-        => services.WithAzResources(Enumerable.Empty<ResourceTypeComponents>());
+        => services.WithAzResources([]);
 
     public static IServiceCollection AddSingletonIfNonNull<TService>(this IServiceCollection services, TService? instance)
         where TService : class

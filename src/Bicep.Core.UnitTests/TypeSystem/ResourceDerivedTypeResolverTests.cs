@@ -62,7 +62,7 @@ public class ResourceDerivedTypeResolverTests
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnresolved = TypeFactory.CreateArrayType(new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any));
+        var containsUnresolved = TypeFactory.CreateArrayType(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any));
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<TypedArrayType>()
             .Subject.Item.Should().BeSameAs(hydrated);
     }
@@ -73,7 +73,7 @@ public class ResourceDerivedTypeResolverTests
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnresolved = new TupleType(ImmutableArray.Create<ITypeReference>(new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any)),
+        var containsUnresolved = new TupleType(ImmutableArray.Create<ITypeReference>(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any)),
             TypeSymbolValidationFlags.Default);
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<TupleType>()
             .Subject.Items.First().Should().BeSameAs(hydrated);
@@ -93,7 +93,7 @@ public class ResourceDerivedTypeResolverTests
             "property",
             new ITypeReference[]
             {
-                new UnresolvedResourceDerivedPartialObjectType(unhydratedTypeRef, ImmutableArray<string>.Empty, "property", "foo"),
+                new UnresolvedResourceDerivedPartialObjectType(unhydratedTypeRef, [], "property", "foo"),
                 new ObjectType("bar",
                     TypeSymbolValidationFlags.Default,
                     new TypeProperty("property", TypeFactory.CreateStringLiteralType("bar")).AsEnumerable(),
@@ -112,7 +112,7 @@ public class ResourceDerivedTypeResolverTests
 
         var containsUnresolved = new ObjectType("object",
             TypeSymbolValidationFlags.Default,
-            new TypeProperty("property", new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any)).AsEnumerable(),
+            new TypeProperty("property", new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any)).AsEnumerable(),
             null);
 
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<ObjectType>()
@@ -127,8 +127,8 @@ public class ResourceDerivedTypeResolverTests
 
         var containsUnresolved = new ObjectType("object",
             TypeSymbolValidationFlags.Default,
-            ImmutableArray<TypeProperty>.Empty,
-            new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any));
+            [],
+            new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any));
 
         var hydratedContainer = sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<ObjectType>().Subject;
         hydratedContainer.AdditionalPropertiesType.Should().NotBeNull();
@@ -142,7 +142,7 @@ public class ResourceDerivedTypeResolverTests
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
         var containsUnresolved = TypeHelper.CreateTypeUnion(LanguageConstants.String,
-            new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any));
+            new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any));
 
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<UnionType>()
             .Subject.Members.Should().Contain(hydrated);
@@ -154,7 +154,7 @@ public class ResourceDerivedTypeResolverTests
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnresolved = new TypeType(new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any));
+        var containsUnresolved = new TypeType(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any));
 
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<TypeType>()
             .Subject.Unwrapped.Should().BeSameAs(hydrated);
@@ -168,11 +168,11 @@ public class ResourceDerivedTypeResolverTests
 
         var containsUnresolved = new LambdaType(
             [
-                TypeFactory.CreateArrayType(new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any)),
-                new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any),
+                TypeFactory.CreateArrayType(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any)),
+                new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any),
             ],
             [],
-            new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any));
+            new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any));
 
         var bound = sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<LambdaType>().Subject;
         bound.ArgumentTypes.Should().SatisfyRespectively(
@@ -187,10 +187,10 @@ public class ResourceDerivedTypeResolverTests
         var resourceTypeProviderMock = StrictMock.Of<IResourceTypeProvider>();
         var stubbedNamespaceType = new NamespaceType(AzNamespaceType.BuiltInName,
             AzNamespaceType.Settings,
-            ImmutableArray<TypeProperty>.Empty,
-            ImmutableArray<FunctionOverload>.Empty,
-            ImmutableArray<BannedFunction>.Empty,
-            ImmutableArray<Decorator>.Empty,
+            [],
+            [],
+            [],
+            [],
             resourceTypeProviderMock.Object);
         resourceTypeProviderMock.Setup(x => x.TryGetDefinedType(stubbedNamespaceType, unhydratedTypeRef, ResourceTypeGenerationFlags.None))
             .Returns(new ResourceType(stubbedNamespaceType,
@@ -199,7 +199,7 @@ public class ResourceDerivedTypeResolverTests
                 ResourceScope.None,
                 ResourceFlags.None,
                 hydratedType,
-                ImmutableHashSet<string>.Empty));
+                []));
 
         var resolver = NamespaceResolver.Create([
             new("az", stubbedNamespaceType, null),
@@ -218,10 +218,10 @@ public class ResourceDerivedTypeResolverTests
         var resourceTypeProviderMock = StrictMock.Of<IResourceTypeProvider>();
         var stubbedNamespaceType = new NamespaceType(AzNamespaceType.BuiltInName,
             AzNamespaceType.Settings,
-            ImmutableArray<TypeProperty>.Empty,
-            ImmutableArray<FunctionOverload>.Empty,
-            ImmutableArray<BannedFunction>.Empty,
-            ImmutableArray<Decorator>.Empty,
+            [],
+            [],
+            [],
+            [],
             resourceTypeProviderMock.Object);
         resourceTypeProviderMock.Setup(x => x.TryGetDefinedType(stubbedNamespaceType, unhydratedTypeRef, ResourceTypeGenerationFlags.None))
             .Returns((ResourceType?)null);
@@ -238,7 +238,7 @@ public class ResourceDerivedTypeResolverTests
         ResourceDerivedTypeResolver sut = new(binderMock.Object);
         var fallbackType = LanguageConstants.SecureString;
 
-        sut.ResolveResourceDerivedTypes(new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, fallbackType)).Should().BeSameAs(fallbackType);
+        sut.ResolveResourceDerivedTypes(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], fallbackType)).Should().BeSameAs(fallbackType);
 
         resourceTypeProviderMock.Verify(x => x.TryGetDefinedType(stubbedNamespaceType, unhydratedTypeRef, ResourceTypeGenerationFlags.None), Times.Once());
         resourceTypeProviderMock.Verify(x => x.TryGenerateFallbackType(stubbedNamespaceType, unhydratedTypeRef, ResourceTypeGenerationFlags.None), Times.Once());
@@ -254,7 +254,7 @@ public class ResourceDerivedTypeResolverTests
                 new TupleType(
                     ImmutableArray.Create<ITypeReference>(new ObjectType("dictionary",
                         TypeSymbolValidationFlags.Default,
-                        ImmutableArray<TypeProperty>.Empty,
+                        [],
                         TypeFactory.CreateArrayType(new DiscriminatedObjectType("taggedUnion",
                             TypeSymbolValidationFlags.Default,
                             "type",

@@ -183,7 +183,7 @@ namespace Bicep.Cli.Services
 
                 TemplateEngine.ValidateProcessedTemplate(template, TemplateWriter.NestedDeploymentResourceApiVersion, deploymentScope);
 
-                var allAssertions = template.Asserts?.Select(p => new AssertionResult(p.Key, (bool)p.Value.Value)).ToImmutableArray() ?? ImmutableArray<AssertionResult>.Empty;
+                var allAssertions = template.Asserts?.Select(p => new AssertionResult(p.Key, (bool)p.Value.Value)).ToImmutableArray() ?? [];
                 var failedAssertions = allAssertions.Where(a => !a.Result).Select(a => a).ToImmutableArray();
                 return new TestEvaluation(template, null, allAssertions, failedAssertions);
             }
@@ -191,7 +191,7 @@ namespace Bicep.Cli.Services
             {
                 var error = exception.Message;
 
-                return new TestEvaluation(null, error, ImmutableArray<AssertionResult>.Empty, ImmutableArray<AssertionResult>.Empty);
+                return new TestEvaluation(null, error, [], []);
             }
         }
 

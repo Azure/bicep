@@ -427,7 +427,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         return new(argumentTypes[0] switch
                         {
                             TupleType tupleType when minToTake == maxToTake && minToTake >= tupleType.Items.Length => tupleType,
-                            TupleType tupleType when minToTake == maxToTake && minToTake <= 0 => new TupleType(ImmutableArray<ITypeReference>.Empty, tupleType.ValidationFlags),
+                            TupleType tupleType when minToTake == maxToTake && minToTake <= 0 => new TupleType([], tupleType.ValidationFlags),
                             TupleType tupleType when minToTake == maxToTake && minToTake <= int.MaxValue => new TupleType(tupleType.Items.Take((int)minToTake).ToImmutableArray(), tupleType.ValidationFlags),
                             ArrayType array => TypeFactory.CreateArrayType(array.Item,
                                 !array.MinLength.HasValue ? null : minToTake switch

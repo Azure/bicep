@@ -71,8 +71,8 @@ namespace Bicep.Core.Semantics
                 string.Empty,
                 syntax,
                 syntax,
-                ImmutableArray<DeclaredSymbol>.Empty,
-                ImmutableArray<LocalScope>.Empty,
+                [],
+                [],
                 ScopeResolution.GlobalsOnly);
             this.PushScope(scope);
 
@@ -130,7 +130,7 @@ namespace Bicep.Core.Semantics
             // and the actual object body (for-loop). That's OK, in that case, this scope will
             // be empty and we'll use the `for` scope for lookups.
             var bindingSyntax = syntax.Value is IfConditionSyntax ifConditionSyntax ? ifConditionSyntax.Body : syntax.Value;
-            var scope = new LocalScope(string.Empty, syntax, bindingSyntax, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritAll);
+            var scope = new LocalScope(string.Empty, syntax, bindingSyntax, [], [], ScopeResolution.InheritAll);
             this.PushScope(scope);
 
             base.VisitResourceDeclarationSyntax(syntax);
@@ -193,7 +193,7 @@ namespace Bicep.Core.Semantics
         public override void VisitLambdaSyntax(LambdaSyntax syntax)
         {
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritAll);
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, [], [], ScopeResolution.InheritAll);
             this.PushScope(scope);
 
             /*
@@ -215,7 +215,7 @@ namespace Bicep.Core.Semantics
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
         {
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritFunctionsOnly);
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, [], [], ScopeResolution.InheritFunctionsOnly);
             this.PushScope(scope);
 
             /*
@@ -237,7 +237,7 @@ namespace Bicep.Core.Semantics
         public override void VisitForSyntax(ForSyntax syntax)
         {
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritAll);
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, [], [], ScopeResolution.InheritAll);
             this.PushScope(scope);
 
             /*
@@ -330,7 +330,7 @@ namespace Bicep.Core.Semantics
                             }
 
                             // only include the load error once per import statement
-                            var errors = loadErrorRecorded ? ImmutableArray<ErrorDiagnostic>.Empty : ImmutableArray.Create(modelLoadError);
+                            var errors = loadErrorRecorded ? [] : ImmutableArray.Create(modelLoadError);
                             DeclareSymbol(new ErroredImportSymbol(context, importedOriginalName, item, item.Name, errors));
                         }
                         break;

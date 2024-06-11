@@ -466,7 +466,7 @@ namespace Bicep.Core.Parsing
 
             if (text.Length > 0)
             {
-                return new FreeformToken(TokenType.StringComplete, textWindow.GetSpan(), text.ToString(), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
+                return new FreeformToken(TokenType.StringComplete, textWindow.GetSpan(), text.ToString(), [], []);
             }
 
             return null;

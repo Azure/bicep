@@ -31,10 +31,10 @@ namespace Bicep.Core.Semantics.Namespaces
                         ConfigurationType: namespaceConfig.ConfigurationObject,
                         ArmTemplateProviderName: namespaceConfig.Name,
                         ArmTemplateProviderVersion: namespaceConfig.Version),
-                    ImmutableArray<TypeProperty>.Empty,
-                    ImmutableArray<FunctionOverload>.Empty,
-                    ImmutableArray<BannedFunction>.Empty,
-                    ImmutableArray<Decorator>.Empty,
+                    [],
+                    [],
+                    [],
+                    [],
                     resourceTypeProvider,
                     artifact);
             }

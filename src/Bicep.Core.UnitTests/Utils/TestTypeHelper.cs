@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Utils
         => new AzResourceTypeProvider(new TestResourceTypeLoader(resourceTypes));
 
         public static IResourceTypeLoader CreateEmptyResourceTypeLoader()
-            => new TestResourceTypeLoader(Enumerable.Empty<ResourceTypeComponents>());
+            => new TestResourceTypeLoader([]);
 
         public static IResourceTypeLoader CreateResourceTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
             => new TestResourceTypeLoader(resourceTypes);
@@ -57,7 +57,7 @@ namespace Bicep.Core.UnitTests.Utils
             => new NamespaceProvider(
                 CreateResourceTypeLoaderFactory(
                     CreateAzResourceTypeProviderWithTypes(
-                        Enumerable.Empty<ResourceTypeComponents>())));
+                        [])));
 
         public static ResourceTypeComponents CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
             => CreateCustomResourceTypeWithTopLevelProperties(fullyQualifiedType, apiVersion, validationFlags, null, customProperties);
@@ -97,7 +97,7 @@ namespace Bicep.Core.UnitTests.Utils
             var reference = ResourceTypeReference.Parse($"{fullyQualifiedType}@{apiVersion}");
 
             var resourceProperties = AzResourceTypeProvider.GetCommonResourceProperties(reference)
-                .Concat(additionalTopLevelProperties ?? Enumerable.Empty<TypeProperty>())
+                .Concat(additionalTopLevelProperties ?? [])
                 .Concat(new TypeProperty("properties", new ObjectType("properties", validationFlags, customProperties, null), TypePropertyFlags.None));
 
             var bodyType = new ObjectType(reference.FormatName(), validationFlags, resourceProperties, null);

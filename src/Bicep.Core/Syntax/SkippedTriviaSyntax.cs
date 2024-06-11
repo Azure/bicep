@@ -9,7 +9,7 @@ namespace Bicep.Core.Syntax
     public class SkippedTriviaSyntax : SyntaxBase
     {
         public SkippedTriviaSyntax(TextSpan span, IEnumerable<SyntaxBase> elements)
-            : this(span, elements, ImmutableArray<ErrorDiagnostic>.Empty)
+            : this(span, elements, [])
         {
         }
 

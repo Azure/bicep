@@ -19,7 +19,7 @@ public static class ExpressionExtensions
 
     public static ObjectExpression MergeProperty(this ObjectExpression? expression, string propertyName, Expression propertyValue)
     {
-        expression ??= new ObjectExpression(null, ImmutableArray<ObjectPropertyExpression>.Empty);
+        expression ??= new ObjectExpression(null, []);
 
         var properties = expression.Properties.ToList();
         int matchingIndex = 0;

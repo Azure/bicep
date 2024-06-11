@@ -73,7 +73,7 @@ namespace Bicep.Core.Analyzers.Linter
         {
             if (GetDiagnosticLevel(model) == DiagnosticLevel.Off)
             {
-                return Enumerable.Empty<IDiagnostic>();
+                return [];
             }
 
             return AnalyzeInternal(model, GetDiagnosticLevel(model));

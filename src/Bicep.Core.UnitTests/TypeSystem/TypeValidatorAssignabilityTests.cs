@@ -746,7 +746,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // incorrect type specified for the discriminator field
                 var obj = TestSyntaxFactory.CreateObject(new[]
                 {
-                    TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>())),
+                    TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateObject([])),
                     TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
                 });
 
@@ -849,7 +849,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             {
                 // pick an invalid path (object) - we should get diagnosticWriter
-                var objectSyntax = TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>());
+                var objectSyntax = TestSyntaxFactory.CreateObject([]);
                 var hierarchy = SyntaxHierarchy.Build(objectSyntax);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, objectSyntax, unionType);
 

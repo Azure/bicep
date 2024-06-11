@@ -185,7 +185,7 @@ namespace Bicep.Core.Parsing
 
             var newlines = !assignment.IsSkipped && reader.Peek(skipNewlines: true).IsKeyword(LanguageConstants.IfKeyword)
                 ? this.NewLines().ToImmutableArray()
-                : ImmutableArray<Token>.Empty;
+                : [];
 
             var value = this.WithRecovery(() =>
                 {
@@ -218,7 +218,7 @@ namespace Bicep.Core.Parsing
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(path), TokenType.LeftBrace, TokenType.NewLine);
             var newlines = reader.Peek(skipNewlines: true).IsKeyword(LanguageConstants.IfKeyword)
                 ? this.NewLines().ToImmutableArray()
-                : ImmutableArray<Token>.Empty;
+                : [];
 
             var value = this.WithRecovery(() =>
                 {

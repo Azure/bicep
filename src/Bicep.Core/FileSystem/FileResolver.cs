@@ -120,7 +120,7 @@ namespace Bicep.Core.FileSystem
         {
             if (!fileUri.IsFile)
             {
-                return Enumerable.Empty<Uri>();
+                return [];
             }
             return fileSystem.Directory.GetDirectories(fileUri.LocalPath, pattern).Select(s => new Uri(s + "/"));
         }
@@ -129,7 +129,7 @@ namespace Bicep.Core.FileSystem
         {
             if (!fileUri.IsFile)
             {
-                return Enumerable.Empty<Uri>();
+                return [];
             }
             return fileSystem.Directory.GetFiles(fileUri.LocalPath, pattern).Select(s => new Uri(s));
         }

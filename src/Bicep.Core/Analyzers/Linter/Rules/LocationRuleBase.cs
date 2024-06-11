@@ -169,7 +169,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().ToImmutableArray();
             }
 
-            return ImmutableArray<ParameterDeclarationSyntax>.Empty;
+            return [];
         }
 
         /// <summary>

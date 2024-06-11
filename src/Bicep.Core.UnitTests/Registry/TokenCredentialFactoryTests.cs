@@ -41,7 +41,7 @@ namespace Bicep.Core.UnitTests.Registry
         public void EmptyListOfCredentialTypesShouldThrow()
         {
             var f = new TokenCredentialFactory();
-            FluentActions.Invoking(() => f.CreateChain(Enumerable.Empty<CredentialType>(), null, exampleAuthorityUri)).Should().Throw<ArgumentException>();
+            FluentActions.Invoking(() => f.CreateChain([], null, exampleAuthorityUri)).Should().Throw<ArgumentException>();
         }
 
         [TestMethod]

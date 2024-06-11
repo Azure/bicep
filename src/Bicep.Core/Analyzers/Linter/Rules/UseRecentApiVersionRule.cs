@@ -487,7 +487,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static Failure CreateFailureFromMessage(TextSpan span, string message)
         {
-            return new Failure(span, message, Array.Empty<AzureResourceApiVersion>(), Array.Empty<CodeFix>());
+            return new Failure(span, message, [], []);
         }
 
         private static Failure CreateFailureFromApiVersion(TextSpan errorSpan, TextSpan replacementSpan, string message, AzureResourceApiVersion[] acceptableVersionsSorted)

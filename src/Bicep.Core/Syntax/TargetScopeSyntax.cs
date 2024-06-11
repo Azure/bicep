@@ -10,7 +10,7 @@ namespace Bicep.Core.Syntax
     public class TargetScopeSyntax : StatementSyntax, ITopLevelDeclarationSyntax
     {
         public TargetScopeSyntax(Token keyword, SyntaxBase assignment, SyntaxBase value)
-            : base(ImmutableArray<SyntaxBase>.Empty)
+            : base([])
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.TargetScopeKeyword);
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));

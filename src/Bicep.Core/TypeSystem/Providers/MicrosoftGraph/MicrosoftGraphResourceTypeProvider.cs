@@ -12,7 +12,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
         public const string AppIdPropertyName = "appId";
         public const string NamePropertyName = "name";
 
-        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
+        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], LanguageConstants.String, TypePropertyFlags.None);
 
         private readonly MicrosoftGraphResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;

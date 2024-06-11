@@ -261,13 +261,13 @@ provider madeUpNamespace
                     ConfigurationType: null,
                     ArmTemplateProviderName: "Ns1-Unused",
                     ArmTemplateProviderVersion: "1.0"),
-                ImmutableArray<TypeProperty>.Empty,
+                [],
                 new[] {
                     new FunctionOverloadBuilder("ns1Func").Build(),
                     new FunctionOverloadBuilder("dupeFunc").Build(),
                 },
-                ImmutableArray<BannedFunction>.Empty,
-                ImmutableArray<Decorator>.Empty,
+                [],
+                [],
                 new EmptyResourceTypeProvider());
 
             var ns2 = new NamespaceType(
@@ -278,13 +278,13 @@ provider madeUpNamespace
                     ConfigurationType: null,
                     ArmTemplateProviderName: "Ns2-Unused",
                     ArmTemplateProviderVersion: "1.0"),
-                ImmutableArray<TypeProperty>.Empty,
+                [],
                 new[] {
                     new FunctionOverloadBuilder("ns2Func").Build(),
                     new FunctionOverloadBuilder("dupeFunc").Build(),
                 },
-                ImmutableArray<BannedFunction>.Empty,
-                ImmutableArray<Decorator>.Empty,
+                [],
+                [],
                 new EmptyResourceTypeProvider());
 
             var nsProvider = TestExtensibilityNamespaceProvider.Create((providerName, aliasName) => providerName switch
@@ -348,10 +348,10 @@ provider madeUpNamespace
                         null),
                     ArmTemplateProviderName: "Unused",
                     ArmTemplateProviderVersion: "1.0.0"),
-                ImmutableArray<TypeProperty>.Empty,
-                ImmutableArray<FunctionOverload>.Empty,
-                ImmutableArray<BannedFunction>.Empty,
-                ImmutableArray<Decorator>.Empty,
+                [],
+                [],
+                [],
+                [],
                 new EmptyResourceTypeProvider());
 
             var nsProvider = TestExtensibilityNamespaceProvider.Create((providerName, aliasName) => providerName switch

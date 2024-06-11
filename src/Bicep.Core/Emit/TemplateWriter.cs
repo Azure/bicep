@@ -462,7 +462,7 @@ namespace Bicep.Core.Emit
         private record ResourceDerivedTypeResolution(ResourceTypeReference RootResourceTypeReference, ImmutableArray<string> PointerSegments, TypeSymbol DerivedType) : ITypeReferenceExpressionResolution
         {
             internal ResourceDerivedTypeResolution(ResourceDerivedTypeExpression expression)
-                : this(expression.RootResourceType.TypeReference, ImmutableArray<string>.Empty, expression.RootResourceType.Body.Type) { }
+                : this(expression.RootResourceType.TypeReference, [], expression.RootResourceType.Body.Type) { }
 
             public ObjectExpression GetTypePropertiesForResolvedReferenceExpression(SyntaxBase? sourceSyntax)
                 => ExpressionFactory.CreateObject(new[]
@@ -1138,7 +1138,7 @@ namespace Bicep.Core.Emit
 
                 // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
                 // and emit its properties to merge decorator properties.
-                foreach (var property in ApplyDescription(resource, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
+                foreach (var property in ApplyDescription(resource, ExpressionFactory.CreateObject([])).Properties)
                 {
                     emitter.EmitProperty(property);
                 }
@@ -1223,10 +1223,10 @@ namespace Bicep.Core.Emit
 
         private void EmitModuleForLocalDeploy(PositionTrackingJsonTextWriter jsonWriter, DeclaredModuleExpression module, ExpressionEmitter emitter)
         {
-            emitter.EmitObject(() => 
+            emitter.EmitObject(() =>
             {
                 emitter.EmitProperty("import", "az0synthesized");
-                
+
                 var body = module.Body;
                 if (body is ForLoopExpression forLoop)
                 {
@@ -1261,7 +1261,7 @@ namespace Bicep.Core.Emit
 
                 // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
                 // and emit its properties to merge decorator properties.
-                foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
+                foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject([])).Properties)
                 {
                     emitter.EmitProperty(property);
                 }
@@ -1308,7 +1308,7 @@ namespace Bicep.Core.Emit
                         // the deployment() object at resource group scope does not contain a property named 'location', so we have to use resourceGroup().location
                         emitter.EmitProperty("location", new PropertyAccessExpression(
                             null,
-                            new FunctionCallExpression(null, "resourceGroup", ImmutableArray<Expression>.Empty),
+                            new FunctionCallExpression(null, "resourceGroup", []),
                             "location",
                             AccessExpressionFlags.None));
                     }
@@ -1317,7 +1317,7 @@ namespace Bicep.Core.Emit
                         // at all other scopes we can just use deployment().location
                         emitter.EmitProperty("location", new PropertyAccessExpression(
                             null,
-                            new FunctionCallExpression(null, "deployment", ImmutableArray<Expression>.Empty),
+                            new FunctionCallExpression(null, "deployment", []),
                             "location",
                             AccessExpressionFlags.None));
                     }
@@ -1356,7 +1356,7 @@ namespace Bicep.Core.Emit
 
                 // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
                 // and emit its properties to merge decorator properties.
-                foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
+                foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject([])).Properties)
                 {
                     emitter.EmitProperty(property);
                 }

@@ -47,7 +47,7 @@ public class TypeTemplate : TypeSymbol
 
     public override TypeKind TypeKind => TypeKind.TypeReference;
 
-    public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => ImmutableArray<ErrorDiagnostic>.Empty;
+    public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => [];
 
     public TypeParameter? TryGetParameterByIndex(int index) => index < Parameters.Length
         ? Parameters[index]

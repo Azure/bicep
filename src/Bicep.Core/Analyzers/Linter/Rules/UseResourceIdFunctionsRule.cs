@@ -139,7 +139,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         var propertyName = failure.Property.Key.ToString();
                         var paths = failure.PathToExpression.Any() ?
                             (new string[] { propertyName }).Concat(failure.PathToExpression.Select(s => s.Name)) :
-                            Enumerable.Empty<string>();
+                            [];
                         var path = string.Join(" -> ", paths);
                         yield return CreateDiagnosticForSpan(
                             diagnosticLevel,
@@ -238,7 +238,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var type = model.GetTypeInfo(propertySyntax.Value);
                 if (type.IsString() || type.IsNullableString())
                 {
-                    return AnalyzeIdPropertyValue(model, propertySyntax, propertySyntax.Value, Array.Empty<DeclaredSymbol>());
+                    return AnalyzeIdPropertyValue(model, propertySyntax, propertySyntax.Value, []);
                 }
 
                 return null;

@@ -80,10 +80,10 @@ public static class FooNamespaceType
         return new NamespaceType(
             aliasName,
             Settings,
-            ImmutableArray<TypeProperty>.Empty,
-            ImmutableArray<FunctionOverload>.Empty,
-            ImmutableArray<BannedFunction>.Empty,
-            ImmutableArray<Decorator>.Empty,
+            [],
+            [],
+            [],
+            [],
             new FooTypeProvider());
     }
 }

@@ -130,7 +130,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             if (parameter.ParameterType == typeof(Symbol))
             {
                 // just using this one as it's easy to construct
-                return ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>());
+                return ErrorType.Create([]);
             }
 
             if (parameter.ParameterType == typeof(int) || parameter.ParameterType == typeof(int?))
@@ -170,7 +170,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
             if (parameter.ParameterType == typeof(ObjectSyntax))
             {
-                return TestSyntaxFactory.CreateObject(Array.Empty<ObjectPropertySyntax>());
+                return TestSyntaxFactory.CreateObject([]);
             }
 
             if (parameter.ParameterType == typeof(SyntaxBase))
@@ -305,7 +305,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                          name: 'D1'
 
                        }
-                       
+
                        location:
                        name:// comment
                  }"

@@ -148,7 +148,7 @@ namespace Bicep.Core.Emit
                     return ConvertAccessChain(exp);
 
                 case AccessExpression exp:
-                    return ConvertAccessExpression(exp, Enumerable.Empty<LanguageExpression>());
+                    return ConvertAccessExpression(exp, []);
 
                 case ResourceReferenceExpression exp:
                     return GetReferenceExpression(exp.Metadata, exp.IndexContext, true);
@@ -282,9 +282,9 @@ namespace Bicep.Core.Emit
                             idExpression,
                             new JTokenExpression("/"),
                         },
-                        Array.Empty<LanguageExpression>()),
+                        []),
                 },
-                Array.Empty<LanguageExpression>());
+                []);
 
             // The cases for a parameter resource are much simpler and can be handled up front. These do not
             // support symbolic names they are somewhat different from the declared resource case since we just have an
@@ -350,11 +350,11 @@ namespace Bicep.Core.Emit
                                             AppendProperties(GetModuleReferenceExpression(output.Module, null, true), new JTokenExpression("outputs")),
                                             new JTokenExpression(output.OutputName),
                                         },
-                                        Array.Empty<LanguageExpression>()),
+                                        []),
                                     NameFromIdExpression(GetFullyQualifiedResourceId(output)),
-                                    new FunctionExpression("null", Array.Empty<LanguageExpression>(), Array.Empty<LanguageExpression>()),
+                                    new FunctionExpression("null", [], []),
                                 },
-                                Array.Empty<LanguageExpression>()),
+                                []),
                             Enumerable.Empty<LanguageExpression>(),
                             true);
                     case "name":
@@ -578,7 +578,7 @@ namespace Bicep.Core.Emit
                 ParameterResourceMetadata parameter => new FunctionExpression(
                     "parameters",
                     new LanguageExpression[] { new JTokenExpression(parameter.Symbol.Name), },
-                    Array.Empty<LanguageExpression>()),
+                    []),
 
                 ModuleOutputResourceMetadata output => AppendProperties(
                     GetModuleReferenceExpression(output.Module, null, true),
@@ -881,7 +881,7 @@ namespace Bicep.Core.Emit
             => CreateFunction(name, parameters as IEnumerable<LanguageExpression>);
 
         private static FunctionExpression CreateFunction(string name, IEnumerable<LanguageExpression> parameters)
-            => new(name, parameters.ToArray(), Array.Empty<LanguageExpression>());
+            => new(name, parameters.ToArray(), []);
 
         private static FunctionExpression AppendProperties(FunctionExpression function, params LanguageExpression[] properties)
             => AppendProperties(function, properties as IEnumerable<LanguageExpression>);
