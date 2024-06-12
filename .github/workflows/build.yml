@@ -226,6 +226,7 @@ jobs:
 
   build-vs-ext:
     name: Build Visual Studio Extension
+    if: false # Temporarily disable VS Bicep build: https://github.com/Azure/bicep/issues/14251    
     runs-on: windows-latest
 
     steps:
