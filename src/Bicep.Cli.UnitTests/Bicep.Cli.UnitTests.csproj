@@ -18,4 +18,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Cli\Bicep.Cli.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.139" />
+  </ItemGroup>
 </Project>

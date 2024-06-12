@@ -25,4 +25,8 @@
     <ProjectReference Include="..\Bicep.Cli\Bicep.Cli.csproj" />
     <ProjectReference Include="..\Bicep.Core.Samples\Bicep.Core.Samples.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.139" />
+  </ItemGroup>
 </Project>
