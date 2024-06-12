@@ -53,9 +53,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.6.133, )",
-        "resolved": "3.6.133",
-        "contentHash": "VZWMd5YAeDxpjWjAP/X6bAxnRMiEf6tES/ITN0X5CHJgkWLLeHGmEALivmTAfYM6P+P/3Szy6VCITUAkqjcHVw=="
+        "requested": "[3.6.139, )",
+        "resolved": "3.6.139",
+        "contentHash": "rq0Ub/Jik7PtMtZtLn0tHuJ01Yt36RQ+eeBe+S7qnJ/EFOX6D4T9zuYD3vQPYKGI6Ro4t2iWgFm3fGDgjBrMfg=="
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Direct",
@@ -290,11 +290,6 @@
           "Grpc.Core.Api": "2.63.0"
         }
       },
-      "Grpc.Tools": {
-        "type": "Transitive",
-        "resolved": "2.62.0",
-        "contentHash": "tVU0hseOI3tYI9Z62++01EAUBNsKMQfZfeuZyW9Qa3z1D7IqtQKoU2u+3426uIPCTzVVi8qBgsszThyKam9NQA=="
-      },
       "Humanizer.Core": {
         "type": "Transitive",
         "resolved": "2.14.1",
@@ -342,8 +337,8 @@
       },
       "JsonSchema.Net": {
         "type": "Transitive",
-        "resolved": "7.0.2",
-        "contentHash": "UAt+IVSRcq/CkvnkEfacETPOMZdUVq4aZ9uyRSB+vZe+0Sev6ZyWbb+cidkVykCwraFOkCnPyxZYjEu+aMCorQ==",
+        "resolved": "7.0.4",
+        "contentHash": "R0Hk2Tr/np4Q1NO8CBjyQsoiD1iFJyEQP20Sw7JnZCNGJoaSBe+g4b+nZqnBXPQhiqY5LGZ8JZwZkRh/eKZhEQ==",
         "dependencies": {
           "JsonPointer.Net": "5.0.0"
         }
@@ -1707,8 +1702,7 @@
         "dependencies": {
           "CommandLineParser": "[2.9.1, )",
           "Google.Protobuf": "[3.27.1, )",
-          "Grpc.Net.Client": "[2.63.0, )",
-          "Grpc.Tools": "[2.62.0, )"
+          "Grpc.Net.Client": "[2.63.0, )"
         }
       },
       "Azure.Bicep.RegistryModuleTool": {
@@ -1716,7 +1710,7 @@
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
           "JsonPath.Net": "[1.1.0, )",
-          "JsonSchema.Net": "[7.0.2, )",
+          "JsonSchema.Net": "[7.0.4, )",
           "Markdig": "[0.37.0, )",
           "Microsoft.Extensions.Logging": "[8.0.0, )",
           "Serilog.Extensions.Hosting": "[8.0.0, )",
