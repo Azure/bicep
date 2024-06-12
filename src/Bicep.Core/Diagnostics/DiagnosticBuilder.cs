@@ -2206,6 +2206,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP405",
                 "More than one 'extends' declaration are present");
+
+            public ErrorDiagnostic ExtendsNotSupported() => new(
+                TextSpan,
+                "BCP406",
+                "Extends keyword is not supported");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

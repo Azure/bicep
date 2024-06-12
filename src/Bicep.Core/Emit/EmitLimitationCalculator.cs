@@ -55,6 +55,7 @@ namespace Bicep.Core.Emit
             BlockNamesDistinguishedOnlyByCase(model, diagnostics);
             BlockResourceDerivedTypesThatDoNotDereferenceProperties(model, diagnostics);
             BlockSpreadInUnsupportedLocations(model, diagnostics);
+            BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
 
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
@@ -619,6 +620,17 @@ namespace Bicep.Core.Emit
                 if (!model.Features.TestFrameworkEnabled)
                 {
                     diagnostics.Write(test.DeclaringTest, x => x.TestDeclarationStatementsUnsupported());
+                }
+            }
+        }
+
+        private static void BlockExtendsWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var test in model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>())
+            {
+                if (!model.Features.ModularParametersEnabled)
+                {
+                    diagnostics.Write(test, x => x.ExtendsNotSupported());
                 }
             }
         }
