@@ -29,7 +29,7 @@ namespace Bicep.Cli.IntegrationTests
     public class BuildParamsCommandTests : TestBase
     {
         private InvocationSettings Settings
-            => CreateDefaultSettings() with
+            => new()
             {
                 Environment = TestEnvironment.Create(
                     ("stringEnvVariableName", "test"),

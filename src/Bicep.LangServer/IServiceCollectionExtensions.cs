@@ -9,6 +9,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
@@ -45,6 +46,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
+        .AddPublicRegistryModuleMetadataProviderServices()
         .AddSingleton<BicepCompiler>();
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
@@ -72,7 +74,5 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IArmClientProvider, ArmClientProvider>()
         .AddSingleton<IDeploymentHelper, DeploymentHelper>()
         .AddSingleton<ISettingsProvider, SettingsProvider>()
-        .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
-        .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
-        ;
+        .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>();
 }

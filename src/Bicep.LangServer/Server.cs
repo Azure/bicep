@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Net;
 using Bicep.Core.Features;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Tracing;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
@@ -97,16 +98,7 @@ namespace Bicep.LanguageServer
 
         private static void RegisterServices(IServiceCollection services)
         {
-            // using type based registration for Http clients so dependencies can be injected automatically
-            // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
             services.AddServerDependencies();
-
-            services
-                .AddHttpClient<IPublicRegistryModuleMetadataClient, PublicRegistryModuleMetadataClient>()
-                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-                {
-                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-                });
         }
 
         public void Dispose()

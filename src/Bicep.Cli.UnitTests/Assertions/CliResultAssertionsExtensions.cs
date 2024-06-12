@@ -53,6 +53,13 @@ public static class CliResultAssertionsExtensions
         return new(instance);
     }
 
+    public static AndConstraint<CliResultAssertions> NotHaveStderrMatch(this CliResultAssertions instance, string stderr, string because = "", params object[] becauseArgs)
+    {
+        instance.Subject.Stderr.Should().NotMatch(stderr, because, becauseArgs);
+
+        return new(instance);
+    }
+
     public static AndConstraint<CliResultAssertions> NotHaveStderr(this CliResultAssertions instance, string because = "", params object[] becauseArgs)
         => HaveStderr(instance, "", because, becauseArgs);
 }

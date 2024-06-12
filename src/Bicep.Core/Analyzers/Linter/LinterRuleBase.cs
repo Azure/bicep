@@ -66,24 +66,35 @@ namespace Bicep.Core.Analyzers.Linter
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public string GetMessage(params object[] values)
-            => (values.Any() ? FormatMessage(values) : this.Description);
+        public string GetMessage(params object[] values) => FormatMessage(values);
 
-        public IEnumerable<IDiagnostic> Analyze(SemanticModel model)
+        public IEnumerable<IDiagnostic> Analyze(SemanticModel model, IServiceProvider serviceProvider)
         {
             if (GetDiagnosticLevel(model) == DiagnosticLevel.Off)
             {
                 return [];
             }
 
-            return AnalyzeInternal(model, GetDiagnosticLevel(model));
+            return AnalyzeInternal(model, serviceProvider, GetDiagnosticLevel(model));
         }
 
         /// <summary>
         /// Abstract method each rule must implement to provide analyzer
         /// diagnostics through the Analyze API
         /// </summary>
-        public abstract IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel);
+        public virtual IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, IServiceProvider serviceProvider, DiagnosticLevel diagnosticLevel)
+        {
+            return AnalyzeInternal(model, diagnosticLevel);
+        }
+
+        /// <summary>
+        /// Abstract method each rule must implement to provide analyzer
+        /// diagnostics through the Analyze API
+        /// </summary>
+        public virtual IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
+        {
+            throw new NotImplementedException($"{this.GetType().Name} must implement one of the overloads of {nameof(AnalyzeInternal)}");
+        }
 
         protected DiagnosticLevel GetDiagnosticLevel(SemanticModel model) => GetDiagnosticLevel(model.Configuration.Analyzers);
 

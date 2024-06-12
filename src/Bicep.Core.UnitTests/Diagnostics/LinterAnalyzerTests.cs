@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             public IEnumerable<object[]> GetData(MethodInfo methodInfo)
             {
-                var analyzer = new LinterAnalyzer();
+                var analyzer = new LinterAnalyzer(BicepTestConstants.EmptyServiceProvider);
                 var ruleSet = analyzer.GetRuleSet().ToArray();
 
                 return ruleSet.Select(rule => new object[] { rule });
@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void HasBuiltInRules()
         {
-            var linter = new LinterAnalyzer();
+            var linter = new LinterAnalyzer(BicepTestConstants.EmptyServiceProvider);
             linter.GetRuleSet().Should().NotBeEmpty();
         }
 
@@ -53,14 +53,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
         public void BuiltInRulesExistSanityCheck(string ruleCode)
 
         {
-            var linter = new LinterAnalyzer();
+            var linter = new LinterAnalyzer(BicepTestConstants.EmptyServiceProvider);
             linter.GetRuleSet().Should().Contain(r => r.Code == ruleCode);
         }
 
         [TestMethod]
         public void AllDefinedRulesAreListedInLinterRulesProvider()
         {
-            var linter = new LinterAnalyzer();
+            var linter = new LinterAnalyzer(BicepTestConstants.EmptyServiceProvider);
             var ruleTypes = linter.GetRuleSet().Select(r => r.GetType()).ToArray();
 
             var expectedRuleTypes = typeof(LinterAnalyzer).Assembly
@@ -79,7 +79,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void AllRulesHaveUniqueDetails()
         {
-            var analyzer = new LinterAnalyzer();
+            var analyzer = new LinterAnalyzer(BicepTestConstants.EmptyServiceProvider);
             var ruleSet = analyzer.GetRuleSet().ToArray();
 
             var codeSet = ruleSet.Select(r => r.Code).ToHashSet();
@@ -92,7 +92,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void MostRulesEnabledByDefault()
         {
-            var analyzer = new LinterAnalyzer();
+            var analyzer = new LinterAnalyzer(BicepTestConstants.EmptyServiceProvider);
             var ruleSet = analyzer.GetRuleSet().ToArray();
             var numberEnabled = ruleSet.Where(r => r.DefaultDiagnosticLevel != DiagnosticLevel.Off).Count();
             numberEnabled.Should().BeGreaterThan(ruleSet.Length / 2, "most rules should probably be enabled by default");
@@ -152,7 +152,7 @@ param param1 string = 'val'";
             var semanticModel = compilationResult.Compilation.GetSemanticModel(compilationResult.BicepFile);
 
             var throwRule = new LinterThrowsTestRule();
-            var test = () => throwRule.Analyze(semanticModel).ToArray();
+            var test = () => throwRule.Analyze(semanticModel, BicepTestConstants.EmptyServiceProvider).ToArray();
             test.Should().Throw<ArgumentOutOfRangeException>();
         }
     }

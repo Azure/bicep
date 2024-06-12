@@ -342,7 +342,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var defaultSettings = CreateDefaultSettings();
+            var defaultSettings = new InvocationSettings();
             var diagnostics = await GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep("build", bicepFilePath);
@@ -367,7 +367,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             result.Should().Be(1);
             output.Should().BeEmpty();
 
-            var defaultSettings = CreateDefaultSettings();
+            var defaultSettings = new InvocationSettings();
             var diagnostics = await GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
             error.Should().ContainAll(diagnostics);
         }

@@ -205,6 +205,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public ResultWithException<SourceArchive> TryGetSource(ArtifactReference artifactReference) => new(new SourceNotAvailableException());
 
             public Uri? TryGetProviderBinary(ArtifactReference reference) => null;
+            public Task OnRestoreArtifacts(bool forceRestore) => Task.CompletedTask;
         }
 
         private class MockArtifactRef : ArtifactReference

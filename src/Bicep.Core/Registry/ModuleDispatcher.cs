@@ -5,15 +5,18 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
 {
@@ -183,6 +186,21 @@ namespace Bicep.Core.Registry
             // many module declarations can point to the same module
             var uniqueReferences = references.Distinct().ToArray();
 
+            // Call OnRestoreArtifacts on each registry provider. Can (currently at least) be done in parallel to restore.
+            var allRegistries = registryProvider.Registries(new Uri("file:///no-parent-file-is-available.bicep"));
+            var onRestoreArtifactsTasks = new List<Task>();
+            foreach (var registry in allRegistries)
+            {
+                try
+                {
+                    onRestoreArtifactsTasks.Add(registry.OnRestoreArtifacts(forceRestore)); //asdfg redo build if changes?
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"{nameof(IArtifactRegistry.OnRestoreArtifacts)} failed: {ex.Message}");
+                }
+            }
+
             if (!forceRestore &&
                 uniqueReferences.All(module => this.GetArtifactRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
             {
@@ -214,6 +232,15 @@ namespace Bicep.Core.Registry
                 foreach (var (failedReference, failureBuilder) in restoreFailures)
                 {
                     this.SetRestoreFailure(failedReference, configurationManager.GetConfiguration(failedReference.ParentModuleUri), failureBuilder);
+                }
+
+                try
+                {
+                    await Task.WhenAll(onRestoreArtifactsTasks);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"{nameof(IArtifactRegistry.OnRestoreArtifacts)} failed: {ex.Message}");
                 }
             }
 

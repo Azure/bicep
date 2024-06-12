@@ -4,6 +4,10 @@
 using System.IO.Abstractions;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Extensibility.Messages;
+using Bicep.Core.Configuration;
+using Bicep.Core.Features;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
@@ -127,7 +131,8 @@ param coords = {
                 return Task.FromResult<ExtensibilityOperationResponse>(new(req.Resource, null, null));
             });
 
-        await using LocalExtensibilityHandler extensibilityHandler = new(BicepTestConstants.ModuleDispatcher, uri => Task.FromResult(providerMock.Object));
+        var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
+        await using LocalExtensibilityHandler extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
         await extensibilityHandler.InitializeProviders(result.Compilation);
 
         var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);

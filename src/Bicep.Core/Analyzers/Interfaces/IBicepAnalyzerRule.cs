@@ -3,13 +3,14 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Analyzers.Interfaces
 {
     /// <summary>
     /// Implementing IBicepAnalyzer Rule requires
     /// the implementing class to have a parameterless
-    /// constructor which can be discoverd through
+    /// constructor which can be discovered through
     /// reflection
     /// </summary>
     /// <remarks>Do not rename or move this type to a different namespace.
@@ -25,9 +26,8 @@ namespace Bicep.Core.Analyzers.Interfaces
         DiagnosticLevel DefaultDiagnosticLevel { get; }
 
         DiagnosticStyling DiagnosticStyling { get; }
-
         Uri? Uri { get; }
 
-        IEnumerable<IDiagnostic> Analyze(SemanticModel model);
+        IEnumerable<IDiagnostic> Analyze(SemanticModel model, IServiceProvider serviceProvider);
     }
 }

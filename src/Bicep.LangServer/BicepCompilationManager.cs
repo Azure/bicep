@@ -16,6 +16,7 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -581,7 +582,7 @@ namespace Bicep.LanguageServer
             {
                 foreach (var kvp in LinterRulesProvider.GetLinterRules())
                 {
-                    string linterRuleDiagnosticLevelValue = configuration.Analyzers.GetValue(kvp.Value, "warning");
+                    string linterRuleDiagnosticLevelValue = configuration.Analyzers.GetValue(kvp.Value.diagnosticLevelConfigProperty, "warning");
 
                     properties.Add(kvp.Key, linterRuleDiagnosticLevelValue);
                 }

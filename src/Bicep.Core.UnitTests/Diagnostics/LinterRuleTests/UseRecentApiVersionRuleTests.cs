@@ -818,7 +818,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             [DataTestMethod]
             [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
-            public void Invariants(TestData data)
+            public void InvariantsTest(TestData data)
             {
                 var (allVersions, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAgeInDays, data.ResourceScope, data.FullyQualifiedResourceType);
 

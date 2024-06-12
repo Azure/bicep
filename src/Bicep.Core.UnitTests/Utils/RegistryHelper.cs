@@ -33,7 +33,6 @@ public static class RegistryHelper
         foreach (var (registryHost, repository) in clients)
         {
             containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryHost, repository);
-
         }
 
         return containerRegistryFactoryBuilder.Build();

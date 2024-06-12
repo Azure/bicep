@@ -8,12 +8,14 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
@@ -28,22 +30,30 @@ namespace Bicep.Core.UnitTests;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
-        .AddSingleton<INamespaceProvider, NamespaceProvider>()
-        .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
-        .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
-        .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
-        .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-        .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
-        .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-        .AddSingleton<IFileResolver, FileResolver>()
-        .AddSingleton<IEnvironment>(TestEnvironment.Create())
-        .AddSingleton<IFileSystem, IOFileSystem>()
-        .AddSingleton<IConfigurationManager, ConfigurationManager>()
-        .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
-        .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
-        .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-        .AddSingleton<BicepCompiler>();
+    public static IServiceCollection AddBicepCore(this IServiceCollection services)
+    {
+        services
+            .AddSingleton<INamespaceProvider, NamespaceProvider>()
+            .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
+            .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
+            .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
+            .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
+            .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
+            .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
+            .AddSingleton<IFileResolver, FileResolver>()
+            .AddSingleton<IEnvironment>(TestEnvironment.Create())
+            .AddSingleton<IFileSystem, IOFileSystem>()
+            .AddSingleton<IConfigurationManager, ConfigurationManager>()
+            .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
+            .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
+            .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
+            .AddPublicRegistryModuleMetadataProviderServices()
+            .AddSingleton<BicepCompiler>();
+
+        AddMockHttpClient(services, PublicRegistryModuleMetadataClientMock.Create([]));//asdfg not working?
+
+        return services;
+    }
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepDecompiler>();
@@ -132,4 +142,23 @@ public static class IServiceCollectionExtensions
 
         return services;
     }
+
+    public static IServiceCollection AddMockHttpClient<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class
+    {
+        return AddMockHttpClientIfNonNull(services, httpClient);
+    }
+
+    public static IServiceCollection AddMockHttpClientIfNonNull<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class
+    {
+        if (httpClient is { })
+        {
+            services.AddHttpClient(typeof(IPublicRegistryModuleMetadataClient).Name /*asdfg?*/, httpClient =>
+            {
+            })
+                .AddTypedClient(c => httpClient);
+        }
+
+        return services;
+    }
+
 }
