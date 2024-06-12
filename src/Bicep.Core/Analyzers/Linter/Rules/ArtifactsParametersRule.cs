@@ -27,8 +27,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             LinterRuleCategory.BestPractice,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         {
-            Debug.Assert(ArtifactsLocationName.StartsWith("_"));
-            Debug.Assert(ArtifactsLocationSasTokenName.StartsWith("_"));
+            Debug.Assert(ArtifactsLocationName.StartsWith('_'));
+            Debug.Assert(ArtifactsLocationSasTokenName.StartsWith('_'));
         }
 
         public override string FormatMessage(params object[] values)

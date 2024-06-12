@@ -407,7 +407,7 @@ namespace Bicep.LanguageServer.Completions
                                 var label = module.Name.Substring($"{modulePathWithoutBicepKeyword}/".Length);
                                 StringBuilder sb = new(replacementTextWithTrimmedEnd);
 
-                                if (!replacementTextWithTrimmedEnd.EndsWith(":"))
+                                if (!replacementTextWithTrimmedEnd.EndsWith(':'))
                                 {
                                     sb.Append(":");
                                 }

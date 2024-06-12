@@ -1,42 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Formats.Tar;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Text;
+using System.Web.Services.Description;
+using Azure.Bicep.Types;
 using Azure.Bicep.Types.Serialization;
+using Azure.Deployments.Core.Extensions;
+using Bicep.Core.Extensions;
+using Bicep.Core.Intermediate;
 
 namespace Bicep.Core.Registry.Providers;
-
-public static class ProviderV1Archive
-{
-    public static async Task<BinaryData> Build(BinaryData typesTgz)
-    {
-        using var stream = new MemoryStream();
-
-        using (var gzStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
-        {
-            using var tarWriter = new TarWriter(gzStream, leaveOpen: true);
-
-            await AddFileToTar(tarWriter, "types.tgz", typesTgz);
-        }
-
-        stream.Seek(0, SeekOrigin.Begin);
-
-        return BinaryData.FromStream(stream);
-    }
-
-    private static async Task AddFileToTar(TarWriter tarWriter, string archivePath, BinaryData binaryData)
-    {
-        var tarEntry = new PaxTarEntry(TarEntryType.RegularFile, archivePath)
-        {
-            DataStream = binaryData.ToStream(),
-        };
-
-        await tarWriter.WriteEntryAsync(tarEntry);
-    }
-}
 
 public static class TypesV1Archive
 {
@@ -84,11 +61,11 @@ public static class TypesV1Archive
         var index = TypeSerializer.DeserializeIndex(indexStream);
 
         var typeReferences = index.Resources.Values.ToList();
-        if (index.Settings?.ConfigurationType is {} configType)
+        if (index.Settings?.ConfigurationType is { } configType)
         {
             typeReferences.Add(configType);
         }
-        if (index.FallbackResourceType is {} fallbackType)
+        if (index.FallbackResourceType is { } fallbackType)
         {
             typeReferences.Add(fallbackType);
         }

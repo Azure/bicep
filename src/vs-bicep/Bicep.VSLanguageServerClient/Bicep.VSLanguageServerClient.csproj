@@ -11,12 +11,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.9.2" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.2.2105" />
+    <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.10.124" />
     <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
-    <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.9.2164" />
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.9.37000" />
-    <PackageReference Include="Microsoft.Visualstudio.Telemetry" Version="16.5.6" />
-    <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.2.32505.113" />
+    <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.10.2154" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.10.40170" />
+    <PackageReference Include="Microsoft.Visualstudio.Telemetry" Version="17.10.18" />
+    <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.10.39856" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
   </ItemGroup>

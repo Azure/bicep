@@ -204,7 +204,7 @@ namespace Bicep.Core.FileSystem
             uri.Scheme != Uri.UriSchemeFile ? uri.AbsoluteUri.TrimEnd('/') : uri.AbsolutePath;
 
         private static string NormalizeExtension(string extension) =>
-            extension.StartsWith(".") ? extension : $".{extension}";
+            extension.StartsWith('.') ? extension : $".{extension}";
 
         public static bool IsSubPathOf(Uri parent, Uri child)
         {
@@ -247,5 +247,8 @@ namespace Bicep.Core.FileSystem
 
             return relativeUri;
         }
+
+        public static Uri ResolveFilePath(Uri parentFileUri, string childFilePath)
+            => TryResolveFilePath(parentFileUri, childFilePath) ?? throw new InvalidOperationException($"Failed to resolve file path for URI {parentFileUri} and child path {childFilePath}");
     }
 }

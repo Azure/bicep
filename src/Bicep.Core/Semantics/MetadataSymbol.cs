@@ -31,7 +31,7 @@ namespace Bicep.Core.Semantics
 
         private IEnumerable<ErrorDiagnostic> ValidateName()
         {
-            if (this.Name.StartsWith("_"))
+            if (this.Name.StartsWith('_'))
             {
                 yield return DiagnosticBuilder.ForPosition(this.NameSource).ReservedMetadataIdentifier(this.Name);
             }

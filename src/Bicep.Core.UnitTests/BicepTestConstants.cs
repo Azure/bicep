@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.IO.Abstractions;
+using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
@@ -136,10 +137,7 @@ namespace Bicep.Core.UnitTests
             return telemetryProvider;
         }
 
-        public static BinaryData BicepProviderManifestWithEmptyTypesLayer
-            => GetBicepProviderManifest("sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", 0);
-
-        public static BinaryData GetBicepProviderManifest(string digest, long size) =>
+        public static BinaryData GetBicepProviderManifest(UploadRegistryBlobResult layer, UploadRegistryBlobResult config) =>
             BinaryData.FromString($$"""
         {
             "schemaVersion": 2,
@@ -147,14 +145,14 @@ namespace Bicep.Core.UnitTests
             "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
             "config": {
             "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
-            "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-            "size": 2
+            "digest": "{{config.Digest}}",
+            "size": {{config.SizeInBytes}}
             },
             "layers": [
             {
                 "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
-                "digest": "{{digest}}",
-                "size": {{size}}
+                "digest": "{{layer.Digest}}",
+                "size": {{layer.SizeInBytes}}
             }
             ],
             "annotations": {

@@ -1,0 +1,7 @@
+{
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "providerRegistry": true,
+    "localDeploy": true
+  }
+}

@@ -116,6 +116,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "dynamicTypeLoading": false,
           "providerRegistry": false,
           "optionalModuleNames": false,
+          "localDeploy": false,
           "resourceDerivedTypes": false
         },
         "formatting": {
@@ -204,6 +205,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "dynamicTypeLoading": false,
           "providerRegistry": false,
           "optionalModuleNames": false,
+          "localDeploy": false,
           "resourceDerivedTypes": false
         },
         "formatting": {
@@ -317,6 +319,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "dynamicTypeLoading": false,
           "providerRegistry": false,
           "optionalModuleNames": false,
+          "localDeploy": false,
           "resourceDerivedTypes": false
         },
         "formatting": {
@@ -758,6 +761,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "dynamicTypeLoading": false,
           "providerRegistry": false,
           "optionalModuleNames": false,
+          "localDeploy": false,
           "resourceDerivedTypes": false
         },
         "formatting": {

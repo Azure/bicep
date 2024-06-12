@@ -209,6 +209,6 @@ public class NamespaceProvider : INamespaceProvider
             return new(AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind));
         }
 
-        return new(ThirdPartyNamespaceType.Create(aliasName, typeProvider));
+        return new(ThirdPartyNamespaceType.Create(aliasName, typeProvider, artifact.Reference));
     }
 }

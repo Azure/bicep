@@ -144,7 +144,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             string expected = StringUtils.ReplaceNewlines(await handler.Handle(bicepFilePath, CancellationToken.None), "|");
 
-            expected.Should().Be(@"Restore (force) summary: |  * ./localmodule1.bicep: Succeeded|  * ./localmodule2.bicep: Succeeded");
+            expected.Should().Be(@"Restore (force) summary: |  * ./localmodule1.bicep: Succeeded|  * ./localmodule2.bicep: Failed");
         }
 
 

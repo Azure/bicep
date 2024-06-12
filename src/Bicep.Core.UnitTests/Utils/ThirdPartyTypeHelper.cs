@@ -66,6 +66,9 @@ public static class ThirdPartyTypeHelper
         };
     }
 
+    public static BinaryData GetHttpProviderTypesTgz()
+        => GetTypesTgzBytesFromFiles(GetHttpProviderTypes().Select(x => (x.Key, x.Value)).ToArray());
+
     /// <summary>
     /// Returns a .tgz file containing a set of pre-defined types for testing purposes.
     /// </summary>
@@ -318,7 +321,7 @@ public static class ThirdPartyTypeHelper
             }
 
             var outputPath = Path.Combine(basePath, entry.Name);
-            if (Path.GetDirectoryName(outputPath) is {} outputParentDir &&
+            if (Path.GetDirectoryName(outputPath) is { } outputParentDir &&
                 !fileSystem.Directory.Exists(outputParentDir))
             {
                 fileSystem.Directory.CreateDirectory(outputParentDir);
