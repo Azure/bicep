@@ -77,6 +77,7 @@ namespace Bicep.Cli.IntegrationTests
                             services.WithFeatureOverrides(settings.FeatureOverrides);
                         }
 
+                        //asdfg does this work?
                         IServiceCollectionExtensions.AddMockHttpClientIfNonNull(services, settings.ModuleMetadataClient);
 
                         services
