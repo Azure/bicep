@@ -22,7 +22,6 @@ namespace Bicep.Core.Configuration
             return config;
         }
 
-        //asdfg move to test code
         public static AnalyzersConfiguration WithAllAnalyzers(this AnalyzersConfiguration analyzersConfiguration)
         {
             var config = analyzersConfiguration;

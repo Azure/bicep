@@ -18,7 +18,7 @@ public interface IPublicRegistryModuleMetadataProvider
     public bool IsCached { get; }
     public string? DownloadError { get; }
 
-    public Task TryAwaitCache(bool forceUpdate = false); //asdfg test nested calls
+    public Task TryAwaitCache(bool forceUpdate = false);
 
     RegistryModule[] GetCachedModules();
     RegistryModuleVersion[] GetCachedModuleVersions(string modulePath);

@@ -43,7 +43,7 @@ namespace Bicep.Core.Registry.PublicRegistry
         private readonly TimeSpan MaxThrottleDelay = TimeSpan.FromMinutes(2);
 
         private readonly object queryingLiveSyncObject = new();
-        private Task? queryLiveDataTask;//asdfg test
+        private Task? queryLiveDataTask;
         private DateTime? lastSuccessfulQuery;
         private int consecutiveFailures = 0;
 
@@ -135,10 +135,10 @@ namespace Bicep.Core.Registry.PublicRegistry
             {
                 if (this.queryLiveDataTask is { })
                 {
-                    return this.queryLiveDataTask; //asdfg test
+                    return this.queryLiveDataTask
                 }
 
-                return this.queryLiveDataTask = QueryData(initialDelay); //asdfg test
+                return this.queryLiveDataTask = QueryData(initialDelay);
             }
 
             Task QueryData(bool initialDelay)
@@ -161,7 +161,7 @@ namespace Bicep.Core.Registry.PublicRegistry
 
                         if (delay > 0)
                         {
-                            Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Delaying {delay} before retry..."); // asdfg only delay if repeating - test
+                            Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Delaying {delay} before retry...");
                             await Task.Delay(delay);
                         }
 

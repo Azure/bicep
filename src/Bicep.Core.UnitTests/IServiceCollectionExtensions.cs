@@ -50,7 +50,7 @@ public static class IServiceCollectionExtensions
             .AddPublicRegistryModuleMetadataProviderServices()
             .AddSingleton<BicepCompiler>();
 
-        AddMockHttpClient(services, PublicRegistryModuleMetadataClientMock.Create([]));//asdfg not working?
+        //AddMockHttpClient(services, PublicRegistryModuleMetadataClientMock.Create([]));//asdfg not working?
 
         return services;
     }
@@ -143,22 +143,22 @@ public static class IServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddMockHttpClient<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class
-    {
-        return AddMockHttpClientIfNonNull(services, httpClient);
-    }
+    //public static IServiceCollection AddMockHttpClient<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class
+    //{
+    //    return AddMockHttpClientIfNonNull(services, httpClient);
+    //}
 
-    public static IServiceCollection AddMockHttpClientIfNonNull<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class
-    {
-        if (httpClient is { })
-        {
-            services.AddHttpClient(typeof(IPublicRegistryModuleMetadataClient).Name /*asdfg?*/, httpClient =>
-            {
-            })
-                .AddTypedClient(c => httpClient);
-        }
+    //public static IServiceCollection AddMockHttpClientIfNonNull<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class
+    //{
+    //    if (httpClient is { })
+    //    {
+    //        services.AddHttpClient(typeof(IPublicRegistryModuleMetadataClient).Name /*asdfg?*/, httpClient =>
+    //        {
+    //        })
+    //            .AddTypedClient(c => httpClient);
+    //    }
 
-        return services;
-    }
+    //    return services;
+    //}
 
 }

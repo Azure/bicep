@@ -25,7 +25,6 @@ using Semver.Comparers;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    // asdfg refresh diagnostics when cache is updated
     public sealed class UseRecentModuleVersionsRule : LinterRuleBase
     {
         public new const string Code = "use-recent-module-versions";
