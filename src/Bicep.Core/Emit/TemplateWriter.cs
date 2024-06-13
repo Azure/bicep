@@ -1259,7 +1259,7 @@ namespace Bicep.Core.Emit
 
                 this.EmitDependsOn(emitter, module.DependsOn);
 
-                // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
+                // Since we don't want to be mutating the body of the original ObjectSyntax, we create a placeholder body in place
                 // and emit its properties to merge decorator properties.
                 foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
                 {
