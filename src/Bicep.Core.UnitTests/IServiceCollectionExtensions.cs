@@ -50,8 +50,6 @@ public static class IServiceCollectionExtensions
             .AddPublicRegistryModuleMetadataProviderServices()
             .AddSingleton<BicepCompiler>();
 
-        //AddMockHttpClient(services, PublicRegistryModuleMetadataClientMock.Create([]));//asdfg not working?
-
         return services;
     }
 
@@ -132,30 +130,12 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithEmptyAzResources(this IServiceCollection services)
         => services.WithAzResources([]);
 
-    public static IServiceCollection AddSingletonIfNonNull<TService>(this IServiceCollection services, TService? instance)
+    public static IServiceCollection AddSingletonIfNotNull<TService>(this IServiceCollection services, TService? instance)
         where TService : class
     {
         if (instance is not null)
         {
             return services.AddSingleton(instance);
-        }
-
-        return services;
-    }
-
-    public static IServiceCollection AddMockHttpClient<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class
-    {
-        return AddMockHttpClientIfNonNull(services, httpClient);
-    }
-
-    public static IServiceCollection AddMockHttpClientIfNonNull<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class
-    {
-        if (httpClient is { })
-        {
-            services.AddHttpClient(typeof(IPublicRegistryModuleMetadataClient).Name /*asdfg?*/, httpClient =>
-            {
-            })
-                .AddTypedClient(c => httpClient);
         }
 
         return services;

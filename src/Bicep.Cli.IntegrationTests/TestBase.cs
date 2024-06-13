@@ -31,7 +31,7 @@ namespace Bicep.Cli.IntegrationTests
                         .AddSingleton(clientFactory)
                         .AddSingleton(templateSpecRepositoryFactory)
                         .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
-                    IServiceCollectionExtensions.AddMockHttpClientIfNonNull(services, moduleMetadataClient); //asdfg does this work?
+                    //IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, moduleMetadataClient); //asdfg does this work?
 
                 }
                 ).GetCompiler();
@@ -78,12 +78,12 @@ namespace Bicep.Cli.IntegrationTests
                         }
 
                         //asdfg does this work?
-                        IServiceCollectionExtensions.AddMockHttpClientIfNonNull(services, settings.ModuleMetadataClient);
+                        //IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient);
 
                         services
-                            .AddSingletonIfNonNull(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
-                            .AddSingletonIfNonNull(settings.ClientFactory)
-                            .AddSingletonIfNonNull(settings.TemplateSpecRepositoryFactory);
+                            .AddSingletonIfNotNull(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
+                            .AddSingletonIfNotNull(settings.ClientFactory)
+                            .AddSingletonIfNotNull(settings.TemplateSpecRepositoryFactory);
 
                         registerAction?.Invoke(services);
                     }
