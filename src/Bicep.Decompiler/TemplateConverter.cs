@@ -196,16 +196,7 @@ namespace Bicep.Decompiler
             };
 
         private SyntaxBase ParseJTokenExpression(JTokenExpression expression)
-            => expression.Value.Type switch
-            {
-                JTokenType.String => SyntaxFactory.CreateStringLiteral(expression.Value.Value<string>()!),
-                JTokenType.Integer => expression.Value.Value<long>() is long value && value >= 0 ? ParseIntegerJToken((JValue)value) : ParseIntegerJToken((JValue)(-value)),
-                JTokenType.Boolean => expression.Value.Value<bool>() ?
-                    new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
-                    new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),
-                JTokenType.Null => new NullLiteralSyntax(SyntaxFactory.NullKeywordToken),
-                _ => throw new NotImplementedException($"Unrecognized expression {ExpressionsEngine.SerializeExpression(expression)}"),
-            };
+            => ParseJToken(expression.Value);
 
         private bool TryReplaceBannedFunction(FunctionExpression expression, [NotNullWhen(true)] out SyntaxBase? syntax)
         {
@@ -721,11 +712,11 @@ namespace Bicep.Decompiler
         private SyntaxBase ParseJValue(JValue value)
             => value.Type switch
             {
-                JTokenType.String => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
-                JTokenType.Uri => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
-                JTokenType.Integer => ParseIntegerJToken(value),
-                JTokenType.Date => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
+                JTokenType.String or 
+                JTokenType.Uri or 
+                JTokenType.Date or
                 JTokenType.Float => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
+                JTokenType.Integer => ParseIntegerJToken(value),
                 JTokenType.Boolean => value.Value<bool>() ?
                     new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
                     new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),
