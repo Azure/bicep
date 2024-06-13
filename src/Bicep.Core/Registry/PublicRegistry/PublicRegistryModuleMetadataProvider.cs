@@ -66,6 +66,9 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
         return UpdateCacheIfNeeded(forceUpdate: forceUpdate, initialDelay: false);
     }
 
+    public void StartUpdateCache(bool forceUpdate) {
+        _ = TryAwaitCache(forceUpdate);
+    }
     public async Task<bool> TryUpdateCacheAsync()
     {
         if (await TryGetModulesLive() is { } modules)

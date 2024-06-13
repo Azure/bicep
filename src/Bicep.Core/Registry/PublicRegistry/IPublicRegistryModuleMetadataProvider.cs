@@ -19,6 +19,7 @@ public interface IPublicRegistryModuleMetadataProvider
     public string? DownloadError { get; }
 
     public Task TryAwaitCache(bool forceUpdate = false);
+    public void StartUpdateCache(bool forceUpdate = false);
 
     RegistryModule[] GetCachedModules();
     RegistryModuleVersion[] GetCachedModuleVersions(string modulePath);

@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Net;
+using System.ServiceProcess;
 using Bicep.Core.Features;
 using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Tracing;
@@ -94,6 +95,9 @@ namespace Bicep.LanguageServer
                 await server.WaitForExit;
 #pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
             }
+
+            var moduleMetadataProvider = server.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
+            moduleMetadataProvider.StartUpdateCache();
         }
 
         private static void RegisterServices(IServiceCollection services)
