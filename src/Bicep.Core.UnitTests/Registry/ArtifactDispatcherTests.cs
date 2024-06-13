@@ -244,7 +244,7 @@ namespace Bicep.Core.UnitTests.Registry
         private static IModuleDispatcher CreateDispatcher(IConfigurationManager configurationManager, params IArtifactRegistry[] registries)
         {
             var provider = StrictMock.Of<IArtifactRegistryProvider>();
-            provider.Setup(m => m.Registries(It.IsAny<Uri>())).Returns(registries.ToImmutableArray());
+            provider.Setup(m => m.Registries(It.IsAny<Uri>())).Returns([.. registries]);
 
             return new ModuleDispatcher(provider.Object, configurationManager);
         }

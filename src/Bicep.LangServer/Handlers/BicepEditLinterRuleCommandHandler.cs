@@ -99,7 +99,7 @@ namespace Bicep.LanguageServer.Handlers
 
             string json = File.ReadAllText(bicepConfigFilePath);
             (int line, int column, string text)? insertion = new JsonEditor(json).InsertIfNotExist(
-                new string[] { "analyzers", "core", "rules", ruleCode, "level" },
+                ["analyzers", "core", "rules", ruleCode, "level"],
                 "warning");
 
             bool added = false;

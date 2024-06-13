@@ -430,7 +430,7 @@ public class ArmTemplateSemanticModelTests
         var taggedUnionType = parameterType.Should().BeOfType<DiscriminatedObjectType>().Subject;
 
         taggedUnionType.DiscriminatorKey.Should().Be("type");
-        taggedUnionType.UnionMembersByKey.Keys.Order().Should().Equal(new[] { "'a'", "'b'" });
+        taggedUnionType.UnionMembersByKey.Keys.Order().Should().Equal(["'a'", "'b'"]);
         taggedUnionType.UnionMembersByKey["'a'"].Properties["value"].TypeReference.Type.Should().Be(LanguageConstants.String);
         taggedUnionType.UnionMembersByKey["'b'"].Properties["value"].TypeReference.Type.Should().Be(LanguageConstants.Int);
     }

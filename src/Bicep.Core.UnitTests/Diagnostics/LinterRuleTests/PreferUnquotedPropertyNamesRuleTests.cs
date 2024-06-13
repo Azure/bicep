@@ -14,7 +14,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void ExpectPass(string text)
         {
-            AssertLinterRuleDiagnostics(PreferUnquotedPropertyNamesRule.Code, text, Array.Empty<string>());
+            AssertLinterRuleDiagnostics(PreferUnquotedPropertyNamesRule.Code, text, []);
         }
 
         private void ExpectDiagnosticWithFix(string text, string expectedFix)

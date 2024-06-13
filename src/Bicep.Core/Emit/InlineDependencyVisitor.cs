@@ -39,7 +39,7 @@ namespace Bicep.Core.Emit
             if (targetVariable is not null)
             {
                 // the functionality 
-                this.currentStack = ImmutableStack.Create<string>();
+                this.currentStack = [];
                 this.capturedSequence = null;
             }
         }
@@ -68,7 +68,7 @@ namespace Bicep.Core.Emit
         /// <param name="variableAccessChain">The variable access chain that leads to inlining or empty if not available.</param>
         public static bool ShouldInlineVariable(SemanticModel model, VariableDeclarationSyntax variable, out ImmutableArray<string> variableAccessChain)
         {
-            variableAccessChain = ImmutableArray<string>.Empty;
+            variableAccessChain = [];
             if (model.GetSymbolInfo(variable) is not VariableSymbol variableSymbol)
             {
                 // we have errors - assume this is not meant to be inlined
@@ -83,7 +83,7 @@ namespace Bicep.Core.Emit
                 return false;
             }
 
-            variableAccessChain = visitor.capturedSequence?.Reverse().ToImmutableArray() ?? ImmutableArray<string>.Empty;
+            variableAccessChain = visitor.capturedSequence?.Reverse().ToImmutableArray() ?? [];
             return true;
         }
 

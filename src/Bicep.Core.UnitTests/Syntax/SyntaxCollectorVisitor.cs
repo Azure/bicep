@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.Syntax
             var visitor = new SyntaxCollectorVisitor();
             visitor.Visit(syntax);
 
-            return visitor.syntaxList.ToImmutableArray();
+            return [.. visitor.syntaxList];
         }
 
         protected override void VisitInternal(SyntaxBase syntax)

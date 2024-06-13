@@ -12,7 +12,7 @@ namespace Bicep.Core.Diagnostics
 
         private EmptyDiagnosticLookup() { }
 
-        public IEnumerable<IDiagnostic> this[IPositionable positionable] => Enumerable.Empty<IDiagnostic>();
+        public IEnumerable<IDiagnostic> this[IPositionable positionable] => [];
 
         public bool Contains(IPositionable positionable) => false;
 

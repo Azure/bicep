@@ -25,20 +25,7 @@ public class SnippetsProvider : ISnippetsProvider
     // The common properties should be authored consistently to provide for understandability and consumption of the code.
     // See https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#resources
     // for more information
-    private readonly ImmutableArray<string> propertiesSortPreferenceList = ImmutableArray.Create(
-        "scope",
-        "parent",
-        "name",
-        "location",
-        "zones",
-        "sku",
-        "kind",
-        "scale",
-        "plan",
-        "identity",
-        "tags",
-        "properties",
-        "dependsOn");
+    private readonly ImmutableArray<string> propertiesSortPreferenceList = ["scope", "parent", "name", "location", "zones", "sku", "kind", "scale", "plan", "identity", "tags", "properties", "dependsOn"];
 
     private static readonly SnippetCache snippetCache = SnippetCache.FromManifest();
 
@@ -122,7 +109,7 @@ public class SnippetsProvider : ISnippetsProvider
         foreach (var kvp in discriminatedObjectType.UnionMembersByKey.OrderBy(x => x.Key))
         {
             string disciminatedObjectKey = kvp.Key;
-            string label = "required-properties-" + disciminatedObjectKey.Trim(new char[] { '\'' });
+            string label = "required-properties-" + disciminatedObjectKey.Trim(['\'']);
             Snippet? snippet = GetRequiredPropertiesSnippet(kvp.Value, label, disciminatedObjectKey);
 
             if (snippet is not null)

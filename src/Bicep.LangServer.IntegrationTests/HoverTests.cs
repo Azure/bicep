@@ -1240,7 +1240,7 @@ There might also be a link to something [link](www.google.com)
 
                     case VariableSymbol variable:
                         // the hovers with errors don't appear in VS code and only occur in tests
-                        tooltip.Should().ContainAny(new[] { $"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error" });
+                        tooltip.Should().ContainAny([$"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error"]);
                         break;
 
                     case ImportedVariableSymbol importedVariable:
@@ -1249,7 +1249,7 @@ There might also be a link to something [link](www.google.com)
 
                     case TestSymbol variable:
                         // the hovers with errors don't appear in VS code and only occur in tests
-                        tooltip.Should().ContainAny(new[] { $"test {variable.Name}", $"var {variable.Name}" });
+                        tooltip.Should().ContainAny([$"test {variable.Name}", $"var {variable.Name}"]);
                         break;
 
                     case ResourceSymbol resource:

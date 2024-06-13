@@ -89,7 +89,7 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
                 return apiVersions.Select(AzureResourceApiVersion.Parse);
             }
 
-            return Enumerable.Empty<AzureResourceApiVersion>();
+            return [];
         }
 
         private class ApiVersionCache

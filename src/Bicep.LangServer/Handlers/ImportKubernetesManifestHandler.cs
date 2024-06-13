@@ -143,7 +143,7 @@ namespace Bicep.LanguageServer.Handlers
             var symbolName = GetResourceSymbolName(type, resourceBody);
 
             return new ResourceDeclarationSyntax(
-                Enumerable.Empty<SyntaxBase>(),
+                [],
                 SyntaxFactory.ResourceKeywordToken,
                 SyntaxFactory.CreateIdentifierWithTrailingSpace(symbolName),
                 SyntaxFactory.CreateStringLiteral($"{type}@{apiVersion}"),

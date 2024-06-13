@@ -398,7 +398,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
 
-            result.conflictingOutputPaths.Should().BeEquivalentToPaths(new string[] { Path.Join(testOutputPath, "main.bicep") });
+            result.conflictingOutputPaths.Should().BeEquivalentToPaths([Path.Join(testOutputPath, "main.bicep")]);
             result.errorMessage.Should().BeNull();
             result.mainBicepPath.Should().BeEquivalentToPath(expectedBicepPath);
             result.errorMessage.Should().BeNull();
@@ -426,7 +426,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
 
-            result.conflictingOutputPaths.Should().BeEquivalentToPaths(new string[] { Path.Join(testOutputPath, "main.bicep") });
+            result.conflictingOutputPaths.Should().BeEquivalentToPaths([Path.Join(testOutputPath, "main.bicep")]);
             result.errorMessage.Should().BeNull();
 
             var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, overwrite: false), CancellationToken.None);
@@ -462,7 +462,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
 
-            result.conflictingOutputPaths.Should().BeEquivalentToPaths(new string[] { Path.Join(testOutputPath, "main.bicep") });
+            result.conflictingOutputPaths.Should().BeEquivalentToPaths([Path.Join(testOutputPath, "main.bicep")]);
             result.mainBicepPath.Should().EndWith("main.bicep");
             result.errorMessage.Should().BeNull();
 
@@ -532,7 +532,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
 
-            result.conflictingOutputPaths.Should().BeEquivalentToPaths(new string[] { expectedBicepPath });
+            result.conflictingOutputPaths.Should().BeEquivalentToPaths([expectedBicepPath]);
             result.mainBicepPath.Should().BeEquivalentToPath(expectedBicepPath);
             result.errorMessage.Should().BeNull();
 
@@ -570,10 +570,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
 
-            result.conflictingOutputPaths.Should().BeEquivalentToPaths(new string[] {
+            result.conflictingOutputPaths.Should().BeEquivalentToPaths([
                Path.Join(testOutputPath, "main file.bicep"),
-               Path.Join(testOutputPath, ComplexExpectedBicep_Filename3)
-            });
+                Path.Join(testOutputPath, ComplexExpectedBicep_Filename3)
+            ]);
             result.mainBicepPath.Should().BeEquivalentToPath(expectedBicepPath);
             result.errorMessage.Should().BeNull();
 
@@ -613,10 +613,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
 
-            result.conflictingOutputPaths.Should().BeEquivalentToPaths(new string[] {
+            result.conflictingOutputPaths.Should().BeEquivalentToPaths([
                Path.Join(testOutputPath, "main file.bicep"),
-               Path.Join(testOutputPath, ComplexExpectedBicep_Filename3)
-            });
+                Path.Join(testOutputPath, ComplexExpectedBicep_Filename3)
+            ]);
             result.mainBicepPath.Should().BeEquivalentToPath(Path.Join(testOutputPath, "main file.bicep"));
             result.errorMessage.Should().BeNull();
 

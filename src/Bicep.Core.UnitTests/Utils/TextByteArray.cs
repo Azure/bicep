@@ -13,22 +13,22 @@ public class TextByteArray
 {
     private readonly ImmutableArray<byte> bytes;
 
-    public TextByteArray(string text) => bytes = Encoding.UTF8.GetBytes(text).ToImmutableArray();
+    public TextByteArray(string text) => bytes = [.. Encoding.UTF8.GetBytes(text)];
 
-    public TextByteArray(byte[] bytes) => this.bytes = bytes.ToImmutableArray();
+    public TextByteArray(byte[] bytes) => this.bytes = [.. bytes];
 
     public TextByteArray(ImmutableArray<byte> bytes) => this.bytes = bytes;
 
     public ImmutableArray<byte> Bytes => bytes;
 
-    public byte[] ToArray() => bytes.ToArray();
+    public byte[] ToArray() => [.. bytes];
 
     // Left as property to make it easier to use in the debugger
     public string Text => Encoding.UTF8.GetString(bytes.AsSpan());
 
     public Stream ToStream()
     {
-        return new MemoryStream(Bytes.ToArray());
+        return new MemoryStream([.. Bytes]);
     }
 
     public static Stream TextToStream(string text)

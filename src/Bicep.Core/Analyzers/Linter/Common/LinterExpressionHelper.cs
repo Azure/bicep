@@ -19,7 +19,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
         // TODO: Refactor more rules to use this
         public static (string stringValue, StringSyntax stringSyntax, string? pathToValueIfNonTrivial)? TryGetEvaluatedStringLiteral(SemanticModel model, SyntaxBase? expression)
         {
-            return TryGetEvaluatedStringLiteral(model, expression, Array.Empty<DeclaredSymbol>());
+            return TryGetEvaluatedStringLiteral(model, expression, []);
         }
 
         private static (string stringValue, StringSyntax stringSyntax, string? pathToValueIfNonTrivial)? TryGetEvaluatedStringLiteral(SemanticModel model, SyntaxBase? expression, DeclaredSymbol[] currentPaths)

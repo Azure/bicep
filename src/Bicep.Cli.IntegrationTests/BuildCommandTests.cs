@@ -179,7 +179,7 @@ namespace Bicep.Cli.IntegrationTests
                         .AddSingleton(settings.ClientFactory)
                         .AddSingleton(settings.TemplateSpecRepositoryFactory);
                 })
-                    .RunAsync(new[] { "build", bicepFilePath }, CancellationToken.None));
+                    .RunAsync(["build", bicepFilePath], CancellationToken.None));
 
             // ASSERT
             // 6. assert 'bicep build' completed successfully
@@ -411,9 +411,9 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             error.Should().MatchRegex(@"The specified output directory "".*outputdir"" does not exist");
         }
 
-        [DataRow(new string[] { })]
-        [DataRow(new[] { "--diagnostics-format", "defAULt" })]
-        [DataRow(new[] { "--diagnostics-format", "sArif" })]
+        [DataRow([])]
+        [DataRow(["--diagnostics-format", "defAULt"])]
+        [DataRow(["--diagnostics-format", "sArif"])]
         [DataTestMethod]
         public async Task Build_WithOutDir_ShouldSucceed(string[] args)
         {
@@ -429,7 +429,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             var expectedOutputFile = Path.Combine(outputFileDir, "input.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build", "--outdir", outputFileDir, bicepPath }.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(["build", "--outdir", outputFileDir, bicepPath, .. args]);
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             output.Should().BeEmpty();
@@ -477,7 +477,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
         [DataTestMethod]
         public async Task Build_InvalidInputPaths_ShouldProduceExpectedError(string badPath, string[] args, string expectedErrorRegex)
         {
-            var (output, error, result) = await Bicep(new[] { "build" }.Concat(args).Append(badPath).ToArray());
+            var (output, error, result) = await Bicep(["build", .. args, badPath]);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
@@ -544,8 +544,8 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             error.Should().StartWith($"{inputFile}(1,1) : Error BCP271: Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.");
         }
 
-        [DataRow(new string[] { })]
-        [DataRow(new[] { "--diagnostics-format", "defAULt" })]
+        [DataRow([])]
+        [DataRow(["--diagnostics-format", "defAULt"])]
         [DataTestMethod]
         public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError(string[] args)
         {
@@ -574,7 +574,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build", "--outdir", testOutputPath, inputFile }.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(["build", "--outdir", testOutputPath, inputFile, .. args]);
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);

@@ -13,7 +13,7 @@ namespace Bicep.Core.PrettyPrint.Documents
         private readonly ImmutableArray<ILinkedDocument> successors;
 
         public NestDocument(int level)
-            : this(level, ImmutableArray<ILinkedDocument>.Empty)
+            : this(level, [])
         {
         }
 

@@ -24,7 +24,7 @@ namespace Bicep.Core.TypeSystem.Types
             => new(errors.ToImmutableArray());
 
         public static ErrorType Empty()
-            => new(ImmutableArray<ErrorDiagnostic>.Empty);
+            => new([]);
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => errors;
 

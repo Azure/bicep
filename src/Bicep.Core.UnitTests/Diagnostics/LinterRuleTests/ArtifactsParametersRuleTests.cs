@@ -31,10 +31,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string = ''
                 ",
-                new string[]
-                {
+                [
                         "If an '_artifactsLocationSasToken' parameter is provided, an '_artifactsLocation' parameter must also be provided.",
-                }
+                ]
             );
         }
         [TestMethod]
@@ -49,10 +48,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     param artifactsLocationSasToken string = 'something'
                 "
             ,
-            new string[]
-            {
+            [
                 "If an '_artifactsLocation' parameter is provided, an '_artifactsLocationSasToken' parameter must also be provided.",
-            }
+            ]
             );
         }
         [TestMethod]
@@ -65,9 +63,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string = ''
                 ",
-                new string[]
-                {
-                }
+                []
            );
         }
 
@@ -82,9 +78,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string = ''
                 ",
-                new string[]
-                {
-                }
+                []
            );
         }
 
@@ -97,9 +91,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocSasToken string
                 ",
-                new string[]
-                {
-                }
+                []
            );
         }
 
@@ -118,12 +110,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string
                 ",
-                new string[]
-                {
-                    // In the ARM TTK for a main template, this would have failed.  For Bicep, we accept this for all templates, and instead check that explicit
-                    //   values for these parameters are passed in when a template with artifacts parameters is used as a module.
-                    //   as modules
-                }
+                []
            );
         }
 
@@ -142,13 +129,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string
                 ",
-                new string[]
-                {
+                [
                     // In the ARM TTK for a main template, this would have failed because the default value for _artifactsLocation is "missing".
                     // For Bicep, we don't care if it's missing, but we don't accept an empty string.
 
                    "If the '_artifactsLocation' parameter has a default value, it must be a raw URL or an expression like 'deployment().properties.templateLink.uri'."
-                }
+                ]
            );
         }
 
@@ -162,12 +148,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string = ''
                 ",
-                new string[]
-                {
-                    // In the ARM TTK for a main template, this would have failed.  For Bicep, we accept this for all templates, and instead check that explicit
-                    //   values for these parameters are passed in when a template with artifacts parameters is used as a module.
-                    //   as modules
-                }
+                []
            );
         }
 
@@ -183,13 +164,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 @"
                    param _artifactsLocation string = deployment().properties.templateLink.uri
                 ",
-                new string[]
-                {
+                [
                     // In the ARM TTK for a main template, this would have failed for this reason:
                     //   The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string
                     // For Bicep we don't care about that, but still both parameters must be present if either of them are.
                     "If an '_artifactsLocation' parameter is provided, an '_artifactsLocationSasToken' parameter must also be provided."
-                }
+                ]
            );
         }
 
@@ -200,13 +180,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 @"
                    param _artifactsLocationSasToken string
                 ",
-                new string[]
-                {
+                [
                     // In the ARM TTK for a main template, this would have failed for this reason:
                     //   The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string
                     // For Bicep we don't care about that, but still both parameters must be present if either of them are.
                     "If an '_artifactsLocationSasToken' parameter is provided, an '_artifactsLocation' parameter must also be provided."
-                }
+                ]
            );
         }
 
@@ -231,11 +210,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string = 'hard coded token' //this shouldn't be a default (use a param if needed)
                 ",
-                new string[]
-                {
+                [
                     $"If the '_artifactsLocation' parameter has a default value, it must be a raw URL or an expression like 'deployment().properties.templateLink.uri'.",
                     $"If the '_artifactsLocationSasToken' parameter has a default value, it must be an empty string.",
-                });
+                ]);
         }
 
         [TestMethod]
@@ -247,9 +225,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string
                 ",
-                new string[]
-                {
-                });
+                []);
         }
         [TestMethod]
         public void WrongDefaults3_Fail()
@@ -260,11 +236,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string = deployment().properties
                 ",
-                new string[]
-                {
+                [
                     "If the '_artifactsLocation' parameter has a default value, it must be a raw URL or an expression like 'deployment().properties.templateLink.uri'.",
                     "If the '_artifactsLocationSasToken' parameter has a default value, it must be an empty string.",
-                },
+                ],
                 OnCompileErrors.Ignore);
         }
 
@@ -283,12 +258,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     param _artifactsLocation array //wrong type
                     param _artifactsLocationSasToken int //wrong type
                 ",
-                new string[]
-                {
+                [
                     "Artifacts parameter '_artifactsLocation' must be of type 'string'",
                     "Artifacts parameter '_artifactsLocationSasToken' must be of type 'string'",
                     "Artifacts parameter '_artifactsLocationSasToken' must use the @secure() attribute",
-                }
+                ]
            );
         }
 
@@ -307,10 +281,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     param _artifactsLocation string // okay
                     param _artifactsLocationSasToken string // should be secure
                 ",
-                new string[]
-                {
+                [
                     "Artifacts parameter '_artifactsLocationSasToken' must use the @secure() attribute"
-                }
+                ]
            );
         }
 
@@ -323,11 +296,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string = '${'a'}${'b'}'
                 ",
-                new string[]
-                {
+                [
                     "If the '_artifactsLocation' parameter has a default value, it must be a raw URL or an expression like 'deployment().properties.templateLink.uri'.",
                     "If the '_artifactsLocationSasToken' parameter has a default value, it must be an empty string."
-                }
+                ]
            );
         }
 
@@ -340,11 +312,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string = resourceGroup().location
                 ",
-                new string[]
-                {
+                [
                     "If the '_artifactsLocation' parameter has a default value, it must be a raw URL or an expression like 'deployment().properties.templateLink.uri'.",
                     "If the '_artifactsLocationSasToken' parameter has a default value, it must be an empty string.",
-                }
+                ]
            );
         }
 
@@ -360,11 +331,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSasToken string = emptyString
                 ",
-                new string[]
-                {
+                [
                     "If the '_artifactsLocation' parameter has a default value, it must be a raw URL or an expression like 'deployment().properties.templateLink.uri'.",
                     "If the '_artifactsLocationSasToken' parameter has a default value, it must be an empty string.",
-                }
+                ]
            );
         }
 
@@ -377,11 +347,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSASToken string = 'bad default'
                 ",
-                new string[]
-                {
+                [
                     "If the '_artifactsLocation' parameter has a default value, it must be a raw URL or an expression like 'deployment().properties.templateLink.uri'.",
                     "If the '_artifactsLocationSasToken' parameter has a default value, it must be an empty string.",
-                }
+                ]
            );
         }
 
@@ -394,9 +363,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     @secure()
                     param _artifactsLocationSASToken
                 ",
-                 new string[]
-                 {
-                 },
+                 [],
                  OnCompileErrors.Ignore
             );
         }
@@ -421,7 +388,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ReferencingModulesWithArtifactsParameters_Pass()
         {
             var result = CompilationHelper.Compile(
-                new (string fileName, string fileContents)[] {
+                [
                     ("createVM.bicep", CreateVMBicepContents),
                     ("main.bicep", @"
                         module creatingVM 'createVM.bicep' = {
@@ -433,7 +400,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             adminUsername: 'adminUsername'
                           }
                         }
-                    ")});
+                    ")]);
 
             result.Diagnostics.Should().NotHaveAnyDiagnostics();
         }
@@ -442,7 +409,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ReferencingModulesWithArtifactsParameters_Fail()
         {
             var result = CompilationHelper.Compile(
-                new (string fileName, string fileContents)[] {
+                [
                     ("createVM.bicep", CreateVMBicepContents),
                     ("main.bicep", @"
                         module creatingVM 'createVM.bicep' = {
@@ -452,7 +419,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             adminUsername: 'adminUsername'
                           }
                         }
-                    ")});
+                    ")]);
 
             result.Diagnostics.Should().ContainDiagnostic("artifacts-parameters", DiagnosticLevel.Warning, "Parameter '_artifactsLocationSasToken' of module 'creatingVM' should be assigned an explicit value.");
             result.Diagnostics.Should().ContainDiagnostic("artifacts-parameters", DiagnosticLevel.Warning, "Parameter '_artifactsLocation' of module 'creatingVM' should be assigned an explicit value.");

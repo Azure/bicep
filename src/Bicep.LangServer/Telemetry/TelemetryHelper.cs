@@ -27,7 +27,7 @@ namespace Bicep.LanguageServer.Telemetry
 
             if (!prevLinterEnabledSettingValue && !curLinterEnabledSettingValue)
             {
-                return Enumerable.Empty<BicepTelemetryEvent>();
+                return [];
             }
 
             List<BicepTelemetryEvent> telemetryEvents = new();

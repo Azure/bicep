@@ -16,7 +16,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "use-stable-vm-image";
 
-        private readonly ImmutableHashSet<string> imageReferenceProperties = ImmutableHashSet.Create<string>("offer", "sku", "version");
+        private readonly ImmutableHashSet<string> imageReferenceProperties = ["offer", "sku", "version"];
 
         public UseStableVMImageRule() : base(
             code: Code,

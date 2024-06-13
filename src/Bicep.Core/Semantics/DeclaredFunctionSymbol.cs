@@ -28,7 +28,7 @@ public class DeclaredFunctionSymbol : DeclaredSymbol, IFunctionSymbol
     // Unlike functions defined in the ARM engine, user-defined functions do not support multiple dispatch and will always have exactly one overload.
     public FunctionOverload Overload => overloadLazy.Value;
 
-    public ImmutableArray<FunctionOverload> Overloads => ImmutableArray.Create(Overload);
+    public ImmutableArray<FunctionOverload> Overloads => [Overload];
 
     public FunctionFlags FunctionFlags => FunctionFlags.Default;
 
