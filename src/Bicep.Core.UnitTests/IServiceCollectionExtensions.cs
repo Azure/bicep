@@ -148,7 +148,7 @@ public static class IServiceCollectionExtensions
         return AddMockHttpClientIfNotNull(services, httpClient);
     }
 
-    public static IServiceCollection AddMockHttpClientIfNotNull<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class //asdfg rename
+    public static IServiceCollection AddMockHttpClientIfNotNull<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class
     {
         if (!typeof(TClient).IsInterface)
         {

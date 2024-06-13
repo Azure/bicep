@@ -29,9 +29,6 @@ using Moq;
 
 namespace Bicep.Cli.IntegrationTests;
 
-//asdfg
-
-
 [TestClass]
 public class UseRecentModuleVersionsIntegrationTests : TestBase
 {

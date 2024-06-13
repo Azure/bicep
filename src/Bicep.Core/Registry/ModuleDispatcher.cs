@@ -193,7 +193,7 @@ namespace Bicep.Core.Registry
             {
                 try
                 {
-                    onRestoreArtifactsTasks.Add(registry.OnRestoreArtifacts(forceRestore)); //asdfg redo build if changes?
+                    onRestoreArtifactsTasks.Add(registry.OnRestoreArtifacts(forceRestore));
                 }
                 catch (Exception ex)
                 {
