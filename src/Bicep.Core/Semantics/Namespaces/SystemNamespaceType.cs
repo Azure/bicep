@@ -10,10 +10,12 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
@@ -1213,9 +1215,31 @@ namespace Bicep.Core.Semantics.Namespaces
                 }
                 else
                 {
+                    var envVariableNames = model.Environment.GetVariableNames();
+                    var suggestion = SpellChecker.GetSpellingSuggestion(envVariableName, envVariableNames);
+                    if (suggestion != null)
+                    {
+                        suggestion = $" Did you mean \"{suggestion}\"?";
+                    }
+                    //log available environment variables if verbose logging is enabled
+                    if (model.Configuration.Analyzers.GetValue(LinterAnalyzer.LinterEnabledSetting, false) && model.Configuration.Analyzers.GetValue(LinterAnalyzer.LinterVerboseSetting, false)) {
+                        diagnostics.Write(
+                            new Diagnostic(
+                                arguments[0].Span,
+                                DiagnosticLevel.Info,
+                                "Bicepparam ReadEnvironmentVariable function",
+                                $"Available environment variables are: { string.Join(", ", envVariableNames) }",
+                                null)
+                        );                     
+                    }
+                    
                     //error to fail the build-param with clear message of the missing env var name
-                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(envVariableName,
-                    "Environment variable does not exist, and no default value set")));
+                    var paramAssignmentDefinition = model.Root.ParameterAssignments.Where(
+                        p => p.DeclaringParameterAssignment.Value.Span.Position == functionCall.Span.Position
+                    ).FirstOrDefault();
+                    var paramName = paramAssignmentDefinition?.Name ?? "";
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(paramName,
+                    $"Environment variable \"{envVariableName}\" does not exist, and no default value set.{ suggestion }")));
                 }
             }
             return new(TypeFactory.CreateStringLiteralType(envVariableValue),

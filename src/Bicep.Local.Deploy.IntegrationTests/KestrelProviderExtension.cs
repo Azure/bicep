@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Local.Extension;
-using Bicep.Local.Extension.Rpc;
 using Bicep.Local.Extension.Protocol;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Bicep.Local.Extension.Rpc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Local.Deploy.IntegrationTests;
 

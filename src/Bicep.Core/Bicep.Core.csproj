@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.1" />
-    <PackageReference Include="Azure.Identity" Version="1.11.3" />
+    <PackageReference Include="Azure.Identity" Version="1.11.4" />
     <PackageReference Include="Azure.ResourceManager.Resources" Version="1.7.3" />
     <PackageReference Include="JetBrains.Annotations" Version="2023.3.0">
       <PrivateAssets>all</PrivateAssets>
@@ -61,6 +61,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>CoreResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.139" />
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties configuration_4bicepconfig_1json__JsonSchema="https://appsemble.app/api.json" /></VisualStudio></ProjectExtensions>
 </Project>

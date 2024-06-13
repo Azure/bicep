@@ -68,8 +68,8 @@ public class LocalExtensibilityHandler : IAsyncDisposable
 
         foreach (var namespaceType in namespaceTypes)
         {
-            if (namespaceType.Artifact is {} artifact &&
-                moduleDispatcher.TryGetProviderBinary(artifact) is {} binaryUri)
+            if (namespaceType.Artifact is { } artifact &&
+                moduleDispatcher.TryGetProviderBinary(artifact) is { } binaryUri)
             {
                 yield return (namespaceType, binaryUri);
             }
@@ -89,7 +89,8 @@ public class LocalExtensibilityHandler : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        await Task.WhenAll(RegisteredProviders.Values.Select(async provider => {
+        await Task.WhenAll(RegisteredProviders.Values.Select(async provider =>
+        {
             try
             {
                 await provider.DisposeAsync();

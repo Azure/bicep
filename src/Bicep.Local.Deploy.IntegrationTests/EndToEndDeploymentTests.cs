@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
+using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Extensibility.Messages;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
+using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Local.Deploy;
+using Bicep.Local.Deploy.Extensibility;
+using Bicep.Local.Extension;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.Local.Deploy.Extensibility;
-using Bicep.Local.Deploy;
-using Bicep.Core.UnitTests.Utils;
-using Azure.Deployments.Core.Definitions;
-using Bicep.Local.Extension;
 using Moq;
-using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Features;
-using System.IO.Abstractions;
-using Azure.Deployments.Extensibility.Messages;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Local.Deploy.IntegrationTests;
@@ -88,7 +88,8 @@ param coords = {
 
         var providerMock = StrictMock.Of<LocalExtensibilityProvider>();
         providerMock.Setup(x => x.Save(It.Is<ExtensibilityOperationRequest>(req => req.Resource.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
-            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) => {
+            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) =>
+            {
                 req.Resource.Properties["body"] = """
 {
   "properties": {
@@ -102,7 +103,8 @@ param coords = {
                 return Task.FromResult<ExtensibilityOperationResponse>(new(req.Resource, null, null));
             });
         providerMock.Setup(x => x.Save(It.Is<ExtensibilityOperationRequest>(req => req.Resource.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
-            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) => {
+            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) =>
+            {
                 req.Resource.Properties["body"] = """
 {
   "properties": {

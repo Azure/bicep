@@ -29,7 +29,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.2.3194" />
 		<PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.9.37000" />
 		<PackageReference Include="MSTest.TestAdapter" Version="3.4.0" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.3.1" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.4.3" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -44,7 +44,7 @@ namespace Bicep.Cli.Commands
         {
             ProviderBinary? TryGetBinary(SupportedArchitecture architecture)
             {
-                if (args.Binaries.TryGetValue(architecture.Name) is not {} binaryPath)
+                if (args.Binaries.TryGetValue(architecture.Name) is not { } binaryPath)
                 {
                     return null;
                 }
