@@ -93,7 +93,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
             get => _metadataClient is { } ? _metadataClient : PublicRegistryModuleMetadataClientMock.Create(
                 ModulesMetadata.Select(mm => new BicepModuleMetadata(
                     mm.module,
-                    mm.versions.ToList(),
+                    new List<string>(mm.versions),
                     new Dictionary<string, BicepModuleTagPropertiesEntry>().ToImmutableDictionary()))).Object;
         }
 

@@ -725,7 +725,7 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()).Returns(new RegistryModule[] { new("app/dapr-containerappapp", "dapr description", "contoso.com/help") });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()).Returns([new("app/dapr-containerappapp", "dapr description", "contoso.com/help")]);
 
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -784,7 +784,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()).Returns(new RegistryModule[] { new("app/dapr-cntrapp1", "description1", null), new("app/dapr-cntrapp2", null, "contoso.com/help2") });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()).Returns([new("app/dapr-cntrapp1", "description1", null), new("app/dapr-cntrapp2", null, "contoso.com/help2")]);
 
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
