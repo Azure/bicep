@@ -25,13 +25,21 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Sarif.Sdk" Version="4.5.4" />
-    <PackageReference Include="StreamJsonRpc" Version="2.18.48" />
+    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.63.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.64.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
     <ProjectReference Include="..\Bicep.Decompiler\Bicep.Decompiler.csproj" />
     <ProjectReference Include="../Bicep.Local.Deploy/Bicep.Local.Deploy.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="bicep.proto" GrpcServices="Both" />
   </ItemGroup>
 
   <ItemGroup>

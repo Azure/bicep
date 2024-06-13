@@ -101,8 +101,8 @@ namespace Bicep.Cli
                     case LintArguments lintArguments when lintArguments.CommandName == Constants.Command.Lint: // bicep lint [options]
                         return await services.GetRequiredService<LintCommand>().RunAsync(lintArguments);
 
-                    case JsonRpcArguments jsonRpcArguments when jsonRpcArguments.CommandName == Constants.Command.JsonRpc: // bicep jsonrpc [options]
-                        return await services.GetRequiredService<JsonRpcCommand>().RunAsync(jsonRpcArguments, cancellationToken);
+                    case GrpcArguments grpcArguments when grpcArguments.CommandName == Constants.Command.Grpc: // bicep grpc [options]
+                        return await services.GetRequiredService<GrpcCommand>().RunAsync(grpcArguments, cancellationToken);
 
                     case LocalDeployArguments localDeployArguments when localDeployArguments.CommandName == Constants.Command.LocalDeploy: // bicep local-deploy [options]
                         return await services.GetRequiredService<LocalDeployCommand>().RunAsync(localDeployArguments, cancellationToken);
