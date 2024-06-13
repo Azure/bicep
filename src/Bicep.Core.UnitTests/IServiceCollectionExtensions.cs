@@ -50,6 +50,8 @@ public static class IServiceCollectionExtensions
             .AddPublicRegistryModuleMetadataProviderServices()
             .AddSingleton<BicepCompiler>();
 
+        //AddMockHttpClient(services, PublicRegistryModuleMetadataClientMock.Create([]).Object);//asdfg not working?
+
         return services;
     }
 
@@ -136,6 +138,29 @@ public static class IServiceCollectionExtensions
         if (instance is not null)
         {
             return services.AddSingleton(instance);
+        }
+
+        return services;
+    }
+
+    public static IServiceCollection AddMockHttpClient<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class
+    {
+        return AddMockHttpClientIfNotNull(services, httpClient);
+    }
+
+    public static IServiceCollection AddMockHttpClientIfNotNull<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class //asdfg rename
+    {
+        if (!typeof(TClient).IsInterface)
+        {
+            throw new ArgumentException($"TClient must be an interface type, found: {typeof(TClient).FullName}");
+        }
+
+        if (httpClient is { })
+        {
+            services.AddHttpClient(typeof(TClient).FullName!, httpClient =>
+            {
+            })
+                .AddTypedClient(c => httpClient);
         }
 
         return services;

@@ -31,8 +31,8 @@ namespace Bicep.Cli.IntegrationTests
                         .AddSingleton(clientFactory)
                         .AddSingleton(templateSpecRepositoryFactory)
                         .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
-                    //IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, moduleMetadataClient); //asdfg does this work?
 
+                    IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, moduleMetadataClient);
                 }
                 ).GetCompiler();
 
@@ -61,7 +61,6 @@ namespace Bicep.Cli.IntegrationTests
                 this.TemplateSpecRepositoryFactory = TemplateSpecRepositoryFactory ?? Repository.Create<ITemplateSpecRepositoryFactory>().Object;
                 this.Environment = Environment;
 
-                // This keeps PublicRegistryModuleMetadataProvider from going to the web during CLI integration tests
                 this.ModuleMetadataClient = ModuleMetadataClient ?? StrictMock.Of<IPublicRegistryModuleMetadataClient>().Object;
             }
         }
@@ -77,8 +76,7 @@ namespace Bicep.Cli.IntegrationTests
                             services.WithFeatureOverrides(settings.FeatureOverrides);
                         }
 
-                        //asdfg does this work?
-                        //IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient);
+                        IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient);
 
                         services
                             .AddSingletonIfNotNull(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
