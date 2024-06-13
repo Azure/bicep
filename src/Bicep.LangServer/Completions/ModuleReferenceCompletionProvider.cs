@@ -84,12 +84,12 @@ namespace Bicep.LanguageServer.Completions
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             if (!string.IsNullOrWhiteSpace(replacementText.Trim('\'')))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             List<CompletionItem> completionItems = new();
@@ -180,7 +180,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!IsOciArtifactRegistryReference(replacementText))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             string? modulePath;
@@ -202,7 +202,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (modulePath is null)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             List<CompletionItem> completions = new();
@@ -292,7 +292,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!IsOciArtifactRegistryReference(replacementText))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             if (replacementText == "'br/public:'" ||

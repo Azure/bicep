@@ -23,7 +23,7 @@ namespace Bicep.LanguageServer.Providers
 
         private readonly object queryingLiveSyncObject = new();
 
-        private ImmutableArray<ModuleMetadata> cachedModules = ImmutableArray<ModuleMetadata>.Empty;
+        private ImmutableArray<ModuleMetadata> cachedModules = [];
 
         private bool isQueryingLiveData = false;
 

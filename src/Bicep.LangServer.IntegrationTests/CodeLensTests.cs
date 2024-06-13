@@ -261,7 +261,7 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 TextDocument = new TextDocumentIdentifier(documentUri)
             }))?.Where(a => a.IsExternalSourceCodeLens()).ToArray()
-            ?? Array.Empty<CodeLens>();
+            ?? [];
         }
     }
 }

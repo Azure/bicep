@@ -421,8 +421,8 @@ output outputInlinedWithOuterExpression string = ipAddresses
 
         private static (string fileName, string fileContents)[] CreateReferencesBicepContentWithModules()
         {
-            return new[]
-            {
+            return
+            [
                 ("main.bicep", """
 resource containerWorkers 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = [for i in range(0, 4): {
   name: 'gh9440-w1-${i}'
@@ -491,7 +491,7 @@ resource storage 'Providers.Test/statefulResources@2014-04-01' = {
 
 output modOutput1 string = storage.properties.modInput1
 """)
-            };
+            ];
         }
     }
 }

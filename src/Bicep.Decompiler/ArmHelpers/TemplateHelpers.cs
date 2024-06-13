@@ -151,7 +151,7 @@ namespace Bicep.Decompiler.ArmHelpers
                 var withoutProperties = new FunctionExpression(
                     function.Function,
                     function.Parameters,
-                    Array.Empty<LanguageExpression>());
+                    []);
 
                 var paramNameSerialized = ExpressionsEngine.SerializeExpression(paramNameExpression);
                 var paramName = UniqueNamingResolver.EscapeIdentifier(paramNameSerialized, isGenerated: true);
@@ -247,7 +247,7 @@ namespace Bicep.Decompiler.ArmHelpers
                     var paramExpression = new FunctionExpression(
                         "parameters",
                         function.Parameters,
-                        Array.Empty<LanguageExpression>());
+                        []);
 
                     parameters[parameterName.Value.ToString()] = (paramExpression, "__BICEP_REPLACE");
                 }

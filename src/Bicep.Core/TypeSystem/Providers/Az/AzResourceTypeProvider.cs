@@ -47,8 +47,8 @@ namespace Bicep.Core.TypeSystem.Providers.Az
          *   - Their values may be normalized by RPs
          *   - Some RPs are doing Put-as-Patch
          */
-        public static readonly string[] WriteOnlyDeployTimeConstantPropertyNames = new[]
-        {
+        public static readonly string[] WriteOnlyDeployTimeConstantPropertyNames =
+        [
             "location",
             "kind",
             "subscriptionId",
@@ -62,21 +62,21 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             "managedByExtended",
             "tags",
             "asserts",
-        };
+        ];
 
-        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
-        public static readonly TypeSymbol ResourceAsserts = new ObjectType(nameof(ResourceAsserts), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Bool, TypePropertyFlags.DeployTimeConstant);
+        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], LanguageConstants.String, TypePropertyFlags.None);
+        public static readonly TypeSymbol ResourceAsserts = new ObjectType(nameof(ResourceAsserts), TypeSymbolValidationFlags.Default, [], LanguageConstants.Bool, TypePropertyFlags.DeployTimeConstant);
 
         private readonly IResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
-        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
-        {
+        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
+        [
             ResourceNamePropertyName,
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName,
-        }.ToImmutableHashSet();
+        ];
 
         public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
         {
@@ -182,7 +182,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 new TypeProperty("tenantId", LanguageConstants.String),
                 new TypeProperty("type", resourceIdentityType, TypePropertyFlags.Required),
                 new TypeProperty("identityIds", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
-                new TypeProperty("userAssignedIdentities", new ObjectType("userAssignedIdentities", TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), userAssignedIdentity)),
+                new TypeProperty("userAssignedIdentities", new ObjectType("userAssignedIdentities", TypeSymbolValidationFlags.Default, [], userAssignedIdentity)),
                 new TypeProperty("delegatedResources", LanguageConstants.Object),
             }, null));
         }

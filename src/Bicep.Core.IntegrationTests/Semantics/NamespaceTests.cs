@@ -52,7 +52,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         private static IEnumerable<object[]> GetNamespaces()
         {
             // local function
-            static object[] CreateRow(INamespaceSymbol @namespace) => new object[] { @namespace };
+            static object[] CreateRow(INamespaceSymbol @namespace) => [@namespace];
 
             var (_, _, compilation) = CompilationHelper.Compile(TestTypeHelper.CreateEmptyResourceTypeLoader(), ("main.bicep", string.Empty));
 

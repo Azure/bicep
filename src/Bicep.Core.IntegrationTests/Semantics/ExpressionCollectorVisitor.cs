@@ -34,7 +34,7 @@ public class ExpressionCollectorVisitor : ExpressionVisitor
         var visitor = new ExpressionCollectorVisitor();
         visitor.Visit(expression);
 
-        return visitor.expressionList.ToImmutableArray();
+        return [.. visitor.expressionList];
     }
 
     public static string GetExpressionLoggingString(

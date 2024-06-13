@@ -37,7 +37,7 @@ namespace Bicep.Core.Registry
             => registryProvider.Registries(parentModuleUri).ToImmutableDictionary(r => r.Scheme);
 
         public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
-            => Registries(parentModuleUri).Keys.OrderBy(s => s).ToImmutableArray();
+            => [.. Registries(parentModuleUri).Keys.OrderBy(s => s)];
 
         public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri)
         {

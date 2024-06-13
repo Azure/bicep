@@ -110,7 +110,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
             {
                 if (expression is FunctionExpression function && function.Function == "replaceMe")
                 {
-                    return new FunctionExpression("replaced", Array.Empty<LanguageExpression>(), Array.Empty<LanguageExpression>());
+                    return new FunctionExpression("replaced", [], []);
                 }
 
                 return expression;

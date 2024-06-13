@@ -8,12 +8,12 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxFactory
     {
-        public static readonly IEnumerable<SyntaxTrivia> EmptyTrivia = Enumerable.Empty<SyntaxTrivia>();
+        public static readonly IEnumerable<SyntaxTrivia> EmptyTrivia = [];
 
         public static readonly IEnumerable<SyntaxTrivia> SingleSpaceTrivia = ImmutableArray.Create(
             new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, " "));
 
-        public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new(TextSpan.Nil, Enumerable.Empty<SyntaxBase>());
+        public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new(TextSpan.Nil, []);
 
         public static Token CreateToken(TokenType tokenType, IEnumerable<SyntaxTrivia>? leadingTrivia = null, IEnumerable<SyntaxTrivia>? trailingTrivia = null)
         {
@@ -251,7 +251,7 @@ namespace Bicep.Core.Syntax
             var trailingTrivia = new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, TextSpan.Nil, $"/*{comment.Replace("*/", "*\\/")}*/");
             var stringToken = CreateFreeformToken(TokenType.StringComplete, value, EmptyTrivia, SyntaxFactory.SingleSpaceTrivia.Append(trailingTrivia));
 
-            return new StringSyntax(stringToken.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), value.AsEnumerable());
+            return new StringSyntax(stringToken.AsEnumerable(), [], value.AsEnumerable());
         }
 
         public static StringSyntax CreateStringLiteralWithComment(string value, string comment)
@@ -345,7 +345,7 @@ namespace Bicep.Core.Syntax
             return new LambdaSyntax(
                 variableBlock,
                 SyntaxFactory.ArrowToken,
-                ImmutableArray<Token>.Empty,
+                [],
                 functionExpression);
         }
 

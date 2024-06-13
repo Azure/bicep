@@ -79,7 +79,7 @@ namespace Bicep.Core.TypeSystem
 
                 visitor.Visit(syntax);
 
-                return visitor.variableDependencies.ToImmutableHashSet();
+                return [.. visitor.variableDependencies];
             }
 
             public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)

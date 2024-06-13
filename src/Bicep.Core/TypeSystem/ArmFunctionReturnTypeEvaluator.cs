@@ -20,7 +20,7 @@ public static class ArmFunctionReturnTypeEvaluator
         IEnumerable<FunctionArgument>? prefixArgs = default)
     {
         var operandTypesArray = operandTypes.ToImmutableArray();
-        var prefixArgsArray = prefixArgs?.ToImmutableArray() ?? ImmutableArray<FunctionArgument>.Empty;
+        var prefixArgsArray = prefixArgs?.ToImmutableArray() ?? [];
 
         List<DiagnosticBuilder.DiagnosticBuilderDelegate> builderDelegates = new();
         diagnosticBuilders = builderDelegates;

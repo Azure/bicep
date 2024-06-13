@@ -82,7 +82,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetUnaryTestCases()
         {
             static object[] Case(UnaryOperationSyntax expression, TypeSymbol operandType, TypeSymbol expected, params DiagnosticMatcherData[] matcherData)
-                => new object[] { expression, operandType, expected, matcherData };
+                => [expression, operandType, expected, matcherData];
 
 
             var symbolRef = TestSyntaxFactory.CreateVariableAccess("foo");
@@ -145,7 +145,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetBinaryTestCases()
         {
             static object[] Case(BinaryOperator @operator, TypeSymbol leftOperandType, TypeSymbol rightOperandType, TypeSymbol expected, params DiagnosticMatcherData[] matcherData)
-                => new object[] { @operator, leftOperandType, rightOperandType, expected, matcherData };
+                => [@operator, leftOperandType, rightOperandType, expected, matcherData];
 
             return new[]
             {

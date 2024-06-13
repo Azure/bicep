@@ -60,7 +60,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             ",
               OnCompileErrors.IncludeErrors,
-              System.Array.Empty<string>()
+              []
             );
         }
 
@@ -94,8 +94,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ",
               OnCompileErrors.IncludeErrors,
-              new string[] {
-                "Remove unnecessary dependsOn entry 'appServicePlan'."}
+              [
+                "Remove unnecessary dependsOn entry 'appServicePlan'."]
             );
         }
 
@@ -126,9 +126,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ",
               OnCompileErrors.IncludeErrors,
-              new string[] {
+              [
                 "Remove unnecessary dependsOn entry 'appServicePlan'."
-              }
+              ]
             );
         }
 
@@ -157,9 +157,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
             ",
               OnCompileErrors.Ignore,
-              new string[] {
+              [
                 "Remove unnecessary dependsOn entry 'storageaccount'."
-              }
+              ]
             );
         }
 
@@ -189,9 +189,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ",
               OnCompileErrors.IncludeErrors,
-              new string[] {
+              [
                 "Remove unnecessary dependsOn entry 'appServicePlan'."
-              });
+              ]);
         }
 
         [TestMethod]
@@ -223,10 +223,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ",
               OnCompileErrors.IncludeErrors,
-              new string[] {
+              [
                 "" +
                 "Remove unnecessary dependsOn entry 'vnet'."
-              });
+              ]);
         }
 
         [TestMethod]
@@ -258,9 +258,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ",
               OnCompileErrors.IncludeErrors,
-              new string[] {
+              [
               "Remove unnecessary dependsOn entry 'vnet'."
-              }
+              ]
             );
         }
 
@@ -293,10 +293,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ",
               OnCompileErrors.IncludeErrors,
-              new string[] {
+              [
                 "Remove unnecessary dependsOn entry 'vn'.",
-                "Remove unnecessary dependsOn entry 'vn'."
-              }
+                  "Remove unnecessary dependsOn entry 'vn'."
+              ]
             );
         }
 
@@ -338,12 +338,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
                 ",
                 OnCompileErrors.IncludeErrors,
-                new string[] {
+                [
                     "Remove unnecessary dependsOn entry 'grandparent'.",
                     "Remove unnecessary dependsOn entry 'parent'.",
                     "Remove unnecessary dependsOn entry 'parent'.",
                     "Remove unnecessary dependsOn entry 'grandchild'.",
-            });
+                ]);
         }
 
         [TestMethod]
@@ -363,9 +363,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }]
             ",
               OnCompileErrors.IncludeErrors,
-              new string[] {
+              [
                 "Remove unnecessary dependsOn entry 'vn'."
-              }
+              ]
             );
         }
 
@@ -386,7 +386,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }]
             ",
               OnCompileErrors.IncludeErrors,
-              System.Array.Empty<string>()
+              []
             );
         }
 
@@ -427,7 +427,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             ",
               OnCompileErrors.IncludeErrors,
-              System.Array.Empty<string>()
+              []
             );
         }
 
@@ -448,7 +448,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }]
             ",
             OnCompileErrors.IncludeErrors,
-            System.Array.Empty<string>()
+            []
           );
         }
 
@@ -489,7 +489,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             ",
             OnCompileErrors.Ignore,
-            System.Array.Empty<string>()
+            []
           );
         }
 
@@ -516,7 +516,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             ",
             OnCompileErrors.Ignore,
-            System.Array.Empty<string>()
+            []
           );
         }
 
@@ -557,7 +557,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }]
             ",
             OnCompileErrors.Ignore,
-            System.Array.Empty<string>()
+            []
           );
         }
 

@@ -438,9 +438,9 @@ output foo string = foo
             result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
         }
 
-        [DataRow(new string[] { })]
-        [DataRow(new[] { "--diagnostics-format", "defAULt" })]
-        [DataRow(new[] { "--diagnostics-format", "sArif" })]
+        [DataRow([])]
+        [DataRow(["--diagnostics-format", "defAULt"])]
+        [DataRow(["--diagnostics-format", "sArif"])]
         [TestMethod]
         public async Task BuildParams_supports_sarif_diagnostics_format(string[] args)
         {
@@ -459,7 +459,7 @@ output foo string = foo
             var expectedOutputFile = FileHelper.GetResultFilePath(TestContext, "main.json", outputPath);
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build-params", inputFile }.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(["build-params", inputFile, .. args]);
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             output.Should().BeEmpty();

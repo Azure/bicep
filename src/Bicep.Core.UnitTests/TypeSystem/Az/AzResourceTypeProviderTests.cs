@@ -233,8 +233,8 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             });
         }
 
-        private static ImmutableHashSet<TypeSymbol> ExpectedBuiltInTypes { get; } = new[]
-        {
+        private static ImmutableHashSet<TypeSymbol> ExpectedBuiltInTypes { get; } =
+        [
             LanguageConstants.Any,
             LanguageConstants.Null,
             LanguageConstants.Bool,
@@ -243,7 +243,7 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             LanguageConstants.Object,
             LanguageConstants.Array,
             LanguageConstants.ResourceRef,
-        }.ToImmutableHashSet();
+        ];
 
         private static IEnumerable<TypeProperty> GetTopLevelProperties(TypeSymbol type) => type switch
         {
@@ -255,7 +255,7 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
                 .AsEnumerable()
                 .Concat(discriminated.UnionMembersByKey.Values.SelectMany(member => GetTopLevelProperties(member))),
 
-            _ => Enumerable.Empty<TypeProperty>()
+            _ => []
         };
 
         private static void VisitAllReachableTypes(TypeSymbol typeSymbol, HashSet<TypeSymbol> visited)

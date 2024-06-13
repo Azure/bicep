@@ -46,7 +46,7 @@ namespace Bicep.Core.Analyzers.Linter
                 rules.Add(Activator.CreateInstance(ruleType) as IBicepAnalyzerRule ?? throw new InvalidOperationException($"Failed to create an instance of \"{ruleType.Name}\"."));
             }
 
-            return rules.ToImmutableArray();
+            return [.. rules];
         }
 
         public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => ruleSet;

@@ -8,6 +8,6 @@ namespace Bicep.Wasm
 {
     public class EmptyModuleRegistryProvider : IArtifactRegistryProvider
     {
-        public ImmutableArray<IArtifactRegistry> Registries(Uri _) => ImmutableArray<IArtifactRegistry>.Empty;
+        public ImmutableArray<IArtifactRegistry> Registries(Uri _) => [];
     }
 }
