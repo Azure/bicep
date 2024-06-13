@@ -29,10 +29,7 @@ using Moq;
 
 namespace Bicep.Cli.IntegrationTests;
 
-// case sensitivity of module
-// module not exist
-// module has no versions
-// no cache
+//asdfg
 
 
 [TestClass]
@@ -184,6 +181,50 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         result.Should().HaveStderrMatch($"*Warning use-recent-module-versions: Could not download available module versions: Download failed.*");
         result.Should().HaveStdout("");
         result.Should().Succeed();
+    }
+
+    [TestMethod]
+    public async Task SimpleFailure()
+    {
+        var result = await Test(new Options(CacheRoot)
+        {
+            Bicep = """
+                module m1 '{PREFIX}/fake/avm/res/app/container-app:0.2.0' = {
+                  name: 'm1'
+                }
+                """.Replace("{PREFIX}", PREFIX),
+            PublishedModules = [
+                $"{PREFIX}/fake/avm/res/app/container-app:0.2.0",
+                $"{PREFIX}/fake/avm/res/app/container-app:0.3.0"
+            ],
+            ModulesMetadata = [("fake/avm/res/app/container-app", ["0.2.0", "0.3.0"])],
+        });
+
+        result.Should().HaveStderrMatch($"*Warning use-recent-module-versions: Use a more recent version of module 'fake/avm/res/app/container-app'. The most recent version is 0.3.0.*");
+        result.Should().HaveStdout("");
+        result.Should().Succeed(); // only a warning
+    }
+
+    [TestMethod]
+    public async Task IfDoesntMatchCase_ThenShouldIgnore()
+    {
+        var result = await Test(new Options(CacheRoot)
+        {
+            Bicep = """
+                module m1 '{PREFIX}/fake/avm/res/app/container-app:0.2.0' = {
+                  name: 'm1'
+                }
+                """.Replace("{PREFIX}", PREFIX),
+            PublishedModules = [
+                $"{PREFIX}/fake/avm/res/app/container-app:0.2.0",
+                $"{PREFIX}/fake/avm/res/app/container-app:0.3.0"
+            ],
+            ModulesMetadata = [("fake/avm/res/app/CONTAINER-app", ["0.2.0", "0.3.0"])],
+        });
+
+        result.Should().NotHaveStderr();
+        result.Should().HaveStdout("");
+        result.Should().Succeed(); // only a warning
     }
 
     [TestMethod]

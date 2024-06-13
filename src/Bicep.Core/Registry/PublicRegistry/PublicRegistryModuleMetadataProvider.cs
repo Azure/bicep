@@ -9,269 +9,269 @@ using System.Text.Json;
 using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.PublicRegistry
+namespace Bicep.Core.Registry.PublicRegistry;
+
+public static class PublicRegistryModuleMetadataProviderExtensions
 {
-    public static class PublicRegistryModuleMetadataProviderExtensions
+    public static IServiceCollection AddPublicRegistryModuleMetadataProviderServices(this IServiceCollection services)
     {
-        public static IServiceCollection AddPublicRegistryModuleMetadataProviderServices(this IServiceCollection services)
+        services.AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
+
+        // using type based registration for Http clients so dependencies can be injected automatically
+        // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
+        services
+            .AddHttpClient<IPublicRegistryModuleMetadataClient, PublicRegistryModuleMetadataClient>()
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+            });
+
+        return services;
+    }
+}
+
+
+/// <summary>
+/// Provider to get modules metadata that we store at a public endpoint.
+/// </summary>
+public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadataProvider
+{
+    private readonly IServiceProvider serviceProvider;
+
+    private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
+    private readonly TimeSpan InitialThrottleDelay = TimeSpan.FromSeconds(5);
+    private readonly TimeSpan MaxThrottleDelay = TimeSpan.FromMinutes(2);
+
+    private readonly object queryingLiveSyncObject = new();
+    private Task? queryLiveDataTask;
+    private DateTime? lastSuccessfulQuery;
+    private int consecutiveFailures = 0;
+
+    private ImmutableArray<BicepModuleMetadata> cachedModules = [];
+    private string? lastDownloadError = null;
+
+    public bool IsCached => cachedModules.Length > 0;
+
+    public string? DownloadError => IsCached ? null : lastDownloadError;
+
+    public PublicRegistryModuleMetadataProvider(IServiceProvider serviceProvider)
+    {
+        this.serviceProvider = serviceProvider;
+
+        //asdfg this.StartCacheUpdateInBackgroundIfNeeded(true);
+    }
+
+    public Task TryAwaitCache(bool forceUpdate)
+    {
+        return UpdateCacheIfNeeded(forceUpdate: forceUpdate, initialDelay: false);
+    }
+
+    public async Task<bool> TryUpdateCacheAsync()
+    {
+        if (await TryGetModulesLive() is { } modules)
         {
-            services.AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
-
-            // using type based registration for Http clients so dependencies can be injected automatically
-            // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
-            services
-                .AddHttpClient<IPublicRegistryModuleMetadataClient, PublicRegistryModuleMetadataClient>()
-                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-                {
-                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-                });
-
-            return services;
+            this.cachedModules = modules;
+            this.lastSuccessfulQuery = DateTime.Now;
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
-
-    /// <summary>
-    /// Provider to get modules metadata that we store at a public endpoint.
-    /// </summary>
-    public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadataProvider
+    // If cache has not yet successfully been updated, returns empty
+    public RegistryModule[] GetCachedModules()
     {
-        private readonly IServiceProvider serviceProvider;
+        StartCacheUpdateInBackgroundIfNeeded();
 
-        private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
-        private readonly TimeSpan InitialThrottleDelay = TimeSpan.FromSeconds(5);
-        private readonly TimeSpan MaxThrottleDelay = TimeSpan.FromMinutes(2);
+        var modules = this.cachedModules.ToArray();
+        return modules.Select(metadata =>
+            new RegistryModule(metadata.ModuleName, GetDescription(metadata), GetDocumentationUri(metadata)))
+            .ToArray();
+    }
 
-        private readonly object queryingLiveSyncObject = new();
-        private Task? queryLiveDataTask;
-        private DateTime? lastSuccessfulQuery;
-        private int consecutiveFailures = 0;
+    public RegistryModuleVersion[] GetCachedModuleVersions(string modulePath)
+    {
+        StartCacheUpdateInBackgroundIfNeeded();
 
-        private ImmutableArray<BicepModuleMetadata> cachedModules = ImmutableArray<BicepModuleMetadata>.Empty;
-        private string? lastDownloadError = null;
-
-        public bool IsCached => cachedModules.Length > 0;
-
-        public string? DownloadError => IsCached ? null : lastDownloadError;
-
-        public PublicRegistryModuleMetadataProvider(IServiceProvider serviceProvider)
+        var modules = this.cachedModules.ToArray();
+        BicepModuleMetadata? metadata = modules.FirstOrDefault(x => x.ModuleName.Equals(modulePath, StringComparison.Ordinal));
+        if (metadata == null)
         {
-            this.serviceProvider = serviceProvider;
-
-            //asdfg this.StartCacheUpdateInBackgroundIfNeeded(true);
+            return [];
         }
 
-        public Task TryAwaitCache(bool forceUpdate)
+        var versions = metadata.Tags.OrderDescending().ToArray() ?? Enumerable.Empty<string>();
+        return versions.Select(v =>
+            new RegistryModuleVersion(v, GetDescription(metadata, v), GetDocumentationUri(metadata, v)))
+            .ToArray();
+    }
+
+    private void StartCacheUpdateInBackgroundIfNeeded(bool initialDelay = false)
+    {
+        _ = UpdateCacheIfNeeded(forceUpdate: false, initialDelay);
+    }
+
+    private Task UpdateCacheIfNeeded(bool forceUpdate, bool initialDelay)
+    {
+        if (!this.cachedModules.Any())
         {
-            return UpdateCacheIfNeeded(forceUpdate: forceUpdate, initialDelay: false);
+            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: First data retrieval...");
+        }
+        else if (forceUpdate)
+        {
+            Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Force updating cache...");
+        }
+        else if (IsCacheExpired())
+        {
+            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: Cache expired, updating...");
+        }
+        else
+        {
+            return Task.CompletedTask;
         }
 
-        public async Task<bool> TryUpdateCacheAsync()
+        lock (this.queryingLiveSyncObject)
         {
-            if (await TryGetModulesLive() is { } modules)
+            if (this.queryLiveDataTask is { })
             {
-                this.cachedModules = modules;
-                this.lastSuccessfulQuery = DateTime.Now;
-                return true;
+                return this.queryLiveDataTask;
             }
-            else
-            {
-                return false;
-            }
+
+            return this.queryLiveDataTask = QueryData(initialDelay);
         }
 
-        public RegistryModule[] GetCachedModules() //asdfg doc what happens if can't retrieve from cache
+        Task QueryData(bool initialDelay)
         {
-            StartCacheUpdateInBackgroundIfNeeded();
-
-            var modules = this.cachedModules.ToArray();
-            return modules.Select(metadata =>
-                new RegistryModule(metadata.ModuleName, GetDescription(metadata), GetDocumentationUri(metadata)))
-                .ToArray();
-        }
-
-        public RegistryModuleVersion[] GetCachedModuleVersions(string modulePath)
-        {
-            StartCacheUpdateInBackgroundIfNeeded();
-
-            var modules = this.cachedModules.ToArray();
-            BicepModuleMetadata? metadata = modules.FirstOrDefault(x => x.ModuleName.Equals(modulePath, StringComparison.Ordinal));
-            if (metadata == null)
+            return Task.Run(async () =>
             {
-                return Array.Empty<RegistryModuleVersion>();
-            }
-
-            var versions = metadata.Tags.OrderDescending().ToArray() ?? Enumerable.Empty<string>();
-            return versions.Select(v =>
-                new RegistryModuleVersion(v, GetDescription(metadata, v), GetDocumentationUri(metadata, v)))
-                .ToArray();
-        }
-
-        private void StartCacheUpdateInBackgroundIfNeeded(bool initialDelay = false) //asdfg - need to start this automatically on langserver start (?)
-        {
-            _ = UpdateCacheIfNeeded(forceUpdate: false, initialDelay);
-        }
-
-        private Task UpdateCacheIfNeeded(bool forceUpdate, bool initialDelay)
-        {
-            if (!this.cachedModules.Any())
-            {
-                Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: First data retrieval...");
-            }
-            else if (forceUpdate)
-            {
-                Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Force updating cache...");
-            }
-            else if (IsCacheExpired())
-            {
-                Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: Cache expired, updating...");
-            }
-            else
-            {
-                return Task.CompletedTask;
-            }
-
-            lock (this.queryingLiveSyncObject)
-            {
-                if (this.queryLiveDataTask is { })
+                try
                 {
-                    return this.queryLiveDataTask
+                    int delay = 0;
+                    if (initialDelay)
+                    {
+                        // Allow language server to start up a bit before first hit
+                        delay = InitialThrottleDelay.Milliseconds;
+                    }
+                    if (consecutiveFailures > 0)
+                    {
+                        // Throttle requests to avoid spamming the endpoint with unsuccessful requests
+                        delay = int.Max(delay, GetExponentialDelay(InitialThrottleDelay, this.consecutiveFailures, MaxThrottleDelay).Milliseconds); // make second try fast
+                    }
+
+                    if (delay > 0)
+                    {
+                        Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Delaying {delay} before retry...");
+                        await Task.Delay(delay);
+                    }
+
+                    if (await TryUpdateCacheAsync())
+                    {
+                        this.consecutiveFailures = 0;
+                    }
+                    else
+                    {
+                        this.consecutiveFailures++;
+                    }
                 }
-
-                return this.queryLiveDataTask = QueryData(initialDelay);
-            }
-
-            Task QueryData(bool initialDelay)
-            {
-                return Task.Run(async () =>
+                finally
                 {
-                    try
+                    lock (this.queryingLiveSyncObject)
                     {
-                        int delay = 0;
-                        if (initialDelay)
-                        {
-                            // Allow language server to start up a bit before first hit
-                            delay = InitialThrottleDelay.Milliseconds;
-                        }
-                        if (consecutiveFailures > 0)
-                        {
-                            // Throttle requests to avoid spamming the endpoint with unsuccessful requests
-                            delay = int.Max(delay, GetExponentialDelay(InitialThrottleDelay, this.consecutiveFailures, MaxThrottleDelay).Milliseconds); // make second try fast
-                        }
-
-                        if (delay > 0)
-                        {
-                            Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Delaying {delay} before retry...");
-                            await Task.Delay(delay);
-                        }
-
-                        if (await TryUpdateCacheAsync())
-                        {
-                            this.consecutiveFailures = 0;
-                        }
-                        else
-                        {
-                            this.consecutiveFailures++;
-                        }
+                        Trace.Assert(this.queryLiveDataTask is { }, $"{nameof(PublicRegistryModuleMetadataProvider)}: should be querying live data");
+                        this.queryLiveDataTask = null;
                     }
-                    finally
-                    {
-                        lock (this.queryingLiveSyncObject)
-                        {
-                            Trace.Assert(this.queryLiveDataTask is { }, $"{nameof(PublicRegistryModuleMetadataProvider)}: should be querying live data");
-                            this.queryLiveDataTask = null;
-                        }
-                    }
-                });
-            }
+                }
+            });
         }
+    }
 
-        private bool IsCacheExpired()
+    private bool IsCacheExpired()
+    {
+        var expired = this.lastSuccessfulQuery.HasValue && this.lastSuccessfulQuery.Value + this.CacheValidFor < DateTime.Now;
+        if (expired)
         {
-            var expired = this.lastSuccessfulQuery.HasValue && this.lastSuccessfulQuery.Value + this.CacheValidFor < DateTime.Now;
-            if (expired)
-            {
-                Trace.TraceInformation($"{nameof(PublicRegistryModuleMetadataProvider)}: Public modules cache is expired.");
-            }
-
-            return expired;
+            Trace.TraceInformation($"{nameof(PublicRegistryModuleMetadataProvider)}: Public modules cache is expired.");
         }
 
-        private async Task<ImmutableArray<BicepModuleMetadata>?> TryGetModulesLive()
+        return expired;
+    }
+
+    private async Task<ImmutableArray<BicepModuleMetadata>?> TryGetModulesLive()
+    {
+        try
         {
-            try
-            {
-                var client = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataClient>();
-                var modules = await client.GetModuleMetadata();
+            var client = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataClient>();
+            var modules = await client.GetModuleMetadata();
 
-                return modules;
-            }
-            catch (Exception ex)
-            {
-                this.lastDownloadError = ex.Message;
-                return null;
-            }
+            return modules;
         }
-
-        // Modules paths are, e.g. "app/dapr-containerapp"
-        public Task<IEnumerable<RegistryModule>> GetModules()
+        catch (Exception ex)
         {
-            StartCacheUpdateInBackgroundIfNeeded();
-            var modules = this.cachedModules.ToArray();
-            return Task.FromResult(
-                modules.Select(metadata =>
-                    new RegistryModule(metadata.ModuleName, GetDescription(metadata), GetDocumentationUri(metadata))));
+            this.lastDownloadError = ex.Message;
+            return null;
         }
+    }
 
-        public Task<IEnumerable<RegistryModuleVersion>> GetVersions(string modulePath)
+    // Modules paths are, e.g. "app/dapr-containerapp"
+    public Task<IEnumerable<RegistryModule>> GetModules()
+    {
+        StartCacheUpdateInBackgroundIfNeeded();
+        var modules = this.cachedModules.ToArray();
+        return Task.FromResult(
+            modules.Select(metadata =>
+                new RegistryModule(metadata.ModuleName, GetDescription(metadata), GetDocumentationUri(metadata))));
+    }
+
+    public Task<IEnumerable<RegistryModuleVersion>> GetVersions(string modulePath)
+    {
+        StartCacheUpdateInBackgroundIfNeeded();
+        var modules = this.cachedModules.ToArray();
+        BicepModuleMetadata? metadata = modules.FirstOrDefault(x => x.ModuleName.Equals(modulePath, StringComparison.Ordinal));
+        if (metadata == null)
         {
-            StartCacheUpdateInBackgroundIfNeeded();
-            var modules = this.cachedModules.ToArray();
-            BicepModuleMetadata? metadata = modules.FirstOrDefault(x => x.ModuleName.Equals(modulePath, StringComparison.Ordinal));
-            if (metadata == null)
-            {
-                return Task.FromResult(Enumerable.Empty<RegistryModuleVersion>());
-            }
-
-            var versions = metadata.Tags.OrderDescending().ToArray() ?? Enumerable.Empty<string>();
-            return Task.FromResult(
-                versions.Select(v =>
-                    new RegistryModuleVersion(v, GetDescription(metadata, v), GetDocumentationUri(metadata, v))));
+            return Task.FromResult(Enumerable.Empty<RegistryModuleVersion>());
         }
 
-        private static string? GetDescription(BicepModuleMetadata moduleMetadata, string? version = null)
+        var versions = metadata.Tags.OrderDescending().ToArray() ?? Enumerable.Empty<string>();
+        return Task.FromResult(
+            versions.Select(v =>
+                new RegistryModuleVersion(v, GetDescription(metadata, v), GetDocumentationUri(metadata, v))));
+    }
+
+    private static string? GetDescription(BicepModuleMetadata moduleMetadata, string? version = null)
+    {
+        if (moduleMetadata.Properties is null)
         {
-            if (moduleMetadata.Properties is null)
-            {
-                return null;
-            }
-
-            if (version is null)
-            {
-                // Get description for most recent version with a description
-                return moduleMetadata.Tags.Select(tag => moduleMetadata.Properties.TryGetValue(tag, out var propertiesEntry) ? propertiesEntry.Description : null)
-                        .WhereNotNull().
-                        LastOrDefault();
-            }
-            else
-            {
-                return moduleMetadata.Properties.TryGetValue(version, out var propertiesEntry) ? propertiesEntry.Description : null;
-            }
+            return null;
         }
 
-        private static string? GetDocumentationUri(BicepModuleMetadata moduleMetadata, string? version = null)
+        if (version is null)
         {
-            version ??= moduleMetadata.Tags.OrderDescending().FirstOrDefault();
-            return version is null ? null : moduleMetadata.Properties.TryGetValue(version)?.DocumentationUri;
+            // Get description for most recent version with a description
+            return moduleMetadata.Tags.Select(tag => moduleMetadata.Properties.TryGetValue(tag, out var propertiesEntry) ? propertiesEntry.Description : null)
+                    .WhereNotNull().
+                    LastOrDefault();
         }
-
-        public static TimeSpan GetExponentialDelay(TimeSpan initialDelay, int consecutiveFailures, TimeSpan maxDelay)
+        else
         {
-            var maxFailuresToConsider = (int)Math.Ceiling(Math.Log(maxDelay.TotalSeconds, 2)); // Avoid overflow on Math.Pow()
-            var secondsDelay = initialDelay.TotalSeconds * Math.Pow(2, Math.Min(consecutiveFailures, maxFailuresToConsider));
-            var delay = TimeSpan.FromSeconds(secondsDelay);
-
-            return delay > maxDelay ? maxDelay : delay;
+            return moduleMetadata.Properties.TryGetValue(version, out var propertiesEntry) ? propertiesEntry.Description : null;
         }
+    }
+
+    private static string? GetDocumentationUri(BicepModuleMetadata moduleMetadata, string? version = null)
+    {
+        version ??= moduleMetadata.Tags.OrderDescending().FirstOrDefault();
+        return version is null ? null : moduleMetadata.Properties.TryGetValue(version)?.DocumentationUri;
+    }
+
+    public static TimeSpan GetExponentialDelay(TimeSpan initialDelay, int consecutiveFailures, TimeSpan maxDelay)
+    {
+        var maxFailuresToConsider = (int)Math.Ceiling(Math.Log(maxDelay.TotalSeconds, 2)); // Avoid overflow on Math.Pow()
+        var secondsDelay = initialDelay.TotalSeconds * Math.Pow(2, Math.Min(consecutiveFailures, maxFailuresToConsider));
+        var delay = TimeSpan.FromSeconds(secondsDelay);
+
+        return delay > maxDelay ? maxDelay : delay;
     }
 }
