@@ -190,13 +190,17 @@ namespace Bicep.Decompiler
             {
                 JObject jObject => ParseJObject(jObject),
                 JArray jArray => ParseJArray(jArray),
-                JValue jValue => ParseJValue(jValue),
+                JValue jValue => ParseJValue(jValue, permitExpressions: true),
                 null => throw new ArgumentNullException(nameof(value)),
                 _ => throw new ConversionFailedException($"Unrecognized token type {value.Type}", value),
             };
 
         private SyntaxBase ParseJTokenExpression(JTokenExpression expression)
-            => ParseJToken(expression.Value);
+            => expression.Value switch {
+                // we don't want to parse expressions inside an expression - e.g. "[concat('[concat()]')]"
+                JValue value => ParseJValue(value, permitExpressions: false),
+                _ => throw new NotImplementedException($"Unrecognized expression {ExpressionsEngine.SerializeExpression(expression)}"),
+            };
 
         private bool TryReplaceBannedFunction(FunctionExpression expression, [NotNullWhen(true)] out SyntaxBase? syntax)
         {
@@ -709,13 +713,15 @@ namespace Bicep.Decompiler
             return SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>());
         }
 
-        private SyntaxBase ParseJValue(JValue value)
+        private SyntaxBase ParseJValue(JValue value, bool permitExpressions)
             => value.Type switch
             {
                 JTokenType.String or 
                 JTokenType.Uri or 
                 JTokenType.Date or
-                JTokenType.Float => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
+                JTokenType.Float => permitExpressions ? 
+                    ParseString(value.ToString(CultureInfo.InvariantCulture), value) : 
+                    SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture)),
                 JTokenType.Integer => ParseIntegerJToken(value),
                 JTokenType.Boolean => value.Value<bool>() ?
                     new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
