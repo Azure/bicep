@@ -57,8 +57,6 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
     public PublicRegistryModuleMetadataProvider(IServiceProvider serviceProvider)
     {
         this.serviceProvider = serviceProvider;
-
-        //asdfg this.StartCacheUpdateInBackgroundIfNeeded(true);
     }
 
     public Task TryAwaitCache(bool forceUpdate)

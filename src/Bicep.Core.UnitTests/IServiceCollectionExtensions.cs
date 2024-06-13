@@ -50,7 +50,7 @@ public static class IServiceCollectionExtensions
             .AddPublicRegistryModuleMetadataProviderServices()
             .AddSingleton<BicepCompiler>();
 
-        //AddMockHttpClient(services, PublicRegistryModuleMetadataClientMock.Create([]).Object);//asdfg not working?
+        AddMockHttpClient(services, PublicRegistryModuleMetadataClientMock.Create([]).Object);
 
         return services;
     }
