@@ -43,4 +43,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;
 
     public bool ResourceDerivedTypesEnabled => overrides.ResourceDerivedTypesEnabled ?? features.ResourceDerivedTypesEnabled;
+
+    public bool ModularParametersEnabled => overrides.ModularParametersEnabled ?? features.ModularParametersEnabled;
 }
