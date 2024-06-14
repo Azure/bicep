@@ -152,12 +152,6 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return expression;
     }
 
-    void IExpressionVisitor.VisitNoneLiteralExpression(NoneLiteralExpression expression) => ReplaceCurrent(expression, ReplaceNoneLiteralExpression);
-    public virtual Expression ReplaceNoneLiteralExpression(NoneLiteralExpression expression)
-    {
-        return expression;
-    }
-
     void IExpressionVisitor.VisitObjectExpression(ObjectExpression expression) => ReplaceCurrent(expression, ReplaceObjectExpression);
     public virtual Expression ReplaceObjectExpression(ObjectExpression expression)
     {
@@ -459,12 +453,6 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
 
     void IExpressionVisitor.VisitSynthesizedTypeAliasReferenceExpression(SynthesizedTypeAliasReferenceExpression expression) => ReplaceCurrent(expression, ReplaceSynthesizedTypeAliasReferenceExpression);
     public virtual Expression ReplaceSynthesizedTypeAliasReferenceExpression(SynthesizedTypeAliasReferenceExpression expression)
-    {
-        return expression;
-    }
-
-    void IExpressionVisitor.VisitExtendsDeclarationExpression(ExtendsDeclarationExpression expression) => ReplaceCurrent(expression, ReplaceExtendsDeclarationExpression);
-    public virtual Expression ReplaceExtendsDeclarationExpression(ExtendsDeclarationExpression expression)
     {
         return expression;
     }

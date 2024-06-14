@@ -94,8 +94,6 @@ public class ExpressionBuilder
                 return new BooleanLiteralExpression(@bool, @bool.Value);
             case NullLiteralSyntax:
                 return new NullLiteralExpression(syntax);
-            case NoneLiteralSyntax:
-                return new NoneLiteralExpression(syntax);
             case ParenthesizedExpressionSyntax x:
                 return ConvertWithoutLowering(x.Expression);
             case NonNullAssertionSyntax assertion:

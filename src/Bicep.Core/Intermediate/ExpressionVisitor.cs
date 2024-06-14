@@ -94,10 +94,6 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
-    public virtual void VisitNoneLiteralExpression(NoneLiteralExpression expression)
-    {
-    }
-
     public virtual void VisitObjectExpression(ObjectExpression expression)
     {
         Visit(expression.Properties);
@@ -428,11 +424,6 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     }
 
     protected virtual void VisitInternal(Expression expression)
-    {
-        expression.Accept(this);
-    }
-
-    public void VisitExtendsDeclarationExpression(ExtendsDeclarationExpression expression)
     {
         expression.Accept(this);
     }
