@@ -78,8 +78,6 @@ namespace Bicep.Core.Parsing
 
             SyntaxBase expression = reader.Peek().Type switch
             {
-                TokenType.EndOfFile or
-                TokenType.NewLine or
                 TokenType.NoneKeyword => WithRecovery(
                     () => new NoneLiteralSyntax(
                         Expect(
