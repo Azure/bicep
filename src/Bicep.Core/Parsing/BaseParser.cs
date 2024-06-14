@@ -805,7 +805,6 @@ namespace Bicep.Core.Parsing
                 TokenType.Integer when NumericLiteral() is { literal: Token literal, value: ulong value }
                     => new IntegerLiteralSyntax(literal, value),
                 TokenType.NullKeyword => new NullLiteralSyntax(reader.Read()),
-                TokenType.NoneKeyword => new NoneLiteralSyntax(reader.Read()),
                 _ => throw new ExpectedTokenException(current, b => b.InvalidType()),
             };
         }
