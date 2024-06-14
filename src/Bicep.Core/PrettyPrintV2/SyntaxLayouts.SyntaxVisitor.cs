@@ -188,8 +188,6 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax) => this.Layout(syntax.NullKeyword);
 
-        public void VisitNoneTypeLiteralSyntax(NoneTypeLiteralSyntax syntax) => this.Layout(syntax.NoneKeyword);
-
         public void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax) => this.Apply(syntax, LayoutUnaryTypeOperationSyntax);
 
         public void VisitNonNullableTypeSyntax(NonNullableTypeSyntax syntax) => this.Apply(syntax, LayoutNonNullableTypeSyntax);

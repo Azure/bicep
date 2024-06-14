@@ -610,11 +610,6 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.NullKeyword);
         }
 
-        public override void VisitNoneTypeLiteralSyntax(NoneTypeLiteralSyntax syntax)
-        {
-            this.Visit(syntax.NoneKeyword);
-        }
-
         public override void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax)
         {
             this.Visit(syntax.OperatorToken);

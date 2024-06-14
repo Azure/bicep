@@ -1357,20 +1357,6 @@ namespace Bicep.Core.Syntax
         void ISyntaxVisitor.VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax)
             => ReplaceCurrent(syntax, ReplaceNullTypeLiteralSyntax);
 
-        protected virtual SyntaxBase ReplaceNoneTypeLiteralSyntax(NoneTypeLiteralSyntax syntax)
-        {
-            var hasChanges = TryRewriteStrict(syntax.NoneKeyword, out var noneKeyword);
-
-            if (!hasChanges)
-            {
-                return syntax;
-            }
-
-            return new NoneTypeLiteralSyntax(noneKeyword);
-        }
-        void ISyntaxVisitor.VisitNoneTypeLiteralSyntax(NoneTypeLiteralSyntax syntax)
-            => ReplaceCurrent(syntax, ReplaceNoneTypeLiteralSyntax);
-
         protected virtual SyntaxBase ReplaceUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.OperatorToken, out var operatorToken);

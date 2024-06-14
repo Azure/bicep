@@ -174,8 +174,6 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax);
 
-        public abstract void VisitNoneTypeLiteralSyntax(NoneTypeLiteralSyntax syntax);
-
         public abstract void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax);
 
         public abstract void VisitNonNullableTypeSyntax(NonNullableTypeSyntax syntax);

@@ -490,10 +490,6 @@ namespace Bicep.Core.Syntax
         {
         }
 
-        public override void VisitNoneTypeLiteralSyntax(NoneTypeLiteralSyntax syntax)
-        {
-        }
-
         public override void VisitUnaryTypeOperationSyntax(UnaryTypeOperationSyntax syntax)
         {
             this.Visit(syntax.Expression);
