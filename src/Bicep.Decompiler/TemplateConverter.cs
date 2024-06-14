@@ -718,10 +718,11 @@ namespace Bicep.Decompiler
             {
                 JTokenType.String or 
                 JTokenType.Uri or 
-                JTokenType.Date or
-                JTokenType.Float => permitExpressions ? 
+                JTokenType.Date => permitExpressions ? 
                     ParseString(value.ToString(CultureInfo.InvariantCulture), value) : 
                     SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture)),
+                JTokenType.Float => SyntaxFactory.CreateFunctionCall("json",
+                    SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture))),
                 JTokenType.Integer => ParseIntegerJToken(value),
                 JTokenType.Boolean => value.Value<bool>() ?
                     new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
