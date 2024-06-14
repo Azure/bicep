@@ -2200,17 +2200,17 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExtendsPathHasNotBeenSpecified() => new(
                 TextSpan,
                 "BCP404",
-                "The extends declaration is missing a bicepparam file path reference.");
+                $"The \"{LanguageConstants.ExtendsKeyword}\" declaration is missing a bicepparam file path reference.");
 
             public ErrorDiagnostic MoreThanOneExtendsDeclarationSpecified() => new(
                 TextSpan,
                 "BCP405",
-                "More than one 'extends' declaration are present");
+                $"More than one \"{LanguageConstants.ExtendsKeyword}\" declaration are present");
 
             public ErrorDiagnostic ExtendsNotSupported() => new(
                 TextSpan,
                 "BCP406",
-                "Extends keyword is not supported");
+                $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

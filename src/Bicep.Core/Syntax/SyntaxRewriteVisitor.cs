@@ -194,7 +194,7 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax) => ReplaceCurrent(syntax, VisitUsingDeclarationSyntax);
 
-        protected virtual SyntaxBase VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax)
+        protected virtual SyntaxBase ReplaceExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Path, out var path);
@@ -206,7 +206,7 @@ namespace Bicep.Core.Syntax
 
             return new ExtendsDeclarationSyntax(keyword, path);
         }
-        void ISyntaxVisitor.VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax) => ReplaceCurrent(syntax, VisitExtendsDeclarationSyntax);
+        void ISyntaxVisitor.VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceExtendsDeclarationSyntax);
 
         protected virtual SyntaxBase ReplaceVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {

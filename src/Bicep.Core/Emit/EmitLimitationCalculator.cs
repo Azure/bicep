@@ -626,11 +626,11 @@ namespace Bicep.Core.Emit
 
         private static void BlockExtendsWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
         {
-            foreach (var test in model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>())
+            foreach (var extendsDeclaration in model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>())
             {
                 if (!model.Features.ModularParametersEnabled)
                 {
-                    diagnostics.Write(test, x => x.ExtendsNotSupported());
+                    diagnostics.Write(extendsDeclaration, x => x.ExtendsNotSupported());
                 }
             }
         }
