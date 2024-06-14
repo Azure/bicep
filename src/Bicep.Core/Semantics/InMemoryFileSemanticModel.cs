@@ -18,8 +18,8 @@ namespace Bicep.Core.Semantics
         {
             this.SourceFile = new BicepParamFile(
                 new Uri("in-memory-file://"),
-                ImmutableArray<int>.Empty,
-                new ProgramSyntax(Enumerable.Empty<SyntaxBase>(), SyntaxFactory.EndOfFileToken),
+                [],
+                new ProgramSyntax([], SyntaxFactory.EndOfFileToken),
                 EmptyDiagnosticLookup.Instance,
                 EmptyDiagnosticLookup.Instance
             );
@@ -33,7 +33,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableSortedDictionary<string, ExportMetadata> Exports => ImmutableSortedDictionary<string, ExportMetadata>.Empty;
 
-        public ImmutableArray<OutputMetadata> Outputs => ImmutableArray<OutputMetadata>.Empty;
+        public ImmutableArray<OutputMetadata> Outputs => [];
 
         public bool HasErrors() => false;
     }

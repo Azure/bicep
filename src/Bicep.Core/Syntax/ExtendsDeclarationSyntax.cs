@@ -10,7 +10,7 @@ namespace Bicep.Core.Syntax
     public class ExtendsDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
         public ExtendsDeclarationSyntax(Token keyword, SyntaxBase path)
-            : base(Enumerable.Empty<SyntaxBase>())
+            : base([])
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ExtendsKeyword);
             AssertSyntaxType(path, nameof(path), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
