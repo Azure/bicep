@@ -408,7 +408,7 @@ namespace Bicep.Core.Registry
 
                 // if the artifact supports local deployment, fetch the provider binary
                 if (config?.LocalDeployEnabled == true &&
-                    config?.SupportedArchitectures is {} binaryArchitectures)
+                    config?.SupportedArchitectures is { } binaryArchitectures)
                 {
                     if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
                     {
