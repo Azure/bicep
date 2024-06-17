@@ -292,16 +292,18 @@ namespace Bicep.Core.Parsing
                     TokenType.NewLine)
             };
 
-            var withClause = this.reader.Peek().Type switch
+            var current = this.reader.Peek();
+            var withClause = current.Type switch
             {
                 TokenType.EndOfFile or
-                TokenType.NewLine or
-                TokenType.AsKeyword => this.SkipEmpty(),
+                TokenType.NewLine or 
+                TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.SkipEmpty(),
 
                 _ => this.WithRecovery(() => this.ProviderWithClause(), GetSuppressionFlag(providerSpecificationSyntax), TokenType.NewLine),
             };
 
-            var asClause = this.reader.Peek().Type switch
+            current = this.reader.Peek();
+            var asClause = current.Type switch
             {
                 TokenType.EndOfFile or
                 TokenType.NewLine => this.SkipEmpty(),
@@ -314,15 +316,15 @@ namespace Bicep.Core.Parsing
 
         private ProviderWithClauseSyntax ProviderWithClause()
         {
-            var keyword = this.Expect(TokenType.WithKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
-            var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.AsKeyword, TokenType.NewLine);
+            var keyword = this.ExpectKeyword(LanguageConstants.WithKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
+            var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
 
             return new(keyword, config);
         }
 
         private AliasAsClauseSyntax ProviderAsClause()
         {
-            var keyword = this.Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword));
+            var keyword = this.ExpectKeyword(LanguageConstants.AsKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
             var modifier = this.IdentifierWithRecovery(b => b.ExpectedProviderAliasName(), RecoveryFlags.None, TokenType.NewLine);
 
             return new(keyword, modifier);
