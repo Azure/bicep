@@ -49,7 +49,7 @@ namespace Bicep.LanguageServer.Completions
             TokenType.Identifier,
             TokenType.Integer,
             TokenType.StringComplete,
-            .. LanguageConstants.Keywords.Values,
+            .. LanguageConstants.NonContextualKeywords.Values,
         ];
 
         private BicepCompletionContext(

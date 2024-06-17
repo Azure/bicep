@@ -296,8 +296,8 @@ namespace Bicep.Core.Parsing
             var withClause = current.Type switch
             {
                 TokenType.EndOfFile or
-                TokenType.NewLine or 
-                TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.SkipEmpty(),
+                TokenType.NewLine => this.SkipEmpty(),
+                TokenType.Identifier when current.Text == LanguageConstants.AsKeyword => this.SkipEmpty(),
 
                 _ => this.WithRecovery(() => this.ProviderWithClause(), GetSuppressionFlag(providerSpecificationSyntax), TokenType.NewLine),
             };

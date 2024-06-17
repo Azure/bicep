@@ -111,7 +111,7 @@ provider
             } something
             """);
             result.Should().HaveDiagnostics(new[] {
-                ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
+                ("BCP305", DiagnosticLevel.Error, """Expected the "with" keyword, "as" keyword, or a new line character at this location."""),
             });
         }
 

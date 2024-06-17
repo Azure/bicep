@@ -5,7 +5,7 @@ using 'main.bicep'
 import * as bicepconfig from 'bicepconfig.bicep'
 //@[000:006) Identifier |import|
 //@[007:008) Asterisk |*|
-//@[009:011) AsKeyword |as|
+//@[009:011) Identifier |as|
 //@[012:023) Identifier |bicepconfig|
 //@[024:028) Identifier |from|
 //@[029:048) StringComplete |'bicepconfig.bicep'|

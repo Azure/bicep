@@ -117,7 +117,9 @@ namespace Bicep.Core
             .Add(IfKeyword)
             .Add(ForKeyword)
             .Add(InKeyword)
-            .Add(FromKeyword);
+            .Add(FromKeyword)
+            .Add(WithKeyword)
+            .Add(AsKeyword);
 
         public const string TrueKeyword = "true";
         public const string FalseKeyword = "false";
@@ -128,7 +130,7 @@ namespace Bicep.Core
 
         public const string McrRepositoryPrefix = "bicep/";
 
-        public static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
+        public static readonly ImmutableDictionary<string, TokenType> NonContextualKeywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
             [TrueKeyword] = TokenType.TrueKeyword,
             [FalseKeyword] = TokenType.FalseKeyword,
