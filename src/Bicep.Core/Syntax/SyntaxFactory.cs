@@ -358,10 +358,18 @@ namespace Bicep.Core.Syntax
         };
 
         public static PropertyAccessSyntax CreatePropertyAccess(SyntaxBase @base, string propertyName)
-            => new(@base, DotToken, null, CreateIdentifier(propertyName));
+            => CreatePropertyAccess(@base, false, propertyName);
 
-        public static PropertyAccessSyntax CreateSafePropertyAccess(SyntaxBase @base, string propertyName)
-            => new(@base, DotToken, QuestionToken, CreateIdentifier(propertyName));
+        public static PropertyAccessSyntax CreatePropertyAccess(SyntaxBase @base, bool safe, string propertyName)
+            => new(@base, DotToken, safe ? QuestionToken : null, CreateIdentifier(propertyName));
+
+        public static ArrayAccessSyntax CreateArrayAccess(SyntaxBase @base, bool safe, SyntaxBase accessExpression)
+            => new(@base, LeftSquareToken, safe ? QuestionToken : null, accessExpression, RightSquareToken);
+
+        public static SyntaxBase CreateSafeAccess(SyntaxBase @base, SyntaxBase accessExpression)
+            => (accessExpression is StringSyntax stringAccess && stringAccess.TryGetLiteralValue() is {} stringValue) ?
+                CreatePropertyAccess(@base, true, stringValue) :
+                CreateArrayAccess(@base, true, accessExpression);
 
         public static ParameterAssignmentSyntax CreateParameterAssignmentSyntax(string name, SyntaxBase value)
             => new(

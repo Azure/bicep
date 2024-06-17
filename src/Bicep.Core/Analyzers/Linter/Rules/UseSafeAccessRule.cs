@@ -28,26 +28,24 @@ public sealed class UseSafeAccessRule : LinterRuleBase
         foreach (var ternary in SyntaxAggregator.AggregateByType<TernaryOperationSyntax>(model.Root.Syntax))
         {
             if (SemanticModelHelper.TryGetNamedFunction(model, SystemNamespaceType.BuiltInName, "contains", ternary.ConditionExpression) is not {} functionCall ||
-                functionCall.Arguments.Length != 2 ||
-                functionCall.Arguments[1].Expression is not StringSyntax containsString ||
-                containsString.TryGetLiteralValue() is not {} propertyName)
+                functionCall.Arguments.Length != 2)
             {
                 continue;
             }
 
-            if (ternary.TrueExpression is not PropertyAccessSyntax truePropertyAccess ||
-                !truePropertyAccess.PropertyName.NameEquals(propertyName))
+            if (ternary.TrueExpression is not AccessExpressionSyntax truePropertyAccess ||
+                !SyntaxIgnoringTriviaComparer.Instance.Equals(functionCall.Arguments[0].Expression, truePropertyAccess.BaseExpression))
             {
                 continue;
             }
-            
-            if (!SyntaxIgnoringTriviaComparer.Instance.Equals(functionCall.Arguments[0].Expression, truePropertyAccess.BaseExpression))
+
+            if (!truePropertyAccess.AccessExpressionMatches(functionCall.Arguments[1].Expression))
             {
                 continue;
             }
 
             var replacement = SyntaxFactory.CreateBinaryOperationSyntax(
-                SyntaxFactory.CreateSafePropertyAccess(truePropertyAccess.BaseExpression, propertyName),
+                SyntaxFactory.CreateSafeAccess(truePropertyAccess.BaseExpression, functionCall.Arguments[1].Expression),
                 TokenType.DoubleQuestion,
                 ternary.FalseExpression);
 

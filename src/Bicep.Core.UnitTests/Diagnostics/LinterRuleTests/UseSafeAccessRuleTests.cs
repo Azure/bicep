@@ -25,6 +25,17 @@ var test = foo.?bar ?? 'baz'
 """);
 
     [TestMethod]
+    public void Codefix_fixes_syntax_which_can_be_simplified_array_access() => AssertCodeFix("""
+param foo object
+param target string
+var test = contai|ns(foo, target) ? foo[target] : 'baz'
+""", """
+param foo object
+param target string
+var test = foo[?target] ?? 'baz'
+""");
+
+    [TestMethod]
     public void Rule_ignores_syntax_which_cannot_be_simplified() => AssertNoDiagnostics("""
 param foo object
 var test = contains(foo, 'bar') ? foo.baz : 'baz'
@@ -32,6 +43,14 @@ var test = contains(foo, 'bar') ? foo.baz : 'baz'
 
     [TestMethod]
     public void Rule_ignores_syntax_which_cannot_be_simplified_2() => AssertNoDiagnostics("""
+param foo object
+param target string
+param notTarget string
+var test = contains(foo, target) ? bar[notTarget] : 'baz'
+""");
+
+    [TestMethod]
+    public void Rule_ignores_syntax_which_cannot_be_simplified_array_access() => AssertNoDiagnostics("""
 param foo object
 var test = contains(foo, 'bar') ? bar.bar : 'baz'
 """);
