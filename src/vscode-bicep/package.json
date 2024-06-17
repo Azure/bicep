@@ -786,7 +786,7 @@
     "style-loader": "^4.0.0",
     "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "5.3.10",
-    "ts-jest": "^29.1.2",
+    "ts-jest": "^29.1.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "webpack": "^5.91.0",
