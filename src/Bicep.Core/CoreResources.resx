@@ -495,4 +495,13 @@
   <data name="ExperimentalFeatureNames_ResourceDerivedTypes" xml:space="preserve">
     <value>Resource-derived types</value>
   </data>
+  <data name="UseSafeAccessRule_Description" xml:space="preserve">
+    <value>Use the safe access (.?) operator instead of checking object contents with the 'contains' function.</value>
+  </data>
+  <data name="UseSafeAccessRule_CodeFix" xml:space="preserve">
+    <value>Use the safe access (.?) operator</value>
+  </data>
+  <data name="UseSafeAccessRule_MessageFormat" xml:space="preserve">
+    <value>The syntax can be simplified by using the safe access (.?) operator.</value>
+  </data>
 </root>

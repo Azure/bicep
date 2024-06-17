@@ -21,6 +21,18 @@ namespace Bicep.Core.Semantics
                 .Where(s => SemanticModelHelper.TryGetFunctionInNamespace(model, @namespace, s) is { });
         }
 
+        public static FunctionCallSyntaxBase? TryGetNamedFunction(SemanticModel model, string @namespace, string functionName, SyntaxBase syntax)
+        {
+            if (syntax is FunctionCallSyntaxBase functionCall &&
+                functionCall.NameEquals(functionName) &&
+                SemanticModelHelper.TryGetFunctionInNamespace(model, @namespace, functionCall) is { })
+            {
+                return functionCall;
+            }
+
+            return null;
+        }
+
         public static FunctionCallSyntaxBase? TryGetFunctionInNamespace(SemanticModel semanticModel, string @namespace, SyntaxBase syntax)
         {
             if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol function &&

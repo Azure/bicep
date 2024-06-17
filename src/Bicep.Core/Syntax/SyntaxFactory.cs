@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using System.ComponentModel;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 
@@ -64,6 +65,7 @@ namespace Bicep.Core.Syntax
             => CreateToken(TokenType.Comma, leadingTrivia, trailingTrivia);
         public static Token DotToken => CreateToken(TokenType.Dot);
         public static Token QuestionToken => CreateToken(TokenType.Question);
+        public static Token DoubleQuestionToken => CreateToken(TokenType.DoubleQuestion);
         public static Token ColonToken => CreateToken(TokenType.Colon);
         public static Token SemicolonToken => CreateToken(TokenType.Semicolon);
         public static Token AssignmentToken => CreateToken(TokenType.Assignment, EmptyTrivia, SingleSpaceTrivia);
@@ -356,7 +358,18 @@ namespace Bicep.Core.Syntax
         };
 
         public static PropertyAccessSyntax CreatePropertyAccess(SyntaxBase @base, string propertyName)
-            => new(@base, DotToken, null, CreateIdentifier(propertyName));
+            => CreatePropertyAccess(@base, false, propertyName);
+
+        public static PropertyAccessSyntax CreatePropertyAccess(SyntaxBase @base, bool safe, string propertyName)
+            => new(@base, DotToken, safe ? QuestionToken : null, CreateIdentifier(propertyName));
+
+        public static ArrayAccessSyntax CreateArrayAccess(SyntaxBase @base, bool safe, SyntaxBase accessExpression)
+            => new(@base, LeftSquareToken, safe ? QuestionToken : null, accessExpression, RightSquareToken);
+
+        public static SyntaxBase CreateSafeAccess(SyntaxBase @base, SyntaxBase accessExpression)
+            => (accessExpression is StringSyntax stringAccess && stringAccess.TryGetLiteralValue() is {} stringValue) ?
+                CreatePropertyAccess(@base, true, stringValue) :
+                CreateArrayAccess(@base, true, accessExpression);
 
         public static ParameterAssignmentSyntax CreateParameterAssignmentSyntax(string name, SyntaxBase value)
             => new(
@@ -364,5 +377,11 @@ namespace Bicep.Core.Syntax
                 CreateIdentifierWithTrailingSpace(name),
                 AssignmentToken,
                 value);
+
+        public static BinaryOperationSyntax CreateBinaryOperationSyntax(SyntaxBase left, TokenType operatorType, SyntaxBase right)
+            => new(
+                left,
+                CreateToken(operatorType, SingleSpaceTrivia, SingleSpaceTrivia),
+                right);
     }
 }
