@@ -14,6 +14,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
         builder.Services.AddSingleton<IFileSystem, MockFileSystem>();
         builder.Services.AddSingleton<IArtifactRegistryProvider, EmptyModuleRegistryProvider>();
         builder.Services.AddBicepCore();
