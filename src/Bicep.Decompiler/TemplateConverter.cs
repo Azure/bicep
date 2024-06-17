@@ -190,20 +190,15 @@ namespace Bicep.Decompiler
             {
                 JObject jObject => ParseJObject(jObject),
                 JArray jArray => ParseJArray(jArray),
-                JValue jValue => ParseJValue(jValue),
+                JValue jValue => ParseJValue(jValue, permitExpressions: true),
                 null => throw new ArgumentNullException(nameof(value)),
                 _ => throw new ConversionFailedException($"Unrecognized token type {value.Type}", value),
             };
 
         private SyntaxBase ParseJTokenExpression(JTokenExpression expression)
-            => expression.Value.Type switch
-            {
-                JTokenType.String => SyntaxFactory.CreateStringLiteral(expression.Value.Value<string>()!),
-                JTokenType.Integer => expression.Value.Value<long>() is long value && value >= 0 ? ParseIntegerJToken((JValue)value) : ParseIntegerJToken((JValue)(-value)),
-                JTokenType.Boolean => expression.Value.Value<bool>() ?
-                    new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
-                    new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),
-                JTokenType.Null => new NullLiteralSyntax(SyntaxFactory.NullKeywordToken),
+            => expression.Value switch {
+                // we don't want to parse expressions inside an expression - e.g. "[concat('[concat()]')]"
+                JValue value => ParseJValue(value, permitExpressions: false),
                 _ => throw new NotImplementedException($"Unrecognized expression {ExpressionsEngine.SerializeExpression(expression)}"),
             };
 
@@ -718,14 +713,17 @@ namespace Bicep.Decompiler
             return SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>());
         }
 
-        private SyntaxBase ParseJValue(JValue value)
+        private SyntaxBase ParseJValue(JValue value, bool permitExpressions)
             => value.Type switch
             {
-                JTokenType.String => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
-                JTokenType.Uri => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
+                JTokenType.String or 
+                JTokenType.Uri or 
+                JTokenType.Date => permitExpressions ? 
+                    ParseString(value.ToString(CultureInfo.InvariantCulture), value) : 
+                    SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture)),
+                JTokenType.Float => SyntaxFactory.CreateFunctionCall("json",
+                    SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture))),
                 JTokenType.Integer => ParseIntegerJToken(value),
-                JTokenType.Date => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
-                JTokenType.Float => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
                 JTokenType.Boolean => value.Value<bool>() ?
                     new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
                     new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),
