@@ -2174,7 +2174,7 @@ namespace Bicep.LanguageServer.Completions
             };
 
         private static bool IsPropertyNameEscapingRequired(TypeProperty property) =>
-            !Lexer.IsValidIdentifier(property.Name) || LanguageConstants.Keywords.ContainsKey(property.Name);
+            !Lexer.IsValidIdentifier(property.Name) || LanguageConstants.NonContextualKeywords.ContainsKey(property.Name);
 
         private static string FormatPropertyDetail(TypeProperty property) =>
             TypeHelper.IsRequired(property)

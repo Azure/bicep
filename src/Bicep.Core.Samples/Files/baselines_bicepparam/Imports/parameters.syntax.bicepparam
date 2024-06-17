@@ -11,7 +11,7 @@ import * as bicepconfig from 'bicepconfig.bicep'
 //@[007:023) | ├─WildcardImportSyntax
 //@[007:008) | | ├─Token(Asterisk) |*|
 //@[009:023) | | └─AliasAsClauseSyntax
-//@[009:011) | |   ├─Token(AsKeyword) |as|
+//@[009:011) | |   ├─Token(Identifier) |as|
 //@[012:023) | |   └─IdentifierSyntax
 //@[012:023) | |     └─Token(Identifier) |bicepconfig|
 //@[024:048) | └─CompileTimeImportFromClauseSyntax

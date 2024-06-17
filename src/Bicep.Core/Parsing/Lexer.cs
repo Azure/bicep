@@ -820,7 +820,7 @@ namespace Bicep.Core.Parsing
         {
             var identifier = textWindow.GetText().ToString();
 
-            if (LanguageConstants.Keywords.TryGetValue(identifier, out var tokenType))
+            if (LanguageConstants.NonContextualKeywords.TryGetValue(identifier, out var tokenType))
             {
                 return tokenType;
             }
