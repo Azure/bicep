@@ -8,7 +8,7 @@ namespace Bicep.Core.Syntax
     {
         public NoneLiteralSyntax(Token noneKeyword)
         {
-            AssertTokenType(noneKeyword, nameof(noneKeyword), TokenType.NoneKeyword);
+            AssertKeyword(noneKeyword, nameof(noneKeyword), LanguageConstants.NoneKeyword);
 
             this.NoneKeyword = noneKeyword;
         }

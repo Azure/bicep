@@ -78,16 +78,7 @@ namespace Bicep.Core.Parsing
 
             SyntaxBase expression = reader.Peek().Type switch
             {
-                TokenType.NoneKeyword => WithRecovery(
-                    () => new NoneLiteralSyntax(
-                        Expect(
-                            TokenType.NoneKeyword,
-                            e => e.ExpectedKeyword(LanguageConstants.NoneKeyword)
-                        )
-                    ),
-                    GetSuppressionFlag(keyword),
-                    TokenType.NewLine
-                ),
+                TokenType.Identifier => new NoneLiteralSyntax(ExpectKeyword(LanguageConstants.NoneKeyword)),
                 TokenType.StringComplete => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
                 _ => Skip(reader.Read(), b => b.ExpectedSymbolListOrWildcard()),
             };
