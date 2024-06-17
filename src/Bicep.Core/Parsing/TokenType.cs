@@ -44,7 +44,6 @@ namespace Bicep.Core.Parsing
         TrueKeyword,
         FalseKeyword,
         NullKeyword,
-        NoneKeyword,
         NewLine,
         EndOfFile,
         DoubleQuestion,

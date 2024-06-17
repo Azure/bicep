@@ -135,7 +135,6 @@ namespace Bicep.Core
             [TrueKeyword] = TokenType.TrueKeyword,
             [FalseKeyword] = TokenType.FalseKeyword,
             [NullKeyword] = TokenType.NullKeyword,
-            [NoneKeyword] = TokenType.NoneKeyword,
             [WithKeyword] = TokenType.WithKeyword,
             [AsKeyword] = TokenType.AsKeyword,
         }.ToImmutableDictionary();

@@ -56,7 +56,6 @@ namespace Bicep.Core.Syntax
             TokenType.TrueKeyword => "true",
             TokenType.FalseKeyword => "false",
             TokenType.NullKeyword => "null",
-            TokenType.NoneKeyword => "none",
             TokenType.EndOfFile => "",
             TokenType.DoubleQuestion => "??",
             TokenType.DoubleColon => "::",
