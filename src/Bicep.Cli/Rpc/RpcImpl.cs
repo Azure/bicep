@@ -49,9 +49,12 @@ public class RpcImpl : Bicep.Rpc.RpcBase
         var success = result.Status == EmitStatus.Succeeded;
 
         Bicep.CompileResponse response = new() {
-            Success = success,
-            Contents = success ? writer.ToString() : string.Empty,            
+            Success = success,       
         };
+
+        if (success) {
+            response.Contents = writer.ToString();
+        }
 
         response.Diagnostics.AddRange(GetDiagnostics(model.Compilation));
 
@@ -76,9 +79,15 @@ public class RpcImpl : Bicep.Rpc.RpcBase
         Bicep.CompileParamsResponse response = new() {
             Success = paramsResult.Success,
             Parameters = paramsResult.Parameters,
-            Template = paramsResult.Template?.Template ?? string.Empty,
-            TemplateSpecId = paramsResult.TemplateSpecId ?? string.Empty,
         };
+
+        if (paramsResult.Template?.Template is {} template) {
+            response.Template = template;
+        }
+
+        if (paramsResult.TemplateSpecId is {} templateSpecId) {
+            response.TemplateSpecId = templateSpecId;
+        }
 
         response.Diagnostics.AddRange(GetDiagnostics(compilation));
 
@@ -141,7 +150,6 @@ public class RpcImpl : Bicep.Rpc.RpcBase
                     Name = symbol.Name,
                     Type = resourceType,
                     IsExisting = isExisting,
-                    RelativePath = string.Empty,
                 };
             }
             if (symbol is ModuleSymbol moduleSymbol)

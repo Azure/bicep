@@ -84,30 +84,6 @@
           "System.Text.Encoding.Extensions": "4.3.0"
         }
       },
-<<<<<<< HEAD
-      "StreamJsonRpc": {
-        "type": "Direct",
-        "requested": "[2.18.48, )",
-        "resolved": "2.18.48",
-        "contentHash": "IW6zhdIM2R8SkFmjraj02HlOuLMOyZWGvbAo3rgzbuQPlhMpB9BMqaJVtZHJGwPnAnk3ZWvE3q45aEhtPmLEuw==",
-        "dependencies": {
-          "MessagePack": "2.5.108",
-          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
-          "Microsoft.VisualStudio.Threading": "17.9.28",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.9.28",
-          "Microsoft.VisualStudio.Validation": "17.8.8",
-          "Nerdbank.Streams": "2.10.69",
-          "Newtonsoft.Json": "13.0.1",
-          "System.Collections.Immutable": "7.0.0",
-          "System.Diagnostics.DiagnosticSource": "8.0.0",
-          "System.IO.Pipelines": "7.0.0",
-          "System.Text.Encodings.Web": "7.0.0",
-          "System.Text.Json": "7.0.3",
-          "System.Threading.Tasks.Dataflow": "7.0.0"
-        }
-      },
-=======
->>>>>>> a5446f1ec (Convert JSONRPC -> gRPC)
       "Azure.Bicep.Types": {
         "type": "Transitive",
         "resolved": "0.5.9",
@@ -385,13 +361,8 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-<<<<<<< HEAD
-        "resolved": "8.0.0",
-        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
-=======
         "resolved": "5.0.0",
         "contentHash": "W8DPQjkMScOMTtJbPwmPyj9c3zYSFGawDW3jwlBOOsnY+EzZFLgNQ/UMkK35JmkNOVPdCyPr2Tw7Vv9N+KA3ZQ=="
->>>>>>> a5446f1ec (Convert JSONRPC -> gRPC)
       },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
@@ -579,26 +550,6 @@
         "resolved": "8.0.0",
         "contentHash": "dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw=="
       },
-<<<<<<< HEAD
-      "Microsoft.VisualStudio.Threading": {
-        "type": "Transitive",
-        "resolved": "17.9.28",
-        "contentHash": "n1bG965yT/7QHChX4x8zJ28LDaNdlJ6AgzthU3XzCsV9fVAMXYJEFi6BbWt8EM+7t0Wz9Oy021VMH2Z/iyz/Qw==",
-        "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "7.0.0",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.9.28",
-          "Microsoft.VisualStudio.Validation": "17.8.8",
-          "Microsoft.Win32.Registry": "5.0.0",
-          "System.Threading.Tasks.Extensions": "4.5.4"
-        }
-      },
-      "Microsoft.VisualStudio.Validation": {
-        "type": "Transitive",
-        "resolved": "17.8.8",
-        "contentHash": "rWXThIpyQd4YIXghNkiv2+VLvzS+MCMKVRDR0GAMlflsdo+YcAN2g2r5U1Ah98OFjQMRexTFtXQQ2LkajxZi3g=="
-      },
-=======
->>>>>>> a5446f1ec (Convert JSONRPC -> gRPC)
       "Microsoft.Win32.Registry": {
         "type": "Transitive",
         "resolved": "4.7.0",
@@ -847,16 +798,11 @@
       },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",
-<<<<<<< HEAD
-        "resolved": "8.0.0",
-        "contentHash": "c9xLpVz6PL9lp/djOWtk5KPDZq3cSYpmXoJQY524EOtuFl5z9ZtsotpsyrDW40U1DRnQSYvcPKEUV0X//u6gkQ=="
-=======
         "resolved": "6.0.1",
         "contentHash": "KiLYDu2k2J82Q9BJpWiuQqCkFjRBWVq4jDzKKWawVi9KWzyD0XG3cmfX0vqTQlL14Wi9EufJrbL0+KCLTbqWiQ==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
->>>>>>> a5446f1ec (Convert JSONRPC -> gRPC)
       },
       "System.Diagnostics.EventLog": {
         "type": "Transitive",

@@ -393,8 +393,8 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
+        "resolved": "7.0.0",
+        "contentHash": "3aeMZ1N0lJoSyzqiP03hqemtb1BijhsJADdobn/4nsMJ8V1H+CrpuduUe4hlRdx+ikBQju1VGjMD1GJ3Sk05Eg=="
       },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
@@ -701,29 +701,20 @@
       },
       "Microsoft.VisualStudio.Threading": {
         "type": "Transitive",
-<<<<<<< HEAD
-        "resolved": "17.9.28",
-        "contentHash": "n1bG965yT/7QHChX4x8zJ28LDaNdlJ6AgzthU3XzCsV9fVAMXYJEFi6BbWt8EM+7t0Wz9Oy021VMH2Z/iyz/Qw==",
-        "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "7.0.0",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.9.28",
-          "Microsoft.VisualStudio.Validation": "17.8.8",
-=======
         "resolved": "17.6.40",
         "contentHash": "hLa/0xargG7p3bF7aeq2/lRYn/bVnfZXurUWVHx+MNqxxAUjIDMKi4OIOWbYQ/DTkbn9gv8TLvgso+6EtHVQQg==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "7.0.0",
           "Microsoft.VisualStudio.Threading.Analyzers": "17.6.40",
           "Microsoft.VisualStudio.Validation": "17.0.71",
->>>>>>> a5446f1ec (Convert JSONRPC -> gRPC)
           "Microsoft.Win32.Registry": "5.0.0",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
       "Microsoft.VisualStudio.Validation": {
         "type": "Transitive",
-        "resolved": "17.8.8",
-        "contentHash": "rWXThIpyQd4YIXghNkiv2+VLvzS+MCMKVRDR0GAMlflsdo+YcAN2g2r5U1Ah98OFjQMRexTFtXQQ2LkajxZi3g=="
+        "resolved": "17.6.11",
+        "contentHash": "J+9L/iac6c8cwcgVSCMuoIYOlD1Jw4mbZ8XMe1IZVj8p8+3dJ46LnnkIkTRMjK7xs9UtU9MoUp1JGhWoN6fAEw=="
       },
       "Microsoft.Win32.Registry": {
         "type": "Transitive",
@@ -977,29 +968,6 @@
           "System.Text.RegularExpressions": "4.3.1"
         }
       },
-<<<<<<< HEAD
-      "StreamJsonRpc": {
-        "type": "Transitive",
-        "resolved": "2.18.48",
-        "contentHash": "IW6zhdIM2R8SkFmjraj02HlOuLMOyZWGvbAo3rgzbuQPlhMpB9BMqaJVtZHJGwPnAnk3ZWvE3q45aEhtPmLEuw==",
-        "dependencies": {
-          "MessagePack": "2.5.108",
-          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
-          "Microsoft.VisualStudio.Threading": "17.9.28",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.9.28",
-          "Microsoft.VisualStudio.Validation": "17.8.8",
-          "Nerdbank.Streams": "2.10.69",
-          "Newtonsoft.Json": "13.0.1",
-          "System.Collections.Immutable": "7.0.0",
-          "System.Diagnostics.DiagnosticSource": "8.0.0",
-          "System.IO.Pipelines": "7.0.0",
-          "System.Text.Encodings.Web": "7.0.0",
-          "System.Text.Json": "7.0.3",
-          "System.Threading.Tasks.Dataflow": "7.0.0"
-        }
-      },
-=======
->>>>>>> a5446f1ec (Convert JSONRPC -> gRPC)
       "System.ClientModel": {
         "type": "Transitive",
         "resolved": "1.0.0",
@@ -1633,12 +1601,7 @@
           "Azure.Bicep.Local.Deploy": "[1.0.0, )",
           "Grpc.AspNetCore.Server": "[2.63.0, )",
           "Microsoft.Extensions.Logging": "[8.0.0, )",
-<<<<<<< HEAD
-          "Sarif.Sdk": "[4.5.4, )",
-          "StreamJsonRpc": "[2.18.48, )"
-=======
           "Sarif.Sdk": "[4.5.4, )"
->>>>>>> a5446f1ec (Convert JSONRPC -> gRPC)
         }
       },
       "bicep.cli.unittests": {
