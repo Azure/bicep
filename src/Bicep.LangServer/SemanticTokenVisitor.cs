@@ -4,6 +4,7 @@ using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -144,6 +145,13 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.Dot, SemanticTokenType.Operator);
             AddTokenType(syntax.PropertyName, SemanticTokenType.Property);
             base.VisitPropertyAccessSyntax(syntax);
+        }
+
+        public override void VisitTypePropertyAccessSyntax(TypePropertyAccessSyntax syntax)
+        {
+            AddTokenType(syntax.Dot, SemanticTokenType.Operator);
+            AddTokenType(syntax.PropertyName, GetSemanticTokenForPotentialTypeSymbol(model.GetSymbolInfo(syntax)));
+            base.VisitTypePropertyAccessSyntax(syntax);
         }
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
@@ -294,14 +302,14 @@ namespace Bicep.LanguageServer
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            AddTokenType(syntax.Name, model.GetSymbolInfo(syntax) switch
-            {
-                TypeAliasSymbol or
-                AmbientTypeSymbol or
-                ImportedTypeSymbol => SemanticTokenType.Type,
-                _ => SemanticTokenType.Variable,
-            });
+            AddTokenType(syntax.Name, GetSemanticTokenForPotentialTypeSymbol(model.GetSymbolInfo(syntax)));
             base.VisitVariableAccessSyntax(syntax);
+        }
+
+        public override void VisitTypeVariableAccessSyntax(TypeVariableAccessSyntax syntax)
+        {
+            AddTokenType(syntax.Name, GetSemanticTokenForPotentialTypeSymbol(model.GetSymbolInfo(syntax)));
+            base.VisitTypeVariableAccessSyntax(syntax);
         }
 
         public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax)
@@ -409,5 +417,17 @@ namespace Bicep.LanguageServer
             Visit(syntax.Colon);
             Visit(syntax.Value);
         }
+
+        private static SemanticTokenType GetSemanticTokenForPotentialTypeSymbol(Symbol? symbol) =>
+            symbol switch
+            {
+                PropertySymbol property => GetSemanticTokenForPotentialTypeSymbol(property.Type),
+                TypeSymbol or
+                TypeAliasSymbol or
+                AmbientTypeSymbol or
+                ImportedTypeSymbol => SemanticTokenType.Type,
+                INamespaceSymbol => SemanticTokenType.Namespace,
+                _ => SemanticTokenType.Variable,
+            };
     }
 }
