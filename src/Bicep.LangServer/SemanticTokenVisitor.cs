@@ -73,6 +73,12 @@ namespace Bicep.LanguageServer
             base.VisitBooleanLiteralSyntax(syntax);
         }
 
+        public override void VisitBooleanTypeLiteralSyntax(BooleanTypeLiteralSyntax syntax)
+        {
+            AddTokenType(syntax.Literal, SemanticTokenType.Keyword);
+            base.VisitBooleanTypeLiteralSyntax(syntax);
+        }
+
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
             // We need to set token types for OpenParen and CloseParen in case the function call
@@ -97,6 +103,12 @@ namespace Bicep.LanguageServer
         {
             AddTokenType(syntax.NullKeyword, SemanticTokenType.Keyword);
             base.VisitNullLiteralSyntax(syntax);
+        }
+
+        public override void VisitNullTypeLiteralSyntax(NullTypeLiteralSyntax syntax)
+        {
+            AddTokenType(syntax.NullKeyword, SemanticTokenType.Keyword);
+            base.VisitNullTypeLiteralSyntax(syntax);
         }
 
         public override void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
@@ -349,7 +361,7 @@ namespace Bicep.LanguageServer
         public override void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-            AddTokenType(syntax.Alias, SemanticTokenType.Variable);
+            AddTokenType(syntax.Alias, SemanticTokenType.Namespace);
         }
 
         public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
