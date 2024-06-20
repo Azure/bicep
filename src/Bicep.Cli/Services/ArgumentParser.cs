@@ -39,7 +39,7 @@ namespace Bicep.Cli.Services
                 Constants.Command.Publish => new PublishArguments(args[1..], io),
                 Constants.Command.Restore => new RestoreArguments(args[1..]),
                 Constants.Command.Lint => new LintArguments(args[1..]),
-                Constants.Command.JsonRpc => new JsonRpcArguments(args[1..]),
+                Constants.Command.Grpc => new GrpcArguments(args[1..]),
                 Constants.Command.LocalDeploy => new LocalDeployArguments(args[1..]),
                 _ => null,
             };

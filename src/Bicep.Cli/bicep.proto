@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+package bicep;
+
+service Rpc {
+  rpc Version (VersionRequest) returns (VersionResponse);
+  rpc Compile (CompileRequest) returns (CompileResponse);
+  rpc CompileParams (CompileParamsRequest) returns (CompileParamsResponse);
+  rpc GetMetadata (GetMetadataRequest) returns (GetMetadataResponse);
+  rpc GetDeploymentGraph (GetDeploymentGraphRequest) returns (GetDeploymentGraphResponse);
+  rpc GetFileReferences (GetFileReferencesRequest) returns (GetFileReferencesResponse);
+}
+
+message Position {
+  int32 line = 1;
+  int32 char = 2;
+}
+
+message Range {
+  Position start = 1;
+  Position end = 2;
+}
+
+message VersionRequest {}
+
+message VersionResponse {
+  string version = 1;
+}
+
+message CompileRequest {
+  string path = 1;
+}
+
+message CompileResponse {
+  bool success = 1;
+  repeated Diagnostic diagnostics = 2;
+  optional string contents = 3;
+}
+
+message CompileParamsRequest {
+  string path = 1;
+  map<string, string> parameterOverrides = 2;
+}
+
+message CompileParamsResponse {
+  bool success = 1;
+  repeated Diagnostic diagnostics = 2;
+  optional string parameters = 3;
+  optional string template = 4;
+  optional string templateSpecId = 5;
+}
+
+message Diagnostic {
+  string source = 1;
+  Range range = 2;
+  string level = 3;
+  string code = 4;
+  string message = 5;
+}
+
+message GetFileReferencesRequest {
+  string path = 1;
+}
+
+message GetFileReferencesResponse {
+  repeated string filePaths = 1;
+}
+
+message GetMetadataRequest {
+  string path = 1;
+}
+
+message GetMetadataResponse {
+  repeated MetadataDefinition metadata = 1;
+  repeated SymbolDefinition parameters = 2;
+  repeated SymbolDefinition outputs = 3;
+  repeated ExportDefinition exports = 4;
+
+  message SymbolDefinition {
+    Range range = 1;
+    string name = 2;
+    optional TypeDefinition type = 3;
+    optional string description = 4;
+  }
+
+  message ExportDefinition {
+    Range range = 1;
+    string name = 2;
+    string kind = 3;
+    optional string description = 4;
+  }
+
+  message TypeDefinition {
+    optional Range range = 1;
+    string name = 2;
+  }
+
+  message MetadataDefinition {
+    string name = 1;
+    string value = 2;
+  }
+}
+
+message GetDeploymentGraphRequest {
+  string path = 1;
+}
+
+message GetDeploymentGraphResponse {
+  repeated Node nodes = 1;
+  repeated Edge edges = 2;
+
+  message Node {
+    Range range = 1;
+    string name = 2;
+    string type = 3;
+    bool isExisting = 4;
+    optional string relativePath = 5;
+  }
+
+  message Edge {
+    string source = 1;
+    string target = 2;
+  }
+}

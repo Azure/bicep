@@ -52,7 +52,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<PublishProviderCommand>()
             .AddSingleton<RestoreCommand>()
             .AddSingleton<LintCommand>()
-            .AddSingleton<JsonRpcCommand>()
+            .AddSingleton<GrpcCommand>()
             .AddSingleton<LocalDeployCommand>()
             .AddSingleton<RootCommand>();
 
