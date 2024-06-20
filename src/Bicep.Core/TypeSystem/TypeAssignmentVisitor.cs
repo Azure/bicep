@@ -880,9 +880,10 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                if (syntax.Keyword.Text.Equals(LanguageConstants.ImportKeyword))
+                if (syntax.Keyword.IsKeyword(LanguageConstants.ImportKeyword) ||
+                    syntax.Keyword.IsKeyword(LanguageConstants.ProviderKeyword))
                 {
-                    diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated(syntax));
+                    diagnostics.Write(syntax.Keyword, x => x.ExtensionDeclarationKeywordIsDeprecated(syntax));
                 }
 
                 if (namespaceSymbol.DeclaredType is not NamespaceType namespaceType)

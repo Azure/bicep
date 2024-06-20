@@ -177,7 +177,7 @@ output id string = p.id
         public void Parameter_cannot_use_extensibility_resource_type()
         {
             var result = CompilationHelper.Compile(ServicesWithExtensibility, """
-            provider bar with {
+            extension bar with {
             connectionString: 'asdf'
             } as stg
 
