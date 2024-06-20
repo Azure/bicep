@@ -250,7 +250,7 @@ namespace Bicep.Core.Semantics
 
             if (usingDeclaration.Path is NoneLiteralSyntax)
             {
-                return new(new InMemoryFileSemanticModel(string.Empty));
+                return new(new EmptySemanticModel());
             }
 
             return SemanticModelHelper.TryGetTemplateModelForArtifactReference(

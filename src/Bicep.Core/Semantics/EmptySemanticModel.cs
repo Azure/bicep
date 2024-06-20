@@ -12,9 +12,9 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
-    public class InMemoryFileSemanticModel : ISemanticModel
+    public class EmptySemanticModel : ISemanticModel
     {
-        public InMemoryFileSemanticModel(string content)
+        public EmptySemanticModel()
         {
             this.SourceFile = new BicepParamFile(
                 new Uri("in-memory-file://"),
