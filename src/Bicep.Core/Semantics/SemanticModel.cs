@@ -508,8 +508,15 @@ namespace Bicep.Core.Semantics
 
         private IEnumerable<IDiagnostic> GatherParameterMismatchDiagnostics(ISemanticModel usingModel)
         {
+            // emit diagnostic only if there is a using statement
+            var usingDeclarationSyntax = this.Root.UsingDeclarationSyntax;
+
+            if (usingDeclarationSyntax is not null && usingDeclarationSyntax.Path is NoneLiteralSyntax)
+            {
+                yield break;
+            }
+
             // parameters that are assigned but not declared
-            // var missingAssignedParams = new List<ParameterAssignmentSyntax>();
             var missingAssignedParams = Root.ParameterAssignments.Where(s => TryGetParameterMetadata(s) is null);
 
             // parameters that are declared but not assigned
@@ -528,14 +535,6 @@ namespace Bicep.Core.Semantics
                 })
                 .Select(kvp => kvp.Key)
                 .ToImmutableArray();
-
-            // emit diagnostic only if there is a using statement
-            var usingDeclarationSyntax = this.Root.UsingDeclarationSyntax;
-
-            if (usingDeclarationSyntax is not null && usingDeclarationSyntax.Path is NoneLiteralSyntax)
-            {
-                yield break;
-            }
 
             if (usingDeclarationSyntax is not null && missingRequiredParams.Any())
             {
