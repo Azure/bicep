@@ -71,7 +71,12 @@ namespace Bicep.Core.Semantics
             // when we inevitably add a third language ID,
             // the inclusion list style below will prevent the new language ID from being
             // automatically allowed to be referenced via module declarations
-            if ((reference is ExtendsDeclarationSyntax && sourceFile is not BicepParamFile) || (reference is not ExtendsDeclarationSyntax && sourceFile is not (BicepFile or ArmTemplateFile or TemplateSpecFile)))
+            var isValidReference = (reference, sourceFile) switch {
+                (ExtendsDeclarationSyntax, BicepParamFile) => true,
+                (_, BicepFile or ArmTemplateFile or TemplateSpecFile) => true,
+                _ => false,
+            };
+            if (!isValidReference)
             {
                 return new(onInvalidSourceFileType(DiagnosticBuilder.ForPosition(reference.SourceSyntax)));
             }
