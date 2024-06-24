@@ -94,11 +94,6 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(keyword),
                 TokenType.NewLine);
 
-            if (path is StringSyntax pathSyntax && pathSyntax.SegmentValues[0] == string.Empty)
-            {
-                throw new ExpectedTokenException(reader.Peek(), b => b.ExtendsPathHasNotBeenSpecified());
-            }
-
             return new ExtendsDeclarationSyntax(keyword, path);
         }
 
