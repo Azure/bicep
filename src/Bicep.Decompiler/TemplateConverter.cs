@@ -196,7 +196,8 @@ namespace Bicep.Decompiler
             };
 
         private SyntaxBase ParseJTokenExpression(JTokenExpression expression)
-            => expression.Value switch {
+            => expression.Value switch
+            {
                 // we don't want to parse expressions inside an expression - e.g. "[concat('[concat()]')]"
                 JValue value => ParseJValue(value, permitExpressions: false),
                 _ => throw new NotImplementedException($"Unrecognized expression {ExpressionsEngine.SerializeExpression(expression)}"),
@@ -716,10 +717,10 @@ namespace Bicep.Decompiler
         private SyntaxBase ParseJValue(JValue value, bool permitExpressions)
             => value.Type switch
             {
-                JTokenType.String or 
-                JTokenType.Uri or 
-                JTokenType.Date => permitExpressions ? 
-                    ParseString(value.ToString(CultureInfo.InvariantCulture), value) : 
+                JTokenType.String or
+                JTokenType.Uri or
+                JTokenType.Date => permitExpressions ?
+                    ParseString(value.ToString(CultureInfo.InvariantCulture), value) :
                     SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture)),
                 JTokenType.Float => SyntaxFactory.CreateFunctionCall("json",
                     SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture))),
