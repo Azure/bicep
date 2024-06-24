@@ -64,7 +64,8 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
                             LanguageConstants.TestKeyword => this.TestDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
-                            LanguageConstants.ProviderKeyword => this.ProviderImportDeclaration(ExpectKeyword(LanguageConstants.ProviderKeyword), leadingNodes),
+                            LanguageConstants.ProviderKeyword or
+                            LanguageConstants.ExtensionKeyword => this.ExtensionDeclaration(ExpectKeyword(current.Text), leadingNodes),
                             LanguageConstants.AssertKeyword => this.AssertDeclaration(leadingNodes),
                             _ => leadingNodes.Length > 0
                                 ? new MissingDeclarationSyntax(leadingNodes)
@@ -275,12 +276,12 @@ namespace Bicep.Core.Parsing
             return reader.Peek().Type switch
             {
                 TokenType.StringLeftPiece or
-                TokenType.StringComplete => ProviderImportDeclaration(keyword, leadingNodes),
+                TokenType.StringComplete => ExtensionDeclaration(keyword, leadingNodes),
                 _ => CompileTimeImportDeclaration(keyword, leadingNodes),
             };
         }
 
-        private ProviderDeclarationSyntax ProviderImportDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
+        private ProviderDeclarationSyntax ExtensionDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
         {
             var providerSpecificationSyntax = reader.Peek().Type switch
             {
@@ -299,7 +300,7 @@ namespace Bicep.Core.Parsing
                 TokenType.NewLine => this.SkipEmpty(),
                 TokenType.Identifier when current.Text == LanguageConstants.AsKeyword => this.SkipEmpty(),
 
-                _ => this.WithRecovery(() => this.ProviderWithClause(), GetSuppressionFlag(providerSpecificationSyntax), TokenType.NewLine),
+                _ => this.WithRecovery(() => this.ExtensionWithClause(), GetSuppressionFlag(providerSpecificationSyntax), TokenType.NewLine),
             };
 
             current = this.reader.Peek();
@@ -308,13 +309,13 @@ namespace Bicep.Core.Parsing
                 TokenType.EndOfFile or
                 TokenType.NewLine => this.SkipEmpty(),
 
-                _ => this.WithRecovery(() => this.ProviderAsClause(), GetSuppressionFlag(withClause), TokenType.NewLine),
+                _ => this.WithRecovery(() => this.ExtensionAsClause(), GetSuppressionFlag(withClause), TokenType.NewLine),
             };
 
             return new(leadingNodes, keyword, providerSpecificationSyntax, withClause, asClause);
         }
 
-        private ProviderWithClauseSyntax ProviderWithClause()
+        private ProviderWithClauseSyntax ExtensionWithClause()
         {
             var keyword = this.ExpectKeyword(LanguageConstants.WithKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
             var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
@@ -322,7 +323,7 @@ namespace Bicep.Core.Parsing
             return new(keyword, config);
         }
 
-        private AliasAsClauseSyntax ProviderAsClause()
+        private AliasAsClauseSyntax ExtensionAsClause()
         {
             var keyword = this.ExpectKeyword(LanguageConstants.AsKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
             var modifier = this.IdentifierWithRecovery(b => b.ExpectedProviderAliasName(), RecoveryFlags.None, TokenType.NewLine);

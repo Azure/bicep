@@ -40,7 +40,7 @@ public class ProvidersConfigurationTests
         provider.Should().BeNull();
         errorBuilder!.Should().NotBeNull();
         errorBuilder!.Should().HaveCode("BCP204");
-        errorBuilder!.Should().HaveMessage($"Provider namespace \"unspecified\" is not recognized.");
+        errorBuilder!.Should().HaveMessage($"Extension \"unspecified\" is not recognized.");
     }
 
     [TestMethod]
@@ -98,6 +98,6 @@ public class ProvidersConfigurationTests
         provider.Should().BeNull();
         errorBuilder!.Should().NotBeNull();
         errorBuilder!.Should().HaveCode("BCP204");
-        errorBuilder!.Should().HaveMessage($"Provider namespace \"sys\" is not recognized.");
+        errorBuilder!.Should().HaveMessage($"Extension \"sys\" is not recognized.");
     }
 }

@@ -235,7 +235,7 @@ output out resource = resource
         {
             var result = CompilationHelper.Compile(ServicesWithExtensibility,
             """
-            provider bar with {
+            extension bar with {
                 connectionString: 'asdf'
             } as stg
 

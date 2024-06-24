@@ -64,7 +64,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
-            provider 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}'
+            extension 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}'
             "));
 
             result.Should().GenerateATemplate();
@@ -76,12 +76,12 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}' with {{}}
+            extension 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}' with {{}}
             ");
 
             result.Should().NotGenerateATemplate();
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
+                ("BCP205", DiagnosticLevel.Error, "Extension \"az\" does not support configuration."),
             });
         }
 
@@ -90,7 +90,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}' as testAlias
+            extension 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}' as testAlias
             ");
 
             result.Should().GenerateATemplate();
@@ -114,7 +114,7 @@ namespace Bicep.Core.IntegrationTests
             """));
 
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/customAlias:az:{BicepTestConstants.BuiltinAzProviderVersion}'
+            extension 'br/customAlias:az:{BicepTestConstants.BuiltinAzProviderVersion}'
             ");
 
             result.Should().GenerateATemplate();
@@ -128,7 +128,7 @@ namespace Bicep.Core.IntegrationTests
                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
 
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider 'br/notFound:az:0.2.661'
+            extension 'br/notFound:az:0.2.661'
             ");
 
             result.Should().NotGenerateATemplate();
@@ -160,7 +160,7 @@ namespace Bicep.Core.IntegrationTests
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider '{testArtifact.ToSpecificationString(':')}'
+            extension '{testArtifact.ToSpecificationString(':')}'
             ");
 
             // ASSERT
@@ -184,7 +184,7 @@ namespace Bicep.Core.IntegrationTests
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider '{testArtifactAddress.ToSpecificationString(':')}'
+            extension '{testArtifactAddress.ToSpecificationString(':')}'
             ");
 
             // ASSERT
@@ -226,7 +226,7 @@ namespace Bicep.Core.IntegrationTests
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider '{artifactRegistryAddress.ToSpecificationString(':')}'
+            extension '{artifactRegistryAddress.ToSpecificationString(':')}'
             ");
 
             // ASSERT
@@ -315,7 +315,7 @@ namespace Bicep.Core.IntegrationTests
             }
             """));
             var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
-            provider az
+            extension az
             "));
 
             result.Should().GenerateATemplate();
@@ -333,7 +333,7 @@ namespace Bicep.Core.IntegrationTests
             //   "implicitProviders": ["az"]
             // }
             var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
-            provider az
+            extension az
             "));
 
             result.Should().GenerateATemplate();
@@ -357,7 +357,7 @@ namespace Bicep.Core.IntegrationTests
             """));
             //ACT
             var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
-            provider az
+            extension az
             "));
             //ASSERT
             result.Should().GenerateATemplate();

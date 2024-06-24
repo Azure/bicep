@@ -103,7 +103,7 @@ public class PublishProviderCommandTests : TestBase
 
         var services = new ServiceBuilder().WithFileSystem(fs).WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true));
         var compileResult = await CompilationHelper.RestoreAndCompile(services, """
-provider '../../target/provider.tgz'
+extension '../../target/provider.tgz'
 
 resource fooRes 'fooType@v1' = {
   identifier: 'foo'

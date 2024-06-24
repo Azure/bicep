@@ -1,4 +1,4 @@
-provider microsoftGraph  as graph
+extension microsoftGraph  as graph
 
 param appRoleId string = 'bc76c90e-eb7f-4a29-943b-49e88762d09d'
 param scopeId string = 'f761933c-643b-424f-a169-f9313d23a913'

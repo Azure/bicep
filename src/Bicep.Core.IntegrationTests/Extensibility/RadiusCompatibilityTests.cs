@@ -43,7 +43,7 @@ public class RadiusCompatibilityTests
         var services = await GetServicesWithPrepublishedTypes();
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/test/radius:1.0.0'
+extension 'br:example.azurecr.io/test/radius:1.0.0'
 
 @description('The base name of the test, used to qualify resources and namespaces')
 param basename string
@@ -81,7 +81,7 @@ resource extender 'Applications.Core/extenders@2023-10-01-preview' = {
         var services = await GetServicesWithPrepublishedTypes();
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/test/radius:1.0.0'
+extension 'br:example.azurecr.io/test/radius:1.0.0'
 
 param bucketName string
 
