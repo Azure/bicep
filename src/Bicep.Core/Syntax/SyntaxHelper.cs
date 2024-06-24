@@ -40,11 +40,6 @@ namespace Bicep.Core.Syntax
                 return new(onUnspecifiedPath);
             }
 
-            if (foreignTemplateReference.Path is NoneLiteralSyntax)
-            {
-                return new(string.Empty);
-            }
-
             var pathSyntax = foreignTemplateReference.Path is StringSyntax syntax ? syntax : null;
 
             if (pathSyntax?.TryGetLiteralValue() is not string pathValue)
