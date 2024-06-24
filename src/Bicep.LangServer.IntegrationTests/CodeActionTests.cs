@@ -560,14 +560,14 @@ imp|ort 'br:example.azurecr.io/test/radius:1.0.0'
 extension 'br:example.azurecr.io/test/radius:1.0.0'
 ");
 
-//            (codeActions, bicepFile) = await RunSyntaxTest(@"
-//pro|vider 'br:example.azurecr.io/test/radius:1.0.0'
-//", server: server);
+            (codeActions, bicepFile) = await RunSyntaxTest(@"
+pro|vider 'br:example.azurecr.io/test/radius:1.0.0'
+", server: server);
 
-//            updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith("Replace the provider keyword with the extension keyword")));
-//            updatedFile.Should().HaveSourceText(@"
-//extension 'br:example.azurecr.io/test/radius:1.0.0'
-//");
+            updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith("Replace the provider keyword with the extension keyword")));
+            updatedFile.Should().HaveSourceText(@"
+extension 'br:example.azurecr.io/test/radius:1.0.0'
+");
         }
 
         [DataRow("var|")]
