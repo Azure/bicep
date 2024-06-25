@@ -383,7 +383,7 @@ output foo string = foo
             var clients = await MockRegistry.Build();
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
 
-            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
+            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath);
             result.Should().Succeed();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();

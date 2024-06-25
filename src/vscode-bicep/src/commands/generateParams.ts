@@ -45,7 +45,7 @@ export class GenerateParamsCommand implements Command {
 
       context.telemetry.properties.format = outputFormat;
       context.telemetry.properties.includeParams = includeParams;
-      
+
       const generateParamsOutput: string = await this.client.sendRequest(
         "workspace/executeCommand",
         {
