@@ -1475,6 +1475,7 @@
           "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
           "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
+          "Microsoft.Extensions.Http": "[8.0.0, )",
           "Microsoft.Graph.Bicep.Types": "[0.1.6-preview, )",
           "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2007, )",
           "Newtonsoft.Json": "[13.0.3, )",
