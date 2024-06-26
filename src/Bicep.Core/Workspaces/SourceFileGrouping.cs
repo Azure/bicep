@@ -81,6 +81,6 @@ public record SourceFileGrouping(
             }
         }
 
-        return knownFiles.ToImmutableHashSet();
+        return [.. knownFiles];
     }
 }

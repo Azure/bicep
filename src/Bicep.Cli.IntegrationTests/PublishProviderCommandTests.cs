@@ -39,7 +39,7 @@ public class PublishProviderCommandTests : TestBase
 
         List<string> requiredArgs = new() { "publish-provider", indexPath, "--target", $"br:{registryStr}/{repository}:{version}" };
 
-        string[] args = requiredArgs.ToArray();
+        string[] args = [.. requiredArgs];
 
         var result = await Bicep(settings, args);
         result.Should().Succeed().And.NotHaveStdout();
@@ -62,13 +62,13 @@ public class PublishProviderCommandTests : TestBase
         saBodyType.Properties.Keys.Should().Contain("name", "location", "properties", "sku", "tags");
 
         // publishing without --force should fail
-        result = await Bicep(settings, requiredArgs.ToArray());
+        result = await Bicep(settings, [.. requiredArgs]);
         result.Should().Fail().And.HaveStderrMatch("*The Provider \"*\" already exists. Use --force to overwrite the existing provider.*");
 
         // test with force
         requiredArgs.Add("--force");
 
-        var result2 = await Bicep(settings, requiredArgs.ToArray());
+        var result2 = await Bicep(settings, [.. requiredArgs]);
         result2.Should().Succeed().And.NotHaveStdout();
 
         // verify the provider was published
@@ -103,7 +103,7 @@ public class PublishProviderCommandTests : TestBase
 
         var services = new ServiceBuilder().WithFileSystem(fs).WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true));
         var compileResult = await CompilationHelper.RestoreAndCompile(services, """
-provider '../../target/provider.tgz'
+extension '../../target/provider.tgz'
 
 resource fooRes 'fooType@v1' = {
   identifier: 'foo'

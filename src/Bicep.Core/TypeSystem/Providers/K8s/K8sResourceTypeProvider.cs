@@ -12,16 +12,16 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
         public const string MetadataPropertyName = "metadata";
         public const string NamespaceProperty = "namespace";
 
-        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
+        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], LanguageConstants.String, TypePropertyFlags.None);
 
         private readonly K8sResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
-        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
-        {
+        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
+        [
             NamePropertyName,
-        }.ToImmutableHashSet();
+        ];
 
         public K8sResourceTypeProvider(K8sResourceTypeLoader resourceTypeLoader)
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
@@ -177,7 +177,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
                     ResourceScope.None,
                     ResourceFlags.None,
-                    new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any));
+                    new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [], LanguageConstants.Any));
 
                 return SetBicepResourceProperties(resourceType, flags);
             });

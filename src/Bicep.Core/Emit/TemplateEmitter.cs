@@ -124,7 +124,7 @@ public class TemplateEmitter
         var diagnostics = model switch
         {
             SemanticModel x => x.GetAllDiagnostics(),
-            _ => ImmutableArray<IDiagnostic>.Empty,
+            _ => [],
         };
 
         if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))

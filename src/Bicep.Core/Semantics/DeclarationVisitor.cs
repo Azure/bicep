@@ -295,18 +295,22 @@ namespace Bicep.Core.Semantics
                                         importedOriginalName,
                                         item,
                                         item.Name,
-                                        ImmutableArray.Create(DiagnosticBuilder.ForPosition(item.OriginalSymbolName).ImportedSymbolHasErrors(importedOriginalName, exportMetadata.Description ?? "unknown error"))),
+                                        [
+                                            DiagnosticBuilder.ForPosition(item.OriginalSymbolName).ImportedSymbolHasErrors(importedOriginalName, exportMetadata.Description ?? "unknown error"),
+                                        ]),
                                     _ => new ErroredImportSymbol(context,
                                         importedOriginalName,
                                         item,
                                         item.Name,
-                                        ImmutableArray.Create(DiagnosticBuilder.ForPosition(item.OriginalSymbolName).ImportedSymbolHasErrors(importedOriginalName, $"Unsupported export kind: {exportMetadata.Kind}"))),
+                                        [
+                                            DiagnosticBuilder.ForPosition(item.OriginalSymbolName).ImportedSymbolHasErrors(importedOriginalName, $"Unsupported export kind: {exportMetadata.Kind}"),
+                                        ]),
                                 },
                                 false => new ErroredImportSymbol(context,
                                     importedOriginalName,
                                     item,
                                     item.Name,
-                                    ImmutableArray.Create(DiagnosticBuilder.ForPosition(item.OriginalSymbolName).ImportedSymbolNotFound(importedOriginalName))),
+                                    [DiagnosticBuilder.ForPosition(item.OriginalSymbolName).ImportedSymbolNotFound(importedOriginalName)]),
                             });
                         }
                         break;
@@ -317,7 +321,7 @@ namespace Bicep.Core.Semantics
                 switch (syntax.ImportExpression)
                 {
                     case WildcardImportSyntax wildcardImport:
-                        DeclareSymbol(new ErroredImportSymbol(context, wildcardImport.Name.IdentifierName, wildcardImport, wildcardImport.Name, ImmutableArray.Create(modelLoadError)));
+                        DeclareSymbol(new ErroredImportSymbol(context, wildcardImport.Name.IdentifierName, wildcardImport, wildcardImport.Name, [modelLoadError]));
                         break;
                     case ImportedSymbolsListSyntax importedSymbolsList:
                         var loadErrorRecorded = false;
@@ -330,7 +334,7 @@ namespace Bicep.Core.Semantics
                             }
 
                             // only include the load error once per import statement
-                            var errors = loadErrorRecorded ? ImmutableArray<ErrorDiagnostic>.Empty : ImmutableArray.Create(modelLoadError);
+                            var errors = loadErrorRecorded ? [] : ImmutableArray.Create(modelLoadError);
                             DeclareSymbol(new ErroredImportSymbol(context, importedOriginalName, item, item.Name, errors));
                         }
                         break;

@@ -15,7 +15,7 @@ import {foo, fizz, pop, greet} from 'modules/mod.bicep'
 import * as mod2 from 'modules/mod2.bicep'
 //@[00:06) Identifier |import|
 //@[07:08) Asterisk |*|
-//@[09:11) AsKeyword |as|
+//@[09:11) Identifier |as|
 //@[12:16) Identifier |mod2|
 //@[17:21) Identifier |from|
 //@[22:42) StringComplete |'modules/mod2.bicep'|
@@ -26,7 +26,7 @@ import {
 //@[08:09) NewLine |\n|
   'not-a-valid-bicep-identifier' as withInvalidIdentifier
 //@[02:32) StringComplete |'not-a-valid-bicep-identifier'|
-//@[33:35) AsKeyword |as|
+//@[33:35) Identifier |as|
 //@[36:57) Identifier |withInvalidIdentifier|
 //@[57:58) NewLine |\n|
   refersToCopyVariable

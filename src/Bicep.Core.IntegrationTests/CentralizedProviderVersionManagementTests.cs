@@ -23,7 +23,7 @@ namespace Bicep.Core.IntegrationTests
         public void ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsBuiltIn(string providerIdentifier, bool shouldSucceed, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
         {
             var result = CompilationHelper.Compile(Services, @$"
-                provider {providerIdentifier}
+                extension {providerIdentifier}
             ");
 
             if (shouldSucceed)
@@ -55,7 +55,7 @@ namespace Bicep.Core.IntegrationTests
                     "kubernetes",
                     false,
                     new (string, DiagnosticLevel, string)[] {
-                     ("BCP206", DiagnosticLevel.Error, "Provider namespace \"kubernetes\" requires configuration, but none was provided.") } };
+                     ("BCP206", DiagnosticLevel.Error, "Extension \"kubernetes\" requires configuration, but none was provided.") } };
             }
         }
     }

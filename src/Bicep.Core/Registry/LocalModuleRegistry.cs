@@ -154,12 +154,12 @@ namespace Bicep.Core.Registry
             {
                 if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
                 {
-                    throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                    throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute provider extension \"{reference}\".");
                 }
 
                 if (entity.Provider.Binaries.SingleOrDefault(x => x.Architecture.Name == architecture.Name) is not { } binary)
                 {
-                    throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                    throw new InvalidOperationException($"The provider extension \"{reference}\" does not support architecture {architecture.Name}.");
                 }
 
                 var binaryUri = GetProviderBinUri(reference);

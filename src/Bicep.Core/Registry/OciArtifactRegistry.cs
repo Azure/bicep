@@ -407,17 +407,18 @@ namespace Bicep.Core.Registry
                     null;
 
                 // if the artifact supports local deployment, fetch the provider binary
-                if (config?.LocalDeployEnabled == true)
+                if (config?.LocalDeployEnabled == true &&
+                    config?.SupportedArchitectures is { } binaryArchitectures)
                 {
                     if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
                     {
-                        throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                        throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute provider extension \"{reference}\".");
                     }
 
-                    var layerName = BicepMediaTypes.GetProviderArtifactLayerV1Binary(architecture);
-                    if (result.TryGetSingleLayerByMediaType(layerName) is not { } sourceData)
+                    if (binaryArchitectures.Contains(architecture.Name) ||
+                        result.TryGetSingleLayerByMediaType(BicepMediaTypes.GetProviderArtifactLayerV1Binary(architecture)) is not { } sourceData)
                     {
-                        throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                        throw new InvalidOperationException($"The provider extension \"{reference}\" does not support architecture {architecture.Name}.");
                     }
 
                     using var binaryStream = sourceData.ToStream();

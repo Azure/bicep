@@ -1,4 +1,4 @@
-provider '$TARGET_REFERENCE'
+extension '$TARGET_REFERENCE'
 
 resource dadJoke 'request@v1' = {
   uri: 'https://icanhazdadjoke.com'

@@ -15,7 +15,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         private readonly PrettyPrinterV2Context context;
 
-        private IEnumerable<Document> current = Enumerable.Empty<Document>();
+        private IEnumerable<Document> current = [];
 
         public SyntaxLayouts(PrettyPrinterV2Context context)
         {

@@ -73,7 +73,7 @@ namespace Bicep.Core.Analyzers.Linter
         {
             if (GetDiagnosticLevel(model) == DiagnosticLevel.Off)
             {
-                return Enumerable.Empty<IDiagnostic>();
+                return [];
             }
 
             return AnalyzeInternal(model, GetDiagnosticLevel(model));
@@ -143,7 +143,7 @@ namespace Bicep.Core.Analyzers.Linter
                 styling: this.DiagnosticStyling);
 
         protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix fix, params object[] values) =>
-            CreateFixableDiagnosticForSpan(level, span, new[] { fix }, values);
+            CreateFixableDiagnosticForSpan(level, span, [fix], values);
 
         protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix[] fixes, params object[] values) =>
             new(analyzerName: this.AnalyzerName,

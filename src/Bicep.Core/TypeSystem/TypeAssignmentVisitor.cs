@@ -880,9 +880,10 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                if (syntax.Keyword.Text.Equals(LanguageConstants.ImportKeyword))
+                if (syntax.Keyword.IsKeyword(LanguageConstants.ImportKeyword) ||
+                    syntax.Keyword.IsKeyword(LanguageConstants.ProviderKeyword))
                 {
-                    diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated(syntax));
+                    diagnostics.Write(syntax.Keyword, x => x.ExtensionDeclarationKeywordIsDeprecated(syntax));
                 }
 
                 if (namespaceSymbol.DeclaredType is not NamespaceType namespaceType)
@@ -1231,7 +1232,7 @@ namespace Bicep.Core.TypeSystem
             => AssignType(syntax, () =>
             {
                 // error should have already been raised by the ParseDiagnosticsVisitor - no need to add another
-                return ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>());
+                return ErrorType.Create([]);
             });
 
         public override void VisitObjectSyntax(ObjectSyntax syntax)
@@ -1450,7 +1451,7 @@ namespace Bicep.Core.TypeSystem
                     return new TypedArrayType(itemType, TypeSymbolValidationFlags.Default);
                 }
 
-                return new TupleType(tupleEntries.ToImmutableArray<ITypeReference>(), TypeSymbolValidationFlags.Default);
+                return new TupleType([.. tupleEntries], TypeSymbolValidationFlags.Default);
             });
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
@@ -1940,7 +1941,7 @@ namespace Bicep.Core.TypeSystem
                 var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
                 var returnType = this.GetTypeInfo(syntax.Body);
 
-                return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), ImmutableArray<ITypeReference>.Empty, returnType);
+                return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), [], returnType);
             });
 
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
@@ -2368,7 +2369,7 @@ namespace Bicep.Core.TypeSystem
             if (assignedType is ErrorType)
             {
                 // no point in checking that the value is assignable to the declared output type if no valid declared type could be discerned
-                return Enumerable.Empty<IDiagnostic>();
+                return [];
             }
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -2448,7 +2449,7 @@ namespace Bicep.Core.TypeSystem
                     : builder.ValueTypeMismatch(LanguageConstants.Bool).AsEnumerable();
             }
 
-            return Enumerable.Empty<IDiagnostic>();
+            return [];
         }
 
         public static TypeSymbol UnwrapType(TypeSymbol baseType) =>

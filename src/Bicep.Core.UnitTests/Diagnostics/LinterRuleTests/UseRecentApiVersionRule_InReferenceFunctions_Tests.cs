@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // Note: The compiler does not know about these fake types, only the linter.
                 apiVersionProvider = new ApiVersionProvider(
                     BicepTestConstants.Features,
-                    Enumerable.Empty<ResourceTypeReference>());
+                    []);
                 apiVersionProvider.InjectTypeReferences(
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));

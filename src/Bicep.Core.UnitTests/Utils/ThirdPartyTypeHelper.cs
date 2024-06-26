@@ -16,7 +16,7 @@ public static class ThirdPartyTypeHelper
 {
     public static IReadOnlyDictionary<string, string> GetHttpProviderTypes()
     {
-        var factory = new TypeFactory(Enumerable.Empty<TypeBase>());
+        var factory = new TypeFactory([]);
 
         var formatType = factory.Create(() => new UnionType([
             factory.GetReference(factory.Create(() => new StringLiteralType("raw"))),
@@ -74,8 +74,8 @@ public static class ThirdPartyTypeHelper
     /// </summary>
     public static BinaryData GetTestTypesTgz()
     {
-        var factory = new TypeFactory(Enumerable.Empty<TypeBase>());
-        var rootFactory = new TypeFactory(Enumerable.Empty<TypeBase>());
+        var factory = new TypeFactory([]);
+        var rootFactory = new TypeFactory([]);
 
         var stringType = factory.Create(() => new StringType());
 
@@ -124,8 +124,8 @@ public static class ThirdPartyTypeHelper
 
     public static BinaryData GetTestTypesTgzWithFallbackAndConfiguration()
     {
-        var factory = new TypeFactory(Enumerable.Empty<TypeBase>());
-        var rootFactory = new TypeFactory(Enumerable.Empty<TypeBase>());
+        var factory = new TypeFactory([]);
+        var rootFactory = new TypeFactory([]);
 
         var stringType = factory.Create(() => new StringType());
         var stringTypeRoot = rootFactory.Create(() => new StringType());
@@ -192,7 +192,7 @@ public static class ThirdPartyTypeHelper
 
     public static BinaryData GetMockRadiusTypesTgz()
     {
-        var factory = new TypeFactory(Enumerable.Empty<TypeBase>());
+        var factory = new TypeFactory([]);
 
         var stringType = factory.Create(() => new StringType());
 

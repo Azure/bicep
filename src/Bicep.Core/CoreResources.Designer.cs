@@ -1058,5 +1058,23 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseStableVMImageRuleFixMessageFormat", resourceCulture);
             }
         }
+        
+        internal static string UseSafeAccessRule_Description {
+            get {
+                return ResourceManager.GetString("UseSafeAccessRule_Description", resourceCulture);
+            }
+        }
+        
+        internal static string UseSafeAccessRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseSafeAccessRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        internal static string UseSafeAccessRule_CodeFix {
+            get {
+                return ResourceManager.GetString("UseSafeAccessRule_CodeFix", resourceCulture);
+            }
+        }
     }
 }

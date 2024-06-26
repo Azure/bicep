@@ -122,7 +122,7 @@ namespace Bicep.LanguageServer.Completions
             if (!paramsCompletionContext.Kind.HasFlag(BicepCompletionContextKind.ParamValue) ||
                 paramsCompletionContext.EnclosingDeclaration is not ParameterAssignmentSyntax paramAssignment)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var declaredType = paramsSemanticModel.GetDeclaredType(paramAssignment);
@@ -241,7 +241,7 @@ namespace Bicep.LanguageServer.Completions
         {
             return context.Kind.HasFlag(BicepCompletionContextKind.TargetScope) && context.TargetScope is { } targetScope
                 ? GetValueCompletionsForType(model, context, model.GetDeclaredType(targetScope), targetScope.Assignment, loopsAllowed: false)
-                : Enumerable.Empty<CompletionItem>();
+                : [];
         }
 
         private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext context)
@@ -249,13 +249,13 @@ namespace Bicep.LanguageServer.Completions
             if (!context.Kind.HasFlag(BicepCompletionContextKind.Expression) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName | BicepCompletionContextKind.MemberAccess))
             {
                 // This is already handled by GetMemberAccessCompletions.
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             if (context.Property != null && model.GetDeclaredTypeAssignment(context.Property)?.Flags == DeclaredTypeFlags.Constant)
@@ -263,7 +263,7 @@ namespace Bicep.LanguageServer.Completions
                 // the enclosing property's declared type is supposed to be a constant value
                 // the constant flag comes from TypeProperty constant flag, so nothing else can really alter it except for another property
                 // (in other words constant flag inherits down into the expression tree of the property value)
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             // when we're inside an expression that is inside a property that expects a compile-time constant value,
@@ -325,7 +325,7 @@ namespace Bicep.LanguageServer.Completions
                 return completions;
             }
 
-            return Enumerable.Empty<CompletionItem>();
+            return [];
         }
 
         private static IEnumerable<CompletionItem> GetTypeCompletions(SemanticModel model, BicepCompletionContext context)
@@ -419,7 +419,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ResourceType))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             // For a nested resource, we want to filter the set of types.
@@ -551,8 +551,8 @@ namespace Bicep.LanguageServer.Completions
                 BicepFileParentUri: cwdUri,
                 EnteredParentUri: query,
                 ShowCwdPrefix: entered.StartsWith("./"),
-                Files: files.ToImmutableArray(),
-                Directories: dirs.ToImmutableArray());
+                Files: [.. files],
+                Directories: [.. dirs]);
         }
 
         private IEnumerable<CompletionItem> CreateFileCompletionItems(Uri mainFileUri, Range replacementRange, FileCompletionInfo info, Predicate<Uri> predicate, CompletionPriority priority)
@@ -610,12 +610,12 @@ namespace Bicep.LanguageServer.Completions
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             if (IsOciArtifactRegistryReference(context))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             // To provide intellisense before the quotes are typed
@@ -631,7 +631,7 @@ namespace Bicep.LanguageServer.Completions
                 // These should only fail if we're not able to resolve cwd path or the entered string
                 if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
                 {
-                    return Enumerable.Empty<CompletionItem>();
+                    return [];
                 }
 
                 var replacementSyntax = (context.EnclosingDeclaration as IArtifactReferenceSyntax)?.Path;
@@ -646,7 +646,7 @@ namespace Bicep.LanguageServer.Completions
             }
             catch (DirectoryNotFoundException)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             // Local functions.
@@ -687,7 +687,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.TestPath))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             // To provide intellisense before the quotes are typed
@@ -703,7 +703,7 @@ namespace Bicep.LanguageServer.Completions
                 // These should only fail if we're not able to resolve cwd path or the entered string
                 if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
                 {
-                    return Enumerable.Empty<CompletionItem>();
+                    return [];
                 }
 
                 var replacementRange = context.EnclosingDeclaration is TestDeclarationSyntax test ? test.Path.ToRange(model.SourceFile.LineStarts) : context.ReplacementRange;
@@ -716,7 +716,7 @@ namespace Bicep.LanguageServer.Completions
             }
             catch (DirectoryNotFoundException)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             // Local functions.
@@ -765,7 +765,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ParameterDefaultValue) || context.EnclosingDeclaration is not ParameterDeclarationSyntax parameter)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var declaredType = model.GetDeclaredType(parameter);
@@ -777,7 +777,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             // we don't know what the variable type is, so assume "any"
@@ -788,7 +788,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.OutputValue) || context.EnclosingDeclaration is not OutputDeclarationSyntax output)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var declaredType = model.GetDeclaredType(output);
@@ -910,7 +910,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.AssertValue) || context.EnclosingDeclaration is not AssertDeclarationSyntax assert)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             return GetValueCompletionsForType(model, context, LanguageConstants.Bool, assert.Value, loopsAllowed: false);
@@ -1154,7 +1154,7 @@ namespace Bicep.LanguageServer.Completions
                  * we don't know which kind of declaration it will attach to.
                  */
                 null => knownDecoratorFunctions,
-                _ => Enumerable.Empty<FunctionSymbol>()
+                _ => []
             };
         }
 
@@ -1162,7 +1162,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.MemberAccess) || context.PropertyAccess == null)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var declaredType = compilation.GetEntrypointSemanticModel().GetDeclaredType(context.PropertyAccess.BaseExpression);
@@ -1197,7 +1197,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.TypeMemberAccess) || context.TypePropertyAccess is null)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var declaredType = compilation.GetEntrypointSemanticModel().GetDeclaredType(context.TypePropertyAccess.BaseExpression);
@@ -1231,18 +1231,18 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ResourceAccess) || context.ResourceAccess == null)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var symbol = compilation.GetEntrypointSemanticModel().GetSymbolInfo(context.ResourceAccess.BaseExpression) as ResourceSymbol;
             if (symbol == null)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
             var model = compilation.GetEntrypointSemanticModel();
 
             // Find child resources
-            var children = symbol.DeclaringResource.TryGetBody()?.Resources ?? Enumerable.Empty<ResourceDeclarationSyntax>();
+            var children = symbol.DeclaringResource.TryGetBody()?.Resources ?? [];
             return children
                 .Select(r => new { resource = r, symbol = compilation.GetEntrypointSemanticModel().GetSymbolInfo(r) as ResourceSymbol, })
                 .Where(entry => entry.symbol != null)
@@ -1253,7 +1253,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ArrayIndex) || context.ArrayAccess == null)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var declaredType = compilation.GetEntrypointSemanticModel().GetDeclaredType(context.ArrayAccess.BaseExpression);
@@ -1267,7 +1267,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ObjectPropertyName) == false || context.Object == null)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             // in order to provide completions for property names,
@@ -1275,7 +1275,7 @@ namespace Bicep.LanguageServer.Completions
             var declaredType = model.GetDeclaredType(context.Object);
             if (declaredType == null)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var specifiedPropertyNames = context.Object.ToNamedPropertyDictionary();
@@ -1298,7 +1298,7 @@ namespace Bicep.LanguageServer.Completions
                 TestType testType => GetProperties(testType.Body.Type),
                 ObjectType objectType => objectType.Properties.Values,
                 DiscriminatedObjectType discriminated => discriminated.DiscriminatorProperty.AsEnumerable(),
-                _ => Enumerable.Empty<TypeProperty>(),
+                _ => [],
             }).Where(p => !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty));
         }
 
@@ -1316,7 +1316,7 @@ namespace Bicep.LanguageServer.Completions
         {
             ObjectType objectType => objectType.MethodResolver.GetKnownFunctions().Values,
             ResourceType resourceType => GetMethods(resourceType.Body.Type),
-            _ => Enumerable.Empty<FunctionSymbol>(),
+            _ => [],
         };
 
         private static DeclaredTypeAssignment? GetDeclaredTypeAssignment(SemanticModel model, SyntaxBase? syntax) => syntax == null
@@ -1327,13 +1327,13 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.PropertyValue))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var declaredTypeAssignment = GetDeclaredTypeAssignment(model, context.Property);
             if (declaredTypeAssignment == null)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var loopsAllowed = context.Property is not null && ForSyntaxValidatorVisitor.IsAddingPropertyLoopAllowed(model, context.Property);
@@ -1344,13 +1344,13 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ArrayItem) || context.Array?.Syntax is not ArraySyntax arraySyntax)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var declaredTypeAssignment = GetDeclaredTypeAssignment(model, arraySyntax);
             if (declaredTypeAssignment?.Reference.Type is not ArrayType arrayType)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             // Special case: there is a distinction in the type system that needs to be made for resource.dependsOn resource collections
@@ -1358,7 +1358,7 @@ namespace Bicep.LanguageServer.Completions
             // don't provide value completions as the resource collections completions are handled by GetSymbolCompletions.
             if (ReferenceEquals(arrayType.Item.Type, LanguageConstants.ResourceOrResourceCollectionRefItem))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             return GetValueCompletionsForType(model, context, arrayType.Item.Type, arraySyntax.Items.Skip(context.Array.ArgumentIndex).FirstOrDefault(), loopsAllowed: false);
@@ -1370,7 +1370,7 @@ namespace Bicep.LanguageServer.Completions
                 || context.FunctionArgument is not { } functionArgument
                 || model.GetSymbolInfo(functionArgument.Syntax) is not IFunctionSymbol functionSymbol)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             var argType = functionSymbol.GetDeclaredArgumentType(functionArgument.ArgumentIndex);
@@ -1385,7 +1385,7 @@ namespace Bicep.LanguageServer.Completions
                 GetSymbolType(model.GetSymbolInfo(typeArgument.Syntax)) is not TypeTemplate typeTemplate ||
                 typeTemplate.Parameters.Length <= typeArgument.ArgumentIndex)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             return typeTemplate.Parameters[typeArgument.ArgumentIndex].Type is TypeSymbol type
@@ -1409,7 +1409,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.FunctionArgument is not { } functionArgument || !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath))
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             //try get entered text. we need to provide path completions when something else than string is entered and in that case we use the token value to get what's currently entered
@@ -1419,7 +1419,7 @@ namespace Bicep.LanguageServer.Completions
             // These should only fail if we're not able to resolve cwd path or the entered string
             if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
             {
-                return Enumerable.Empty<CompletionItem>();
+                return [];
             }
 
             IEnumerable<CompletionItem> fileItems;
@@ -1617,7 +1617,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (nextLineSpan.IsNil)
             {
-                return Enumerable.Empty<IDiagnostic>();
+                return [];
             }
 
             return model.GetAllDiagnostics()
@@ -2174,7 +2174,7 @@ namespace Bicep.LanguageServer.Completions
             };
 
         private static bool IsPropertyNameEscapingRequired(TypeProperty property) =>
-            !Lexer.IsValidIdentifier(property.Name) || LanguageConstants.Keywords.ContainsKey(property.Name);
+            !Lexer.IsValidIdentifier(property.Name) || LanguageConstants.NonContextualKeywords.ContainsKey(property.Name);
 
         private static string FormatPropertyDetail(TypeProperty property) =>
             TypeHelper.IsRequired(property)

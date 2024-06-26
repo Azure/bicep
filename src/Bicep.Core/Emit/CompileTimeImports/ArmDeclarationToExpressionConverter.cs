@@ -414,8 +414,11 @@ internal class ArmDeclarationToExpressionConverter
 
         this.activeCopyLoopName = originalName;
         var expression = new ForLoopExpression(sourceSyntax,
-            new FunctionCallExpression(sourceSyntax, "range", ImmutableArray.Create(ExpressionFactory.CreateIntegerLiteral(0, sourceSyntax),
-                ConvertToExpression(ExpressionsEngine.ParseLanguageExpressionsRecursive(copyDeclaration.CountToken), copyDeclaration.CountToken))),
+            new FunctionCallExpression(sourceSyntax, "range",
+            [
+                ExpressionFactory.CreateIntegerLiteral(0, sourceSyntax),
+                ConvertToExpression(ExpressionsEngine.ParseLanguageExpressionsRecursive(copyDeclaration.CountToken), copyDeclaration.CountToken),
+            ]),
             ConvertToExpression(ExpressionsEngine.ParseLanguageExpressionsRecursive(copyDeclaration.ValueItemToken), copyDeclaration.ValueItemToken),
             null,
             null);
@@ -459,7 +462,7 @@ internal class ArmDeclarationToExpressionConverter
                 // there's no Bicep expression that corresponds to .Float, so use a `json('<float>')` function expression
                 JTokenType.Float => new FunctionCallExpression(sourceSyntax,
                     "json",
-                    ImmutableArray.Create<Expression>(ExpressionFactory.CreateStringLiteral(toConvert.ToString()))),
+                    [ExpressionFactory.CreateStringLiteral(toConvert.ToString())]),
                 JTokenType.Boolean => ExpressionFactory.CreateBooleanLiteral(toConvert.ToObject<bool>(), sourceSyntax),
                 JTokenType.Null => new NullLiteralExpression(sourceSyntax),
                 // everything else (.String, .Date, .Uri, etc.) is some specialization of string
@@ -511,7 +514,7 @@ internal class ArmDeclarationToExpressionConverter
                 StringLiteralExpression constantVariableName => new SynthesizedVariableReferenceExpression(sourceSyntax,
                     armIdentifierToSymbolNameMapping[new(ArmSymbolType.Variable, constantVariableName.Value)]),
                 // if the argument to variables() was itself a runtime-evaluated expression, just treat this as a function call
-                Expression otherwise => new FunctionCallExpression(sourceSyntax, VariablesFunctionName, ImmutableArray.Create(otherwise)),
+                Expression otherwise => new FunctionCallExpression(sourceSyntax, VariablesFunctionName, [otherwise]),
             },
             CopyIndexFunctionName when variablesEvaluator.TryEvaluate(func.Parameters[0]) is JValue { Value: string copyIndexName } &&
                 StringComparer.OrdinalIgnoreCase.Equals(activeCopyLoopName, copyIndexName) => func.Parameters.Skip(1).FirstOrDefault() switch

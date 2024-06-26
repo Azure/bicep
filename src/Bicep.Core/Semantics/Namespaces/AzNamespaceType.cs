@@ -52,18 +52,18 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static FunctionResult GetRestrictedResourceGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
-                new ResourceGroupScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
-                new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
+                new ResourceGroupScopeType(functionCall.Arguments, []),
+                new ObjectExpression(functionCall, []));
 
         private static FunctionResult GetRestrictedSubscriptionReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
-                new SubscriptionScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
-                new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
+                new SubscriptionScopeType(functionCall.Arguments, []),
+                new ObjectExpression(functionCall, []));
 
         private static FunctionResult GetRestrictedManagementGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
-                new ManagementGroupScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
-                new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
+                new ManagementGroupScopeType(functionCall.Arguments, []),
+                new ObjectExpression(functionCall, []));
 
         private static FunctionResult GetTenantReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(new TenantScopeType(functionCall.Arguments, new[]
@@ -236,7 +236,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return (
                 new FunctionOverloadBuilder("tenant")
-                    .WithReturnResultBuilder(GetTenantReturnResult, new TenantScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithReturnResultBuilder(GetTenantReturnResult, new TenantScopeType([], []))
                     .WithGenericDescription("Returns the current tenant scope.")
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
@@ -244,14 +244,14 @@ namespace Bicep.Core.Semantics.Namespaces
             const string managementGroupGenericDescription = "Returns a management group scope.";
             yield return (
                 new FunctionOverloadBuilder("managementGroup")
-                    .WithReturnResultBuilder(GetManagementGroupReturnResult, new ManagementGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithReturnResultBuilder(GetManagementGroupReturnResult, new ManagementGroupScopeType([], []))
                     .WithGenericDescription(managementGroupGenericDescription)
                     .WithDescription("Returns the current management group scope.")
                     .Build(),
                 ResourceScope.ManagementGroup);
             yield return (
                 new FunctionOverloadBuilder("managementGroup")
-                    .WithReturnResultBuilder(GetRestrictedManagementGroupReturnResult, new ManagementGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithReturnResultBuilder(GetRestrictedManagementGroupReturnResult, new ManagementGroupScopeType([], []))
                     .WithGenericDescription(managementGroupGenericDescription)
                     .WithDescription("Returns the scope for a named management group.")
                     .WithRequiredParameter("name", LanguageConstants.String, "The unique identifier of the management group (not the display name).")
@@ -261,14 +261,14 @@ namespace Bicep.Core.Semantics.Namespaces
             const string subscriptionGenericDescription = "Returns a subscription scope.";
             yield return (
                 new FunctionOverloadBuilder("subscription")
-                    .WithReturnResultBuilder(GetSubscriptionReturnResult, new SubscriptionScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithReturnResultBuilder(GetSubscriptionReturnResult, new SubscriptionScopeType([], []))
                     .WithGenericDescription(subscriptionGenericDescription)
                     .WithDescription("Returns the subscription scope for the current deployment.")
                     .Build(),
                 ResourceScope.Subscription | ResourceScope.ResourceGroup);
             yield return (
                 new FunctionOverloadBuilder("subscription")
-                    .WithReturnResultBuilder(GetRestrictedSubscriptionReturnResult, new SubscriptionScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithReturnResultBuilder(GetRestrictedSubscriptionReturnResult, new SubscriptionScopeType([], []))
                     .WithGenericDescription(subscriptionGenericDescription)
                     .WithDescription("Returns a named subscription scope.")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
@@ -278,14 +278,14 @@ namespace Bicep.Core.Semantics.Namespaces
             const string resourceGroupGenericDescription = "Returns a resource group scope.";
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
-                    .WithReturnResultBuilder(GetResourceGroupReturnResult, new ResourceGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithReturnResultBuilder(GetResourceGroupReturnResult, new ResourceGroupScopeType([], []))
                     .WithGenericDescription(resourceGroupGenericDescription)
                     .WithDescription("Returns the current resource group scope.")
                     .Build(),
                 ResourceScope.ResourceGroup);
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
-                    .WithReturnResultBuilder(GetRestrictedResourceGroupReturnResult, new ResourceGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithReturnResultBuilder(GetRestrictedResourceGroupReturnResult, new ResourceGroupScopeType([], []))
                     .WithGenericDescription(resourceGroupGenericDescription)
                     .WithDescription("Returns a named resource group scope")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
@@ -293,7 +293,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 ResourceScope.Subscription | ResourceScope.ResourceGroup);
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
-                    .WithReturnResultBuilder(GetRestrictedResourceGroupReturnResult, new ResourceGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithReturnResultBuilder(GetRestrictedResourceGroupReturnResult, new ResourceGroupScopeType([], []))
                     .WithGenericDescription(resourceGroupGenericDescription)
                     .WithDescription("Returns a named resource group scope.")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")

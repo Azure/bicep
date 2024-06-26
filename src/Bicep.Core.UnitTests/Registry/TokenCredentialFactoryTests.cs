@@ -41,7 +41,7 @@ namespace Bicep.Core.UnitTests.Registry
         public void EmptyListOfCredentialTypesShouldThrow()
         {
             var f = new TokenCredentialFactory();
-            FluentActions.Invoking(() => f.CreateChain(Enumerable.Empty<CredentialType>(), null, exampleAuthorityUri)).Should().Throw<ArgumentException>();
+            FluentActions.Invoking(() => f.CreateChain([], null, exampleAuthorityUri)).Should().Throw<ArgumentException>();
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace Bicep.Core.UnitTests.Registry
             yield return CreateTestsCase(new ManagedIdentity(ManagedIdentityType.SystemAssigned, Guid.Empty.ToString(), null));
             yield return CreateTestsCase(new ManagedIdentity(ManagedIdentityType.SystemAssigned, null, $"/subscriptions/{Guid.Empty}/providers/resourceGroups/myRG/providers/Microsoft.Storage/storageAccounts/mySA"));
 
-            static object[] CreateTestsCase(ManagedIdentity? managedIdentity) => new object[] { new CredentialOptions(managedIdentity) };
+            static object[] CreateTestsCase(ManagedIdentity? managedIdentity) => [new CredentialOptions(managedIdentity)];
         }
 
         private static void AssertCredentialTypes(TokenCredential credential, params Type[] expectedTypes)

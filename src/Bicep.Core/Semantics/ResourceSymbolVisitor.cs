@@ -12,7 +12,7 @@ namespace Bicep.Core.Semantics
             var visitor = new ResourceSymbolVisitor(resources);
             visitor.Visit(symbol);
 
-            return resources.ToImmutableArray();
+            return [.. resources];
         }
 
         private readonly List<ResourceSymbol> resources;

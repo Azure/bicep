@@ -462,7 +462,7 @@ namespace Bicep.Core.Emit
         private record ResourceDerivedTypeResolution(ResourceTypeReference RootResourceTypeReference, ImmutableArray<string> PointerSegments, TypeSymbol DerivedType) : ITypeReferenceExpressionResolution
         {
             internal ResourceDerivedTypeResolution(ResourceDerivedTypeExpression expression)
-                : this(expression.RootResourceType.TypeReference, ImmutableArray<string>.Empty, expression.RootResourceType.Body.Type) { }
+                : this(expression.RootResourceType.TypeReference, [], expression.RootResourceType.Body.Type) { }
 
             public ObjectExpression GetTypePropertiesForResolvedReferenceExpression(SyntaxBase? sourceSyntax)
                 => ExpressionFactory.CreateObject(new[]
@@ -495,7 +495,7 @@ namespace Bicep.Core.Emit
         }
 
         private ResolvedInternalReference ForNamedRoot(string rootName)
-            => new(ImmutableArray.Create(TypeDefinitionsProperty, rootName), declaredTypesByName[rootName].Value);
+            => new([TypeDefinitionsProperty, rootName], declaredTypesByName[rootName].Value);
 
         private ITypeReferenceExpressionResolution ResolveTypeReferenceExpression(TypeExpression expression)
         {
@@ -1335,7 +1335,7 @@ namespace Bicep.Core.Emit
 
                 this.EmitDependsOn(emitter, module.DependsOn);
 
-                // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
+                // Since we don't want to be mutating the body of the original ObjectSyntax, we create a placeholder body in place
                 // and emit its properties to merge decorator properties.
                 foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
                 {
@@ -1384,7 +1384,7 @@ namespace Bicep.Core.Emit
                         // the deployment() object at resource group scope does not contain a property named 'location', so we have to use resourceGroup().location
                         emitter.EmitProperty("location", new PropertyAccessExpression(
                             null,
-                            new FunctionCallExpression(null, "resourceGroup", ImmutableArray<Expression>.Empty),
+                            new FunctionCallExpression(null, "resourceGroup", []),
                             "location",
                             AccessExpressionFlags.None));
                     }
@@ -1393,7 +1393,7 @@ namespace Bicep.Core.Emit
                         // at all other scopes we can just use deployment().location
                         emitter.EmitProperty("location", new PropertyAccessExpression(
                             null,
-                            new FunctionCallExpression(null, "deployment", ImmutableArray<Expression>.Empty),
+                            new FunctionCallExpression(null, "deployment", []),
                             "location",
                             AccessExpressionFlags.None));
                     }

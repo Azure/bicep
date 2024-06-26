@@ -6,4 +6,7 @@ public class Environment : IEnvironment
 {
     public string? GetVariable(string variable)
         => System.Environment.GetEnvironmentVariable(variable);
+
+    public IEnumerable<string> GetVariableNames()
+        => System.Environment.GetEnvironmentVariables().Keys.OfType<string>();
 }

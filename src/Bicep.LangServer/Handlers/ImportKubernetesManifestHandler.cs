@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Text;
+using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
@@ -64,7 +65,7 @@ namespace Bicep.LanguageServer.Handlers
                     SyntaxFactory.ProviderKeywordToken,
                     SyntaxFactory.CreateIdentifierWithTrailingSpace(K8sNamespaceType.BuiltInName),
                     new ProviderWithClauseSyntax(
-                        SyntaxFactory.CreateToken(TokenType.WithKeyword),
+                        SyntaxFactory.CreateIdentifierToken(LanguageConstants.WithKeyword),
                         SyntaxFactory.CreateObject(
                         [
                             SyntaxFactory.CreateObjectProperty("namespace", SyntaxFactory.CreateStringLiteral("default")),
@@ -143,7 +144,7 @@ namespace Bicep.LanguageServer.Handlers
             var symbolName = GetResourceSymbolName(type, resourceBody);
 
             return new ResourceDeclarationSyntax(
-                Enumerable.Empty<SyntaxBase>(),
+                [],
                 SyntaxFactory.ResourceKeywordToken,
                 SyntaxFactory.CreateIdentifierWithTrailingSpace(symbolName),
                 SyntaxFactory.CreateStringLiteral($"{type}@{apiVersion}"),
