@@ -996,9 +996,16 @@ namespace Bicep.Core.Emit
 
             if (this.Context.SemanticModel.Features.LocalDeployEnabled)
             {
-                providers = providers.Add(GetProviderForLocalDeploy());
+                EmitProvidersV2(emitter, providers.Add(GetProviderForLocalDeploy()));
             }
+            else
+            {
+                EmitProvidersV1(emitter, providers);
+            }
+        }
 
+        private static void EmitProvidersV1(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        {
             emitter.EmitObjectProperty("imports", () =>
             {
                 foreach (var provider in providers)
@@ -1016,6 +1023,75 @@ namespace Bicep.Core.Emit
                     }, provider.SourceSyntax);
                 }
             });
+        }
+
+        private void EmitProvidersV2(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        {
+            emitter.EmitObjectProperty("extensions", () =>
+            {
+                foreach (var provider in providers)
+                {
+                    var settings = provider.Settings;
+
+                    emitter.EmitObjectProperty(provider.Name, () =>
+                    {
+                        emitter.EmitProperty("name", settings.ArmTemplateProviderName);
+                        emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
+
+                        EmitProviderV2Config(provider, emitter);
+                    },
+                    provider.SourceSyntax);
+                }
+            });
+        }
+
+        private void EmitProviderV2Config(DeclaredProviderExpression provider, ExpressionEmitter emitter)
+        {
+            if (provider.Config is null)
+            {
+                return;
+            }
+
+            if (provider.Config is not ObjectExpression providerConfig)
+            {
+                throw new UnreachableException($"Provider config type expected to be of type: '{nameof(ObjectExpression)}' but received: '{provider.Config.GetType()}'");
+            }
+
+            emitter.EmitObjectProperty("config", () =>
+            {
+                foreach (var providerConfigProperty in providerConfig.Properties)
+                {
+                    // Type checking should have validated that the config name is not an expression (e.g. string interpolation), if we get a null value it means something
+                    // was wrong with type checking validation.
+                    var providerConfigName = providerConfigProperty.TryGetKeyText() ?? throw new UnreachableException("Expressions are not allowed as config names.");
+                    var x = provider.Settings.ConfigurationType ?? throw new UnreachableException();
+                    var providerConfigType = GetProviderConfigType(providerConfigName, provider.Settings.ConfigurationType!);
+
+                    emitter.EmitObjectProperty(providerConfigName, () =>
+                    {
+                        switch (providerConfigType)
+                        {
+                            case StringType:
+                                emitter.EmitProperty("type", "string");
+                                break;
+                            default:
+                                throw new ArgumentException($"Config name: '{providerConfigName}' has an invalid type: '{providerConfigType}'. Supported types are: 'string, secureString'");
+                        }
+
+                        emitter.EmitProperty("defaultValue", providerConfigProperty.Value);
+                    });
+                }
+            });
+        }
+
+        private TypeSymbol GetProviderConfigType(string configName, ObjectType configType)
+        {
+            if (configType.Properties.TryGetValue(configName) is { } configItem)
+            {
+                return configItem.TypeReference.Type;
+            }
+
+            throw new UnreachableException($"Configuration name: '{configName}' does not exist as part of provider configuration.");
         }
 
         private DeclaredProviderExpression GetProviderForLocalDeploy()

@@ -20,6 +20,7 @@ namespace Bicep.Core.IntegrationTests;
 public class RegistryProviderTests : TestBase
 {
     private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true, ProviderRegistry: true, DynamicTypeLoadingEnabled: true);
+    private static readonly FeatureProviderOverrides AllFeaturesEnabledForLocalDeploy = new(LocalDeployEnabled: true, ExtensibilityEnabled: true, ProviderRegistry: true, DynamicTypeLoadingEnabled: true);
 
     [TestMethod]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
@@ -347,6 +348,89 @@ output joke string = dadJoke.joke
         result.Should().HaveDiagnostics(new[]{
             ("BCP206", DiagnosticLevel.Error, "Provider namespace \"ThirdPartyProvider\" requires configuration, but none was provided.")
         });
+    }
+
+    [TestMethod]
+    public async Task Correct_local_deploy_provider_configuration_result_in_successful_compilation()
+    {
+        // tgzData provideds configType with the properties namespace, config, and context
+        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(), AllFeaturesEnabledForLocalDeploy);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+provider 'br:example.azurecr.io/providers/foo:1.2.3' with {
+  namespace: 'ThirdPartyNamespace'
+  config: 'Some path to config file'
+  context: 'Some ThirdParty context'
+}
+
+resource dadJoke 'fooType@v1' = {
+  identifier: 'foo'
+  joke: 'dad joke'
+}
+
+output joke string = dadJoke.joke
+""");
+
+        result.Template.Should().NotBeNull();
+
+        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyProvider']['name']", "ThirdPartyProvider");
+        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyProvider']['version']", "1.0.0");
+
+        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyProvider']['config']['namespace']['type']", "string");
+        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyProvider']['config']['namespace']['defaultValue']", "ThirdPartyNamespace");
+        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyProvider']['config']['config']['type']", "string");
+        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyProvider']['config']['config']['defaultValue']", "Some path to config file");
+        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyProvider']['config']['context']['type']", "string");
+        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyProvider']['config']['context']['defaultValue']", "Some ThirdParty context");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public async Task Local_deploy_provider_with_configuration_defined_and_empty_configuration_provided_result_in_failure_compilation()
+    {
+        // tgzData provideds configType with the properties namespace, config, and context
+        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(), AllFeaturesEnabledForLocalDeploy);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+provider 'br:example.azurecr.io/providers/foo:1.2.3' with { }
+
+resource dadJoke 'fooType@v1' = {
+  identifier: 'foo'
+  joke: 'dad joke'
+}
+
+output joke string = dadJoke.joke
+""");
+
+        result.Template.Should().BeNull();
+
+        result.Should().HaveDiagnostics([("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"config\", \"namespace\".")], because: "Type checking should block the template compilation because required provider config properties hasn't been supplied.");
+    }
+
+    [TestMethod]
+    public async Task Local_deploy_provider_without_configuration_defined_and_configuration_provided_result_in_failure_compilation()
+    {
+        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgz(), AllFeaturesEnabledForLocalDeploy);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+provider 'br:example.azurecr.io/providers/foo:1.2.3' with {
+  namespace: 'ThirdPartyNamespace'
+  config: 'Some path to config file'
+  context: 'Some ThirdParty context'
+}
+
+resource fooRes 'fooType@v1' existing = {
+  identifier: 'foo'
+}
+
+output baz string = fooRes.convertBarToBaz('bar')
+
+""");
+
+        result.Template.Should().BeNull();
+
+        result.Should().HaveDiagnostics([("BCP205", DiagnosticLevel.Error, "Provider namespace \"ThirdPartyProvider\" does not support configuration.")], because: "Type checking should block the template compilation because provider does not support configuration but one has been provided.");
     }
 
     [TestMethod]

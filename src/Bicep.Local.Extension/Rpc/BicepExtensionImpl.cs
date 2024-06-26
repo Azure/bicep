@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json.Nodes;
 using Bicep.Local.Extension.Protocol;
 using Grpc.Core;
+using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Local.Extension.Rpc;
@@ -20,22 +21,42 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
         this.dispatcher = dispatcher;
     }
 
-    public override Task<ExtensibilityOperationResponse> Save(ExtensibilityOperationRequest request, ServerCallContext context)
+    public override async Task<ResourceResponse> CreateOrUpdate(ResourceRequestBody request, ServerCallContext context)
+    {
+        return await base.CreateOrUpdate(request, context);
+    }
+
+    public override Task<ResourceResponse> Preview(ResourceRequestBody request, ServerCallContext context)
+    {
+        return base.Preview(request, context);
+    }
+
+    public override Task<ResourceResponse> Get(ResourceReferenceRequestBody request, ServerCallContext context)
+    {
+        return base.Get(request, context);
+    }
+
+    public override Task<ResourceResponse> Delete(ResourceReferenceRequestBody request, ServerCallContext context)
+    {
+        return base.Delete(request, context);
+    }
+
+    /*public override Task<ExtensibilityOperationResponse> Save(ExtensibilityOperationRequest request, ServerCallContext context)
         => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Resource.Type).Save(Convert(request), context.CancellationToken)));
 
-    public override Task<ExtensibilityOperationResponse> PreviewSave(ExtensibilityOperationRequest request, ServerCallContext context)
+    public override Task<ExtensibilityOperationResponse> Preview2(ExtensibilityOperationRequest request, ServerCallContext context)
         => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Resource.Type).PreviewSave(Convert(request), context.CancellationToken)));
 
     public override Task<ExtensibilityOperationResponse> Get(ExtensibilityOperationRequest request, ServerCallContext context)
         => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Resource.Type).Get(Convert(request), context.CancellationToken)));
 
     public override Task<ExtensibilityOperationResponse> Delete(ExtensibilityOperationRequest request, ServerCallContext context)
-        => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Resource.Type).Delete(Convert(request), context.CancellationToken)));
+        => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Resource.Type).Delete(Convert(request), context.CancellationToken)));*/
 
     public override Task<Empty> Ping(Empty request, ServerCallContext context)
         => Task.FromResult(new Empty());
 
-    private static Protocol.ExtensibilityOperationRequest Convert(ExtensibilityOperationRequest request)
+    /*private static Protocol.ExtensibilityOperationRequest Convert(ExtensibilityOperationRequest request)
     {
         return new(
             new(request.Import.Provider, request.Import.Version, request.Import.Config is { } ? JsonNode.Parse(request.Import.Config) as JsonObject : null),
@@ -92,5 +113,5 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
 
             return response;
         }
-    }
+    }*/
 }

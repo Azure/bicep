@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Core;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Azure.Deployments.Core.Definitions.Resources;
@@ -138,6 +139,24 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         {
             return default;
         }
+    }
+
+    public override async Task<HttpResponseMessage> CallExtensibilityHostV2(
+        HttpMethod requestMethod,
+        Uri requestUri,
+        HttpContent content,
+        AuthenticationToken extensibilityHostToken,
+        CancellationToken cancellationToken)
+    {
+        var extensionName = "LocalNested";
+        var extensionVersion = "0.0.0";
+        var method = "createOrUpdate";
+        var response = await extensibilityHandler.CallExtensibilityHostV2(extensionName, extensionVersion, method, content, cancellationToken);
+
+        return new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(response.ToJson()),
+        };
     }
 
     public override async Task<HttpResponseMessage> CallExtensibilityHost(

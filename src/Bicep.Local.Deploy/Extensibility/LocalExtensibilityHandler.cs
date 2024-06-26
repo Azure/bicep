@@ -5,8 +5,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Net.Http.Formatting;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
+using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
 using Azure.Deployments.Extensibility.Contract;
 using Azure.Deployments.Extensibility.Messages;
 using Bicep.Core.Extensions;
@@ -14,6 +18,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Types;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Microsoft.WindowsAzure.ResourceStack.Common.Utilities;
 using IAsyncDisposable = System.IAsyncDisposable;
 
@@ -25,11 +30,11 @@ public class LocalExtensibilityHandler : IAsyncDisposable
         string Name,
         string Version);
 
-    private Dictionary<ProviderKey, LocalExtensibilityProvider> RegisteredProviders = new();
+    private Dictionary<ProviderKey, LocalExtensibilityProviderV2> RegisteredProviders = new();
     private readonly IModuleDispatcher moduleDispatcher;
-    private readonly Func<Uri, Task<LocalExtensibilityProvider>> providerFactory;
+    private readonly Func<Uri, Task<LocalExtensibilityProviderV2>> providerFactory;
 
-    public LocalExtensibilityHandler(IModuleDispatcher moduleDispatcher, Func<Uri, Task<LocalExtensibilityProvider>> providerFactory)
+    public LocalExtensibilityHandler(IModuleDispatcher moduleDispatcher, Func<Uri, Task<LocalExtensibilityProviderV2>> providerFactory)
     {
         this.moduleDispatcher = moduleDispatcher;
         this.providerFactory = providerFactory;
@@ -55,8 +60,53 @@ public class LocalExtensibilityHandler : IAsyncDisposable
         CancellationToken cancellationToken)
     {
         var provider = RegisteredProviders[new(request.Import.Provider, request.Import.Version)];
+        IExtensibilityProvider? x = provider as IExtensibilityProvider;
+        return await CallProvider(method, x!, request, cancellationToken);
+    }
 
-        return await CallProvider(method, provider, request, cancellationToken);
+    public async Task<ResourceResponseBody> CallExtensibilityHostV2(
+        string extensionName,
+        string extensionVersion,
+        string method,
+        HttpContent content,
+        CancellationToken cancellationToken)
+    {
+        var provider = RegisteredProviders[new(extensionName, extensionVersion)];
+
+        return await CallProviderV2(method, provider, content, cancellationToken);
+    }
+
+    internal static class ModelSerializer
+    {
+        public static readonly JsonMediaTypeFormatter JsonMediaTypeFormatter = new()
+        {
+            SerializerSettings = JsonExtensions.MediaTypeFormatterSettings,
+            UseDataContractJsonSerializer = false
+        };
+
+        public static readonly JsonMediaTypeFormatter[] JsonMediaTypeFormatters = new[]
+        {
+            JsonMediaTypeFormatter,
+        };
+
+        public static Task<T> DeserializeFromHttpContentAsync<T>(HttpContent content, CancellationToken cancellationToken)
+            => content.ReadAsAsync<T>(JsonMediaTypeFormatters, cancellationToken);
+    }
+
+    private async Task<ResourceResponseBody> CallProviderV2(
+        string method,
+        LocalExtensibilityProviderV2 provider,
+        HttpContent content,
+        CancellationToken cancellationToken)
+    {
+        return method switch
+        {
+            "get" => await provider.GetResourceAsync(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceReferenceRequestBody>(content, cancellationToken), cancellationToken),
+            "delete" => await provider.DeleteResourceAsync(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceReferenceRequestBody>(content, cancellationToken), cancellationToken),
+            "createOrUpdate" => await provider.CreateOrUpdateResourceAsync(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceRequestBody>(content, cancellationToken), cancellationToken),
+            "preview" => await provider.PreviewResourceCreateOrUpdateAsync(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceRequestBody>(content, cancellationToken), cancellationToken),
+            _ => throw new NotImplementedException($"Unsupported method {method}"),
+        };
     }
 
     private IEnumerable<(NamespaceType namespaceType, Uri binaryUri)> GetBinaryProviders(Compilation compilation)

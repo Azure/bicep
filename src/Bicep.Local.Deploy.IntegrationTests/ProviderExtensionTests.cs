@@ -71,23 +71,11 @@ public class ProviderExtensionTests : TestBase
             builder => builder.AddHandler(handlerMock.Object),
             async (client, token) =>
             {
-                var request = new Extension.Rpc.ExtensibilityOperationRequest
+                var request = new Extension.Rpc.ResourceRequestBody
                 {
-                    Import = new()
-                    {
-                        Provider = "Kubernetes",
-                        Version = "1.0.0",
-                        Config = """
-                        {
-                          "kubeConfig": "redacted",
-                          "namespace": "default"
-                        }
-                        """
-                    },
-                    Resource = new()
-                    {
-                        Type = "apps/Deployment@v1",
-                        Properties = """
+                    ApiVersion = "v1",
+                    Type = "Microsoft.Resources/deployments",
+                    Properties = """
                         {
                           "metadata": {
                             "name": "echo-server"
@@ -124,13 +112,13 @@ public class ProviderExtensionTests : TestBase
                           }
                         }
                         """
-                    }
                 };
 
-                var response = await client.SaveAsync(request, cancellationToken: token);
+                var response = await client.CreateOrUpdateAsync(request, cancellationToken: token);
 
-                response.Should().NotBeNull();
-                response.Resource!.Type.Should().Be("apps/Deployment@v1");
+                response.ResultCase.Should().Be(ResourceResponse.ResultOneofCase.Response);
+                response.Response.Should().NotBeNull();
+                response.Response.Type.Should().Be("apps/Deployment@v1");
             });
     }
 }

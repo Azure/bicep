@@ -5,45 +5,54 @@ option csharp_namespace = "Bicep.Local.Extension.Rpc";
 package extension;
 
 service BicepExtension {
-  rpc Save (ExtensibilityOperationRequest) returns (ExtensibilityOperationResponse);
-  rpc PreviewSave (ExtensibilityOperationRequest) returns (ExtensibilityOperationResponse);
-  rpc Get (ExtensibilityOperationRequest) returns (ExtensibilityOperationResponse);
-  rpc Delete (ExtensibilityOperationRequest) returns (ExtensibilityOperationResponse);
+  rpc CreateOrUpdate (ResourceRequestBody) returns (ResourceResponse);
+  rpc Preview (ResourceRequestBody) returns (ResourceResponse);
+  rpc Get (ResourceReferenceRequestBody) returns (ResourceResponse);
+  rpc Delete (ResourceReferenceRequestBody) returns (ResourceResponse);
   rpc Ping(Empty) returns (Empty);
 }
 
 message Empty {}
 
-message ExtensibleImportData {
-  string provider = 1;
-  string version = 2;
-  optional string config = 3;
+message ResourceRequestBody {
+	optional string config = 1;
+	string type = 2;
+	optional string apiVersion = 3;
+	string properties = 4;
 }
 
-message ExtensibleResourceData {
-  string type = 1;
-  optional string properties = 2;
+message ResourceReferenceRequestBody {
+	string identifiers = 1;
+	optional string config = 2;
+	string type = 3;
+	optional string apiVersion = 4;
 }
 
-message ExtensibleResourceMetadata {
-  repeated string readOnlyProperties = 1;
-  repeated string immutableProperties = 2;
-  repeated string dynamicProperties = 3;
+message ResourceResponse {
+	oneof result {
+		ResourceResponseBody response = 1;
+		ErrorPayload error = 2;
+	}
 }
 
-message ExtensibilityError {
-  string code = 1;
-  string message = 2;
-  string target = 3;
+message ResourceResponseBody {
+	optional string identifiers = 1;
+	string type = 2;
+	optional string status = 3;
+	optional string apiVersion = 4;
+	string properties = 5;
 }
 
-message ExtensibilityOperationRequest {
-  ExtensibleImportData import = 1;
-  ExtensibleResourceData resource = 2;
+message ErrorPayload {
+	string code = 1;
+	optional string target = 2;
+	string message = 3;
+	repeated ErrorDetail details = 4;
+	optional string innerError = 5;
 }
 
-message ExtensibilityOperationResponse {
-  optional ExtensibleResourceData resource = 1;
-  optional ExtensibleResourceMetadata resourceMetadata = 2;
-  repeated ExtensibilityError errors = 3;
+message ErrorDetail {
+	string code = 1;
+	optional string target = 2;
+	string message = 3;
 }
