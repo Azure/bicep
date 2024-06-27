@@ -65,13 +65,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         .Select(f => CreateFixableDiagnosticForSpan(diagnosticLevel, f.Span, f.Fixes, f.Message, f.AcceptableVersions));
         }
 
-        private IEnumerable<Failure> GetFailures(SemanticModel model, IServiceProvider serviceProvider, DiagnosticLevel diagnosticLevel)
+        private static IEnumerable<Failure> GetFailures(SemanticModel model, IServiceProvider serviceProvider, DiagnosticLevel diagnosticLevel)
         {
             var publicRegistryModuleMetadataProvider = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
             var hasShownDownloadWarning = false;
 
             foreach (var (syntax, artifactResolutionInfo) in model.Compilation.SourceFileGrouping.ArtifactLookup
-                .Where(entry => entry.Value.Origin == model.SourceFile))
+                .Where(entry => entry.Value.Origin == model.SourceFile
+                    && entry.Value.Syntax is ModuleDeclarationSyntax moduleSyntax))
             {
                 if (syntax is ModuleDeclarationSyntax moduleSyntax)
                 {
@@ -173,8 +174,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
 
             var availableParsedVersions = availableVersions
-                .Select(v => (version: v, semVersion: SemVersion.Parse(v, SemVersionStyles.Strict)))
-                .ToArray();
+                .Select(v => (version: v, semVersion: SemVersion.Parse(v, SemVersionStyles.Strict)));
 
             return availableParsedVersions.Where(v => v.semVersion.ComparePrecedenceTo(requestedSemver) > 0)
                 .OrderByDescending(v => v.semVersion, SemVersion.PrecedenceComparer)
@@ -187,7 +187,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static TextSpan? TryGetReplacementSpan(ModuleDeclarationSyntax syntax, string apiVersion)
         {
             if (syntax.Path is StringSyntax pathString &&
-                pathString.StringTokens.First() is Token token)
+                pathString.StringTokens.FirstOrDefault() is Token token)
             {
                 int replacementSpanStart = token.Span.Position + token.Text.IndexOf(apiVersion);
 

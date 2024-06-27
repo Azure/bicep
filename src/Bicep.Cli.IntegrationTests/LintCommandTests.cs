@@ -160,8 +160,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
     {
         var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
         var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-        var defaultSettings = new InvocationSettings();
-        var diagnostics = await GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory, defaultSettings.ModuleMetadataClient);
+        var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecRepositoryFactory, InvocationSettings.Default.ModuleMetadataClient);
 
         var (output, error, result) = await Bicep("lint", bicepFilePath);
 

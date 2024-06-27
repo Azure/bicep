@@ -55,7 +55,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         public string[] PublishedModules { get; init; } = [];
         public bool NoRestore { get; init; } = false;
 
-        public string DiagnosticLevel = "Warning"; // This rule normally defaults to "off"
+        public string DiagnosticLevel { get; init; } = "Warning"; // This rule normally defaults to "off"
 
         public string? BicepConfig
         {
@@ -306,7 +306,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         });
 
         result.Should().HaveCompileError(UnableToRestoreErrorCode);
-        result.Should().NotHaveRuleFailure();
+        result.Should().NotHaveRecentModuleVersionsRuleFailure();
         result.Should().HaveStdout("");
         result.Should().Fail();
     }
@@ -408,7 +408,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         });
 
         result.Should().HaveCompileError(UnableToRestoreErrorCode);
-        result.Should().NotHaveRuleFailure();
+        result.Should().NotHaveRecentModuleVersionsRuleFailure();
         result.Should().HaveStdout("");
     }
 
@@ -429,7 +429,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         });
 
         result.Should().HaveCompileError(UnableToRestoreErrorCode);
-        result.Should().NotHaveRuleFailure();
+        result.Should().NotHaveRecentModuleVersionsRuleFailure();
         result.Should().HaveStdout("");
     }
 
@@ -465,7 +465,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
             ModulesMetadata = [("fake/avm/res/app/container-app", ["10.0.0"])],
         });
 
-        result.Should().NotHaveRuleFailure();
+        result.Should().NotHaveRecentModuleVersionsRuleFailure();
         result.Should().HaveStdout("");
     }
 
@@ -564,7 +564,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         });
 
         result.Should().HaveCompileError("BCP198");
-        result.Should().NotHaveRuleFailure();
+        result.Should().NotHaveRecentModuleVersionsRuleFailure();
         result.Should().HaveStdout("");
     }
 
@@ -586,7 +586,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         });
 
         result.Should().NotHaveCompileError();
-        result.Should().NotHaveRuleFailure();
+        result.Should().NotHaveRecentModuleVersionsRuleFailure();
         result.Should().HaveStdout("");
     }
 
@@ -608,7 +608,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         });
 
         result.Should().NotHaveCompileError();
-        result.Should().NotHaveRuleFailure();
+        result.Should().NotHaveRecentModuleVersionsRuleFailure();
         result.Should().HaveStdout("");
     }
 
@@ -738,7 +738,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         });
 
         result.Should().NotHaveCompileError();
-        result.Should().NotHaveRuleFailure();
+        result.Should().NotHaveRecentModuleVersionsRuleFailure();
         result.Should().HaveStdout("");
     }
 
@@ -760,7 +760,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         });
 
         result.Should().HaveCompileError(NotRestoredErrorCode);
-        result.Should().NotHaveRuleFailure();
+        result.Should().NotHaveRecentModuleVersionsRuleFailure();
         result.Should().HaveStdout("");
     }
 
@@ -786,36 +786,18 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
     }
 }
 
-public static class CliResultAssertionsExtensions2
+public static class CliResultUseRecentModuleVersionsExtensions
 {
-    public static CliResultAssertions Should(this CliResult result) => new(result);
-
-    public static AndConstraint<CliResultAssertions> HaveCompileError(this CliResultAssertions instance, string? errorCode = null, string because = "", params object[] becauseArgs)
+    public static AndConstraint<CliResultAssertions> HaveRecentModuleVersionsRuleFailure(this CliResultAssertions instance, string because = "", params object[] becauseArgs)
     {
-        var errorMatch = errorCode is { } ? $"Error {errorCode}" : "Error";
-        instance.Subject.Should().HaveStderrMatch($"*{errorMatch}*", because, becauseArgs);
+        instance.Subject.Should().HaveRuleFailure(UseRecentModuleVersionsRule.Code, because, becauseArgs);
 
         return new(instance);
     }
 
-    public static AndConstraint<CliResultAssertions> NotHaveCompileError(this CliResultAssertions instance, string? errorCode = null, string because = "", params object[] becauseArgs)
+    public static AndConstraint<CliResultAssertions> NotHaveRecentModuleVersionsRuleFailure(this CliResultAssertions instance, string because = "", params object[] becauseArgs)
     {
-        var errorMatch = errorCode is { } ? $"Error {errorCode}" : "Error";
-        instance.Subject.Should().NotHaveStderrMatch($"*{errorMatch}*", because, becauseArgs);
-
-        return new(instance);
-    }
-
-    public static AndConstraint<CliResultAssertions> HaveRuleFailure(this CliResultAssertions instance, string because = "", params object[] becauseArgs)
-    {
-        instance.Subject.Should().HaveStderrMatch($"*{UseRecentModuleVersionsRule.Code}*", because, becauseArgs);
-
-        return new(instance);
-    }
-
-    public static AndConstraint<CliResultAssertions> NotHaveRuleFailure(this CliResultAssertions instance, string because = "", params object[] becauseArgs)
-    {
-        instance.Subject.Should().NotHaveStderrMatch($"*{UseRecentModuleVersionsRule.Code}*", because, becauseArgs);
+        instance.Subject.Should().NotHaveRuleFailure(UseRecentModuleVersionsRule.Code, because, becauseArgs);
 
         return new(instance);
     }

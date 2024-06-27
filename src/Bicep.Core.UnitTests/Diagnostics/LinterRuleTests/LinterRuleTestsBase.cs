@@ -101,26 +101,6 @@ public class LinterRuleTestsBase
             options);
     }
 
-    //private static IDiagnostic[] Compile(
-    //    (string path, string contents)[] files
-    //)
-    //{
-    //    var services = new ServiceBuilder().WithConfiguration(BicepTestConstants.BuiltInConfigurationWithStableAnalyzers)
-    //        .WithRegistration(x => x.Add<)
-    //    services = options.ConfigurationPatch is not null ? services.WithConfigurationPatch(options.ConfigurationPatch) : services;
-    //    services = options.AzResourceTypeLoader is { } ? services.WithAzResourceTypeLoader(options.AzResourceTypeLoader) : services;
-    //    services = options.FeatureOverrides is not null ? services.WithFeatureOverrides(options.FeatureOverrides) : services;
-    //    var result = CompilationHelper.Compile(services, files);
-    //    using (new AssertionScope().WithFullSource(result.BicepFile))
-    //    {
-    //        IDiagnostic[] diagnosticsMatchingCode = result.Diagnostics.Where(filterFunc).ToArray();
-    //        DiagnosticAssertions.DoWithDiagnosticAnnotations(
-    //            result.Compilation.SourceFileGrouping.EntryPoint,
-    //            result.Diagnostics.Where(filterFunc),
-    //            assertAction);
-    //    }
-    //}
-
     private static void RunWithDiagnosticAnnotations(
         (string path, string contents)[] files,
         Func<IDiagnostic, bool> filterFunc,

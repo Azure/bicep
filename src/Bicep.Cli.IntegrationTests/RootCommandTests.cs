@@ -127,7 +127,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             // disable registry to ensure `bicep --help` is not consulting the feature provider before
             // preparing the help text (as features can only be determined when an input file is specified)
-            var settings = new InvocationSettings() with { FeatureOverrides = new(RegistryEnabled: false) };
+            var settings = new InvocationSettings() { FeatureOverrides = new(RegistryEnabled: false) };
 
             var (output, error, result) = await Bicep(settings, "--help");
 

@@ -475,7 +475,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static TextSpan? GetReplacementSpan(ResourceSymbol resourceSymbol, string apiVersion)
         {
             if (resourceSymbol.DeclaringResource.TypeString is StringSyntax typeString &&
-                typeString.StringTokens.First() is Token token)
+                typeString.StringTokens.FirstOrDefault() is Token token)
             {
                 int replacementSpanStart = token.Span.Position + token.Text.IndexOf(apiVersion);
 

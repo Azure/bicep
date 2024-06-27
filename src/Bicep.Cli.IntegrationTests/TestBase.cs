@@ -43,6 +43,8 @@ namespace Bicep.Cli.IntegrationTests
 
         protected record InvocationSettings
         {
+            public static readonly InvocationSettings Default = new();
+
             public FeatureProviderOverrides? FeatureOverrides { get; init; }
             public IContainerRegistryClientFactory ClientFactory { get; init; }
             public ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory { get; init; }
@@ -88,13 +90,13 @@ namespace Bicep.Cli.IntegrationTests
                    )
                    .RunAsync(args.ToArrayExcludingNull(), cancellationToken));
 
-        protected static Task<CliResult> Bicep(params string[] args) => Bicep(new InvocationSettings(), args);
+        protected static Task<CliResult> Bicep(params string[] args) => Bicep(InvocationSettings.Default, args);
 
         protected static Task<CliResult> Bicep(Action<IServiceCollection> registerAction, params string[] args)
-            => Bicep(new InvocationSettings(), registerAction, CancellationToken.None, args);
+            => Bicep(InvocationSettings.Default, registerAction, CancellationToken.None, args);
 
         protected static Task<CliResult> Bicep(Action<IServiceCollection> registerAction, CancellationToken cancellationToken, params string[] args)
-            => Bicep(new InvocationSettings(), registerAction, cancellationToken, args);
+            => Bicep(InvocationSettings.Default, registerAction, cancellationToken, args);
 
         protected static Task<CliResult> Bicep(InvocationSettings settings, params string?[] args /*null args are ignored*/)
             => Bicep(settings, null, CancellationToken.None, args);
