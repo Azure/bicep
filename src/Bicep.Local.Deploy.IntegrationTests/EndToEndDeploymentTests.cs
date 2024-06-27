@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
+using System.Text;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
 using Azure.Deployments.Extensibility.Messages;
@@ -88,9 +89,15 @@ param coords = {
         var parametersFile = result.Compilation.Emitter.Parameters().Parameters!;
         var templateFile = result.Compilation.Emitter.Parameters().Template!.Template!;
 
+        JToken identifiers = new JObject
+                {
+                    { "name", "someName" },
+                    { "namespace", "someNamespace" }
+                };
+
         var providerMock = StrictMock.Of<LocalExtensibilityProviderV2>();
         providerMock.Setup(x => x.CreateOrUpdateResourceAsync(It.Is<ResourceRequestBody>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
-            .Returns<ResourceResponseBody, CancellationToken>((req, _) =>
+            .Returns<ResourceRequestBody, CancellationToken>((req, _) =>
             {
                 req.Properties["body"] = """
 {
@@ -101,15 +108,11 @@ param coords = {
   }
 }
 """;
-                JToken identifiers = new JObject
-                {
-                    { "name", "someName" },
-                    { "namespace", "someNamespace" }
-                };
-                return Task.FromResult<ResourceResponseBody>(new(null, identifiers, req.Type, null, req.Properties));
+                return Task.FromResult<ResourceResponseBody>(new(null, identifiers, req.Type, "Succeeded", req.Properties));
             });
+
         providerMock.Setup(x => x.CreateOrUpdateResourceAsync(It.Is<ResourceRequestBody>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
-            .Returns<ResourceResponseBody, CancellationToken>((req, _) =>
+            .Returns<ResourceRequestBody, CancellationToken>((req, _) =>
             {
                 req.Properties["body"] = """
 {
@@ -129,13 +132,7 @@ param coords = {
   }
 }
 """;
-                JToken identifiers = new JObject
-                {
-                    { "name", "someName" },
-                    { "namespace", "someNamespace" }
-                };
-
-                return Task.FromResult<ResourceResponseBody>(new(null, identifiers, req.Type, null, req.Properties));
+                return Task.FromResult<ResourceResponseBody>(new(null, identifiers, req.Type, "Succeeded", req.Properties));
             });
 
         await using LocalExtensibilityHandler extensibilityHandler = new(BicepTestConstants.ModuleDispatcher, uri => Task.FromResult(providerMock.Object));

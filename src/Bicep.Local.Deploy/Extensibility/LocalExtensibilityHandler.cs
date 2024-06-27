@@ -84,10 +84,10 @@ public class LocalExtensibilityHandler : IAsyncDisposable
             UseDataContractJsonSerializer = false
         };
 
-        public static readonly JsonMediaTypeFormatter[] JsonMediaTypeFormatters = new[]
-        {
+        public static readonly JsonMediaTypeFormatter[] JsonMediaTypeFormatters =
+        [
             JsonMediaTypeFormatter,
-        };
+        ];
 
         public static Task<T> DeserializeFromHttpContentAsync<T>(HttpContent content, CancellationToken cancellationToken)
             => content.ReadAsAsync<T>(JsonMediaTypeFormatters, cancellationToken);

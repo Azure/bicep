@@ -109,7 +109,7 @@ namespace Bicep.Core.Emit
 
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
-                emitter.EmitProperty(LanguageVersionPropertyName, "2.1-experimental");
+                emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
             }
             else if (Context.Settings.EnableSymbolicNames)
             {
@@ -1179,7 +1179,14 @@ namespace Bicep.Core.Emit
                 var importSymbol = Context.SemanticModel.Root.ProviderDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
                 if (importSymbol is not null)
                 {
-                    emitter.EmitProperty("import", importSymbol.Name);
+                    if (this.Context.SemanticModel.Features.LocalDeployEnabled)
+                    {
+                        emitter.EmitProperty("extension", importSymbol.Name);
+                    }
+                    else
+                    {
+                        emitter.EmitProperty("import", importSymbol.Name);
+                    }
                 }
 
                 if (metadata.IsAzResource)
@@ -1301,7 +1308,7 @@ namespace Bicep.Core.Emit
         {
             emitter.EmitObject(() =>
             {
-                emitter.EmitProperty("import", "az0synthesized");
+                emitter.EmitProperty("extension", "az0synthesized");
 
                 var body = module.Body;
                 if (body is ForLoopExpression forLoop)

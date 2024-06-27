@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
@@ -148,15 +149,20 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         AuthenticationToken extensibilityHostToken,
         CancellationToken cancellationToken)
     {
-        var extensionName = "LocalNested";
-        var extensionVersion = "0.0.0";
-        var method = "createOrUpdate";
-        var response = await extensibilityHandler.CallExtensibilityHostV2(extensionName, extensionVersion, method, content, cancellationToken);
+        var extensionName = requestUri.Segments[^4].TrimEnd('/');
+        var extensionVersion = requestUri.Segments[^3].TrimEnd('/');
+        var method = requestUri.Segments[^1].TrimEnd('/');
+        var extensibilityResponse = await extensibilityHandler.CallExtensibilityHostV2(extensionName, extensionVersion, method, content, cancellationToken);
 
-        return new HttpResponseMessage(HttpStatusCode.OK)
+        var response = new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent(response.ToJson()),
+            Content = new StringContent(extensibilityResponse.ToJson(), encoding: Encoding.UTF8, mediaType: "application/json")
         };
+
+        response.Headers.Add("Location", "local");
+        response.Headers.Add("Version", extensionVersion);
+
+        return response;
     }
 
     public override async Task<HttpResponseMessage> CallExtensibilityHost(
