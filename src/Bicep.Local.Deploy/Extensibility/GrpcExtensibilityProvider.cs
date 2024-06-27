@@ -30,7 +30,6 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProviderV2
 {
     private readonly BicepExtension.BicepExtensionClient client;
     private readonly Process process;
-    private static readonly ConcurrentDictionary<Uri, LocalExtensibilityProviderV2> startedProviders = new();
 
     private GrpcExtensibilityProvider(BicepExtension.BicepExtensionClient client, Process process)
     {
@@ -40,60 +39,53 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProviderV2
 
     public static async Task<LocalExtensibilityProviderV2> Start(Uri pathToBinary)
     {
-        // TODO: Acquire lock?
-        if (!startedProviders.TryGetValue(pathToBinary, out var localExtensibilityProvider))
+        var socketName = $"{Guid.NewGuid()}.tmp";
+        var socketPath = Path.Combine(Path.GetTempPath(), socketName);
+
+        if (File.Exists(socketPath))
         {
-            var socketName = $"{Guid.NewGuid()}.tmp";
-            var socketPath = Path.Combine(Path.GetTempPath(), socketName);
-
-            if (File.Exists(socketPath))
-            {
-                File.Delete(socketPath);
-            }
-
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = pathToBinary.LocalPath,
-                    Arguments = $"--socket {socketPath}",
-                    UseShellExecute = false,
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true,
-                },
-            };
-
-            try
-            {
-                // 30s timeout for starting up the RPC connection
-                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-
-                process.EnableRaisingEvents = true;
-                process.Exited += (sender, e) => cts.Cancel();
-                process.OutputDataReceived += (sender, e) => Trace.WriteLine($"{pathToBinary} stdout: {e.Data}");
-                process.ErrorDataReceived += (sender, e) => Trace.WriteLine($"{pathToBinary} stderr: {e.Data}");
-
-                process.Start();
-
-                process.BeginErrorReadLine();
-                process.BeginOutputReadLine();
-
-                var channel = GrpcChannelHelper.CreateChannel(socketPath);
-                var client = new BicepExtension.BicepExtensionClient(channel);
-
-                await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
-
-                localExtensibilityProvider = new GrpcExtensibilityProvider(client, process);
-                startedProviders[pathToBinary] = localExtensibilityProvider;
-            }
-            catch (Exception ex)
-            {
-                await TerminateProcess(process);
-                throw new InvalidOperationException($"Failed to connect to provider {pathToBinary.LocalPath}", ex);
-            }
+            File.Delete(socketPath);
         }
 
-        return localExtensibilityProvider;
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = pathToBinary.LocalPath,
+                Arguments = $"--socket {socketPath}",
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+            },
+        };
+
+        try
+        {
+            // 30s timeout for starting up the RPC connection
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+
+            process.EnableRaisingEvents = true;
+            process.Exited += (sender, e) => cts.Cancel();
+            process.OutputDataReceived += (sender, e) => Trace.WriteLine($"{pathToBinary} stdout: {e.Data}");
+            process.ErrorDataReceived += (sender, e) => Trace.WriteLine($"{pathToBinary} stderr: {e.Data}");
+
+            process.Start();
+
+            process.BeginErrorReadLine();
+            process.BeginOutputReadLine();
+
+            var channel = GrpcChannelHelper.CreateChannel(socketPath);
+            var client = new BicepExtension.BicepExtensionClient(channel);
+
+            await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
+
+            return new GrpcExtensibilityProvider(client, process);
+        }
+        catch (Exception ex)
+        {
+            await TerminateProcess(process);
+            throw new InvalidOperationException($"Failed to connect to provider {pathToBinary.LocalPath}", ex);
+        }
     }
 
     public override async Task<ExtensibilityV2.Models.ResourceResponseBody> CreateOrUpdateResourceAsync(ExtensibilityV2.Models.ResourceRequestBody request, CancellationToken cancellationToken)
@@ -127,26 +119,10 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProviderV2
         };
 
     private static ExtensibilityV2.Models.ErrorPayload Convert(Rpc.ErrorPayload error)
-        => new("", "", "", Convert(error.Details), error.InnerError != null ? JObject.Parse(error.InnerError): null);
+        => new(error.Code, error.Target, error.Message, error.Details is null ? null : Convert(error.Details), error.InnerError is null ? null : JObject.Parse(error.InnerError));
 
-    private static ExtensibilityV2.Models.ErrorDetail[]? Convert(RepeatedField<Rpc.ErrorDetail>? details)
-    {
-        if (details is not { })
-        {
-            return default;
-        }
-
-        var errorDetails = new ExtensibilityV2.Models.ErrorDetail[details.Count];
-
-        for (var i = 0; i < details.Count; i++)
-        {
-            if (details[i] is { })
-            {
-                errorDetails[i] = Convert(details[i]);
-            }
-        }
-        return errorDetails;
-    }
+    private static ExtensibilityV2.Models.ErrorDetail[] Convert(RepeatedField<Rpc.ErrorDetail> details)
+        => details.Select(Convert).ToArray();
 
     private static ExtensibilityV2.Models.ErrorDetail Convert(Rpc.ErrorDetail detail)
         => new(detail.Code, detail.Message, detail.Target);
