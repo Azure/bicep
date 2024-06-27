@@ -46,7 +46,7 @@ namespace Bicep.Cli.Commands
                 return new(architecture, BinaryData.FromStream(binaryStream));
             }
 
-            await ioContext.Error.WriteLineAsync("The 'publish-provider' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+            await ioContext.Error.WriteLineAsync("WARNING: The 'publish-provider' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
 
             var indexPath = PathHelper.ResolvePath(args.IndexFile);
             var indexUri = PathHelper.FilePathToFileUrl(indexPath);

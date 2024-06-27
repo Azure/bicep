@@ -45,7 +45,7 @@ public class PublishProviderCommandTests : TestBase
         result.Should().Succeed().And.NotHaveStdout();
 
         // this command should output an experimental warning
-        result.Stderr.Should().Match("The 'publish-provider' CLI command group is an experimental feature.*");
+        result.Stderr.Should().Match("WARNING: The 'publish-provider' CLI command group is an experimental feature.*");
 
         // verify the provider was published
         mockBlobClient.Should().HaveProvider(version, out var tgzStream);
