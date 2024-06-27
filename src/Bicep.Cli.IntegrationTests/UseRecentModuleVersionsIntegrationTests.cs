@@ -36,7 +36,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         new BicepModuleMetadata(
                     "fake/avm/res/app/container-app",
                     ["0.2.0"],
-                    new Dictionary<string, BicepModuleTagPropertiesEntry>().ToImmutableDictionary()),
+                    ImmutableDictionary<string, BicepModuleTagPropertiesEntry>.Empty),
     ];
 
     private const string PREFIX = "br:mcr.microsoft.com/bicep";
