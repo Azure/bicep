@@ -354,13 +354,16 @@ output foo string = foo
         [TestMethod]
         [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task Build_params_to_stdout_with_non_bicep_references_should_succeed(EmbeddedFile paramFile)
+        public async Task Build_params_to_stdout_with_extends_should_succeed(EmbeddedFile paramFile)
         {
             var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
-            var outputFile = baselineFolder.GetFileOrEnsureCheckedIn("output.json");
+            var outputFile = baselineFolder.GetFileOrEnsureCheckedIn("main.json");
 
             var clients = await MockRegistry.Build();
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
+
+            var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
+            result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
 
             var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
             result.Should().Succeed();
@@ -373,17 +376,17 @@ output foo string = foo
         }
 
         [TestMethod]
-        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/Extends/main\.bicepparam")]
+        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/Extends/shared\.bicepparam")]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task Build_params_extends_from_another_bicepparam_should_succeed(EmbeddedFile paramFile)
+        public async Task Build_base_params_to_stdout_should_succeed(EmbeddedFile paramFile)
         {
             var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
-            var outputFile = baselineFolder.GetFileOrEnsureCheckedIn("output.json");
+            var outputFile = baselineFolder.GetFileOrEnsureCheckedIn("shared.json");
 
             var clients = await MockRegistry.Build();
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
 
-            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath);
+            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
             result.Should().Succeed();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
