@@ -33,7 +33,7 @@ public interface IFeatureProvider
 
     bool ResourceDerivedTypesEnabled { get; }
 
-    bool ModularParametersEnabled { get; }
+    bool ExtendableParamFilesEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
@@ -54,7 +54,7 @@ public interface IFeatureProvider
                 (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),
                 (LocalDeployEnabled, "Enable local deploy", false, false),
                 (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
-                (ModularParametersEnabled, "Enable modular parameters", true, false),
+                (ExtendableParamFilesEnabled, "Enable modular parameters", true, false),
             })
             {
                 if (enabled)

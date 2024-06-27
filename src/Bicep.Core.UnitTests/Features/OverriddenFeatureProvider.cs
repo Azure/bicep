@@ -44,5 +44,5 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ResourceDerivedTypesEnabled => overrides.ResourceDerivedTypesEnabled ?? features.ResourceDerivedTypesEnabled;
 
-    public bool ModularParametersEnabled => overrides.ModularParametersEnabled ?? features.ModularParametersEnabled;
+    public bool ExtendableParamFilesEnabled => overrides.ExtendableParamFilesEnabled ?? features.ExtendableParamFilesEnabled;
 }

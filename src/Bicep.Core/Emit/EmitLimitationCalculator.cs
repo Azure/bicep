@@ -628,7 +628,7 @@ namespace Bicep.Core.Emit
         {
             foreach (var extendsDeclaration in model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>())
             {
-                if (!model.Features.ModularParametersEnabled)
+                if (!model.Features.ExtendableParamFilesEnabled)
                 {
                     diagnostics.Write(extendsDeclaration, x => x.ExtendsNotSupported());
                 }

@@ -20,7 +20,7 @@ namespace Bicep.Core.Features
 
         public bool ExtensibilityEnabled => this.configuration.ExperimentalFeaturesEnabled.Extensibility;
 
-        public bool ModularParametersEnabled => this.configuration.ExperimentalFeaturesEnabled.ModularParameters;
+        public bool ExtendableParamFilesEnabled => this.configuration.ExperimentalFeaturesEnabled.ExtendableParamFiles;
 
         public bool ResourceTypedParamsAndOutputsEnabled => this.configuration.ExperimentalFeaturesEnabled.ResourceTypedParamsAndOutputs;
 
