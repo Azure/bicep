@@ -55,7 +55,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         public string[] PublishedModules { get; init; } = [];
         public bool NoRestore { get; init; } = false;
 
-        public string DiagnosticLevel = "Warning"; // This rule normally defaults to "off"
+        public string DiagnosticLevel { get; init; } = "Warning"; // This rule normally defaults to "off"
 
         public string? BicepConfig
         {
