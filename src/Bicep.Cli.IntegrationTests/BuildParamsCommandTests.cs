@@ -352,7 +352,7 @@ output foo string = foo
         }
 
         [TestMethod]
-        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
+        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/Extends/main\.bicepparam")]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Build_params_to_stdout_with_extends_should_succeed(EmbeddedFile paramFile)
         {
@@ -365,7 +365,7 @@ output foo string = foo
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
             result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
 
-            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
+            result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
             result.Should().Succeed();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
