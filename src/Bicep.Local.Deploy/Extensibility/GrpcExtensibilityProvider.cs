@@ -88,16 +88,16 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProviderV2
         }
     }
 
-    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> CreateOrUpdateResourceAsync(ExtensibilityV2.Models.ResourceRequestBody request, CancellationToken cancellationToken)
+    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> CreateOrUpdate(ExtensibilityV2.Models.ResourceRequestBody request, CancellationToken cancellationToken)
         => Convert(await client.CreateOrUpdateAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> DeleteResourceAsync(ExtensibilityV2.Models.ResourceReferenceRequestBody request, CancellationToken cancellationToken)
+    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> Delete(ExtensibilityV2.Models.ResourceReferenceRequestBody request, CancellationToken cancellationToken)
         => Convert(await client.DeleteAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> GetResourceAsync(ExtensibilityV2.Models.ResourceReferenceRequestBody request, CancellationToken cancellationToken)
+    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> Get(ExtensibilityV2.Models.ResourceReferenceRequestBody request, CancellationToken cancellationToken)
         => Convert(await client.GetAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> PreviewResourceCreateOrUpdateAsync(ExtensibilityV2.Models.ResourceRequestBody request, CancellationToken cancellationToken)
+    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> Preview(ExtensibilityV2.Models.ResourceRequestBody request, CancellationToken cancellationToken)
         => Convert(await client.PreviewAsync(Convert(request), cancellationToken: cancellationToken));
 
     private static Rpc.ResourceReferenceRequestBody Convert(ExtensibilityV2.Models.ResourceReferenceRequestBody request)
@@ -127,18 +127,8 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProviderV2
     private static ExtensibilityV2.Models.ErrorDetail Convert(Rpc.ErrorDetail detail)
         => new(detail.Code, detail.Message, detail.Target);
 
-    private static ExtensibilityV2.Models.ResourceResponseBody Convert(Rpc.ResourceResponse response)
-    {
-        switch (response.ResultCase)
-        {
-            case ResourceResponse.ResultOneofCase.Response:
-                return new ExtensibilityV2.Models.ResourceResponseBody(error: null, response.Response.Identifiers, response.Response.Type, response.Response.Status, response.Response.Properties.ToJToken());
-            case ResourceResponse.ResultOneofCase.Error:
-                return new ExtensibilityV2.Models.ResourceResponseBody(Convert(response.Error), null, null, null, null);
-            default:
-                throw new ArgumentException("Unexpected result.");
-        }
-    }
+    private static ExtensibilityV2.Models.ResourceResponseBody Convert(Rpc.ResourceResponseBody response)
+        => new(Convert(response.Error), response.Identifiers, response.Type, response.Status, response.Properties.ToJToken());
 
     public override async ValueTask DisposeAsync()
     {

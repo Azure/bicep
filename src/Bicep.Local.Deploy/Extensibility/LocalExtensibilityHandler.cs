@@ -101,10 +101,10 @@ public class LocalExtensibilityHandler : IAsyncDisposable
     {
         return method switch
         {
-            "get" => await provider.GetResourceAsync(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceReferenceRequestBody>(content, cancellationToken), cancellationToken),
-            "delete" => await provider.DeleteResourceAsync(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceReferenceRequestBody>(content, cancellationToken), cancellationToken),
-            "createOrUpdate" => await provider.CreateOrUpdateResourceAsync(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceRequestBody>(content, cancellationToken), cancellationToken),
-            "preview" => await provider.PreviewResourceCreateOrUpdateAsync(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceRequestBody>(content, cancellationToken), cancellationToken),
+            "get" => await provider.Get(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceReferenceRequestBody>(content, cancellationToken), cancellationToken),
+            "delete" => await provider.Delete(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceReferenceRequestBody>(content, cancellationToken), cancellationToken),
+            "createOrUpdate" => await provider.CreateOrUpdate(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceRequestBody>(content, cancellationToken), cancellationToken),
+            "preview" => await provider.Preview(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceRequestBody>(content, cancellationToken), cancellationToken),
             _ => throw new NotImplementedException($"Unsupported method {method}"),
         };
     }

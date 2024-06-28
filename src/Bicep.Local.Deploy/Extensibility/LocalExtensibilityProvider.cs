@@ -25,13 +25,13 @@ public abstract class LocalExtensibilityProvider : IExtensibilityProvider, IAsyn
 
 public abstract class LocalExtensibilityProviderV2 : IAsyncDisposable
 {
-    public abstract Task<ResourceResponseBody> DeleteResourceAsync(ResourceReferenceRequestBody request, CancellationToken cancellationToken);
+    public abstract Task<ResourceResponseBody> Delete(ResourceReferenceRequestBody request, CancellationToken cancellationToken);
 
-    public abstract Task<ResourceResponseBody> GetResourceAsync(ResourceReferenceRequestBody request, CancellationToken cancellationToken);
+    public abstract Task<ResourceResponseBody> Get(ResourceReferenceRequestBody request, CancellationToken cancellationToken);
 
-    public abstract Task<ResourceResponseBody> PreviewResourceCreateOrUpdateAsync(ResourceRequestBody request, CancellationToken cancellationToken);
+    public abstract Task<ResourceResponseBody> Preview(ResourceRequestBody request, CancellationToken cancellationToken);
 
-    public abstract Task<ResourceResponseBody> CreateOrUpdateResourceAsync(ResourceRequestBody request, CancellationToken cancellationToken);
+    public abstract Task<ResourceResponseBody> CreateOrUpdate(ResourceRequestBody request, CancellationToken cancellationToken);
 
     public virtual ValueTask DisposeAsync()
     {

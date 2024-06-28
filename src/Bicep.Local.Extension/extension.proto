@@ -5,10 +5,10 @@ option csharp_namespace = "Bicep.Local.Extension.Rpc";
 package extension;
 
 service BicepExtension {
-  rpc CreateOrUpdate (ResourceRequestBody) returns (ResourceResponse);
-  rpc Preview (ResourceRequestBody) returns (ResourceResponse);
-  rpc Get (ResourceReferenceRequestBody) returns (ResourceResponse);
-  rpc Delete (ResourceReferenceRequestBody) returns (ResourceResponse);
+  rpc CreateOrUpdate (ResourceRequestBody) returns (ResourceResponseBody);
+  rpc Preview (ResourceRequestBody) returns (ResourceResponseBody);
+  rpc Get (ResourceReferenceRequestBody) returns (ResourceResponseBody);
+  rpc Delete (ResourceReferenceRequestBody) returns (ResourceResponseBody);
   rpc Ping(Empty) returns (Empty);
 }
 
@@ -28,19 +28,12 @@ message ResourceReferenceRequestBody {
 	optional string apiVersion = 4;
 }
 
-message ResourceResponse {
-	oneof result {
-		ResourceResponseBody response = 1;
-		ErrorPayload error = 2;
-	}
-}
-
 message ResourceResponseBody {
 	optional string identifiers = 1;
 	string type = 2;
 	optional string status = 3;
-	optional string apiVersion = 4;
-	string properties = 5;
+	string properties = 4;
+	optional ErrorPayload error = 5;
 }
 
 message ErrorPayload {

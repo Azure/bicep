@@ -96,7 +96,7 @@ param coords = {
                 };
 
         var providerMock = StrictMock.Of<LocalExtensibilityProviderV2>();
-        providerMock.Setup(x => x.CreateOrUpdateResourceAsync(It.Is<ResourceRequestBody>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
+        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceRequestBody>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceRequestBody, CancellationToken>((req, _) =>
             {
                 req.Properties["body"] = """
@@ -111,7 +111,7 @@ param coords = {
                 return Task.FromResult<ResourceResponseBody>(new(null, identifiers, req.Type, "Succeeded", req.Properties));
             });
 
-        providerMock.Setup(x => x.CreateOrUpdateResourceAsync(It.Is<ResourceRequestBody>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
+        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceRequestBody>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
             .Returns<ResourceRequestBody, CancellationToken>((req, _) =>
             {
                 req.Properties["body"] = """

@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Bicep.Core.Json;
 using Bicep.Local.Extension.Protocol;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Local.Extension.Mock.Handlers;
 
@@ -18,26 +19,33 @@ public class EchoResourceHandler : IResourceHandler
 {
     public string ResourceType => "echo";
 
-    public Task<ExtensibilityOperationResponse> Delete(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
+    public Task<ResourceResponseBody> Delete(ResourceReferenceRequestBody request, CancellationToken cancellationToken)
         => throw new NotImplementedException();
 
-    public Task<ExtensibilityOperationResponse> Get(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
+    public Task<ResourceResponseBody> Get(ResourceReferenceRequestBody request, CancellationToken cancellationToken)
         => throw new NotImplementedException();
 
-    public Task<ExtensibilityOperationResponse> PreviewSave(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
+    public Task<ResourceResponseBody> Preview(ResourceRequestBody request, CancellationToken cancellationToken)
         => throw new NotImplementedException();
 
-    public async Task<ExtensibilityOperationResponse> Save(ExtensibilityOperationRequest request, CancellationToken cancellationToken)
+    public async Task<ResourceResponseBody> CreateOrUpdate(ResourceRequestBody request, CancellationToken cancellationToken)
     {
         await Task.Yield();
-        var requestBody = JsonSerializer.Deserialize(request.Resource.Properties, SerializationContext.Default.EchoRequest)
+        var requestBody = JsonSerializer.Deserialize(request.Properties, SerializationContext.Default.EchoRequest)
             ?? throw new InvalidOperationException("Failed to deserialize request body");
 
-        var responseBody = new EchoResponse(requestBody.Payload);
-        var response = new ExtensibleResourceData(
-            request.Resource.Type,
-            JsonNode.Parse(JsonSerializer.Serialize(responseBody, SerializationContext.Default.EchoResponse))!.AsObject());
+        JsonObject identifiers = new()
+                {
+                    { "name", "someName" },
+                    { "namespace", "someNamespace" }
+                };
 
-        return new ExtensibilityOperationResponse(response, null, null);
+        var responseBody = new EchoResponse(requestBody.Payload);
+        return new ResourceResponseBody(
+            null,
+            identifiers,
+            request.Type,
+            "Succeeded",
+            JsonNode.Parse(JsonSerializer.Serialize(responseBody, SerializationContext.Default.EchoResponse))!.AsObject());
     }
 }

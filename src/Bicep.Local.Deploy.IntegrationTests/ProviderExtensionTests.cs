@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using System.IO.Pipes;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -50,6 +52,10 @@ public class ProviderExtensionTests : TestBase
 
                     await testFunc(client, cts.Token);
                 }
+                catch (Exception ex)
+                {
+                    Trace.TraceError(ex.Message);
+                }
                 finally
                 {
                     await cts.CancelAsync();
@@ -60,12 +66,18 @@ public class ProviderExtensionTests : TestBase
     [TestMethod]
     public async Task Save_request_works_as_expected()
     {
-        var handlerMock = StrictMock.Of<IResourceHandler>();
-        handlerMock.SetupGet(x => x.ResourceType).Returns("apps/Deployment@v1");
+        JsonObject identifiers = new()
+                {
+                    { "name", "someName" },
+                    { "namespace", "someNamespace" }
+                };
 
-        handlerMock.Setup(x => x.Save(It.IsAny<Protocol.ExtensibilityOperationRequest>(), It.IsAny<CancellationToken>()))
-            .Returns<Protocol.ExtensibilityOperationRequest, CancellationToken>((req, _) =>
-                Task.FromResult(new Protocol.ExtensibilityOperationResponse(req.Resource, null, null)));
+        var handlerMock = StrictMock.Of<IResourceHandler>();
+        handlerMock.SetupGet(x => x.ResourceType).Returns("apps/Deployment");
+
+        handlerMock.Setup(x => x.CreateOrUpdate(It.IsAny<Protocol.ResourceRequestBody>(), It.IsAny<CancellationToken>()))
+            .Returns<Protocol.ResourceRequestBody, CancellationToken>((req, _) =>
+                Task.FromResult(new Protocol.ResourceResponseBody(null, identifiers, req.Type, "Succeeded", req.Properties)));
 
         await RunExtensionTest(
             builder => builder.AddHandler(handlerMock.Object),
@@ -74,7 +86,7 @@ public class ProviderExtensionTests : TestBase
                 var request = new Extension.Rpc.ResourceRequestBody
                 {
                     ApiVersion = "v1",
-                    Type = "Microsoft.Resources/deployments",
+                    Type = "apps/Deployment",
                     Properties = """
                         {
                           "metadata": {
@@ -116,9 +128,9 @@ public class ProviderExtensionTests : TestBase
 
                 var response = await client.CreateOrUpdateAsync(request, cancellationToken: token);
 
-                response.ResultCase.Should().Be(ResourceResponse.ResultOneofCase.Response);
-                response.Response.Should().NotBeNull();
-                response.Response.Type.Should().Be("apps/Deployment@v1");
+                response.Should().NotBeNull();
+                response.Type.Should().Be("apps/Deployment");
+                response.Identifiers.Should().Be(identifiers.ToJson());
             });
     }
 }

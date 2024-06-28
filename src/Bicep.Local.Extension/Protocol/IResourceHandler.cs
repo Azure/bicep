@@ -4,53 +4,57 @@
 using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
+using Bicep.Local.Extension.Rpc;
 
 namespace Bicep.Local.Extension.Protocol;
 
-public record ExtensibilityOperationRequest(
-    ExtensibleImportData Import,
-    ExtensibleResourceData Resource);
-
-public record ExtensibilityOperationResponse(
-    ExtensibleResourceData? Resource,
-    ExtensibleResourceMetadata? ResourceMetadata,
-    ImmutableArray<ExtensibilityError>? Errors);
-
-public record ExtensibleImportData(
-    string Provider,
-    string Version,
-    JsonObject? Config);
-
-public record ExtensibleResourceData(
+public record ResourceRequestBody(
+    JsonObject? Config,
     string Type,
-    JsonObject? Properties);
+    JsonObject Properties,
+    string? ApiVersion);
 
-public record ExtensibleResourceMetadata(
-    ImmutableArray<string>? ReadOnlyProperties,
-    ImmutableArray<string>? ImmutableProperties,
-    ImmutableArray<string>? DynamicProperties);
+public record ResourceReferenceRequestBody(
+    JsonObject Identifiers,
+    JsonObject? Config,
+    string Type,
+    string? ApiVersion);
 
-public record ExtensibilityError(
+public record ResourceResponseBody(
+    ErrorPayload? Error,
+    JsonObject Identifiers,
+    string Type,
+    string Status,
+    JsonObject Properties);
+
+public record ErrorPayload(
     string Code,
+    string Target,
     string Message,
-    string Target);
+    ErrorDetail[]? Details,
+    JsonObject? InnerError);
+
+public record ErrorDetail(
+    string Code,
+    string Target,
+    string Message);
 
 public interface IGenericResourceHandler
 {
-    Task<ExtensibilityOperationResponse> Save(
-        ExtensibilityOperationRequest request,
+    Task<ResourceResponseBody> CreateOrUpdate(
+        ResourceRequestBody request,
         CancellationToken cancellationToken);
 
-    Task<ExtensibilityOperationResponse> PreviewSave(
-        ExtensibilityOperationRequest request,
+    Task<ResourceResponseBody> Preview(
+        ResourceRequestBody request,
         CancellationToken cancellationToken);
 
-    Task<ExtensibilityOperationResponse> Get(
-        ExtensibilityOperationRequest request,
+    Task<ResourceResponseBody> Get(
+        ResourceReferenceRequestBody request,
         CancellationToken cancellationToken);
 
-    Task<ExtensibilityOperationResponse> Delete(
-        ExtensibilityOperationRequest request,
+    Task<ResourceResponseBody> Delete(
+        ResourceReferenceRequestBody request,
         CancellationToken cancellationToken);
 }
 

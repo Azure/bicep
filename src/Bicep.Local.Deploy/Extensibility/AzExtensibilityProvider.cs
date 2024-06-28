@@ -24,7 +24,7 @@ public class AzExtensibilityProvider : LocalExtensibilityProviderV2
         this.extensibilityHandler = extensibilityHandler;
     }
 
-    public override async Task<ResourceResponseBody> CreateOrUpdateResourceAsync(ResourceRequestBody request, CancellationToken cancellationToken)
+    public override async Task<ResourceResponseBody> CreateOrUpdate(ResourceRequestBody request, CancellationToken cancellationToken)
     {
         switch (request.Type)
         {
@@ -66,17 +66,17 @@ public class AzExtensibilityProvider : LocalExtensibilityProviderV2
         throw new NotImplementedException();
     }
 
-    public override Task<ResourceResponseBody> DeleteResourceAsync(ResourceReferenceRequestBody request, CancellationToken cancellationToken)
+    public override Task<ResourceResponseBody> Delete(ResourceReferenceRequestBody request, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public override Task<ResourceResponseBody> GetResourceAsync(ResourceReferenceRequestBody request, CancellationToken cancellationToken)
+    public override Task<ResourceResponseBody> Get(ResourceReferenceRequestBody request, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public override Task<ResourceResponseBody> PreviewResourceCreateOrUpdateAsync(ResourceRequestBody request, CancellationToken cancellationToken)
+    public override Task<ResourceResponseBody> Preview(ResourceRequestBody request, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
