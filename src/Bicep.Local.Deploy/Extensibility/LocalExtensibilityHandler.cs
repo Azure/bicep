@@ -30,11 +30,11 @@ public class LocalExtensibilityHandler : IAsyncDisposable
         string Name,
         string Version);
 
-    private Dictionary<ProviderKey, LocalExtensibilityProviderV2> RegisteredProviders = new();
+    private Dictionary<ProviderKey, LocalExtensibilityProvider> RegisteredProviders = new();
     private readonly IModuleDispatcher moduleDispatcher;
-    private readonly Func<Uri, Task<LocalExtensibilityProviderV2>> providerFactory;
+    private readonly Func<Uri, Task<LocalExtensibilityProvider>> providerFactory;
 
-    public LocalExtensibilityHandler(IModuleDispatcher moduleDispatcher, Func<Uri, Task<LocalExtensibilityProviderV2>> providerFactory)
+    public LocalExtensibilityHandler(IModuleDispatcher moduleDispatcher, Func<Uri, Task<LocalExtensibilityProvider>> providerFactory)
     {
         this.moduleDispatcher = moduleDispatcher;
         this.providerFactory = providerFactory;
@@ -42,29 +42,7 @@ public class LocalExtensibilityHandler : IAsyncDisposable
         RegisteredProviders[new("LocalNested", "0.0.0")] = new AzExtensibilityProvider(this);
     }
 
-    private async Task<ExtensibilityOperationResponse> CallProvider(string method, IExtensibilityProvider provider, ExtensibilityOperationRequest request, CancellationToken cancellationToken)
-    {
-        return method switch
-        {
-            "get" => await provider.Get(request, cancellationToken),
-            "delete" => await provider.Delete(request, cancellationToken),
-            "save" => await provider.Save(request, cancellationToken),
-            "previewSave" => await provider.PreviewSave(request, cancellationToken),
-            _ => throw new NotImplementedException($"Unsupported method {method}"),
-        };
-    }
-
-    public async Task<ExtensibilityOperationResponse> CallExtensibilityHost(
-        string method,
-        ExtensibilityOperationRequest request,
-        CancellationToken cancellationToken)
-    {
-        var provider = RegisteredProviders[new(request.Import.Provider, request.Import.Version)];
-        IExtensibilityProvider? x = provider as IExtensibilityProvider;
-        return await CallProvider(method, x!, request, cancellationToken);
-    }
-
-    public async Task<ResourceResponseBody> CallExtensibilityHostV2(
+    public async Task<ResourceResponseBody> CallExtensibilityHost(
         string extensionName,
         string extensionVersion,
         string method,
@@ -73,38 +51,21 @@ public class LocalExtensibilityHandler : IAsyncDisposable
     {
         var provider = RegisteredProviders[new(extensionName, extensionVersion)];
 
-        return await CallProviderV2(method, provider, content, cancellationToken);
+        return await CallProvider(method, provider, content, cancellationToken);
     }
 
-    internal static class ModelSerializer
-    {
-        public static readonly JsonMediaTypeFormatter JsonMediaTypeFormatter = new()
-        {
-            SerializerSettings = JsonExtensions.MediaTypeFormatterSettings,
-            UseDataContractJsonSerializer = false
-        };
-
-        public static readonly JsonMediaTypeFormatter[] JsonMediaTypeFormatters =
-        [
-            JsonMediaTypeFormatter,
-        ];
-
-        public static Task<T> DeserializeFromHttpContentAsync<T>(HttpContent content, CancellationToken cancellationToken)
-            => content.ReadAsAsync<T>(JsonMediaTypeFormatters, cancellationToken);
-    }
-
-    private async Task<ResourceResponseBody> CallProviderV2(
+    private async Task<ResourceResponseBody> CallProvider(
         string method,
-        LocalExtensibilityProviderV2 provider,
+        LocalExtensibilityProvider provider,
         HttpContent content,
         CancellationToken cancellationToken)
     {
         return method switch
         {
-            "get" => await provider.Get(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceReferenceRequestBody>(content, cancellationToken), cancellationToken),
-            "delete" => await provider.Delete(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceReferenceRequestBody>(content, cancellationToken), cancellationToken),
-            "createOrUpdate" => await provider.CreateOrUpdate(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceRequestBody>(content, cancellationToken), cancellationToken),
-            "preview" => await provider.Preview(await ModelSerializer.DeserializeFromHttpContentAsync<ResourceRequestBody>(content, cancellationToken), cancellationToken),
+            "get" => await provider.Get(await content.ReadAsAsync<ResourceReferenceRequestBody>(cancellationToken), cancellationToken),
+            "delete" => await provider.Delete(await content.ReadAsAsync<ResourceReferenceRequestBody >(cancellationToken), cancellationToken),
+            "createOrUpdate" => await provider.CreateOrUpdate(await content.ReadAsAsync<ResourceRequestBody>(cancellationToken), cancellationToken),
+            "preview" => await provider.Preview(await content.ReadAsAsync<ResourceRequestBody>(cancellationToken), cancellationToken),
             _ => throw new NotImplementedException($"Unsupported method {method}"),
         };
     }

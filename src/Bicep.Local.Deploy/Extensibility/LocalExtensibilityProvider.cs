@@ -7,23 +7,7 @@ using Azure.Deployments.Extensibility.Messages;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public abstract class LocalExtensibilityProvider : IExtensibilityProvider, IAsyncDisposable
-{
-    public abstract Task<ExtensibilityOperationResponse> Delete(ExtensibilityOperationRequest request, CancellationToken cancellationToken);
-
-    public abstract Task<ExtensibilityOperationResponse> Get(ExtensibilityOperationRequest request, CancellationToken cancellationToken);
-
-    public abstract Task<ExtensibilityOperationResponse> PreviewSave(ExtensibilityOperationRequest request, CancellationToken cancellationToken);
-
-    public abstract Task<ExtensibilityOperationResponse> Save(ExtensibilityOperationRequest request, CancellationToken cancellationToken);
-
-    public virtual ValueTask DisposeAsync()
-    {
-        return ValueTask.CompletedTask;
-    }
-}
-
-public abstract class LocalExtensibilityProviderV2 : IAsyncDisposable
+public abstract class LocalExtensibilityProvider : IAsyncDisposable
 {
     public abstract Task<ResourceResponseBody> Delete(ResourceReferenceRequestBody request, CancellationToken cancellationToken);
 

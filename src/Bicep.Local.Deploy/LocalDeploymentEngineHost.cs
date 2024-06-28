@@ -152,7 +152,7 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         var extensionName = requestUri.Segments[^4].TrimEnd('/');
         var extensionVersion = requestUri.Segments[^3].TrimEnd('/');
         var method = requestUri.Segments[^1].TrimEnd('/');
-        var extensibilityResponse = await extensibilityHandler.CallExtensibilityHostV2(extensionName, extensionVersion, method, content, cancellationToken);
+        var extensibilityResponse = await extensibilityHandler.CallExtensibilityHost(extensionName, extensionVersion, method, content, cancellationToken);
 
         var response = new HttpResponseMessage(HttpStatusCode.OK)
         {
@@ -163,21 +163,6 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         response.Headers.Add("Version", extensionVersion);
 
         return response;
-    }
-
-    public override async Task<HttpResponseMessage> CallExtensibilityHost(
-        HttpMethod requestMethod,
-        Uri requestUri,
-        ExtensibilityOperationRequest request,
-        AuthenticationToken extensibilityHostToken,
-        CancellationToken cancellationToken)
-    {
-        var response = await extensibilityHandler.CallExtensibilityHost(requestUri.Segments[^1], request, cancellationToken);
-
-        return new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(response.ToJson()),
-        };
     }
 
     protected override Task<JToken> GetEnvironmentKey()

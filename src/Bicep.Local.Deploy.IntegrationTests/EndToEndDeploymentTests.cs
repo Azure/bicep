@@ -95,7 +95,7 @@ param coords = {
                     { "namespace", "someNamespace" }
                 };
 
-        var providerMock = StrictMock.Of<LocalExtensibilityProviderV2>();
+        var providerMock = StrictMock.Of<LocalExtensibilityProvider>();
         providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceRequestBody>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceRequestBody, CancellationToken>((req, _) =>
             {

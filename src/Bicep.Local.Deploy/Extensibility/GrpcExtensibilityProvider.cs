@@ -26,7 +26,7 @@ using Google.Protobuf.Collections;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public class GrpcExtensibilityProvider : LocalExtensibilityProviderV2
+public class GrpcExtensibilityProvider : LocalExtensibilityProvider
 {
     private readonly BicepExtension.BicepExtensionClient client;
     private readonly Process process;
@@ -37,7 +37,7 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProviderV2
         this.process = process;
     }
 
-    public static async Task<LocalExtensibilityProviderV2> Start(Uri pathToBinary)
+    public static async Task<LocalExtensibilityProvider> Start(Uri pathToBinary)
     {
         var socketName = $"{Guid.NewGuid()}.tmp";
         var socketPath = Path.Combine(Path.GetTempPath(), socketName);

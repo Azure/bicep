@@ -15,7 +15,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public class AzExtensibilityProvider : LocalExtensibilityProviderV2
+public class AzExtensibilityProvider : LocalExtensibilityProvider
 {
     private readonly LocalExtensibilityHandler extensibilityHandler;
 
