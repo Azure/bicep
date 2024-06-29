@@ -18,7 +18,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         [TestMethod]
         public void GetVSLocations_WithValidLocation_ShouldReturnVSLocation()
         {
-            var handleGotoDefintionMiddleLayer = new HandleGotoDefintionMiddleLayer();
+            var handleGotoDefintionMiddleLayer = new HandleGotoDefinitionMiddleLayer();
             var uri = DocumentUri.From("some_path");
             var omniSharpLocation = new OmniSharpLocation
             {
@@ -48,7 +48,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         [TestMethod]
         public void GetVSLocations_WithValidLocationLink_ShouldReturnVSLocation()
         {
-            var handleGotoDefintionMiddleLayer = new HandleGotoDefintionMiddleLayer();
+            var handleGotoDefintionMiddleLayer = new HandleGotoDefinitionMiddleLayer();
             var uri = DocumentUri.From("some_path");
             var omniSharpLocationLink = new LocationLink
             {
