@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
 {
     [TestClass]
+    [Obsolete]//asdfg
     public class HandleSnippetCompletionsMiddleLayerTests
     {
         [DataTestMethod]
