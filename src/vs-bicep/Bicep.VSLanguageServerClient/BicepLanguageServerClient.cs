@@ -32,11 +32,13 @@ namespace Bicep.VSLanguageServerClient
     {
         private IClientProcess? process;
         private readonly IBicepSettings bicepSettings;
+        [Obsolete]//asdfg
         private readonly ILanguageClientMiddleLayer middleLayer;
         private readonly IProcessTracker processTracker;
         private readonly TelemetrySession TelemetrySession;
 
         [ImportingConstructor]
+        [Obsolete]//asdfg
         public BicepLanguageServerClient(IProcessTracker processTracker)
         {
             this.processTracker = processTracker;
@@ -47,17 +49,17 @@ namespace Bicep.VSLanguageServerClient
             bicepSettings = new BicepSettings();
 
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer(bicepSettings);
-            var gotoDefintionMiddleLayer = new HandleGotoDefintionMiddleLayer();
-            middleLayer = new AggregatingMiddleLayer(gotoDefintionMiddleLayer, handleSnippetCompletionsMiddleLayer, updateFormatSettingsMiddleLayer);
+            var gotoDefinitionMiddleLayer = new HandleGotoDefinitionMiddleLayer();
+            middleLayer = new AggregatingMiddleLayer(gotoDefinitionMiddleLayer, handleSnippetCompletionsMiddleLayer, updateFormatSettingsMiddleLayer);
         }
 
         public string Name => BicepLanguageServerClientConstants.BicepLanguageServerName;
 
-        public virtual IEnumerable<string> ConfigurationSections => Enumerable.Empty<string>();
+        public virtual IEnumerable<string> ConfigurationSections => [];
 
-        public virtual object InitializationOptions => new object();
+        public virtual object InitializationOptions => new();
 
-        public IEnumerable<string> FilesToWatch => Enumerable.Empty<string>();
+        public IEnumerable<string> FilesToWatch => [];
 
         public bool ShowNotificationOnInitializeFailed => true;
 
@@ -114,6 +116,7 @@ namespace Bicep.VSLanguageServerClient
             await bicepSettings.LoadTextManagerAsync();
         }
 
+        [Obsolete]//asdfg
         public object MiddleLayer => middleLayer;
 
         public object CustomMessageTarget => new TelemetryCustomMessageTarget(TelemetrySession);

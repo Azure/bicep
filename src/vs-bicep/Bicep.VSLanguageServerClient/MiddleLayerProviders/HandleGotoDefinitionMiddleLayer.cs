@@ -18,11 +18,12 @@ using VSRange = Microsoft.VisualStudio.LanguageServer.Protocol.Range;
 namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
 {
     /// <summary>
-    /// This middle layer supports goto defintion in Visual Studio
+    /// This middle layer supports goto definition in Visual Studio
     /// VS lsp model is different from O#. We need to convert the output obtained from bicep language server to a format that is
     /// serializable by VS language server client.
     /// </summary>
-    public class HandleGotoDefintionMiddleLayer : ILanguageClientMiddleLayer
+    [Obsolete]//asdfg
+    public class HandleGotoDefinitionMiddleLayer : ILanguageClientMiddleLayer
     {
         public bool CanHandle(string methodName)
         {

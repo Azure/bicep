@@ -22,10 +22,10 @@ namespace Bicep.VSLanguageServerClient
     /// </summary>
     public class DidChangeWatchedFilesNotifier : IDisposable
     {
-        private readonly string[] filters = { "*.arm", "*.bicep", "*.json", "*.jsonc" };
+        private readonly string[] filters = ["*.arm", "*.bicep", "*.json", "*.jsonc"];
         private readonly string? location;
         private readonly JsonRpc rpc;
-        private List<FileSystemWatcher> fileSystemWatchers = new List<FileSystemWatcher>();
+        private List<FileSystemWatcher> fileSystemWatchers = new();
 
         public DidChangeWatchedFilesNotifier(JsonRpc rpc)
         {
@@ -111,7 +111,7 @@ namespace Bicep.VSLanguageServerClient
             };
             var didChangeWatchedFilesParams = new DidChangeWatchedFilesParams()
             {
-                Changes = new FileEvent[] { fileEvent }
+                Changes = [fileEvent]
             };
 
             _ = rpc.NotifyWithParameterObjectAsync(Methods.WorkspaceDidChangeWatchedFilesName, didChangeWatchedFilesParams);
