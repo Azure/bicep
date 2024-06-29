@@ -31,6 +31,7 @@ namespace Bicep.VSLanguageServerClient
         {
             this.rpc = rpc;
 
+            ThreadHelper.ThrowIfNotOnUIThread();
             var sVsSolution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution).GUID);
 
             // Handles project system scenario

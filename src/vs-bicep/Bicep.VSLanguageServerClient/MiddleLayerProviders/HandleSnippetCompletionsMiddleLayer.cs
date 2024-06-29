@@ -48,7 +48,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
             if (CanHandle(methodName))
             {
                 JToken? jToken = await sendRequest(methodParam);
-                List<CompletionItem> updatedCompletions = new List<CompletionItem>();
+                List<CompletionItem> updatedCompletions = new();
 
                 if (jToken is not null)
                 {

@@ -16,6 +16,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
     public class HandleGotoDefintionMiddleLayerTests
     {
         [TestMethod]
+        [Obsolete]//asdfg
         public void GetVSLocations_WithValidLocation_ShouldReturnVSLocation()
         {
             var handleGotoDefintionMiddleLayer = new HandleGotoDefinitionMiddleLayer();
@@ -46,6 +47,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         }
 
         [TestMethod]
+        [Obsolete]//asdfg
         public void GetVSLocations_WithValidLocationLink_ShouldReturnVSLocation()
         {
             var handleGotoDefintionMiddleLayer = new HandleGotoDefinitionMiddleLayer();
