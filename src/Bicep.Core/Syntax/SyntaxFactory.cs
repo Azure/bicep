@@ -367,7 +367,7 @@ namespace Bicep.Core.Syntax
             => new(@base, LeftSquareToken, safe ? QuestionToken : null, accessExpression, RightSquareToken);
 
         public static SyntaxBase CreateSafeAccess(SyntaxBase @base, SyntaxBase accessExpression)
-            => (accessExpression is StringSyntax stringAccess && stringAccess.TryGetLiteralValue() is {} stringValue) ?
+            => (accessExpression is StringSyntax stringAccess && stringAccess.TryGetLiteralValue() is { } stringValue) ?
                 CreatePropertyAccess(@base, true, stringValue) :
                 CreateArrayAccess(@base, true, accessExpression);
 

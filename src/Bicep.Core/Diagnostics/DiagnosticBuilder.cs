@@ -1219,9 +1219,9 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedProviderSpecification()
             {
                 var message = """
-                Expected a provider specification string with a valid format at this location. Valid formats:
-                * "br:<providerRegistryHost>/<providerRepositoryPath>:<providerVersion>"
-                * "br/<providerAlias>:<providerName>:<providerVersion>"
+                Expected an extension specification string with a valid format at this location. Valid formats:
+                * "br:<extensionRegistryHost>/<extensionRepositoryPath>:<extensionVersion>"
+                * "br/<extensionAlias>:<extensionName>:<extensionVersion>"
                 """;
                 return new(TextSpan, "BCP201", message);
             }
@@ -1229,27 +1229,27 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedProviderAliasName() => new(
                 TextSpan,
                 "BCP202",
-                "Expected a provider alias name at this location.");
+                "Expected an extension alias name at this location.");
 
             public ErrorDiagnostic ProvidersAreDisabled() => new(
                 TextSpan,
                 "BCP203",
-                $@"Using provider statements requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Extensibility)}"".");
+                $@"Using extension declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Extensibility)}"".");
 
             public ErrorDiagnostic UnrecognizedProvider(string identifier) => new(
                 TextSpan,
                 "BCP204",
-                $"Provider namespace \"{identifier}\" is not recognized.");
+                $"Extension \"{identifier}\" is not recognized.");
 
             public ErrorDiagnostic ProviderDoesNotSupportConfiguration(string identifier) => new(
                 TextSpan,
                 "BCP205",
-                $"Provider namespace \"{identifier}\" does not support configuration.");
+                $"Extension \"{identifier}\" does not support configuration.");
 
             public ErrorDiagnostic ProviderRequiresConfiguration(string identifier) => new(
                 TextSpan,
                 "BCP206",
-                $"Provider namespace \"{identifier}\" requires configuration, but none was provided.");
+                $"Extension \"{identifier}\" requires configuration, but none was provided.");
 
             public ErrorDiagnostic NamespaceMultipleDeclarations(string identifier) => new(
                 TextSpan,
@@ -2076,19 +2076,19 @@ namespace Bicep.Core.Diagnostics
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
 
-            public FixableDiagnostic ProviderDeclarationViaImportKeywordIsDeprecated(ProviderDeclarationSyntax syntax)
+            public FixableDiagnostic ExtensionDeclarationKeywordIsDeprecated(ProviderDeclarationSyntax syntax)
             {
                 var codeFix = new CodeFix(
-                    "Replace the import with the provider keyword",
+                    $"Replace the {syntax.Keyword.Text} keyword with the extension keyword",
                     true,
                     CodeFixKind.QuickFix,
-                    new CodeReplacement(syntax.Keyword.Span, LanguageConstants.ProviderKeyword));
+                    new CodeReplacement(syntax.Keyword.Span, LanguageConstants.ExtensionKeyword));
 
                 return new FixableDiagnostic(
                     TextSpan,
                     DiagnosticLevel.Warning,
                     "BCP381",
-                    $"Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead.",
+                    @$"Declaring extension with the ""{syntax.Keyword.Text}"" keyword has been deprecated. Please use the ""extension"" keyword instead. Please see https://github.com/Azure/bicep/issues/14374 for more information.",
                     documentationUri: null,
                     DiagnosticStyling.Default,
                     codeFix);

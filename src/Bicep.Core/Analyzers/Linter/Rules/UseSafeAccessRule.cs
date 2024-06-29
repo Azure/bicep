@@ -27,7 +27,7 @@ public sealed class UseSafeAccessRule : LinterRuleBase
     {
         foreach (var ternary in SyntaxAggregator.AggregateByType<TernaryOperationSyntax>(model.Root.Syntax))
         {
-            if (SemanticModelHelper.TryGetNamedFunction(model, SystemNamespaceType.BuiltInName, "contains", ternary.ConditionExpression) is not {} functionCall ||
+            if (SemanticModelHelper.TryGetNamedFunction(model, SystemNamespaceType.BuiltInName, "contains", ternary.ConditionExpression) is not { } functionCall ||
                 functionCall.Arguments.Length != 2)
             {
                 continue;
