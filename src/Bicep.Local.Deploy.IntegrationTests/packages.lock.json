@@ -863,6 +863,11 @@
           "OmniSharp.Extensions.LanguageProtocol": "0.19.9"
         }
       },
+      "RichardSzalay.MockHttp": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "QwnauYiaywp65QKFnP+wvgiQ2D8Pv888qB2dyfd7MSVDF06sIvxqASenk+RxsWybyyt+Hu1Y251wQxpHTv3UYg=="
+      },
       "runtime.linux-arm.runtime.native.System.IO.Ports": {
         "type": "Transitive",
         "resolved": "6.0.0",
@@ -924,6 +929,11 @@
         "type": "Transitive",
         "resolved": "4.4.0",
         "contentHash": "YhEdSQUsTx+C8m8Bw7ar5/VesXvCFMItyZF7G1AUY+OM0VPZUOeAVpJ4Wl6fydBGUYZxojTDR3I6Bj/+BPkJNA=="
+      },
+      "Semver": {
+        "type": "Transitive",
+        "resolved": "2.3.0",
+        "contentHash": "4vYo1zqn6pJ1YrhjuhuOSbIIm0CpM47grbpTJ5ABjOlfGt/EhMEM9ed4MRK5Jr6gVnntWDqOUzGeUJp68PZGjw=="
       },
       "SharpYaml": {
         "type": "Transitive",
@@ -1517,9 +1527,11 @@
           "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
           "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
+          "Microsoft.Extensions.Http": "[8.0.0, )",
           "Microsoft.Graph.Bicep.Types": "[0.1.6-preview, )",
           "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2007, )",
           "Newtonsoft.Json": "[13.0.3, )",
+          "Semver": "[2.3.0, )",
           "SharpYaml": "[2.1.1, )",
           "System.IO.Abstractions": "[21.0.2, )",
           "System.Private.Uri": "[4.3.2, )"
@@ -1561,6 +1573,7 @@
           "Microsoft.NET.Test.Sdk": "[17.10.0, )",
           "Moq": "[4.20.70, )",
           "Newtonsoft.Json.Schema": "[3.0.16, )",
+          "RichardSzalay.MockHttp": "[7.0.0, )",
           "System.IO.Abstractions.TestingHelpers": "[21.0.2, )"
         }
       },

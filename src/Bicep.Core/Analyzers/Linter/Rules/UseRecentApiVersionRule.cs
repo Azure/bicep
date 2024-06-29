@@ -74,7 +74,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 yield return CreateDiagnosticForSpan(
                     diagnosticLevel,
                     new TextSpan(),
-                    $"{UseRecentApiVersionRule.Code}: Configuration value for {MaxAgeInDaysKey} is not valid: {maxAgeInDays}",
+                    $"{Code}: Configuration value for {MaxAgeInDaysKey} is not valid: {maxAgeInDays}",
                     Array.Empty<AzureResourceApiVersion>());
 
                 maxAgeInDays = DefaultMaxAgeInDays;
@@ -475,7 +475,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static TextSpan? GetReplacementSpan(ResourceSymbol resourceSymbol, string apiVersion)
         {
             if (resourceSymbol.DeclaringResource.TypeString is StringSyntax typeString &&
-                typeString.StringTokens.First() is Token token)
+                typeString.StringTokens.FirstOrDefault() is Token token)
             {
                 int replacementSpanStart = token.Span.Position + token.Text.IndexOf(apiVersion);
 

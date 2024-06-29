@@ -91,7 +91,7 @@ namespace Bicep.LangServer.UnitTests
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton(TestTypeHelper.CreateEmptyResourceTypeLoader())
-                .AddSingletonIfNonNull<IConfigurationManager>(configurationManager)
+                .AddSingletonIfNotNull<IConfigurationManager>(configurationManager)
                 .AddSingleton<BicepCompilationProvider>());
 
             return helper.Construct<BicepCompilationProvider>();

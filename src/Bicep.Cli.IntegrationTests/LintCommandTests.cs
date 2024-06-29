@@ -13,7 +13,13 @@ using FluentAssertions.Execution;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Bicep.Core.Registry.PublicRegistry;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using Bicep.Cli.UnitTests;
+using FileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Cli.IntegrationTests;
 
@@ -154,8 +160,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
     {
         var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
         var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-        var defaultSettings = CreateDefaultSettings();
-        var diagnostics = await GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
+        var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecRepositoryFactory, InvocationSettings.Default.ModuleMetadataClient);
 
         var (output, error, result) = await Bicep("lint", bicepFilePath);
 
@@ -173,8 +178,10 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
         var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
         var configurationPath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", string.Empty, testOutputPath);
+        var settings = new InvocationSettings() { ModuleMetadataClient = PublicRegistryModuleMetadataClientMock.CreateToThrow(new Exception("unit test failed: shouldn't call this")).Object };
 
-        var (output, error, result) = await Bicep("lint", inputFile);
+        var (output, error, result) = await Bicep(settings, "lint", inputFile);
+
 
         result.Should().Be(1);
         output.Should().BeEmpty();
@@ -254,7 +261,6 @@ param notUsedParm = 'string'
         sarifLog.Runs[0].Results[0].RuleId.Should().Be("no-unused-params");
         sarifLog.Runs[0].Results[0].Message.Text.Should().Contain("is declared but never used");
     }
-
     private static IEnumerable<object[]> GetValidDataSetsWithoutWarnings() => DataSets
         .AllDataSets
         .Where(ds => ds.IsValid)
