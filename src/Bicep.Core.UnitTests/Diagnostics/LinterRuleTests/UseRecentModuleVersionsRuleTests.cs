@@ -34,7 +34,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             .WithRegistration(x => x.AddSingleton(
                 IConfigurationManager.WithStaticConfiguration(
                     IConfigurationManager.GetBuiltInConfiguration()
-                    .WithAllAnalyzers())));       
+                    .WithAllAnalyzers())));
 
         private static CompilationResult Compile(
             string bicep,
@@ -249,7 +249,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                     """,
                 ["avm/res/network/public-ip-address"],
-                ["0.3.0", "0.4.1", "0.4.2", "0.4.5" ]
+                ["0.3.0", "0.4.1", "0.4.2", "0.4.5"]
             );
             result.Diagnostics.Where(d => d.Code == UseRecentModuleVersionsRule.Code)
                 .Should()
