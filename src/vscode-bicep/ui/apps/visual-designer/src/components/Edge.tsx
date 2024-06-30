@@ -1,4 +1,4 @@
-import type { Position } from "../core/types";
+import type { Position } from "../math/geometry";
 
 interface EdgeProps {
   sourceIntersection: Position;

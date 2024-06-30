@@ -2,7 +2,7 @@ import { styled } from "styled-components";
 
 import { Graph } from "./Graph";
 import { usePanZoom } from "../hooks/usePanZoom";
-import { store } from "../stores";
+import { useStore } from "../stores";
 
 import type { DragEvent } from "react";
 
@@ -19,7 +19,7 @@ let nodeId = 0;
 
 export default function Canvas() {
   const canvasRef = usePanZoom();
-  const addNode = store.use.addNode();
+  const addNode = useStore(x => x.addNode);
 
   function handleDragOver(event: DragEvent<HTMLDivElement>) {
     event.preventDefault();

@@ -16,20 +16,23 @@ export default defineConfig({
       exclude: ["src/**/*.stories.ts", "src/**/*.stories.tsx"],
       insertTypesEntry: true,
     }),
-    libInjectCss({
+    libInjectCss(),
+  ],
+  build: {
+    lib: {
       formats: ["es"],
       entry: {
         index: "src/index.ts",
         "azure-icon": "src/azure-icon/index.ts",
         codicon: "src/codicon/index.ts",
       },
-      rollupOptions: {
-        output: {
-          entryFileNames: "[name].js",
-          chunkFileNames: "chunks/[name].[hash].js",
-          assetFileNames: "assets/[name][extname]",
-        },
+    },
+    rollupOptions: {
+      output: {
+        entryFileNames: "[name].js",
+        chunkFileNames: "chunks/[name].[hash].js",
+        assetFileNames: "assets/[name][extname]",
       },
-    }),
-  ],
+    },
+  },
 });

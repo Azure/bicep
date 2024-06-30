@@ -2,7 +2,7 @@ import type { ConfigState, ImmerStateCreator } from "./types";
 
 export const createConfigSlice: ImmerStateCreator<ConfigState> = (set) => ({
   edgeShape: "Straight",
-  nodeVariant: "Compact",
+  nodeVariant: "Informative",
 
   setNodeVariant: (nodeVariant) =>
     set((graphConfig) => {

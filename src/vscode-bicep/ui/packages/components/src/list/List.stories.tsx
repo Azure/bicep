@@ -18,11 +18,13 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Fruits: Story = {
-  render: () => <List>
-    <ListItem>Apple</ListItem>
-    <ListItem>Banana</ListItem>
-    <ListItem>Orange</ListItem>
-    <ListItem>Peach</ListItem>
-    <ListItem>Plum</ListItem>
-  </List>
+  render: () => (
+    <List>
+      <ListItem>Apple</ListItem>
+      <ListItem>Banana</ListItem>
+      <ListItem>Orange</ListItem>
+      <ListItem>Peach</ListItem>
+      <ListItem>Plum</ListItem>
+    </List>
+  ),
 };

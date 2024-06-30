@@ -2,14 +2,14 @@ import { select } from "d3-selection";
 import { zoom } from "d3-zoom";
 import { useEffect, useRef } from "react";
 
-import { store } from "../stores";
+import { useStore } from "../stores";
 
 import type { D3ZoomEvent } from "d3-zoom";
 
 export function usePanZoom<T extends Element = HTMLDivElement>() {
   const containerRef = useRef<T>(null);
-  const translateTo = store.use.translateTo();
-  const scaleTo = store.use.scaleTo();
+  const translateTo = useStore(x => x.translateTo);
+  const scaleTo = useStore(x => x.scaleTo);
 
   useEffect(() => {
     if (containerRef.current) {

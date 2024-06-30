@@ -37,7 +37,7 @@ export interface NodeState extends Node {
 }
 
 export interface ExplicitDependency {
-  kind: 'Implicit';
+  kind: 'Explicit';
 }
 
 export interface ImplicitDependency {
@@ -46,9 +46,11 @@ export interface ImplicitDependency {
   targetExpression: string;
 }
 
+export type Dependency = ExplicitDependency | ImplicitDependency;
+
 export interface EdgeState extends Edge {
-  data: {
-    explicitDependsOn?: boolean;
+  data?: {
+    dependency: Dependency;
   };
 }
 
