@@ -783,9 +783,9 @@
       "type": "object",
       "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file. See https://aka.ms/bicep/experimental-features for more information.",
       "properties": {
-        "modularParameters": {
+        "extendableParamFiles": {
           "type": "boolean",
-          "description": "Allows the use of modular parameters. See https://aka.ms/bicep/experimental-features#modularparameters"
+          "description": "Allows the use of 'extends' keyword. See https://aka.ms/bicep/experimental-features#extendableParamFiles"
         },
         "symbolicNameCodegen": {
           "type": "boolean",
