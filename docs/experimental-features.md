@@ -24,7 +24,7 @@ Enables code formatting with the legacy formatter. This feature flag is introduc
 ### `localDeploy`
 Enables local deployment capability. See [Bicep Local Providers](https://github.com/anthony-c-martin/bicep-local-providers) for more information.
 
-### `modularParameters`
+### `extendableParamFiles`
 Enables the ability to extend bicepparam files from other bicepparam files.
 
 ### `optionalModuleNames`
