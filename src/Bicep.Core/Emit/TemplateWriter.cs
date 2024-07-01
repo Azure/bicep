@@ -1071,8 +1071,8 @@ namespace Bicep.Core.Emit
                     // Type checking should have validated that the config name is not an expression (e.g. string interpolation), if we get a null value it means something
                     // was wrong with type checking validation.
                     var providerConfigName = providerConfigProperty.TryGetKeyText() ?? throw new UnreachableException("Expressions are not allowed as config names.");
-                    var x = provider.Settings.ConfigurationType ?? throw new UnreachableException();
-                    var providerConfigType = GetProviderConfigType(providerConfigName, provider.Settings.ConfigurationType!);
+                    var configType = provider.Settings.ConfigurationType ?? throw new UnreachableException();
+                    var providerConfigType = GetProviderConfigType(providerConfigName, configType);
 
                     emitter.EmitObjectProperty(providerConfigName, () =>
                     {

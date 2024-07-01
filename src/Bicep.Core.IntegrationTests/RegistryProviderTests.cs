@@ -357,7 +357,7 @@ output joke string = dadJoke.joke
         var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(), AllFeaturesEnabledForLocalDeploy);
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo:1.2.3' with {
+extension 'br:example.azurecr.io/providers/foo:1.2.3' with {
   namespace: 'ThirdPartyNamespace'
   config: 'Some path to config file'
   context: 'Some ThirdParty context'
@@ -387,13 +387,13 @@ output joke string = dadJoke.joke
     }
 
     [TestMethod]
-    public async Task Local_deploy_provider_with_configuration_defined_and_empty_configuration_provided_result_in_failure_compilation()
+    public async Task Local_deploy_provider_with_configuration_defined_and_empty_configuration_provided_throws_errors()
     {
         // tgzData provideds configType with the properties namespace, config, and context
         var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(), AllFeaturesEnabledForLocalDeploy);
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo:1.2.3' with { }
+extension 'br:example.azurecr.io/providers/foo:1.2.3' with { }
 
 resource dadJoke 'fooType@v1' = {
   identifier: 'foo'
@@ -409,12 +409,12 @@ output joke string = dadJoke.joke
     }
 
     [TestMethod]
-    public async Task Local_deploy_provider_without_configuration_defined_and_configuration_provided_result_in_failure_compilation()
+    public async Task Local_deploy_provider_without_configuration_defined_but_configuration_provided_throws_errors()
     {
         var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgz(), AllFeaturesEnabledForLocalDeploy);
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/providers/foo:1.2.3' with {
+extension 'br:example.azurecr.io/providers/foo:1.2.3' with {
   namespace: 'ThirdPartyNamespace'
   config: 'Some path to config file'
   context: 'Some ThirdParty context'
@@ -430,7 +430,7 @@ output baz string = fooRes.convertBarToBaz('bar')
 
         result.Template.Should().BeNull();
 
-        result.Should().HaveDiagnostics([("BCP205", DiagnosticLevel.Error, "Provider namespace \"ThirdPartyProvider\" does not support configuration.")], because: "Type checking should block the template compilation because provider does not support configuration but one has been provided.");
+        result.Should().HaveDiagnostics([("BCP205", DiagnosticLevel.Error, "Extension \"ThirdPartyProvider\" does not support configuration.")], because: "Type checking should block the template compilation because provider does not support configuration but one has been provided.");
     }
 
     [TestMethod]
