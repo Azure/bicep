@@ -485,11 +485,11 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
             PublishedModules = [
                 $"{PREFIX}/fake/avm/res/app/container-app1a:0.1.0",
                 $"{PREFIX}/fake/avm/res/app/container-app1b:0.1.0-beta",
-                ],
+            ],
             ModulesMetadata = [
                 ("fake/avm/res/app/container-app1a", ["0.1.0", "0.2.0"]),
                 ("fake/avm/res/app/container-app1b", ["0.1.0", "0.2.0"]),
-                ],
+            ],
         });
 
         result.Should().NotHaveCompileError(UnableToRestoreErrorCode);
@@ -514,7 +514,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
             ],
             ModulesMetadata = [
                 ("fake/avm/res/app/container-app2", ["0.1.0", "0.2.0"]),
-                ],
+            ],
         });
 
         result.Should().HaveStderrMatch("*Warning use-recent-module-versions: Use a more recent version of module 'fake/avm/res/app/container-app2'. The most recent version is 0.2.0.*");
@@ -536,7 +536,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
             ],
             ModulesMetadata = [
                 ("fake/avm/res/app/container-app2", ["0.1.0", "0.2.0"]),
-                ],
+            ],
         });
 
         result.Should().NotHaveStderr();

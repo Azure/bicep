@@ -15,7 +15,7 @@ namespace Bicep.Core.Analyzers.Linter
 
         public LinterRulesProvider()
         {
-            this.linterRulesLazy = new (() => GetLinterRulesInternal().ToImmutableDictionary());
+            this.linterRulesLazy = new(() => GetLinterRulesInternal().ToImmutableDictionary());
         }
 
         [UnconditionalSuppressMessage("Trimming", "IL2072:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "List of types comes from a source analyzer")]

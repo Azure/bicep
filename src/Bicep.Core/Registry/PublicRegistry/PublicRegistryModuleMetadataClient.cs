@@ -36,7 +36,7 @@ public class PublicRegistryModuleMetadataClient(HttpClient httpClient) : IPublic
             if (metadata is not null)
             {
                 Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataClient)}: Retrieved info on {metadata.Length} public registry modules.");
-                return [..metadata];
+                return [.. metadata];
             }
             else
             {
