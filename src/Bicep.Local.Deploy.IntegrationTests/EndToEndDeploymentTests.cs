@@ -44,7 +44,7 @@ public class EndToEndDeploymentTests : TestBase
 }
 """),
             ("main.bicep", """
-provider http
+extension http
 
 param coords {
   lattitude: string
@@ -95,7 +95,7 @@ param coords = {
                     { "namespace", "someNamespace" }
                 };
 
-        var providerMock = StrictMock.Of<LocalExtensibilityProvider>();
+        var providerMock = StrictMock.Of<LocalExtensibilityExtension>();
         providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceRequestBody>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceRequestBody, CancellationToken>((req, _) =>
             {
@@ -136,7 +136,7 @@ param coords = {
             });
 
         await using LocalExtensibilityHandler extensibilityHandler = new(BicepTestConstants.ModuleDispatcher, uri => Task.FromResult(providerMock.Object));
-        await extensibilityHandler.InitializeProviders(result.Compilation);
+        await extensibilityHandler.InitializeExtensions(result.Compilation);
 
         var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 

@@ -7,7 +7,7 @@ using Azure.Deployments.Extensibility.Messages;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public abstract class LocalExtensibilityProvider : IAsyncDisposable
+public abstract class LocalExtensibilityExtension : IAsyncDisposable
 {
     public abstract Task<ResourceResponseBody> Delete(ResourceReferenceRequestBody request, CancellationToken cancellationToken);
 

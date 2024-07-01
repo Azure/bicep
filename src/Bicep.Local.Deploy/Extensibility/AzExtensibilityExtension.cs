@@ -15,11 +15,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public class AzExtensibilityProvider : LocalExtensibilityProvider
+public class AzExtensibilityExtension : LocalExtensibilityExtension
 {
     private readonly LocalExtensibilityHandler extensibilityHandler;
 
-    public AzExtensibilityProvider(LocalExtensibilityHandler extensibilityHandler)
+    public AzExtensibilityExtension(LocalExtensibilityHandler extensibilityHandler)
     {
         this.extensibilityHandler = extensibilityHandler;
     }

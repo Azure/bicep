@@ -26,18 +26,18 @@ using Google.Protobuf.Collections;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public class GrpcExtensibilityProvider : LocalExtensibilityProvider
+public class GrpcExtensibilityExtension : LocalExtensibilityExtension
 {
     private readonly BicepExtension.BicepExtensionClient client;
     private readonly Process process;
 
-    private GrpcExtensibilityProvider(BicepExtension.BicepExtensionClient client, Process process)
+    private GrpcExtensibilityExtension(BicepExtension.BicepExtensionClient client, Process process)
     {
         this.client = client;
         this.process = process;
     }
 
-    public static async Task<LocalExtensibilityProvider> Start(Uri pathToBinary)
+    public static async Task<LocalExtensibilityExtension> Start(Uri pathToBinary)
     {
         var socketName = $"{Guid.NewGuid()}.tmp";
         var socketPath = Path.Combine(Path.GetTempPath(), socketName);
@@ -79,7 +79,7 @@ public class GrpcExtensibilityProvider : LocalExtensibilityProvider
 
             await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
-            return new GrpcExtensibilityProvider(client, process);
+            return new GrpcExtensibilityExtension(client, process);
         }
         catch (Exception ex)
         {

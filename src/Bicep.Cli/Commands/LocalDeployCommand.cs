@@ -65,8 +65,8 @@ public class LocalDeployCommand : ICommand
             return 1;
         }
 
-        await using LocalExtensibilityHandler extensibilityHandler = new(moduleDispatcher, GrpcExtensibilityProvider.Start);
-        await extensibilityHandler.InitializeProviders(compilation);
+        await using LocalExtensibilityHandler extensibilityHandler = new(moduleDispatcher, GrpcExtensibilityExtension.Start);
+        await extensibilityHandler.InitializeExtensions(compilation);
 
         var result = await LocalDeployment.Deploy(extensibilityHandler, templateString, parametersString, cancellationToken);
 

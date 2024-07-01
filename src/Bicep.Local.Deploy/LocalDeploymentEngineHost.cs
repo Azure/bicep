@@ -50,6 +50,12 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
 {
     private readonly LocalExtensibilityHandler extensibilityHandler;
 
+    /*var extensionName = requestUri.Segments[^4].TrimEnd('/');
+    var extensionVersion = requestUri.Segments[^3].TrimEnd('/');
+    var method = requestUri.Segments[^1].TrimEnd('/');*/
+
+    private record ExtensibilityV2ExtensionInfo(string ExtensionName, string ExtensionVersion, string Method);
+
     public LocalDeploymentEngineHost(
         LocalExtensibilityHandler extensibilityHandler,
         IDeploymentsRequestContext requestContext,
@@ -152,7 +158,9 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         var extensionName = requestUri.Segments[^4].TrimEnd('/');
         var extensionVersion = requestUri.Segments[^3].TrimEnd('/');
         var method = requestUri.Segments[^1].TrimEnd('/');
-        var extensibilityResponse = await extensibilityHandler.CallExtensibilityHost(extensionName, extensionVersion, method, content, cancellationToken);
+
+        var extensionInfo = new ExtensionInfo(extensionName, extensionVersion, method);
+        var extensibilityResponse = await extensibilityHandler.CallExtensibilityHost(extensionInfo, content, cancellationToken);
 
         var response = new HttpResponseMessage(HttpStatusCode.OK)
         {

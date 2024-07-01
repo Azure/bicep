@@ -26,37 +26,35 @@ namespace Bicep.Local.Deploy.Extensibility;
 
 public class LocalExtensibilityHandler : IAsyncDisposable
 {
-    private record ProviderKey(
+    private record ExtensionKey(
         string Name,
         string Version);
 
-    private Dictionary<ProviderKey, LocalExtensibilityProvider> RegisteredProviders = new();
+    private Dictionary<ExtensionKey, LocalExtensibilityExtension> RegisteredExtensions = new();
     private readonly IModuleDispatcher moduleDispatcher;
-    private readonly Func<Uri, Task<LocalExtensibilityProvider>> providerFactory;
+    private readonly Func<Uri, Task<LocalExtensibilityExtension>> extensionFactory;
 
-    public LocalExtensibilityHandler(IModuleDispatcher moduleDispatcher, Func<Uri, Task<LocalExtensibilityProvider>> providerFactory)
+    public LocalExtensibilityHandler(IModuleDispatcher moduleDispatcher, Func<Uri, Task<LocalExtensibilityExtension>> extensionFactory)
     {
         this.moduleDispatcher = moduleDispatcher;
-        this.providerFactory = providerFactory;
+        this.extensionFactory = extensionFactory;
         // Built in provider for handling nested deployments
-        RegisteredProviders[new("LocalNested", "0.0.0")] = new AzExtensibilityProvider(this);
+        RegisteredExtensions[new("LocalNested", "0.0.0")] = new AzExtensibilityExtension(this);
     }
 
     public async Task<ResourceResponseBody> CallExtensibilityHost(
-        string extensionName,
-        string extensionVersion,
-        string method,
+        ExtensionInfo extensionInfo,
         HttpContent content,
         CancellationToken cancellationToken)
     {
-        var provider = RegisteredProviders[new(extensionName, extensionVersion)];
+        var extension = RegisteredExtensions[new(extensionInfo.ExtensionName, extensionInfo.ExtensionVersion)];
 
-        return await CallProvider(method, provider, content, cancellationToken);
+        return await CallExtension(extensionInfo.Method, extension, content, cancellationToken);
     }
 
-    private async Task<ResourceResponseBody> CallProvider(
+    private async Task<ResourceResponseBody> CallExtension(
         string method,
-        LocalExtensibilityProvider provider,
+        LocalExtensibilityExtension provider,
         HttpContent content,
         CancellationToken cancellationToken)
     {
@@ -70,7 +68,7 @@ public class LocalExtensibilityHandler : IAsyncDisposable
         };
     }
 
-    private IEnumerable<(NamespaceType namespaceType, Uri binaryUri)> GetBinaryProviders(Compilation compilation)
+    private IEnumerable<(NamespaceType namespaceType, Uri binaryUri)> GetBinaryExtensions(Compilation compilation)
     {
         var namespaceTypes = compilation.GetAllBicepModels()
             .Select(x => x.Root.NamespaceResolver)
@@ -87,20 +85,20 @@ public class LocalExtensibilityHandler : IAsyncDisposable
         }
     }
 
-    public async Task InitializeProviders(Compilation compilation)
+    public async Task InitializeExtensions(Compilation compilation)
     {
-        var binaryProviders = GetBinaryProviders(compilation).DistinctBy(x => x.binaryUri);
+        var binaryExtensions = GetBinaryExtensions(compilation).DistinctBy(x => x.binaryUri);
 
-        foreach (var (namespaceType, binaryUri) in binaryProviders)
+        foreach (var (namespaceType, binaryUri) in binaryExtensions)
         {
-            ProviderKey providerKey = new(namespaceType.Settings.ArmTemplateProviderName, namespaceType.Settings.ArmTemplateProviderVersion);
-            RegisteredProviders[providerKey] = await providerFactory(binaryUri);
+            ExtensionKey providerKey = new(namespaceType.Settings.ArmTemplateProviderName, namespaceType.Settings.ArmTemplateProviderVersion);
+            RegisteredExtensions[providerKey] = await extensionFactory(binaryUri);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        await Task.WhenAll(RegisteredProviders.Values.Select(async provider =>
+        await Task.WhenAll(RegisteredExtensions.Values.Select(async provider =>
         {
             try
             {
