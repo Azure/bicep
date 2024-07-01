@@ -19,14 +19,12 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public partial class FormatCommandTests : TestBase
     {
-        // TODO(#13276)
         [TestMethod]
-        [Ignore("This test is disabled until Azure CLI is updated to support the new parameters.")]
         public async Task Format_WithDeprecatedParams_PrintsDeprecationMessage()
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "output myOutput string = 'hello!'");
 
-            var (output, error, result) = await Bicep("format", bicepPath, "-newline", "crlf", "--indentKind", "space", "--indentSize", "4", "--insertFinalNewline");
+            var (output, error, result) = await Bicep("format", bicepPath, "--newline", "crlf", "--indentKind", "space", "--indentSize", "4", "--insertFinalNewline");
 
             result.Should().Be(0);
             output.Should().BeEmpty();

@@ -1,13 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Cli.Extensions;
 using Bicep.Core.Registry.Oci;
 
 namespace Bicep.Cli.Arguments
 {
     public class PublishProviderArguments : ArgumentsBase
     {
-        public PublishProviderArguments(string[] args) : base(Constants.Command.PublishProvider)
+        public PublishProviderArguments(string[] args, string commandName, IOContext io) : base(commandName)
         {
+            if (commandName.Equals(Constants.Command.PublishProvider, StringComparison.Ordinal))
+            {
+                io.WriteCommandDeprecationWarning(commandName, Constants.Command.PublishExtension);
+            }
+
             for (int i = 0; i < args.Length; i++)
             {
                 var isLast = args.Length == i + 1;
