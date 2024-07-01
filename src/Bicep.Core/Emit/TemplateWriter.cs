@@ -135,7 +135,7 @@ namespace Bicep.Core.Emit
 
             this.EmitVariablesIfPresent(emitter, program.Variables.Concat(Context.ImportClosureInfo.ImportedVariablesInClosure));
 
-            this.EmitProviders(emitter, program.Providers);
+            this.EmitExtensionsIfPresent(emitter, program.Providers);
 
             this.EmitResources(jsonWriter, emitter, program.Resources, program.Modules);
 
@@ -994,24 +994,25 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
         {
             if (!providers.Any())
             {
                 return;
             }
 
+            // TODO: Remove if statement once all providers got migrated to extensions (extensibility v2 contract).
             if (this.Context.SemanticModel.Features.LocalDeployEnabled)
             {
-                EmitProvidersV2(emitter, providers.Add(GetProviderForLocalDeploy()));
+                EmitExtensions(emitter, providers.Add(GetExtensionForLocalDeploy()));
             }
             else
             {
-                EmitProvidersV1(emitter, providers);
+                EmitProviders(emitter, providers);
             }
         }
 
-        private static void EmitProvidersV1(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        private static void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
         {
             emitter.EmitObjectProperty("imports", () =>
             {
@@ -1032,7 +1033,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitProvidersV2(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        private void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
         {
             emitter.EmitObjectProperty("extensions", () =>
             {
@@ -1045,14 +1046,14 @@ namespace Bicep.Core.Emit
                         emitter.EmitProperty("name", settings.ArmTemplateProviderName);
                         emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
 
-                        EmitProviderV2Config(provider, emitter);
+                        EmitExtensionConfig(provider, emitter);
                     },
                     provider.SourceSyntax);
                 }
             });
         }
 
-        private void EmitProviderV2Config(DeclaredProviderExpression provider, ExpressionEmitter emitter)
+        private void EmitExtensionConfig(DeclaredProviderExpression provider, ExpressionEmitter emitter)
         {
             if (provider.Config is null)
             {
@@ -1070,19 +1071,19 @@ namespace Bicep.Core.Emit
                 {
                     // Type checking should have validated that the config name is not an expression (e.g. string interpolation), if we get a null value it means something
                     // was wrong with type checking validation.
-                    var providerConfigName = providerConfigProperty.TryGetKeyText() ?? throw new UnreachableException("Expressions are not allowed as config names.");
-                    var configType = provider.Settings.ConfigurationType ?? throw new UnreachableException();
-                    var providerConfigType = GetProviderConfigType(providerConfigName, configType);
+                    var extensionConfigName = providerConfigProperty.TryGetKeyText() ?? throw new UnreachableException("Expressions are not allowed as config names.");
+                    var configType = provider.Settings.ConfigurationType ?? throw new UnreachableException("Config type must be specified.");
+                    var extensionConfigType = GetExtensionConfigType(extensionConfigName, configType);
 
-                    emitter.EmitObjectProperty(providerConfigName, () =>
+                    emitter.EmitObjectProperty(extensionConfigName, () =>
                     {
-                        switch (providerConfigType)
+                        switch (extensionConfigType)
                         {
                             case StringType:
                                 emitter.EmitProperty("type", "string");
                                 break;
                             default:
-                                throw new ArgumentException($"Config name: '{providerConfigName}' has an invalid type: '{providerConfigType}'. Supported types are: 'string, secureString'");
+                                throw new ArgumentException($"Config name: '{extensionConfigName}' has an invalid type: '{extensionConfigType}'. Supported types are: 'string, secureString'");
                         }
 
                         emitter.EmitProperty("defaultValue", providerConfigProperty.Value);
@@ -1091,7 +1092,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private TypeSymbol GetProviderConfigType(string configName, ObjectType configType)
+        private TypeSymbol GetExtensionConfigType(string configName, ObjectType configType)
         {
             if (configType.Properties.TryGetValue(configName) is { } configItem)
             {
@@ -1101,7 +1102,7 @@ namespace Bicep.Core.Emit
             throw new UnreachableException($"Configuration name: '{configName}' does not exist as part of provider configuration.");
         }
 
-        private DeclaredProviderExpression GetProviderForLocalDeploy()
+        private DeclaredProviderExpression GetExtensionForLocalDeploy()
         {
             return new(
                 null,
