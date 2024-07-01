@@ -43,7 +43,7 @@ public class PublishProviderCommandTests : TestBase
 
         var result = await Bicep(settings, args);
         result.Should().Succeed();
-        result.Should().HaveStderrMatch("DEPRECATED: The command publish-provider is deprecated and will be removed in a future version of Bicpe CLI. Use publish-extension instead.");
+        result.Should().HaveStderrMatch("*DEPRECATED: The command publish-provider is deprecated and will be removed in a future version of Bicpe CLI. Use publish-extension instead.*");
     }
 
     [TestMethod]
