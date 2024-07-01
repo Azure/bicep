@@ -109,7 +109,14 @@ namespace Bicep.Core.Emit
 
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
-                emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
+                if (Context.Settings.LocalDeployEnabled)
+                {
+                    emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
+                }
+                else
+                {
+                    emitter.EmitProperty(LanguageVersionPropertyName, "2.1-experimental");
+                }
             }
             else if (Context.Settings.EnableSymbolicNames)
             {

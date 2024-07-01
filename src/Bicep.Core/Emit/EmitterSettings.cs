@@ -13,6 +13,7 @@ namespace Bicep.Core.Emit
         {
             FileKind = model.SourceFileKind;
             UseExperimentalTemplateLanguageVersion = model.Features.EnabledFeatureMetadata.Any(feature => feature.usesExperimentalArmEngineFeature);
+            LocalDeployEnabled = model.Features.LocalDeployEnabled;
 
             // Symbolic names are used if (evaluated in increasing order of computational cost):
             EnableSymbolicNames =
@@ -50,6 +51,11 @@ namespace Bicep.Core.Emit
         /// Use an experimental version of the ARM JSON template syntax. Only used if an experimental Bicep feature has been explicitly enabled.
         /// </summary>
         public bool UseExperimentalTemplateLanguageVersion { get; }
+
+        /// <summary>
+        /// Enables bicep local deploy
+        /// </summary>
+        public bool LocalDeployEnabled { get; }
 
         public BicepSourceFileKind FileKind { get; }
     }
