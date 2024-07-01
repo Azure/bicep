@@ -129,7 +129,7 @@ namespace Bicep.Core.Registry
                 case IdentifierSyntax configSpec:
                     var config = configurationManager.GetConfiguration(parentModuleUri);
 
-                    return config.ProvidersConfig.TryGetProviderSource(configSpec.IdentifierName).Transform(x => x.Value);
+                    return config.Extensions.TryGetProviderSource(configSpec.IdentifierName).Transform(x => x.Value);
                 default:
                     return new(x => x.ExpectedProviderSpecification());
             }

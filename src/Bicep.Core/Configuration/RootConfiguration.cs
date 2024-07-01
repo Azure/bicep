@@ -44,9 +44,9 @@ namespace Bicep.Core.Configuration
         {
             this.Cloud = cloud;
             this.ModuleAliases = moduleAliases;
-            this.ProviderAliases = providerAliases;
-            this.ProvidersConfig = providersConfig;
-            this.ImplicitProvidersConfig = implicitProvidersConfig;
+            this.ExtensionAliases = providerAliases;
+            this.Extensions = providersConfig;
+            this.ImplicitExtensions = implicitProvidersConfig;
             this.Analyzers = analyzers;
             this.CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
             this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
@@ -74,11 +74,11 @@ namespace Bicep.Core.Configuration
 
         public ModuleAliasesConfiguration ModuleAliases { get; }
 
-        public ProviderAliasesConfiguration ProviderAliases { get; }
+        public ProviderAliasesConfiguration ExtensionAliases { get; }
 
-        public ProvidersConfiguration ProvidersConfig { get; }
+        public ProvidersConfiguration Extensions { get; }
 
-        public ImplicitProvidersConfiguration ImplicitProvidersConfig { get; }
+        public ImplicitProvidersConfiguration ImplicitExtensions { get; }
 
         public AnalyzersConfiguration Analyzers { get; }
 
@@ -108,13 +108,13 @@ namespace Bicep.Core.Configuration
                 this.ModuleAliases.WriteTo(writer);
 
                 writer.WritePropertyName(ProviderAliasesKey);
-                this.ProviderAliases.WriteTo(writer);
+                this.ExtensionAliases.WriteTo(writer);
 
                 writer.WritePropertyName(ProvidersConfigurationKey);
-                this.ProvidersConfig.WriteTo(writer);
+                this.Extensions.WriteTo(writer);
 
                 writer.WritePropertyName(ImplicitProvidersConfigurationKey);
-                this.ImplicitProvidersConfig.WriteTo(writer);
+                this.ImplicitExtensions.WriteTo(writer);
 
                 writer.WritePropertyName(AnalyzersKey);
                 this.Analyzers.WriteTo(writer);

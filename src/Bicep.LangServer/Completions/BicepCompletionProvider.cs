@@ -2040,7 +2040,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportSpecification))
             {
-                var providerNames = model.Configuration.ProvidersConfig.Data.Keys
+                var providerNames = model.Configuration.Extensions.Data.Keys
                     .Concat(SystemNamespaceType.BuiltInName)
                     .ToHashSet();
 

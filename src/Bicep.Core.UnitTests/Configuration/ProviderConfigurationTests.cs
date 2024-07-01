@@ -49,16 +49,16 @@ public class ProvidersConfigurationTests
         var config = IConfigurationManager.GetBuiltInConfiguration();
 
         config.Should().NotBeNull();
-        config!.ProvidersConfig.Should().NotBeNull();
+        config!.Extensions.Should().NotBeNull();
 
         foreach (var providerName in new[] { "az", "kubernetes", "microsoftGraph" })
         {
-            config.ProvidersConfig!.TryGetProviderSource(providerName).IsSuccess(out var provider).Should().BeTrue();
+            config.Extensions!.TryGetProviderSource(providerName).IsSuccess(out var provider).Should().BeTrue();
             provider!.Value.Should().Be("builtin:");
         }
 
         // assert that 'sys' is not present in the default configuration
-        config.ProvidersConfig!.TryGetProviderSource("sys").IsSuccess().Should().BeFalse();
+        config.Extensions!.TryGetProviderSource("sys").IsSuccess().Should().BeFalse();
     }
 
     [TestMethod]
@@ -82,9 +82,9 @@ public class ProvidersConfigurationTests
         var config = configManager.GetConfiguration(PathHelper.FilePathToFileUrl(testFilePath));
         config.DiagnosticBuilders.Should().BeEmpty();
         config.Should().NotBeNull();
-        config!.ProvidersConfig.Should().NotBeNull();
+        config!.Extensions.Should().NotBeNull();
 
-        var providers = config.ProvidersConfig!;
+        var providers = config.Extensions!;
         // assert 'source' and 'version' are valid properties for 'foo'
         providers.TryGetProviderSource("foo").IsSuccess(out var fooProvider).Should().BeTrue();
         fooProvider!.Value.Should().Be("br:example.azurecr.io/some/fake/path:1.0.0");
