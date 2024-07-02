@@ -54,7 +54,7 @@ public interface IFeatureProvider
                 (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),
                 (LocalDeployEnabled, "Enable local deploy", false, false),
                 (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
-                (ExtendableParamFilesEnabled, "Enable modular parameters", true, false),
+                (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
             })
             {
                 if (enabled)
