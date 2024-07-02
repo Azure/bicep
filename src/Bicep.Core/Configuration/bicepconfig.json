@@ -29,20 +29,20 @@
       }
     }
   },
-  "providerAliases": {
+  "extensionAliases": {
     "br": {
       "public": {
         "registry": "mcr.microsoft.com",
-        "providerPath": "bicep/providers"
+        "extensionPath": "bicep/extensions"
       }
     }
   },
-  "providers": {
+  "extensions": {
     "az": "builtin:",
     "kubernetes": "builtin:",
     "microsoftGraph": "builtin:"
   },
-  "implicitProviders": ["az"],
+  "implicitExtensions": ["az"],
   "analyzers": {
     "core": {
       "verbose": false,
