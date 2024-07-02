@@ -19,7 +19,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private ServiceBuilder Services => new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-            .WithConfigurationPatch(c => c.WithProvidersConfiguration("""
+            .WithConfigurationPatch(c => c.WithExtensions("""
             {
               "az": "builtin:",
               "kubernetes": "builtin:",

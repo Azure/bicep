@@ -60,20 +60,20 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
-        "providerAliases": {
+        "extensionAliases": {
           "br": {
             "public": {
               "registry": "mcr.microsoft.com",
-              "providerPath": "bicep/providers"
+              "extensionPath": "bicep/extensions"
             }
           }
         },
-        "providers": {
+        "extensions": {
           "az": "builtin:",
           "kubernetes": "builtin:",
           "microsoftGraph": "builtin:"
         },
-        "implicitProviders": ["az"],
+        "implicitExtensions": ["az"],
         "analyzers": {
           "core": {
             "verbose": false,
@@ -114,7 +114,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "testFramework": false,
           "assertions": false,
           "dynamicTypeLoading": false,
-          "providerRegistry": false,
+          "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false
@@ -177,20 +177,20 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
-        "providerAliases": {
+        "extensionAliases": {
           "br": {
             "public": {
               "registry": "mcr.microsoft.com",
-              "providerPath": "bicep/providers"
+              "extensionPath": "bicep/extensions"
             }
           }
         },
-        "providers": {
+        "extensions": {
             "az": "builtin:",
             "kubernetes": "builtin:",
             "microsoftGraph": "builtin:"
         },
-        "implicitProviders": [
+        "implicitExtensions": [
             "az"
         ],
         "analyzers": {},
@@ -203,7 +203,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "testFramework": false,
           "assertions": false,
           "dynamicTypeLoading": false,
-          "providerRegistry": false,
+          "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false
@@ -258,20 +258,20 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
-        "providerAliases": {
+        "extensionAliases": {
           "br": {
             "public": {
               "registry": "mcr.microsoft.com",
-              "providerPath": "bicep/providers"
+              "extensionPath": "bicep/extensions"
             }
           }
         },
-        "providers": {
+        "extensions": {
             "az": "builtin:",
             "kubernetes": "builtin:",
             "microsoftGraph": "builtin:"
         },
-        "implicitProviders": [
+        "implicitExtensions": [
             "az"
         ],
         "analyzers": {
@@ -317,7 +317,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "testFramework": false,
           "assertions": false,
           "dynamicTypeLoading": false,
-          "providerRegistry": false,
+          "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false
@@ -607,11 +607,11 @@ namespace Bicep.Core.UnitTests.Configuration
               }
             }
           },
-          "providerAliases": {
+          "extensionAliases": {
             "br": {
               "public": {
                 "registry": "mcr.microsoft.com",
-                "providerPath": "bicep/providers"
+                "extensionPath": "bicep/extensions"
               }
             }
           },
@@ -709,20 +709,20 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
-        "providerAliases": {
+        "extensionAliases": {
           "br": {
             "public": {
               "registry": "mcr.microsoft.com",
-              "providerPath": "bicep/providers"
+              "extensionPath": "bicep/extensions"
             }
           }
         },
-        "providers": {
+        "extensions": {
             "az": "builtin:",
             "kubernetes": "builtin:",
             "microsoftGraph": "builtin:"
         },
-        "implicitProviders": [
+        "implicitExtensions": [
             "az"
         ],
         "analyzers": {
@@ -759,7 +759,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "testFramework": false,
           "assertions": false,
           "dynamicTypeLoading": false,
-          "providerRegistry": false,
+          "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false
@@ -795,11 +795,11 @@ namespace Bicep.Core.UnitTests.Configuration
               }
             }
           },
-          "providerAliases": {
+          "extensionAliases": {
             "br": {
               "public": {
                 "registry": "main.microsoft.com",
-                "providerPath": "bicep/providers"
+                "extensionPath": "bicep/extensions"
               }
             }
           }
@@ -808,11 +808,11 @@ namespace Bicep.Core.UnitTests.Configuration
                 [CreatePath("repo/modules")] = new MockDirectoryData(),
                 [CreatePath("repo/modules/bicepconfig.json")] = """
         {
-          "providerAliases": {
+          "extensionAliases": {
             "br": {
               "public": {
                 "registry": "mod.microsoft.com",
-                "providerPath": "bicep/providers"
+                "extensionPath": "bicep/extensions"
               }
             }
           }

@@ -114,7 +114,7 @@ namespace Bicep.Core.Registry.Oci
                         unqualifiedReference = $"{moduleAlias}/{unqualifiedReference}";
                         break;
                     case ArtifactType.Provider:
-                        if (!configuration.ProviderAliases.TryGetOciArtifactProviderAlias(aliasName).IsSuccess(out var providerAlias, out var providerFailureBuilder))
+                        if (!configuration.ExtensionAliases.TryGetOciArtifactExtensionAlias(aliasName).IsSuccess(out var providerAlias, out var providerFailureBuilder))
                         {
                             return new(providerFailureBuilder);
                         }
