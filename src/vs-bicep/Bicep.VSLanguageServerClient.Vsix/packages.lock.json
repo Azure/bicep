@@ -1841,6 +1841,12 @@
           "Microsoft.Visualstudio.Telemetry": "[17.10.32, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.9, )"
         }
+      },
+      "bicep.vslanguageserverclient.itemtemplate": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.VisualStudio.CoreUtility": "[17.10.191, )"
+        }
       }
     },
     ".NETFramework,Version=v4.7.2/linux-arm64": {
