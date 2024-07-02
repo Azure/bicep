@@ -14,6 +14,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "no-hardcoded-env-urls";
 
+        // Configuration keys for bicepconfig.json
         public readonly string DisallowedHostsKey = "disallowedHosts";
         public readonly string ExcludedHostsKey = "excludedHosts";
 

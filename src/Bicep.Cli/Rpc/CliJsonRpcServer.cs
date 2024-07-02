@@ -36,6 +36,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         this.compiler = compiler;
     }
 
+    /// <inheritdoc/>
     public async Task<VersionResponse> Version(VersionRequest request, CancellationToken cancellationToken)
     {
         await Task.Yield();
@@ -44,6 +45,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             ThisAssembly.AssemblyInformationalVersion.Split('+')[0]);
     }
 
+    /// <inheritdoc/>
     public async Task<CompileResponse> Compile(CompileRequest request, CancellationToken cancellationToken)
     {
         var model = await GetSemanticModel(compiler, request.Path);
@@ -58,6 +60,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         return new(success, diagnostics, success ? writer.ToString() : null);
     }
 
+    /// <inheritdoc/>
     public async Task<CompileParamsResponse> CompileParams(CompileParamsRequest request, CancellationToken cancellationToken)
     {
         var model = await GetSemanticModel(compiler, request.Path);
@@ -81,6 +84,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             paramsResult.TemplateSpecId);
     }
 
+    /// <inheritdoc/>
     public async Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken)
     {
         var model = await GetSemanticModel(compiler, request.Path);
@@ -101,6 +105,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             [.. fileUris.Select(x => x.LocalPath).OrderBy(x => x)]);
     }
 
+    /// <inheritdoc/>
     public async Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken)
     {
         var model = await GetSemanticModel(compiler, request.Path);

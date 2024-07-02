@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             public IEnumerable<object[]> GetData(MethodInfo methodInfo)
             {
-                var analyzer = new LinterAnalyzer();
+                var analyzer = new LinterAnalyzer(BicepTestConstants.EmptyServiceProvider);
                 var ruleSet = analyzer.GetRuleSet().ToArray();
 
                 return AllRulesAndSchemasById.Values.Select(value => new object[] { value.Rule.Code, value.Rule, value.Schema });
@@ -72,7 +72,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             get
             {
-                var linter = new LinterAnalyzer();
+                var linter = new LinterAnalyzer(BicepTestConstants.EmptyServiceProvider);
                 var ruleSet = linter.GetRuleSet();
                 ruleSet.Should().NotBeEmpty();
 

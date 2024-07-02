@@ -729,6 +729,17 @@
                     }
                   ]
                 },
+                "use-recent-module-versions": {
+                  "allOf": [
+                    {
+                      "description": "Use recent module versions. Defaults to 'Off'. See https://aka.ms/bicep/linter/use-recent-module-versions",
+                      "type": "object"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
                 "use-resource-id-functions": {
                   "allOf": [
                     {

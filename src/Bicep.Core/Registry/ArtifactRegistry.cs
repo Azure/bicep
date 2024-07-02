@@ -24,6 +24,11 @@ namespace Bicep.Core.Registry
 
         public abstract Task PublishProvider(T reference, ProviderPackage provider);
 
+        public virtual Task OnRestoreArtifacts(bool forceRestore)
+        {
+            return Task.CompletedTask;
+        }
+
         public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<T> references);
 
         public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<T> references);

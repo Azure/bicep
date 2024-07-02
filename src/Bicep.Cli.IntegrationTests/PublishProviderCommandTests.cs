@@ -122,7 +122,7 @@ resource fooRes 'fooType@v1' = {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = Path.Combine(outputDirectory, "index.json");
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"asdf:123");
+        var result = await Bicep(InvocationSettings.Default, "publish-provider", indexPath, "--target", $"asdf:123");
         result.Should().Fail().And.HaveStderrMatch("*The specified module reference scheme \"asdf\" is not recognized.*");
     }
 
@@ -132,7 +132,7 @@ resource fooRes 'fooType@v1' = {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = Path.Combine(outputDirectory, "index.json");
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        var result = await Bicep(InvocationSettings.Default, "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
         result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: Could not find a part of the path '*'.*");
     }
 
@@ -142,7 +142,7 @@ resource fooRes 'fooType@v1' = {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", "malformed", outputDirectory);
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        var result = await Bicep(InvocationSettings.Default, "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
         result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: 'm' is an invalid start of a value.*");
     }
 
@@ -161,7 +161,7 @@ resource fooRes 'fooType@v1' = {
 }
 """, outputDirectory);
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        var result = await Bicep(InvocationSettings.Default, "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
         result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: Could not find file '*types.json'.*");
     }
 
@@ -181,7 +181,7 @@ resource fooRes 'fooType@v1' = {
 """, outputDirectory);
         FileHelper.SaveResultFile(TestContext, "v1/types.json", "malformed", outputDirectory);
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        var result = await Bicep(InvocationSettings.Default, "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
         result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: 'm' is an invalid start of a value.*");
     }
 
@@ -213,7 +213,7 @@ resource fooRes 'fooType@v1' = {
 ]
 """, outputDirectory);
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        var result = await Bicep(InvocationSettings.Default, "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
         result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: Index was outside the bounds of the array.*");
     }
 }

@@ -72,6 +72,16 @@
         "resolved": "3.6.139",
         "contentHash": "rq0Ub/Jik7PtMtZtLn0tHuJ01Yt36RQ+eeBe+S7qnJ/EFOX6D4T9zuYD3vQPYKGI6Ro4t2iWgFm3fGDgjBrMfg=="
       },
+      "TestableIO.System.IO.Abstractions.TestingHelpers": {
+        "type": "Direct",
+        "requested": "[21.0.2, )",
+        "resolved": "21.0.2",
+        "contentHash": "4s6EC7rGSlNPqC9/FOmYavFTjetO7zDBnc0H8Hyb8ABJll2UgeC7UvdNLwx28/hhUE8AvUJmwamjAII6LJWIQA==",
+        "dependencies": {
+          "TestableIO.System.IO.Abstractions": "21.0.2",
+          "TestableIO.System.IO.Abstractions.Wrappers": "21.0.2"
+        }
+      },
       "Azure.Bicep.Types": {
         "type": "Transitive",
         "resolved": "0.5.9",
@@ -890,6 +900,11 @@
           "OmniSharp.Extensions.LanguageProtocol": "0.19.9"
         }
       },
+      "RichardSzalay.MockHttp": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "QwnauYiaywp65QKFnP+wvgiQ2D8Pv888qB2dyfd7MSVDF06sIvxqASenk+RxsWybyyt+Hu1Y251wQxpHTv3UYg=="
+      },
       "runtime.linux-arm.runtime.native.System.IO.Ports": {
         "type": "Transitive",
         "resolved": "6.0.0",
@@ -966,6 +981,11 @@
           "System.Text.Encoding.CodePages": "4.3.0",
           "System.Text.Encoding.Extensions": "4.3.0"
         }
+      },
+      "Semver": {
+        "type": "Transitive",
+        "resolved": "2.3.0",
+        "contentHash": "4vYo1zqn6pJ1YrhjuhuOSbIIm0CpM47grbpTJ5ABjOlfGt/EhMEM9ed4MRK5Jr6gVnntWDqOUzGeUJp68PZGjw=="
       },
       "SharpYaml": {
         "type": "Transitive",
@@ -1570,15 +1590,6 @@
         "resolved": "21.0.2",
         "contentHash": "ViPtOy4lAlmWq9GDEwiE5C9XSgDGHUWMRvVvruI38pbikUXkgu7xnCVW7PYdQOjS+iWWcQHt+U7oyPedfnWSHg=="
       },
-      "TestableIO.System.IO.Abstractions.TestingHelpers": {
-        "type": "Transitive",
-        "resolved": "21.0.2",
-        "contentHash": "4s6EC7rGSlNPqC9/FOmYavFTjetO7zDBnc0H8Hyb8ABJll2UgeC7UvdNLwx28/hhUE8AvUJmwamjAII6LJWIQA==",
-        "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.0.2",
-          "TestableIO.System.IO.Abstractions.Wrappers": "21.0.2"
-        }
-      },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
         "resolved": "21.0.2",
@@ -1603,9 +1614,11 @@
           "Microsoft.Extensions.Configuration.Binder": "[8.0.1, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
           "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
+          "Microsoft.Extensions.Http": "[8.0.0, )",
           "Microsoft.Graph.Bicep.Types": "[0.1.6-preview, )",
           "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2007, )",
           "Newtonsoft.Json": "[13.0.3, )",
+          "Semver": "[2.3.0, )",
           "SharpYaml": "[2.1.1, )",
           "System.IO.Abstractions": "[21.0.2, )",
           "System.Private.Uri": "[4.3.2, )"
@@ -1679,6 +1692,7 @@
           "Microsoft.NET.Test.Sdk": "[17.10.0, )",
           "Moq": "[4.20.70, )",
           "Newtonsoft.Json.Schema": "[3.0.16, )",
+          "RichardSzalay.MockHttp": "[7.0.0, )",
           "System.IO.Abstractions.TestingHelpers": "[21.0.2, )"
         }
       },
