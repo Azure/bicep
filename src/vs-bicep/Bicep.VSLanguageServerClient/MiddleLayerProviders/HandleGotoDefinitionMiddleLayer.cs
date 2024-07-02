@@ -22,7 +22,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
     /// VS lsp model is different from O#. We need to convert the output obtained from bicep language server to a format that is
     /// serializable by VS language server client.
     /// </summary>
-    [Obsolete]//asdfg
+    [Obsolete] // TODO: Fix obsolete errors properly
     public class HandleGotoDefinitionMiddleLayer : ILanguageClientMiddleLayer
     {
         public bool CanHandle(string methodName)
