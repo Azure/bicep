@@ -261,13 +261,14 @@ jobs:
           path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/vs-bicep.vsix
           if-no-files-found: error
 
-      - name: Run bicep in visual studio unit tests
-        uses: microsoft/vstest-action@v1.0.0
-        with:
-          testAssembly: Bicep.VSLanguageServerClient.UnitTests.dll
-          runInParallel: true
-          searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/
-          ifNoFilesFound: error
+      # Temporarily disable: https://github.com/Azure/bicep/issues/14251
+      # - name: Run bicep in visual studio unit tests
+      #   uses: microsoft/vstest-action@v1.0.0
+      #   with:
+      #     testAssembly: Bicep.VSLanguageServerClient.UnitTests.dll
+      #     runInParallel: true
+      #     searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/
+      #     ifNoFilesFound: error
 
       # Temporarily disable VS Bicep integration tests, they're flaky
       # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
