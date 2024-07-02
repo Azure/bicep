@@ -226,7 +226,6 @@ jobs:
 
   build-vs-ext:
     name: Build Visual Studio Extension
-    if: false # Temporarily disable VS Bicep build: https://github.com/Azure/bicep/issues/14251    
     runs-on: windows-latest
 
     steps:
@@ -263,6 +262,7 @@ jobs:
           if-no-files-found: error
 
       - name: Run bicep in visual studio unit tests
+        if: false # Temporarily disable: https://github.com/Azure/bicep/issues/14251
         uses: microsoft/vstest-action@v1.0.0
         with:
           testAssembly: Bicep.VSLanguageServerClient.UnitTests.dll
