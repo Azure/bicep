@@ -28,10 +28,10 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(0);
             output.Should().BeEmpty();
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --newline is deprecated and will be removed in a future version of Bicpe CLI. Use --newline-kind instead.");
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentKind is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-kind instead.");
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentSize is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-size instead.");
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --insertFinalNewline is deprecated and will be removed in a future version of Bicpe CLI. Use --insert-final-newline instead.");
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --newline is deprecated and will be removed in a future version of Bicep CLI. Use --newline-kind instead.");
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentKind is deprecated and will be removed in a future version of Bicep CLI. Use --indent-kind instead.");
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentSize is deprecated and will be removed in a future version of Bicep CLI. Use --indent-size instead.");
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --insertFinalNewline is deprecated and will be removed in a future version of Bicep CLI. Use --insert-final-newline instead.");
         }
 
         [TestMethod]
