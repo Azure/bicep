@@ -109,6 +109,8 @@ namespace Bicep.VSLanguageServerClient
 
         public async Task AttachForCustomMessageAsync(JsonRpc rpc)
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             var didChangeWatchedFilesNotifier = new DidChangeWatchedFilesNotifier(rpc);
             didChangeWatchedFilesNotifier.CreateFileSystemWatchers();
 
