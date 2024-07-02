@@ -18,10 +18,11 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
     [TestClass]
     public class UpdateFormatSettingsMiddleLayerTests
     {
-        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
+        private static readonly MockRepository Repository = new(MockBehavior.Strict);
         private Mock<IBicepSettings> BicepSettingsMock = Repository.Create<IBicepSettings>();
 
         [TestMethod]
+        [Obsolete] // TODO: Fix obsolete errors properly
         public void UpdateFormatOptions_WithInvalidInput_ShouldThrow()
         {
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer(BicepSettingsMock.Object);
@@ -39,6 +40,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         }
 
         [TestMethod]
+        [Obsolete] // TODO: Fix obsolete errors properly
         public async Task UpdateFormatOptions_WithValidInput_ShouldUpdateFormattingOptions()
         {
             var documentFormattingParams = new DocumentFormattingParams();
