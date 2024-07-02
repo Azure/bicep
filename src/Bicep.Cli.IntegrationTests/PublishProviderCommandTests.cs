@@ -101,7 +101,7 @@ public class PublishProviderCommandTests : TestBase
         var publishResult = await Bicep(services => services.WithFileSystem(fs), ["publish-provider", indexPath, "--target", targetPath]);
         publishResult.Should().Succeed().And.NotHaveStdout();
 
-        var services = new ServiceBuilder().WithFileSystem(fs).WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true));
+        var services = new ServiceBuilder().WithFileSystem(fs).WithFeatureOverrides(new(ExtensibilityEnabled: true, ExtensionRegistry: true));
         var compileResult = await CompilationHelper.RestoreAndCompile(services, """
 extension '../../target/provider.tgz'
 

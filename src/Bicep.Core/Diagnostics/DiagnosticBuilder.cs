@@ -2179,7 +2179,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic FetchingTypesRequiresExperimentalFeature() => new(
                 TextSpan,
                 "BCP400",
-                $"Fetching types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ProviderRegistry)}\".");
+                $"Fetching types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ExtensionRegistry)}\".");
 
             public ErrorDiagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => new(
                 TextSpan,

@@ -837,7 +837,7 @@
           "description": "Enables dynamic type loading for resource type providers. See https://aka.ms/bicep/experimental-features#dynamictypeloading",
           "type": "boolean"
         },
-        "providerRegistry": {
+        "extensionRegistry": {
           "type": "boolean"
         },
         "localDeploy": {

@@ -19,7 +19,7 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class RegistryProviderTests : TestBase
 {
-    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true, ProviderRegistry: true, DynamicTypeLoadingEnabled: true);
+    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true, ExtensionRegistry: true, DynamicTypeLoadingEnabled: true);
 
     [TestMethod]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
@@ -77,7 +77,7 @@ output joke string = dadJoke.body.joke
     {
         var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
         Directory.CreateDirectory(cacheDirectory);
-        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory, ExtensibilityEnabled: true, ProviderRegistry: true));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory, ExtensibilityEnabled: true, ExtensionRegistry: true));
 
         var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();
         var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
@@ -203,7 +203,7 @@ output baz string = fooRes.convertBarToBaz('bar')
   "implicitExtensions": ["foo"],
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "providerRegistry": true
+    "extensionRegistry": true
   }
 }
 """);
@@ -294,7 +294,7 @@ extension 'br:example.azurecr.io/test/provider/http:1.2.3'
 extension 'br:example.azurecr.io/test/provider/http:1.2.3'
 ");
         result2.Should().HaveDiagnostics([
-            ("BCP400", DiagnosticLevel.Error, """Fetching types from the registry requires enabling EXPERIMENTAL feature "ProviderRegistry"."""),
+            ("BCP400", DiagnosticLevel.Error, """Fetching types from the registry requires enabling EXPERIMENTAL feature "ExtensionRegistry"."""),
         ]);
     }
 
@@ -522,7 +522,7 @@ resource test 'test@v1' = {
               },
               "experimentalFeaturesEnabled": {
                 "extensibility": true,
-                "providerRegistry": true
+                "extensionRegistry": true
               }
             }
             """);
@@ -543,7 +543,7 @@ resource test 'test@v1' = {
               },
               "experimentalFeaturesEnabled": {
                 "extensibility": true,
-                "providerRegistry": true
+                "extensionRegistry": true
               }
             }
             """);
@@ -569,7 +569,7 @@ resource test 'test@v1' = {
               "implicitExtensions": ["foo"],
               "experimentalFeaturesEnabled": {
                 "extensibility": true,
-                "providerRegistry": true
+                "extensionRegistry": true
               }
             }
             """);
