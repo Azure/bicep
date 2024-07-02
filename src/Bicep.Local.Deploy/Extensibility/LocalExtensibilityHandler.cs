@@ -5,8 +5,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Net.Http.Formatting;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
+using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
 using Azure.Deployments.Extensibility.Contract;
 using Azure.Deployments.Extensibility.Messages;
 using Bicep.Core.Extensions;
@@ -14,6 +18,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Types;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Microsoft.WindowsAzure.ResourceStack.Common.Utilities;
 using IAsyncDisposable = System.IAsyncDisposable;
 
@@ -21,45 +26,49 @@ namespace Bicep.Local.Deploy.Extensibility;
 
 public class LocalExtensibilityHandler : IAsyncDisposable
 {
-    private record ProviderKey(
+    private record ExtensionKey(
         string Name,
         string Version);
 
-    private Dictionary<ProviderKey, LocalExtensibilityProvider> RegisteredProviders = new();
+    private Dictionary<ExtensionKey, LocalExtensibilityExtension> RegisteredExtensions = new();
     private readonly IModuleDispatcher moduleDispatcher;
-    private readonly Func<Uri, Task<LocalExtensibilityProvider>> providerFactory;
+    private readonly Func<Uri, Task<LocalExtensibilityExtension>> extensionFactory;
 
-    public LocalExtensibilityHandler(IModuleDispatcher moduleDispatcher, Func<Uri, Task<LocalExtensibilityProvider>> providerFactory)
+    public LocalExtensibilityHandler(IModuleDispatcher moduleDispatcher, Func<Uri, Task<LocalExtensibilityExtension>> extensionFactory)
     {
         this.moduleDispatcher = moduleDispatcher;
-        this.providerFactory = providerFactory;
+        this.extensionFactory = extensionFactory;
         // Built in provider for handling nested deployments
-        RegisteredProviders[new("LocalNested", "0.0.0")] = new AzExtensibilityProvider(this);
+        RegisteredExtensions[new("LocalNested", "0.0.0")] = new AzExtensibilityExtension(this);
     }
 
-    private async Task<ExtensibilityOperationResponse> CallProvider(string method, IExtensibilityProvider provider, ExtensibilityOperationRequest request, CancellationToken cancellationToken)
+    public async Task<ResourceResponseBody> CallExtensibilityHost(
+        ExtensionInfo extensionInfo,
+        HttpContent content,
+        CancellationToken cancellationToken)
+    {
+        var extension = RegisteredExtensions[new(extensionInfo.ExtensionName, extensionInfo.ExtensionVersion)];
+
+        return await CallExtension(extensionInfo.Method, extension, content, cancellationToken);
+    }
+
+    private async Task<ResourceResponseBody> CallExtension(
+        string method,
+        LocalExtensibilityExtension provider,
+        HttpContent content,
+        CancellationToken cancellationToken)
     {
         return method switch
         {
-            "get" => await provider.Get(request, cancellationToken),
-            "delete" => await provider.Delete(request, cancellationToken),
-            "save" => await provider.Save(request, cancellationToken),
-            "previewSave" => await provider.PreviewSave(request, cancellationToken),
+            "get" => await provider.Get(await content.ReadAsAsync<ResourceReferenceRequestBody>(cancellationToken), cancellationToken),
+            "delete" => await provider.Delete(await content.ReadAsAsync<ResourceReferenceRequestBody >(cancellationToken), cancellationToken),
+            "createOrUpdate" => await provider.CreateOrUpdate(await content.ReadAsAsync<ResourceRequestBody>(cancellationToken), cancellationToken),
+            "preview" => await provider.Preview(await content.ReadAsAsync<ResourceRequestBody>(cancellationToken), cancellationToken),
             _ => throw new NotImplementedException($"Unsupported method {method}"),
         };
     }
 
-    public async Task<ExtensibilityOperationResponse> CallExtensibilityHost(
-        string method,
-        ExtensibilityOperationRequest request,
-        CancellationToken cancellationToken)
-    {
-        var provider = RegisteredProviders[new(request.Import.Provider, request.Import.Version)];
-
-        return await CallProvider(method, provider, request, cancellationToken);
-    }
-
-    private IEnumerable<(NamespaceType namespaceType, Uri binaryUri)> GetBinaryProviders(Compilation compilation)
+    private IEnumerable<(NamespaceType namespaceType, Uri binaryUri)> GetBinaryExtensions(Compilation compilation)
     {
         var namespaceTypes = compilation.GetAllBicepModels()
             .Select(x => x.Root.NamespaceResolver)
@@ -76,20 +85,20 @@ public class LocalExtensibilityHandler : IAsyncDisposable
         }
     }
 
-    public async Task InitializeProviders(Compilation compilation)
+    public async Task InitializeExtensions(Compilation compilation)
     {
-        var binaryProviders = GetBinaryProviders(compilation).DistinctBy(x => x.binaryUri);
+        var binaryExtensions = GetBinaryExtensions(compilation).DistinctBy(x => x.binaryUri);
 
-        foreach (var (namespaceType, binaryUri) in binaryProviders)
+        foreach (var (namespaceType, binaryUri) in binaryExtensions)
         {
-            ProviderKey providerKey = new(namespaceType.Settings.ArmTemplateProviderName, namespaceType.Settings.ArmTemplateProviderVersion);
-            RegisteredProviders[providerKey] = await providerFactory(binaryUri);
+            ExtensionKey providerKey = new(namespaceType.Settings.ArmTemplateProviderName, namespaceType.Settings.ArmTemplateProviderVersion);
+            RegisteredExtensions[providerKey] = await extensionFactory(binaryUri);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        await Task.WhenAll(RegisteredProviders.Values.Select(async provider =>
+        await Task.WhenAll(RegisteredExtensions.Values.Select(async provider =>
         {
             try
             {

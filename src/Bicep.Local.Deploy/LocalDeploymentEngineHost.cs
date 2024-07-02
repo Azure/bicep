@@ -7,8 +7,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Core;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Azure.Deployments.Core.Definitions.Resources;
@@ -47,6 +49,12 @@ namespace Bicep.Local.Deploy;
 public class LocalDeploymentEngineHost : DeploymentEngineHostBase
 {
     private readonly LocalExtensibilityHandler extensibilityHandler;
+
+    /*var extensionName = requestUri.Segments[^4].TrimEnd('/');
+    var extensionVersion = requestUri.Segments[^3].TrimEnd('/');
+    var method = requestUri.Segments[^1].TrimEnd('/');*/
+
+    private record ExtensibilityV2ExtensionInfo(string ExtensionName, string ExtensionVersion, string Method);
 
     public LocalDeploymentEngineHost(
         LocalExtensibilityHandler extensibilityHandler,
@@ -140,19 +148,29 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         }
     }
 
-    public override async Task<HttpResponseMessage> CallExtensibilityHost(
+    public override async Task<HttpResponseMessage> CallExtensibilityHostV2(
         HttpMethod requestMethod,
         Uri requestUri,
-        ExtensibilityOperationRequest request,
+        HttpContent content,
         AuthenticationToken extensibilityHostToken,
         CancellationToken cancellationToken)
     {
-        var response = await extensibilityHandler.CallExtensibilityHost(requestUri.Segments[^1], request, cancellationToken);
+        var extensionName = requestUri.Segments[^4].TrimEnd('/');
+        var extensionVersion = requestUri.Segments[^3].TrimEnd('/');
+        var method = requestUri.Segments[^1].TrimEnd('/');
 
-        return new HttpResponseMessage(HttpStatusCode.OK)
+        var extensionInfo = new ExtensionInfo(extensionName, extensionVersion, method);
+        var extensibilityResponse = await extensibilityHandler.CallExtensibilityHost(extensionInfo, content, cancellationToken);
+
+        var response = new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent(response.ToJson()),
+            Content = new StringContent(extensibilityResponse.ToJson(), encoding: Encoding.UTF8, mediaType: "application/json")
         };
+
+        response.Headers.Add("Location", "local");
+        response.Headers.Add("Version", extensionVersion);
+
+        return response;
     }
 
     protected override Task<JToken> GetEnvironmentKey()

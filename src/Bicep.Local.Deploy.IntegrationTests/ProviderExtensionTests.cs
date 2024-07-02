@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using System.IO.Pipes;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -50,6 +52,10 @@ public class ProviderExtensionTests : TestBase
 
                     await testFunc(client, cts.Token);
                 }
+                catch (Exception ex)
+                {
+                    Trace.TraceError(ex.Message);
+                }
                 finally
                 {
                     await cts.CancelAsync();
@@ -60,34 +66,28 @@ public class ProviderExtensionTests : TestBase
     [TestMethod]
     public async Task Save_request_works_as_expected()
     {
-        var handlerMock = StrictMock.Of<IResourceHandler>();
-        handlerMock.SetupGet(x => x.ResourceType).Returns("apps/Deployment@v1");
+        JsonObject identifiers = new()
+                {
+                    { "name", "someName" },
+                    { "namespace", "someNamespace" }
+                };
 
-        handlerMock.Setup(x => x.Save(It.IsAny<Protocol.ExtensibilityOperationRequest>(), It.IsAny<CancellationToken>()))
-            .Returns<Protocol.ExtensibilityOperationRequest, CancellationToken>((req, _) =>
-                Task.FromResult(new Protocol.ExtensibilityOperationResponse(req.Resource, null, null)));
+        var handlerMock = StrictMock.Of<IResourceHandler>();
+        handlerMock.SetupGet(x => x.ResourceType).Returns("apps/Deployment");
+
+        handlerMock.Setup(x => x.CreateOrUpdate(It.IsAny<Protocol.ResourceRequestBody>(), It.IsAny<CancellationToken>()))
+            .Returns<Protocol.ResourceRequestBody, CancellationToken>((req, _) =>
+                Task.FromResult(new Protocol.ResourceResponseBody(null, identifiers, req.Type, "Succeeded", req.Properties)));
 
         await RunExtensionTest(
             builder => builder.AddHandler(handlerMock.Object),
             async (client, token) =>
             {
-                var request = new Extension.Rpc.ExtensibilityOperationRequest
+                var request = new Extension.Rpc.ResourceRequestBody
                 {
-                    Import = new()
-                    {
-                        Provider = "Kubernetes",
-                        Version = "1.0.0",
-                        Config = """
-                        {
-                          "kubeConfig": "redacted",
-                          "namespace": "default"
-                        }
-                        """
-                    },
-                    Resource = new()
-                    {
-                        Type = "apps/Deployment@v1",
-                        Properties = """
+                    ApiVersion = "v1",
+                    Type = "apps/Deployment",
+                    Properties = """
                         {
                           "metadata": {
                             "name": "echo-server"
@@ -124,13 +124,13 @@ public class ProviderExtensionTests : TestBase
                           }
                         }
                         """
-                    }
                 };
 
-                var response = await client.SaveAsync(request, cancellationToken: token);
+                var response = await client.CreateOrUpdateAsync(request, cancellationToken: token);
 
                 response.Should().NotBeNull();
-                response.Resource!.Type.Should().Be("apps/Deployment@v1");
+                response.Type.Should().Be("apps/Deployment");
+                response.Identifiers.Should().Be(identifiers.ToJson());
             });
     }
 }

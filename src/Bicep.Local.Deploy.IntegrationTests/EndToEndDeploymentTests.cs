@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
+using System.Text;
 using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
 using Azure.Deployments.Extensibility.Messages;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
@@ -18,6 +20,7 @@ using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Extension;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
 using Newtonsoft.Json.Linq;
 
@@ -45,7 +48,7 @@ public class EndToEndDeploymentTests : TestBase
 }
 """),
             ("main.bicep", """
-provider http
+extension http
 
 param coords {
   lattitude: string
@@ -90,11 +93,17 @@ param coords = {
         var parametersFile = result.Compilation.Emitter.Parameters().Parameters!;
         var templateFile = result.Compilation.Emitter.Parameters().Template!.Template!;
 
-        var providerMock = StrictMock.Of<LocalExtensibilityProvider>();
-        providerMock.Setup(x => x.Save(It.Is<ExtensibilityOperationRequest>(req => req.Resource.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
-            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) =>
+        JToken identifiers = new JObject
+                {
+                    { "name", "someName" },
+                    { "namespace", "someNamespace" }
+                };
+
+        var providerMock = StrictMock.Of<LocalExtensibilityExtension>();
+        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceRequestBody>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
+            .Returns<ResourceRequestBody, CancellationToken>((req, _) =>
             {
-                req.Resource.Properties["body"] = """
+                req.Properties["body"] = """
 {
   "properties": {
     "gridId": "SEW",
@@ -103,13 +112,13 @@ param coords = {
   }
 }
 """;
-
-                return Task.FromResult<ExtensibilityOperationResponse>(new(req.Resource, null, null));
+                return Task.FromResult<ResourceResponseBody>(new(null, identifiers, req.Type, "Succeeded", req.Properties));
             });
-        providerMock.Setup(x => x.Save(It.Is<ExtensibilityOperationRequest>(req => req.Resource.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
-            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) =>
+
+        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceRequestBody>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
+            .Returns<ResourceRequestBody, CancellationToken>((req, _) =>
             {
-                req.Resource.Properties["body"] = """
+                req.Properties["body"] = """
 {
   "properties": {
     "periods": [
@@ -127,13 +136,12 @@ param coords = {
   }
 }
 """;
-
-                return Task.FromResult<ExtensibilityOperationResponse>(new(req.Resource, null, null));
+                return Task.FromResult<ResourceResponseBody>(new(null, identifiers, req.Type, "Succeeded", req.Properties));
             });
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
         await using LocalExtensibilityHandler extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
-        await extensibilityHandler.InitializeProviders(result.Compilation);
+        await extensibilityHandler.InitializeExtensions(result.Compilation);
 
         var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
