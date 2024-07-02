@@ -95,9 +95,9 @@ namespace Bicep.Core.UnitTests
                 ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid",
                 ["cloud.credentialPrecedence"] = new[] { "AzureCLI", "AzurePowerShell" },
                 ["moduleAliases"] = new Dictionary<string, object>(),
-                ["providerAliases"] = new Dictionary<string, object>(),
-                ["providers"] = new Dictionary<string, object>(),
-                ["implicitProviders"] = new[] { "az" },
+                ["extensionAliases"] = new Dictionary<string, object>(),
+                ["extensions"] = new Dictionary<string, object>(),
+                ["implicitExtensions"] = new[] { "az" },
                 ["analyzers"] = new Dictionary<string, object>(),
                 ["experimentalFeaturesEnabled"] = new Dictionary<string, bool>(),
                 ["formatting"] = new Dictionary<string, bool>(),
@@ -165,6 +165,6 @@ namespace Bicep.Core.UnitTests
         }
         """);
 
-        public static string BuiltinAzProviderVersion = AzNamespaceType.Settings.ArmTemplateProviderVersion;
+        public static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.ArmTemplateProviderVersion;
     }
 }

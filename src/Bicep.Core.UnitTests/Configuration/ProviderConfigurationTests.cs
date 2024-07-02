@@ -19,18 +19,18 @@ public class ProvidersConfigurationTests
     {
         var data = JsonElementFactory.CreateElement("""
         {
-            "providers": {
-                "az": "br:mcr.microsoft.com/bicep/providers/az:0.2.3",
+            "extensions": {
+                "az": "br:mcr.microsoft.com/bicep/extensions/az:0.2.3",
                 "kubernetes": "builtin:"
             }
         }
         """);
 
-        var providers = ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ProvidersConfigurationKey));
+        var providers = ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ExtensionsKey));
         providers.Should().NotBeNull();
 
         providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
-        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/providers/az:0.2.3");
+        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/extensions/az:0.2.3");
 
         providers.TryGetProviderSource("kubernetes").IsSuccess(out var k8sProvider).Should().BeTrue();
         k8sProvider.Should().NotBeNull();
@@ -69,9 +69,9 @@ public class ProvidersConfigurationTests
         {
             [bicepConfigFileName] = new("""
             {
-                "providers": {
+                "extensions": {
                     "foo": "br:example.azurecr.io/some/fake/path:1.0.0",
-                    "az": "br:mcr.microsoft.com/bicep/providers/az:0.2.3"
+                    "az": "br:mcr.microsoft.com/bicep/extensions/az:0.2.3"
                 }
             }
             """)
@@ -91,7 +91,7 @@ public class ProvidersConfigurationTests
 
         // assert 'az' provider properties are overridden by the user provided configuration
         providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
-        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/providers/az:0.2.3");
+        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/extensions/az:0.2.3");
 
         // assert that 'sys' is not present in the merged configuration
         providers.TryGetProviderSource("sys").IsSuccess(out var provider, out var errorBuilder).Should().BeFalse();

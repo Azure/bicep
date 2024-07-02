@@ -420,7 +420,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             var bicepConfigJson = JObject.Parse("""
             {
-                "providers": {
+                "extensions": {
                     "sys": "example.azurecr.io/some/fake/path:1.0.0"
                 }
             }
@@ -428,7 +428,7 @@ namespace Bicep.Core.UnitTests.Configuration
 
             bool isValid = bicepConfigJson.IsValid(BicepConfigSchemaAsJSchema, out IList<ValidationError> errors);
             errors.Should().HaveCount(1);
-            errors.Single().Path.Should().Be("providers.sys");
+            errors.Single().Path.Should().Be("extensions.sys");
             isValid.Should().BeFalse();
         }
 
