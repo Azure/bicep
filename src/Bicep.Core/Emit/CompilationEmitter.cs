@@ -40,7 +40,7 @@ public class CompilationEmitter : ICompilationEmitter
     public ParametersResult Parameters()
     {
         var model = compilation.GetEntrypointSemanticModel();
-        if (model.SourceFileKind != Workspaces.BicepSourceFileKind.ParamsFile)
+        if (model.SourceFileKind != BicepSourceFileKind.ParamsFile)
         {
             throw new InvalidOperationException($"Entry-point {model.Root.FileUri} is not a parameters file");
         }
@@ -77,6 +77,10 @@ public class CompilationEmitter : ICompilationEmitter
             case TemplateSpecSemanticModel templateSpecModel:
                 {
                     return new ParametersResult(true, diagnostics, parametersData, templateSpecModel.SourceFile.TemplateSpecId, null);
+                }
+            case EmptySemanticModel _:
+                {
+                    return new ParametersResult(true, diagnostics, parametersData, null, null);
                 }
         }
 

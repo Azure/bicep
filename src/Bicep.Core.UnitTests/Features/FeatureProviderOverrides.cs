@@ -22,6 +22,7 @@ public record FeatureProviderOverrides(
     bool? OptionalModuleNamesEnabled = default,
     bool? LocalDeployEnabled = default,
     bool? ResourceDerivedTypesEnabled = default,
+    bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
     public FeatureProviderOverrides(
@@ -40,6 +41,7 @@ public record FeatureProviderOverrides(
         bool? OptionalModuleNamesEnabled = default,
         bool? LocalDeployEnabled = default,
         bool? ResourceDerivedTypesEnabled = default,
+        bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
     ) : this(
         FileHelper.GetCacheRootPath(testContext),
@@ -57,6 +59,7 @@ public record FeatureProviderOverrides(
         OptionalModuleNamesEnabled,
         LocalDeployEnabled,
         ResourceDerivedTypesEnabled,
+        ExtendableParamFilesEnabled,
         AssemblyVersion)
     { }
 }

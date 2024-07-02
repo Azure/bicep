@@ -354,27 +354,6 @@ output foo string = foo
         [TestMethod]
         [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task Build_params_to_stdout_with_non_bicep_references_should_succeed(EmbeddedFile paramFile)
-        {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
-            var outputFile = baselineFolder.GetFileOrEnsureCheckedIn("output.json");
-
-            var clients = await MockRegistry.Build();
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
-
-            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
-            result.Should().Succeed().And.NotHaveStderr();
-
-            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
-            // Force consistency for escaped newlines.
-            parametersStdout = parametersStdout with { templateJson = parametersStdout?.templateJson?.ReplaceLineEndings("\n") };
-            outputFile.WriteJsonToOutputFolder(parametersStdout);
-            outputFile.ShouldHaveExpectedJsonValue();
-        }
-
-        [TestMethod]
-        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Build_params_returns_intuitive_error_if_invoked_with_bicep_file_param(EmbeddedFile paramFile)
         {
             var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);

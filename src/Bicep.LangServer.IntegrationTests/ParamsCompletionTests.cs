@@ -442,8 +442,7 @@ param customParam customType[]
                 TestContext,
                 fileTextsByUri,
                 paramUri,
-                services => services
-                    .WithNamespaceProvider(BuiltInTestTypes.Create()));
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var paramFile = SourceFileFactory.CreateBicepParamFile(paramUri, paramFileTextNoCursor);
             var file = new FileRequestHelper(helper.Client, paramFile);

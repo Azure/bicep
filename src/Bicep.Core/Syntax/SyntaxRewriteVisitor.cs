@@ -194,6 +194,20 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax) => ReplaceCurrent(syntax, VisitUsingDeclarationSyntax);
 
+        protected virtual SyntaxBase ReplaceExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Path, out var path);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ExtendsDeclarationSyntax(keyword, path);
+        }
+        void ISyntaxVisitor.VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceExtendsDeclarationSyntax);
+
         protected virtual SyntaxBase ReplaceVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
@@ -632,6 +646,19 @@ namespace Bicep.Core.Syntax
             return new NullLiteralSyntax(nullKeyword);
         }
         void ISyntaxVisitor.VisitNullLiteralSyntax(NullLiteralSyntax syntax) => ReplaceCurrent(syntax, ReplaceNullLiteralSyntax);
+
+        protected virtual SyntaxBase ReplaceNoneLiteralSyntax(NoneLiteralSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.NoneKeyword, out var noneKeyword);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new NoneLiteralSyntax(noneKeyword);
+        }
+        void ISyntaxVisitor.VisitNoneLiteralSyntax(NoneLiteralSyntax syntax) => ReplaceCurrent(syntax, ReplaceNoneLiteralSyntax);
 
         protected virtual SyntaxBase ReplaceSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {

@@ -175,6 +175,11 @@ namespace Bicep.Core.Workspaces
             // process all artifact references - modules & providers
             foreach (var restorable in GetArtifactReferences(file.ProgramSyntax))
             {
+                if (restorable.Path is NoneLiteralSyntax)
+                {
+                    continue;
+                }
+
                 if (restorable is ProviderDeclarationSyntax providerDeclaration)
                 {
                     var isBuiltInProvider = providerDeclaration.SpecificationString switch

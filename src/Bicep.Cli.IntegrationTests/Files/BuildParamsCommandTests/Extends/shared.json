@@ -1,0 +1,5 @@
+{
+  "parametersJson": "{\n  \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\",\n  \"contentVersion\": \"1.0.0.0\",\n  \"parameters\": {\n    \"stringParam\": {\n      \"value\": \"foo\"\n    }\n  }\n}",
+  "templateJson": null,
+  "templateSpecId": null
+}

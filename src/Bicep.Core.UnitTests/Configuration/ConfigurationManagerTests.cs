@@ -106,6 +106,7 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "experimentalFeaturesEnabled": {
+          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "extensibility": false,
           "resourceTypedParamsAndOutputs": false,
@@ -195,6 +196,7 @@ namespace Bicep.Core.UnitTests.Configuration
         ],
         "analyzers": {},
         "experimentalFeaturesEnabled": {
+          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "extensibility": false,
           "resourceTypedParamsAndOutputs": false,
@@ -309,6 +311,7 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "experimentalFeaturesEnabled": {
+          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "extensibility": false,
           "resourceTypedParamsAndOutputs": false,
@@ -751,6 +754,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "cacheRootDirectory": "/home/username/.bicep/cache",
         "experimentalFeaturesEnabled": {
+          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "extensibility": true,
           "resourceTypedParamsAndOutputs": false,

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
@@ -34,12 +35,14 @@ namespace Bicep.Core.Syntax
             IArtifactReferenceSyntax foreignTemplateReference,
             DiagnosticBuilder.ErrorBuilderDelegate onUnspecifiedPath)
         {
-            if (foreignTemplateReference.Path is not StringSyntax pathSyntax)
+            if (foreignTemplateReference.Path is not StringSyntax && foreignTemplateReference.Path is not NoneLiteralSyntax)
             {
                 return new(onUnspecifiedPath);
             }
 
-            if (pathSyntax.TryGetLiteralValue() is not string pathValue)
+            var pathSyntax = foreignTemplateReference.Path is StringSyntax syntax ? syntax : null;
+
+            if (pathSyntax?.TryGetLiteralValue() is not string pathValue)
             {
                 return new(x => x.FilePathInterpolationUnsupported());
             }

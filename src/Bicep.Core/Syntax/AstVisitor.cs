@@ -37,6 +37,10 @@ namespace Bicep.Core.Syntax
         {
         }
 
+        public override void VisitNoneLiteralSyntax(NoneLiteralSyntax syntax)
+        {
+        }
+
         public override void VisitSeparatedSyntaxList(SeparatedSyntaxList syntax)
         {
             foreach (var element in syntax.Elements)
@@ -346,6 +350,12 @@ namespace Bicep.Core.Syntax
         }
 
         public override void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Path);
+        }
+
+        public override void VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Path);
