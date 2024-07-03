@@ -80,7 +80,7 @@ namespace Bicep.Core.Parsing
             {
                 TokenType.Identifier => new NoneLiteralSyntax(ExpectKeyword(LanguageConstants.NoneKeyword)),
                 TokenType.StringComplete => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
-                _ => Skip(reader.Read(), b => b.ExpectedSymbolListOrWildcard()),
+                _ => SkipEmpty(b => b.ExpectedSymbolListOrWildcard()),
             };
 
             return new(keyword, expression);
