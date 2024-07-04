@@ -1080,10 +1080,36 @@ namespace Bicep.Core.Emit
                         switch (extensionConfigType)
                         {
                             case StringType:
-                                emitter.EmitProperty("type", "string");
+                                if (extensionConfigType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+                                {
+                                    emitter.EmitProperty("type", "secureString");
+                                }
+                                else
+                                {
+                                    emitter.EmitProperty("type", "string");
+                                }
+                                break;
+                            case IntegerType:
+                                emitter.EmitProperty("type", "int");
+                                break;
+                            case BooleanType:
+                                emitter.EmitProperty("type", "bool");
+                                break;
+                            case ArrayType:
+                                emitter.EmitProperty("type", "array");
+                                break;
+                            case ObjectType:
+                                if (extensionConfigType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+                                {
+                                    emitter.EmitProperty("type", "secureObject");
+                                }
+                                else
+                                {
+                                    emitter.EmitProperty("type", "object");
+                                }
                                 break;
                             default:
-                                throw new ArgumentException($"Config name: '{extensionConfigName}' has an invalid type: '{extensionConfigType}'. Supported types are: 'string, secureString'");
+                                throw new ArgumentException($"Config name: '{extensionConfigName}' specified an unsupported type: '{extensionConfigType}'. Supported types are: 'string', 'secureString', 'int', 'bool', 'array', 'secureObject', 'object'.");
                         }
 
                         emitter.EmitProperty("defaultValue", providerConfigProperty.Value);

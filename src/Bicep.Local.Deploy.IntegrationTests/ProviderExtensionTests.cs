@@ -52,10 +52,6 @@ public class ProviderExtensionTests : TestBase
 
                     await testFunc(client, cts.Token);
                 }
-                catch (Exception ex)
-                {
-                    Trace.TraceError(ex.Message);
-                }
                 finally
                 {
                     await cts.CancelAsync();
@@ -145,7 +141,11 @@ public class ProviderExtensionTests : TestBase
                 response.Should().NotBeNull();
                 response.Resource.Should().NotBeNull();
                 response.Resource.Type.Should().Be("apps/Deployment");
-                response.Resource.Identifiers.Should().Be(identifiers.ToJson());
+                response.Resource.Identifiers.Should().NotBeNullOrEmpty();
+                var responseIdentifiers = JsonObject.Parse(response.Resource.Identifiers)!.AsObject();
+                responseIdentifiers.Should().NotBeNullOrEmpty();
+                responseIdentifiers["name"]!.GetValue<string>().Should().Be(identifiers["name"]!.GetValue<string>());
+                responseIdentifiers["namespace"]!.GetValue<string>().Should().Be(identifiers["namespace"]!.GetValue<string>());
             });
     }
 }

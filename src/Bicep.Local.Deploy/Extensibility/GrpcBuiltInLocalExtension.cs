@@ -106,7 +106,7 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
         };
 
     private static ExtensibilityV2.ErrorData Convert(Rpc.ErrorData errorData)
-        => new(new ExtensibilityV2.Error(errorData.Error.Code, errorData.Error.Message, JsonPointer.Empty, Convert(errorData.Error.Details), errorData.Error.InnerError is null ? null : JsonObject.Parse(errorData.Error.InnerError)?.AsObject() ?? throw new UnreachableException()));
+        => new(new ExtensibilityV2.Error(errorData.Error.Code, errorData.Error.Message, JsonPointer.Empty, Convert(errorData.Error.Details), ConvertInnerError(errorData.Error.InnerError)));
 
     private static ExtensibilityV2.ErrorDetail[]? Convert(RepeatedField<Rpc.ErrorDetail>? details)
         => details is not null ? details.Select(Convert).ToArray() : null;
@@ -118,6 +118,9 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
         => new(
             new ExtensibilityV2.Resource(response.Resource.Type, response.Resource.ApiVersion, ToJsonObject(response.Resource.Identifiers, "Parsing response identifiers failed. Please ensure is non-null or empty and is a valid JSON object."), ToJsonObject(response.Resource.Properties, "Parsing response properties failed. Please ensure is non-null or empty and is ensure is a valid JSON object."), response.Resource.Status),
             Convert(response.ErrorData));
+
+    private static JsonObject? ConvertInnerError(string innerError)
+        => innerError is null ? null : ToJsonObject(innerError, "Parsing innerError failed. Please ensure is non-null or empty and is a valid JSON object.");
 
     private static JsonObject ToJsonObject(string json, string errorMessage)
         => JsonNode.Parse(json)?.AsObject() ?? throw new ArgumentNullException(errorMessage);
