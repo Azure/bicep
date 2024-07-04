@@ -429,5 +429,42 @@ param stringParam =  /*TODO*/
                 ("BCP406", DiagnosticLevel.Error, "The \"extends\" keyword is not supported"),
             });
         }
+
+        [TestMethod]
+        public void Extending_parameters_allow_overriding_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param foo = 'bar'
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param foo = 'foo'
+              "),
+              ("main.bicep", @"
+                param foo string
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Parameters.Should().DeepEqual(JToken.Parse(@"{
+            ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+            ""contentVersion"": ""1.0.0.0"",
+            ""parameters"": {
+                ""foo"": {
+                ""value"": ""bar""
+                },
+            }
+            }"));
+        }
     }
 }
