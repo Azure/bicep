@@ -2058,17 +2058,17 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidProviderAliasName(string aliasName) => new(
                 TextSpan,
                 "BCP377",
-                $"The provider alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
+                $"The extension alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
             public ErrorDiagnostic InvalidOciArtifactProviderAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => new(
                 TextSpan,
                 "BCP378",
-                $"The OCI artifact provider alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
+                $"The OCI artifact extension alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
             public ErrorDiagnostic OciArtifactProviderAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => new(
                 TextSpan,
                 "BCP379",
-                $"The OCI artifact provider alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
+                $"The OCI artifact extension alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
             public ErrorDiagnostic UnsupportedArtifactType(ArtifactType artifactType) => new(
                 TextSpan,
@@ -2164,12 +2164,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidProvider_ImplicitProviderMissingConfig(Uri? configFileUri, string name) => new(
                 TextSpan,
                 "BCP397",
-                $"""Provider {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{RootConfiguration.ImplicitProvidersConfigurationKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ProvidersConfigurationKey}" section.""");
+                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{RootConfiguration.ImplicitExtensionsKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ExtensionsKey}" section.""");
 
             public ErrorDiagnostic InvalidProvider_NotABuiltInProvider(Uri? configFileUri, string name) => new(
                 TextSpan,
                 "BCP398",
-                $"""Provider {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ProvidersConfigurationKey}" section, but no built-in provider exists.""");
+                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in provider exists.""");
 
             public ErrorDiagnostic FetchingAzTypesRequiresExperimentalFeature() => new(
                 TextSpan,
@@ -2179,7 +2179,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic FetchingTypesRequiresExperimentalFeature() => new(
                 TextSpan,
                 "BCP400",
-                $"Fetching types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ProviderRegistry)}\".");
+                $"Fetching types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ExtensionRegistry)}\".");
 
             public ErrorDiagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => new(
                 TextSpan,

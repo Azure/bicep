@@ -31,9 +31,9 @@ namespace Bicep.Core.IntegrationTests
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzProvider());
+                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzExtension());
 
-            await RegistryHelper.PublishAzProvider(services.Build(), indexJson);
+            await RegistryHelper.PublishAzExtension(services.Build(), indexJson);
 
             return services;
         }
@@ -64,7 +64,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
-            extension 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}'
+            extension 'br/public:az:{BicepTestConstants.BuiltinAzExtensionVersion}'
             "));
 
             result.Should().GenerateATemplate();
@@ -76,7 +76,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            extension 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}' with {{}}
+            extension 'br/public:az:{BicepTestConstants.BuiltinAzExtensionVersion}' with {{}}
             ");
 
             result.Should().NotGenerateATemplate();
@@ -90,7 +90,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            extension 'br/public:az:{BicepTestConstants.BuiltinAzProviderVersion}' as testAlias
+            extension 'br/public:az:{BicepTestConstants.BuiltinAzExtensionVersion}' as testAlias
             ");
 
             result.Should().GenerateATemplate();
@@ -98,23 +98,23 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Az_namespace_can_be_used_with_bicepconfig_provider_alias()
+        public async Task Az_namespace_can_be_used_with_bicepconfig_extension_alias()
         {
             var services = await GetServices();
 
-            services = services.WithConfigurationPatch(c => c.WithProviderAlias("""
+            services = services.WithConfigurationPatch(c => c.WithExtensionAliases("""
             {
                 "br": {
                     "customAlias": {
                         "registry": "mcr.microsoft.com",
-                        "providerPath": "bicep/providers"
+                        "extensionPath": "bicep/extensions"
                     }
                 }
             }
             """));
 
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            extension 'br/customAlias:az:{BicepTestConstants.BuiltinAzProviderVersion}'
+            extension 'br/customAlias:az:{BicepTestConstants.BuiltinAzExtensionVersion}'
             ");
 
             result.Should().GenerateATemplate();
@@ -133,7 +133,7 @@ namespace Bicep.Core.IntegrationTests
 
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics([
-                ("BCP379", DiagnosticLevel.Error, "The OCI artifact provider alias name \"notFound\" does not exist in the built-in Bicep configuration."),
+                ("BCP379", DiagnosticLevel.Error, "The OCI artifact extension alias name \"notFound\" does not exist in the built-in Bicep configuration."),
             ]);
         }
 
@@ -309,9 +309,9 @@ namespace Bicep.Core.IntegrationTests
             // {
             //   "implicitProviders": ["az"]
             // }
-            services = services.WithConfigurationPatch(c => c.WithProvidersConfiguration($$"""
+            services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
             {
-                "az": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/providers/az:{{BicepTestConstants.BuiltinAzProviderVersion}}"
+                "az": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/extensions/az:{{BicepTestConstants.BuiltinAzExtensionVersion}}"
             }
             """));
             var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
@@ -350,7 +350,7 @@ namespace Bicep.Core.IntegrationTests
             var services = await ServicesWithTestProviderArtifact(
                 artifactRegistryAddress,
                 ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", """{"resources": {}, "resourceFunctions": {}}""")));
-            services = services.WithConfigurationPatch(c => c.WithProvidersConfiguration($$"""
+            services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
             {
                 "az": "{{artifactRegistryAddress.ToSpecificationString(':')}}"
             }

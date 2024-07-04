@@ -34,17 +34,17 @@ public class EndToEndDeploymentTests : TestBase
     [TestMethod]
     public async Task End_to_end_deployment_basic()
     {
-        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ProviderRegistry: true, LocalDeployEnabled: true));
+        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
 {
-  "providers": {
+  "extensions": {
     "http": "br:example.azurecr.io/providers/foo:1.2.3"
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "providerRegistry": true,
+    "extensionRegistry": true,
     "localDeploy": true
   }
 }

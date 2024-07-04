@@ -39,11 +39,11 @@ namespace Bicep.Core.IntegrationTests
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzProvider())
+                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzExtension())
                 .WithMockFileSystem(fileSystem)
                 .WithAzResourceTypeLoader(azTypeLoaderLazy.Value);
 
-            await RegistryHelper.PublishAzProvider(services.Build(), "/types/index.json");
+            await RegistryHelper.PublishAzExtension(services.Build(), "/types/index.json");
 
             return services;
         }
@@ -296,7 +296,7 @@ extension madeUpNamespace
 
             var services = (await GetServices())
                 .WithNamespaceProvider(nsProvider)
-                .WithConfigurationPatch(c => c.WithProvidersConfiguration("""
+                .WithConfigurationPatch(c => c.WithExtensions("""
                 {
                   "az": "builtin:",
                   "ns1": "builtin:",
@@ -362,7 +362,7 @@ extension madeUpNamespace
 
             var services = (await GetServices())
                 .WithNamespaceProvider(nsProvider)
-                .WithConfigurationPatch(c => c.WithProvidersConfiguration("""
+                .WithConfigurationPatch(c => c.WithExtensions("""
                 {
                   "az": "builtin:",
                   "mockNs": "builtin:"

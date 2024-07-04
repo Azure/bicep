@@ -19,8 +19,7 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class RegistryProviderTests : TestBase
 {
-    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true, ProviderRegistry: true, DynamicTypeLoadingEnabled: true);
-    private static readonly FeatureProviderOverrides AllFeaturesEnabledForLocalDeploy = new(LocalDeployEnabled: true, ExtensibilityEnabled: true, ProviderRegistry: true, DynamicTypeLoadingEnabled: true);
+    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true, ExtensionRegistry: true, DynamicTypeLoadingEnabled: true);
 
     [TestMethod]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
@@ -78,14 +77,14 @@ output joke string = dadJoke.body.joke
     {
         var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
         Directory.CreateDirectory(cacheDirectory);
-        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory, ExtensibilityEnabled: true, ProviderRegistry: true));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory, ExtensibilityEnabled: true, ExtensionRegistry: true));
 
         var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();
         var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         Directory.CreateDirectory(tempDirectory);
 
-        var providerPath = Path.Combine(tempDirectory, "provider.tgz");
-        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), Path.Combine(tempDirectory, providerPath), typesTgz);
+        var extensionPath = Path.Combine(tempDirectory, "provider.tgz");
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), Path.Combine(tempDirectory, extensionPath), typesTgz);
 
         var bicepPath = Path.Combine(tempDirectory, "main.bicep");
         await File.WriteAllTextAsync(bicepPath, """
@@ -198,13 +197,13 @@ output baz string = fooRes.convertBarToBaz('bar')
 
         fileSystem.File.WriteAllText("/bicepconfig.json", """
  {
-   "providers": {
+   "extensions": {
      "foo": "br:example.azurecr.io/providers/foo:1.2.3"
    },
-  "implicitProviders": ["foo"],
+  "implicitExtensions": ["foo"],
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "providerRegistry": true
+    "extensionRegistry": true
   }
 }
 """);
@@ -295,7 +294,7 @@ extension 'br:example.azurecr.io/test/provider/http:1.2.3'
 extension 'br:example.azurecr.io/test/provider/http:1.2.3'
 ");
         result2.Should().HaveDiagnostics([
-            ("BCP400", DiagnosticLevel.Error, """Fetching types from the registry requires enabling EXPERIMENTAL feature "ProviderRegistry"."""),
+            ("BCP400", DiagnosticLevel.Error, """Fetching types from the registry requires enabling EXPERIMENTAL feature "ExtensionRegistry"."""),
         ]);
     }
 
@@ -600,19 +599,19 @@ resource test 'test@v1' = {
 
         // incorrect extension version - verify it returns an error
         fileSystem.File.WriteAllText("/bicepconfig.json", """
- {
-   "providers": {
-     "foo": "br:example.azurecr.io/providers/foo:1.2.4"
-   },
-  "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "providerRegistry": true
-  }
-}
-""");
+            {
+              "extensions": {
+                "foo": "br:example.azurecr.io/providers/foo:1.2.4"
+              },
+              "experimentalFeaturesEnabled": {
+                "extensibility": true,
+                "extensionRegistry": true
+              }
+            }
+            """);
         var result = await CompilationHelper.RestoreAndCompile(services, """
-extension foo
-""");
+            extension foo
+            """);
 
         result.Should().NotGenerateATemplate();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
@@ -621,42 +620,42 @@ extension foo
 
         // correct extension version
         fileSystem.File.WriteAllText("/bicepconfig.json", """
- {
-   "providers": {
-     "foo": "br:example.azurecr.io/providers/foo:1.2.3"
-   },
-  "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "providerRegistry": true
-  }
-}
-""");
+            {
+              "extensions": {
+                "foo": "br:example.azurecr.io/providers/foo:1.2.3"
+              },
+              "experimentalFeaturesEnabled": {
+                "extensibility": true,
+                "extensionRegistry": true
+              }
+            }
+            """);
         result = await CompilationHelper.RestoreAndCompile(services, """
-extension foo
+            extension foo
 
-resource fooRes 'fooType@v1' = {
-  identifier: 'foo'
-  properties: {
-    required: 'bar'
-  }
-}
-""");
+            resource fooRes 'fooType@v1' = {
+              identifier: 'foo'
+              properties: {
+                required: 'bar'
+              }
+            }
+            """);
 
         result.Should().GenerateATemplate();
 
         // correct extension version, defined implicitly
         fileSystem.File.WriteAllText("/bicepconfig.json", """
- {
-  "providers": {
-    "foo": "br:example.azurecr.io/providers/foo:1.2.3"
-  },
-  "implicitProviders": ["foo"],
-  "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "providerRegistry": true
-  }
-}
-""");
+            {
+              "extensions": {
+                "foo": "br:example.azurecr.io/providers/foo:1.2.3"
+              },
+              "implicitExtensions": ["foo"],
+              "experimentalFeaturesEnabled": {
+                "extensibility": true,
+                "extensionRegistry": true
+              }
+            }
+            """);
         result = await CompilationHelper.RestoreAndCompile(services, """
 resource fooRes 'fooType@v1' = {
   identifier: 'foo'

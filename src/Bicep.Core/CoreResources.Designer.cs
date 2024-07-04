@@ -196,20 +196,20 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Extension registry.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_ExtensionRegistry {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_ExtensionRegistry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enable optional module names.
         /// </summary>
         internal static string ExperimentalFeatureNames_OptionalModuleNames {
             get {
                 return ResourceManager.GetString("ExperimentalFeatureNames_OptionalModuleNames", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Provider registry.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_ProviderRegistry {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_ProviderRegistry", resourceCulture);
             }
         }
         
@@ -1069,6 +1069,33 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Use the safe access (.?) operator.
+        /// </summary>
+        internal static string UseSafeAccessRule_CodeFix {
+            get {
+                return ResourceManager.GetString("UseSafeAccessRule_CodeFix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use the safe access (.?) operator instead of checking object contents with the &apos;contains&apos; function..
+        /// </summary>
+        internal static string UseSafeAccessRule_Description {
+            get {
+                return ResourceManager.GetString("UseSafeAccessRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The syntax can be simplified by using the safe access (.?) operator..
+        /// </summary>
+        internal static string UseSafeAccessRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseSafeAccessRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Resource properties expecting secure input should be assigned secure values..
         /// </summary>
         internal static string UseSecureValueForSecureInputsRule_Description {
@@ -1119,24 +1146,6 @@ namespace Bicep.Core {
         internal static string UseStableVMImageRuleFixMessageFormat {
             get {
                 return ResourceManager.GetString("UseStableVMImageRuleFixMessageFormat", resourceCulture);
-            }
-        }
-        
-        internal static string UseSafeAccessRule_Description {
-            get {
-                return ResourceManager.GetString("UseSafeAccessRule_Description", resourceCulture);
-            }
-        }
-        
-        internal static string UseSafeAccessRule_MessageFormat {
-            get {
-                return ResourceManager.GetString("UseSafeAccessRule_MessageFormat", resourceCulture);
-            }
-        }
-        
-        internal static string UseSafeAccessRule_CodeFix {
-            get {
-                return ResourceManager.GetString("UseSafeAccessRule_CodeFix", resourceCulture);
             }
         }
     }
