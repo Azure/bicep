@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Linter;
-
 namespace Bicep.Core.Configuration
 {
     public static class ExperimentalFeaturesExtensions
