@@ -400,5 +400,34 @@ param stringParam =  /*TODO*/
 
 """);
         }
+
+        [TestMethod]
+        public void Invalid_extends_and_more_than_one_extends_should_fail()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends
+                extends 'shared.bicepparam'
+                param foo = ''
+                param bar = ''
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param foo = ''
+              "),
+              ("main.bicep", @"
+                param foo string
+                param bar string
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP405", DiagnosticLevel.Error, "More than one \"extends\" declaration are present"),
+                ("BCP406", DiagnosticLevel.Error, "The \"extends\" keyword is not supported"),
+                ("BCP404", DiagnosticLevel.Error, "The \"extends\" declaration is missing a bicepparam file path reference."),
+                ("BCP405", DiagnosticLevel.Error, "More than one \"extends\" declaration are present"),
+                ("BCP406", DiagnosticLevel.Error, "The \"extends\" keyword is not supported"),
+            });
+        }
     }
 }
