@@ -1,43 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Concurrent;
-using System.Configuration;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Pipes;
-using System.Net;
-using System.Net.Sockets;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Azure.Deployments.Extensibility.Contract;
-using Azure.Deployments.Extensibility.Messages;
+using System.Text.Json.Nodes;
 using Bicep.Local.Extension.Rpc;
-using Grpc.Net.Client;
+using Google.Protobuf.Collections;
+using Json.Pointer;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
-using Data = Azure.Deployments.Extensibility.Data;
-using Messages = Azure.Deployments.Extensibility.Messages;
-using ExtensibilityV2 = Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract;
+using ExtensibilityV2 = Azure.Deployments.Extensibility.Core.V2.Models;
 using Rpc = Bicep.Local.Extension.Rpc;
-using Google.Protobuf.Collections;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public class GrpcExtensibilityExtension : LocalExtensibilityExtension
+public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
 {
     private readonly BicepExtension.BicepExtensionClient client;
     private readonly Process process;
 
-    private GrpcExtensibilityExtension(BicepExtension.BicepExtensionClient client, Process process)
+    private GrpcBuiltInLocalExtension(BicepExtension.BicepExtensionClient client, Process process)
     {
         this.client = client;
         this.process = process;
     }
 
-    public static async Task<LocalExtensibilityExtension> Start(Uri pathToBinary)
+    public static async Task<LocalExtensibilityHost> Start(Uri pathToBinary)
     {
         var socketName = $"{Guid.NewGuid()}.tmp";
         var socketPath = Path.Combine(Path.GetTempPath(), socketName);
@@ -79,7 +66,7 @@ public class GrpcExtensibilityExtension : LocalExtensibilityExtension
 
             await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
-            return new GrpcExtensibilityExtension(client, process);
+            return new GrpcBuiltInLocalExtension(client, process);
         }
         catch (Exception ex)
         {
@@ -88,19 +75,19 @@ public class GrpcExtensibilityExtension : LocalExtensibilityExtension
         }
     }
 
-    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> CreateOrUpdate(ExtensibilityV2.Models.ResourceRequestBody request, CancellationToken cancellationToken)
+    public override async Task<LocalExtensibilityOperationResponse> CreateOrUpdate(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
         => Convert(await client.CreateOrUpdateAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> Delete(ExtensibilityV2.Models.ResourceReferenceRequestBody request, CancellationToken cancellationToken)
+    public override async Task<LocalExtensibilityOperationResponse> Delete(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
         => Convert(await client.DeleteAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> Get(ExtensibilityV2.Models.ResourceReferenceRequestBody request, CancellationToken cancellationToken)
+    public override async Task<LocalExtensibilityOperationResponse> Get(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
         => Convert(await client.GetAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<ExtensibilityV2.Models.ResourceResponseBody> Preview(ExtensibilityV2.Models.ResourceRequestBody request, CancellationToken cancellationToken)
+    public override async Task<LocalExtensibilityOperationResponse> Preview(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
         => Convert(await client.PreviewAsync(Convert(request), cancellationToken: cancellationToken));
 
-    private static Rpc.ResourceReferenceRequestBody Convert(ExtensibilityV2.Models.ResourceReferenceRequestBody request)
+    private static Rpc.ResourceReference Convert(ExtensibilityV2.ResourceReference request)
         => new()
         {
             ApiVersion = request.ApiVersion,
@@ -109,7 +96,7 @@ public class GrpcExtensibilityExtension : LocalExtensibilityExtension
             Type = request.Type
         };
 
-    private static Rpc.ResourceRequestBody Convert(ExtensibilityV2.Models.ResourceRequestBody request)
+    private static Rpc.ResourceSpecification Convert(ExtensibilityV2.ResourceSpecification request)
         => new()
         {
             ApiVersion = request.ApiVersion,
@@ -118,17 +105,22 @@ public class GrpcExtensibilityExtension : LocalExtensibilityExtension
             Type = request.Type
         };
 
-    private static ExtensibilityV2.Models.ErrorPayload Convert(Rpc.ErrorPayload error)
-        => new(error.Code, error.Target, error.Message, error.Details is null ? null : Convert(error.Details), error.InnerError is null ? null : JObject.Parse(error.InnerError));
+    private static ExtensibilityV2.ErrorData Convert(Rpc.ErrorData errorData)
+        => new(new ExtensibilityV2.Error(errorData.Error.Code, errorData.Error.Message, JsonPointer.Empty, Convert(errorData.Error.Details), errorData.Error.InnerError is null ? null : JsonObject.Parse(errorData.Error.InnerError)?.AsObject() ?? throw new UnreachableException()));
 
-    private static ExtensibilityV2.Models.ErrorDetail[] Convert(RepeatedField<Rpc.ErrorDetail> details)
-        => details.Select(Convert).ToArray();
+    private static ExtensibilityV2.ErrorDetail[]? Convert(RepeatedField<Rpc.ErrorDetail>? details)
+        => details is not null ? details.Select(Convert).ToArray() : null;
 
-    private static ExtensibilityV2.Models.ErrorDetail Convert(Rpc.ErrorDetail detail)
-        => new(detail.Code, detail.Message, detail.Target);
+    private static ExtensibilityV2.ErrorDetail Convert(Rpc.ErrorDetail detail)
+        => new(detail.Code, detail.Message, JsonPointer.Empty);
 
-    private static ExtensibilityV2.Models.ResourceResponseBody Convert(Rpc.ResourceResponseBody response)
-        => new(Convert(response.Error), response.Identifiers, response.Type, response.Status, response.Properties.ToJToken());
+    private static LocalExtensibilityOperationResponse Convert(Rpc.LocalExtensibilityOperationResponse response)
+        => new(
+            new ExtensibilityV2.Resource(response.Resource.Type, response.Resource.ApiVersion, ToJsonObject(response.Resource.Identifiers, "Parsing response identifiers failed. Please ensure is non-null or empty and is a valid JSON object."), ToJsonObject(response.Resource.Properties, "Parsing response properties failed. Please ensure is non-null or empty and is ensure is a valid JSON object."), response.Resource.Status),
+            Convert(response.ErrorData));
+
+    private static JsonObject ToJsonObject(string json, string errorMessage)
+        => JsonNode.Parse(json)?.AsObject() ?? throw new ArgumentNullException(errorMessage);
 
     public override async ValueTask DisposeAsync()
     {

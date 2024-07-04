@@ -109,7 +109,7 @@ namespace Bicep.Core.Emit
 
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
-                if (Context.Settings.LocalDeployEnabled)
+                if (Context.SemanticModel.Features.LocalDeployEnabled)
                 {
                     emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
                 }
@@ -1002,7 +1002,7 @@ namespace Bicep.Core.Emit
             }
 
             // TODO: Remove if statement once all providers got migrated to extensions (extensibility v2 contract).
-            if (this.Context.SemanticModel.Features.LocalDeployEnabled)
+            if (Context.SemanticModel.Features.LocalDeployEnabled)
             {
                 EmitExtensions(emitter, providers.Add(GetExtensionForLocalDeploy()));
             }

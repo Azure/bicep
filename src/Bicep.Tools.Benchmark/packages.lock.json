@@ -148,6 +148,17 @@
           "Newtonsoft.Json": "13.0.2"
         }
       },
+      "Azure.Deployments.Extensibility.Core": {
+        "type": "Transitive",
+        "resolved": "0.1.55",
+        "contentHash": "iMZhx89YLqHaPGA20LXlzDBty7ov/UgOdxLudJtYwBXkalfSRHLPNKRnJVeGM3EZc9897LeoPyfJ8NvyLeZcgQ==",
+        "dependencies": {
+          "JsonPatch.Net": "3.1.0",
+          "JsonPath.Net": "1.1.0",
+          "JsonPointer.Net": "5.0.0",
+          "JsonSchema.Net": "7.0.4"
+        }
+      },
       "Azure.Deployments.JsonPath": {
         "type": "Transitive",
         "resolved": "1.0.1265",
@@ -346,6 +357,14 @@
         "dependencies": {
           "Humanizer.Core": "2.14.1",
           "Json.More.Net": "2.0.1.2"
+        }
+      },
+      "JsonSchema.Net": {
+        "type": "Transitive",
+        "resolved": "7.0.4",
+        "contentHash": "R0Hk2Tr/np4Q1NO8CBjyQsoiD1iFJyEQP20Sw7JnZCNGJoaSBe+g4b+nZqnBXPQhiqY5LGZ8JZwZkRh/eKZhEQ==",
+        "dependencies": {
+          "JsonPointer.Net": "5.0.0"
         }
       },
       "MediatR": {
@@ -1584,6 +1603,7 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Local.Extension": "[1.0.0, )",
           "Azure.Deployments.Engine": "[1.54.0, )",
+          "Azure.Deployments.Extensibility.Core": "[0.1.55, )",
           "Microsoft.AspNet.WebApi.Client": "[6.0.0, )"
         }
       },

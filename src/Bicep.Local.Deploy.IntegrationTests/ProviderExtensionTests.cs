@@ -75,18 +75,32 @@ public class ProviderExtensionTests : TestBase
         var handlerMock = StrictMock.Of<IResourceHandler>();
         handlerMock.SetupGet(x => x.ResourceType).Returns("apps/Deployment");
 
-        handlerMock.Setup(x => x.CreateOrUpdate(It.IsAny<Protocol.ResourceRequestBody>(), It.IsAny<CancellationToken>()))
-            .Returns<Protocol.ResourceRequestBody, CancellationToken>((req, _) =>
-                Task.FromResult(new Protocol.ResourceResponseBody(null, identifiers, req.Type, "Succeeded", req.Properties)));
+        handlerMock.Setup(x => x.CreateOrUpdate(It.IsAny<Protocol.ResourceSpecification>(), It.IsAny<CancellationToken>()))
+            .Returns<Protocol.ResourceSpecification, CancellationToken>((req, _) =>
+                Task.FromResult(new Protocol.LocalExtensibilityOperationResponse(
+                    new Protocol.Resource(req.Type, req.ApiVersion, "Succeeded", identifiers, req.Config, req.Properties),
+                    null)));
 
         await RunExtensionTest(
             builder => builder.AddHandler(handlerMock.Object),
             async (client, token) =>
             {
-                var request = new Extension.Rpc.ResourceRequestBody
+                var request = new Extension.Rpc.ResourceSpecification
                 {
                     ApiVersion = "v1",
                     Type = "apps/Deployment",
+                    Config = """
+                        {
+                            "kubeConfig": {
+                                "type": "string",
+                                "defaultValue": "redacted"
+                            },
+                            "namespace": {
+                                "type": "string",
+                                "defaultValue": "default"
+                            }
+                        }
+                    """,
                     Properties = """
                         {
                           "metadata": {
@@ -129,8 +143,9 @@ public class ProviderExtensionTests : TestBase
                 var response = await client.CreateOrUpdateAsync(request, cancellationToken: token);
 
                 response.Should().NotBeNull();
-                response.Type.Should().Be("apps/Deployment");
-                response.Identifiers.Should().Be(identifiers.ToJson());
+                response.Resource.Should().NotBeNull();
+                response.Resource.Type.Should().Be("apps/Deployment");
+                response.Resource.Identifiers.Should().Be(identifiers.ToJson());
             });
     }
 }

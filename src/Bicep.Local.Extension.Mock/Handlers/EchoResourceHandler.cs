@@ -19,16 +19,16 @@ public class EchoResourceHandler : IResourceHandler
 {
     public string ResourceType => "echo";
 
-    public Task<ResourceResponseBody> Delete(ResourceReferenceRequestBody request, CancellationToken cancellationToken)
+    public Task<LocalExtensibilityOperationResponse> Delete(ResourceReference request, CancellationToken cancellationToken)
         => throw new NotImplementedException();
 
-    public Task<ResourceResponseBody> Get(ResourceReferenceRequestBody request, CancellationToken cancellationToken)
+    public Task<LocalExtensibilityOperationResponse> Get(ResourceReference request, CancellationToken cancellationToken)
         => throw new NotImplementedException();
 
-    public Task<ResourceResponseBody> Preview(ResourceRequestBody request, CancellationToken cancellationToken)
+    public Task<LocalExtensibilityOperationResponse> Preview(ResourceSpecification request, CancellationToken cancellationToken)
         => throw new NotImplementedException();
 
-    public async Task<ResourceResponseBody> CreateOrUpdate(ResourceRequestBody request, CancellationToken cancellationToken)
+    public async Task<LocalExtensibilityOperationResponse> CreateOrUpdate(ResourceSpecification request, CancellationToken cancellationToken)
     {
         await Task.Yield();
         var requestBody = JsonSerializer.Deserialize(request.Properties, SerializationContext.Default.EchoRequest)
@@ -41,11 +41,8 @@ public class EchoResourceHandler : IResourceHandler
                 };
 
         var responseBody = new EchoResponse(requestBody.Payload);
-        return new ResourceResponseBody(
-            null,
-            identifiers,
-            request.Type,
-            "Succeeded",
-            JsonNode.Parse(JsonSerializer.Serialize(responseBody, SerializationContext.Default.EchoResponse))!.AsObject());
+        return new LocalExtensibilityOperationResponse(
+            Resource: new Resource(request.Type, request.ApiVersion, "Succeeded", identifiers, null, JsonNode.Parse(JsonSerializer.Serialize(responseBody, SerializationContext.Default.EchoResponse))!.AsObject()),
+            ErrorData: null);
     }
 }

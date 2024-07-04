@@ -8,26 +8,30 @@ using Bicep.Local.Extension.Rpc;
 
 namespace Bicep.Local.Extension.Protocol;
 
-public record ResourceRequestBody(
-    JsonObject? Config,
+public record Resource(
     string Type,
-    JsonObject Properties,
-    string? ApiVersion);
-
-public record ResourceReferenceRequestBody(
+    string? ApiVersion,
+    string? Status,
     JsonObject Identifiers,
     JsonObject? Config,
-    string Type,
-    string? ApiVersion);
-
-public record ResourceResponseBody(
-    ErrorPayload? Error,
-    JsonObject Identifiers,
-    string Type,
-    string Status,
     JsonObject Properties);
 
-public record ErrorPayload(
+public record ResourceSpecification(
+    string Type,
+    string? ApiVersion,
+    JsonObject Properties,
+    JsonObject? Config);
+
+public record ResourceReference(
+    string Type,
+    string? ApiVersion,
+    JsonObject Identifiers,
+    JsonObject? Config);
+
+public record ErrorData(
+    Error Error);
+
+public record Error(
     string Code,
     string Target,
     string Message,
@@ -39,22 +43,26 @@ public record ErrorDetail(
     string Target,
     string Message);
 
+public record LocalExtensibilityOperationResponse(
+    Resource? Resource,
+    ErrorData? ErrorData);
+
 public interface IGenericResourceHandler
 {
-    Task<ResourceResponseBody> CreateOrUpdate(
-        ResourceRequestBody request,
+    Task<LocalExtensibilityOperationResponse> CreateOrUpdate(
+        ResourceSpecification request,
         CancellationToken cancellationToken);
 
-    Task<ResourceResponseBody> Preview(
-        ResourceRequestBody request,
+    Task<LocalExtensibilityOperationResponse> Preview(
+        ResourceSpecification request,
         CancellationToken cancellationToken);
 
-    Task<ResourceResponseBody> Get(
-        ResourceReferenceRequestBody request,
+    Task<LocalExtensibilityOperationResponse> Get(
+        ResourceReference request,
         CancellationToken cancellationToken);
 
-    Task<ResourceResponseBody> Delete(
-        ResourceReferenceRequestBody request,
+    Task<LocalExtensibilityOperationResponse> Delete(
+        ResourceReference request,
         CancellationToken cancellationToken);
 }
 

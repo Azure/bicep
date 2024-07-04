@@ -20,6 +20,18 @@
           "System.Diagnostics.DiagnosticSource": "5.0.1"
         }
       },
+      "Azure.Deployments.Extensibility.Core": {
+        "type": "Direct",
+        "requested": "[0.1.55, )",
+        "resolved": "0.1.55",
+        "contentHash": "iMZhx89YLqHaPGA20LXlzDBty7ov/UgOdxLudJtYwBXkalfSRHLPNKRnJVeGM3EZc9897LeoPyfJ8NvyLeZcgQ==",
+        "dependencies": {
+          "JsonPatch.Net": "3.1.0",
+          "JsonPath.Net": "1.1.0",
+          "JsonPointer.Net": "5.0.0",
+          "JsonSchema.Net": "7.0.4"
+        }
+      },
       "Azure.Deployments.Internal.GenerateNotice": {
         "type": "Direct",
         "requested": "[0.1.38, )",
@@ -307,6 +319,14 @@
         "dependencies": {
           "Humanizer.Core": "2.14.1",
           "Json.More.Net": "2.0.1.2"
+        }
+      },
+      "JsonSchema.Net": {
+        "type": "Transitive",
+        "resolved": "7.0.4",
+        "contentHash": "R0Hk2Tr/np4Q1NO8CBjyQsoiD1iFJyEQP20Sw7JnZCNGJoaSBe+g4b+nZqnBXPQhiqY5LGZ8JZwZkRh/eKZhEQ==",
+        "dependencies": {
+          "JsonPointer.Net": "5.0.0"
         }
       },
       "Microsoft.Automata.SRM": {

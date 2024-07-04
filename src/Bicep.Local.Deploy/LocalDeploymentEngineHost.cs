@@ -1,43 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Azure.Core;
+using System.Text.Json.Nodes;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Identifiers;
-using Azure.Deployments.Core.Definitions.Resources;
 using Azure.Deployments.Core.Entities;
-using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Core.EventSources;
 using Azure.Deployments.Core.Exceptions;
-using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Core.FeatureEnablement;
-using Azure.Deployments.Core.Helpers;
-using Azure.Deployments.Core.PerformanceCounters;
-using Azure.Deployments.Core.Uri;
-using Azure.Deployments.Engine.Extensions;
-using Azure.Deployments.Engine.Helpers;
-using Azure.Deployments.Engine.Host.Azure.Constants;
-using Azure.Deployments.Engine.Host.Azure.Definitions;
-using Azure.Deployments.Engine.Host.Azure.Exceptions;
 using Azure.Deployments.Engine.Host.Azure.Interfaces;
 using Azure.Deployments.Engine.Host.Azure.Workers.Metadata;
 using Azure.Deployments.Engine.Host.External;
 using Azure.Deployments.Engine.Interfaces;
-using Azure.Deployments.Extensibility.Messages;
 using Azure.Deployments.ResourceMetadata.Contracts;
 using Bicep.Local.Deploy.Extensibility;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Microsoft.WindowsAzure.ResourceStack.Common.Services.ADAuthentication;
 using Newtonsoft.Json.Linq;
@@ -48,16 +28,12 @@ namespace Bicep.Local.Deploy;
 
 public class LocalDeploymentEngineHost : DeploymentEngineHostBase
 {
-    private readonly LocalExtensibilityHandler extensibilityHandler;
+    private readonly LocalExtensibilityHostManager extensibilityHandler;
 
-    /*var extensionName = requestUri.Segments[^4].TrimEnd('/');
-    var extensionVersion = requestUri.Segments[^3].TrimEnd('/');
-    var method = requestUri.Segments[^1].TrimEnd('/');*/
-
-    private record ExtensibilityV2ExtensionInfo(string ExtensionName, string ExtensionVersion, string Method);
-
+    public readonly record struct ExtensionInfo(string ExtensionName, string ExtensionVersion, string Method);
+    
     public LocalDeploymentEngineHost(
-        LocalExtensibilityHandler extensibilityHandler,
+        LocalExtensibilityHostManager extensibilityHandler,
         IDeploymentsRequestContext requestContext,
         IDeploymentEventSource deploymentEventSource,
         IKeyVaultDataProvider keyVaultDataProvider,
@@ -160,17 +136,8 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         var method = requestUri.Segments[^1].TrimEnd('/');
 
         var extensionInfo = new ExtensionInfo(extensionName, extensionVersion, method);
-        var extensibilityResponse = await extensibilityHandler.CallExtensibilityHost(extensionInfo, content, cancellationToken);
 
-        var response = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(extensibilityResponse.ToJson(), encoding: Encoding.UTF8, mediaType: "application/json")
-        };
-
-        response.Headers.Add("Location", "local");
-        response.Headers.Add("Version", extensionVersion);
-
-        return response;
+        return await extensibilityHandler.CallExtensibilityHost(extensionInfo, content, cancellationToken);
     }
 
     protected override Task<JToken> GetEnvironmentKey()
