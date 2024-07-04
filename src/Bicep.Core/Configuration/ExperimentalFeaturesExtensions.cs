@@ -1,0 +1,27 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.Analyzers.Linter;
+
+namespace Bicep.Core.Configuration
+{
+    public static class ExperimentalFeaturesExtensions
+    {
+        public static RootConfiguration WithExperimentalFeaturesConfiguration(this RootConfiguration current, ExperimentalFeaturesEnabled featuresEnabled) =>
+            new(
+                current.Cloud,
+                current.ModuleAliases,
+                current.ProviderAliases,
+                current.ProvidersConfig,
+                current.ImplicitProvidersConfig,
+                current.Analyzers,
+                current.CacheRootDirectory,
+                featuresEnabled,
+                current.Formatting,
+                current.ConfigFileUri,
+                current.DiagnosticBuilders);
+
+        public static RootConfiguration WithExperimentalFeaturesEnabled(this RootConfiguration current, ExperimentalFeaturesEnabled configuration) =>
+            current.WithExperimentalFeaturesConfiguration(configuration);
+    }
+}
