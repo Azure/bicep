@@ -2200,7 +2200,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExtendsPathHasNotBeenSpecified() => new(
                 TextSpan,
                 "BCP404",
-                $"The \"{LanguageConstants.ExtendsKeyword}\" declaration is missing a bicepparam file path reference.");
+                $"The \"{LanguageConstants.ExtendsKeyword}\" declaration is missing a bicepparam file path reference");
 
             public ErrorDiagnostic MoreThanOneExtendsDeclarationSpecified() => new(
                 TextSpan,
