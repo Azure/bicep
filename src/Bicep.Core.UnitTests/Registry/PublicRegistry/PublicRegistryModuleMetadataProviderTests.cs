@@ -4,6 +4,7 @@
 using System.Text;
 using System.Text.Json;
 using Bicep.Core.Extensions;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.UnitTests;
 using Bicep.LanguageServer.Providers;
 using FluentAssertions;
@@ -11,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.LangServer.UnitTests.Completions
+namespace Bicep.Core.UnitTests.Registry.PublicRegistry
 {
     [TestClass]
     public class PublicRegistryModuleMetadataProviderTests
@@ -1160,7 +1161,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         {
             // Earlier Bicep versions should not be confused by new metadata formats
             var metadataStream = new MemoryStream(Encoding.UTF8.GetBytes(ModuleIndexJson));
-            ModuleMetadata_Original[] metadata = JsonSerializer.Deserialize<ModuleMetadata_Original[]>(metadataStream)!.ToArray();
+            ModuleMetadata_Original[] metadata = [.. JsonSerializer.Deserialize<ModuleMetadata_Original[]>(metadataStream)!];
 
             metadata.Length.Should().BeGreaterThanOrEqualTo(29);
             metadata.Select(m => m.moduleName).Should().Contain("samples/array-loop");
@@ -1173,7 +1174,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         {
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = await provider.GetModules();
+            var modules = provider.GetCachedModules();
             modules.Should().HaveCount(50);
         }
 

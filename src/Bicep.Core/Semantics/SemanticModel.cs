@@ -153,7 +153,7 @@ namespace Bicep.Core.Semantics
                     }
                 }
 
-                return outputs.ToImmutableArray();
+                return [.. outputs];
             });
         }
 
@@ -343,7 +343,7 @@ namespace Bicep.Core.Semantics
                 filteredDiagnostics.Add(diagnostic);
             }
 
-            return filteredDiagnostics.ToImmutableArray();
+            return [.. filteredDiagnostics];
         }
 
         /// <summary>
@@ -489,7 +489,7 @@ namespace Bicep.Core.Semantics
             if (this.SourceFile.FileKind != BicepSourceFileKind.ParamsFile)
             {
                 // not a param file - no additional diagnostics
-                return Enumerable.Empty<IDiagnostic>();
+                return [];
             }
 
             // try to get the bicep file's semantic model

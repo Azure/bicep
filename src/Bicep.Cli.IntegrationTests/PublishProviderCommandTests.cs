@@ -19,7 +19,7 @@ namespace Bicep.Cli.IntegrationTests;
 public class PublishProviderCommandTests : TestBase
 {
     [TestMethod]
-    public async Task Publish_provider_should_succeed()
+    public async Task Publish_provider_prints_deprecation_warning()
     {
         var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
             TestContext,
@@ -37,15 +37,43 @@ public class PublishProviderCommandTests : TestBase
         var indexPath = Path.Combine(outputDirectory, "index.json");
         var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
-        List<string> requiredArgs = new() { "publish-provider", indexPath, "--target", $"br:{registryStr}/{repository}:{version}" };
+        List<string> requiredArgs = ["publish-provider", indexPath, "--target", $"br:{registryStr}/{repository}:{version}"];
 
-        string[] args = requiredArgs.ToArray();
+        string[] args = [.. requiredArgs];
+
+        var result = await Bicep(settings, args);
+        result.Should().Succeed();
+        result.Should().HaveStderrMatch("*DEPRECATED: The command publish-provider is deprecated and will be removed in a future version of Bicep CLI. Use publish-extension instead.*");
+    }
+
+    [TestMethod]
+    public async Task Publish_extension_should_succeed()
+    {
+        var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
+            TestContext,
+            typeof(PublishProviderCommandTests).Assembly,
+            "Files/PublishProviderCommandTests/TestProvider");
+
+        var registryStr = "example.com";
+        var registryUri = new Uri($"https://{registryStr}");
+        var repository = $"test/provider";
+        var version = "0.0.1";
+
+        var (clientFactory, blobClientMocks) = RegistryHelper.CreateMockRegistryClients((registryStr, repository));
+        var mockBlobClient = blobClientMocks[(registryUri, repository)];
+
+        var indexPath = Path.Combine(outputDirectory, "index.json");
+        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+
+        List<string> requiredArgs = new() { "publish-extension", indexPath, "--target", $"br:{registryStr}/{repository}:{version}" };
+
+        string[] args = [.. requiredArgs];
 
         var result = await Bicep(settings, args);
         result.Should().Succeed().And.NotHaveStdout();
 
         // this command should output an experimental warning
-        result.Stderr.Should().Match("The 'publish-provider' CLI command group is an experimental feature.*");
+        result.Stderr.Should().Match("WARNING: The 'publish-extension' CLI command group is an experimental feature.*");
 
         // verify the provider was published
         mockBlobClient.Should().HaveProvider(version, out var tgzStream);
@@ -62,13 +90,13 @@ public class PublishProviderCommandTests : TestBase
         saBodyType.Properties.Keys.Should().Contain("name", "location", "properties", "sku", "tags");
 
         // publishing without --force should fail
-        result = await Bicep(settings, requiredArgs.ToArray());
-        result.Should().Fail().And.HaveStderrMatch("*The Provider \"*\" already exists. Use --force to overwrite the existing provider.*");
+        result = await Bicep(settings, [.. requiredArgs]);
+        result.Should().Fail().And.HaveStderrMatch("*The extension \"*\" already exists. Use --force to overwrite the existing extension.*");
 
         // test with force
         requiredArgs.Add("--force");
 
-        var result2 = await Bicep(settings, requiredArgs.ToArray());
+        var result2 = await Bicep(settings, [.. requiredArgs]);
         result2.Should().Succeed().And.NotHaveStdout();
 
         // verify the provider was published
@@ -87,7 +115,7 @@ public class PublishProviderCommandTests : TestBase
     }
 
     [TestMethod]
-    public async Task Publish_provider_should_succeed_to_filesystem()
+    public async Task Publish_extension_should_succeed_to_filesystem()
     {
         var fs = new MockFileSystem();
 
@@ -96,14 +124,14 @@ public class PublishProviderCommandTests : TestBase
         var indexPath = "/source/index.json";
 
         fs.Directory.CreateDirectory("/target");
-        var targetPath = "/target/provider.tgz";
+        var targetPath = "/target/extension.tgz";
 
-        var publishResult = await Bicep(services => services.WithFileSystem(fs), ["publish-provider", indexPath, "--target", targetPath]);
+        var publishResult = await Bicep(services => services.WithFileSystem(fs), ["publish-extension", indexPath, "--target", targetPath]);
         publishResult.Should().Succeed().And.NotHaveStdout();
 
-        var services = new ServiceBuilder().WithFileSystem(fs).WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true));
+        var services = new ServiceBuilder().WithFileSystem(fs).WithFeatureOverrides(new(ExtensibilityEnabled: true, ExtensionRegistry: true));
         var compileResult = await CompilationHelper.RestoreAndCompile(services, """
-provider '../../target/provider.tgz'
+extension '../../target/extension.tgz'
 
 resource fooRes 'fooType@v1' = {
   identifier: 'foo'
@@ -117,37 +145,37 @@ resource fooRes 'fooType@v1' = {
     }
 
     [TestMethod]
-    public async Task Publish_provider_should_fail_for_malformed_target()
+    public async Task Publish_extension_should_fail_for_malformed_target()
     {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = Path.Combine(outputDirectory, "index.json");
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"asdf:123");
+        var result = await Bicep(InvocationSettings.Default, "publish-provider", indexPath, "--target", $"asdf:123");
         result.Should().Fail().And.HaveStderrMatch("*The specified module reference scheme \"asdf\" is not recognized.*");
     }
 
     [TestMethod]
-    public async Task Publish_provider_should_fail_for_missing_index_path()
+    public async Task Publish_extension_should_fail_for_missing_index_path()
     {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = Path.Combine(outputDirectory, "index.json");
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
-        result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: Could not find a part of the path '*'.*");
+        var result = await Bicep(InvocationSettings.Default, "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        result.Should().Fail().And.HaveStderrMatch("*Extension package creation failed: Could not find a part of the path '*'.*");
     }
 
     [TestMethod]
-    public async Task Publish_provider_should_fail_for_malformed_index()
+    public async Task Publish_extension_should_fail_for_malformed_index()
     {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", "malformed", outputDirectory);
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
-        result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: 'm' is an invalid start of a value.*");
+        var result = await Bicep(InvocationSettings.Default, "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        result.Should().Fail().And.HaveStderrMatch("*Extension package creation failed: 'm' is an invalid start of a value.*");
     }
 
     [TestMethod]
-    public async Task Publish_provider_should_fail_for_missing_referenced_types_json()
+    public async Task Publish_extension_should_fail_for_missing_referenced_types_json()
     {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
@@ -161,12 +189,12 @@ resource fooRes 'fooType@v1' = {
 }
 """, outputDirectory);
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
-        result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: Could not find file '*types.json'.*");
+        var result = await Bicep(InvocationSettings.Default, "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        result.Should().Fail().And.HaveStderrMatch("*Extension package creation failed: Could not find file '*types.json'.*");
     }
 
     [TestMethod]
-    public async Task Publish_provider_should_fail_for_malformed_types_json()
+    public async Task Publish_extension_should_fail_for_malformed_types_json()
     {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
@@ -181,12 +209,12 @@ resource fooRes 'fooType@v1' = {
 """, outputDirectory);
         FileHelper.SaveResultFile(TestContext, "v1/types.json", "malformed", outputDirectory);
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
-        result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: 'm' is an invalid start of a value.*");
+        var result = await Bicep(InvocationSettings.Default, "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        result.Should().Fail().And.HaveStderrMatch("*Extension package creation failed: 'm' is an invalid start of a value.*");
     }
 
     [TestMethod]
-    public async Task Publish_provider_should_fail_for_bad_type_location()
+    public async Task Publish_extension_should_fail_for_bad_type_location()
     {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
@@ -213,7 +241,7 @@ resource fooRes 'fooType@v1' = {
 ]
 """, outputDirectory);
 
-        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
-        result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: Index was outside the bounds of the array.*");
+        var result = await Bicep(InvocationSettings.Default, "publish-extension", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        result.Should().Fail().And.HaveStderrMatch("*Extension package creation failed: Index was outside the bounds of the array.*");
     }
 }

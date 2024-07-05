@@ -127,7 +127,7 @@ namespace Bicep.Core.Workspaces
             // To validate resources we would need to know what API version the user will use to deploy the template, which is impossible.
             // Replacing resources with an empty array to skip validating them.
             var templateResources = template.Resources;
-            template.Resources = Array.Empty<TemplateResource>();
+            template.Resources = [];
 
             // The apiVersion and deploymentScope parameters don't matter here as they are only used when validating resources.
             TemplateEngine.ValidateTemplate(template, CoreConstants.ApiVersion20200101, TemplateDeploymentScope.NotSpecified);

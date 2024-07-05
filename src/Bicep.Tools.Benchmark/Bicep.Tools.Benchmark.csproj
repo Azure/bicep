@@ -14,4 +14,8 @@
     <ProjectReference Include="../Bicep.Core.Samples/Bicep.Core.Samples.csproj" />
     <ProjectReference Include="../Bicep.LangServer.IntegrationTests/Bicep.LangServer.IntegrationTests.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.139" />
+  </ItemGroup>
 </Project>

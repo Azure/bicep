@@ -54,7 +54,7 @@ namespace Bicep.LanguageServer.Handlers
             string decompileId,
             string output,
             string? errorMessage
-        ) : this(decompileId, output, errorMessage, null, new DecompiledFile[] { }, new string[] { })
+        ) : this(decompileId, output, errorMessage, null, [], [])
         {
         }
 
@@ -137,7 +137,7 @@ namespace Bicep.LanguageServer.Handlers
             (string path, string content)[] pathsToSave = filesToSave.Select(kvp => (kvp.Key.LocalPath, kvp.Value)).ToArray();
 
             // Put main bicep file first in the array
-            pathsToSave = pathsToSave.OrderByAscending(f => f.path == bicepUri.LocalPath ? "" : f.path).ToArray();
+            pathsToSave = [.. pathsToSave.OrderByAscending(f => f.path == bicepUri.LocalPath ? "" : f.path)];
             Debug.Assert(pathsToSave[0].path == bicepUri.LocalPath, "Expected Bicep URL to be in the files to save");
             Debug.Assert(pathsToSave.Length >= 1, "No files to save?");
 

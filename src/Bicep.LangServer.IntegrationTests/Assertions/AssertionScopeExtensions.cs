@@ -17,7 +17,7 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
                 assertionScope,
                 bicepFile,
                 contextName,
-                (data ?? Enumerable.Empty<T>()).Select(x => new PrintHelper.Annotation(FromRange(bicepFile, rangeFunc(x)), messageFunc(x))));
+                (data ?? []).Select(x => new PrintHelper.Annotation(FromRange(bicepFile, rangeFunc(x)), messageFunc(x))));
 
         public static TextSpan FromRange(BicepSourceFile bicepFile, Range range)
         {

@@ -74,7 +74,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 yield return CreateDiagnosticForSpan(
                     diagnosticLevel,
                     new TextSpan(),
-                    $"{UseRecentApiVersionRule.Code}: Configuration value for {MaxAgeInDaysKey} is not valid: {maxAgeInDays}",
+                    $"{Code}: Configuration value for {MaxAgeInDaysKey} is not valid: {maxAgeInDays}",
                     Array.Empty<AzureResourceApiVersion>());
 
                 maxAgeInDays = DefaultMaxAgeInDays;
@@ -431,7 +431,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var recentPreviewVersionsSorted = FilterRecent(previewVersionsSorted, today, maxAgeInDays).ToArray();
 
             // Start with all recent stable versions
-            List<AzureResourceApiVersion> acceptableVersions = recentStableVersionsSorted.ToList();
+            List<AzureResourceApiVersion> acceptableVersions = [.. recentStableVersionsSorted];
 
             // If no recent stable versions, add the most recent stable version, if any
             if (!acceptableVersions.Any())
@@ -475,7 +475,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static TextSpan? GetReplacementSpan(ResourceSymbol resourceSymbol, string apiVersion)
         {
             if (resourceSymbol.DeclaringResource.TypeString is StringSyntax typeString &&
-                typeString.StringTokens.First() is Token token)
+                typeString.StringTokens.FirstOrDefault() is Token token)
             {
                 int replacementSpanStart = token.Span.Position + token.Text.IndexOf(apiVersion);
 
@@ -487,7 +487,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static Failure CreateFailureFromMessage(TextSpan span, string message)
         {
-            return new Failure(span, message, Array.Empty<AzureResourceApiVersion>(), Array.Empty<CodeFix>());
+            return new Failure(span, message, [], []);
         }
 
         private static Failure CreateFailureFromApiVersion(TextSpan errorSpan, TextSpan replacementSpan, string message, AzureResourceApiVersion[] acceptableVersionsSorted)

@@ -180,7 +180,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
 
         var newArgs = functionCall.Arguments.Length == 2 ?
             new SyntaxBase[] { } :
-            new SyntaxBase[] { functionCall.Arguments[1].Expression, functionCall.Arguments[2].Expression };
+            [functionCall.Arguments[1].Expression, functionCall.Arguments[2].Expression];
 
         var newFunctionCall = SyntaxFactory.CreateInstanceFunctionCall(
             SyntaxFactory.CreateIdentifier(resource.Symbol.Name),

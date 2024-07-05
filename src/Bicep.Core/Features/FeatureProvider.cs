@@ -40,7 +40,7 @@ namespace Bicep.Core.Features
 
         public bool DynamicTypeLoadingEnabled => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoading;
 
-        public bool ProviderRegistryEnabled => configuration.ExperimentalFeaturesEnabled.ProviderRegistry;
+        public bool ExtensionRegistryEnabled => configuration.ExperimentalFeaturesEnabled.ExtensionRegistry;
 
         public bool OptionalModuleNamesEnabled => configuration.ExperimentalFeaturesEnabled.OptionalModuleNames;
 

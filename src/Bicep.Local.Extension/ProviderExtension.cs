@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Diagnostics;
+using Bicep.Local.Extension.Protocol;
 using Bicep.Local.Extension.Rpc;
 using CommandLine;
-using Bicep.Local.Extension.Protocol;
 
 namespace Bicep.Local.Extension;
 

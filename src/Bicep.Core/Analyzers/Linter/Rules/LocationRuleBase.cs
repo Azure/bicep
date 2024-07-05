@@ -169,7 +169,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().ToImmutableArray();
             }
 
-            return ImmutableArray<ParameterDeclarationSyntax>.Empty;
+            return [];
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             GetParametersUsedInResourceLocationsVisitor visitor = new(semanticModel);
             visitor.Visit(bicepFile.ProgramSyntax);
-            ImmutableArray<ParameterSymbol> parameters = visitor.parameters.ToImmutableArray();
+            ImmutableArray<ParameterSymbol> parameters = [.. visitor.parameters];
             cachedParamsUsedInLocationPropsForFile.Add(bicepFile, parameters);
             return parameters;
         }
@@ -239,7 +239,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
             }
 
-            return locationParameters.ToImmutableArray();
+            return [.. locationParameters];
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
             }
 
-            return result.ToImmutableArray();
+            return [.. result];
         }
 
         private class GetParametersUsedInResourceLocationsVisitor : AstVisitor

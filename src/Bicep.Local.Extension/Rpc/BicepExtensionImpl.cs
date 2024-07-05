@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System.Linq;
 using System.Text.Json.Nodes;
 using Bicep.Local.Extension.Protocol;
@@ -35,14 +38,14 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
     private static Protocol.ExtensibilityOperationRequest Convert(ExtensibilityOperationRequest request)
     {
         return new(
-            new(request.Import.Provider, request.Import.Version, request.Import.Config is {} ? JsonNode.Parse(request.Import.Config) as JsonObject : null),
-            new(request.Resource.Type, request.Resource.Properties is {} ? JsonNode.Parse(request.Resource.Properties) as JsonObject : null));
+            new(request.Import.Provider, request.Import.Version, request.Import.Config is { } ? JsonNode.Parse(request.Import.Config) as JsonObject : null),
+            new(request.Resource.Type, request.Resource.Properties is { } ? JsonNode.Parse(request.Resource.Properties) as JsonObject : null));
     }
 
     private static ExtensibilityOperationResponse Convert(Protocol.ExtensibilityOperationResponse response)
     {
         var output = new ExtensibilityOperationResponse();
-        if (response.Resource is {})
+        if (response.Resource is { })
         {
             output.Resource = new ExtensibleResourceData
             {
@@ -51,14 +54,14 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
             };
         }
 
-        if (response.ResourceMetadata is {} metadata)
+        if (response.ResourceMetadata is { } metadata)
         {
             output.ResourceMetadata.ReadOnlyProperties.AddRange(metadata.ReadOnlyProperties);
             output.ResourceMetadata.ImmutableProperties.AddRange(metadata.ImmutableProperties);
             output.ResourceMetadata.DynamicProperties.AddRange(metadata.DynamicProperties);
         }
 
-        if (response.Errors is {} errors)
+        if (response.Errors is { } errors)
         {
             output.Errors.AddRange(errors.Select(error => new ExtensibilityError
             {
@@ -73,7 +76,7 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
 
     private static async Task<ExtensibilityOperationResponse> WrapExceptions(Func<Task<ExtensibilityOperationResponse>> func)
     {
-        try 
+        try
         {
             return await func();
         }
@@ -86,7 +89,7 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
                 Message = $"Rpc request failed: {ex}",
                 Target = ""
             });
-            
+
             return response;
         }
     }

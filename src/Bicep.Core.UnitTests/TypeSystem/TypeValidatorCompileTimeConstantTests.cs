@@ -173,6 +173,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("empty file", new Parser("").Program());
         }
 
-        private static object[] CreateRow(string name, SyntaxBase expression) => new object[] { name, expression };
+        private static object[] CreateRow(string name, SyntaxBase expression) => [name, expression];
     }
 }

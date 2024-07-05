@@ -432,7 +432,7 @@ namespace Bicep.Core.SourceCode
             }
 
             this.InstanceMetadata = metadata;
-            this.SourceFiles = infos.ToImmutableArray();
+            this.SourceFiles = [.. infos];
         }
 
         private string? TrimScheme(string artifactId)

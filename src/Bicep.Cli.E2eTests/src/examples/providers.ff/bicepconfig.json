@@ -10,6 +10,6 @@
   "experimentalFeaturesEnabled": {
     "extensibility": true,
     "dynamicTypeLoading": true,
-    "providerRegistry": true
+    "extensionRegistry": true
   }
 }

@@ -17,9 +17,9 @@ public class RootConfigurationTests
         var configuration = new RootConfiguration(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 BicepTestConstants.BuiltInConfiguration.ModuleAliases,
-                BicepTestConstants.BuiltInConfiguration.ProviderAliases,
-                BicepTestConstants.BuiltInConfiguration.ProvidersConfig,
-                BicepTestConstants.BuiltInConfiguration.ImplicitProvidersConfig,
+                BicepTestConstants.BuiltInConfiguration.ExtensionAliases,
+                BicepTestConstants.BuiltInConfiguration.Extensions,
+                BicepTestConstants.BuiltInConfiguration.ImplicitExtensions,
                 BicepTestConstants.BuiltInConfiguration.Analyzers,
                 cacheRootDirectory,
                 BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesEnabled,
@@ -37,11 +37,11 @@ public class RootConfigurationTests
         return new[]
         {
             new object[] { "~", homeDirectory },
-            new object[] { "~/", $"{homeDirectory}/" },
-            new object[] { "~\\", $"{homeDirectory}\\" },
-            new object[] { "~/foo/bar", $"{homeDirectory}/foo/bar" },
-            new object[] { "~\\foo\\bar", $"{homeDirectory}\\foo\\bar" },
-            new object[] { "~\\foo/bar", $"{homeDirectory}\\foo/bar" },
+            ["~/", $"{homeDirectory}/"],
+            ["~\\", $"{homeDirectory}\\"],
+            ["~/foo/bar", $"{homeDirectory}/foo/bar"],
+            ["~\\foo\\bar", $"{homeDirectory}\\foo\\bar"],
+            ["~\\foo/bar", $"{homeDirectory}\\foo/bar"],
         };
     }
 }

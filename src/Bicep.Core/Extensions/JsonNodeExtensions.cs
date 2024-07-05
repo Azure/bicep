@@ -23,7 +23,7 @@ namespace Bicep.Core.Extensions
                 return result.Matches.Select(x => x.Value).OfType<JsonNode>();
             }
 
-            return Enumerable.Empty<JsonNode>();
+            return [];
         }
 
     }

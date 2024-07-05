@@ -17,7 +17,7 @@ public record ExperimentalFeaturesEnabled(
     bool TestFramework,
     bool Assertions,
     bool DynamicTypeLoading,
-    bool ProviderRegistry,
+    bool ExtensionRegistry,
     bool OptionalModuleNames,
     bool LocalDeploy,
     bool ResourceDerivedTypes)

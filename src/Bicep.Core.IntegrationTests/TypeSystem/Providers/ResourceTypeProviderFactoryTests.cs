@@ -31,7 +31,7 @@ public class ResourceTypeProviderFactoryTests
         var (clientFactory, _) = RegistryHelper.CreateMockRegistryClients(repositoryNames.Select(name => (registry, $"{repositoryPath}/{name}")).ToArray());
 
         var services = new ServiceBuilder()
-            .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, ProviderRegistry: true, DynamicTypeLoadingEnabled: true))
+            .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, ExtensionRegistry: true, DynamicTypeLoadingEnabled: true))
             .WithContainerRegistryClientFactory(clientFactory);
 
         foreach (var repoName in repositoryNames)
@@ -45,7 +45,7 @@ public class ResourceTypeProviderFactoryTests
             (
                 "main.bicep",
                 @$"
-                provider 'br:example.azurecr.io/test/provider/foo:1.2.3' as foo
+                extension 'br:example.azurecr.io/test/provider/foo:1.2.3' as foo
 
                 module mod './mod.bicep' = {{
                     name: 'mod'
@@ -56,7 +56,7 @@ public class ResourceTypeProviderFactoryTests
             (
                 "mod.bicep",
                 @$"
-                provider 'br:example.azurecr.io/test/provider/bar:1.2.3' as foo
+                extension 'br:example.azurecr.io/test/provider/bar:1.2.3' as foo
                 "
             ));
 

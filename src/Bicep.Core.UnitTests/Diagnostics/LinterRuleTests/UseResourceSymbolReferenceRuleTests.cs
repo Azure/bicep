@@ -13,7 +13,7 @@ public class UseResourceSymbolReferenceRuleTests : LinterRuleTestsBase
         => AssertCodeFix(UseResourceSymbolReferenceRule.Code, "Use direct resource reference", inputFile, resultFile);
 
     private void AssertNoDiagnostics(string inputFile)
-        => AssertLinterRuleDiagnostics(UseParentPropertyRule.Code, inputFile, new string[] { }, new Options(OnCompileErrors.Ignore, IncludePosition.None));
+        => AssertLinterRuleDiagnostics(UseParentPropertyRule.Code, inputFile, [], new Options(OnCompileErrors.Ignore, IncludePosition.None));
 
     [TestMethod]
     public void Codefix_handles_list_functions_with_reference_based_id_and_apiversion() => AssertCodeFix(@"

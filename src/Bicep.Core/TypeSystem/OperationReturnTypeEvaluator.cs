@@ -11,45 +11,34 @@ namespace Bicep.Core.TypeSystem;
 
 public static class OperationReturnTypeEvaluator
 {
-    private static readonly ImmutableArray<IUnaryEvaluator> unaryEvaluators = ImmutableArray.Create<IUnaryEvaluator>(
-        new NotEvaluator(),
-        new MinusEvaluator());
+    private static readonly ImmutableArray<IUnaryEvaluator> unaryEvaluators = [new NotEvaluator(), new MinusEvaluator()];
 
     private static readonly IBinaryEvaluator equalsEvaluator
         = new BinaryEvaluator(BinaryOperator.Equals, (LanguageConstants.Any, LanguageConstants.Any), "equals", LanguageConstants.Bool);
 
-    private static readonly ImmutableArray<IBinaryEvaluator> binaries = ImmutableArray.Create<IBinaryEvaluator>(
-        // logical
+    private static readonly ImmutableArray<IBinaryEvaluator> binaries =
+    [
         new LogicalOrEvaluator(),
         new LogicalAndEvaluator(),
-
-        // equality
         equalsEvaluator,
         new NotEqualsEvaluator(),
         new InsensitiveEqualityEvaluator(BinaryOperator.EqualsInsensitive),
         new InsensitiveEqualityEvaluator(BinaryOperator.NotEqualsInsensitive, negated: true),
-
-        // relational (int)
         new LessThanEvaluator(),
         new LessThanOrEqualToEvaluator(),
         new GreaterThanEvaluator(),
         new GreaterThanOrEqualToEvaluator(),
-
-        // relational (string)
         new BinaryEvaluator(BinaryOperator.LessThan, (LanguageConstants.String, LanguageConstants.String), "less", LanguageConstants.Bool),
         new BinaryEvaluator(BinaryOperator.LessThanOrEqual, (LanguageConstants.String, LanguageConstants.String), "lessOrEquals", LanguageConstants.Bool),
         new BinaryEvaluator(BinaryOperator.GreaterThan, (LanguageConstants.String, LanguageConstants.String), "greater", LanguageConstants.Bool),
         new BinaryEvaluator(BinaryOperator.GreaterThanOrEqual, (LanguageConstants.String, LanguageConstants.String), "greaterOrEquals", LanguageConstants.Bool),
-
-        // arithmetic
         new AdditionEvaluator(),
         new SubtractionEvaluator(),
         new BinaryEvaluator(BinaryOperator.Multiply, (LanguageConstants.Int, LanguageConstants.Int), "mul", LanguageConstants.Int),
         new BinaryEvaluator(BinaryOperator.Divide, (LanguageConstants.Int, LanguageConstants.Int), "div", LanguageConstants.Int),
         new ModuloEvaluator(),
-
-        // coalesce
-        new CoalesceEvaluator());
+        new CoalesceEvaluator(),
+    ];
 
     public static TypeSymbol? TryFoldUnaryExpression(UnaryOperator unaryOperator, TypeSymbol operandType, IDiagnosticWriter diagnosticWriter)
         => unaryEvaluators.Where(e => e.IsMatch(unaryOperator, operandType)).FirstOrDefault()?.Evaluate(operandType);

@@ -114,7 +114,7 @@ namespace Bicep.Core.Registry.Oci
                         unqualifiedReference = $"{moduleAlias}/{unqualifiedReference}";
                         break;
                     case ArtifactType.Provider:
-                        if (!configuration.ProviderAliases.TryGetOciArtifactProviderAlias(aliasName).IsSuccess(out var providerAlias, out var providerFailureBuilder))
+                        if (!configuration.ExtensionAliases.TryGetOciArtifactExtensionAlias(aliasName).IsSuccess(out var providerAlias, out var providerFailureBuilder))
                         {
                             return new(providerFailureBuilder);
                         }
@@ -168,7 +168,7 @@ namespace Bicep.Core.Registry.Oci
 
             static (int index, char? delimiter) FindLastSegmentDelimiter(string lastSegment)
             {
-                char[] delimiters = { ':', '@' };
+                char[] delimiters = [':', '@'];
                 int index = lastSegment.IndexOfAny(delimiters);
 
                 return (index, index == -1 ? null : lastSegment[index]);

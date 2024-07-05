@@ -10,8 +10,9 @@ import {
   createClientPipeTransport,
 } from "vscode-jsonrpc/node";
 import { bicepCli } from "./fs";
+import { logStdErr } from "./log";
 
-interface VersionRequest {}
+interface VersionRequest { }
 
 interface VersionResponse {
   version: string;
@@ -174,7 +175,7 @@ export async function openConnection() {
 
   const child = spawn(bicepCli, ["jsonrpc", "--pipe", pipePath]);
   child.stdout.on("data", (x) => console.log(x.toString()));
-  child.stderr.on("data", (x) => console.error(x.toString()));
+  child.stderr.on("data", (x) => logStdErr(x.toString()));
 
   const [reader, writer] = await transport.onConnected();
   const connection = createMessageConnection(reader, writer, console);

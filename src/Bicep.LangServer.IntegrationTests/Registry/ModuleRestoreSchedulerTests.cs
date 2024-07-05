@@ -71,7 +71,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             Action startFail = () => scheduler.Start();
             startFail.Should().Throw<ObjectDisposedException>();
 
-            Action requestFail = () => scheduler.RequestModuleRestore(Repository.Create<ICompilationManager>().Object, DocumentUri.From("untitled://one"), Enumerable.Empty<ArtifactReference>());
+            Action requestFail = () => scheduler.RequestModuleRestore(Repository.Create<ICompilationManager>().Object, DocumentUri.From("untitled://one"), []);
             requestFail.Should().Throw<ObjectDisposedException>();
         }
 
@@ -205,6 +205,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public ResultWithException<SourceArchive> TryGetSource(ArtifactReference artifactReference) => new(new SourceNotAvailableException());
 
             public Uri? TryGetProviderBinary(ArtifactReference reference) => null;
+            public Task OnRestoreArtifacts(bool forceRestore) => Task.CompletedTask;
         }
 
         private class MockArtifactRef : ArtifactReference

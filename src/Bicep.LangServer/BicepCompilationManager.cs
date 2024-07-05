@@ -16,6 +16,7 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -182,7 +183,7 @@ namespace Bicep.LanguageServer
         {
             // close and clear diagnostics for the file
             // if upsert failed to create a compilation due to a fatal error, we still need to clean up the diagnostics
-            CloseCompilationInternal(documentUri, 0, Enumerable.Empty<Diagnostic>());
+            CloseCompilationInternal(documentUri, 0, []);
         }
 
         public void RefreshChangedFiles(IEnumerable<Uri> files)
@@ -286,7 +287,7 @@ namespace Bicep.LanguageServer
 
             if (removedPotentiallyUnsafeContext is not CompilationContext removedContext)
             {
-                return ImmutableArray<ISourceFile>.Empty;
+                return [];
             }
 
             var closedFiles = removedContext.Compilation.SourceFileGrouping.SourceFiles.ToHashSet();
@@ -297,7 +298,7 @@ namespace Bicep.LanguageServer
 
             workspace.RemoveSourceFiles(closedFiles);
 
-            return closedFiles.ToImmutableArray();
+            return [.. closedFiles];
         }
 
         private CompilationContextBase CreateCompilationContext(IWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
@@ -581,7 +582,7 @@ namespace Bicep.LanguageServer
             {
                 foreach (var kvp in LinterRulesProvider.GetLinterRules())
                 {
-                    string linterRuleDiagnosticLevelValue = configuration.Analyzers.GetValue(kvp.Value, "warning");
+                    string linterRuleDiagnosticLevelValue = configuration.Analyzers.GetValue(kvp.Value.diagnosticLevelConfigProperty, "warning");
 
                     properties.Add(kvp.Key, linterRuleDiagnosticLevelValue);
                 }

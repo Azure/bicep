@@ -19,18 +19,18 @@ public class ProvidersConfigurationTests
     {
         var data = JsonElementFactory.CreateElement("""
         {
-            "providers": {
-                "az": "br:mcr.microsoft.com/bicep/providers/az:0.2.3",
+            "extensions": {
+                "az": "br:mcr.microsoft.com/bicep/extensions/az:0.2.3",
                 "kubernetes": "builtin:"
             }
         }
         """);
 
-        var providers = ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ProvidersConfigurationKey));
+        var providers = ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ExtensionsKey));
         providers.Should().NotBeNull();
 
         providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
-        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/providers/az:0.2.3");
+        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/extensions/az:0.2.3");
 
         providers.TryGetProviderSource("kubernetes").IsSuccess(out var k8sProvider).Should().BeTrue();
         k8sProvider.Should().NotBeNull();
@@ -40,7 +40,7 @@ public class ProvidersConfigurationTests
         provider.Should().BeNull();
         errorBuilder!.Should().NotBeNull();
         errorBuilder!.Should().HaveCode("BCP204");
-        errorBuilder!.Should().HaveMessage($"Provider namespace \"unspecified\" is not recognized.");
+        errorBuilder!.Should().HaveMessage($"Extension \"unspecified\" is not recognized.");
     }
 
     [TestMethod]
@@ -49,16 +49,16 @@ public class ProvidersConfigurationTests
         var config = IConfigurationManager.GetBuiltInConfiguration();
 
         config.Should().NotBeNull();
-        config!.ProvidersConfig.Should().NotBeNull();
+        config!.Extensions.Should().NotBeNull();
 
         foreach (var providerName in new[] { "az", "kubernetes", "microsoftGraph" })
         {
-            config.ProvidersConfig!.TryGetProviderSource(providerName).IsSuccess(out var provider).Should().BeTrue();
+            config.Extensions!.TryGetProviderSource(providerName).IsSuccess(out var provider).Should().BeTrue();
             provider!.Value.Should().Be("builtin:");
         }
 
         // assert that 'sys' is not present in the default configuration
-        config.ProvidersConfig!.TryGetProviderSource("sys").IsSuccess().Should().BeFalse();
+        config.Extensions!.TryGetProviderSource("sys").IsSuccess().Should().BeFalse();
     }
 
     [TestMethod]
@@ -69,9 +69,9 @@ public class ProvidersConfigurationTests
         {
             [bicepConfigFileName] = new("""
             {
-                "providers": {
+                "extensions": {
                     "foo": "br:example.azurecr.io/some/fake/path:1.0.0",
-                    "az": "br:mcr.microsoft.com/bicep/providers/az:0.2.3"
+                    "az": "br:mcr.microsoft.com/bicep/extensions/az:0.2.3"
                 }
             }
             """)
@@ -82,22 +82,22 @@ public class ProvidersConfigurationTests
         var config = configManager.GetConfiguration(PathHelper.FilePathToFileUrl(testFilePath));
         config.DiagnosticBuilders.Should().BeEmpty();
         config.Should().NotBeNull();
-        config!.ProvidersConfig.Should().NotBeNull();
+        config!.Extensions.Should().NotBeNull();
 
-        var providers = config.ProvidersConfig!;
+        var providers = config.Extensions!;
         // assert 'source' and 'version' are valid properties for 'foo'
         providers.TryGetProviderSource("foo").IsSuccess(out var fooProvider).Should().BeTrue();
         fooProvider!.Value.Should().Be("br:example.azurecr.io/some/fake/path:1.0.0");
 
         // assert 'az' provider properties are overridden by the user provided configuration
         providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
-        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/providers/az:0.2.3");
+        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/extensions/az:0.2.3");
 
         // assert that 'sys' is not present in the merged configuration
         providers.TryGetProviderSource("sys").IsSuccess(out var provider, out var errorBuilder).Should().BeFalse();
         provider.Should().BeNull();
         errorBuilder!.Should().NotBeNull();
         errorBuilder!.Should().HaveCode("BCP204");
-        errorBuilder!.Should().HaveMessage($"Provider namespace \"sys\" is not recognized.");
+        errorBuilder!.Should().HaveMessage($"Extension \"sys\" is not recognized.");
     }
 }

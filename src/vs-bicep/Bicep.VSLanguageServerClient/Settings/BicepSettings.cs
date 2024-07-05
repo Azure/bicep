@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Threading;
 
 namespace Bicep.VSLanguageServerClient.Settings
 {

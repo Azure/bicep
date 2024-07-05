@@ -9,7 +9,7 @@ namespace Bicep.Core.TypeSystem.Providers
     public class EmptyResourceTypeProvider : IResourceTypeProvider
     {
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
-            => Enumerable.Empty<ResourceTypeReference>();
+            => [];
 
         public ResourceType? TryGetDefinedType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
             => null;

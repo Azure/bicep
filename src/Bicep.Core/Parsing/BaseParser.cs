@@ -154,7 +154,7 @@ namespace Bicep.Core.Parsing
             var newlinesBeforeQuestion =
                 this.reader.Peek(skipNewlines: true).IsOf(TokenType.Question)
                     ? this.NewLines().ToImmutableArray()
-                    : ImmutableArray<Token>.Empty;
+                    : [];
 
             if (this.Check(TokenType.Question))
             {
@@ -172,7 +172,7 @@ namespace Bicep.Core.Parsing
                 var newlinesBeforeColon =
                     !trueExpression.IsSkipped && this.reader.Peek(skipNewlines: true).IsOf(TokenType.Colon)
                         ? this.NewLines().ToImmutableArray()
-                        : ImmutableArray<Token>.Empty;
+                        : [];
 
                 var colon = this.WithRecovery(
                     () => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")),
@@ -304,10 +304,11 @@ namespace Bicep.Core.Parsing
             throw new ExpectedTokenException(this.reader.Peek(), errorFunc);
         }
 
-        protected Token ExpectKeyword(string expectedKeyword)
+        protected Token ExpectKeyword(string expectedKeyword, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc = null)
         {
+            errorFunc ??= b => b.ExpectedKeyword(expectedKeyword);
             return GetOptionalKeyword(expectedKeyword) ??
-                throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
+                throw new ExpectedTokenException(this.reader.Peek(), errorFunc);
         }
 
         private SyntaxBase ForBody(ExpressionFlags expressionFlags, bool isResourceOrModuleContext)
@@ -350,7 +351,7 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(colon),
                 TokenType.RightSquare, TokenType.NewLine);
             var closeNewlines = body.IsSkipped
-                ? ImmutableArray<Token>.Empty
+                ? []
                 : this.NewLines().ToImmutableArray();
             var closeBracket = this.WithRecovery(() => this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]")), GetSuppressionFlag(body), TokenType.RightSquare, TokenType.NewLine);
 
@@ -418,7 +419,7 @@ namespace Bicep.Core.Parsing
                 var next = this.reader.Peek(skipNewlines: true);
                 var newlinesBeforeBody = !LanguageConstants.DeclarationKeywords.Contains(next.Text)
                     ? this.NewLines().ToImmutableArray()
-                    : ImmutableArray<Token>.Empty;
+                    : [];
                 var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
 
                 return new LambdaSyntax(new LocalVariableSyntax(identifier), arrow, newlinesBeforeBody, expression);
@@ -661,11 +662,11 @@ namespace Bicep.Core.Parsing
             var conditionExpression = this.WithRecovery(
                 () => this.ParenthesizedExpression(WithoutExpressionFlag(expressionFlags, ExpressionFlags.AllowResourceDeclarations)),
                 RecoveryFlags.None,
-                insideForExpression ? new[] { TokenType.RightSquare, TokenType.LeftBrace, TokenType.NewLine } : new[] { TokenType.LeftBrace, TokenType.NewLine });
+                insideForExpression ? [TokenType.RightSquare, TokenType.LeftBrace, TokenType.NewLine] : [TokenType.LeftBrace, TokenType.NewLine]);
             var body = this.WithRecovery(
                 () => this.Object(expressionFlags),
                 GetSuppressionFlag(conditionExpression, conditionExpression is ParenthesizedExpressionSyntax { CloseParen: not SkippedTriviaSyntax }),
-                insideForExpression ? new[] { TokenType.RightSquare, TokenType.NewLine } : new[] { TokenType.NewLine });
+                insideForExpression ? [TokenType.RightSquare, TokenType.NewLine] : [TokenType.NewLine]);
             return new IfConditionSyntax(keyword, conditionExpression, body);
         }
 
@@ -1019,7 +1020,7 @@ namespace Bicep.Core.Parsing
                 return new SkippedTriviaSyntax(token.Span, token.AsEnumerable());
             }
 
-            return new StringSyntax(token.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), stringValue.AsEnumerable());
+            return new StringSyntax(token.AsEnumerable(), [], stringValue.AsEnumerable());
         }
 
         protected Token NewLine()
@@ -1204,11 +1205,11 @@ namespace Bicep.Core.Parsing
                 var next = this.reader.Peek(skipNewlines: true);
                 var newlinesBeforeBody = !LanguageConstants.DeclarationKeywords.Contains(next.Text)
                     ? this.NewLines().ToImmutableArray()
-                    : ImmutableArray<Token>.Empty;
+                    : [];
                 var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
                 var variableBlock = GetVariableBlock(openParen, expressionsOrCommas, closeParen);
 
-                return new LambdaSyntax(variableBlock, arrow, newlinesBeforeBody.ToImmutableArray(), expression);
+                return new LambdaSyntax(variableBlock, arrow, [.. newlinesBeforeBody], expression);
             }
 
             var innerSyntax = GetParenthesizedExpressionInnerContent(openParen, expressionsOrCommas, closeParen);
@@ -1232,7 +1233,7 @@ namespace Bicep.Core.Parsing
             var next = this.reader.Peek(skipNewlines: true);
             var newlinesBeforeBody = !arrow.IsSkipped && !LanguageConstants.DeclarationKeywords.Contains(next.Text)
                 ? this.NewLines().ToImmutableArray()
-                : ImmutableArray<Token>.Empty;
+                : [];
             var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
             var variableBlock = new TypedVariableBlockSyntax(openParen, expressionsOrCommas, closeParen);
 
@@ -1350,7 +1351,7 @@ namespace Bicep.Core.Parsing
         private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc)
         {
             var span = new TextSpan(position, 0);
-            var errors = errorFunc is null ? Enumerable.Empty<ErrorDiagnostic>() : errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable();
+            var errors = errorFunc is null ? [] : errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable();
             return new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, errors);
         }
 
@@ -1712,13 +1713,13 @@ namespace Bicep.Core.Parsing
             return new ImportedSymbolsListItemSyntax(originalSymbolName, aliasAsClause);
         }
 
-        private AliasAsClauseSyntax? ImportedSymbolsListItemAsClause() => Check(reader.Peek(), TokenType.AsKeyword)
-            ? new(Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword)),
+        private AliasAsClauseSyntax? ImportedSymbolsListItemAsClause() => CheckKeyword(reader.Peek(), LanguageConstants.AsKeyword)
+            ? new(ExpectKeyword(LanguageConstants.AsKeyword),
                 IdentifierWithRecovery(b => b.ExpectedTypeIdentifier(), RecoveryFlags.None, TokenType.Comma, TokenType.NewLine))
             : null;
 
         private WildcardImportSyntax WildcardImport() => new(Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*")),
-            new AliasAsClauseSyntax(Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword)),
+            new AliasAsClauseSyntax(ExpectKeyword(LanguageConstants.AsKeyword),
                 Identifier(b => b.ExpectedNamespaceIdentifier())));
 
         private CompileTimeImportFromClauseSyntax CompileTimeImportFromClause()

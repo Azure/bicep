@@ -17,6 +17,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="21.0.2" />
   </ItemGroup>
 
@@ -40,5 +41,9 @@
     <EmbeddedResource Include="..\..\docs\experimental-features.md" Link="Configuration\Links\experimental-features.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.139" />
   </ItemGroup>
 </Project>

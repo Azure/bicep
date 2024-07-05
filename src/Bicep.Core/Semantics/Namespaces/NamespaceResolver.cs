@@ -120,7 +120,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public IEnumerable<ResourceTypeReference> GetAvailableAzureResourceTypes() =>
             namespaceTypes.Values.SingleOrDefault(x => x.Name.Equals(AzNamespaceType.BuiltInName, StringComparison.Ordinal))?.ResourceTypeProvider.GetAvailableTypes() ??
-            Enumerable.Empty<ResourceTypeReference>();
+            [];
 
         public ILookup<string, ImmutableArray<ResourceTypeReference>> GetGroupedResourceTypes()
         {

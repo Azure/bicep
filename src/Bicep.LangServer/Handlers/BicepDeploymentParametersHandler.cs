@@ -210,7 +210,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (compilation is null)
             {
-                return Enumerable.Empty<ParameterSymbol>();
+                return [];
             }
 
             var semanticModel = compilation.GetEntrypointSemanticModel();

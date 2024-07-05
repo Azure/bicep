@@ -4,6 +4,7 @@
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
@@ -189,7 +190,7 @@ output o int = 42
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
             resourceCompletion.TextEdit!.TextEdit!.NewText.Should().Be(expectedResource);
-            resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new[] { ":", });
+            resourceCompletion.CommitCharacters.Should().BeEquivalentTo([":",]);
             resourceCompletion.Detail.Should().Be(expectedResource);
 
             const string expectedParam = "p";
@@ -268,7 +269,7 @@ output length int =
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
             resourceCompletion.TextEdit!.TextEdit!.NewText.Should().Be(expectedResource);
-            resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new[] { ":", });
+            resourceCompletion.CommitCharacters.Should().BeEquivalentTo([":",]);
             resourceCompletion.Detail.Should().Be(expectedResource);
 
             const string expectedParam = "concat";
@@ -481,7 +482,7 @@ output length int =
 
         private static void AssertExpectedFunctions(List<CompletionItem> completions, bool expectParamDefaultFunctions, IEnumerable<string>? fullyQualifiedFunctionNames = null)
         {
-            fullyQualifiedFunctionNames ??= Enumerable.Empty<string>();
+            fullyQualifiedFunctionNames ??= [];
 
             var fullyQualifiedFunctionParts = fullyQualifiedFunctionNames.Select(fqfn =>
             {

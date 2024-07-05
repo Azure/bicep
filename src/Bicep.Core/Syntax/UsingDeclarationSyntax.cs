@@ -10,7 +10,7 @@ namespace Bicep.Core.Syntax
     public class UsingDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
         public UsingDeclarationSyntax(Token keyword, SyntaxBase path)
-            : base(Enumerable.Empty<SyntaxBase>())
+            : base([])
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.UsingKeyword);
             AssertSyntaxType(path, nameof(path), typeof(StringSyntax), typeof(SkippedTriviaSyntax), typeof(NoneLiteralSyntax));

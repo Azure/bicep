@@ -16,7 +16,7 @@ namespace Bicep.Core.Resources
 
             Name = version is null ? type : $"{type}@{version}";
             Type = type;
-            TypeSegments = type.Split('/').ToImmutableArray();
+            TypeSegments = [.. type.Split('/')];
             ApiVersion = version;
         }
 

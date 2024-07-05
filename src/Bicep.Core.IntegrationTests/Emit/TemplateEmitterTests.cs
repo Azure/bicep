@@ -268,7 +268,7 @@ this
 
             var (template, _, _) = CompilationHelper.Compile(StringUtils.ReplaceNewlines(inputFile, newlineSequence));
 
-            var expected = string.Join(newlineSequence, new[] { "this", "  is", "    a", "      multiline", "        string", "" });
+            var expected = string.Join(newlineSequence, ["this", "  is", "    a", "      multiline", "        string", ""]);
             template.Should().HaveValueAtPath("$.variables.multiline", expected);
         }
 

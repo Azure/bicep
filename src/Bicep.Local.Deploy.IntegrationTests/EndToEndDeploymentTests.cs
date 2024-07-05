@@ -1,20 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
+using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Extensibility.Messages;
+using Bicep.Core.Configuration;
+using Bicep.Core.Features;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
+using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Local.Deploy;
+using Bicep.Local.Deploy.Extensibility;
+using Bicep.Local.Extension;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.Local.Deploy.Extensibility;
-using Bicep.Local.Deploy;
-using Bicep.Core.UnitTests.Utils;
-using Azure.Deployments.Core.Definitions;
-using Bicep.Local.Extension;
 using Moq;
-using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Features;
-using System.IO.Abstractions;
-using Azure.Deployments.Extensibility.Messages;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Local.Deploy.IntegrationTests;
@@ -25,17 +29,17 @@ public class EndToEndDeploymentTests : TestBase
     [TestMethod]
     public async Task End_to_end_deployment_basic()
     {
-        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ProviderRegistry: true, LocalDeployEnabled: true));
+        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
 {
-  "providers": {
+  "extensions": {
     "http": "br:example.azurecr.io/providers/foo:1.2.3"
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "providerRegistry": true,
+    "extensionRegistry": true,
     "localDeploy": true
   }
 }
@@ -88,7 +92,8 @@ param coords = {
 
         var providerMock = StrictMock.Of<LocalExtensibilityProvider>();
         providerMock.Setup(x => x.Save(It.Is<ExtensibilityOperationRequest>(req => req.Resource.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
-            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) => {
+            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) =>
+            {
                 req.Resource.Properties["body"] = """
 {
   "properties": {
@@ -102,7 +107,8 @@ param coords = {
                 return Task.FromResult<ExtensibilityOperationResponse>(new(req.Resource, null, null));
             });
         providerMock.Setup(x => x.Save(It.Is<ExtensibilityOperationRequest>(req => req.Resource.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
-            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) => {
+            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) =>
+            {
                 req.Resource.Properties["body"] = """
 {
   "properties": {
@@ -125,7 +131,8 @@ param coords = {
                 return Task.FromResult<ExtensibilityOperationResponse>(new(req.Resource, null, null));
             });
 
-        await using LocalExtensibilityHandler extensibilityHandler = new(BicepTestConstants.ModuleDispatcher, uri => Task.FromResult(providerMock.Object));
+        var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
+        await using LocalExtensibilityHandler extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
         await extensibilityHandler.InitializeProviders(result.Compilation);
 
         var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);

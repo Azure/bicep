@@ -30,6 +30,7 @@ public class LintArguments : ArgumentsBase
                     DiagnosticsFormat = ArgumentHelper.ToDiagnosticsFormat(args[i + 1]);
                     i++;
                     break;
+
                 default:
                     if (args[i].StartsWith("--"))
                     {

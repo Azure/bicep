@@ -8,6 +8,7 @@ using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
@@ -4141,7 +4142,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).ReturnsAsync(new List<RegistryModule> { new("app/dapr-containerapp", "d1", "contoso.com/help1"), new("app/dapr-containerapp-env", "d2", "contoso.com/help2") });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()).Returns([new("app/dapr-containerapp", "d1", "contoso.com/help1"), new("app/dapr-containerapp-env", "d2", "contoso.com/help2")]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -4185,7 +4186,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<RegistryModuleVersion> { new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null) });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,

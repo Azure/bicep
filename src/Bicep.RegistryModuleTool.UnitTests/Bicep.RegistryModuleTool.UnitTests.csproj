@@ -19,4 +19,8 @@
     <ProjectReference Include="..\Bicep.RegistryModuleTool.TestFixtures\Bicep.RegistryModuleTool.TestFixtures.csproj" />
     <ProjectReference Include="..\Bicep.RegistryModuleTool\Bicep.RegistryModuleTool.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.139" />
+  </ItemGroup>
 </Project>

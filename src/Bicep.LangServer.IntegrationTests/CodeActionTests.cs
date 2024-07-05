@@ -555,9 +555,18 @@ param foo2 string", "param foo2 string")]
 imp|ort 'br:example.azurecr.io/test/radius:1.0.0'
 ", server: server);
 
-            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith("Replace the import with the provider keyword")));
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith("Replace the import keyword with the extension keyword")));
             updatedFile.Should().HaveSourceText(@"
-provider 'br:example.azurecr.io/test/radius:1.0.0'
+extension 'br:example.azurecr.io/test/radius:1.0.0'
+");
+
+            (codeActions, bicepFile) = await RunSyntaxTest(@"
+pro|vider 'br:example.azurecr.io/test/radius:1.0.0'
+", server: server);
+
+            updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith("Replace the provider keyword with the extension keyword")));
+            updatedFile.Should().HaveSourceText(@"
+extension 'br:example.azurecr.io/test/radius:1.0.0'
 ");
         }
 

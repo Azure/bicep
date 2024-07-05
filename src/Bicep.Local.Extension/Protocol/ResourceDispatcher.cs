@@ -25,7 +25,7 @@ public class ResourceDispatcher
             return handler;
         }
 
-        if (this.genericResourceHandler is {})
+        if (this.genericResourceHandler is { })
         {
             return this.genericResourceHandler;
         }

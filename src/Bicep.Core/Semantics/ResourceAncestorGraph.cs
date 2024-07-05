@@ -34,7 +34,7 @@ namespace Bicep.Core.Semantics
             }
             else
             {
-                return ImmutableArray<ResourceAncestor>.Empty;
+                return [];
             }
         }
 

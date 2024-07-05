@@ -95,7 +95,7 @@ namespace Bicep.Core.Semantics
             {
                 if (this.SourceFile.Template?.Outputs is null)
                 {
-                    return ImmutableArray<OutputMetadata>.Empty;
+                    return [];
                 }
 
                 return this.SourceFile.Template.Outputs

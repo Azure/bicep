@@ -13,10 +13,12 @@ import { ParametersInputView } from "./sections/ParametersInputView";
 import { useAzure } from "./hooks/useAzure";
 import { DeploymentScopeInputView } from "./sections/DeploymentScopeInputView";
 import { FormSection } from "./sections/FormSection";
+import { LocalDeployOperations, LocalDeployOutputs, LocalDeployResult } from "./localDeploy";
 
 export const App: FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
-  const messages = useMessageHandler({ setErrorMessage });
+  const [localDeployRunning, setLocalDeployRunning] = useState(false);
+  const messages = useMessageHandler({ setErrorMessage, setLocalDeployRunning });
   const azure = useAzure({
     scope: messages.scope,
     acquireAccessToken: messages.acquireAccessToken,
@@ -51,46 +53,101 @@ export const App: FC = () => {
     await azure.whatIf();
   }
 
+  async function handleLocalDeployClick() {
+    messages.publishTelemetry('deployPane/localDeploy', {});
+    messages.startLocalDeploy();
+  }
+
+  if (!messages.messageState.initialized) {
+    return (
+      <VSCodeProgressRing />
+    );
+  }
+
+  if (messages.messageState.localDeployEnabled && !messages.paramsMetadata.sourceFilePath?.endsWith('.bicepparam')) {
+    return (
+      <div className="alert-error">
+        Local Deployment is only currently supported for .bicepparam files. Relaunch this pane for a .bicepparam file.
+      </div>
+    );
+  }
+
   return (
     <main id="webview-body">
-      <FormSection title="Experimental Warning">
-        <div className="alert-error">
-          <span className="codicon codicon-beaker" />
-          The Bicep Deployment Pane is an experimental feature.
-          <br/>
-          Documentation is available <a href="https://github.com/Azure/bicep/blob/main/docs/experimental/deploy-ui.md">here</a>. Please raise issues or feature requests <a href={createNewIssueUrl()}>here</a>.
-        </div>
-      </FormSection>
-      <DeploymentScopeInputView
-        scope={messages.scope}
-        onPickScope={messages.pickScope} />
+      {!messages.messageState.localDeployEnabled && <>
+        <FormSection title="Experimental Warning">
+          <div className="alert-error">
+            <span className="codicon codicon-beaker" />
+            The Bicep Deployment Pane is an experimental feature.
+            <br/>
+            Documentation is available <a href="https://github.com/Azure/bicep/blob/main/docs/experimental/deploy-ui.md">here</a>. Please raise issues or feature requests <a href={createNewIssueUrl()}>here</a>.
+          </div>
+        </FormSection>
+        <DeploymentScopeInputView
+          scope={messages.scope}
+          onPickScope={messages.pickScope} />
 
-      <ParametersInputView
-        parameters={messages.paramsMetadata}
-        template={messages.templateMetadata}
-        disabled={azure.running}
-        onValueChange={setParamValue}
-        onEnableEditing={handleEnableParamEditing}
-        onPickParametersFile={messages.pickParamsFile} />
+        <ParametersInputView
+          parameters={messages.paramsMetadata}
+          template={messages.templateMetadata}
+          disabled={azure.running}
+          onValueChange={setParamValue}
+          onEnableEditing={handleEnableParamEditing}
+          onPickParametersFile={messages.pickParamsFile} />
 
-      <FormSection title="Actions">
-        {errorMessage && <div className="alert-error">
-          <span className="codicon codicon-error" />
-          {errorMessage}
-        </div>}
-        <div className="controls">
-          <VSCodeButton onClick={handleDeployClick} disabled={azureDisabled}>Deploy</VSCodeButton>
-          <VSCodeButton onClick={handleValidateClick} disabled={azureDisabled}>Validate</VSCodeButton>
-          <VSCodeButton onClick={handleWhatIfClick} disabled={azureDisabled}>What-If</VSCodeButton>
-        </div>
-        {azure.running && <VSCodeProgressRing></VSCodeProgressRing>}
-      </FormSection>
+        <FormSection title="Actions">
+          {errorMessage && <div className="alert-error">
+            <span className="codicon codicon-error" />
+            {errorMessage}
+          </div>}
+          <div className="controls">
+            <VSCodeButton onClick={handleDeployClick} disabled={azureDisabled}>Deploy</VSCodeButton>
+            <VSCodeButton onClick={handleValidateClick} disabled={azureDisabled}>Validate</VSCodeButton>
+            <VSCodeButton onClick={handleWhatIfClick} disabled={azureDisabled}>What-If</VSCodeButton>
+          </div>
+          {azure.running && <VSCodeProgressRing></VSCodeProgressRing>}
+        </FormSection>
 
-      {messages.scope && <>
-        <ResultsView result={azure.result} />
-        <DeploymentOperationsView scope={messages.scope} operations={azure.operations} />
-        <DeploymentOutputsView outputs={azure.outputs} />
-        <WhatIfChangesView changes={azure.whatIfChanges} />
+        {messages.scope && <>
+          <ResultsView result={azure.result} />
+          <DeploymentOperationsView scope={messages.scope} operations={azure.operations} />
+          <DeploymentOutputsView outputs={azure.outputs} />
+          <WhatIfChangesView changes={azure.whatIfChanges} />
+        </>}
+      </>}
+
+      {messages.messageState.localDeployEnabled && <>
+        <FormSection title="Experimental Warning">
+          <div className="alert-error">
+            <span className="codicon codicon-beaker" />
+            Local Deployment is an experimental feature.
+          </div>
+        </FormSection>
+
+        <ParametersInputView
+          parameters={messages.paramsMetadata}
+          template={messages.templateMetadata}
+          disabled={localDeployRunning}
+          onValueChange={setParamValue}
+          onEnableEditing={handleEnableParamEditing}
+          onPickParametersFile={messages.pickParamsFile} />
+
+        <FormSection title="Actions">
+          {errorMessage && <div className="alert-error">
+            <span className="codicon codicon-error" />
+            {errorMessage}
+          </div>}
+          <div className="controls">
+            <VSCodeButton onClick={handleLocalDeployClick} disabled={localDeployRunning}>Deploy</VSCodeButton>
+          </div>
+          {localDeployRunning && <VSCodeProgressRing></VSCodeProgressRing>}
+        </FormSection>
+
+        {!localDeployRunning && messages.localDeployResult && <>
+          <LocalDeployResult result={messages.localDeployResult} />
+          <LocalDeployOperations result={messages.localDeployResult} />
+          <LocalDeployOutputs result={messages.localDeployResult} />
+        </>}
       </>}
     </main>
   );

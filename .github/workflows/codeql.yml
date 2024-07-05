@@ -1,0 +1,63 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  security-events: write
+
+env:
+  CI: true
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  codeql:
+    name: Run CodeQL Analysis
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp, javascript
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Build All Projects
+        run: |
+          msbuild src/vs-bicep/BicepInVisualStudio.sln /restore /p:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
+          dotnet build --configuration release
+          npm --prefix src/vscode-bicep ci
+          npm --prefix src/vscode-bicep run build
+          npm --prefix src/playground ci
+          npm --prefix src/playground run build
+          npm --prefix src/Bicep.Cli.E2eTests ci
+          npm --prefix src/Bicep.Cli.E2eTests run build
+          npm --prefix src/Bicep.MSBuild.E2eTests ci
+          npm --prefix src/Bicep.MSBuild.E2eTests run build
+          npm --prefix src/textmate ci
+          npm --prefix src/textmate run build
+          npm --prefix src/highlightjs ci
+          npm --prefix src/highlightjs run build
+          npm --prefix src/monarch ci
+          npm --prefix src/monarch run build
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

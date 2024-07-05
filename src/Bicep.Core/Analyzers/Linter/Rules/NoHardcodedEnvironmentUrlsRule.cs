@@ -14,6 +14,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "no-hardcoded-env-urls";
 
+        // Configuration keys for bicepconfig.json
         public readonly string DisallowedHostsKey = "disallowedHosts";
         public readonly string ExcludedHostsKey = "excludedHosts";
 
@@ -33,7 +34,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             if (model.SourceFile is BicepParamFile)
             {
                 // The environment() function isn't available for .bicepparam files
-                return Enumerable.Empty<IDiagnostic>();
+                return [];
             }
 
             var disallowedHosts = GetConfigurationValue(model.Configuration.Analyzers, DisallowedHostsKey.ToLowerInvariant(), Array.Empty<string>()).ToImmutableArray();
@@ -47,7 +48,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(diagnosticLevel, entry.Key, entry.Value));
             }
 
-            return Enumerable.Empty<IDiagnostic>();
+            return [];
         }
 
         public static IEnumerable<(TextSpan RelativeSpan, string Value)> FindHostnameMatches(string hostname, string srcText)

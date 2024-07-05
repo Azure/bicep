@@ -37,13 +37,13 @@ public class NullabilityTests
 
     private static IEnumerable<object[]> GetTemplatesWithSingleUnexpectedlyNullableValue()
     {
-        static object[] Case(string templateWithNullablyTypedValue, string templateWithNonNullAssertion, TypeSymbol expectedType, TypeSymbol actualType) => new object[]
-        {
+        static object[] Case(string templateWithNullablyTypedValue, string templateWithNonNullAssertion, TypeSymbol expectedType, TypeSymbol actualType) =>
+        [
             templateWithNullablyTypedValue,
             templateWithNonNullAssertion,
             expectedType,
             actualType,
-        };
+        ];
 
         return new[]
         {
