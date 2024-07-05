@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Text.Json.Nodes;
+using Azure.Deployments.Extensibility.Core.V2.Json;
 using Bicep.Local.Extension.Rpc;
 using Google.Protobuf.Collections;
 using Json.Pointer;
@@ -88,22 +89,44 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
         => Convert(await client.PreviewAsync(Convert(request), cancellationToken: cancellationToken));
 
     private static Rpc.ResourceReference Convert(ExtensibilityV2.ResourceReference request)
-        => new()
+    {
+        Rpc.ResourceReference output = new()
         {
-            ApiVersion = request.ApiVersion,
-            Config = request.Config.ToJson(),
-            Identifiers = request.Identifiers.ToJson(),
-            Type = request.Type
+            Type = request.Type,
+            Identifiers = request.Identifiers.ToJsonString(),
         };
 
-    private static Rpc.ResourceSpecification Convert(ExtensibilityV2.ResourceSpecification request)
-        => new()
+        if (request.ApiVersion is {})
         {
-            ApiVersion = request.ApiVersion,
-            Config = request.Config.ToJson(),
-            Properties = request.Properties.ToJson(),
-            Type = request.Type
+            output.ApiVersion = request.ApiVersion;
+        }
+        if (request.Config is {})
+        {
+            output.Config = request.Config.ToJsonString();
+        }
+        
+        return output;
+    }
+
+    private static Rpc.ResourceSpecification Convert(ExtensibilityV2.ResourceSpecification request)
+    {
+        Rpc.ResourceSpecification output = new()
+        {
+            Type = request.Type,
+            Properties = request.Properties.ToJsonString(),
         };
+
+        if (request.ApiVersion is {})
+        {
+            output.ApiVersion = request.ApiVersion;
+        }
+        if (request.Config is {})
+        {
+            output.Config = request.Config.ToJsonString();
+        }
+        
+        return output;
+    }
 
     private static ExtensibilityV2.ErrorData Convert(Rpc.ErrorData errorData)
         => new(new ExtensibilityV2.Error(errorData.Error.Code, errorData.Error.Message, JsonPointer.Empty, Convert(errorData.Error.Details), ConvertInnerError(errorData.Error.InnerError)));
@@ -116,8 +139,8 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
 
     private static LocalExtensibilityOperationResponse Convert(Rpc.LocalExtensibilityOperationResponse response)
         => new(
-            new ExtensibilityV2.Resource(response.Resource.Type, response.Resource.ApiVersion, ToJsonObject(response.Resource.Identifiers, "Parsing response identifiers failed. Please ensure is non-null or empty and is a valid JSON object."), ToJsonObject(response.Resource.Properties, "Parsing response properties failed. Please ensure is non-null or empty and is ensure is a valid JSON object."), response.Resource.Status),
-            Convert(response.ErrorData));
+            response.Resource is {} ? new(response.Resource.Type, response.Resource.ApiVersion, ToJsonObject(response.Resource.Identifiers, "Parsing response identifiers failed. Please ensure is non-null or empty and is a valid JSON object."), ToJsonObject(response.Resource.Properties, "Parsing response properties failed. Please ensure is non-null or empty and is ensure is a valid JSON object."), response.Resource.Status) : null,
+            response.ErrorData is {} ? Convert(response.ErrorData) : null);
 
     private static JsonObject? ConvertInnerError(string innerError)
         => innerError is null ? null : ToJsonObject(innerError, "Parsing innerError failed. Please ensure is non-null or empty and is a valid JSON object.");
