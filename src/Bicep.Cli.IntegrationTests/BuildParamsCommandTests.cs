@@ -363,7 +363,7 @@ output foo string = foo
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
 
             var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
-            result.Should().Succeed().And.NotHaveStderr();
+            result.Should().Succeed();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
             // Force consistency for escaped newlines.

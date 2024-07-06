@@ -419,111 +419,108 @@ namespace Bicep.Core.UnitTests.Configuration
                 ResourceDerivedTypes: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
-      {
-        "cloud": {
-          "currentProfile": "AzureCloud",
-          "profiles": {
-            "AzureChinaCloud": {
-              "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
-              "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
-            },
-            "AzureCloud": {
-              "resourceManagerEndpoint": "https://management.azure.com",
-              "activeDirectoryAuthority": "https://login.microsoftonline.com"
-            },
-            "AzureUSGovernment": {
-              "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
-              "activeDirectoryAuthority": "https://login.microsoftonline.us"
-            }
-          },
-          "credentialPrecedence": [
-            "AzureCLI",
-            "AzurePowerShell"
-          ]
-        },
-        "moduleAliases": {
-          "ts": {},
-          "br": {
-            "public": {
-              "registry": "mcr.microsoft.com",
-              "modulePath": "bicep"
-            }
-          }
-        },
-        "providerAliases": {
-          "br": {
-            "public": {
-              "registry": "mcr.microsoft.com",
-              "providerPath": "bicep/providers"
-            }
-          }
-        },
-        "providers": {
-            "az": "builtin:",
-            "kubernetes": "builtin:",
-            "microsoftGraph": "builtin:"
-        },
-        "implicitProviders": [
-            "az"
-        ],
-        "analyzers": {
-          "core": {
-            "verbose": false,
-            "enabled": true,
-            "rules": {
-              "no-hardcoded-env-urls": {
-                "level": "off",
-                "disallowedhosts": [
-                  "api.loganalytics.io",
-                  "azuredatalakeanalytics.net",
-                  "azuredatalakestore.net",
-                  "batch.core.windows.net",
-                  "core.windows.net",
-                  "database.windows.net",
-                  "datalake.azure.net",
-                  "gallery.azure.com",
-                  "graph.windows.net",
-                  "login.microsoftonline.com",
-                  "management.azure.com",
-                  "management.core.windows.net",
-                  "region.asazure.windows.net",
-                  "trafficmanager.net",
-                  "vault.azure.net"
-                ],
-                "excludedhosts": [
-                  "schema.management.azure.com"
+            {
+            "cloud": {
+                "currentProfile": "AzureCloud",
+                "profiles": {
+                "AzureChinaCloud": {
+                    "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
+                    "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
+                },
+                "AzureCloud": {
+                    "resourceManagerEndpoint": "https://management.azure.com",
+                    "activeDirectoryAuthority": "https://login.microsoftonline.com"
+                },
+                "AzureUSGovernment": {
+                    "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
+                    "activeDirectoryAuthority": "https://login.microsoftonline.us"
+                }
+                },
+                "credentialPrecedence": [
+                "AzureCLI",
+                "AzurePowerShell"
                 ]
-              },
-              "no-unused-vars": {
-                "level": "off"
-              }
+            },
+            "moduleAliases": {
+                "ts": {},
+                "br": {
+                "public": {
+                    "registry": "mcr.microsoft.com",
+                    "modulePath": "bicep"
+                }
+                }
+            },
+            "extensionAliases": {
+                "br": {
+                "public": {
+                    "registry": "mcr.microsoft.com",
+                    "extensionPath": "bicep/extensions"
+                }
+                }
+            },
+            "extensions": {
+                "microsoftGraph": "builtin:",
+                "kubernetes": "builtin:",
+                "az": "builtin:"
+            },
+            "implicitExtensions": [
+                "az"
+            ],
+            "analyzers": {
+                "core": {
+                "verbose": false,
+                "enabled": true,
+                "rules": {
+                    "no-hardcoded-env-urls": {
+                    "level": "warning",
+                    "disallowedhosts": [
+                        "api.loganalytics.io",
+                        "azuredatalakeanalytics.net",
+                        "azuredatalakestore.net",
+                        "batch.core.windows.net",
+                        "core.windows.net",
+                        "database.windows.net",
+                        "datalake.azure.net",
+                        "gallery.azure.com",
+                        "graph.windows.net",
+                        "login.microsoftonline.com",
+                        "management.azure.com",
+                        "management.core.windows.net",
+                        "region.asazure.windows.net",
+                        "trafficmanager.net",
+                        "vault.azure.net"
+                    ],
+                    "excludedhosts": [
+                        "schema.management.azure.com"
+                    ]
+                    }
+                }
+                }
+            },
+            "experimentalFeaturesEnabled": {
+                "symbolicNameCodegen": false,
+                "extensibility": false,
+                "extendableParamFiles": true,
+                "resourceTypedParamsAndOutputs": false,
+                "sourceMapping": false,
+                "legacyFormatter": false,
+                "testFramework": false,
+                "assertions": false,
+                "dynamicTypeLoading": false,
+                "extensionRegistry": false,
+                "optionalModuleNames": false,
+                "localDeploy": false,
+                "resourceDerivedTypes": false
+            },
+            "formatting": {
+                "indentKind": "Space",
+                "newlineKind": "LF",
+                "insertFinalNewline": true,
+                "indentSize": 2,
+                "width": 120
             }
-          }
-        },
-        "experimentalFeaturesEnabled": {
-          "extendableParamFiles": true,
-          "symbolicNameCodegen": false,
-          "extensibility": false,
-          "resourceTypedParamsAndOutputs": false,
-          "sourceMapping": false,
-          "legacyFormatter": false,
-          "testFramework": false,
-          "assertions": false,
-          "dynamicTypeLoading": false,
-          "providerRegistry": false,
-          "optionalModuleNames": false,
-          "localDeploy": false,
-          "resourceDerivedTypes": false
-        },
-        "formatting": {
-          "indentKind": "Space",
-          "newlineKind": "LF",
-          "insertFinalNewline": true,
-          "indentSize": 2,
-          "width": 120
-        }
-      }
-      """);
+            }
+            """);
         }
 
         [TestMethod]
