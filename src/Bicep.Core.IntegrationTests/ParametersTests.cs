@@ -424,7 +424,7 @@ param stringParam =  /*TODO*/
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP405", DiagnosticLevel.Error, "More than one \"extends\" declaration are present"),
                 ("BCP406", DiagnosticLevel.Error, "The \"extends\" keyword is not supported"),
-                ("BCP404", DiagnosticLevel.Error, "The \"extends\" declaration is missing a bicepparam file path reference."),
+                ("BCP404", DiagnosticLevel.Error, "The \"extends\" declaration is missing a bicepparam file path reference"),
                 ("BCP405", DiagnosticLevel.Error, "More than one \"extends\" declaration are present"),
                 ("BCP406", DiagnosticLevel.Error, "The \"extends\" keyword is not supported"),
             });
