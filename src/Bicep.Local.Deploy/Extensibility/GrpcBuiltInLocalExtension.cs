@@ -143,7 +143,7 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
             response.ErrorData is {} ? Convert(response.ErrorData) : null);
 
     private static JsonObject? ConvertInnerError(string innerError)
-        => innerError is null ? null : ToJsonObject(innerError, "Parsing innerError failed. Please ensure is non-null or empty and is a valid JSON object.");
+        => string.IsNullOrEmpty(innerError) ? null : ToJsonObject(innerError, "Parsing innerError failed. Please ensure is non-null or empty and is a valid JSON object.");
 
     private static JsonObject ToJsonObject(string json, string errorMessage)
         => JsonNode.Parse(json)?.AsObject() ?? throw new ArgumentNullException(errorMessage);

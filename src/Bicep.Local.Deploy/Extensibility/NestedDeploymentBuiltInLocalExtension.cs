@@ -44,10 +44,10 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
                     {
                         ["$schema"] = "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
                         ["contentVersion"] = "1.0.0.0",
-                        ["parameters"] = request.Properties["parameters"],
+                        ["parameters"] = request.Properties["parameters"]?.DeepClone(),
                     };
 
-                    var result = await LocalDeployment.Deploy(extensibilityHostManager, template, parameters.ToJson(), cancellationToken);
+                    var result = await LocalDeployment.Deploy(extensibilityHostManager, template, parameters.ToJsonString(), cancellationToken);
 
                     if (result.Deployment.Properties.ProvisioningState != ProvisioningState.Succeeded)
                     {
