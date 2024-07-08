@@ -36,6 +36,7 @@ const KEYWORDS = {
     'type',
     'with',
     'using',
+    'extends',
     'func',
     'assert',
     'provider',

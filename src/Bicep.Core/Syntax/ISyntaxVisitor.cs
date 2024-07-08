@@ -34,6 +34,8 @@ namespace Bicep.Core.Syntax
 
         void VisitNullLiteralSyntax(NullLiteralSyntax syntax);
 
+        void VisitNoneLiteralSyntax(NoneLiteralSyntax syntax);
+
         void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax);
 
         void VisitObjectPropertySyntax(ObjectPropertySyntax syntax);
@@ -119,6 +121,8 @@ namespace Bicep.Core.Syntax
         void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax);
 
         void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax);
+
+        void VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax);
 
         void VisitLambdaSyntax(LambdaSyntax syntax);
 

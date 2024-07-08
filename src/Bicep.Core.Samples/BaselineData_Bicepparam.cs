@@ -99,6 +99,7 @@ namespace Bicep.Core.Samples
             embeddedFiles.Select(x => x.StreamPath).Should().BeEquivalentTo(
                 "Files/baselines_bicepparam/Expressions/parameters.bicepparam",
                 "Files/baselines_bicepparam/Imports/parameters.bicepparam",
+                "Files/baselines_bicepparam/Extends/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_Expressions/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_Imports/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_Parameters/parameters.bicepparam",
