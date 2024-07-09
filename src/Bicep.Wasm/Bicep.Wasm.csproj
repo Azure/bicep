@@ -8,6 +8,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.6" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="21.0.2" />
     <PackageReference Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="8.0.6" />
+    
+    <!-- need to explicitly reference this because it was upgraded to 8.0.7 but dotnet SDK version 8.3.0.2 tracks 8.0.6 https://github.com/dotnet/sdk/issues/38200-->
+    <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="8.0.7" />  
   </ItemGroup>
 
   <ItemGroup>
