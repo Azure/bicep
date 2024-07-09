@@ -26,6 +26,9 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Sarif.Sdk" Version="4.5.4" />
     <PackageReference Include="StreamJsonRpc" Version="2.18.48" />
+    
+    <!-- need to explicitly reference this because it was upgraded to 8.0.7 but dotnet SDK version 8.3.0.2 tracks 8.0.6 https://github.com/dotnet/sdk/issues/38200-->
+    <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="8.0.7" />  
   </ItemGroup>
 
   <ItemGroup>

@@ -22,6 +22,9 @@
     <PackageReference Include="Azure.Deployments.Engine" Version="1.54.0" />
     <PackageReference Include="Azure.Deployments.Extensibility.Core" Version="0.1.55" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+    
+    <!-- need to explicitly reference this because it was upgraded to 8.0.7 but dotnet SDK version 8.3.0.2 tracks 8.0.6 https://github.com/dotnet/sdk/issues/38200-->
+    <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="8.0.7" />  
   </ItemGroup>
 
   <ItemGroup>
