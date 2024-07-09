@@ -41,8 +41,20 @@ func testFunc(baz string) string => '${foo}-${bar}-${baz}-${getBaz()}'
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
             ("BCP057", DiagnosticLevel.Error, """The name "foo" does not exist in the current context."""),
-            ("BCP057", DiagnosticLevel.Error, """The name "bar" does not exist in the current context."""),
         });
+    }
+
+    [TestMethod]
+    public void Outer_scope_symbolic_variables_are_allowed()
+    {
+        var result = CompilationHelper.Compile(@"
+var bar = 'abc'
+func getBaz() string => 'baz'
+
+func testFunc(baz string) string => '${bar}-${baz}-${getBaz()}'
+");
+
+        result.Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]

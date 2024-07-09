@@ -71,6 +71,10 @@ type forecastType = {
   temperature: int
 }
 
+var val = 'Name'
+
+func getForecast() string => 'Forecast: ${val}'
+
 output forecast forecastType[] = map(forecast.periods, p => {
   name: p.name
   temperature: p.temperature
