@@ -653,11 +653,6 @@
         "resolved": "6.35.0",
         "contentHash": "xuR8E4Rd96M41CnUSCiOJ2DBh+z+zQSmyrYHdYhD6K4fXBcQGVnRCFQ0efROUYpP+p0zC1BLKr0JRpVuujTZSg=="
       },
-      "Microsoft.NET.ILLink.Tasks": {
-        "type": "Transitive",
-        "resolved": "8.0.7",
-        "contentHash": "iI52ptEKby2ymQ6B7h4TWbFmm85T4VvLgc/HvS45Yr3lgi4IIFbQtjON3bQbX/Vc94jXNSLvrDOp5Kh7SJyFYQ=="
-      },
       "Microsoft.NET.StringTools": {
         "type": "Transitive",
         "resolved": "17.4.0",
@@ -1640,7 +1635,6 @@
           "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
           "Microsoft.Extensions.Http": "[8.0.0, )",
           "Microsoft.Graph.Bicep.Types": "[0.1.6-preview, )",
-          "Microsoft.NET.ILLink.Tasks": "[8.0.7, )",
           "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2007, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "Semver": "[2.3.0, )",
@@ -1652,8 +1646,7 @@
       "Azure.Bicep.Decompiler": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Core": "[1.0.0, )",
-          "Microsoft.NET.ILLink.Tasks": "[8.0.7, )"
+          "Azure.Bicep.Core": "[1.0.0, )"
         }
       },
       "Azure.Bicep.Local.Deploy": {
@@ -1663,8 +1656,7 @@
           "Azure.Bicep.Local.Extension": "[1.0.0, )",
           "Azure.Deployments.Engine": "[1.54.0, )",
           "Azure.Deployments.Extensibility.Core": "[0.1.55, )",
-          "Microsoft.AspNet.WebApi.Client": "[6.0.0, )",
-          "Microsoft.NET.ILLink.Tasks": "[8.0.7, )"
+          "Microsoft.AspNet.WebApi.Client": "[6.0.0, )"
         }
       },
       "Azure.Bicep.Local.Extension": {
@@ -1682,7 +1674,6 @@
           "Azure.Bicep.Decompiler": "[1.0.0, )",
           "Azure.Bicep.Local.Deploy": "[1.0.0, )",
           "Microsoft.Extensions.Logging": "[8.0.0, )",
-          "Microsoft.NET.ILLink.Tasks": "[8.0.7, )",
           "Sarif.Sdk": "[4.5.4, )",
           "StreamJsonRpc": "[2.18.48, )"
         }
