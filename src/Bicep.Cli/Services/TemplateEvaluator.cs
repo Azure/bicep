@@ -177,7 +177,7 @@ namespace Bicep.Cli.Services
                     apiVersion: TemplateWriter.NestedDeploymentResourceApiVersion,
                     inputParameters: new(parameters),
                     metadata: metadata,
-                    diagnostics: TemplateDiagnosticsWriter.Create());
+                    metricsRecorder: null);
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
 

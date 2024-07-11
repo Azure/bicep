@@ -79,6 +79,8 @@ output forecast forecastType[] = map(forecast.periods, p => {
   name: p.name
   temperature: p.temperature
 })
+
+output forecastString string = getForecast()
 """),
             ("parameters.bicepparam", """
 using 'main.bicep'
@@ -142,6 +144,7 @@ param coords = {
         var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Succeeded);
+        localDeployResult.Deployment.Properties.Outputs["forecastString"].Value.Should().DeepEqual("Forecast: Name");
         localDeployResult.Deployment.Properties.Outputs["forecast"].Value.Should().DeepEqual(JToken.Parse("""
 [
   {

@@ -52,9 +52,18 @@ var bar = 'abc'
 func getBaz() string => 'baz'
 
 func testFunc(baz string) string => '${bar}-${baz}-${getBaz()}'
+
+func isStringEqual(input string) bool => input == testFunc(bar)
+
+output outputBool bool = isStringEqual('abc-abc-baz')
+output outputFoo string = testFunc('def')
 ");
 
         result.Should().NotHaveAnyDiagnostics();
+        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+
+        evaluated.Should().HaveValueAtPath("$.outputs['outputBool'].value", true);
+        evaluated.Should().HaveValueAtPath("$.outputs['outputFoo'].value", "abc-def-baz");
     }
 
     [TestMethod]

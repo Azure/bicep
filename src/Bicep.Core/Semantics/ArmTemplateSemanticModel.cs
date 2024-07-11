@@ -156,7 +156,8 @@ namespace Bicep.Core.Semantics
         };
 
         private ITypeReference GetType(ITemplateSchemaNode schemaNode, bool allowLooseAssignment = false)
-            => ArmTemplateTypeLoader.ToTypeReference(SchemaValidationContext.ForTemplate(SourceFile.Template),
+            // This method cannot be invoked if SourceFile.Template is null, so the null-conditional operator is safe here.
+            => ArmTemplateTypeLoader.ToTypeReference(SchemaValidationContext.ForTemplate(SourceFile.Template!),
                 schemaNode,
                 allowLooseAssignment ? TypeSymbolValidationFlags.AllowLooseAssignment : TypeSymbolValidationFlags.Default);
 
