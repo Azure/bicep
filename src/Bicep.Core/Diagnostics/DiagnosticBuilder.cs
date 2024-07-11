@@ -1878,7 +1878,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnrecognizedParamsFileDeclaration() => new(
                 TextSpan,
                 "BCP337",
-                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"", ""{LanguageConstants.ParameterKeyword}"" or ""{LanguageConstants.VariableKeyword}"" declaration.");
+                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"", ""{LanguageConstants.ExtendsKeyword}"", ""{LanguageConstants.ParameterKeyword}"" or ""{LanguageConstants.VariableKeyword}"" declaration.");
 
             public ErrorDiagnostic FailedToEvaluateParameter(string parameterName, string message) => new(
                 TextSpan,
@@ -2196,6 +2196,21 @@ namespace Bicep.Core.Diagnostics
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP403",
                 $"The enclosing array expects elements of type \"{expectedType}\", but the array being spread contains elements of incompatible type \"{actualType}\".");
+
+            public ErrorDiagnostic ExtendsPathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP404",
+                $"The \"{LanguageConstants.ExtendsKeyword}\" declaration is missing a bicepparam file path reference");
+
+            public ErrorDiagnostic MoreThanOneExtendsDeclarationSpecified() => new(
+                TextSpan,
+                "BCP405",
+                $"More than one \"{LanguageConstants.ExtendsKeyword}\" declaration are present");
+
+            public ErrorDiagnostic ExtendsNotSupported() => new(
+                TextSpan,
+                "BCP406",
+                $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

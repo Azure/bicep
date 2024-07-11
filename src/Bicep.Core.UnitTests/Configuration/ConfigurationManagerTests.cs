@@ -106,6 +106,7 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "experimentalFeaturesEnabled": {
+          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "extensibility": false,
           "resourceTypedParamsAndOutputs": false,
@@ -195,6 +196,7 @@ namespace Bicep.Core.UnitTests.Configuration
         ],
         "analyzers": {},
         "experimentalFeaturesEnabled": {
+          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "extensibility": false,
           "resourceTypedParamsAndOutputs": false,
@@ -309,6 +311,7 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "experimentalFeaturesEnabled": {
+          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "extensibility": false,
           "resourceTypedParamsAndOutputs": false,
@@ -392,6 +395,132 @@ namespace Bicep.Core.UnitTests.Configuration
             diagnostics.Count.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().Be($"Could not load the Bicep configuration file \"{configurataionPath}\": Not allowed.");
+        }
+
+        [TestMethod]
+        public void GetBuiltInConfiguration_EnableExperimentalFeature_ReturnsBuiltInConfiguration_WithSelectedExperimentalFeatureEnabled()
+        {
+            // Arrange.
+            var configuration = IConfigurationManager.GetBuiltInConfiguration();
+
+            ExperimentalFeaturesEnabled experimentalFeaturesEnabled = new(
+                SymbolicNameCodegen: false,
+                Extensibility: false,
+                ExtendableParamFiles: true,
+                ResourceTypedParamsAndOutputs: false,
+                SourceMapping: false,
+                LegacyFormatter: false,
+                TestFramework: false,
+                Assertions: false,
+                DynamicTypeLoading: false,
+                ExtensionRegistry: false,
+                OptionalModuleNames: false,
+                LocalDeploy: false,
+                ResourceDerivedTypes: false);
+
+            configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
+            {
+            "cloud": {
+                "currentProfile": "AzureCloud",
+                "profiles": {
+                "AzureChinaCloud": {
+                    "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
+                    "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
+                },
+                "AzureCloud": {
+                    "resourceManagerEndpoint": "https://management.azure.com",
+                    "activeDirectoryAuthority": "https://login.microsoftonline.com"
+                },
+                "AzureUSGovernment": {
+                    "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
+                    "activeDirectoryAuthority": "https://login.microsoftonline.us"
+                }
+                },
+                "credentialPrecedence": [
+                "AzureCLI",
+                "AzurePowerShell"
+                ]
+            },
+            "moduleAliases": {
+                "ts": {},
+                "br": {
+                "public": {
+                    "registry": "mcr.microsoft.com",
+                    "modulePath": "bicep"
+                }
+                }
+            },
+            "extensionAliases": {
+                "br": {
+                "public": {
+                    "registry": "mcr.microsoft.com",
+                    "extensionPath": "bicep/extensions"
+                }
+                }
+            },
+            "extensions": {
+                "microsoftGraph": "builtin:",
+                "kubernetes": "builtin:",
+                "az": "builtin:"
+            },
+            "implicitExtensions": [
+                "az"
+            ],
+            "analyzers": {
+                "core": {
+                "verbose": false,
+                "enabled": true,
+                "rules": {
+                    "no-hardcoded-env-urls": {
+                    "level": "warning",
+                    "disallowedhosts": [
+                        "api.loganalytics.io",
+                        "azuredatalakeanalytics.net",
+                        "azuredatalakestore.net",
+                        "batch.core.windows.net",
+                        "core.windows.net",
+                        "database.windows.net",
+                        "datalake.azure.net",
+                        "gallery.azure.com",
+                        "graph.windows.net",
+                        "login.microsoftonline.com",
+                        "management.azure.com",
+                        "management.core.windows.net",
+                        "region.asazure.windows.net",
+                        "trafficmanager.net",
+                        "vault.azure.net"
+                    ],
+                    "excludedhosts": [
+                        "schema.management.azure.com"
+                    ]
+                    }
+                }
+                }
+            },
+            "experimentalFeaturesEnabled": {
+                "symbolicNameCodegen": false,
+                "extensibility": false,
+                "extendableParamFiles": true,
+                "resourceTypedParamsAndOutputs": false,
+                "sourceMapping": false,
+                "legacyFormatter": false,
+                "testFramework": false,
+                "assertions": false,
+                "dynamicTypeLoading": false,
+                "extensionRegistry": false,
+                "optionalModuleNames": false,
+                "localDeploy": false,
+                "resourceDerivedTypes": false
+            },
+            "formatting": {
+                "indentKind": "Space",
+                "newlineKind": "LF",
+                "insertFinalNewline": true,
+                "indentSize": 2,
+                "width": 120
+            }
+            }
+            """);
         }
 
         [TestMethod]
@@ -751,6 +880,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "cacheRootDirectory": "/home/username/.bicep/cache",
         "experimentalFeaturesEnabled": {
+          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "extensibility": true,
           "resourceTypedParamsAndOutputs": false,

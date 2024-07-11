@@ -67,6 +67,17 @@ namespace Bicep.Core.Semantics
                 }
             }
 
+            // find duplicate extends declarations
+            var extendsSyntaxes = symbol.Syntax.Children.OfType<ExtendsDeclarationSyntax>().ToImmutableArray();
+
+            if (extendsSyntaxes.Length > 1)
+            {
+                foreach (var declaration in extendsSyntaxes)
+                {
+                    this.diagnosticWriter.Write(declaration.Keyword, x => x.MoreThanOneExtendsDeclarationSpecified());
+                }
+            }
+
             // find instances where the same symbol is imported multiple times under different names
             foreach (var grouping in symbol.ImportedSymbols.ToLookup(t => (t.SourceModel, t.OriginalSymbolName)))
             {

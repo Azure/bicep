@@ -1834,18 +1834,12 @@
           "Microsoft.VisualStudio.LanguageServer.Client": "[17.10.124, )",
           "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",
           "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.10.2154, )",
-          "Microsoft.VisualStudio.Shell.Framework": "[17.9.37000, )",
+          "Microsoft.VisualStudio.Shell.Framework": "[17.10.40170, )",
           "Microsoft.VisualStudio.Shell.Interop": "[17.10.40170, )",
           "Microsoft.VisualStudio.Utilities": "[17.10.40170, )",
           "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
           "Microsoft.Visualstudio.Telemetry": "[17.10.32, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.9, )"
-        }
-      },
-      "bicep.vslanguageserverclient.itemtemplate": {
-        "type": "Project",
-        "dependencies": {
-          "Microsoft.VisualStudio.CoreUtility": "[17.10.191, )"
         }
       }
     },

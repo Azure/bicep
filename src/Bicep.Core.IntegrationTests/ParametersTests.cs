@@ -400,5 +400,71 @@ param stringParam =  /*TODO*/
 
 """);
         }
+
+        [TestMethod]
+        public void Invalid_extends_and_more_than_one_extends_should_fail()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends
+                extends 'shared.bicepparam'
+                param foo = ''
+                param bar = ''
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param foo = ''
+              "),
+              ("main.bicep", @"
+                param foo string
+                param bar string
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP405", DiagnosticLevel.Error, "More than one \"extends\" declaration are present"),
+                ("BCP406", DiagnosticLevel.Error, "The \"extends\" keyword is not supported"),
+                ("BCP404", DiagnosticLevel.Error, "The \"extends\" declaration is missing a bicepparam file path reference"),
+                ("BCP405", DiagnosticLevel.Error, "More than one \"extends\" declaration are present"),
+                ("BCP406", DiagnosticLevel.Error, "The \"extends\" keyword is not supported"),
+            });
+        }
+
+        [TestMethod]
+        public void Extending_parameters_allow_overriding_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param foo = 'bar'
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param foo = 'foo'
+              "),
+              ("main.bicep", @"
+                param foo string
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Parameters.Should().DeepEqual(JToken.Parse(@"{
+            ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+            ""contentVersion"": ""1.0.0.0"",
+            ""parameters"": {
+                ""foo"": {
+                ""value"": ""bar""
+                },
+            }
+            }"));
+        }
     }
 }
