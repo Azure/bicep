@@ -17,19 +17,15 @@ echo VSIXInstaller.exe location: "%VSIXInstallerExe%"
 set BicepVsixPath=%ExtensionsRoot%Bicep.VSLanguageServerClient.Vsix\bin\%CONFIGURATION%\vs-bicep.vsix
 echo Bicep vsix location: %BicepVsixPath%
 
-choice /M "Uninstall first? (Y/N)"
-if errorlevel 2 goto skip_uninstall
-taskkill /im devenv.exe /t /f 2>&1 | findstr /v "not found"
-call "%VSIXInstallerExe%" /uninstall:ms-azuretools.visualstudio-bicep
-goto do_install
-
-:skip_uninstall
-
+echo.
 choice /M "Install? (Y/N)"
-if errorlevel 2 goto skip_install
+if errorlevel 2 goto end
 
-:do_install
-taskkill /im devenv.exe /t /f 2>&1 | findstr /v "not found"
-call "%VSIXInstallerExe%" "%BicepVsixPath%"
+echo.
+echo Uninstalling current extension...
+call "%VSIXInstallerExe%" /shutdownprocesses /quiet /uninstall:ms-azuretools.visualstudio-bicep
 
-:skip_install
+echo Installing extension...
+call "%VSIXInstallerExe%" /force /shutdownprocesses /quiet  "%BicepVsixPath%"
+
+:end
