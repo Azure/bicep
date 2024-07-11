@@ -66,7 +66,7 @@ namespace Bicep.LanguageServer.Handlers
             var documentUri = request.TextDocument.Uri;
 
             // If the documentUri corresponds to bicepconfig.json, we'll add an entry to activeBicepConfigCache.
-            if (ConfigurationHelper.IsBicepConfigFile(documentUri)) //potentialy copy this for bicep params
+            if (ConfigurationHelper.IsBicepConfigFile(documentUri)) //potentially copy this for bicep params
             {
                 bicepConfigChangeHandler.HandleBicepConfigOpenEvent(documentUri);
             }
