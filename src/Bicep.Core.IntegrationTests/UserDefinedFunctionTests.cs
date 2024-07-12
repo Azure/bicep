@@ -67,6 +67,27 @@ output outputFoo string = testFunc('def')
     }
 
     [TestMethod]
+    public void Inlined_variables_in_user_defined_functions_are_not_allowed()
+    {
+        var result = CompilationHelper.Compile(@"
+
+resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+  name: 'myaccount'
+}
+
+var saAccessTier = sa.properties.accessTier
+
+func testFunc() string => '${saAccessTier}'
+
+output outputFoo string = testFunc()
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            ("BCP341", DiagnosticLevel.Error, """This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("saAccessTier" -> "sa"). Properties of sa which can be calculated at the start include "apiVersion", "id", "name", "type".""")
+        });
+    }
+
+    [TestMethod]
     public void Functions_can_have_descriptions_applied()
     {
         var result = CompilationHelper.Compile(@"
