@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime;
 using Bicep.Core.Utils;
+using Bicep.LanguageServer.Options;
 using CommandLine;
 
 namespace Bicep.LanguageServer
@@ -25,6 +26,9 @@ namespace Bicep.LanguageServer
 
             [Option("wait-for-debugger", Required = false, HelpText = "If set, wait for a dotnet debugger to be attached before starting the server")]
             public bool WaitForDebugger { get; set; }
+
+            [Option("vs-compatibility-mode", Required = false, HelpText = "If set, runs in a mode to better support Visual Studio as a host")]
+            public bool VsCompatibilityMode { get; set; }
         }
 
         public static async Task Main(string[] args)
@@ -100,6 +104,8 @@ namespace Bicep.LanguageServer
                         .WithInput(Console.OpenStandardInput())
                         .WithOutput(Console.OpenStandardOutput()));
             }
+
+            server.GetRequiredService<IBicepLangServerOptions>().VsCompatibilityMode = options.VsCompatibilityMode;
 
             await server.RunAsync(cancellationToken);
         }

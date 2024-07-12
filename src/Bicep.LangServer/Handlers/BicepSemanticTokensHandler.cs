@@ -8,17 +8,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepSemanticTokensHandler : SemanticTokensHandlerBase
+    public class BicepSemanticTokensHandler(ICompilationManager compilationManager, DocumentSelectorFactory documentSelectorFactory) : SemanticTokensHandlerBase
     {
-        private readonly ICompilationManager compilationManager;
-
         // TODO: Not sure if this needs to be shared.
         private readonly SemanticTokensLegend legend = new();
-
-        public BicepSemanticTokensHandler(ICompilationManager compilationManager)
-        {
-            this.compilationManager = compilationManager;
-        }
 
         protected override Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken)
         {
@@ -31,7 +24,7 @@ namespace Bicep.LanguageServer.Handlers
              * do not check for file extension here because that will prevent untitled files from getting syntax highlighting
              */
 
-            var compilationContext = this.compilationManager.GetCompilation(identifier.TextDocument.Uri);
+            var compilationContext = compilationManager.GetCompilation(identifier.TextDocument.Uri);
             if (compilationContext is not null)
             {
                 SemanticTokenVisitor.BuildSemanticTokens(builder, compilationContext.Compilation.GetEntrypointSemanticModel());
@@ -44,7 +37,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             // the semantic tokens handler requests don't get routed like other handlers
             // it seems we can only have one and it must be shared between all the language IDs we support
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams(),
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             Legend = this.legend,
             Full = new SemanticTokensCapabilityRequestFull
             {

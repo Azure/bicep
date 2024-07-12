@@ -19,11 +19,13 @@ using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Deploy;
+using Bicep.LanguageServer.Options;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
@@ -74,5 +76,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IArmClientProvider, ArmClientProvider>()
         .AddSingleton<IDeploymentHelper, DeploymentHelper>()
         .AddSingleton<ISettingsProvider, SettingsProvider>()
-        .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>();
+        .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
+        .AddSingleton<IBicepLangServerOptions, BicepLangServerOptions>()
+        .AddSingleton<DocumentSelectorFactory>();
 }

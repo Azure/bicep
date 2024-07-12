@@ -24,6 +24,9 @@ namespace Bicep.LanguageServer
     {
         private readonly OmnisharpLanguageServer server;
 
+        public T? GetService<T>() => server.GetService<T>();
+        public T GetRequiredService<T>() where T : notnull => server.GetRequiredService<T>();
+
         public Server(Action<LanguageServerOptions> onOptionsFunc)
         {
             server = OmnisharpLanguageServer.PreInit(options =>

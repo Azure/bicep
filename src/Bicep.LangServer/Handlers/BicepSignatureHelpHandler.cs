@@ -19,25 +19,18 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepSignatureHelpHandler : SignatureHelpHandlerBase
+    public class BicepSignatureHelpHandler(ICompilationManager compilationManager, DocumentSelectorFactory documentSelectorFactory) : SignatureHelpHandlerBase
     {
         private const string FunctionArgumentStart = "(";
         private const string FunctionArgumentEnd = ")";
         private const string TypeArgumentsStart = "<";
         private const string TypeArgumentsEnd = ">";
 
-        private readonly ICompilationManager compilationManager;
-
-        public BicepSignatureHelpHandler(ICompilationManager compilationManager)
-        {
-            this.compilationManager = compilationManager;
-        }
-
         public override Task<SignatureHelp?> Handle(SignatureHelpParams request, CancellationToken cancellationToken)
         {
             // local function
 
-            CompilationContext? context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
+            CompilationContext? context = compilationManager.GetCompilation(request.TextDocument.Uri);
             if (context == null)
             {
                 return NoHelp();
@@ -371,7 +364,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override SignatureHelpRegistrationOptions CreateRegistrationOptions(SignatureHelpCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams(),
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             /*
              * ( - triggers sig. help when starting function arguments
              * , - separates function arguments
