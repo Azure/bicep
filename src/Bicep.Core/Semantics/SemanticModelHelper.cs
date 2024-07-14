@@ -83,7 +83,8 @@ namespace Bicep.Core.Semantics
             // when we inevitably add a third language ID,
             // the inclusion list style below will prevent the new language ID from being
             // automatically allowed to be referenced via module declarations
-            var isValidReference = (reference, sourceFile) switch {
+            var isValidReference = (reference, sourceFile) switch
+            {
                 (ExtendsDeclarationSyntax, BicepParamFile) => true,
                 (_, BicepFile or ArmTemplateFile or TemplateSpecFile) => true,
                 _ => false,

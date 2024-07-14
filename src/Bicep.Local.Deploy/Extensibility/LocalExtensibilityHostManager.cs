@@ -1,22 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
+using System.IO;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
+using System.Threading;
+using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
+using Azure.Deployments.Extensibility.Core.V2.Json;
+using Azure.Deployments.Extensibility.Core.V2.Models;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using IAsyncDisposable = System.IAsyncDisposable;
-using Azure.Deployments.Extensibility.Core.V2.Models;
-using System.Text.Json.Nodes;
-using System.Text.Json;
-using Azure.Deployments.Extensibility.Core.V2.Json;
-using System.IO;
-using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
-using System.Diagnostics;
-using System.Net.Http.Headers;
-using System.Threading;
-using System.Text.Json.Serialization.Metadata;
 
 
 namespace Bicep.Local.Deploy.Extensibility;

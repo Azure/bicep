@@ -31,7 +31,7 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
     private readonly LocalExtensibilityHostManager extensibilityHandler;
 
     public readonly record struct ExtensionInfo(string ExtensionName, string ExtensionVersion, string Method);
-    
+
     public LocalDeploymentEngineHost(
         LocalExtensibilityHostManager extensibilityHandler,
         IDeploymentsRequestContext requestContext,
