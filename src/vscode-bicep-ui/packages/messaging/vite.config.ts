@@ -28,6 +28,7 @@ export default defineConfig({
     environment: "happy-dom",
     coverage: {
       enabled: true,
+      exclude: ["src/index.ts"],
     },
     setupFiles: ["src/__tests__/setupGlobals.ts"],
     onConsoleLog: (log) => {

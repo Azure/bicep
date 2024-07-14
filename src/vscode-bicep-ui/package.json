@@ -4,11 +4,9 @@
   "packageManager": "npm@10.8.1",
   "workspaces": [
     "apps/*",
-    "packages/*",
-    "configs/*"
+    "packages/*"
   ],
   "scripts": {
-    "dev": "turbo dev",
     "build": "turbo build",
     "test": "turbo test",
     "lint": "turbo lint",

@@ -8,10 +8,6 @@
     "build": {
       "inputs": ["$TURBO_DEFAULT$", "!src/**/*.test.ts", "!src/**/*.test.tsx"],
       "outputs": ["dist/**"]
-    },
-    "dev": {
-      "persistent": true,
-      "cache": false
     }
   }
 }
