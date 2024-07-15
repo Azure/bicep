@@ -842,6 +842,7 @@
           "type": "boolean"
         },
         "extensionRegistry": {
+          "description": "Enables dynamic type loading for third party extensions. See https://aka.ms/bicep/experimental-features#extensionregistry",
           "type": "boolean"
         },
         "localDeploy": {
