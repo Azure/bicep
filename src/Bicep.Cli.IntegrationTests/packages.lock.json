@@ -1221,10 +1221,10 @@
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
-        "resolved": "21.0.2",
-        "contentHash": "35gVJWBrsUkf+ob0xZJaVja0gLYA5UnqM1K0cSHHKfZ71aMMwUbhNNOy/cpHiVF+Z7FLiREVE080F9QDCf5O2A==",
+        "resolved": "21.0.26",
+        "contentHash": "AsoFzDs7fMqBtbmC54ewQFGT2GIMrnub9g941cJkJO6DC7VVt1uivtGDI3kTa/7v2kSDJAZ2gRMPae7757XvnQ==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions.TestingHelpers": "21.0.2"
+          "TestableIO.System.IO.Abstractions.TestingHelpers": "21.0.26"
         }
       },
       "System.IO.FileSystem.Primitives": {
@@ -1713,7 +1713,7 @@
           "Moq": "[4.20.70, )",
           "Newtonsoft.Json.Schema": "[3.0.16, )",
           "RichardSzalay.MockHttp": "[7.0.0, )",
-          "System.IO.Abstractions.TestingHelpers": "[21.0.2, )"
+          "System.IO.Abstractions.TestingHelpers": "[21.0.26, )"
         }
       },
       "bicep.langserver": {
