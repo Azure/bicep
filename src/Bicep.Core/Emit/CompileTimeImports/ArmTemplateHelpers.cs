@@ -13,7 +13,7 @@ internal static class ArmTemplateHelpers
         // TODO make LocalSchemaRefResolver in Azure.Deployments.Templates public
         if (!typePointer.StartsWith(ArmTypeRefPrefix) ||
             typePointer[ArmTypeRefPrefix.Length..].Contains('/') ||
-            !context.Definitions.TryGetValue(typePointer[ArmTypeRefPrefix.Length..], out var typeDefinition))
+            context.Definitions?.TryGetValue(typePointer[ArmTypeRefPrefix.Length..], out var typeDefinition) is not true)
         {
             throw new InvalidOperationException($"Invalid ARM template type reference ({typePointer}) encountered");
         }

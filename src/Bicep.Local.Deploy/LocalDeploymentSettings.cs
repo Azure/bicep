@@ -248,6 +248,8 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public bool DeploymentGroomingRegionEnabled => false;
 
+    public TimeSpan DeploymentSecureOutputsExpirationTime { get; set; } = TimeSpan.FromSeconds(20);
+
     public TimeSpan DeploymentGroomingJobMaxLifetime => TimeSpan.Zero;
 
     public string[] ExportTemplateSchemaNotRequiredProviders => [];
