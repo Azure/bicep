@@ -21,6 +21,10 @@ Enables the ability to extend bicepparam files from other bicepparam files.
 ### `extensibility`
 Allows Bicep to use a provider model to deploy non-ARM resources. Currently, we support Kubernetes provider ([Bicep extensibility Kubernetes provider](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-extensibility-kubernetes-provider)) and Microsoft Graph provider ([Bicep templates for Microsoft Graph](https://aka.ms/graphbicep)).
 
+### `extensionRegistry`
+Requires `dynamicTypeLoading` and `extensibility` to be enabled. If enabled, users are able to fetch the third party resource type definitions from an OCI Registry as a runtime dependency. To fetch the type definitions the following syntax can be used. For example `extension 'br:thirdpartyregistry.azurecr.io/bicep/extension/thirdparty@1.0.0' as thirdparty`.
+The extension definitions also support aliasing via `bicepconfig.json` similar to [`moduleAliases`](https://learn.microsoft.com/azure/azure-resource-manager/bicep/bicep-config-modules#aliases-for-modules). For example `extension 'br/public:thirdparty@1.0.0' as thirdparty`.
+
 ### `legacyFormatter`
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
 
@@ -29,10 +33,6 @@ Enables local deployment capability. See [Bicep Local Providers](https://github.
 
 ### `optionalModuleNames`
 Enabling this feature makes the `name` property in the body of `module` declarations optional. When a `module` omits the `name` property with the feature enabled, the Bicep compiler will automatically generate an expression for the name of the resulting nested deployment in the JSON. If you specify the `name` property, the compiler will use the specified expression in the resulting JSON. For more information, see [Added optional module names as an experimental feature](https://github.com/Azure/bicep/pull/12600).
-
-### `providerRegistry`
-Requires `dynamicTypeLoading` and `extensibility` to be enabled. If enabled, users are able to fetch the third party resource type definitions from an OCI Registry as a runtime dependency. To fetch the type definitions the following syntax can be used. For example `provider 'br:thirdpartyregistry.azurecr.io/bicep/providers/thirdparty@1.0.0' as thirdparty`.
-The provider definitions also support aliasing via `bicepconfig.json` similar to [`moduleAliases`](https://learn.microsoft.com/azure/azure-resource-manager/bicep/bicep-config-modules#aliases-for-modules). For example `provider 'br/public:thirdparty@1.0.0' as thirdparty`.
 
 ### `resourceDerivedTypes`
 If enabled, templates can reuse resource types wherever a type is expected. For example, to declare a parameter `foo` that should be usable as the name of an Azure Storage account, the following syntax would be used: `param foo resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name`. **NB:** Because resource types may be inaccurate in some cases, no constraints other than the ARM type primitive will be enforced on resource derived types within the ARM deployment engine. Resource-derived types will be checked by Bicep at compile time, but violations will be emitted as warnings rather than errors.
