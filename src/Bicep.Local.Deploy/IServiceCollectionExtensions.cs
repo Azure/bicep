@@ -4,6 +4,7 @@
 using System.Linq;
 using Azure.Deployments.Core.EventSources;
 using Azure.Deployments.Core.Exceptions;
+using Azure.Deployments.Core.FeatureEnablement;
 using Azure.Deployments.Engine;
 using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.Host.Azure;
@@ -40,6 +41,7 @@ public static class IServiceCollectionExtensions
 
         services.AddSingleton<IKeyVaultDataProvider, LocalKeyVaultDataProvider>();
         services.AddSingleton<IAzureDeploymentSettings, LocalDeploymentSettings>();
+        services.AddSingleton<IEnablementConfigProvider, LocalEnablementConfigProvider>();
         services.AddSingleton<IAzureDeploymentEngineHost, LocalDeploymentEngineHost>();
         services.AddSingleton<IPreflightEngineHost, PreflightEngineHost>();
         services.AddSingleton<IDeploymentDependency, DependencyProcessor>();
