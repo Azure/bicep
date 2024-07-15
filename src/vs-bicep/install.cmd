@@ -23,9 +23,11 @@ if errorlevel 2 goto end
 
 echo.
 echo Uninstalling current extension...
+taskkill /im:Bicep.LangServer.exe /f
+taskkill /im:devenv.exe /f
 call "%VSIXInstallerExe%" /shutdownprocesses /quiet /uninstall:ms-azuretools.visualstudio-bicep
 
 echo Installing extension...
-call "%VSIXInstallerExe%" /force /shutdownprocesses /quiet  "%BicepVsixPath%"
+call "%VSIXInstallerExe%" /shutdownprocesses /quiet /force "%BicepVsixPath%"
 
 :end
