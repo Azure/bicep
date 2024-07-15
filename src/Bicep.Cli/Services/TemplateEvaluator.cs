@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions.Schema;
@@ -79,22 +80,22 @@ namespace Bicep.Cli.Services
 
             var evaluationContext = TemplateEngine.GetExpressionEvaluationContext(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, null);
             var defaultEvaluateFunction = evaluationContext.EvaluateFunction;
-            evaluationContext.EvaluateFunction = (FunctionExpression functionExpression, FunctionArgument[] parameters, TemplateErrorAdditionalInfo additionalInfo) =>
+            evaluationContext.EvaluateFunction = (functionExpression, parameters, additionalInfo) =>
             {
                 if (functionExpression.Function.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix) && config.OnListFunc is not null)
                 {
-                    return config.OnListFunc(
-                        functionExpression.Function,
-                        parameters[0].Token.ToString(),
-                        parameters[1].Token.ToString(),
-                        parameters.Length > 2 ? parameters[2].Token : null);
+                    var resourceId = parameters[0].TryGetToken()?.Value<string>() ?? throw new UnreachableException();
+                    var apiVersion = parameters[1].TryGetToken()?.Value<string>() ?? throw new UnreachableException();
+                    var body = parameters.Length > 2 ? parameters[2].TryGetToken() : null;
+
+                    return config.OnListFunc(functionExpression.Function, resourceId, apiVersion, body);
                 }
 
                 if (functionExpression.Function.EqualsOrdinalInsensitively("reference"))
                 {
-                    var resourceId = parameters[0].Token.ToString();
-                    var apiVersion = parameters.Length > 1 ? parameters[1].Token.ToString() : null;
-                    var fullBody = parameters.Length > 2 && parameters[2].Token.ToString().EqualsOrdinalInsensitively("Full");
+                    var resourceId = parameters[0].TryGetToken()?.Value<string>() ?? throw new UnreachableException();
+                    var apiVersion = parameters.Length > 1 ? (parameters[1].TryGetToken()?.Value<string>() ?? throw new UnreachableException()) : null;
+                    var fullBody = parameters.Length > 2 && parameters[2].TryGetToken()?.Value<string>() is {} fullBodyParam && StringComparer.OrdinalIgnoreCase.Equals(fullBodyParam, "Full");
 
                     if (apiVersion is not null && config.OnReferenceFunc is not null)
                     {
@@ -177,7 +178,7 @@ namespace Bicep.Cli.Services
                     apiVersion: TemplateWriter.NestedDeploymentResourceApiVersion,
                     inputParameters: new(parameters),
                     metadata: metadata,
-                    diagnostics: TemplateDiagnosticsWriter.Create());
+                    metricsRecorder: new TemplateMetricsRecorder());
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
 

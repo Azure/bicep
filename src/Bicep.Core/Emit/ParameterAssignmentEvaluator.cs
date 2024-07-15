@@ -303,7 +303,7 @@ public class ParameterAssignmentEvaluator
         return helper.EvaluationContext;
     }
 
-    private JToken EvaluateTemplateFunction(FunctionExpression expression, FunctionArgument[] parameters, TemplateErrorAdditionalInfo additionalProperties)
+    private JToken EvaluateTemplateFunction(FunctionExpression expression, FunctionArgument[] parameters, TemplateErrorAdditionalInfo? additionalProperties)
     {
         JToken evaluateFunction(Template template, string originalFunctionName)
         {
