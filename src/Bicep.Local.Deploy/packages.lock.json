@@ -4,15 +4,15 @@
     "net8.0": {
       "Azure.Deployments.Engine": {
         "type": "Direct",
-        "requested": "[1.54.0, )",
-        "resolved": "1.54.0",
-        "contentHash": "8mx0e0JUq43Ax/5I1BEcvUsFmDIUdsRnrKIMG3+QOz11SMbI2nHAPQYFkIkWnxgaxpObaZvx6EcJXQmptEgehg==",
+        "requested": "[1.71.0, )",
+        "resolved": "1.71.0",
+        "contentHash": "gxEDA3IuHK9xp5IxpeTCWx5DezZsrbgaU/wndbiU6EpTjXblIH2tSHl510De/6hrGQSv4N1FsXQEgpruw+qWvg==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.54.0",
-          "Azure.Deployments.DiffEngine": "1.54.0",
-          "Azure.Deployments.Extensibility": "1.54.0",
+          "Azure.Deployments.Core": "1.71.0",
+          "Azure.Deployments.DiffEngine": "1.71.0",
+          "Azure.Deployments.Extensibility": "1.71.0",
           "Azure.Deployments.ResourceMetadata": "1.0.1265",
-          "Azure.Deployments.Templates": "1.54.0",
+          "Azure.Deployments.Templates": "1.71.0",
           "Microsoft.AspNet.WebApi.Client": "5.2.9",
           "Microsoft.Extensions.DependencyInjection": "8.0.0",
           "Newtonsoft.Json": "13.0.2",
@@ -140,8 +140,8 @@
       },
       "Azure.Deployments.DiffEngine": {
         "type": "Transitive",
-        "resolved": "1.54.0",
-        "contentHash": "Z+1Q/Vpy/LF0xKm3/0szoU/0AhZuNbnQOVMagtfejpRNteqnmeryLjdHG59AeKIpzgbHr3XxusfGz0jg4wjLdA=="
+        "resolved": "1.71.0",
+        "contentHash": "jDsggbs8zLujr7NbMdJKbqokLGe+snNRsc7ucfPuxrCIhaBT0gGJH0BEvc5OaMpit8fFIQIGQgWBYqrstzJYyw=="
       },
       "Azure.Deployments.Expression": {
         "type": "Transitive",
@@ -155,10 +155,10 @@
       },
       "Azure.Deployments.Extensibility": {
         "type": "Transitive",
-        "resolved": "1.54.0",
-        "contentHash": "CiMXvV8NVW/xQKMQVX7gmKj20GP/h1k+4nuCNyCoS5gek4WI9yk7pH0XHwmx1TVf2Ms1vtwc9bOYohq1kd27tg==",
+        "resolved": "1.71.0",
+        "contentHash": "GW/8WL2n0Ur6W6Ea9J5N/1/svG7Z6LiG5n4W/xLPH71XCHpMofnSTQ5DZu6rh0//ycKTL+PsTgzu0TL9ITBbXA==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.54.0",
+          "Azure.Deployments.Core": "1.71.0",
           "Newtonsoft.Json": "13.0.2"
         }
       },

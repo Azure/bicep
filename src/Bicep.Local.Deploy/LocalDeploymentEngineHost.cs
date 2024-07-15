@@ -39,8 +39,9 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         IKeyVaultDataProvider keyVaultDataProvider,
         IAzureDeploymentSettings settings,
         IDataProviderHolder dataProviderHolder,
-        ITemplateExceptionHandler exceptionHandler)
-        : base(settings, deploymentEventSource, keyVaultDataProvider, requestContext, dataProviderHolder, exceptionHandler)
+        ITemplateExceptionHandler exceptionHandler,
+        IEnablementConfigProvider enablementConfigProvider)
+        : base(settings, deploymentEventSource, keyVaultDataProvider, requestContext, dataProviderHolder, exceptionHandler, enablementConfigProvider)
     {
         this.extensibilityHandler = extensibilityHandler;
     }
