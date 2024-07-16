@@ -166,7 +166,7 @@ namespace Bicep.Core.Workspaces
             implicitProviders[file] = [];
 
             // process "implicit" providers (providers defined in bicepconfig.json)
-            foreach (var providerName in config.ImplicitProvidersConfig.GetImplicitProviderNames())
+            foreach (var providerName in config.ImplicitExtensions.GetImplicitProviderNames())
             {
                 var implicitProvider = GetImplicitProvider(providerName, file, config);
                 implicitProviders[file].Add(implicitProvider);
@@ -175,11 +175,16 @@ namespace Bicep.Core.Workspaces
             // process all artifact references - modules & providers
             foreach (var restorable in GetArtifactReferences(file.ProgramSyntax))
             {
+                if (restorable.Path is NoneLiteralSyntax)
+                {
+                    continue;
+                }
+
                 if (restorable is ProviderDeclarationSyntax providerDeclaration)
                 {
                     var isBuiltInProvider = providerDeclaration.SpecificationString switch
                     {
-                        IdentifierSyntax identifier => config.ProvidersConfig.IsSysOrBuiltIn(identifier.IdentifierName),
+                        IdentifierSyntax identifier => config.Extensions.IsSysOrBuiltIn(identifier.IdentifierName),
                         _ => false,
                     };
 
@@ -216,7 +221,7 @@ namespace Bicep.Core.Workspaces
 
         private ImplicitProvider GetImplicitProvider(string providerName, BicepSourceFile file, RootConfiguration config)
         {
-            if (!config.ProvidersConfig.TryGetProviderSource(providerName).IsSuccess(out var providerEntry, out var errorBuilder))
+            if (!config.Extensions.TryGetProviderSource(providerName).IsSuccess(out var providerEntry, out var errorBuilder))
             {
                 return new(providerName, null, new(file, null, null, new(errorBuilder), RequiresRestore: false));
             }

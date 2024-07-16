@@ -1,8 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
+using System.Diagnostics;
+using Bicep.Cli.UnitTests;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Mock;
@@ -11,14 +15,10 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Bicep.Core.Registry.PublicRegistry;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using Bicep.Cli.UnitTests;
 using FileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Cli.IntegrationTests;

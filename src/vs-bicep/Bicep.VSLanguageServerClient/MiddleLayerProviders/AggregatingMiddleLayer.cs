@@ -13,6 +13,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
     /// Composite middle layer that aggregates all instances of <see cref="ILanguageClientMiddleLayer"/>
     /// and delegates the interception to appropriate middle layer.
     /// </summary>
+    [Obsolete] // TODO: Fix obsolete errors properly
     public class AggregatingMiddleLayer : ILanguageClientMiddleLayer
     {
         private readonly ILanguageClientMiddleLayer[] languageClientMiddleLayers;

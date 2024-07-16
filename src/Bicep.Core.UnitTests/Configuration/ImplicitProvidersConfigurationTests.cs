@@ -18,11 +18,11 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             var json = $$"""
             {
-                "implicitProviders": [{{string.Join(", ", providers.Select(p => $"\"{p}\""))}}]
+                "implicitExtensions": [{{string.Join(", ", providers.Select(p => $"\"{p}\""))}}]
             }
             """;
             var element = JsonElementFactory.CreateElement(json);
-            var configuration = ImplicitProvidersConfiguration.Bind(element.GetProperty(RootConfiguration.ImplicitProvidersConfigurationKey));
+            var configuration = ImplicitProvidersConfiguration.Bind(element.GetProperty(RootConfiguration.ImplicitExtensionsKey));
 
             Assert.AreEqual(expectedCount, configuration.GetImplicitProviderNames().Count());
         }
