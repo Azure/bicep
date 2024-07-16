@@ -24,7 +24,7 @@ namespace Bicep.LanguageServer
     public class Server : IDisposable
     {
         private readonly OmnisharpLanguageServer server;
-        public Server(IBicepLangServerOptions bicepLangServerOptions, Action<LanguageServerOptions> onOptionsFunc)
+        public Server(BicepLangServerOptions bicepLangServerOptions, Action<LanguageServerOptions> onOptionsFunc)
         {
             server = OmnisharpLanguageServer.PreInit(options =>
             {

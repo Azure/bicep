@@ -40,7 +40,7 @@ namespace Bicep.LangServer.IntegrationTests
             var serverPipe = new Pipe();
 
             var server = new Server(
-                new BicepLangServerOptions(),
+                BicepLangServerOptions.Default,
                 options => options
                     .WithInput(serverPipe.Reader)
                     .WithOutput(clientPipe.Writer)

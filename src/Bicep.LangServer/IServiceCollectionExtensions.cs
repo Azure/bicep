@@ -56,7 +56,7 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection AddServerDependencies(
         this IServiceCollection services,
-        IBicepLangServerOptions bicepLangServerOptions
+        BicepLangServerOptions bicepLangServerOptions
     ) => services
         .AddBicepCore()
         .AddBicepDecompiler()

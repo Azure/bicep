@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Options;
 
-public class BicepLangServerOptions : IBicepLangServerOptions
+public record BicepLangServerOptions(bool VsCompatibilityMode = false)
 {
-    public bool VsCompatibilityMode { get; set; }
+    public static BicepLangServerOptions Default = new();
 }

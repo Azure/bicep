@@ -9,7 +9,7 @@ using Bicep.LanguageServer.Options;
 
 namespace Bicep.LanguageServer.Utils
 {
-    public class DocumentSelectorFactory(IBicepLangServerOptions? langServerOptions)
+    public class DocumentSelectorFactory(BicepLangServerOptions langServerOptions)
     {
         private static string Glob(params string[] extensions)
         {
