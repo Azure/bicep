@@ -72,16 +72,6 @@
         "resolved": "3.6.139",
         "contentHash": "rq0Ub/Jik7PtMtZtLn0tHuJ01Yt36RQ+eeBe+S7qnJ/EFOX6D4T9zuYD3vQPYKGI6Ro4t2iWgFm3fGDgjBrMfg=="
       },
-      "TestableIO.System.IO.Abstractions.TestingHelpers": {
-        "type": "Direct",
-        "requested": "[21.0.2, )",
-        "resolved": "21.0.2",
-        "contentHash": "4s6EC7rGSlNPqC9/FOmYavFTjetO7zDBnc0H8Hyb8ABJll2UgeC7UvdNLwx28/hhUE8AvUJmwamjAII6LJWIQA==",
-        "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.0.2",
-          "TestableIO.System.IO.Abstractions.Wrappers": "21.0.2"
-        }
-      },
       "Azure.Bicep.Types": {
         "type": "Transitive",
         "resolved": "0.5.9",
@@ -1606,15 +1596,24 @@
       },
       "TestableIO.System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "21.0.22",
-        "contentHash": "yq3I8rUjNoo4JTOT3jbGfTM5VfowaSYiooDO2bfvQe6XGVyZiSIzaKyCmSnuUEyuktw6zzuVE1lJnUeDhJWtyQ=="
+        "resolved": "21.0.26",
+        "contentHash": "6XwIymB/HIHdu4UAWcW+kP1Q4untd4T01leOfPYObKzwoqKOfXTw6GneBpQZ5TLAq9TUc2yS4j6asK2e2NNXog=="
+      },
+      "TestableIO.System.IO.Abstractions.TestingHelpers": {
+        "type": "Transitive",
+        "resolved": "21.0.26",
+        "contentHash": "nD1TOb7ckeX9zTQHUIfErWMTBSR3VtTLdNBViIokc1Yshiw9doW1IjXJaZq/5q/Lp1DVKBvnrYd2iGphwNovyA==",
+        "dependencies": {
+          "TestableIO.System.IO.Abstractions": "21.0.26",
+          "TestableIO.System.IO.Abstractions.Wrappers": "21.0.26"
+        }
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
-        "resolved": "21.0.22",
-        "contentHash": "ETpw1B6VOsQ5zbfqxqLKjITnMvB9M0K5/bK8qJc6jih+tnlKQmtnnOPSS+OeKCqsZDYeHxPNp4ytQPJS3R+WXA==",
+        "resolved": "21.0.26",
+        "contentHash": "lvrJF2Oz/4vp5rVIndW9RC/cxGfErnE+Bt/jVNFu7/po+7n8UNZDjgUGrbRGtQfW6zkaUPx/WTONT1Tf9iacdQ==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.0.22"
+          "TestableIO.System.IO.Abstractions": "21.0.26"
         }
       },
       "Azure.Bicep.Core": {
