@@ -54,7 +54,10 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepDecompiler>();
 
-    public static IServiceCollection AddServerDependencies(this IServiceCollection services) => services
+    public static IServiceCollection AddServerDependencies(
+        this IServiceCollection services,
+        IBicepLangServerOptions bicepLangServerOptions
+    ) => services
         .AddBicepCore()
         .AddBicepDecompiler()
         .AddSingleton<IWorkspace, Workspace>()
@@ -77,6 +80,6 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IDeploymentHelper, DeploymentHelper>()
         .AddSingleton<ISettingsProvider, SettingsProvider>()
         .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
-        .AddSingleton<IBicepLangServerOptions, BicepLangServerOptions>()
+        .AddSingleton(bicepLangServerOptions)
         .AddSingleton<DocumentSelectorFactory>();
 }

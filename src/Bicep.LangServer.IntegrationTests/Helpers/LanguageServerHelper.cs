@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.IO.Pipelines;
+using System.Security.Cryptography.Xml;
 using Bicep.Core.Tracing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -39,6 +41,7 @@ namespace Bicep.LangServer.IntegrationTests
             var serverPipe = new Pipe();
 
             var server = new Server(
+                new BicepLangServerOptions(),
                 options => options
                     .WithInput(serverPipe.Reader)
                     .WithOutput(clientPipe.Writer)

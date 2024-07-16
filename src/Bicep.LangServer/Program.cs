@@ -66,6 +66,9 @@ namespace Bicep.LanguageServer
             }
 
             Server server;
+
+            var bicepLangServerOptions = new BicepLangServerOptions() { VsCompatibilityMode = options.VsCompatibilityMode };
+
             if (options.Pipe is { } pipeName)
             {
                 if (pipeName.StartsWith(@"\\.\pipe\"))
@@ -79,6 +82,7 @@ namespace Bicep.LanguageServer
                 await clientPipe.ConnectAsync(cancellationToken);
 
                 server = new(
+                    bicepLangServerOptions,
                     options => options
                         .WithInput(clientPipe)
                         .WithOutput(clientPipe)
@@ -92,6 +96,7 @@ namespace Bicep.LanguageServer
                 var tcpStream = tcpClient.GetStream();
 
                 server = new(
+                    bicepLangServerOptions,
                     options => options
                         .WithInput(tcpStream)
                         .WithOutput(tcpStream)
@@ -100,12 +105,11 @@ namespace Bicep.LanguageServer
             else
             {
                 server = new(
+                    bicepLangServerOptions,
                     options => options
                         .WithInput(Console.OpenStandardInput())
                         .WithOutput(Console.OpenStandardOutput()));
             }
-
-            server.GetRequiredService<IBicepLangServerOptions>().VsCompatibilityMode = options.VsCompatibilityMode;
 
             await server.RunAsync(cancellationToken);
         }
