@@ -42,14 +42,14 @@
     <PackageReference Include="Azure.Deployments.Templates" Version="1.34.0" />
     <PackageReference Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2007" />
     <PackageReference Include="Azure.Bicep.Types" Version="0.5.9" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.692" />
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.698" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.626" />
-    <PackageReference Include="System.IO.Abstractions" Version="21.0.2" />
+    <PackageReference Include="System.IO.Abstractions" Version="21.0.22" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.38" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />    
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">

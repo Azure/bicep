@@ -155,7 +155,7 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--insertfinalnewline":
-                       io.WriteParameterDeprecationWarning("--insertFinalNewline", "--insert-final-newline");
+                        io.WriteParameterDeprecationWarning("--insertFinalNewline", "--insert-final-newline");
 
                         if (InsertFinalNewline is not null)
                         {
