@@ -93,9 +93,9 @@
       },
       "Newtonsoft.Json.Schema": {
         "type": "Direct",
-        "requested": "[3.0.16, )",
-        "resolved": "3.0.16",
-        "contentHash": "WhxJY3VdIdtWv4OelY87fFYai3ztqzpVAODXcVo5VlczWjsHqJx/PHAruvrfCJrkCT/RNXj0NYmnUiJt3WcD3A==",
+        "requested": "[4.0.1, )",
+        "resolved": "4.0.1",
+        "contentHash": "rbHUKp5WTIbqmLEeJ21nTTDGcfR0LA7bVMzm0bYc3yx6NFKiCIHzzvYbwA4Sqgs7+wNldc5nBlkbithWj8IZig==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.3"
         }

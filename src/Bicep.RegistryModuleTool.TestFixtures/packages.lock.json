@@ -907,8 +907,8 @@
       },
       "Newtonsoft.Json.Schema": {
         "type": "Transitive",
-        "resolved": "3.0.16",
-        "contentHash": "WhxJY3VdIdtWv4OelY87fFYai3ztqzpVAODXcVo5VlczWjsHqJx/PHAruvrfCJrkCT/RNXj0NYmnUiJt3WcD3A==",
+        "resolved": "4.0.1",
+        "contentHash": "rbHUKp5WTIbqmLEeJ21nTTDGcfR0LA7bVMzm0bYc3yx6NFKiCIHzzvYbwA4Sqgs7+wNldc5nBlkbithWj8IZig==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.3"
         }
@@ -1760,7 +1760,7 @@
           "MSTest.TestFramework": "[3.3.1, )",
           "Microsoft.NET.Test.Sdk": "[17.10.0, )",
           "Moq": "[4.20.70, )",
-          "Newtonsoft.Json.Schema": "[3.0.16, )",
+          "Newtonsoft.Json.Schema": "[4.0.1, )",
           "RichardSzalay.MockHttp": "[7.0.0, )",
           "System.IO.Abstractions.TestingHelpers": "[21.0.26, )"
         }
