@@ -9,7 +9,7 @@ namespace Bicep.Core.Syntax
     {
         public ProviderWithClauseSyntax(Token keyword, SyntaxBase config)
         {
-            AssertTokenType(keyword, nameof(keyword), TokenType.WithKeyword);
+            AssertKeyword(keyword, nameof(keyword), LanguageConstants.WithKeyword);
             AssertSyntaxType(config, nameof(config), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
 
             this.Keyword = keyword;

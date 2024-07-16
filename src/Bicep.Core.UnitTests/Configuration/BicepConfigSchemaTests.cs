@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             public IEnumerable<object[]> GetData(MethodInfo methodInfo)
             {
-                var analyzer = new LinterAnalyzer();
+                var analyzer = new LinterAnalyzer(BicepTestConstants.EmptyServiceProvider);
                 var ruleSet = analyzer.GetRuleSet().ToArray();
 
                 return AllRulesAndSchemasById.Values.Select(value => new object[] { value.Rule.Code, value.Rule, value.Schema });
@@ -51,7 +51,6 @@ namespace Bicep.Core.UnitTests.Configuration
 
         // TODO: Remove these when they're fixed
         private readonly string[] GrandfatheredFeaturesNeedingHelpOrDescription = [
-            "providerRegistry",
         ];
 
         private static string GetBicepConfigSchemaContents()
@@ -72,7 +71,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             get
             {
-                var linter = new LinterAnalyzer();
+                var linter = new LinterAnalyzer(BicepTestConstants.EmptyServiceProvider);
                 var ruleSet = linter.GetRuleSet();
                 ruleSet.Should().NotBeEmpty();
 
@@ -420,7 +419,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             var bicepConfigJson = JObject.Parse("""
             {
-                "providers": {
+                "extensions": {
                     "sys": "example.azurecr.io/some/fake/path:1.0.0"
                 }
             }
@@ -428,7 +427,7 @@ namespace Bicep.Core.UnitTests.Configuration
 
             bool isValid = bicepConfigJson.IsValid(BicepConfigSchemaAsJSchema, out IList<ValidationError> errors);
             errors.Should().HaveCount(1);
-            errors.Single().Path.Should().Be("providers.sys");
+            errors.Single().Path.Should().Be("extensions.sys");
             isValid.Should().BeFalse();
         }
 

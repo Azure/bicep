@@ -32,7 +32,7 @@ public class JsonRpcCommandTests : TestBase
             {
                 var result = await Bicep(registerAction, cts.Token, "jsonrpc", "--pipe", pipeName);
                 result.ExitCode.Should().Be(0);
-                result.Stderr.Should().EqualIgnoringNewlines("The 'jsonrpc' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.\n");
+                result.Stderr.Should().Be("");
                 result.Stdout.Should().Be("");
             }),
             Task.Run(async () =>

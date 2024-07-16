@@ -304,10 +304,11 @@ namespace Bicep.Core.Parsing
             throw new ExpectedTokenException(this.reader.Peek(), errorFunc);
         }
 
-        protected Token ExpectKeyword(string expectedKeyword)
+        protected Token ExpectKeyword(string expectedKeyword, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc = null)
         {
+            errorFunc ??= b => b.ExpectedKeyword(expectedKeyword);
             return GetOptionalKeyword(expectedKeyword) ??
-                throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
+                throw new ExpectedTokenException(this.reader.Peek(), errorFunc);
         }
 
         private SyntaxBase ForBody(ExpressionFlags expressionFlags, bool isResourceOrModuleContext)
@@ -1712,13 +1713,13 @@ namespace Bicep.Core.Parsing
             return new ImportedSymbolsListItemSyntax(originalSymbolName, aliasAsClause);
         }
 
-        private AliasAsClauseSyntax? ImportedSymbolsListItemAsClause() => Check(reader.Peek(), TokenType.AsKeyword)
-            ? new(Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword)),
+        private AliasAsClauseSyntax? ImportedSymbolsListItemAsClause() => CheckKeyword(reader.Peek(), LanguageConstants.AsKeyword)
+            ? new(ExpectKeyword(LanguageConstants.AsKeyword),
                 IdentifierWithRecovery(b => b.ExpectedTypeIdentifier(), RecoveryFlags.None, TokenType.Comma, TokenType.NewLine))
             : null;
 
         private WildcardImportSyntax WildcardImport() => new(Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*")),
-            new AliasAsClauseSyntax(Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword)),
+            new AliasAsClauseSyntax(ExpectKeyword(LanguageConstants.AsKeyword),
                 Identifier(b => b.ExpectedNamespaceIdentifier())));
 
         private CompileTimeImportFromClauseSyntax CompileTimeImportFromClause()

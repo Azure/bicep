@@ -12,7 +12,7 @@ import * as foo from 'foo.bicep'
 //@[07:15) | ├─WildcardImportSyntax
 //@[07:08) | | ├─Token(Asterisk) |*|
 //@[09:15) | | └─AliasAsClauseSyntax
-//@[09:11) | |   ├─Token(AsKeyword) |as|
+//@[09:11) | |   ├─Token(Identifier) |as|
 //@[12:15) | |   └─IdentifierSyntax
 //@[12:15) | |     └─Token(Identifier) |foo|
 //@[16:32) | └─CompileTimeImportFromClauseSyntax

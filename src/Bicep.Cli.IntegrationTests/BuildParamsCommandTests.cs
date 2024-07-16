@@ -29,7 +29,7 @@ namespace Bicep.Cli.IntegrationTests
     public class BuildParamsCommandTests : TestBase
     {
         private InvocationSettings Settings
-            => CreateDefaultSettings() with
+            => new()
             {
                 Environment = TestEnvironment.Create(
                     ("stringEnvVariableName", "test"),
@@ -363,13 +363,50 @@ output foo string = foo
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
 
             var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
-            result.Should().Succeed().And.NotHaveStderr();
+            result.Should().Succeed();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
             // Force consistency for escaped newlines.
             parametersStdout = parametersStdout with { templateJson = parametersStdout?.templateJson?.ReplaceLineEndings("\n") };
             outputFile.WriteJsonToOutputFolder(parametersStdout);
             outputFile.ShouldHaveExpectedJsonValue();
+        }
+
+        [TestMethod]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Build_params_to_stdout_with_experimentalfeaturenotenabled_should_fail()
+        {
+            var clients = await MockRegistry.Build();
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
+
+            var mainBicepParamPath = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using 'br:mockregistry.io/parameters/basic:v1'
+                extends 'shared.bicepparam'
+                param intParam = 123
+                param boolParam = false
+                param arrayParam = []
+                param objectParam = {}
+                """);
+
+            var sharedBicepParamPath = FileHelper.SaveResultFile(
+                TestContext,
+                "shared.bicepparam", """
+                using none
+                param stringParam = 'foo'
+                """,
+                Path.GetDirectoryName(mainBicepParamPath));
+
+            var bicepConfigPath = FileHelper.SaveResultFile(
+                TestContext,
+                "bicepconfig.json", "{}",
+                Path.GetDirectoryName(mainBicepParamPath));
+
+            var result = await Bicep(settings, "build-params", mainBicepParamPath, "--stdout");
+
+            result.Should().Fail().And.HaveStderrMatch($"*Error BCP406: The \"extends\" keyword is not supported*");
         }
 
         [TestMethod]

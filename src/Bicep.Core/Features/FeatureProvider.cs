@@ -20,6 +20,8 @@ namespace Bicep.Core.Features
 
         public bool ExtensibilityEnabled => this.configuration.ExperimentalFeaturesEnabled.Extensibility;
 
+        public bool ExtendableParamFilesEnabled => this.configuration.ExperimentalFeaturesEnabled.ExtendableParamFiles;
+
         public bool ResourceTypedParamsAndOutputsEnabled => this.configuration.ExperimentalFeaturesEnabled.ResourceTypedParamsAndOutputs;
 
         public string AssemblyVersion => ThisAssembly.AssemblyFileVersion;
@@ -38,7 +40,7 @@ namespace Bicep.Core.Features
 
         public bool DynamicTypeLoadingEnabled => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoading;
 
-        public bool ProviderRegistryEnabled => configuration.ExperimentalFeaturesEnabled.ProviderRegistry;
+        public bool ExtensionRegistryEnabled => configuration.ExperimentalFeaturesEnabled.ExtensionRegistry;
 
         public bool OptionalModuleNamesEnabled => configuration.ExperimentalFeaturesEnabled.OptionalModuleNames;
 

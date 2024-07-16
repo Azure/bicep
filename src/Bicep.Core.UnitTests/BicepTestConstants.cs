@@ -13,6 +13,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
@@ -54,7 +55,7 @@ namespace Bicep.Core.UnitTests
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
         // Linter rules added to this list will be automatically disabled for most tests.
-        public static readonly string[] NonStableAnalyzerRules = [UseRecentApiVersionRule.Code];
+        public static readonly string[] NonStableAnalyzerRules = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code];
 
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
         public static readonly RootConfiguration BuiltInConfigurationWithStableAnalyzers = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzers().WithAnalyzersDisabled(NonStableAnalyzerRules);
@@ -67,9 +68,11 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
-        public static readonly IArtifactRegistryProvider RegistryProvider = new DefaultArtifactRegistryProvider(EmptyServiceProvider, FileResolver, FileSystem, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
+        public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services) =>
+            new DefaultArtifactRegistryProvider(services, FileResolver, FileSystem, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
 
-        public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
+        public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) =>
+            new ModuleDispatcher(CreateRegistryProvider(services), IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
 
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
             new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile), null),
@@ -77,7 +80,7 @@ namespace Bicep.Core.UnitTests
         ]);
 
         // By default turns off only problematic analyzers
-        public static readonly LinterAnalyzer LinterAnalyzer = new();
+        public static readonly LinterAnalyzer LinterAnalyzer = new(EmptyServiceProvider);
 
         public static IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
 
@@ -92,9 +95,9 @@ namespace Bicep.Core.UnitTests
                 ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid",
                 ["cloud.credentialPrecedence"] = new[] { "AzureCLI", "AzurePowerShell" },
                 ["moduleAliases"] = new Dictionary<string, object>(),
-                ["providerAliases"] = new Dictionary<string, object>(),
-                ["providers"] = new Dictionary<string, object>(),
-                ["implicitProviders"] = new[] { "az" },
+                ["extensionAliases"] = new Dictionary<string, object>(),
+                ["extensions"] = new Dictionary<string, object>(),
+                ["implicitExtensions"] = new[] { "az" },
                 ["analyzers"] = new Dictionary<string, object>(),
                 ["experimentalFeaturesEnabled"] = new Dictionary<string, bool>(),
                 ["formatting"] = new Dictionary<string, bool>(),
@@ -162,6 +165,6 @@ namespace Bicep.Core.UnitTests
         }
         """);
 
-        public static string BuiltinAzProviderVersion = AzNamespaceType.Settings.ArmTemplateProviderVersion;
+        public static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.ArmTemplateProviderVersion;
     }
 }

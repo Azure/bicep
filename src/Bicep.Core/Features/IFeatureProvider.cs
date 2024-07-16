@@ -19,7 +19,7 @@ public interface IFeatureProvider
 
     bool DynamicTypeLoadingEnabled { get; }
 
-    bool ProviderRegistryEnabled { get; }
+    bool ExtensionRegistryEnabled { get; }
 
     bool LegacyFormatterEnabled { get; }
 
@@ -27,12 +27,13 @@ public interface IFeatureProvider
 
     bool AssertsEnabled { get; }
 
-
     bool OptionalModuleNamesEnabled { get; }
 
     bool LocalDeployEnabled { get; }
 
     bool ResourceDerivedTypesEnabled { get; }
+
+    bool ExtendableParamFilesEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
@@ -47,12 +48,13 @@ public interface IFeatureProvider
                 (ResourceTypedParamsAndOutputsEnabled, CoreResources.ExperimentalFeatureNames_ResourceTypedParamsAndOutputs, true, false),
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),
                 (DynamicTypeLoadingEnabled, CoreResources.ExperimentalFeatureNames_DynamicTypeLoading, true, false),
-                (ProviderRegistryEnabled, CoreResources.ExperimentalFeatureNames_ProviderRegistry, true, false),
+                (ExtensionRegistryEnabled, CoreResources.ExperimentalFeatureNames_ExtensionRegistry, true, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
                 (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),
                 (LocalDeployEnabled, "Enable local deploy", false, false),
                 (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
+                (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
             })
             {
                 if (enabled)

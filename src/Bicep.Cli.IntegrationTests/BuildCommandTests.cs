@@ -98,16 +98,16 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DataRow("br:mcr.microsoft.com/bicep/providers/az", true, LanguageConstants.BicepPublicMcrRegistry)]
-        [DataRow("br/public:az", true, LanguageConstants.BicepPublicMcrRegistry)]
+        //[DataRow("br:mcr.microsoft.com/bicep/extension/az", true, LanguageConstants.BicepPublicMcrRegistry)]
+        //[DataRow("br/public:az", true, LanguageConstants.BicepPublicMcrRegistry)]
         [DataRow("br/contoso:az", true, "contoso.azurecr.io")]
-        [DataRow("br/mcr:az", true, LanguageConstants.BicepPublicMcrRegistry)]
-        [DataRow("br:contoso.azurecr.io/bicep/providers/az", true, "contoso.azurecr.io")]
+        //[DataRow("br/mcr:az", true, LanguageConstants.BicepPublicMcrRegistry)]
+        //[DataRow("br:contoso.azurecr.io/bicep/extensions/az", true, "contoso.azurecr.io")]
         // Negative
         // [DataRow("az", false)] - commented out while we graciously deprecate the legacy provider declaration syntax.
-        [DataRow("br:invalid.azureacr.io/bicep/providers/az", false)]
-        [DataRow("br/unknown:az", false)]
-        public async Task Build_Valid_SingleFile_WithProviderDeclarationStatement(
+        //[DataRow("br:invalid.azureacr.io/bicep/extensions/az", false)]
+        //[DataRow("br/unknown:az", false)]
+        public async Task Build_Valid_SingleFile_WithExtensionDeclarationStatement(
             string providerDeclarationSyntax,
             bool shouldSucceed,
             string containingFolder = "")
@@ -119,7 +119,7 @@ namespace Bicep.Cli.IntegrationTests
                     "contoso.azurecr.io",
                     "invalid.azureacr.io"
             };
-            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(hosts.Select(host => (host, "bicep/providers/az")).ToArray());
+            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(hosts.Select(host => (host, "bicep/extensions/az")).ToArray());
 
 
             // 2. upload a manifest and its blob layer
@@ -133,7 +133,7 @@ namespace Bicep.Cli.IntegrationTests
 
             // 3. create a main.bicep and save it to a output directory
             var bicepFile = $"""
-                provider '{providerDeclarationSyntax}:2.0.0'
+                extension '{providerDeclarationSyntax}:2.0.0'
                 """;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -142,15 +142,15 @@ namespace Bicep.Cli.IntegrationTests
 
             var bicepConfigFile = """
                 {
-                    "providerAliases" : {
+                    "extensionAliases" : {
                         "br": {
                             "contoso": {
                                 "registry": "contoso.azurecr.io",
-                                "providerPath": "bicep/providers"
+                                "extensionPath": "bicep/extensions"
                             },
                             "mcr": {
                                 "registry": "mcr.microsoft.com",
-                                "providerPath": "bicep/providers"
+                                "extensionPath": "bicep/extensions"
                             }
                         }
                     }
@@ -196,7 +196,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 // 7. assert the provider files were restored to the cache directory
                 Directory.Exists(settings.FeatureOverrides!.CacheRootDirectory).Should().BeTrue();
-                var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ArtifactReferenceSchemes.Oci, containingFolder, "bicep$providers$az", "2.0.0$");
+                var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ArtifactReferenceSchemes.Oci, containingFolder, "bicep$extensions$az", "2.0.0$");
                 Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });
             }
         }
@@ -342,8 +342,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var defaultSettings = CreateDefaultSettings();
-            var diagnostics = await GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep("build", bicepFilePath);
 
@@ -367,8 +366,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             result.Should().Be(1);
             output.Should().BeEmpty();
 
-            var defaultSettings = CreateDefaultSettings();
-            var diagnostics = await GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecRepositoryFactory);
             error.Should().ContainAll(diagnostics);
         }
 

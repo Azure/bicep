@@ -5738,7 +5738,7 @@ param foo2 string[]
                 .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
                 .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
             ("main.bicep", """
-                provider kubernetes with {
+                extension kubernetes with {
                   kubeConfig: 'config'
                   namespace: ''
                 } as k8s

@@ -39,11 +39,11 @@ namespace Bicep.Core.IntegrationTests
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzProvider())
+                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzExtension())
                 .WithMockFileSystem(fileSystem)
                 .WithAzResourceTypeLoader(azTypeLoaderLazy.Value);
 
-            await RegistryHelper.PublishAzProvider(services.Build(), "/types/index.json");
+            await RegistryHelper.PublishAzExtension(services.Build(), "/types/index.json");
 
             return services;
         }
@@ -53,10 +53,10 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = new ServiceBuilder();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider az
+            extension az
             """);
             result.Should().HaveDiagnostics(new[] {
-                ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
+                ("BCP203", DiagnosticLevel.Error, "Using extension declaration requires enabling EXPERIMENTAL feature \"Extensibility\"."),
             });
         }
 
@@ -65,13 +65,13 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-provider
+extension
 ");
             result.Should().HaveDiagnostics([
                 ("BCP201", DiagnosticLevel.Error, """
-                Expected a provider specification string with a valid format at this location. Valid formats:
-                * "br:<providerRegistryHost>/<providerRepositoryPath>:<providerVersion>"
-                * "br/<providerAlias>:<providerName>:<providerVersion>"
+                Expected an extension specification string with a valid format at this location. Valid formats:
+                * "br:<extensionRegistryHost>/<extensionRepositoryPath>:<extensionVersion>"
+                * "br/<extensionAlias>:<extensionName>:<extensionVersion>"
                 """)
             ]);
         }
@@ -81,7 +81,7 @@ provider
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider sys blahblah
+            extension sys blahblah
             """);
             result.Should().HaveDiagnostics(new[] {
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
@@ -93,7 +93,7 @@ provider
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider kubernetes with
+            extension kubernetes with
             """);
             result.Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
@@ -105,13 +105,13 @@ provider
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider kubernetes with {
+            extension kubernetes with {
                 kubeConfig: 'foo'
                 namespace: 'bar'
             } something
             """);
             result.Should().HaveDiagnostics(new[] {
-                ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
+                ("BCP305", DiagnosticLevel.Error, """Expected the "with" keyword, "as" keyword, or a new line character at this location."""),
             });
         }
 
@@ -120,13 +120,13 @@ provider
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider kubernetes with {
+            extension kubernetes with {
                 kubeConfig: 'foo'
                 namespace: 'bar'
             } as
             """);
             result.Should().HaveDiagnostics(new[] {
-                ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
+                ("BCP202", DiagnosticLevel.Error, "Expected an extension alias name at this location."),
             });
         }
 
@@ -135,10 +135,10 @@ provider
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider sys as
+            extension sys as
             """);
             result.Should().HaveDiagnostics(new[] {
-                ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
+                ("BCP202", DiagnosticLevel.Error, "Expected an extension alias name at this location."),
             });
         }
 
@@ -146,12 +146,12 @@ provider
         public async Task Import_configuration_is_blocked_by_default()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider az with {
+            extension az with {
               foo: 'bar'
             }
             """);
             result.Should().HaveDiagnostics(new[] {
-                ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
+                ("BCP205", DiagnosticLevel.Error, "Extension \"az\" does not support configuration."),
             });
         }
 
@@ -159,10 +159,10 @@ provider
         public async Task Imports_return_error_with_unrecognized_namespace()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"
-provider madeUpNamespace
+extension madeUpNamespace
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP204", DiagnosticLevel.Error, "Provider namespace \"madeUpNamespace\" is not recognized."),
+                ("BCP204", DiagnosticLevel.Error, "Extension \"madeUpNamespace\" is not recognized."),
             });
         }
 
@@ -170,7 +170,7 @@ provider madeUpNamespace
         public async Task Using_import_statements_frees_up_the_namespace_symbol()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider az as newAz
+            extension az as newAz
 
             var az = 'Fake AZ!'
             var myRg = newAz.resourceGroup()
@@ -186,8 +186,8 @@ provider madeUpNamespace
         public async Task You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider az as sys
-            provider sys as az
+            extension az as sys
+            extension sys as az
 
             var myRg = sys.resourceGroup()
 
@@ -204,7 +204,7 @@ provider madeUpNamespace
         public async Task Overwriting_single_built_in_namespace_with_import_is_prohibited()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider az as sys
+            extension az as sys
 
             var myRg = sys.resourceGroup()
 
@@ -218,11 +218,11 @@ provider madeUpNamespace
         public async Task Singleton_imports_cannot_be_used_multiple_times()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider az as az1
-            provider az as az2
+            extension az as az1
+            extension az as az2
 
-            provider sys as sys1
-            provider sys as sys2
+            extension sys as sys1
+            extension sys as sys2
             """);
 
             result.Should().HaveDiagnostics(new[] {
@@ -237,8 +237,8 @@ provider madeUpNamespace
         public async Task Import_names_must_not_conflict_with_other_symbols()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider az
-            provider kubernetes with {
+            extension az
+            extension kubernetes with {
             kubeConfig: ''
             namespace: ''
             } as az
@@ -296,7 +296,7 @@ provider madeUpNamespace
 
             var services = (await GetServices())
                 .WithNamespaceProvider(nsProvider)
-                .WithConfigurationPatch(c => c.WithProvidersConfiguration("""
+                .WithConfigurationPatch(c => c.WithExtensions("""
                 {
                   "az": "builtin:",
                   "ns1": "builtin:",
@@ -305,8 +305,8 @@ provider madeUpNamespace
                 """));
 
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider ns1
-            provider ns2
+            extension ns1
+            extension ns2
 
             output ambiguousResult string = dupeFunc()
             output ns1Result string = ns1Func()
@@ -319,8 +319,8 @@ provider madeUpNamespace
 
             // fix by fully-qualifying
             result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider ns1
-            provider ns2
+            extension ns1
+            extension ns2
 
             output ambiguousResult string = ns1.dupeFunc()
             output ns1Result string = ns1Func()
@@ -362,7 +362,7 @@ provider madeUpNamespace
 
             var services = (await GetServices())
                 .WithNamespaceProvider(nsProvider)
-                .WithConfigurationPatch(c => c.WithProvidersConfiguration("""
+                .WithConfigurationPatch(c => c.WithExtensions("""
                 {
                   "az": "builtin:",
                   "mockNs": "builtin:"
@@ -370,10 +370,10 @@ provider madeUpNamespace
                 """));
 
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider mockNs with {
+            extension mockNs with {
               optionalConfig: 'blah blah'
             } as ns1
-            provider mockNs
+            extension mockNs
             """);
 
             result.Should().NotHaveAnyDiagnostics();
@@ -382,7 +382,7 @@ provider madeUpNamespace
         [TestMethod]
         public async Task MicrosoftGraph_imports_succeed_default()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"provider microsoftGraph as graph");
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"extension microsoftGraph as graph");
 
             result.Should().NotHaveAnyDiagnostics();
         }

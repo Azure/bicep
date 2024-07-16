@@ -1,4 +1,4 @@
-provider '../../temp/local-deploy/provider.tgz'
+extension '../../temp/local-deploy/provider.tgz'
 
 param payload string
 

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.ResourceManager.Resources.Models;
 using Bicep.Core.Analyzers.Linter;
 
 namespace Bicep.Core.Configuration
@@ -24,9 +25,12 @@ namespace Bicep.Core.Configuration
         public static AnalyzersConfiguration WithAllAnalyzers(this AnalyzersConfiguration analyzersConfiguration)
         {
             var config = analyzersConfiguration;
-            foreach (string code in new LinterAnalyzer().GetRuleSet().Where(r => r.DefaultDiagnosticLevel == Diagnostics.DiagnosticLevel.Off).Select(r => r.Code))
+            foreach (var (code, ruleInfo) in new LinterRulesProvider().GetLinterRules())
             {
-                config = config.SetValue($"core.rules.{code}.level", "warning");
+                if (ruleInfo.defaultDiagnosticLevel == Diagnostics.DiagnosticLevel.Off)
+                {
+                    config = config.SetValue($"core.rules.{code}.level", "warning");
+                }
             }
 
             return config;
@@ -36,9 +40,9 @@ namespace Bicep.Core.Configuration
             new(
                 current.Cloud,
                 current.ModuleAliases,
-                current.ProviderAliases,
-                current.ProvidersConfig,
-                current.ImplicitProvidersConfig,
+                current.ExtensionAliases,
+                current.Extensions,
+                current.ImplicitExtensions,
                 analyzersConfiguration,
                 current.CacheRootDirectory,
                 current.ExperimentalFeaturesEnabled,

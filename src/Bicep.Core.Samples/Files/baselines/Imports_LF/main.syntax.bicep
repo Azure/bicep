@@ -31,7 +31,7 @@ import * as mod2 from 'modules/mod2.bicep'
 //@[07:016) | ├─WildcardImportSyntax
 //@[07:008) | | ├─Token(Asterisk) |*|
 //@[09:016) | | └─AliasAsClauseSyntax
-//@[09:011) | |   ├─Token(AsKeyword) |as|
+//@[09:011) | |   ├─Token(Identifier) |as|
 //@[12:016) | |   └─IdentifierSyntax
 //@[12:016) | |     └─Token(Identifier) |mod2|
 //@[17:042) | └─CompileTimeImportFromClauseSyntax
@@ -50,7 +50,7 @@ import {
 //@[02:032) | | | ├─StringSyntax
 //@[02:032) | | | | └─Token(StringComplete) |'not-a-valid-bicep-identifier'|
 //@[33:057) | | | └─AliasAsClauseSyntax
-//@[33:035) | | |   ├─Token(AsKeyword) |as|
+//@[33:035) | | |   ├─Token(Identifier) |as|
 //@[36:057) | | |   └─IdentifierSyntax
 //@[36:057) | | |     └─Token(Identifier) |withInvalidIdentifier|
 //@[57:058) | | ├─Token(NewLine) |\n|

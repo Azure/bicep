@@ -396,6 +396,28 @@
     <value>Resource identifiers should be reproducible outside of their initial deployment context. Resource {0}'s '{1}' identifier is potentially nondeterministic due to its use of the '{2}' function ({3}).</value>
     <comment>{0} is the symbolic name of the resource. {1} is the name of the identifier property. {2} is the name of the nondeterministic function used. {3} is the symbol dereference path by which the nondeterministic function call is included.</comment>
   </data>
+  <data name="UseRecentModuleVersionsRule_Description" xml:space="preserve">
+    <value>Use recent module versions</value>
+  </data>
+  <data name="UseRecentModulesVersionRule_MostRecentVersion" xml:space="preserve">
+    <value>The most recent version is {0}.</value>
+    <comment>{0}: version number, e.g. 1.0.0</comment>
+  </data>
+  <data name="UseRecentModulesVersionRule_CouldNotDownload" xml:space="preserve">
+    <value>Could not download available module versions: {0}</value>
+    <comment>{0}: error message</comment>
+  </data>
+  <data name="UseRecentModulesVersionRule_NotCached" xml:space="preserve">
+    <value>Available module versions have not yet been downloaded. If running from the command line, be sure --no-restore is not specified.</value>
+  </data>
+  <data name="UseRecentModuleVersionRule_ErrorMessageFormat" xml:space="preserve">
+    <value>Use a more recent version of module '{0}'.</value>
+    <comment>{0} = module name (programmatic)</comment>
+  </data>
+  <data name="UseRecentModuleVersionRule_Fix_ReplaceWithMostRecent" xml:space="preserve">
+    <value>Replace with most recent version '{0}'</value>
+    <comment>{0} a programmatic module version, e.g. "1.2.3"</comment>
+  </data>
   <data name="UseRecentApiVersionRule_Description" xml:space="preserve">
     <value>Use recent API versions</value>
   </data>
@@ -465,8 +487,8 @@
   <data name="ExperimentalFeatureNames_DynamicTypeLoading" xml:space="preserve">
     <value>Dynamic type loading</value>
   </data>
-  <data name="ExperimentalFeatureNames_ProviderRegistry" xml:space="preserve">
-    <value>Provider registry</value>
+  <data name="ExperimentalFeatureNames_ExtensionRegistry" xml:space="preserve">
+    <value>Extension registry</value>
   </data>
   <data name="ExperimentalFeatureNames_Extensibility" xml:space="preserve">
     <value>Extensibility</value>
@@ -494,5 +516,14 @@
   </data>
   <data name="ExperimentalFeatureNames_ResourceDerivedTypes" xml:space="preserve">
     <value>Resource-derived types</value>
+  </data>
+  <data name="UseSafeAccessRule_Description" xml:space="preserve">
+    <value>Use the safe access (.?) operator instead of checking object contents with the 'contains' function.</value>
+  </data>
+  <data name="UseSafeAccessRule_CodeFix" xml:space="preserve">
+    <value>Use the safe access (.?) operator</value>
+  </data>
+  <data name="UseSafeAccessRule_MessageFormat" xml:space="preserve">
+    <value>The syntax can be simplified by using the safe access (.?) operator.</value>
   </data>
 </root>

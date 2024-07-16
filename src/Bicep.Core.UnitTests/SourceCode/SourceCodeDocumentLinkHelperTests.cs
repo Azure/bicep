@@ -24,7 +24,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
         var result = CompilationHelper.Compile(
             [
                     ("createVM.bicep", ""),
-                    ("main.bicep", """
+                ("main.bicep", """
                         // A comment
                         module creatingVM 'createVM.bicep' = { // 'createVM.bicep' = [1:18]-[1:34]
                           name: 'creatingVM'
@@ -57,7 +57,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
         var result = CompilationHelper.Compile(
             [
                     ("createVM.bicep", ""),
-                    ("main.bicep", """
+                ("main.bicep", """
                         // A comment
                         module creatingVM '../createVM.bicep' = { // '../createVM.bicep' = [1:18]-[1:37]
                         }
@@ -86,14 +86,14 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                         module main '../../whatever.bicep' = {
                         }
                         """),
-                    ("main.bicep", """
+                ("main.bicep", """
                         module bing 'modules/ai/bing-resources.json' = {
                         }
                         module creatingVM 'createVM.bicep' = {
                         }
                         """),
-                    ("../../whatever.bicep", ""),
-                    ("modules/ai/bing-resources.json", """
+                ("../../whatever.bicep", ""),
+                ("modules/ai/bing-resources.json", """
                         {
                           "$schema": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                           "contentVersion": "1.0.0.0",

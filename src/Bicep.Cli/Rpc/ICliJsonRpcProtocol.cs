@@ -101,23 +101,47 @@ public record GetDeploymentGraphResponse(
         string Target);
 }
 
+/// <summary>
+/// The definition for the Bicep CLI JSONRPC interface.
+/// </summary>
+/// <remarks>
+/// As of Bicep 0.29, this interface is no longer "experimental". Please consider carefully whether you are making a change that may break backwards compatibility.
+/// </remarks>
 public interface ICliJsonRpcProtocol
 {
+    /// <summary>
+    /// Returns the version of the Bicep CLI.
+    /// </summary>
     [JsonRpcMethod("bicep/version", UseSingleObjectParameterDeserialization = true)]
     Task<VersionResponse> Version(VersionRequest request, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Compiles a specified .bicep file.
+    /// </summary>
     [JsonRpcMethod("bicep/compile", UseSingleObjectParameterDeserialization = true)]
     Task<CompileResponse> Compile(CompileRequest request, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Compiles a specified .bicepparam file.
+    /// </summary>
     [JsonRpcMethod("bicep/compileParams", UseSingleObjectParameterDeserialization = true)]
     Task<CompileParamsResponse> CompileParams(CompileParamsRequest request, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Returns metadata about a specified .bicep file.
+    /// </summary>
     [JsonRpcMethod("bicep/getMetadata", UseSingleObjectParameterDeserialization = true)]
     Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Returns the deployment graph for a specified .bicep file.
+    /// </summary>
     [JsonRpcMethod("bicep/getDeploymentGraph", UseSingleObjectParameterDeserialization = true)]
     Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Gets the full list of file paths that are referenced by a compilation. Useful to determine a set of files to watch for changes.
+    /// </summary>
     [JsonRpcMethod("bicep/getFileReferences", UseSingleObjectParameterDeserialization = true)]
     Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken);
 }

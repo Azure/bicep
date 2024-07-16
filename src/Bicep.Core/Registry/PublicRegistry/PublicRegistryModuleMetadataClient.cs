@@ -4,11 +4,13 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Bicep.Core.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.LanguageServer.Providers;
+namespace Bicep.Core.Registry.PublicRegistry;
 
 /// <summary>
 /// Typed http client to get modules metadata that we store at a public endpoint (currently https://github.com/Azure/bicep-registry-modules)
@@ -23,17 +25,17 @@ public class PublicRegistryModuleMetadataClient(HttpClient httpClient) : IPublic
     };
 
     [SuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Relying on references to required properties of the generic type elsewhere in the codebase.")]
-    public async Task<ImmutableArray<ModuleMetadata>> GetModuleMetadata()
+    public async Task<ImmutableArray<BicepModuleMetadata>> GetModuleMetadata()
     {
         Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataClient)}: Retrieving list of public registry modules...");
 
         try
         {
-            var metadata = await httpClient.GetFromJsonAsync<ModuleMetadata[]>(LiveDataEndpoint, JsonSerializerOptions);
+            var metadata = await httpClient.GetFromJsonAsync<BicepModuleMetadata[]>(LiveDataEndpoint, JsonSerializerOptions);
 
             if (metadata is not null)
             {
-                Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Retrieved info on {metadata.Length} public registry modules.");
+                Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataClient)}: Retrieved info on {metadata.Length} public registry modules.");
                 return [.. metadata];
             }
             else

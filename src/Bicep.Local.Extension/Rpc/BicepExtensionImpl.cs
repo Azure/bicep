@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
 using System.Text.Json.Nodes;
 using Bicep.Local.Extension.Protocol;
+using Google.Protobuf.Collections;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 
@@ -20,61 +20,118 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
         this.dispatcher = dispatcher;
     }
 
-    public override Task<ExtensibilityOperationResponse> Save(ExtensibilityOperationRequest request, ServerCallContext context)
-        => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Resource.Type).Save(Convert(request), context.CancellationToken)));
+    public override Task<LocalExtensibilityOperationResponse> CreateOrUpdate(ResourceSpecification request, ServerCallContext context)
+        => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Type).CreateOrUpdate(Convert(request), context.CancellationToken)));
 
-    public override Task<ExtensibilityOperationResponse> PreviewSave(ExtensibilityOperationRequest request, ServerCallContext context)
-        => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Resource.Type).PreviewSave(Convert(request), context.CancellationToken)));
+    public override Task<LocalExtensibilityOperationResponse> Preview(ResourceSpecification request, ServerCallContext context)
+        => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Type).Preview(Convert(request), context.CancellationToken)));
 
-    public override Task<ExtensibilityOperationResponse> Get(ExtensibilityOperationRequest request, ServerCallContext context)
-        => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Resource.Type).Get(Convert(request), context.CancellationToken)));
+    public override Task<LocalExtensibilityOperationResponse> Get(ResourceReference request, ServerCallContext context)
+        => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Type).Get(Convert(request), context.CancellationToken)));
 
-    public override Task<ExtensibilityOperationResponse> Delete(ExtensibilityOperationRequest request, ServerCallContext context)
-        => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Resource.Type).Delete(Convert(request), context.CancellationToken)));
+    public override Task<LocalExtensibilityOperationResponse> Delete(ResourceReference request, ServerCallContext context)
+        => WrapExceptions(async () => Convert(await dispatcher.GetHandler(request.Type).Delete(Convert(request), context.CancellationToken)));
 
     public override Task<Empty> Ping(Empty request, ServerCallContext context)
         => Task.FromResult(new Empty());
 
-    private static Protocol.ExtensibilityOperationRequest Convert(ExtensibilityOperationRequest request)
+    private Protocol.ResourceSpecification Convert(ResourceSpecification request)
     {
-        return new(
-            new(request.Import.Provider, request.Import.Version, request.Import.Config is { } ? JsonNode.Parse(request.Import.Config) as JsonObject : null),
-            new(request.Resource.Type, request.Resource.Properties is { } ? JsonNode.Parse(request.Resource.Properties) as JsonObject : null));
+        JsonObject? config = GetExtensionConfig(request.Config);
+        var properties = ToJsonObject(request.Properties, "Parsing resource properties failed. Please ensure is non-null or empty and is a valid JSON object.");
+
+        return new(request.Type, request.ApiVersion, properties, config);
     }
 
-    private static ExtensibilityOperationResponse Convert(Protocol.ExtensibilityOperationResponse response)
+    private Protocol.ResourceReference Convert(ResourceReference request)
     {
-        var output = new ExtensibilityOperationResponse();
-        if (response.Resource is { })
+        JsonObject identifiers = ToJsonObject(request.Identifiers, "Parsing resource identifiers failed. Please ensure is non-null or empty and is a valid JSON object.");
+        JsonObject? config = GetExtensionConfig(request.Config);
+
+        return new(request.Type, request.ApiVersion, identifiers, config);
+    }
+
+    private JsonObject? GetExtensionConfig(string extensionConfig)
+    {
+        JsonObject? config = null;
+        if (!string.IsNullOrEmpty(extensionConfig))
         {
-            output.Resource = new ExtensibleResourceData
+            config = ToJsonObject(extensionConfig, "Parsing extension config failed. Please ensure is a valid JSON object.");
+        }
+        return config;
+    }
+
+    private JsonObject ToJsonObject(string json, string errorMessage)
+        => JsonNode.Parse(json)?.AsObject() ?? throw new ArgumentNullException(errorMessage);
+
+    private Resource? Convert(Protocol.Resource? response)
+        => response is null ? null :
+            new()
             {
-                Type = response.Resource.Type,
-                Properties = response.Resource.Properties?.ToString()
+                Identifiers = response.Identifiers.ToJsonString(),
+                Properties = response.Properties.ToJsonString(),
+                Status = response.Status,
+                Type = response.Type,
+                ApiVersion = response.ApiVersion,
             };
+
+    private ErrorData? Convert(Protocol.ErrorData? response)
+    {
+        if (response is null)
+        {
+            return null;
         }
 
-        if (response.ResourceMetadata is { } metadata)
+        var errorData = new ErrorData()
         {
-            output.ResourceMetadata.ReadOnlyProperties.AddRange(metadata.ReadOnlyProperties);
-            output.ResourceMetadata.ImmutableProperties.AddRange(metadata.ImmutableProperties);
-            output.ResourceMetadata.DynamicProperties.AddRange(metadata.DynamicProperties);
-        }
-
-        if (response.Errors is { } errors)
-        {
-            output.Errors.AddRange(errors.Select(error => new ExtensibilityError
+            Error = new Error()
             {
-                Code = error.Code,
-                Message = error.Message,
-                Target = error.Target
-            }));
-        }
+                Code = response.Error.Code,
+                Message = response.Error.Message,
+                InnerError = response.Error.InnerError?.ToJsonString(),
+                Target = response.Error.Target,
+            }
+        };
 
-        return output;
+        var errorDetails = Convert(response.Error.Details);
+        if (errorDetails is not null)
+        {
+            errorData.Error.Details.AddRange(errorDetails);
+        }
+        return errorData;
     }
 
-    private static async Task<ExtensibilityOperationResponse> WrapExceptions(Func<Task<ExtensibilityOperationResponse>> func)
+    private RepeatedField<ErrorDetail>? Convert(Protocol.ErrorDetail[]? response)
+    {
+        if (response is null)
+        {
+            return null;
+        }
+
+        var list = new RepeatedField<ErrorDetail>();
+        foreach (var item in response)
+        {
+            list.Add(Convert(item));
+        }
+        return list;
+    }
+
+    private ErrorDetail Convert(Protocol.ErrorDetail response)
+        => new()
+        {
+            Code = response.Code,
+            Message = response.Message,
+            Target = response.Target,
+        };
+
+    private LocalExtensibilityOperationResponse Convert(Protocol.LocalExtensibilityOperationResponse response)
+        => new()
+        {
+            ErrorData = Convert(response.ErrorData),
+            Resource = Convert(response.Resource)
+        };
+
+    private static async Task<LocalExtensibilityOperationResponse> WrapExceptions(Func<Task<LocalExtensibilityOperationResponse>> func)
     {
         try
         {
@@ -82,13 +139,19 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
         }
         catch (Exception ex)
         {
-            var response = new ExtensibilityOperationResponse();
-            response.Errors.Add(new ExtensibilityError
+            var response = new LocalExtensibilityOperationResponse
             {
-                Code = "RpcException",
-                Message = $"Rpc request failed: {ex}",
-                Target = ""
-            });
+                Resource = null,
+                ErrorData = new ErrorData
+                {
+                    Error = new Error
+                    {
+                        Message = $"Rpc request failed: {ex}",
+                        Code = "RpcException",
+                        Target = ""
+                    }
+                }
+            };
 
             return response;
         }

@@ -19,7 +19,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private ServiceBuilder Services => new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-            .WithConfigurationPatch(c => c.WithProvidersConfiguration("""
+            .WithConfigurationPatch(c => c.WithExtensions("""
             {
               "az": "builtin:",
               "kubernetes": "builtin:",
@@ -34,7 +34,7 @@ namespace Bicep.Core.IntegrationTests
         public void Bar_import_bad_config_is_blocked()
         {
             var result = CompilationHelper.Compile(Services, @"
-provider bar with {
+extension bar with {
   madeUpProperty: 'asdf'
 } as stg
 ");
@@ -48,11 +48,11 @@ provider bar with {
         public void Bar_import_can_be_duplicated()
         {
             var result = CompilationHelper.Compile(Services, """
-            provider bar with {
+            extension bar with {
                 connectionString: 'connectionString1'
             } as stg
 
-            provider bar with {
+            extension bar with {
                 connectionString: 'connectionString2'
             } as stg2
             """);
@@ -63,7 +63,7 @@ provider bar with {
         public void Bar_import_basic_test()
         {
             var result = CompilationHelper.Compile(Services, """
-            provider bar with {
+            extension bar with {
                connectionString: 'asdf'
             } as stg
 
@@ -84,11 +84,11 @@ provider bar with {
         public void Ambiguous_type_references_return_errors()
         {
             var result = CompilationHelper.Compile(Services, """
-            provider bar with {
+            extension bar with {
             connectionString: 'asdf'
             } as stg
 
-            provider bar with {
+            extension bar with {
             connectionString: 'asdf'
             } as stg2
 
@@ -101,11 +101,11 @@ provider bar with {
             });
 
             result = CompilationHelper.Compile(Services, """
-            provider bar with {
+            extension bar with {
             connectionString: 'asdf'
             } as stg
 
-            provider bar with {
+            extension bar with {
             connectionString: 'asdf'
             } as stg2
 
@@ -120,7 +120,7 @@ provider bar with {
         public void Bar_import_basic_test_loops_and_referencing()
         {
             var result = CompilationHelper.Compile(Services, """
-            provider bar with {
+            extension bar with {
                 connectionString: 'asdf'
             } as stg
 
@@ -160,7 +160,7 @@ provider bar with {
         public void Foo_import_basic_test_loops_and_referencing()
         {
             var result = CompilationHelper.Compile(Services, """
-            provider foo as foo
+            extension foo as foo
             param numApps int
 
             resource myApp 'application' = {
@@ -190,7 +190,7 @@ provider bar with {
         {
             // we've accidentally used 'name' even though this resource type doesn't support it
             var result = CompilationHelper.Compile(Services, """
-            provider foo
+            extension foo
 
             resource myApp 'application' existing = {
             name: 'foo'
@@ -206,7 +206,7 @@ provider bar with {
 
             // oops! let's change it to 'uniqueName'
             result = CompilationHelper.Compile(Services, """
-            provider foo as foo
+            extension foo as foo
 
             resource myApp 'application' existing = {
                 uniqueName: 'foo'
@@ -223,7 +223,7 @@ provider bar with {
         public void Kubernetes_import_existing_warns_with_readonly_fields()
         {
             var result = CompilationHelper.Compile(Services, """
-            provider kubernetes with {
+            extension kubernetes with {
             namespace: 'default'
             kubeConfig: ''
             }
@@ -253,12 +253,12 @@ provider bar with {
         public void Kubernetes_competing_imports_are_blocked()
         {
             var result = CompilationHelper.Compile(Services, @"
-provider kubernetes with {
+extension kubernetes with {
   namespace: 'default'
   kubeConfig: ''
 }
 
-provider kubernetes with {
+extension kubernetes with {
   namespace: 'default'
   kubeConfig: ''
 }
@@ -277,7 +277,7 @@ provider kubernetes with {
         public void Kubernetes_import_existing_resources()
         {
             var result = CompilationHelper.Compile(Services, @"
-provider kubernetes with {
+extension kubernetes with {
   namespace: 'default'
   kubeConfig: ''
 }
@@ -313,7 +313,7 @@ resource configmap 'core/ConfigMap@v1' existing = {
         public void Kubernetes_import_existing_connectionstring_test()
         {
             var result = CompilationHelper.Compile(Services, @"
-provider kubernetes with {
+extension kubernetes with {
   namespace: 'default'
   kubeConfig: ''
 }
@@ -351,7 +351,7 @@ resource secret 'core/Secret@v1' = {
         public void Kubernetes_CustomResourceType_EmitWarning()
         {
             var result = CompilationHelper.Compile(Services, """
-                provider kubernetes with {
+                extension kubernetes with {
                   namespace: 'default'
                   kubeConfig: ''
                 }
@@ -372,7 +372,7 @@ resource secret 'core/Secret@v1' = {
         public void Kubernetes_AmbiguousFallbackType_MustFullyQualify()
         {
             var result = CompilationHelper.Compile(Services, """
-                provider kubernetes with {
+                extension kubernetes with {
                   namespace: 'default'
                   kubeConfig: ''
                 }
@@ -406,7 +406,7 @@ resource secret 'core/Secret@v1' = {
         public void Bar_import_basic_test_with_qualified_type()
         {
             var result = CompilationHelper.Compile(Services, """
-            provider bar with {
+            extension bar with {
             connectionString: 'asdf'
             } as stg
 
@@ -427,7 +427,7 @@ resource secret 'core/Secret@v1' = {
         public void Invalid_namespace_qualifier_returns_error()
         {
             var result = CompilationHelper.Compile(Services, """
-            provider bar with {
+            extension bar with {
             connectionString: 'asdf'
             } as stg
 
@@ -452,7 +452,7 @@ resource secret 'core/Secret@v1' = {
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
             var result = CompilationHelper.Compile(Services, @"
-provider bar with {
+extension bar with {
   connectionString: 'asdf'
 } as stg
 
@@ -500,7 +500,7 @@ module website './website.bicep' = {
 @secure()
 param connectionString string
 
-provider bar with {
+extension bar with {
   connectionString: connectionString
 } as stg
 

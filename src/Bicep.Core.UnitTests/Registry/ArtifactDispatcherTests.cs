@@ -75,9 +75,13 @@ namespace Bicep.Core.UnitTests.Registry
         {
             var fail = StrictMock.Of<IArtifactRegistry>();
             fail.Setup(m => m.Scheme).Returns("fail");
+            fail.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>()))
+                .Returns(Task.CompletedTask);
 
             var mock = StrictMock.Of<IArtifactRegistry>();
             mock.Setup(m => m.Scheme).Returns("mock");
+            mock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>()))
+                .Returns(Task.CompletedTask);
 
             ErrorBuilderDelegate? @null = null;
             var configuration = BicepTestConstants.BuiltInConfiguration;
@@ -174,6 +178,8 @@ namespace Bicep.Core.UnitTests.Registry
                 });
             registryMock.Setup(x => x.IsArtifactRestoreRequired(badReference))
                 .Returns(true);
+            registryMock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>()))
+                .Returns(Task.CompletedTask);
 
             var configManagerMock = StrictMock.Of<IConfigurationManager>();
             configManagerMock.SetupSequence(m => m.GetConfiguration(badReferenceUri))
