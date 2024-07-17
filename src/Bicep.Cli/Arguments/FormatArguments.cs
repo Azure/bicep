@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
+using Bicep.Cli.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.PrettyPrintV2;
 
@@ -48,8 +49,8 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--newline":
-                        // TODO: Uncomment this once Azure CLI is updated to support the new parameter.
-                        //io.WriteParameterDeprecationWarning("--newline", "--newline-kind");
+                        io.WriteParameterDeprecationWarning("--newline", "--newline-kind");
+
                         if (args.Length == i + 1)
                         {
                             throw new CommandLineException($"The --newline parameter expects an argument");
@@ -84,8 +85,7 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--indentkind":
-                        // TODO: Uncomment this once Azure CLI is updated to support the new parameter.
-                        //io.WriteParameterDeprecationWarning("--indentKind", "--indent-kind");
+                        io.WriteParameterDeprecationWarning("--indentKind", "--indent-kind");
 
                         if (args.Length == i + 1)
                         {
@@ -120,8 +120,7 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--indentsize":
-                        // TODO: Uncomment this once Azure CLI is updated to support the new parameter.
-                        //io.WriteParameterDeprecationWarning("--indentSize", "--indent-size");
+                        io.WriteParameterDeprecationWarning("--indentSize", "--indent-size");
 
                         if (args.Length == i + 1)
                         {
@@ -156,8 +155,7 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--insertfinalnewline":
-                        // TODO: Uncomment this once Azure CLI is updated to support the new parameter.
-                        //io.WriteParameterDeprecationWarning("--insertFinalNewline", "--insert-final-newline");
+                        io.WriteParameterDeprecationWarning("--insertFinalNewline", "--insert-final-newline");
 
                         if (InsertFinalNewline is not null)
                         {

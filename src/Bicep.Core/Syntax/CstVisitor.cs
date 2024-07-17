@@ -247,6 +247,11 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.NullKeyword);
         }
 
+        public override void VisitNoneLiteralSyntax(NoneLiteralSyntax syntax)
+        {
+            this.Visit(syntax.NoneKeyword);
+        }
+
         public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {
             foreach (var element in syntax.Elements)
@@ -434,6 +439,13 @@ namespace Bicep.Core.Syntax
         }
 
         public override void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Path);
+        }
+
+        public override void VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);

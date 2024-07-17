@@ -15,7 +15,8 @@ namespace Bicep.LanguageServer.Handlers
 {
     public class BicepDocumentFormattingHandler(
         ILogger<BicepDocumentSymbolHandler> logger,
-        ICompilationManager compilationManager) : DocumentFormattingHandlerBase
+        ICompilationManager compilationManager,
+        DocumentSelectorFactory documentSelectorFactory) : DocumentFormattingHandlerBase
     {
         public override Task<TextEditContainer?> Handle(DocumentFormattingParams request, CancellationToken cancellationToken)
         {
@@ -64,7 +65,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override DocumentFormattingRegistrationOptions CreateRegistrationOptions(DocumentFormattingCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams()
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };
     }
 }

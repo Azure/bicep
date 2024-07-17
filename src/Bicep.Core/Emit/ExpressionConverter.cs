@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
@@ -296,7 +297,8 @@ namespace Bicep.Core.Emit
                     case "type":
                         return (new JTokenExpression(resource.TypeReference.FormatType()), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "apiVersion":
-                        return (new JTokenExpression(resource.TypeReference.ApiVersion), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        var apiVersion = resource.TypeReference.ApiVersion ?? throw new UnreachableException();
+                        return (new JTokenExpression(apiVersion), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "name":
                         return (NameFromIdExpression(GetFullyQualifiedResourceId(parameter)), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "properties" when !safeAccess:
@@ -334,7 +336,8 @@ namespace Bicep.Core.Emit
                     case "type":
                         return (new JTokenExpression(resource.TypeReference.FormatType()), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "apiVersion":
-                        return (new JTokenExpression(resource.TypeReference.ApiVersion), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        var apiVersion = resource.TypeReference.ApiVersion ?? throw new UnreachableException();
+                        return (new JTokenExpression(apiVersion), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "name" when shortCircuitableResourceRef:
                         // this expression will execute a `reference` expression against the module twice (once to make sure the named output exists, then again to
                         // retrieve the value of that output), but this inefficiency is unavoidable since passing `null` to `split` will cause the deployment to fail
