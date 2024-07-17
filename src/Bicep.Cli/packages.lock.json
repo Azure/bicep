@@ -125,8 +125,8 @@
       },
       "Azure.Core": {
         "type": "Transitive",
-        "resolved": "1.39.0",
-        "contentHash": "9vaV4ZICtVQp+2wjOKrIAjEjMzBkUohaBbKGqqcTW993MRfHA0N4L1BszQjWynS7lRvlYQLxaFK4wh9ewNm4HQ==",
+        "resolved": "1.40.0",
+        "contentHash": "eOx6wk3kQ3SCnoAj7IytAu/d99l07PdarmUc+RmMkVOTkcQ3s+UQEaGzMyEqC2Ua4SKnOW4Xw/klLeB5V2PiSA==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "1.1.1",
           "System.ClientModel": "1.0.0",
@@ -238,10 +238,10 @@
       },
       "Azure.Identity": {
         "type": "Transitive",
-        "resolved": "1.11.4",
-        "contentHash": "Sf4BoE6Q3jTgFkgBkx7qztYOFELBCo+wQgpYDwal/qJ1unBH73ywPztIJKXBXORRzAeNijsuxhk94h0TIMvfYg==",
+        "resolved": "1.12.0",
+        "contentHash": "OBIM3aPz8n9oEO5fdnee+Vsc5Nl4W3FeslPpESyDiyByntQI5BAa76KD60eFXm9ulevnwxGZP9YXL8Y+paI5Uw==",
         "dependencies": {
-          "Azure.Core": "1.38.0",
+          "Azure.Core": "1.40.0",
           "Microsoft.Identity.Client": "4.61.3",
           "Microsoft.Identity.Client.Extensions.Msal": "4.61.3",
           "System.Memory": "4.5.4",
@@ -1395,7 +1395,7 @@
           "Azure.Bicep.Types.K8s": "[0.1.626, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
           "Azure.Deployments.Templates": "[1.71.0, )",
-          "Azure.Identity": "[1.11.4, )",
+          "Azure.Identity": "[1.12.0, )",
           "Azure.ResourceManager.Resources": "[1.7.3, )",
           "JsonPatch.Net": "[3.1.0, )",
           "JsonPath.Net": "[1.1.0, )",
