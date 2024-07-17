@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
+using System.Text.RegularExpressions;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Configuration;
@@ -88,7 +89,10 @@ namespace Bicep.Cli.IntegrationTests
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
             File.Exists(compiledFilePath).Should().BeTrue();
 
-            var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
+            var compiledFileContent = File.ReadAllText(compiledFilePath);
+            compiledFileContent.Should().OnlyContainLFNewline();
+
+            var actual = JToken.Parse(compiledFileContent);
 
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
@@ -219,6 +223,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().NotBeEmpty();
+                output.Should().OnlyContainLFNewline();
                 AssertNoErrors(error);
             }
 
