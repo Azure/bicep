@@ -7,7 +7,9 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Options;
 using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -62,7 +64,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             clientCapabilitiesProvider.Setup(m => m.DoesClientSupportShowDocumentRequest()).Returns(clientSupportShowDocumentRequestAndWorkspaceFolders);
             clientCapabilitiesProvider.Setup(m => m.DoesClientSupportWorkspaceFolders()).Returns(clientSupportShowDocumentRequestAndWorkspaceFolders);
 
-            var bicepEditLinterRuleHandler = new BicepCodeActionHandler(bicepCompilationManager, clientCapabilitiesProvider.Object);
+            var bicepEditLinterRuleHandler = new BicepCodeActionHandler(bicepCompilationManager, clientCapabilitiesProvider.Object, new DocumentSelectorFactory(BicepLangServerOptions.Default));
 
             var range = new Range()
             {

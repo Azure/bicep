@@ -19,13 +19,15 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ICompilationManager compilationManager;
         private readonly ICompletionProvider completionProvider;
         private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly DocumentSelectorFactory documentSelectorFactory;
 
-        public BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory)
+        public BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory, DocumentSelectorFactory documentSelectorFactory)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
             this.completionProvider = completionProvider;
             this.featureProviderFactory = featureProviderFactory;
+            this.documentSelectorFactory = documentSelectorFactory;
         }
 
         public override async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
@@ -63,7 +65,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams(),
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             AllCommitCharacters = new Container<string>(),
             ResolveProvider = false,
             TriggerCharacters = new Container<string>(":", " ", ".", "/", "'", "@", "{", "#", "?")
