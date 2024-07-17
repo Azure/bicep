@@ -13,7 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public static class StringAssertionsExtensions
+    public static partial class StringAssertionsExtensions
     {
         private static string EscapeWhitespace(string input)
             => input
@@ -200,9 +200,27 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<StringAssertions>(instance);
         }
 
+        public static AndConstraint<StringAssertions> OnlyContainLFNewline(this StringAssertions instance, string because = "", params object[] becauseArgs) =>
+            instance.HaveConsistentNewlines("\n", because, becauseArgs);
+
+        public static AndConstraint<StringAssertions> HaveConsistentNewlines(this StringAssertions instance, string newline, string because = "", params object[] becauseArgs)
+        {
+            var newlines = NewlineSequence().Matches(instance.Subject).Select(x => x.Value).Distinct().ToArray();
+
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(newlines.Length == 1 && newlines[0] == newline)
+                .FailWith("Expected all newlines in {0} to be {1}, but found inconsistent newlines.", instance.Subject, newline);
+
+            return new(instance);
+        }
+
         private static bool Contains(string actual, string expected, StringComparison comparison)
         {
             return (actual ?? string.Empty).Contains(expected ?? string.Empty, comparison);
         }
+
+        [GeneratedRegex("\r\n|\r|\n")]
+        private static partial Regex NewlineSequence();
     }
 }

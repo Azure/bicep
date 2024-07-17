@@ -53,6 +53,7 @@ namespace Bicep.LangServer.IntegrationTests
             });
 
             var buildCommandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".json"));
+            buildCommandOutput.Should().OnlyContainLFNewline();
             buildCommandOutput.Should().BeEquivalentToIgnoringNewlines(expectedJson);
         }
 
@@ -87,6 +88,7 @@ namespace Bicep.LangServer.IntegrationTests
             });
 
             var buildCommandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".json"));
+            buildCommandOutput.Should().OnlyContainLFNewline();
             buildCommandOutput.Should().BeEquivalentToIgnoringNewlines(expectedJson);
         }
     }
