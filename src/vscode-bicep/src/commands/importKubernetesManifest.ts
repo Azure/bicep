@@ -10,11 +10,7 @@ export class ImportKubernetesManifestCommand implements Command {
   public readonly id = "bicep.importKubernetesManifest";
   public constructor(private readonly client: LanguageClient) {}
 
-  public async execute(
-    context: IActionContext,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    documentUri?: vscode.Uri | undefined,
-  ): Promise<void> {
+  public async execute(context: IActionContext): Promise<void> {
     const manifestPath = await context.ui.showOpenDialog({
       canSelectMany: false,
       openLabel: "Select Kubernetes Manifest File",

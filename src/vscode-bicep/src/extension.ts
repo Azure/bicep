@@ -109,7 +109,6 @@ export async function activate(
 
         progress.report({ message: "Launching language service" });
         languageClient = await createLanguageService(
-          actionContext,
           extensionContext,
           outputChannel,
           dotnetCommandPath,

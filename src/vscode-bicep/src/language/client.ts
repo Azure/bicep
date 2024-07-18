@@ -67,7 +67,6 @@ function getServerStartupOptions(
 }
 
 export async function createLanguageService(
-  actionContext: IActionContext,
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel,
   dotnetCommandPath: string,

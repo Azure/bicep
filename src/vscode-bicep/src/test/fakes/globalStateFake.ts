@@ -27,7 +27,7 @@ export class GlobalStateFake implements GlobalState {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public setKeysForSync(keys: string[]): void {
+  public setKeysForSync(_keys: string[]): void {
     throw new Error("Method not implemented.");
   }
 }

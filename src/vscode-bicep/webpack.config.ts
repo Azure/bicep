@@ -168,7 +168,7 @@ const deployPaneConfig: webpack.Configuration = {
   ],
 };
 
-module.exports = (env: unknown, argv: { mode: string }) => {
+module.exports = (_env: unknown, argv: { mode: string }) => {
   if (argv.mode === "development") {
     // "cheap-module-source-map" is almost 2x faster than "source-map",
     // while it provides decent source map quality.
