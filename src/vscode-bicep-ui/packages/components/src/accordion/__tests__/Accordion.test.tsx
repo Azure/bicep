@@ -54,7 +54,7 @@ describe("Accordion", () => {
     fireEvent.click(screen.getByText(`Item 2 Header`));
     await screen.findByText(`Item 2 Content`);
 
-    // Act.
+    // Assert.
     await waitFor(() => {
       expect(screen.getAllByText(/Content/)).toHaveLength(1);
     });
