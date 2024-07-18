@@ -2007,6 +2007,7 @@ INVALID FILE
         {
             ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
             ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
+            ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
         });
     }
 
