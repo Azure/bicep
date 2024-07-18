@@ -135,6 +135,9 @@ public class SnippetsProvider : ISnippetsProvider
         var objectProperties = new List<ObjectPropertySyntax>();
         foreach (var typeProperty in typeProperties)
         {
+            // Here we deliberately want to iterate in the correct order, and use a DFS approach, to ensure that the tab stops are correctly ordered.
+            // For example, we want to ensure we output: {\n  foo: $1\n  nested: {\n    bar: $2\n  }\n  baz: $3\n}
+            // Instead of:                               {\n  foo: $1\n  nested: {\n    bar: $3\n  }\n  baz: $2\n}
             objectProperties.Add(GetObjectPropertySnippetSyntax(typeProperty, ref tabStopIndex, discriminatedObjectKey));
         }
 
