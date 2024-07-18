@@ -64,12 +64,10 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
           initialized: true,
           localDeployEnabled: message.localDeployEnabled,
         });
-        if (!message.templateJson) {
+
+        if (message.errorMessage || !message.templateJson) {
           setTemplateMetadata(undefined);
-          setErrorMessage(
-            message.errorMessage ??
-              "An error occurred building the deployment object.",
-          );
+          setErrorMessage(message.errorMessage ?? "An error occurred compiling the Bicep file.");
           return;
         }
 

@@ -64,13 +64,9 @@ export const App: FC = () => {
     );
   }
 
-  if (messages.messageState.localDeployEnabled && !messages.paramsMetadata.sourceFilePath?.endsWith('.bicepparam')) {
-    return (
-      <div className="alert-error">
-        Local Deployment is only currently supported for .bicepparam files. Relaunch this pane for a .bicepparam file.
-      </div>
-    );
-  }
+  const showLocalDeployControls = messages.messageState.localDeployEnabled && 
+    // if there's an error, this'll cause sourceFilePath to be empty - we still want to show the controls to display the error
+    (errorMessage || messages.paramsMetadata.sourceFilePath?.endsWith('.bicepparam'));
 
   return (
     <main id="webview-body">
@@ -123,30 +119,36 @@ export const App: FC = () => {
             Local Deployment is an experimental feature.
           </div>
         </FormSection>
+        {showLocalDeployControls && <>
+          <ParametersInputView
+            parameters={messages.paramsMetadata}
+            template={messages.templateMetadata}
+            disabled={localDeployRunning}
+            onValueChange={setParamValue}
+            onEnableEditing={handleEnableParamEditing}
+            onPickParametersFile={messages.pickParamsFile} />
 
-        <ParametersInputView
-          parameters={messages.paramsMetadata}
-          template={messages.templateMetadata}
-          disabled={localDeployRunning}
-          onValueChange={setParamValue}
-          onEnableEditing={handleEnableParamEditing}
-          onPickParametersFile={messages.pickParamsFile} />
+          <FormSection title="Actions">
+            {errorMessage && <div className="alert-error">
+              <span className="codicon codicon-error" />
+              {errorMessage}
+            </div>}
+            <div className="controls">
+              <VSCodeButton onClick={handleLocalDeployClick} disabled={localDeployRunning}>Deploy</VSCodeButton>
+            </div>
+            {localDeployRunning && <VSCodeProgressRing></VSCodeProgressRing>}
+          </FormSection>
 
-        <FormSection title="Actions">
-          {errorMessage && <div className="alert-error">
-            <span className="codicon codicon-error" />
-            {errorMessage}
-          </div>}
-          <div className="controls">
-            <VSCodeButton onClick={handleLocalDeployClick} disabled={localDeployRunning}>Deploy</VSCodeButton>
+          {!localDeployRunning && messages.localDeployResult && <>
+            <LocalDeployResult result={messages.localDeployResult} />
+            <LocalDeployOperations result={messages.localDeployResult} />
+            <LocalDeployOutputs result={messages.localDeployResult} />
+          </>}
+        </>}
+        {!showLocalDeployControls && <>
+          <div className="alert-error">
+            Local Deployment is only currently supported for .bicepparam files. Relaunch this pane for a .bicepparam file.
           </div>
-          {localDeployRunning && <VSCodeProgressRing></VSCodeProgressRing>}
-        </FormSection>
-
-        {!localDeployRunning && messages.localDeployResult && <>
-          <LocalDeployResult result={messages.localDeployResult} />
-          <LocalDeployOperations result={messages.localDeployResult} />
-          <LocalDeployOutputs result={messages.localDeployResult} />
         </>}
       </>}
     </main>

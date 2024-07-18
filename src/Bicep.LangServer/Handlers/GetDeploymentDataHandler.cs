@@ -49,7 +49,7 @@ namespace Bicep.LanguageServer.Handlers
                 if (result.Parameters is null ||
                     result.Template?.Template is null)
                 {
-                    return new(ErrorMessage: $"Bicep compilation failed. The Bicep parameters file contains errors.", LocalDeployEnabled: localDeployEnabled);
+                    return new(ErrorMessage: $"Compilation failed. The Bicep parameters file contains errors.", LocalDeployEnabled: localDeployEnabled);
                 }
 
                 paramsFile = result.Parameters;
@@ -57,12 +57,18 @@ namespace Bicep.LanguageServer.Handlers
 
                 if (!semanticModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
                 {
-                    return new(ErrorMessage: $"Bicep compilation failed. The Bicep parameters file contains errors.", LocalDeployEnabled: localDeployEnabled);
+                    return new(ErrorMessage: $"Compilation failed. Failed to find a file referenced via 'using'.", LocalDeployEnabled: localDeployEnabled);
                 }
             }
-            else
+            else if (semanticModel.Root.FileKind == BicepSourceFileKind.BicepFile)
             {
-                return new(ErrorMessage: $"Bicep compilation failed. The Bicep file contains errors.", LocalDeployEnabled: localDeployEnabled);
+                var result = context.Compilation.Emitter.Template();
+                templateFile = result.Template;
+
+                if (result.Template is null)
+                {
+                    return new(ErrorMessage: $"Compilation failed. The Bicep file contains errors.", LocalDeployEnabled: localDeployEnabled);
+                }
             }
 
             return new(TemplateJson: templateFile, ParametersJson: paramsFile, LocalDeployEnabled: localDeployEnabled);
