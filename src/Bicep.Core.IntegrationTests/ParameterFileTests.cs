@@ -222,4 +222,20 @@ param optionalBecauseDefault string = 'default'
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Error_is_displayed_for_file_reference_with_errors()
+    {
+        var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", """
+using 'main.bicep'
+"""), ("main.bicep", """
+invalid file
+"""));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
+        });
+    }
 }
