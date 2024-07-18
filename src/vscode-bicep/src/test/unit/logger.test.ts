@@ -75,6 +75,7 @@ describe("getLogger()", () => {
     );
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it("should return a logger if createLogger() is called first", () => {
     resetLogger();
     createLogger(mockContext, mockOutputChannel);

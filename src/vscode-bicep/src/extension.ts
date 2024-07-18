@@ -203,7 +203,6 @@ export async function activate(
 
         extension.register(
           window.onDidChangeActiveTextEditor(
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             async (editor: TextEditor | undefined) => {
               await updateUiContext(editor?.document);
             },

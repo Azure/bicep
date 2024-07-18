@@ -13,7 +13,6 @@ webpack.config.ts
 tsconfig.e2e.json
 tsconfig.json
 package.params.json
-enableParams.js
 jest.config.e2e.js
 jest.config.unit.js
 jest.config.snapshot.js

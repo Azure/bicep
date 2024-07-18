@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+/* eslint-disable jest/expect-expect */
 import * as vscode from "vscode";
 import { sleep } from "../../utils/time";
 

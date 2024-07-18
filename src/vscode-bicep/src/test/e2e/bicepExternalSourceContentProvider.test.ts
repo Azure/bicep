@@ -3,6 +3,7 @@
 
 import { Uri } from "vscode";
 import { decodeExternalSourceUri } from "../../language/decodeExternalSourceUri";
+import { describe, expect, it } from '@jest/globals';
 
 describe("bicepExternalSourceContentProvider", () => {
   it("decodes correctly with source", () => {
