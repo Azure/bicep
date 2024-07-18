@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
 import { DeploymentOperation } from "@azure/arm-resources";

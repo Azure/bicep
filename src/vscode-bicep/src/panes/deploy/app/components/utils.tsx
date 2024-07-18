@@ -61,7 +61,7 @@ export function isSucceeded(operation: DeploymentOperation) {
   return operation.properties?.provisioningState?.toLowerCase() === "succeeded";
 }
 
-export function getPreformattedJson(input: any) {
+export function getPreformattedJson(input: unknown) {
   return (
     <pre className="code-wrapped">{JSON.stringify(input, null, 2)}</pre>
   );

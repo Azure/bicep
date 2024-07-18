@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
 import { FormSection } from "./sections/FormSection";
 import { LocalDeployResponse, LocalDeploymentOperationContent } from "../../../../language";

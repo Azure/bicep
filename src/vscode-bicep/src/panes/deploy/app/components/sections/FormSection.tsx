@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { FC, PropsWithChildren, useState } from "react";
 

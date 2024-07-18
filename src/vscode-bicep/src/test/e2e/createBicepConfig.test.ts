@@ -38,7 +38,6 @@ describe("bicep.createConfigFile", (): void => {
           );
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         newConfigPath = newConfigPathOrUndefined!;
 
         expect(path.basename(newConfigPath)).toBe("bicepconfig.json");
@@ -73,7 +72,6 @@ describe("bicep.createConfigFile", (): void => {
           }
         },
       );
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const editor = editorOrUndefined!;
 
       await testScope("Verify text", () => {

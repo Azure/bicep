@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { VSCodeButton, VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeTextArea, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
 import { ParamData, ParamDefinition } from "../../models";
@@ -14,7 +16,7 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
   const { name, defaultValue, type } = definition;
   const { value } = data;
 
-  function handleValueChange(value: any) {
+  function handleValueChange(value: unknown) {
     onChangeData({ ...data, value });
   }
 

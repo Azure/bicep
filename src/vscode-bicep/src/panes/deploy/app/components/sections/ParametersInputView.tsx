@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { VSCodeTextField, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
 import { ParamData, ParamDefinition, ParametersMetadata, TemplateMetadata } from "../../../models";

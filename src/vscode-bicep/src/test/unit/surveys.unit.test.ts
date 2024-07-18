@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable jest/max-expects */
-
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { MessageItem, window } from "vscode";
 import {

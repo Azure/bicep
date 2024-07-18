@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// eslint-disable-next-line jest/no-untyped-mock-factory
 jest.mock("winston", () => ({
   createLogger: () => mockWinstonLogger,
   format: {

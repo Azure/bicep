@@ -1,10 +1,12 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
 import { getPreformattedJson } from "../utils";
 import { FormSection } from "./FormSection";
 
 interface DeploymentOutputsViewProps {
-  outputs?: Record<string, any>;
+  outputs?: Record<string, unknown>;
 }
 
 export const DeploymentOutputsView: FC<DeploymentOutputsViewProps> = ({ outputs }) => {
@@ -22,7 +24,7 @@ export const DeploymentOutputsView: FC<DeploymentOutputsViewProps> = ({ outputs 
         {Object.keys(outputs).map(name => (
           <VSCodeDataGridRow key={name}>
             <VSCodeDataGridCell gridColumn="1">{name}</VSCodeDataGridCell>
-            <VSCodeDataGridCell gridColumn="2">{getPreformattedJson(outputs[name].value)}</VSCodeDataGridCell>
+            <VSCodeDataGridCell gridColumn="2">{getPreformattedJson((outputs[name] as { value: unknown }).value)}</VSCodeDataGridCell>
           </VSCodeDataGridRow>
         ))}
       </VSCodeDataGrid>

@@ -57,7 +57,6 @@ describe("surveys-e2etests", () => {
       expect(context.telemetry.properties.surveyLinkStatus).toBe("ENOTFOUND");
     });
 
-    // eslint-disable-next-line jest/prefer-lowercase-title
     it("Other errors", async () => {
       const context = createActionContextMock();
 

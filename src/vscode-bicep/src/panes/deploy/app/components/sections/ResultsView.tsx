@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { FC, useState } from "react";
 import { DeployResult } from "../../../models";

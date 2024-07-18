@@ -12,7 +12,7 @@ module.exports = {
       version: "detect",
     },
   },
-  plugins: ["header"],
+  plugins: ["header", "@typescript-eslint"],
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
