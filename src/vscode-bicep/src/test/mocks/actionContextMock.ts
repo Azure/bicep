@@ -19,6 +19,7 @@ export function createActionContextMock(): IActionContext {
       showInputBox: jest.fn(),
       onDidFinishPrompt: jest.fn(),
       showOpenDialog: jest.fn(),
+      showWorkspaceFolderPick: jest.fn(),
     },
     valuesToMask: [],
   };
