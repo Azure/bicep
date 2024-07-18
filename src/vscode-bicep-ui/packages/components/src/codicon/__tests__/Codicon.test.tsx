@@ -9,9 +9,9 @@ describe("Codicon", () => {
     ["file-binary", 100],
   ])("should render %s icon with size %i", (iconName, size) => {
     render(<Codicon name={iconName} size={size} />);
-    
+
     const codiconDiv = screen.getByTestId(`${iconName}-codicon`);
-    
+
     expect(codiconDiv).toHaveClass(`codicon codicon-${iconName}`);
     expect(codiconDiv).toHaveAttribute("aria-hidden", "true");
     expect(codiconDiv).toHaveStyle(`width: ${size}px`);

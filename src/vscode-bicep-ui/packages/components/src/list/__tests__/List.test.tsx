@@ -12,11 +12,11 @@ describe("List", () => {
         <ListItem>Rat</ListItem>
       </List>,
     );
-    
+
     const list = screen.getByRole("list");
     const listItems = within(list).getAllByRole("listitem");
     const listItemTexts = listItems.map((item) => item.textContent);
-    
+
     expect(listItemTexts).toEqual(["Dog", "Cat", "Rat"]);
   });
 });

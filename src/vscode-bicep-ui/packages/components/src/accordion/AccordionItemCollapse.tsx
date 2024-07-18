@@ -10,5 +10,9 @@ const $AccordionItemCollapse = styled.div`
 export function AccordionItemCollapse({ children }: PropsWithChildren) {
   const { toggleActive } = useAccordionItem();
 
-  return <$AccordionItemCollapse onClick={toggleActive} role="button">{children}</$AccordionItemCollapse>;
+  return (
+    <$AccordionItemCollapse onClick={toggleActive} role="button">
+      {children}
+    </$AccordionItemCollapse>
+  );
 }

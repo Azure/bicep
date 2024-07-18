@@ -26,7 +26,7 @@ const svgPathsByResourceType: Record<string, string> = {
 async function importAzureSvg(resourceType: string): Promise<SvgComponent | undefined> {
   const svgPath = svgPathsByResourceType[resourceType] ?? "custom/resource";
   const svgImport = svgImportsByPath[`../../assets/azure-architecture-icons/${svgPath}.svg`];
-  
+
   return svgImport();
 }
 
@@ -36,7 +36,7 @@ export function useAzureSvg(resourceType: string) {
 
   useEffect(() => {
     setLoading(true);
-    
+
     const loadIcon = async () => {
       try {
         svgRef.current = await importAzureSvg(resourceType);

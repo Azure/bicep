@@ -58,7 +58,7 @@ describe("Accordion", () => {
     await waitFor(() => {
       expect(screen.getAllByText(/Content/)).toHaveLength(1);
     });
-    
+
     const itemContentSpans = screen.getAllByText(/Content/);
     expect(itemContentSpans[0]).toHaveTextContent(`Item 2 Content`);
     expect(itemContentSpans[0]).toHaveStyle({ height: "auto" });

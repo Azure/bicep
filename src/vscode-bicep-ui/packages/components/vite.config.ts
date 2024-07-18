@@ -1,9 +1,9 @@
 import react from "@vitejs/plugin-react";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
-import { coverageConfigDefaults, defineConfig } from "vitest/config";
 import dts from "vite-plugin-dts";
 import { libInjectCss } from "vite-plugin-lib-inject-css";
 import svgr from "vite-plugin-svgr";
+import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
