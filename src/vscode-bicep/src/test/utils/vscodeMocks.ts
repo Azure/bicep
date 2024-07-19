@@ -12,7 +12,7 @@ export function createCancellationTokenMock(): CancellationToken {
 }
 
 export function createWithProgressMock<T>(): WithProgress<T> {
-  return jest.fn().mockImplementation((options, task) => {
+  return jest.fn().mockImplementation((_options, task) => {
     return new Promise((resolve, reject) => {
       task(
         {

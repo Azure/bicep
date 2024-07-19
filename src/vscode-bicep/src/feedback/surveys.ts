@@ -1,22 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import {
-  commands,
-  ConfigurationTarget,
-  MessageItem,
-  Uri,
-  window,
-} from "vscode";
-import { parseError } from "@microsoft/vscode-azext-utils";
-import { IActionContext } from "@microsoft/vscode-azext-utils";
-import { callWithTelemetryAndErrorHandling } from "@microsoft/vscode-azext-utils";
 import assert from "assert";
-import { GlobalState, GlobalStateKeys } from "../globalState";
 import https from "https";
-import { daysToMs, monthsToDays } from "../utils/time";
-import { getBicepConfiguration } from "../language/getBicepConfiguration";
+import { callWithTelemetryAndErrorHandling, IActionContext, parseError } from "@microsoft/vscode-azext-utils";
+import { commands, ConfigurationTarget, MessageItem, Uri, window } from "vscode";
+import { GlobalState, GlobalStateKeys } from "../globalState";
 import { bicepConfigurationKeys } from "../language/constants";
+import { getBicepConfiguration } from "../language/getBicepConfiguration";
+import { daysToMs, monthsToDays } from "../utils/time";
 
 // ======================================================
 // DEBUGGING
@@ -39,8 +31,7 @@ const hatsAnnualSurveyInfo: ISurveyInfo = {
   // Enough to be sure we don't ask again before the next survey, but still have flexibility about sending out the next
   //   survey earlier than a year if we want to.
   postponeAfterTakenInDays: monthsToDays(6),
-  surveyPrompt:
-    "Do you have a few minutes to tell us about your experience with Bicep?",
+  surveyPrompt: "Do you have a few minutes to tell us about your experience with Bicep?",
   postponeForLaterInDays: 2 * 7,
   surveyStateKey: GlobalStateKeys.annualSurveyStateKey,
 };
@@ -55,50 +46,35 @@ export function showSurveys(globalState: GlobalState): void {
   checkShowSurvey(globalState, hatsAnnualSurveyInfo);
 }
 
-export function checkShowSurvey(
-  globalState: GlobalState,
-  surveyInfo: ISurveyInfo,
-): void {
+export function checkShowSurvey(globalState: GlobalState, surveyInfo: ISurveyInfo): void {
   // Don't wait, run asynchronously
-  void callWithTelemetryAndErrorHandling(
-    "survey",
-    async (context: IActionContext) => {
-      let now = new Date();
+  void callWithTelemetryAndErrorHandling("survey", async (context: IActionContext) => {
+    let now = new Date();
 
-      // Check debugging settings
-      const debugNowDate = getBicepConfiguration().get<string>(debugNowDateKey);
-      if (debugNowDate) {
-        now = new Date(debugNowDate);
-        assert.ok(
-          !isNaN(now.valueOf()),
-          `Invalid value for ${debugNowDateKey}`,
-        );
-        console.warn(
-          `Debugging surveys: Pretending now is ${now.toLocaleString()}`,
-        );
-        context.telemetry.properties.debugNowDate = debugNowDate;
-        context.telemetry.suppressAll = true;
-      }
+    // Check debugging settings
+    const debugNowDate = getBicepConfiguration().get<string>(debugNowDateKey);
+    if (debugNowDate) {
+      now = new Date(debugNowDate);
+      assert.ok(!isNaN(now.valueOf()), `Invalid value for ${debugNowDateKey}`);
+      console.warn(`Debugging surveys: Pretending now is ${now.toLocaleString()}`);
+      context.telemetry.properties.debugNowDate = debugNowDate;
+      context.telemetry.suppressAll = true;
+    }
 
-      const debugTestLink = getBicepConfiguration().get<string>(
-        debugSurveyLinkKeyPrefix + surveyInfo.akaLinkToSurvey,
-      );
-      if (debugTestLink) {
-        console.warn(
-          `Debugging surveys: Replacing link ${surveyInfo.akaLinkToSurvey} with ${debugTestLink}`,
-        );
-        surveyInfo.akaLinkToSurvey = debugTestLink;
-      }
+    const debugTestLink = getBicepConfiguration().get<string>(debugSurveyLinkKeyPrefix + surveyInfo.akaLinkToSurvey);
+    if (debugTestLink) {
+      console.warn(`Debugging surveys: Replacing link ${surveyInfo.akaLinkToSurvey} with ${debugTestLink}`);
+      surveyInfo.akaLinkToSurvey = debugTestLink;
+    }
 
-      const survey = new Survey(globalState, surveyInfo);
+    const survey = new Survey(globalState, surveyInfo);
 
-      if (getBicepConfiguration().get<boolean>(debugClearStateKey, false)) {
-        await survey.clearGlobalState();
-      }
+    if (getBicepConfiguration().get<boolean>(debugClearStateKey, false)) {
+      await survey.clearGlobalState();
+    }
 
-      await survey.checkShowSurvey(context, now);
-    },
-  );
+    await survey.checkShowSurvey(context, now);
+  });
 }
 
 export interface ISurveyInfo {
@@ -141,26 +117,16 @@ export class Survey {
   /**
    * Shows the survey if it's available and timely, and the user doesn't opt out.
    */
-  public async checkShowSurvey(
-    context: IActionContext,
-    now: Date,
-  ): Promise<void> {
+  public async checkShowSurvey(context: IActionContext, now: Date): Promise<void> {
     context.errorHandling.suppressDisplay = true;
     context.telemetry.properties.isActivationEvent = "true";
-    context.telemetry.properties.akaLink =
-      this.surveyInfo.akaLinkToSurvey.replace("/", "-");
+    context.telemetry.properties.akaLink = this.surveyInfo.akaLinkToSurvey.replace("/", "-");
 
     const surveyState = this.getPersistedSurveyState(context, now);
 
-    const shouldAsk = await this.shouldAskToTakeSurvey(
-      context,
-      surveyState,
-      now,
-    );
+    const shouldAsk = await this.shouldAskToTakeSurvey(context, surveyState, now);
     context.telemetry.properties.shouldAsk = shouldAsk;
-    console.info(
-      `Ask to take survey ${this.surveyInfo.akaLinkToSurvey}? ${shouldAsk}`,
-    );
+    console.info(`Ask to take survey ${this.surveyInfo.akaLinkToSurvey}? ${shouldAsk}`);
 
     if (shouldAsk === "ask") {
       await this.askToTakeSurvey(context, surveyState, now);
@@ -180,27 +146,20 @@ export class Survey {
   ): Promise<"ask" | "never" | "postponed" | "unavailable" | "alreadyTaken"> {
     {
       const areSurveysEnabled = this.areSurveysEnabled();
-      context.telemetry.properties.areSurveysEnabled =
-        String(areSurveysEnabled);
+      context.telemetry.properties.areSurveysEnabled = String(areSurveysEnabled);
       if (!areSurveysEnabled) {
         return "never";
       }
 
       context.telemetry.properties.lastTaken = state.lastTaken?.toUTCString();
-      context.telemetry.properties.postonedUntil =
-        state.postponedUntil?.toUTCString();
+      context.telemetry.properties.postonedUntil = state.postponedUntil?.toUTCString();
 
-      if (
-        state.postponedUntil &&
-        state.postponedUntil.valueOf() > now.valueOf()
-      ) {
+      if (state.postponedUntil && state.postponedUntil.valueOf() > now.valueOf()) {
         return "postponed";
       }
 
       if (state.lastTaken) {
-        const okayToAskAgainMs =
-          state.lastTaken.valueOf() +
-          daysToMs(this.surveyInfo.postponeAfterTakenInDays);
+        const okayToAskAgainMs = state.lastTaken.valueOf() + daysToMs(this.surveyInfo.postponeAfterTakenInDays);
         if (okayToAskAgainMs > now.valueOf()) {
           return "alreadyTaken";
         }
@@ -220,42 +179,28 @@ export class Survey {
     }
   }
 
-  private getPersistedSurveyState(
-    context: IActionContext,
-    now: Date,
-  ): ISurveyState {
+  private getPersistedSurveyState(context: IActionContext, now: Date): ISurveyState {
     let retrievedState: ISurveyState;
     const key = this.surveyInfo.surveyStateKey;
 
     try {
-      const persistedState = this.globalState.get<IPersistedSurveyState>(
-        key,
-        {},
-      );
+      const persistedState = this.globalState.get<IPersistedSurveyState>(key, {});
 
       const state: ISurveyState = {
-        lastTaken: persistedState.lastTakenMs
-          ? new Date(persistedState.lastTakenMs)
-          : undefined,
-        postponedUntil: persistedState.postponedUntilMs
-          ? new Date(persistedState.postponedUntilMs)
-          : undefined,
+        lastTaken: persistedState.lastTakenMs ? new Date(persistedState.lastTakenMs) : undefined,
+        postponedUntil: persistedState.postponedUntilMs ? new Date(persistedState.postponedUntilMs) : undefined,
       };
 
       if (state.lastTaken && state.lastTaken.valueOf() > now.valueOf()) {
         throw new Error("lastTaken is in the future");
       }
-      if (
-        isNaN(state.postponedUntil?.valueOf() ?? 0) ||
-        isNaN(state.lastTaken?.valueOf() ?? 0)
-      ) {
+      if (isNaN(state.postponedUntil?.valueOf() ?? 0) || isNaN(state.lastTaken?.valueOf() ?? 0)) {
         throw new Error("Persisted survey state is invalid");
       }
 
       retrievedState = state;
     } catch (err) {
-      context.telemetry.properties.depersistStateError =
-        parseError(err).message;
+      context.telemetry.properties.depersistStateError = parseError(err).message;
       retrievedState = {};
     }
 
@@ -293,56 +238,33 @@ export class Survey {
     };
 
     const response =
-      (await this.inject?.showInformationMessage(
-        this.surveyInfo.surveyPrompt,
-        yes,
-        later,
-        neverAskAgain,
-      )) ?? dismissed;
+      (await this.inject?.showInformationMessage(this.surveyInfo.surveyPrompt, yes, later, neverAskAgain)) ?? dismissed;
     context.telemetry.properties.userResponse = String(response.id);
 
     if (response.id === neverAskAgain.id) {
       await this.disableSurveys();
     } else if (response.id === later.id) {
-      await this.postponeSurvey(
-        state,
-        now,
-        this.surveyInfo.postponeForLaterInDays,
-      );
+      await this.postponeSurvey(state, now, this.surveyInfo.postponeForLaterInDays);
     } else if (response.id === yes.id) {
       state.lastTaken = now;
       state.postponedUntil = undefined;
       await this.inject.launchSurvey(context, this.surveyInfo);
     } else {
       // Try again next time
-      assert(
-        response.id === dismissed.id,
-        `Unexpected response: ${response.id}`,
-      );
+      assert(response.id === dismissed.id, `Unexpected response: ${response.id}`);
     }
   }
 
-  private static async launchSurvey(
-    this: void,
-    context: IActionContext,
-    surveyInfo: ISurveyInfo,
-  ): Promise<void> {
+  private static async launchSurvey(this: void, context: IActionContext, surveyInfo: ISurveyInfo): Promise<void> {
     context.telemetry.properties.launchSurvey = "true";
 
     await commands.executeCommand(
       "vscode.open",
-      Uri.parse(
-        Survey.getFullSurveyLink(surveyInfo.akaLinkToSurvey),
-        true /*strict*/,
-      ),
+      Uri.parse(Survey.getFullSurveyLink(surveyInfo.akaLinkToSurvey), true /*strict*/),
     );
   }
 
-  private async postponeSurvey(
-    state: ISurveyState,
-    now: Date,
-    days: number,
-  ): Promise<void> {
+  private async postponeSurvey(state: ISurveyState, now: Date, days: number): Promise<void> {
     assert(days > 0, "postponeSurvey: days must be positive");
 
     let newDateMs = now.valueOf() + daysToMs(days);
@@ -354,27 +276,21 @@ export class Survey {
     state.postponedUntil = newDate;
   }
 
-  public static async getIsSurveyAvailable(
-    this: void,
-    context: IActionContext,
-    fullLink: string,
-  ): Promise<boolean> {
+  public static async getIsSurveyAvailable(this: void, context: IActionContext, fullLink: string): Promise<boolean> {
     let linkStatus = "unknown";
 
     try {
-      const statusCode: number | undefined = await new Promise(
-        (resolve, reject) => {
-          https
-            .get(fullLink, function (res) {
-              resolve(res.statusCode);
-              res.resume(); // Allow the response to be garbage collected
-            })
-            .on("error", function (err) {
-              // Among other errors, we end up here if the Internet is not available
-              reject(err);
-            });
-        },
-      );
+      const statusCode: number | undefined = await new Promise((resolve, reject) => {
+        https
+          .get(fullLink, function (res) {
+            resolve(res.statusCode);
+            res.resume(); // Allow the response to be garbage collected
+          })
+          .on("error", function (err) {
+            // Among other errors, we end up here if the Internet is not available
+            reject(err);
+          });
+      });
 
       if (statusCode === 301 /* moved permanently */) {
         // The aka link exists and is active
@@ -397,19 +313,13 @@ export class Survey {
   }
 
   public areSurveysEnabled(): boolean {
-    return this.inject
-      .provideBicepConfiguration()
-      .get<boolean>(bicepConfigurationKeys.enableSurveys, true);
+    return this.inject.provideBicepConfiguration().get<boolean>(bicepConfigurationKeys.enableSurveys, true);
   }
 
   private async disableSurveys(): Promise<void> {
     return this.inject
       .provideBicepConfiguration()
-      .update(
-        bicepConfigurationKeys.enableSurveys,
-        false,
-        ConfigurationTarget.Global,
-      );
+      .update(bicepConfigurationKeys.enableSurveys, false, ConfigurationTarget.Global);
   }
 
   public async clearGlobalState(): Promise<void> {

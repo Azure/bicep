@@ -7,10 +7,7 @@ const defaultMsBeforeShowing = 1000;
 
 export type WithProgress<TResult> = (
   options: ProgressOptions,
-  task: (
-    progress: Progress<{ message?: string; increment?: number }>,
-    token: CancellationToken,
-  ) => Thenable<TResult>,
+  task: (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Thenable<TResult>,
 ) => Thenable<TResult>;
 
 /**
@@ -26,8 +23,7 @@ export async function withProgressAfterDelay<T>(
   task: () => Promise<T>,
 ): Promise<T> {
   const withProgress = options.inject?.withProgress ?? window.withProgress;
-  const delayBeforeShowingMs =
-    options.delayBeforeShowingMs ?? defaultMsBeforeShowing;
+  const delayBeforeShowingMs = options.delayBeforeShowingMs ?? defaultMsBeforeShowing;
 
   let taskDone = false;
 

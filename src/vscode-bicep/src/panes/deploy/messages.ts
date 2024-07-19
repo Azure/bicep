@@ -1,14 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { AccessToken } from "@azure/identity";
-import {
-  DeployPaneState,
-  DeploymentScope,
-  DeploymentScopeType,
-  UntypedError,
-} from "./models";
 import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
 import { LocalDeployResponse } from "../../language";
+import { DeploymentScope, DeploymentScopeType, DeployPaneState, UntypedError } from "./models";
 
 interface SimpleMessage<T> {
   kind: T;
@@ -58,9 +53,7 @@ export type GetStateResultMessage = MessageWithPayload<
     state: DeployPaneState;
   }
 >;
-export function createGetStateResultMessage(
-  state: DeployPaneState,
-): GetStateResultMessage {
+export function createGetStateResultMessage(state: DeployPaneState): GetStateResultMessage {
   return createMessageWithPayload("GET_STATE_RESULT", {
     state,
   });
@@ -72,9 +65,7 @@ export type SaveStateMessage = MessageWithPayload<
     state: DeployPaneState;
   }
 >;
-export function createSaveStateMessage(
-  state: DeployPaneState,
-): SaveStateMessage {
+export function createSaveStateMessage(state: DeployPaneState): SaveStateMessage {
   return createMessageWithPayload("SAVE_STATE", {
     state,
   });
@@ -86,9 +77,7 @@ export type GetAccessTokenMessage = MessageWithPayload<
     scope: DeploymentScope;
   }
 >;
-export function createGetAccessTokenMessage(
-  scope: DeploymentScope,
-): GetAccessTokenMessage {
+export function createGetAccessTokenMessage(scope: DeploymentScope): GetAccessTokenMessage {
   return createMessageWithPayload("GET_ACCESS_TOKEN", {
     scope,
   });
@@ -139,9 +128,7 @@ export type GetDeploymentScopeMessage = MessageWithPayload<
     scopeType: DeploymentScopeType;
   }
 >;
-export function createGetDeploymentScopeMessage(
-  scopeType: DeploymentScopeType,
-): GetDeploymentScopeMessage {
+export function createGetDeploymentScopeMessage(scopeType: DeploymentScopeType): GetDeploymentScopeMessage {
   return createMessageWithPayload("GET_DEPLOYMENT_SCOPE", {
     scopeType,
   });
@@ -153,9 +140,7 @@ export type GetDeploymentScopeResultMessage = MessageWithPayload<
     scope: DeploymentScope;
   }
 >;
-export function createGetDeploymentScopeResultMessage(
-  scope: DeploymentScope,
-): GetDeploymentScopeResultMessage {
+export function createGetDeploymentScopeResultMessage(scope: DeploymentScope): GetDeploymentScopeResultMessage {
   return createMessageWithPayload("GET_DEPLOYMENT_SCOPE_RESULT", {
     scope,
   });
@@ -183,13 +168,8 @@ export function createLocalDeployMessage(): LocalDeployMessage {
   return createSimpleMessage("LOCAL_DEPLOY");
 }
 
-export type LocalDeployResultMessage = MessageWithPayload<
-  "LOCAL_DEPLOY_RESULT",
-  LocalDeployResponse
->;
-export function createLocalDeployResultMessage(
-  response: LocalDeployResponse,
-): LocalDeployResultMessage {
+export type LocalDeployResultMessage = MessageWithPayload<"LOCAL_DEPLOY_RESULT", LocalDeployResponse>;
+export function createLocalDeployResultMessage(response: LocalDeployResponse): LocalDeployResultMessage {
   return createMessageWithPayload("LOCAL_DEPLOY_RESULT", response);
 }
 
@@ -215,10 +195,10 @@ function createSimpleMessage<T>(kind: T): SimpleMessage<T> {
   return { kind };
 }
 
-function createMessageWithPayload<
-  T extends string,
-  U = Record<string, unknown>,
->(kind: T, payload: U): MessageWithPayload<T, U> {
+function createMessageWithPayload<T extends string, U = Record<string, unknown>>(
+  kind: T,
+  payload: U,
+): MessageWithPayload<T, U> {
   return {
     kind,
     ...payload,

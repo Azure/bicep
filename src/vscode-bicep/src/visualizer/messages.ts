@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import type { DeploymentGraph } from "../language/protocol";
+
 import vscode from "vscode";
 
 interface SimpleMessage<T> {
@@ -27,19 +28,16 @@ export type RevealFileRangeMessage = MessageWithPayload<
   }
 >;
 
-export type Message =
-  | ReadyMessage
-  | DeploymentGraphMessage
-  | RevealFileRangeMessage;
+export type Message = ReadyMessage | DeploymentGraphMessage | RevealFileRangeMessage;
 
 function createSimpleMessage<T>(kind: T): SimpleMessage<T> {
   return { kind };
 }
 
-function createMessageWithPayload<
-  T extends string,
-  U = Record<string, unknown>,
->(kind: T, payload: U): MessageWithPayload<T, U> {
+function createMessageWithPayload<T extends string, U = Record<string, unknown>>(
+  kind: T,
+  payload: U,
+): MessageWithPayload<T, U> {
   return {
     kind,
     ...payload,
@@ -58,10 +56,7 @@ export function createDeploymentGraphMessage(
   });
 }
 
-export function createRevealFileRangeMessage(
-  filePath: string,
-  range: vscode.Range,
-): RevealFileRangeMessage {
+export function createRevealFileRangeMessage(filePath: string, range: vscode.Range): RevealFileRangeMessage {
   return createMessageWithPayload("REVEAL_FILE_RANGE", {
     filePath,
     range,
