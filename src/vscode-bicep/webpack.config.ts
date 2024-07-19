@@ -57,7 +57,7 @@ const extensionConfig: webpack.Configuration = {
           to: path.join(__dirname, "syntaxes/bicep.tmlanguage"),
         },
       ],
-    }) as { apply(...args: unknown[]): void },
+    }),
     new CopyPlugin({
       patterns: [
         {
@@ -65,11 +65,12 @@ const extensionConfig: webpack.Configuration = {
           to: path.join(__dirname, "syntaxes/language-configuration.json"),
         },
       ],
-    }) as { apply(...args: unknown[]): void },
+    }),
     new ForkTsCheckerWebpackPlugin(),
   ],
   resolve: {
     extensions: [".ts", ".js"],
+    conditionNames: ['import', 'require'],
   },
 };
 
