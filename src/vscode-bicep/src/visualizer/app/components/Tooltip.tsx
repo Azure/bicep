@@ -43,11 +43,7 @@ export const TooltipHost: VFC<TooltipHostProps> = ({ content, children }) => {
   return (
     <TooltipHostContainer>
       <TooltipBox active={active}>{content}</TooltipBox>
-      <div
-        onMouseEnter={showTooltip}
-        onMouseLeave={hideTooltip}
-        onMouseDown={hideTooltip}
-      >
+      <div onMouseEnter={showTooltip} onMouseLeave={hideTooltip} onMouseDown={hideTooltip}>
         {children}
       </div>
     </TooltipHostContainer>

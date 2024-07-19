@@ -6,14 +6,9 @@ import path from "path";
 import vscode from "vscode";
 import { e2eLogName } from "../../utils/logger";
 import { sleep } from "../../utils/time";
-
 import { expectDefined } from "../utils/assert";
 import { until } from "../utils/time";
-import {
-  executeCloseAllEditors,
-  executeShowDeployPaneCommand,
-  executeShowDeployPaneToSideCommand,
-} from "./commands";
+import { executeCloseAllEditors, executeShowDeployPaneCommand, executeShowDeployPaneToSideCommand } from "./commands";
 import { resolveExamplePath } from "./examples";
 
 const extensionLogPath = path.join(__dirname, `../../../${e2eLogName}`);
@@ -33,10 +28,7 @@ describe("deploypane", (): void => {
     expect(viewColumn).toBe(editor.viewColumn);
   });
 
-  it.each([
-    resolveExamplePath("201", "sql", "main.bicepparam"),
-    resolveExamplePath("201", "sql", "main.bicep"),
-  ])(
+  it.each([resolveExamplePath("201", "sql", "main.bicepparam"), resolveExamplePath("201", "sql", "main.bicep")])(
     "should open deployment pane webview to side for %s",
     async (examplePath) => {
       const { document } = await openDocument(examplePath);

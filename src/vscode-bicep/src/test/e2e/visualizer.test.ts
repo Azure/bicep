@@ -6,7 +6,6 @@ import path from "path";
 import vscode from "vscode";
 import { e2eLogName } from "../../utils/logger";
 import { sleep } from "../../utils/time";
-
 import { expectDefined } from "../utils/assert";
 import { until } from "../utils/time";
 import {
@@ -35,9 +34,7 @@ describe("visualizer", (): void => {
       interval: 100,
     });
     if (!visualizerIsReady(document.uri)) {
-      throw new Error(
-        `Expected visualizer to be ready for ${document.uri.toString()}`,
-      );
+      throw new Error(`Expected visualizer to be ready for ${document.uri.toString()}`);
     }
     expectDefined(viewColumn);
     expect(viewColumn).toBe(editor.viewColumn);
@@ -55,9 +52,7 @@ describe("visualizer", (): void => {
       interval: 100,
     });
     if (!visualizerIsReady(document.uri)) {
-      throw new Error(
-        `Expected visualizer to be ready for ${document.uri.toString()}`,
-      );
+      throw new Error(`Expected visualizer to be ready for ${document.uri.toString()}`);
     }
     expectDefined(viewColumn);
     expect(viewColumn).toBe(vscode.ViewColumn.Beside);
@@ -76,9 +71,7 @@ describe("visualizer", (): void => {
     });
 
     if (!visualizerIsReady(document.uri)) {
-      throw new Error(
-        `Expected visualizer to be ready for ${document.uri.toString()}`,
-      );
+      throw new Error(`Expected visualizer to be ready for ${document.uri.toString()}`);
     }
 
     const sourceEditor = await executeShowSourceCommand();

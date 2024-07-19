@@ -2,21 +2,10 @@
 // Licensed under the MIT License.
 
 import path from "path";
-import {
-  TextDocument,
-  Uri,
-  workspace,
-  window,
-  ViewColumn,
-  TextEditor,
-} from "vscode";
-import {
-  IActionContext,
-  IAzureQuickPickItem,
-} from "@microsoft/vscode-azext-utils";
-
-import { Command } from "../types";
+import { IActionContext, IAzureQuickPickItem } from "@microsoft/vscode-azext-utils";
+import { TextDocument, TextEditor, Uri, ViewColumn, window, workspace } from "vscode";
 import { bicepFileExtension } from "../../language/constants";
+import { Command } from "../types";
 
 export class WalkthroughOpenBicepFileCommand implements Command {
   public static id = "bicep.gettingStarted.openBicepFile";
@@ -27,37 +16,28 @@ export class WalkthroughOpenBicepFileCommand implements Command {
   }
 }
 
-async function queryAndOpenBicepFile(
-  context: IActionContext,
-): Promise<TextEditor> {
+async function queryAndOpenBicepFile(context: IActionContext): Promise<TextEditor> {
   const uri: Uri = await queryUserForBicepFile(context);
   const document: TextDocument = await workspace.openTextDocument(uri);
   return await window.showTextDocument(document, ViewColumn.Beside);
 }
 
 async function queryUserForBicepFile(context: IActionContext): Promise<Uri> {
-  const foundBicepFiles = (
-    await workspace.findFiles("**/*.bicep", undefined)
-  ).filter((f) => !!f.fsPath);
+  const foundBicepFiles = (await workspace.findFiles("**/*.bicep", undefined)).filter((f) => !!f.fsPath);
 
   if (foundBicepFiles.length === 0) {
     return await browseForFile(context);
   }
 
-  const entries: IAzureQuickPickItem<Uri | undefined>[] = foundBicepFiles.map(
-    (u) => {
-      const workspaceRoot: string | undefined =
-        workspace.getWorkspaceFolder(u)?.uri.fsPath;
-      const relativePath = workspaceRoot
-        ? path.relative(workspaceRoot, u.fsPath)
-        : path.basename(u.fsPath);
+  const entries: IAzureQuickPickItem<Uri | undefined>[] = foundBicepFiles.map((u) => {
+    const workspaceRoot: string | undefined = workspace.getWorkspaceFolder(u)?.uri.fsPath;
+    const relativePath = workspaceRoot ? path.relative(workspaceRoot, u.fsPath) : path.basename(u.fsPath);
 
-      return <IAzureQuickPickItem<Uri>>{
-        label: relativePath,
-        data: u,
-      };
-    },
-  );
+    return <IAzureQuickPickItem<Uri>>{
+      label: relativePath,
+      data: u,
+    };
+  });
   const browse: IAzureQuickPickItem<Uri | undefined> = {
     label: "Browse...",
     data: undefined,
@@ -74,9 +54,7 @@ async function queryUserForBicepFile(context: IActionContext): Promise<Uri> {
     if (response.data) {
       return response.data;
     } else {
-      throw new Error(
-        "Internal error: queryUserForBicepFile: response.data should be truthy",
-      );
+      throw new Error("Internal error: queryUserForBicepFile: response.data should be truthy");
     }
   }
 }

@@ -8,10 +8,7 @@ import { removePropertiesWithPossibleUserInfoInDeployParams } from "./removeProp
 // https://github.com/microsoft/vscode-azuretools/blob/main/utils/src/AzExtOutputChannel.ts
 // with support to remove properties with possible user info before appendLine(..) is invoked on output channel.
 // TODO: revisit this when https://github.com/Azure/azure-sdk-for-net/issues/27263 is resolved.
-export function createAzExtOutputChannel(
-  name: string,
-  extensionConfigurationPrefix: string,
-): IAzExtOutputChannel {
+export function createAzExtOutputChannel(name: string, extensionConfigurationPrefix: string): IAzExtOutputChannel {
   return new AzExtOutputChannel(name, extensionConfigurationPrefix);
 }
 
@@ -35,19 +32,13 @@ class AzExtOutputChannel implements IAzExtOutputChannel {
   }
 
   public appendLine(value: string): void {
-    const updatedValue =
-      removePropertiesWithPossibleUserInfoInDeployParams(value);
+    const updatedValue = removePropertiesWithPossibleUserInfoInDeployParams(value);
     this._outputChannel.appendLine(updatedValue);
   }
 
-  public appendLog(
-    value: string,
-    options?: { resourceName?: string; date?: Date },
-  ): void {
+  public appendLog(value: string, options?: { resourceName?: string; date?: Date }): void {
     const enableOutputTimestampsSetting = "enableOutputTimestamps";
-    const result: boolean | undefined = getBicepConfiguration().get<boolean>(
-      enableOutputTimestampsSetting,
-    );
+    const result: boolean | undefined = getBicepConfiguration().get<boolean>(enableOutputTimestampsSetting);
 
     if (!result) {
       this.appendLine(value);
@@ -55,9 +46,7 @@ class AzExtOutputChannel implements IAzExtOutputChannel {
       options ||= {};
       const date: Date = options.date || new Date();
       this.appendLine(
-        `${date.toLocaleTimeString()}${
-          options.resourceName ? " ".concat(options.resourceName) : ""
-        }: ${value}`,
+        `${date.toLocaleTimeString()}${options.resourceName ? " ".concat(options.resourceName) : ""}: ${value}`,
       );
     }
   }
@@ -67,10 +56,7 @@ class AzExtOutputChannel implements IAzExtOutputChannel {
   }
 
   public show(preserveFocus?: boolean | undefined): void;
-  public show(
-    column?: ViewColumn | undefined,
-    preserveFocus?: boolean | undefined,
-  ): void;
+  public show(column?: ViewColumn | undefined, preserveFocus?: boolean | undefined): void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public show(_column?: any, preserveFocus?: boolean | undefined): void {
     this._outputChannel.show(preserveFocus);

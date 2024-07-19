@@ -1,17 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import {
-  IActionContext,
-  IAzureQuickPickItem,
-} from "@microsoft/vscode-azext-utils";
+import assert from "assert";
+import * as path from "path";
+import { IActionContext, IAzureQuickPickItem, UserCancelledError } from "@microsoft/vscode-azext-utils";
+import * as fse from "fs-extra";
 import vscode, { MessageItem, Uri, window } from "vscode";
 import { DocumentUri, LanguageClient } from "vscode-languageclient/node";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { Command } from "./types";
-import * as fse from "fs-extra";
-import * as path from "path";
-import { UserCancelledError } from "@microsoft/vscode-azext-utils";
-import assert from "assert";
 
 interface DecompileParamsCommandParams {
   jsonUri: DocumentUri;
@@ -35,46 +31,36 @@ export class DecompileParamsCommand implements Command {
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(
-    context: IActionContext,
-    documentUri?: vscode.Uri | undefined,
-  ): Promise<void> {
+  public async execute(context: IActionContext, documentUri?: vscode.Uri | undefined): Promise<void> {
     documentUri = documentUri ?? window.activeTextEditor?.document.uri;
     if (!documentUri) {
-      throw new Error(
-        "Please open a JSON Parameter file before running this command",
-      );
+      throw new Error("Please open a JSON Parameter file before running this command");
     }
 
-    const canDecompile =
-      await DecompileParamsCommand.mightBeArmParametersNoThrow(documentUri);
+    const canDecompile = await DecompileParamsCommand.mightBeArmParametersNoThrow(documentUri);
     if (!canDecompile) {
       this.outputChannelManager.appendToOutputChannel(
         `Cannot decompile "${documentUri.fsPath}" into Bicep because it does not appear to be an ARM template parameter file.`,
       );
-      throw new UserCancelledError(
-        "Cannot decompile input because file provided is not a parameter file",
-      );
+      throw new UserCancelledError("Cannot decompile input because file provided is not a parameter file");
     }
 
     const bicepFileUri = await DecompileParamsCommand.selectBicepFile(context);
 
     const decompileParamsCommandParams: DecompileParamsCommandParams = {
       jsonUri: documentUri.path,
-      bicepUri: bicepFileUri
-        ? this.client.code2ProtocolConverter.asUri(bicepFileUri)
-        : undefined,
+      bicepUri: bicepFileUri ? this.client.code2ProtocolConverter.asUri(bicepFileUri) : undefined,
     };
 
-    this.outputChannelManager.appendToOutputChannel(
-      `Decompiling file: ${documentUri.fsPath}`,
-    );
+    this.outputChannelManager.appendToOutputChannel(`Decompiling file: ${documentUri.fsPath}`);
 
-    const decompileParamsResult: DecompileParamsCommandResult =
-      await this.client.sendRequest("workspace/executeCommand", {
+    const decompileParamsResult: DecompileParamsCommandResult = await this.client.sendRequest(
+      "workspace/executeCommand",
+      {
         command: "decompileParams",
         arguments: [decompileParamsCommandParams],
-      });
+      },
+    );
 
     if (decompileParamsResult.errorMessage) {
       throw new Error(decompileParamsResult.errorMessage);
@@ -86,41 +72,26 @@ export class DecompileParamsCommand implements Command {
     ).fsPath;
 
     if (await fse.pathExists(bicepparamPath)) {
-      const fileSaveOption =
-        await DecompileParamsCommand.getFileSaveOption(context);
+      const fileSaveOption = await DecompileParamsCommand.getFileSaveOption(context);
 
       if (fileSaveOption === "Copy") {
-        bicepparamPath =
-          await DecompileParamsCommand.getUniquePath(bicepparamPath);
-        this.outputChannelManager.appendToOutputChannel(
-          `Saving Decompiled file (copy): ${bicepparamPath}`,
-        );
+        bicepparamPath = await DecompileParamsCommand.getUniquePath(bicepparamPath);
+        this.outputChannelManager.appendToOutputChannel(`Saving Decompiled file (copy): ${bicepparamPath}`);
       }
 
       if (fileSaveOption === "Overwrite") {
-        this.outputChannelManager.appendToOutputChannel(
-          `Overwriting Decompiled file: ${bicepparamPath}`,
-        );
+        this.outputChannelManager.appendToOutputChannel(`Overwriting Decompiled file: ${bicepparamPath}`);
       }
     } else {
-      this.outputChannelManager.appendToOutputChannel(
-        `Saving Decompiled file: ${bicepparamPath}`,
-      );
+      this.outputChannelManager.appendToOutputChannel(`Saving Decompiled file: ${bicepparamPath}`);
     }
 
-    await fse.writeFile(
-      bicepparamPath,
-      decompileParamsResult.decompiledBicepparamFile.contents,
-    );
+    await fse.writeFile(bicepparamPath, decompileParamsResult.decompiledBicepparamFile.contents);
   }
 
-  public static async mightBeArmParametersNoThrow(
-    documentUri: Uri,
-  ): Promise<boolean> {
+  public static async mightBeArmParametersNoThrow(documentUri: Uri): Promise<boolean> {
     try {
-      const contents = await (
-        await fse.readFile(documentUri.fsPath)
-      ).toString();
+      const contents = await (await fse.readFile(documentUri.fsPath)).toString();
       return /\$schema.*deploymentParameters\.json/i.test(contents);
     } catch (err) {
       // ignore
@@ -129,9 +100,7 @@ export class DecompileParamsCommand implements Command {
     return false;
   }
 
-  private static async selectBicepFile(
-    context: IActionContext,
-  ): Promise<Uri | undefined> {
+  private static async selectBicepFile(context: IActionContext): Promise<Uri | undefined> {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       const quickPickItems: IAzureQuickPickItem<string>[] = [
@@ -145,25 +114,23 @@ export class DecompileParamsCommand implements Command {
         },
       ];
 
-      const result: IAzureQuickPickItem<string> =
-        await context.ui.showQuickPick(quickPickItems, {
-          canPickMany: false,
-          placeHolder: `Link to a Bicep file?`,
-        });
+      const result: IAzureQuickPickItem<string> = await context.ui.showQuickPick(quickPickItems, {
+        canPickMany: false,
+        placeHolder: `Link to a Bicep file?`,
+      });
 
       if (result.label === "None") {
         return undefined;
       }
 
       if (result.label === "Browse") {
-        const bicepPaths: Uri[] | undefined =
-          await vscode.window.showOpenDialog({
-            canSelectMany: false,
-            openLabel: "Select Bicep File",
-            filters: {
-              "Bicep Files": ["bicep"],
-            },
-          });
+        const bicepPaths: Uri[] | undefined = await vscode.window.showOpenDialog({
+          canSelectMany: false,
+          openLabel: "Select Bicep File",
+          filters: {
+            "Bicep Files": ["bicep"],
+          },
+        });
         if (bicepPaths) {
           assert(bicepPaths.length === 1, "Expected bicepPaths.length === 1");
           return bicepPaths[0];
@@ -172,9 +139,7 @@ export class DecompileParamsCommand implements Command {
     }
   }
 
-  private static async getFileSaveOption(
-    context: IActionContext,
-  ): Promise<"Overwrite" | "Copy"> {
+  private static async getFileSaveOption(context: IActionContext): Promise<"Overwrite" | "Copy"> {
     const overwriteAction: MessageItem = {
       title: "Overwrite",
     };
@@ -204,17 +169,12 @@ export class DecompileParamsCommand implements Command {
     return optionPicked === overwriteAction ? "Overwrite" : "Copy";
   }
 
-  private static async getUniquePath(
-    bicepparamPath: DocumentUri,
-  ): Promise<string> {
+  private static async getUniquePath(bicepparamPath: DocumentUri): Promise<string> {
     const parsedPath = path.parse(bicepparamPath);
     let appendNumber = 2;
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const uniquePath = path.join(
-        parsedPath.dir,
-        `${parsedPath.name}${appendNumber}${parsedPath.ext}`,
-      );
+      const uniquePath = path.join(parsedPath.dir, `${parsedPath.name}${appendNumber}${parsedPath.ext}`);
       if (!(await fse.pathExists(uniquePath))) {
         return uniquePath;
       }

@@ -47,10 +47,7 @@ export class WorkspaceConfigurationFake implements WorkspaceConfiguration {
     configurationTarget?: boolean | ConfigurationTarget | null | undefined,
     overrideInLanguage?: boolean | undefined,
   ): Promise<void> {
-    if (
-      configurationTarget !== ConfigurationTarget.Global &&
-      configurationTarget !== true
-    ) {
+    if (configurationTarget !== ConfigurationTarget.Global && configurationTarget !== true) {
       throw new Error(
         "Functionality not implemented: WorkspaceConfigurationFake currently only supports global configuration target",
       );

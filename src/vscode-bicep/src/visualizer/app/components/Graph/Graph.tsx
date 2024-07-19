@@ -1,21 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import {
-  useRef,
-  FC,
-  memo,
-  useCallback,
-  useMemo,
-  NamedExoticComponent,
-} from "react";
 import cytoscape from "cytoscape";
+import { FC, memo, NamedExoticComponent, useCallback, useMemo, useRef } from "react";
 import styled, { DefaultTheme, withTheme } from "styled-components";
-
-import { createStylesheet } from "./style";
 import { createRevealFileRangeMessage } from "../../../messages";
-import { vscode } from "../../vscode";
 import { useCytoscape } from "../../hooks";
+import { vscode } from "../../vscode";
 import { CommandBar } from "./CommandBar";
+import { createStylesheet } from "./style";
 
 interface GraphProps {
   elements: cytoscape.ElementDefinition[];
@@ -28,8 +20,7 @@ const layoutOptions = {
   fit: true,
   animate: true,
   animationDuration: 800,
-  animationEasing:
-    "cubic-bezier(0.33, 1, 0.68, 1)" as cytoscape.Css.TransitionTimingFunction,
+  animationEasing: "cubic-bezier(0.33, 1, 0.68, 1)" as cytoscape.Css.TransitionTimingFunction,
   elk: {
     algorithm: "layered",
     "layered.layering.strategy": "INTERACTIVE",
@@ -99,19 +90,14 @@ const GraphComponent: FC<GraphProps> = ({ elements, theme }) => {
       {
         easing: layoutOptions.animationEasing,
         duration: layoutOptions.animationDuration,
-      }
+      },
     );
   }, []);
 
   return (
     <>
       <GraphContainer ref={containerRef} theme={theme} />
-      <CommandBar
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
-        onLayout={handleLayout}
-        onFit={handleFit}
-      />
+      <CommandBar onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onLayout={handleLayout} onFit={handleFit} />
     </>
   );
 };
@@ -137,6 +123,6 @@ export const Graph = memo(
         prevData.source === nextData.source &&
         prevData.target === nextData.target
       );
-    })
-// Workaround for https://github.com/styled-components/styled-components/issues/4082.
+    }),
+  // Workaround for https://github.com/styled-components/styled-components/issues/4082.
 ) as NamedExoticComponent<Omit<GraphProps, "theme">>;

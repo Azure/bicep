@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 import { createRoot } from "react-dom/client";
 import { createGlobalStyle } from "styled-components";
-
 import { App } from "./App";
 
 const GlobalStyle = createGlobalStyle`

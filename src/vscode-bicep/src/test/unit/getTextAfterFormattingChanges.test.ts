@@ -111,11 +111,7 @@ and
 
 `;
 
-    const result = getTextAfterFormattingChanges(
-      textToMatch,
-      editorText,
-      editorText.indexOf("\r\n\tThis has"),
-    );
+    const result = getTextAfterFormattingChanges(textToMatch, editorText, editorText.indexOf("\r\n\tThis has"));
     expect(result).toBe(expected);
   });
 
@@ -133,11 +129,7 @@ This is text that won't match
 
 `;
 
-    const result = getTextAfterFormattingChanges(
-      textToMatch,
-      editorText,
-      editorText.indexOf("This is text that"),
-    );
+    const result = getTextAfterFormattingChanges(textToMatch, editorText, editorText.indexOf("This is text that"));
     expect(result).toBeUndefined();
   });
 
@@ -150,11 +142,7 @@ This is text that won't match
     const editorText = `
 This is text`;
 
-    const result = getTextAfterFormattingChanges(
-      textToMatch,
-      editorText,
-      editorText.indexOf("This is text"),
-    );
+    const result = getTextAfterFormattingChanges(textToMatch, editorText, editorText.indexOf("This is text"));
     expect(result).toBeUndefined();
   });
 });

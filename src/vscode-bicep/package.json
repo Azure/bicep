@@ -736,6 +736,7 @@
     "watch": "webpack --watch --mode development --stats=minimal",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "$test:e2e.comment": "use testlocal:e2e to run on a local Mac/Linux/Windows (not PowerShell) machine",
     "test:e2e": "node ./out/test/e2e/runTests.js",
     "test:unit": "jest --config jest.config.unit.js",
@@ -747,6 +748,7 @@
     "packagelocal": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net8.0 ./bicepLanguageServer && npm run package"
   },
   "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@types/cytoscape": "^3.21.4",
     "@types/fs-extra": "^11.0.4",
     "@types/jest": "^29.5.12",

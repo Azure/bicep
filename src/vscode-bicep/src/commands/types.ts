@@ -12,9 +12,5 @@ export interface Command {
    * @param context Optionally used to control telemetry and error-handling behavior
    * @param args Optional arguments that are being passed to the command
    */
-  execute(
-    context: IActionContext,
-    documentUri: Uri | undefined,
-    ...args: unknown[]
-  ): unknown | Promise<unknown>;
+  execute(context: IActionContext, documentUri: Uri | undefined, ...args: unknown[]): unknown | Promise<unknown>;
 }
