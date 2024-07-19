@@ -36,6 +36,24 @@ var test = foo[?target] ?? 'baz'
 """);
 
     [TestMethod]
+    public void Codefix_fixes_syntax_which_can_be_simplified_named_array_access() => AssertCodeFix("""
+param foo object
+var test = contai|ns(foo, 'bar') ? foo['bar'] : 'baz'
+""", """
+param foo object
+var test = foo.?bar ?? 'baz'
+""");
+
+    [TestMethod]
+    public void Codefix_escapes_special_chars_correctly() => AssertCodeFix("""
+param foo object
+var test = contai|ns(foo, 'oh-dear') ? foo['oh-dear'] : 'baz'
+""", """
+param foo object
+var test = foo[?'oh-dear'] ?? 'baz'
+""");
+
+    [TestMethod]
     public void Rule_ignores_syntax_which_cannot_be_simplified() => AssertNoDiagnostics("""
 param foo object
 var test = contains(foo, 'bar') ? foo.baz : 'baz'
