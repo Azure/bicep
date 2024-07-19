@@ -1,4 +1,4 @@
-extension '../../temp/local-deploy/provider.tgz'
+extension mock
 
 param payload string
 
