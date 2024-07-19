@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import * as vscode from "vscode";
 import * as winston from "winston";
 import * as loggerModule from "../../utils/logger";
