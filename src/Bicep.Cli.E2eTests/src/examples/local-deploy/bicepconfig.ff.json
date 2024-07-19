@@ -6,5 +6,13 @@
   },
   "extensions": {
     "mock": "$TARGET_REFERENCE"
+  },
+  "cloud": {
+    "currentProfile": "AzureUSGovernment",
+    "credentialPrecedence": [
+      // used by CI
+      "Environment",
+      "AzureCLI"
+    ]
   }
 }

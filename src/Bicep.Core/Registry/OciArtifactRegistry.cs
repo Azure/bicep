@@ -428,7 +428,7 @@ namespace Bicep.Core.Registry
                         throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute provider extension \"{reference}\".");
                     }
 
-                    if (binaryArchitectures.Contains(architecture.Name) ||
+                    if (!binaryArchitectures.Contains(architecture.Name) ||
                         result.TryGetSingleLayerByMediaType(BicepMediaTypes.GetProviderArtifactLayerV1Binary(architecture)) is not { } sourceData)
                     {
                         throw new InvalidOperationException($"The provider extension \"{reference}\" does not support architecture {architecture.Name}.");
