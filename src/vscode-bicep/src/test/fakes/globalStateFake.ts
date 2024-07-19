@@ -5,8 +5,7 @@ import { GlobalState } from "../../globalState";
 import { sleep } from "../../utils/time";
 
 export class GlobalStateFake implements GlobalState {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private dictionary = new Map<string, any>();
+  private dictionary = new Map<string, unknown>();
 
   public keys(): readonly string[] {
     throw new Error("Method not implemented.");
@@ -15,7 +14,7 @@ export class GlobalStateFake implements GlobalState {
   public get<T>(key: string): T | undefined;
   public get<T>(key: string, defaultValue: T): T;
   public get<T>(key: string, defaultValue: T | undefined = undefined): T | undefined {
-    return this.dictionary.get(key) || defaultValue;
+    return this.dictionary.get(key) as T || defaultValue;
   }
 
   public async update<T>(key: string, value: T): Promise<void> {
