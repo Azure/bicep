@@ -33,10 +33,7 @@ export async function callWithTelemetryAndErrorHandlingOnlyOnErrors<T>(
   });
 }
 
-export async function raiseErrorWithoutTelemetry(
-  callbackId: string,
-  error: unknown,
-) {
+export async function raiseErrorWithoutTelemetry(callbackId: string, error: unknown) {
   await callWithTelemetryAndErrorHandling<void>(callbackId, (context) => {
     context.telemetry.suppressAll = true;
 

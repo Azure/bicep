@@ -93,7 +93,7 @@ namespace Bicep.Core.IntegrationTests
                 {
                     var resourceId = parameters[0].TryGetToken()?.Value<string>() ?? throw new UnreachableException();
                     var apiVersion = parameters.Length > 1 ? (parameters[1].TryGetToken()?.Value<string>() ?? throw new UnreachableException()) : null;
-                    var fullBody = parameters.Length > 2 && parameters[2].TryGetToken()?.Value<string>() is {} fullBodyParam && StringComparer.OrdinalIgnoreCase.Equals(fullBodyParam, "Full");
+                    var fullBody = parameters.Length > 2 && parameters[2].TryGetToken()?.Value<string>() is { } fullBodyParam && StringComparer.OrdinalIgnoreCase.Equals(fullBodyParam, "Full");
 
                     if (apiVersion is not null && config.OnReferenceFunc is not null)
                     {
