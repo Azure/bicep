@@ -2361,4 +2361,38 @@ INVALID FILE
         result.Parameters.Should().NotBeNull();
         result.Parameters.Should().HaveValueAtPath("parameters.aParam.value", 4);
     }
+
+    [TestMethod]
+    public void Symbols_entering_the_import_closure_via_multiple_paths_are_supported()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import * as typesB from 'moduleB.bicep'
+                import * as typesC from 'moduleC.bicep'
+                """),
+            ("moduleA.bicep", """
+                @export()
+                type typeA = {
+                    propA: string
+                }
+                """),
+            ("moduleB.bicep", """
+                import * as typesA from 'moduleA.bicep'
+                @export()
+                type typeB = {
+                    optionsA: typesA.typeA
+                    propB: string
+                }
+                """),
+            ("moduleC.bicep", """
+                import * as typesA from 'moduleA.bicep'
+                @export()
+                type typeC = {
+                    optionsA: typesA.typeA
+                    propC: string
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
