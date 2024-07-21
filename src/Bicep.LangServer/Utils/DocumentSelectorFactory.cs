@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Deployments.Core.Extensions;
 using Bicep.Core;
+using Bicep.LanguageServer.Options;
 using Bicep.LanguageServer.Settings;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Azure.Deployments.Core.Extensions;
-using Bicep.LanguageServer.Options;
 
 namespace Bicep.LanguageServer.Utils
 {
@@ -35,10 +35,10 @@ namespace Bicep.LanguageServer.Utils
                     LanguageConstants.ArmTemplateFileExtension))
               ] : [
                     TextDocumentFilter.ForLanguage(LanguageConstants.LanguageId),
-                    TextDocumentFilter.ForLanguage(LanguageConstants.ParamsLanguageId),
-                    TextDocumentFilter.ForLanguage(LanguageConstants.JsoncLanguageId),
-                    TextDocumentFilter.ForLanguage(LanguageConstants.JsonLanguageId),
-                    TextDocumentFilter.ForLanguage(LanguageConstants.ArmTemplateLanguageId)
+                  TextDocumentFilter.ForLanguage(LanguageConstants.ParamsLanguageId),
+                  TextDocumentFilter.ForLanguage(LanguageConstants.JsoncLanguageId),
+                  TextDocumentFilter.ForLanguage(LanguageConstants.JsonLanguageId),
+                  TextDocumentFilter.ForLanguage(LanguageConstants.ArmTemplateLanguageId)
               ]);
     }
 }

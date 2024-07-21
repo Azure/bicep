@@ -362,7 +362,7 @@ namespace Bicep.Core.Syntax
             => CreateAccessSyntax(@base, false, propertyName);
 
         public static AccessExpressionSyntax CreateAccessSyntax(SyntaxBase @base, bool safe, string propertyName)
-            => Lexer.IsValidIdentifier(propertyName) ? 
+            => Lexer.IsValidIdentifier(propertyName) ?
                 new PropertyAccessSyntax(@base, DotToken, safe ? QuestionToken : null, CreateIdentifier(propertyName)) :
                 CreateArrayAccess(@base, safe, CreateStringLiteral(propertyName));
 

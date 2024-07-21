@@ -142,7 +142,7 @@ internal class TemplateVariablesEvaluator
         if (TryGetRawUnevaluatedCopyDeclaration(name) is JObject copiedVariable)
         {
             if (!copiedVariable.TryGetValue(CopyCountPropertyName, StringComparison.OrdinalIgnoreCase, out var copyCountToken) ||
-                ExpressionsEngine.EvaluateLanguageExpressionAsInteger(copyCountToken, evaluationContext, new())?.ToObject<int>() is not {} copyCount)
+                ExpressionsEngine.EvaluateLanguageExpressionAsInteger(copyCountToken, evaluationContext, new())?.ToObject<int>() is not { } copyCount)
             {
                 throw new InvalidOperationException($"The '{name}' variable did not declare a valid copy count.");
             }

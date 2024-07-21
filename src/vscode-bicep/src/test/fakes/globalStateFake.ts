@@ -14,7 +14,7 @@ export class GlobalStateFake implements GlobalState {
   public get<T>(key: string): T | undefined;
   public get<T>(key: string, defaultValue: T): T;
   public get<T>(key: string, defaultValue: T | undefined = undefined): T | undefined {
-    return this.dictionary.get(key) as T || defaultValue;
+    return (this.dictionary.get(key) as T) || defaultValue;
   }
 
   public async update<T>(key: string, value: T): Promise<void> {
