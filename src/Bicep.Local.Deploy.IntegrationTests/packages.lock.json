@@ -19,11 +19,11 @@
       },
       "Grpc.AspNetCore.Server": {
         "type": "Direct",
-        "requested": "[2.63.0, )",
-        "resolved": "2.63.0",
-        "contentHash": "KoOz6f23k9p9+NnQw78MiMAUYNOZ8HqATcdS2Q6f9K+F8EMJbj2+Vcie88z1OpLc+7iObr4PbK3Xmf4Nm5XbGw==",
+        "requested": "[2.64.0, )",
+        "resolved": "2.64.0",
+        "contentHash": "Dxra1DeDa/57pcembSG8pA7oyD3uCH+gv1+3LJpFzCQTE5F0DG+VqPh/dZph62WWT5kPMYSqF1ezS+9FrFZmGA==",
         "dependencies": {
-          "Grpc.Net.Common": "2.63.0"
+          "Grpc.Net.Common": "2.64.0"
         }
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
