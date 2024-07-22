@@ -4899,5 +4899,102 @@ When a wildcard is used, that needs to be the only value.  " + @"
                 completionList.Should().SatisfyRespectively(i => i.Label.Should().Be("*"));
             });
         }
+
+        [TestMethod]
+        public async Task Strings_in_required_property_completions_are_correctly_escaped()
+        {
+            var fileWithCursors = """
+@discriminator('odata.type')
+type alertType = alertWebtestType | alertResourceType | alertMultiResourceType
+type alertResourceType = {
+  'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+  allof: array
+}
+type alertMultiResourceType = {
+  'odata.type': 'Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria'
+  allof: array
+}
+type alertWebtestType = {
+  'odata.type': 'Microsoft.Azure.Monitor.WebtestLocationAvailabilityCriteria'
+  componentId: string
+  failedLocationCount: int
+  webTestId: string
+}
+
+param myAlert alertType = |>
+""";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, "|>");
+            var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+
+            var updatedFile = file.ApplyCompletion(completions, "required-properties-Microsoft.Azure.Monitor.WebtestLocationAvailabilityCriteria");
+            updatedFile.Should().HaveSourceText("""
+@discriminator('odata.type')
+type alertType = alertWebtestType | alertResourceType | alertMultiResourceType
+type alertResourceType = {
+  'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+  allof: array
+}
+type alertMultiResourceType = {
+  'odata.type': 'Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria'
+  allof: array
+}
+type alertWebtestType = {
+  'odata.type': 'Microsoft.Azure.Monitor.WebtestLocationAvailabilityCriteria'
+  componentId: string
+  failedLocationCount: int
+  webTestId: string
+}
+
+param myAlert alertType = {
+  componentId: $1
+  failedLocationCount: $2
+  'odata.type': 'Microsoft.Azure.Monitor.WebtestLocationAvailabilityCriteria'
+  webTestId: $3
+}|
+""");
+        }
+
+        [TestMethod]
+        public async Task Nested_tab_stops_are_correctly_ordered_in_required_properties_snippet()
+        {
+            var fileWithCursors = """
+type nestedType = {
+  foo: string
+  bar: {
+    bar: string
+  }
+  baz: string
+}
+
+param test nestedType = |>
+""";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, "|>");
+            var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+
+            var updatedFile = file.ApplyCompletion(completions, "required-properties");
+            updatedFile.Should().HaveSourceText("""
+type nestedType = {
+  foo: string
+  bar: {
+    bar: string
+  }
+  baz: string
+}
+
+param test nestedType = {
+  bar: {
+    bar: $1
+  }
+  baz: $2
+  foo: $3
+}|
+""");
+        }
     }
 }

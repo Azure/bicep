@@ -1,8 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as semver from "semver";
-import { commands, Extension, extensions } from "vscode";
-
 import {
   AzExtParentTreeItem,
   AzExtTreeItem,
@@ -10,16 +7,14 @@ import {
   IActionContext,
   registerEvent,
 } from "@microsoft/vscode-azext-utils";
-
+import * as semver from "semver";
+import { commands, Extension, extensions } from "vscode";
 import { AzureAccount, AzureLoginStatus } from "../azure/types";
 import { localize } from "../utils/localize";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 const signInLabel: string = localize("signInLabel", "Sign in to Azure...");
-const createAccountLabel: string = localize(
-  "createAccountLabel",
-  "Create a Free Azure Account...",
-);
+const createAccountLabel: string = localize("createAccountLabel", "Create a Free Azure Account...");
 const signInCommandId = "azure-account.login";
 const createAccountCommandId = "azure-account.createAccount";
 const azureAccountExtensionId = "ms-vscode.azure-account";
@@ -107,15 +102,10 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
 
   public async getIsLoggedIn(): Promise<boolean> {
     const azureAccount: AzureAccountResult = await this._azureAccountTask;
-    return (
-      typeof azureAccount !== "string" && azureAccount.status === "LoggedIn"
-    );
+    return typeof azureAccount !== "string" && azureAccount.status === "LoggedIn";
   }
 
-  public compareChildrenImpl(
-    item1: AzExtTreeItem,
-    item2: AzExtTreeItem,
-  ): number {
+  public compareChildrenImpl(item1: AzExtTreeItem, item2: AzExtTreeItem): number {
     if (item1 instanceof GenericTreeItem && item2 instanceof GenericTreeItem) {
       return 0; // already sorted
     } else {
@@ -123,16 +113,12 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
     }
   }
 
-  private async loadAzureAccount(
-    azureAccount: AzureAccount | undefined,
-  ): Promise<AzureAccountResult> {
+  private async loadAzureAccount(azureAccount: AzureAccount | undefined): Promise<AzureAccountResult> {
     if (!azureAccount) {
       const extension: Extension<AzureAccount> | undefined =
         extensions.getExtension<AzureAccount>(azureAccountExtensionId);
       if (extension) {
-        if (
-          semver.lt(extension.packageJSON.version, minAccountExtensionVersion)
-        ) {
+        if (semver.lt(extension.packageJSON.version, minAccountExtensionVersion)) {
           return "needsUpdate";
         }
 
@@ -157,11 +143,7 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
           }
         },
       );
-      await commands.executeCommand(
-        "setContext",
-        "isAzureAccountInstalled",
-        true,
-      );
+      await commands.executeCommand("setContext", "isAzureAccountInstalled", true);
       return azureAccount;
     } else {
       return "notInstalled";

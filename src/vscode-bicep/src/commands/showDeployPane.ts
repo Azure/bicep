@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import vscode from "vscode";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
-
+import vscode from "vscode";
 import { DeployPaneViewManager } from "../panes/deploy";
-import { Command } from "./types";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import { Command } from "./types";
 
 async function showDeployPane(
   context: IActionContext,

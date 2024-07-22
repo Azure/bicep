@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Json.Pointer;
 
 namespace Bicep.Core.Syntax
 {
@@ -357,18 +358,20 @@ namespace Bicep.Core.Syntax
             _ => new NonNullAssertionSyntax(@base, ExclamationToken),
         };
 
-        public static PropertyAccessSyntax CreatePropertyAccess(SyntaxBase @base, string propertyName)
-            => CreatePropertyAccess(@base, false, propertyName);
+        public static AccessExpressionSyntax CreateAccessSyntax(SyntaxBase @base, string propertyName)
+            => CreateAccessSyntax(@base, false, propertyName);
 
-        public static PropertyAccessSyntax CreatePropertyAccess(SyntaxBase @base, bool safe, string propertyName)
-            => new(@base, DotToken, safe ? QuestionToken : null, CreateIdentifier(propertyName));
+        public static AccessExpressionSyntax CreateAccessSyntax(SyntaxBase @base, bool safe, string propertyName)
+            => Lexer.IsValidIdentifier(propertyName) ?
+                new PropertyAccessSyntax(@base, DotToken, safe ? QuestionToken : null, CreateIdentifier(propertyName)) :
+                CreateArrayAccess(@base, safe, CreateStringLiteral(propertyName));
 
-        public static ArrayAccessSyntax CreateArrayAccess(SyntaxBase @base, bool safe, SyntaxBase accessExpression)
+        private static ArrayAccessSyntax CreateArrayAccess(SyntaxBase @base, bool safe, SyntaxBase accessExpression)
             => new(@base, LeftSquareToken, safe ? QuestionToken : null, accessExpression, RightSquareToken);
 
-        public static SyntaxBase CreateSafeAccess(SyntaxBase @base, SyntaxBase accessExpression)
+        public static AccessExpressionSyntax CreateSafeAccess(SyntaxBase @base, SyntaxBase accessExpression)
             => (accessExpression is StringSyntax stringAccess && stringAccess.TryGetLiteralValue() is { } stringValue) ?
-                CreatePropertyAccess(@base, true, stringValue) :
+                CreateAccessSyntax(@base, true, stringValue) :
                 CreateArrayAccess(@base, true, accessExpression);
 
         public static ParameterAssignmentSyntax CreateParameterAssignmentSyntax(string name, SyntaxBase value)

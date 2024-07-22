@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as fse from "fs-extra";
 import * as path from "path";
+import * as fse from "fs-extra";
 
 type IPackageKeyBinding = {
   command: string;
@@ -28,8 +28,7 @@ describe("package.json tests", () => {
       const packageJson = getPackageJson();
 
       // If there are no keybindings found we're doing something wrong in the test
-      const bindings: IPackageKeyBinding[] =
-        packageJson.contributes?.keybindings ?? [];
+      const bindings: IPackageKeyBinding[] = packageJson.contributes?.keybindings ?? [];
       expect(bindings).not.toHaveLength(0);
 
       for (const binding of bindings) {

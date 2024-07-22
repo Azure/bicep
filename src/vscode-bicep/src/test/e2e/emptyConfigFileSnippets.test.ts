@@ -1,23 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
-import vscode, {
-  CompletionItem,
-  SnippetString,
-  window,
-  workspace,
-} from "vscode";
-import path from "path";
 import fs from "fs";
-import {
-  executeCloseAllEditors,
-  executeCompletionItemProvider,
-} from "./commands";
+import path from "path";
+import vscode, { CompletionItem, SnippetString, window, workspace } from "vscode";
 import { createUniqueTempFolder } from "../utils/createUniqueTempFolder";
 import { normalizeLineEndings } from "../utils/normalizeLineEndings";
 import { testScope } from "../utils/testScope";
+import { executeCloseAllEditors, executeCompletionItemProvider } from "./commands";
 import { expectedNewConfigFileContents } from "./expectedNewConfigFileContents";
 
 describe("empty config file snippets", (): void => {
@@ -38,10 +28,7 @@ describe("empty config file snippets", (): void => {
 
       let items: CompletionItem[];
       await testScope("Find available completions", async () => {
-        const completions = await executeCompletionItemProvider(
-          doc.uri,
-          new vscode.Position(0, 0),
-        );
+        const completions = await executeCompletionItemProvider(doc.uri, new vscode.Position(0, 0));
         expect(true).toBe(true);
         expect(completions).toBeDefined();
         items = completions!.items;
@@ -50,9 +37,7 @@ describe("empty config file snippets", (): void => {
 
       let scaffoldSnippet: CompletionItem | undefined;
       await testScope("Find the snippet of interest", async () => {
-        scaffoldSnippet = items.find(
-          (i) => getCompletionLabelText(i) === "Default Bicep Configuration",
-        );
+        scaffoldSnippet = items.find((i) => getCompletionLabelText(i) === "Default Bicep Configuration");
         expect(scaffoldSnippet).toBeDefined();
       });
       await testScope(" ... and insert it", async () => {
@@ -61,9 +46,7 @@ describe("empty config file snippets", (): void => {
 
       await testScope("Verify inserted snippet", () => {
         const textAfterInsertion = editor.document.getText();
-        expect(normalizeLineEndings(textAfterInsertion)).toBe(
-          normalizeLineEndings(expectedAfterInsertion),
-        );
+        expect(normalizeLineEndings(textAfterInsertion)).toBe(normalizeLineEndings(expectedAfterInsertion));
       });
 
       /* TODO: DISABLED (FLAKY) - see https://github.com/Azure/bicep/issues/6766
@@ -99,7 +82,5 @@ describe("empty config file snippets", (): void => {
 });
 
 function getCompletionLabelText(snippet: CompletionItem): string {
-  return typeof snippet.label === "string"
-    ? snippet.label
-    : snippet.label.label;
+  return typeof snippet.label === "string" ? snippet.label : snippet.label.label;
 }

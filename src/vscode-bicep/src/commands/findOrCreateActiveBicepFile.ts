@@ -1,24 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import * as os from "os";
+import * as path from "path";
 import {
+  DialogResponses,
   IActionContext,
   IAzureQuickPickItem,
   IAzureUserInput,
   TelemetryProperties,
-  DialogResponses,
   UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
-import * as path from "path";
-import * as os from "os";
 import * as fse from "fs-extra";
-import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 import { TextDocument, TextEditor, Uri, window, workspace } from "vscode";
-import {
-  bicepFileExtension,
-  bicepLanguageId,
-  bicepParamLanguageId,
-} from "../language/constants";
+import { bicepFileExtension, bicepLanguageId, bicepParamLanguageId } from "../language/constants";
+import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 
 type TargetFile =
   | "rightClickOrMenu"
@@ -52,10 +48,7 @@ export async function findOrCreateActiveBicepFile(
 
   const matchesLanguageId = (editor: TextEditor) => {
     const languageId = editor.document.languageId;
-    return (
-      languageId === bicepLanguageId ||
-      (includeBicepParam && languageId === bicepParamLanguageId)
-    );
+    return languageId === bicepLanguageId || (includeBicepParam && languageId === bicepParamLanguageId);
   };
 
   if (documentUri) {
@@ -72,31 +65,22 @@ export async function findOrCreateActiveBicepFile(
     return activeEditor.document.uri;
   }
 
-  const globPattern = includeBicepParam
-    ? "**/*.{bicep, bicepparam}"
-    : "**/*.bicep";
+  const globPattern = includeBicepParam ? "**/*.{bicep, bicepparam}" : "**/*.bicep";
 
-  const workspaceBicepFiles = (
-    await workspace.findFiles(globPattern, undefined)
-  ).filter((f) => !!f.fsPath);
+  const workspaceBicepFiles = (await workspace.findFiles(globPattern, undefined)).filter((f) => !!f.fsPath);
   const visibleBicepFiles = window.visibleTextEditors // List of the active editor in each editor tab group
     .filter(matchesLanguageId)
     .map((e) => e.document.uri);
 
   // Create deduped, sorted array of all available Bicep files (in workspace and visible editors)
   const map = new Map<string, Uri>();
-  workspaceBicepFiles
-    .concat(visibleBicepFiles)
-    .forEach((bf) => map.set(bf.fsPath, bf));
+  workspaceBicepFiles.concat(visibleBicepFiles).forEach((bf) => map.set(bf.fsPath, bf));
   const bicepFilesSorted = Array.from(map.values());
   bicepFilesSorted.sort((a, b) => compareStringsOrdinal(a.path, b.path));
 
   if (bicepFilesSorted.length === 1) {
     // Only a single Bicep file in the workspace/visible editors - choose it
-    properties.targetFile =
-      workspaceBicepFiles.length === 1
-        ? "singleInWorkspace"
-        : "singleInVisibleEditors";
+    properties.targetFile = workspaceBicepFiles.length === 1 ? "singleInWorkspace" : "singleInVisibleEditors";
     return bicepFilesSorted[0];
   }
 
@@ -140,27 +124,20 @@ export async function findOrCreateActiveBicepParamFile(
     return activeEditor.document.uri;
   }
 
-  const workspaceBicepFiles = (
-    await workspace.findFiles("**/*.bicepparam", undefined)
-  ).filter((f) => !!f.fsPath);
+  const workspaceBicepFiles = (await workspace.findFiles("**/*.bicepparam", undefined)).filter((f) => !!f.fsPath);
   const visibleBicepFiles = window.visibleTextEditors // List of the active editor in each editor tab group
     .filter((e) => e.document.languageId === bicepParamLanguageId)
     .map((e) => e.document.uri);
 
   // Create deduped, sorted array of all available Bicep files (in workspace and visible editors)
   const map = new Map<string, Uri>();
-  workspaceBicepFiles
-    .concat(visibleBicepFiles)
-    .forEach((bf) => map.set(bf.fsPath, bf));
+  workspaceBicepFiles.concat(visibleBicepFiles).forEach((bf) => map.set(bf.fsPath, bf));
   const bicepFilesSorted = Array.from(map.values());
   bicepFilesSorted.sort((a, b) => compareStringsOrdinal(a.path, b.path));
 
   if (bicepFilesSorted.length === 1) {
     // Only a single Bicep file in the workspace/visible editors - choose it
-    properties.targetFile =
-      workspaceBicepFiles.length === 1
-        ? "singleInWorkspace"
-        : "singleInVisibleEditors";
+    properties.targetFile = workspaceBicepFiles.length === 1 ? "singleInWorkspace" : "singleInVisibleEditors";
     return bicepFilesSorted[0];
   }
 
@@ -187,11 +164,8 @@ function addFileQuickPick(items: IAzureQuickPickItem<Uri>[], uri: Uri): void {
     return;
   }
 
-  const workspaceRoot: string | undefined =
-    workspace.getWorkspaceFolder(uri)?.uri.fsPath;
-  const relativePath = workspaceRoot
-    ? path.relative(workspaceRoot, uri.fsPath)
-    : path.basename(uri.fsPath);
+  const workspaceRoot: string | undefined = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
+  const relativePath = workspaceRoot ? path.relative(workspaceRoot, uri.fsPath) : path.basename(uri.fsPath);
 
   items.push({
     label: relativePath,
@@ -201,10 +175,7 @@ function addFileQuickPick(items: IAzureQuickPickItem<Uri>[], uri: Uri): void {
   });
 }
 
-async function queryCreateBicepFile(
-  ui: IAzureUserInput,
-  properties: Properties,
-): Promise<Uri> {
+async function queryCreateBicepFile(ui: IAzureUserInput, properties: Properties): Promise<Uri> {
   properties.targetFile = "new";
 
   await ui.showWarningMessage(
@@ -215,9 +186,7 @@ async function queryCreateBicepFile(
 
   // User said yes (otherwise would have thrown user cancel error)
   const startingFolder: Uri =
-    (workspace.workspaceFolders
-      ? workspace.workspaceFolders[0].uri
-      : undefined) ?? Uri.file(os.homedir());
+    (workspace.workspaceFolders ? workspace.workspaceFolders[0].uri : undefined) ?? Uri.file(os.homedir());
   const uri: Uri | undefined = await window.showSaveDialog({
     title: "Save new Bicep file",
     defaultUri: Uri.joinPath(startingFolder, "main"),

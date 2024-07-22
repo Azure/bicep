@@ -101,7 +101,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -161,7 +161,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -364,7 +364,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: npm ci
         if: matrix.runTests
@@ -437,7 +437,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: npm ci
         run: npm ci
@@ -474,7 +474,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: TextMate Grammar
         run: |
@@ -527,7 +527,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@v4
@@ -710,11 +710,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -786,6 +789,6 @@ jobs:
       - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
         run: npm ci && npm run test:live:${{ matrix.environment }}
         env:
-          BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
+          BICEP_CLI_DOTNET_RID: linux-musl-x64
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests

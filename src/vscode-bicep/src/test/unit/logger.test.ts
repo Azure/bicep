@@ -1,7 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import * as vscode from "vscode";
+import * as winston from "winston";
+import * as loggerModule from "../../utils/logger";
+import { expectDefined } from "../utils/assert";
 
-// eslint-disable-next-line jest/no-untyped-mock-factory
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 jest.mock("winston", () => ({
   createLogger: () => mockWinstonLogger,
   format: {
@@ -14,12 +20,6 @@ jest.mock("winston", () => ({
     File: jest.fn(),
   },
 }));
-
-import * as vscode from "vscode";
-import * as winston from "winston";
-
-import * as loggerModule from "../../utils/logger";
-import { expectDefined } from "../utils/assert";
 
 const mockWinstonLogger = {
   clear: jest.fn(),
@@ -54,10 +54,9 @@ const mockOutputChannel: vscode.OutputChannel = {
   replace: jest.fn(),
 };
 
-const { createLogger, getLogger, resetLogger, WinstonLogger } =
-  loggerModule as typeof loggerModule & {
-    resetLogger: () => void;
-  };
+const { createLogger, getLogger, resetLogger, WinstonLogger } = loggerModule as typeof loggerModule & {
+  resetLogger: () => void;
+};
 
 describe("createLogger()", () => {
   it("should add a new logger to disposibles subscription", () => {
@@ -70,11 +69,10 @@ describe("createLogger()", () => {
 describe("getLogger()", () => {
   it("should throw if createLogger() is not called first", () => {
     resetLogger();
-    expect(() => getLogger()).toThrow(
-      "Logger is undefined. Make sure to call createLogger() first.",
-    );
+    expect(() => getLogger()).toThrow("Logger is undefined. Make sure to call createLogger() first.");
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it("should return a logger if createLogger() is called first", () => {
     resetLogger();
     createLogger(mockContext, mockOutputChannel);
@@ -99,18 +97,11 @@ describe("winstonLogger", () => {
     expect(mockWinstonLogger.close).toHaveBeenCalledTimes(1);
   });
 
-  it.each(["debug", "info", "warn", "error"] as const)(
-    "should should log message at %s level",
-    (level) => {
-      const logger = new WinstonLogger(mockOutputChannel, "info");
+  it.each(["debug", "info", "warn", "error"] as const)("should should log message at %s level", (level) => {
+    const logger = new WinstonLogger(mockOutputChannel, "info");
 
-      logger[level]("something");
+    logger[level]("something");
 
-      expect(mockWinstonLogger.log).toHaveBeenNthCalledWith(
-        1,
-        level,
-        "something",
-      );
-    },
-  );
+    expect(mockWinstonLogger.log).toHaveBeenNthCalledWith(1, level, "something");
+  });
 });

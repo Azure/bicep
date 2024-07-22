@@ -9,9 +9,7 @@ export class OutputChannelManager extends Disposable {
 
   constructor(name: string, extensionConfigurationPrefix: string) {
     super();
-    this._azExtOutputChannel = this.register(
-      createAzExtOutputChannel(name, extensionConfigurationPrefix),
-    );
+    this._azExtOutputChannel = this.register(createAzExtOutputChannel(name, extensionConfigurationPrefix));
   }
 
   appendToOutputChannel(text: string, noFocus = false): void {

@@ -3,5 +3,8 @@
     "extensibility": true,
     "extensionRegistry": true,
     "localDeploy": true
+  },
+  "extensions": {
+    "mock": "$TARGET_REFERENCE"
   }
 }
