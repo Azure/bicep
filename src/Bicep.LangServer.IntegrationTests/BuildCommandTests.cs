@@ -92,6 +92,7 @@ namespace Bicep.LangServer.IntegrationTests
             buildCommandOutput.Should().BeEquivalentToIgnoringNewlines(expectedJson);
         }
 
+        // https://github.com/Azure/bicep/issues/14196
         [TestMethod]
         public async Task Build_command_with_transitive_imports_should_succeed_even_if_multiple_compilations_are_combined_unexpectedly()
         {
@@ -159,20 +160,26 @@ namespace Bicep.LangServer.IntegrationTests
             var mainPath = Path.Combine(outputDirectory, "main.bicep");
             var moduleCPath = Path.Combine(outputDirectory, "moduleC.bicep");
 
+            // First, load main.bicep (and compile the transitive closure)
             client.TextDocument.DidOpenTextDocument(
                 TextDocumentParamHelper.CreateDidOpenDocumentParamsFromFile(mainPath, 1));
             await diagnosticsListener.WaitNext();
 
+            // Second, load moduleC.bicep (and compile its transitive closure)
+            // Because main.bicep and moduleC.bicep exist in separate "active contexts" in the language server, this
+            // sequence of actions will result in the compilation manager having two separate SemanticModels for
+            // moduleA.bicep: one in the transitive closure of main.bicep (still reachable via the import of
+            // moduleB.bicep) and another in the transitive closure of moduleC.bicep.
             client.TextDocument.DidOpenTextDocument(
                 TextDocumentParamHelper.CreateDidOpenDocumentParamsFromFile(moduleCPath, 1));
             await diagnosticsListener.WaitNext();
 
+            // Make sure we can still build main.bicep event though the `typeA` symbol from moduleA.bicep has two
+            // instantiations (and two different memory addresses) within the compilation manager.
             await client.Workspace.ExecuteCommand(new Command
             {
                 Name = "build",
-                Arguments = new JArray {
-                    mainPath,
-                }
+                Arguments = [mainPath],
             });
 
             var buildCommandOutput = File.ReadAllText(Path.ChangeExtension(mainPath, ".json"));
