@@ -798,7 +798,7 @@
     "@azure/arm-subscriptions": "^5.1.0",
     "@azure/identity": "^4.3.0",
     "@microsoft/vscode-azext-azureutils": "^3.0.1",
-    "@microsoft/vscode-azext-utils": "^2.2.0",
+    "@microsoft/vscode-azext-utils": "^2.5.1",
     "@vscode/codicons": "^0.0.36",
     "@vscode/webview-ui-toolkit": "^1.4.0",
     "cytoscape": "^3.29.2",
