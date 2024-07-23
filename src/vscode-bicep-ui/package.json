@@ -22,5 +22,9 @@
     "prettier": "^3.2.5",
     "turbo": "^2.0.6",
     "typescript": "^5.5.2"
+  },
+  "dependencies": {
+    "framer-motion": "^11.3.8",
+    "jotai": "^2.9.0"
   }
 }
