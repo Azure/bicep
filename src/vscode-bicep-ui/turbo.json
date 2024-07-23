@@ -1,0 +1,13 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "lint": {},
+    "test": {
+      "inputs": ["vite.config.ts", "src/**/*.test.ts", "src/**/*.test.tsx"]
+    },
+    "build": {
+      "inputs": ["$TURBO_DEFAULT$", "!src/**/*.test.ts", "!src/**/*.test.tsx"],
+      "outputs": ["dist/**"]
+    }
+  }
+}
