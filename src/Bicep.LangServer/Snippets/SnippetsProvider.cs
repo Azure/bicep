@@ -126,9 +126,10 @@ public class SnippetsProvider : ISnippetsProvider
     private static ObjectSyntax GetObjectSnippetSyntax(ObjectType objectType, ref int tabStopIndex, string? discriminatedObjectKey)
     {
         var typeProperties = objectType.Properties.Values.OrderBy(x =>
-            PropertiesSortPreferenceList.IndexOf(x.Name) switch {
+            PropertiesSortPreferenceList.IndexOf(x.Name) switch
+            {
                 -1 => int.MaxValue,
-                int index =>  index,
+                int index => index,
             })
             .Where(TypeHelper.IsRequired);
 
@@ -153,7 +154,7 @@ public class SnippetsProvider : ISnippetsProvider
                 typeProperty.Name,
                 GetObjectSnippetSyntax(objectType, ref tabStopIndex, null));
         }
-        else if (discriminatedObjectKey is {} &&
+        else if (discriminatedObjectKey is { } &&
             valueType is StringLiteralType stringLiteralType &&
             stringLiteralType.Name == discriminatedObjectKey)
         {

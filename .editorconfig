@@ -1,14 +1,22 @@
 root = true
 
-# Code files
-[*.{cs,csx,vb}]
-indent_style = space
-end_of_line = lf
-indent_size = 4
+[*]
 charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+[*.md]
+trim_trailing_whitespace = false # Two spaces in markdown is the same as a <br>.
+
+[*.{cs,csx,vb}]
+indent_size = 4
+
+##############################################################################
+########################## .NET Code Analysis Rules ##########################
+##############################################################################
 
 file_header_template = Copyright (c) Microsoft Corporation.\nLicensed under the MIT License.
 
@@ -21,7 +29,7 @@ csharp_style_implicit_object_creation_when_type_is_apparent = true:warning
 csharp_using_directive_placement = outside_namespace
 csharp_prefer_braces = true
 
-# IDE0005: [Using directive is unnecessary](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0005) 
+# IDE0005: [Using directive is unnecessary](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0005)
 dotnet_diagnostic.IDE0005.severity = suggestion
 
 # Require file header
@@ -247,7 +255,7 @@ dotnet_diagnostic.CA5399.severity = warning
 dotnet_diagnostic.CA5400.severity = warning
 # Do not use CreateEncryptor with non-default IV
 dotnet_diagnostic.CA5401.severity = warning
-# Use CreateEncryptor with the default IV 
+# Use CreateEncryptor with the default IV
 dotnet_diagnostic.CA5402.severity = warning
 # Do not hard-code certificate
 dotnet_diagnostic.CA5403.severity = warning
@@ -266,20 +274,3 @@ dotnet_diagnostic.CA1851.severity = warning
 # Override code quality rules for test projects
 [{src/Bicep.Core.Samples/*.cs,src/*Test*/*.cs}]
 dotnet_diagnostic.CA1851.severity = suggestion
-
-[*.{ts,tsx,js}]
-indent_style = space
-end_of_line = lf
-indent_size = 2
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
-
-# Xml config files
-[.resx]
-indent_style = space
-end_of_line = lf
-indent_size = 2
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
