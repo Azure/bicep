@@ -1,22 +1,37 @@
+import type { D3ZoomEvent } from "d3-zoom";
+import type { Selection } from "d3-selection";
+
+import { select } from "d3-selection";
+import { zoom, zoomIdentity } from "d3-zoom";
+import { frame } from "framer-motion";
 import { atom } from "jotai";
-// import { atomWithReset } from "jotai/utils";
 
-export const panAtom = atom({ x: 0, y: 0 });
+const panZoomBehaviorAtom = atom(zoom());
 
-export const zoomAtom = atom(1);
+const panZoomSelectionAtom = atom<Selection<Element, unknown, null, undefined> | undefined>(undefined);
 
-// export const panZoomAtom = atomWithReset({
-//   pan: {
-//     x: 0,
-//     y: 0,
-//   },
-//   zoom: 1,
-// });
+const panZoomTansformAtom = atom({ x: 0, y: 0, k: 1 });
 
-// export const setPanAtom = atom(null, (get, set, pan: { x: number; y: number }) => {
-//   set(panZoomAtom, { ...get(panZoomAtom), pan });
-// });
+export const setPanZoomGesturesAtom = atom(null, (get, set, element: Element) => {
+  const panZoomBehavior = get(panZoomBehaviorAtom)
+    .scaleExtent([1 / 4, 4])
+    .on("zoom", (event: D3ZoomEvent<Element, unknown>) => {
+      frame.update(() => set(panZoomTansformAtom, event.transform));
+    });
 
-// export const setZoomAtom = atom(null, (get, set, zoom: number) => {
-//   set(panZoomAtom, { ...get(panZoomAtom), zoom });
-// });
+  set(panZoomSelectionAtom, select(element).call(panZoomBehavior));
+});
+
+export const clearPanZoomGesturesAtom = atom(null, (get) => {
+  get(panZoomBehaviorAtom).on("zoom", null);
+});
+
+export const getPanZoomTransformAtom = atom((get) => get(panZoomTansformAtom));
+
+export const resetPanZoomTransformAtom = atom(null, (get) => {
+  const selection = get(panZoomSelectionAtom);
+
+  if (selection) {
+    get(panZoomBehaviorAtom).transform(selection, zoomIdentity.translate(0, 0).scale(1));
+  }
+});
