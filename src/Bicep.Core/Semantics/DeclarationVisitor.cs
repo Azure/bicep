@@ -21,8 +21,6 @@ namespace Bicep.Core.Semantics
     public sealed class DeclarationVisitor : AstVisitor
     {
         private readonly ImmutableDictionary<ProviderDeclarationSyntax, NamespaceResult> namespaceResults;
-        private readonly IArtifactFileLookup artifactFileLookup;
-        private readonly ISemanticModelLookup modelLookup;
         private readonly ISymbolContext context;
         private readonly IList<ScopeInfo> localScopes;
 
@@ -30,14 +28,10 @@ namespace Bicep.Core.Semantics
 
         private DeclarationVisitor(
             ImmutableDictionary<ProviderDeclarationSyntax, NamespaceResult> namespaceResults,
-            IArtifactFileLookup sourceFileLookup,
-            ISemanticModelLookup modelLookup,
             ISymbolContext context,
             IList<ScopeInfo> localScopes)
         {
             this.namespaceResults = namespaceResults;
-            this.artifactFileLookup = sourceFileLookup;
-            this.modelLookup = modelLookup;
             this.context = context;
             this.localScopes = localScopes;
         }
@@ -45,8 +39,6 @@ namespace Bicep.Core.Semantics
         // Returns the list of top level declarations as well as top level scopes.
         public static LocalScope GetDeclarations(
             ImmutableArray<NamespaceResult> namespaceResults,
-            IArtifactFileLookup sourceFileLookup,
-            ISemanticModelLookup modelLookup,
             BicepSourceFile sourceFile,
             ISymbolContext symbolContext)
         {
@@ -55,8 +47,6 @@ namespace Bicep.Core.Semantics
 
             var declarationVisitor = new DeclarationVisitor(
                 namespaceResults.ToImmutableDictionaryExcludingNull(x => x.Origin),
-                sourceFileLookup,
-                modelLookup,
                 symbolContext,
                 localScopes);
             declarationVisitor.Visit(sourceFile.ProgramSyntax);
@@ -344,7 +334,7 @@ namespace Bicep.Core.Semantics
 
         private Result<ISemanticModel, ErrorDiagnostic> GetImportSourceModel(CompileTimeImportDeclarationSyntax syntax)
         {
-            if (!SemanticModelHelper.TryGetModelForArtifactReference(artifactFileLookup, syntax, modelLookup).IsSuccess(out var model, out var modelLoadError))
+            if (!context.SemanticModel.TryLookupModel(syntax).IsSuccess(out var model, out var modelLoadError))
             {
                 return new(modelLoadError);
             }

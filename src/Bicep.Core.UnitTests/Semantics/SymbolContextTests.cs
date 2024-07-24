@@ -22,7 +22,7 @@ namespace Bicep.Core.UnitTests.Semantics
             var compilation = Services.BuildCompilation("");
             var bindings = new Dictionary<SyntaxBase, Symbol>();
             var cyclesBySymbol = new Dictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>>();
-            var context = new SymbolContext(compilation, compilation.GetEntrypointSemanticModel());
+            var context = new SymbolContext(compilation.GetEntrypointSemanticModel());
 
             Action byName = () =>
             {
@@ -32,13 +32,13 @@ namespace Bicep.Core.UnitTests.Semantics
 
             Action byNode = () =>
             {
-                var b = context.Compilation;
+                var b = context.SemanticModel;
             };
             byNode.Should().Throw<InvalidOperationException>().WithMessage(expectedMessage);
 
             context.Unlock();
             context.TypeManager.Should().NotBeNull();
-            context.Compilation.Should().NotBeNull();
+            context.SemanticModel.Should().NotBeNull();
         }
     }
 }

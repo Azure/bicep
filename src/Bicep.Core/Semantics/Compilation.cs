@@ -100,6 +100,16 @@ namespace Bicep.Core.Semantics
         public IEnumerable<SemanticModel> GetAllBicepModels()
             => GetAllModels().OfType<SemanticModel>();
 
-        private SemanticModel CreateSemanticModel(BicepSourceFile bicepFile) => new(this, bicepFile);
+        private SemanticModel CreateSemanticModel(BicepSourceFile bicepFile) => new(
+            this.LinterAnalyzer,
+            this.NamespaceProvider,
+            this.ArtifactReferenceFactory,
+            this,
+            this.SourceFileGrouping,
+            this.ConfigurationManager.GetConfiguration(bicepFile.FileUri),
+            this.FeatureProviderFactory.GetFeatureProvider(bicepFile.FileUri),
+            this.Environment,
+            this.FileCache,
+            bicepFile);
     }
 }

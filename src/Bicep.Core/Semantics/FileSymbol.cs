@@ -253,11 +253,7 @@ namespace Bicep.Core.Semantics
                 return new(new EmptySemanticModel());
             }
 
-            return SemanticModelHelper.TryGetTemplateModelForArtifactReference(
-                Context.Compilation.SourceFileGrouping,
-                usingDeclaration,
-                b => b.UsingDeclarationMustReferenceBicepFile(),
-                Context.Compilation);
+            return Context.SemanticModel.TryLookupModel(usingDeclaration, b => b.UsingDeclarationMustReferenceBicepFile());
         }
 
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor

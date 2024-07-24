@@ -28,8 +28,6 @@ namespace Bicep.Core.TypeSystem
         private readonly IBinder binder;
         private readonly SemanticModel model;
         private readonly IDiagnosticLookup parsingErrorLookup;
-        private readonly IArtifactFileLookup sourceFileLookup;
-        private readonly ISemanticModelLookup semanticModelLookup;
         private readonly ResourceDerivedTypeResolver resourceDerivedTypeResolver;
         private readonly ResourceDerivedTypeDiagnosticReporter resourceDerivedTypeDiagnosticReporter;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
@@ -43,8 +41,6 @@ namespace Bicep.Core.TypeSystem
             this.features = model.Features;
             this.binder = model.Binder;
             this.parsingErrorLookup = model.ParsingErrorLookup;
-            this.sourceFileLookup = model.Compilation.SourceFileGrouping;
-            this.semanticModelLookup = model.Compilation;
             resourceDerivedTypeResolver = new(binder);
             resourceDerivedTypeDiagnosticReporter = new(features, binder);
             assignedTypes = new();
@@ -1096,7 +1092,7 @@ namespace Bicep.Core.TypeSystem
                 base.VisitWildcardImportSyntax(syntax);
 
                 if (binder.GetParent(syntax) is not CompileTimeImportDeclarationSyntax importDeclarationSyntax ||
-                    !SemanticModelHelper.TryGetModelForArtifactReference(sourceFileLookup, importDeclarationSyntax, semanticModelLookup).IsSuccess(out var importedModel))
+                    !this.model.TryLookupModel(importDeclarationSyntax, x => x.ModuleDeclarationMustReferenceBicepModule()).IsSuccess(out var importedModel))
                 {
                     return ErrorType.Empty();
                 }
@@ -1151,7 +1147,7 @@ namespace Bicep.Core.TypeSystem
 
                 if (binder.GetParent(syntax) is not { } parentSyntax ||
                     binder.GetParent(parentSyntax) is not CompileTimeImportDeclarationSyntax importDeclarationSyntax ||
-                    !SemanticModelHelper.TryGetModelForArtifactReference(sourceFileLookup, importDeclarationSyntax, semanticModelLookup).IsSuccess(out var importedModel) ||
+                    !model.TryLookupModel(importDeclarationSyntax).IsSuccess(out var importedModel) ||
                     syntax.TryGetOriginalSymbolNameText() is not string importTarget ||
                     importedModel.Exports.TryGetValue(importTarget) is not { } exported)
                 {

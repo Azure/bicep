@@ -20,10 +20,7 @@ namespace Bicep.Core.Semantics
         public override SymbolKind Kind => SymbolKind.Test;
 
         public Result<ISemanticModel, ErrorDiagnostic> TryGetSemanticModel()
-            => SemanticModelHelper.TryGetTemplateModelForArtifactReference(Context.Compilation.SourceFileGrouping,
-                DeclaringTest,
-                b => b.ModuleDeclarationMustReferenceBicepModule(),
-                Context.Compilation);
+            => Context.SemanticModel.TryLookupModel(DeclaringTest, b => b.ModuleDeclarationMustReferenceBicepModule());
 
         public override IEnumerable<Symbol> Descendants
         {

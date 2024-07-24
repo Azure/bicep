@@ -516,13 +516,7 @@ namespace Bicep.Core.Emit
 
             foreach (var extendsDeclaration in extendsDeclarations)
             {
-                var extendedModel = SemanticModelHelper.TryGetTemplateModelForArtifactReference(
-                                        model.Compilation.SourceFileGrouping,
-                                        extendsDeclaration,
-                                        b => b.ExtendsPathHasNotBeenSpecified(),
-                                        model.Compilation
-                                    );
-
+                var extendedModel = model.TryLookupModel(extendsDeclaration, b => b.ExtendsPathHasNotBeenSpecified());
                 if (extendedModel.IsSuccess() && extendedModel.Unwrap() is SemanticModel extendedSemanticModel)
                 {
                     generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ParameterAssignments);

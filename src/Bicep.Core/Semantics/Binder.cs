@@ -41,7 +41,7 @@ namespace Bicep.Core.Semantics
                 .ToImmutableArray();
             this.NamespaceResolver = NamespaceResolver.Create(namespaceResults);
 
-            var fileScope = DeclarationVisitor.GetDeclarations(namespaceResults, sourceFileLookup, modelLookup, sourceFile, symbolContext);
+            var fileScope = DeclarationVisitor.GetDeclarations(namespaceResults, sourceFile, symbolContext);
             this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope);
             this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
 

@@ -6,19 +6,15 @@ namespace Bicep.Core.Semantics
 {
     public sealed class SymbolContext : ISymbolContext
     {
-        private readonly Compilation compilation;
         private readonly SemanticModel semanticModel;
         private bool unlocked;
 
-        public SymbolContext(Compilation compilation, SemanticModel semanticModel)
+        public SymbolContext(SemanticModel semanticModel)
         {
-            this.compilation = compilation;
             this.semanticModel = semanticModel;
         }
 
         public ITypeManager TypeManager => WithLockCheck(() => this.semanticModel.TypeManager);
-
-        public Compilation Compilation => WithLockCheck(() => this.compilation);
 
         public IBinder Binder => WithLockCheck(() => this.semanticModel.Binder);
 

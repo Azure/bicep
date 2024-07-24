@@ -62,49 +62,5 @@ namespace Bicep.Core.Semantics
                     LanguageConstants.IdentifierComparer.Equals(functionSymbol.Name, decoratorName);
             });
         }
-
-        public static Result<ISemanticModel, ErrorDiagnostic> TryGetModelForArtifactReference(IArtifactFileLookup sourceFileLookup,
-            IArtifactReferenceSyntax reference,
-            ISemanticModelLookup semanticModelLookup)
-        {
-            return TryGetSourceFile(sourceFileLookup, reference).Transform(semanticModelLookup.GetSemanticModel);
-        }
-
-        public static Result<ISemanticModel, ErrorDiagnostic> TryGetTemplateModelForArtifactReference(IArtifactFileLookup sourceFileLookup,
-            IArtifactReferenceSyntax reference,
-            DiagnosticBuilder.ErrorBuilderDelegate onInvalidSourceFileType,
-            ISemanticModelLookup semanticModelLookup)
-        {
-            if (!TryGetSourceFile(sourceFileLookup, reference).IsSuccess(out var sourceFile, out var error))
-            {
-                return new(error);
-            }
-
-            // when we inevitably add a third language ID,
-            // the inclusion list style below will prevent the new language ID from being
-            // automatically allowed to be referenced via module declarations
-            var isValidReference = (reference, sourceFile) switch
-            {
-                (ExtendsDeclarationSyntax, BicepParamFile) => true,
-                (_, BicepFile or ArmTemplateFile or TemplateSpecFile) => true,
-                _ => false,
-            };
-            if (!isValidReference)
-            {
-                return new(onInvalidSourceFileType(DiagnosticBuilder.ForPosition(reference.SourceSyntax)));
-            }
-
-            return new(semanticModelLookup.GetSemanticModel(sourceFile));
-        }
-
-        private static Result<ISourceFile, ErrorDiagnostic> TryGetSourceFile(IArtifactFileLookup sourceFileLookup, IArtifactReferenceSyntax reference)
-        {
-            if (!sourceFileLookup.TryGetSourceFile(reference).IsSuccess(out var sourceFile, out var errorBuilder))
-            {
-                return new(errorBuilder(DiagnosticBuilder.ForPosition(reference.SourceSyntax)));
-            }
-
-            return new(sourceFile);
-        }
     }
 }
