@@ -5,8 +5,9 @@ import { panZoomAtom } from "../atoms/panZoom";
 
 const $Graph = styled.div`
   transform-origin: 0 0;
-  height: 0;
-  width: 0;
+  height: 100px;
+  width: 100px;
+  background-color: lime;
 `;
 
 const defaultStore = getDefaultStore();

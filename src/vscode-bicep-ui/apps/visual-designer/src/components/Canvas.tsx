@@ -2,8 +2,9 @@ import { frame } from "framer-motion";
 import { useSetAtom } from "jotai";
 import { useCallback } from "react";
 import { styled } from "styled-components";
-import { useD3PanZoom } from "../hooks/useD3PanZoom";
 import { panZoomAtom } from "../atoms/panZoom";
+import { useD3PanZoom } from "../hooks/useD3PanZoom";
+import { Graph } from "./Graph";
 
 const $Canvas = styled.div`
   position: absolute;
@@ -28,5 +29,9 @@ export function Canvas() {
     ),
   );
 
-  return <$Canvas ref={ref}></$Canvas>;
+  return (
+    <$Canvas ref={ref}>
+      <Graph />
+    </$Canvas>
+  );
 }

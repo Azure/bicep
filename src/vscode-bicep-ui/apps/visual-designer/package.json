@@ -4,10 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "@vscode-bicep-ui/components": "*",
     "@vscode-bicep-ui/messaging": "*",
+    "d3-drag": "^3.0.0",
+    "d3-selection": "^3.0.0",
+    "d3-zoom": "^3.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "styled-components": "^6.1.12"

@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 
 export type PanZoomEventListener = (event: D3ZoomEvent<HTMLDivElement, unknown>) => void;
 
-const handleWheelDelta = (event: WheelEvent) => (-event.deltaY * (event.deltaMode ? 120 : 1)) / 1000;
+// const handleWheelDelta = (event: WheelEvent) => (-event.deltaY * (event.deltaMode ? 120 : 1)) / 1000;
 
 export function useD3PanZoom(listener: PanZoomEventListener) {
   const ref = useRef<HTMLDivElement>(null);
@@ -24,7 +24,7 @@ export function useD3PanZoom(listener: PanZoomEventListener) {
         [0, 0],
         [width, height],
       ])
-      .wheelDelta(handleWheelDelta)
+      // .wheelDelta(handleWheelDelta)
       .on("zoom", listener);
 
     selection.call(zoomBehavior);
