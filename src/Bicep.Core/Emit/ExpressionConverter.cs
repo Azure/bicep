@@ -233,8 +233,10 @@ namespace Bicep.Core.Emit
         {
             var (@base, properties, safeAccess) = ConvertBaseExpression(expression);
 
-            if (expression is ModuleOutputPropertyAccessExpression)
+            if (expression is ModuleOutputPropertyAccessExpression moduleOutputExpression)
             {
+                var isSecureOutput = @base is FunctionExpression functionExpression && functionExpression.Function == "listOutputWithSecureValues";
+
                 if (safeAccess)
                 {
                     // there are two scenarios we want to handle in this case:
@@ -245,7 +247,7 @@ namespace Bicep.Core.Emit
                 }
                 else
                 {
-                    properties = properties.Append(new JTokenExpression("value"));
+                    properties = isSecureOutput ? properties : properties.Append(new JTokenExpression("value"));
                 }
             }
 
@@ -400,15 +402,37 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private (LanguageExpression @base, IEnumerable<LanguageExpression> properties, bool safeAccess) ConvertModulePropertyAccess(ModuleReferenceExpression reference, PropertyAccessExpression expression) => expression.PropertyName switch
+        private (LanguageExpression @base, IEnumerable<LanguageExpression> properties, bool safeAccess) ConvertModulePropertyAccess(ModuleReferenceExpression reference, PropertyAccessExpression expression)
         {
-            // the name is dependent on the name expression which could involve locals in case of a resource collection
-            "name" => (GetModuleNameExpression(reference.Module), Enumerable.Empty<LanguageExpression>(), false),
-            "outputs" => (GetModuleReferenceExpression(reference.Module, reference.IndexContext, false),
+            switch (expression.PropertyName)
+            {
+
+                case "name":
+                    // the name is dependent on the name expression which could involve locals in case of a resource collection
+
+                    return (GetModuleNameExpression(reference.Module), Enumerable.Empty<LanguageExpression>(), false);
+
+                case "outputs":
+                    var moduleSymbol = reference.Module;
+                    var bodyObjectType = moduleSymbol.TryGetBodyObjectType();
+                    var hasSecureOutput = bodyObjectType?.Properties.Any(p => p.Value.Flags.HasFlag(TypeSystem.Types.TypePropertyFlags.WriteOnly)) ?? false;
+
+                    if (hasSecureOutput)
+                    {
+                        var deploymentResourceId = GetFullyQualifiedResourceId(moduleSymbol);
+                        var apiVersion = new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion);
+                        return (CreateFunction("listOutputWithSecureValues",deploymentResourceId,apiVersion),
+                            Enumerable.Empty<LanguageExpression>(), expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess));
+                    }
+
+                    return (GetModuleReferenceExpression(reference.Module, reference.IndexContext, false),
                 new[] { new JTokenExpression("outputs") },
-                expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess)),
-            string otherwise => throw new InvalidOperationException($"Unsupported module property: {otherwise}"),
-        };
+                expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess));
+
+                default:
+                    throw new InvalidOperationException($"Unsupported module property: {expression.PropertyName}");
+            }
+        }
 
         public IEnumerable<LanguageExpression> GetResourceNameSegments(DeclaredResourceMetadata resource)
             => GetResourceNameSegments(resource, expressionBuilder.GetResourceNameSyntaxSegments(resource).ToImmutableArray());
