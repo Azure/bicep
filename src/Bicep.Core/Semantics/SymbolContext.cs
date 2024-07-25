@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Registry;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -9,18 +10,28 @@ namespace Bicep.Core.Semantics
         private readonly SemanticModel semanticModel;
         private bool unlocked;
 
-        public SymbolContext(SemanticModel semanticModel)
+        public SymbolContext(SemanticModel semanticModel, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, IArtifactReferenceFactory artifactReferenceFactory, BicepSourceFile sourceFile)
         {
             this.semanticModel = semanticModel;
+            SourceFileLookup = sourceFileLookup;
+            ModelLookup = modelLookup;
+            ArtifactReferenceFactory = artifactReferenceFactory;
+            SourceFile = sourceFile;
         }
 
-        public ITypeManager TypeManager => WithLockCheck(() => this.semanticModel.TypeManager);
+        private SemanticModel SemanticModel => WithLockCheck(() => this.semanticModel);
 
-        public IBinder Binder => WithLockCheck(() => this.semanticModel.Binder);
+        public ITypeManager TypeManager => SemanticModel.TypeManager;
 
-        public BicepSourceFile SourceFile => WithLockCheck(() => this.semanticModel.SourceFile);
+        public IBinder Binder => SemanticModel.Binder;
 
-        public SemanticModel SemanticModel => WithLockCheck(() => this.semanticModel);
+        public BicepSourceFile SourceFile { get; }
+
+        public IArtifactFileLookup SourceFileLookup { get; }
+
+        public ISemanticModelLookup ModelLookup { get; }
+
+        public IArtifactReferenceFactory ArtifactReferenceFactory { get; }
 
         public void Unlock() => this.unlocked = true;
 

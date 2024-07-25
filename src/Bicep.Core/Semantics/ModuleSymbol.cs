@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
@@ -21,7 +22,7 @@ namespace Bicep.Core.Semantics
         public override SymbolKind Kind => SymbolKind.Module;
 
         public Result<ISemanticModel, ErrorDiagnostic> TryGetSemanticModel()
-            => Context.SemanticModel.TryLookupModel(DeclaringModule, b => b.ModuleDeclarationMustReferenceBicepModule());
+            => DeclaringModule.TryGetReferencedModel(Context.SourceFileLookup, Context.ModelLookup, b => b.ModuleDeclarationMustReferenceBicepModule());
 
         public override IEnumerable<Symbol> Descendants
         {

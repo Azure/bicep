@@ -5,6 +5,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Navigation;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
@@ -334,7 +335,7 @@ namespace Bicep.Core.Semantics
 
         private Result<ISemanticModel, ErrorDiagnostic> GetImportSourceModel(CompileTimeImportDeclarationSyntax syntax)
         {
-            if (!context.SemanticModel.TryLookupModel(syntax).IsSuccess(out var model, out var modelLoadError))
+            if (!syntax.TryGetReferencedModel(context.SourceFileLookup, context.ModelLookup).IsSuccess(out var model, out var modelLoadError))
             {
                 return new(modelLoadError);
             }

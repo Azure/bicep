@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Registry;
+using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -13,6 +15,10 @@ namespace Bicep.Core.Semantics
 
         BicepSourceFile SourceFile { get; }
 
-        SemanticModel SemanticModel { get; }
+        IArtifactFileLookup SourceFileLookup { get; }
+
+        ISemanticModelLookup ModelLookup { get; }
+
+        IArtifactReferenceFactory ArtifactReferenceFactory { get; }
     }
 }

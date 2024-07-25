@@ -9,6 +9,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Intermediate;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -1092,7 +1093,7 @@ namespace Bicep.Core.TypeSystem
                 base.VisitWildcardImportSyntax(syntax);
 
                 if (binder.GetParent(syntax) is not CompileTimeImportDeclarationSyntax importDeclarationSyntax ||
-                    !this.model.TryLookupModel(importDeclarationSyntax, x => x.ModuleDeclarationMustReferenceBicepModule()).IsSuccess(out var importedModel))
+                    !this.model.TryGetReferencedModel(importDeclarationSyntax).IsSuccess(out var importedModel))
                 {
                     return ErrorType.Empty();
                 }
@@ -1147,7 +1148,7 @@ namespace Bicep.Core.TypeSystem
 
                 if (binder.GetParent(syntax) is not { } parentSyntax ||
                     binder.GetParent(parentSyntax) is not CompileTimeImportDeclarationSyntax importDeclarationSyntax ||
-                    !model.TryLookupModel(importDeclarationSyntax).IsSuccess(out var importedModel) ||
+                    !model.TryGetReferencedModel(importDeclarationSyntax).IsSuccess(out var importedModel) ||
                     syntax.TryGetOriginalSymbolNameText() is not string importTarget ||
                     importedModel.Exports.TryGetValue(importTarget) is not { } exported)
                 {

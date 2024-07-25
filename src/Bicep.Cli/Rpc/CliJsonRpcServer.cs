@@ -117,7 +117,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         var metadata = GetModelMetadata(model).ToImmutableArray();
         var parameters = model.Root.ParameterDeclarations.Select(x => GetSymbolDefinition(model, x)).ToImmutableArray();
         var outputs = model.Root.OutputDeclarations.Select(x => GetSymbolDefinition(model, x)).ToImmutableArray();
-        var exports = model.Root.Declarations.Where(x => x.IsExported()).Select(x => GetExportDefinition(model, x)).ToImmutableArray();
+        var exports = model.Root.Declarations.Where(x => x.IsExported(model)).Select(x => GetExportDefinition(model, x)).ToImmutableArray();
 
         return new(metadata, parameters, outputs, exports);
     }
@@ -127,7 +127,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             GetRange(model.SourceFile, symbol.DeclaringSyntax),
             symbol.Name,
             symbol.Kind.ToString(),
-            symbol.TryGetDescriptionFromDecorator());
+            symbol.TryGetDescriptionFromDecorator(model));
 
     private static GetMetadataResponse.SymbolDefinition GetSymbolDefinition(SemanticModel model, DeclaredSymbol symbol)
     {
@@ -161,7 +161,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             GetRange(model.SourceFile, symbol.DeclaringSyntax),
             symbol.Name,
             getTypeInfo(),
-            symbol.TryGetDescriptionFromDecorator());
+            symbol.TryGetDescriptionFromDecorator(model));
     }
 
     public async Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken)

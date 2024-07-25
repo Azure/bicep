@@ -63,7 +63,7 @@ namespace Bicep.Core.Semantics
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var symbolContext = new SymbolContext(this);
+            var symbolContext = new SymbolContext(this, sourceFileGrouping, modelLookup, artifactReferenceFactory, sourceFile);
             // Because import cycles would have been detected and blocked earlier in the compilation, it's fine to allow
             // access to *other* models in the compilation while the symbol context is locked.
             // This allows the binder to create the right kind of symbol for compile-time imports.
@@ -172,15 +172,15 @@ namespace Bicep.Core.Semantics
             => auxiliaryFileCache.ContainsKey(uri);
 
         private IEnumerable<ExportMetadata> FindExportedTypes() => Root.TypeDeclarations
-            .Where(t => t.IsExported())
+            .Where(t => t.IsExported(this))
             .Select(t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType)));
 
         private IEnumerable<ExportMetadata> FindExportedVariables() => Root.VariableDeclarations
-            .Where(v => v.IsExported())
+            .Where(v => v.IsExported(this))
             .Select(v => new ExportedVariableMetadata(v.Name, v.Type, DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable)));
 
         private IEnumerable<ExportMetadata> FindExportedFunctions() => Root.FunctionDeclarations
-            .Where(f => f.IsExported())
+            .Where(f => f.IsExported(this))
             .Select(f => new ExportedFunctionMetadata(f.Name,
                 f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description)).ToImmutableArray(),
                 new(f.Overload.TypeSignatureSymbol, null),

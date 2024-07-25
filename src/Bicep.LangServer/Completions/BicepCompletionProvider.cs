@@ -2106,7 +2106,7 @@ namespace Bicep.LanguageServer.Completions
                 if (context.EnclosingDeclaration is CompileTimeImportDeclarationSyntax compileTimeImportDeclaration &&
                     compileTimeImportDeclaration.ImportExpression.Span.ContainsInclusive(context.ReplacementTarget.Span.Position))
                 {
-                    if (model.TryLookupModel(compileTimeImportDeclaration).IsSuccess(out var importedModel))
+                    if (model.TryGetReferencedModel(compileTimeImportDeclaration).IsSuccess(out var importedModel))
                     {
                         var claimedNames = model.Root.Declarations.Select(d => d.Name).ToImmutableHashSet();
 

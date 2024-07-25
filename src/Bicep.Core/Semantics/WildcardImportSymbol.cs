@@ -31,7 +31,7 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
     public NamespaceType? TryGetNamespaceType() => this.Type as NamespaceType;
 
     public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference()
-        => Context.SemanticModel.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
+        => Context.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 
     public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
     {
