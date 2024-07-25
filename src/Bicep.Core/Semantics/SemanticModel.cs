@@ -205,6 +205,7 @@ namespace Bicep.Core.Semantics
         }
 
         public BicepSourceFile SourceFile { get; }
+
         public IEnvironment Environment { get; }
 
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
