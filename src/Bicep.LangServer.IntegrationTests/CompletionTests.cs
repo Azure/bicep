@@ -4025,6 +4025,9 @@ var file = " + functionName + @"(templ|)
         [DataRow("module foo oth|", "other.bicep", "module foo 'other.bicep'|")]
         [DataRow("module foo 'ot|h'", "other.bicep", "module foo 'other.bicep'|")]
         [DataRow("module foo '../to2/|'", "main.bicep", "module foo '../to2/main.bicep'|")]
+        [DataRow("import {} from |", "other.bicep", "import {} from 'other.bicep'|")]
+        [DataRow("import {} from 'oth|'", "other.bicep", "import {} from 'other.bicep'|")]
+        [DataRow("import {} from oth|", "other.bicep", "import {} from 'other.bicep'|")]
         public async Task Module_path_completions_are_offered(string fileWithCursors, string expectedLabel, string expectedResult)
         {
             var fileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
