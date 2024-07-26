@@ -6142,4 +6142,58 @@ resource addAppConfigValues 'Microsoft.AppConfiguration/configurationStores/keyV
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+
+    [TestMethod]
+    public void Test_Issue12800()
+    {
+        // https://github.com/Azure/bicep/issues/12800
+        var result = CompilationHelper.Compile("""
+var fixed = union(
+  {},
+  // Comment
+  {}
+  // Comment
+)
+""");
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue12800_2()
+    {
+        // https://github.com/Azure/bicep/issues/12800
+        var result = CompilationHelper.Compile("""
+var fixed = union(
+  {},
+  /*
+  * Multi-line comment
+  */
+  {}
+  /*
+  * Multi-line comment
+  */
+)
+""");
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue12800_3()
+    {
+        // https://github.com/Azure/bicep/issues/12800
+        var result = CompilationHelper.Compile("""
+var fixed = union(
+  {},
+  // Comment
+  {}
+  // Comment
+  {}
+)
+""");
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+             ("BCP237", DiagnosticLevel.Error, """Expected a comma character at this location."""),
+        });
+    }
 }

@@ -204,7 +204,6 @@ type thisIsWeird = resource</*
 //@[002:0053) |   ├─ParameterizedTypeArgumentSyntax
 //@[002:0053) |   | └─StringTypeLiteralSyntax
 //@[002:0053) |   |   └─Token(StringComplete) |'Astronomer.Astro/organizations@2023-08-01-preview'|
-//@[053:0053) |   ├─SkippedTriviaSyntax
 //@[053:0054) |   ├─Token(NewLine) |\n|
 ///  >
 //@[006:0007) |   ├─Token(NewLine) |\n|

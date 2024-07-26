@@ -290,6 +290,24 @@ namespace Bicep.Core.Parsing
             return types.Contains(reader.Peek().Type);
         }
 
+        protected bool CheckTrivia(ImmutableArray<SyntaxTrivia>? trivia, params SyntaxTriviaType[] types)
+        {
+            if (trivia is null || trivia?.IsEmpty is true)
+            {
+                return false;
+            }
+            var isTypes = false;
+            foreach (var trivium in trivia.GetValueOrDefault())
+            {
+                if (types.Contains(trivium.Type))
+                {
+                    isTypes = true;
+                    break;
+                }
+            }
+            return isTypes;
+        }
+
         private bool CheckKeyword(string keyword) => !this.IsAtEnd() && CheckKeyword(this.reader.Peek(), keyword);
 
         protected Token Expect(TokenType type, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
@@ -573,7 +591,13 @@ namespace Bicep.Core.Parsing
                     // we don't want to allow mixing and matching, and we want to insert dummy elements between commas
                     if (Check(TokenType.NewLine))
                     {
-                        if (!Check(this.reader.PeekAhead(), closingTokenType))
+                        var count = 1;
+                        while (Check(TokenType.NewLine) && CheckTrivia(this.reader.PeekAhead(count)?.LeadingTrivia, [SyntaxTriviaType.SingleLineComment, SyntaxTriviaType.MultiLineComment]))
+                        {
+                            // Check End of comments for closingTokenType
+                            count++;
+                        }
+                        if (!Check(this.reader.PeekAhead(count), closingTokenType))
                         {
                             itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCommaSeparator()));
                         }

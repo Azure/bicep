@@ -13,9 +13,10 @@ type invalid10 = resource<'abc' 'def'>
 type invalid11 = resource<123>
 type invalid12 = resource<resourceGroup()>
 
-type thisIsWeird = resource</*
-*/'Astronomer.Astro/organizations@2023-08-01-preview'
-///  >
+type thisIsWeird = resource<
+  /*
+*/ 'Astronomer.Astro/organizations@2023-08-01-preview'
+  ///  >
 >
 
 type interpolated = resource<'Microsoft.${'Storage'}/storageAccounts@2022-09-01'>
