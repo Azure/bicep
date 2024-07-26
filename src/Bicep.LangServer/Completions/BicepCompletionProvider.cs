@@ -71,7 +71,6 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetResourceTypeCompletions(model, context))
                 .Concat(GetResourceTypeFollowerCompletions(context))
                 .Concat(GetLocalModulePathCompletions(model, context))
-                .Concat(GetLocalTestPathCompletions(model, context))
                 .Concat(GetModuleBodyCompletions(model, context))
                 .Concat(GetTestBodyCompletions(model, context))
                 .Concat(GetResourceBodyCompletions(model, context))
@@ -608,6 +607,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetLocalModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
+                !context.Kind.HasFlag(BicepCompletionContextKind.TestPath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
             {
                 return [];
@@ -681,47 +681,6 @@ namespace Bicep.LanguageServer.Completions
 
                 return false;
             }
-        }
-
-        private IEnumerable<CompletionItem> GetLocalTestPathCompletions(SemanticModel model, BicepCompletionContext context)
-        {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.TestPath))
-            {
-                return [];
-            }
-
-            // To provide intellisense before the quotes are typed
-            if (context.EnclosingDeclaration is not TestDeclarationSyntax declarationSyntax
-                || declarationSyntax.Path is not StringSyntax stringSyntax
-                || stringSyntax.TryGetLiteralValue() is not string entered)
-            {
-                entered = "";
-            }
-
-            try
-            {
-                // These should only fail if we're not able to resolve cwd path or the entered string
-                if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
-                {
-                    return [];
-                }
-
-                var replacementRange = context.EnclosingDeclaration is TestDeclarationSyntax test ? test.Path.ToRange(model.SourceFile.LineStarts) : context.ReplacementRange;
-
-                // Prioritize .bicep files higher than other files.
-                var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
-                var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
-
-                return bicepFileItems;
-            }
-            catch (DirectoryNotFoundException)
-            {
-                return [];
-            }
-
-            // Local functions.
-
-            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
         }
 
         private bool IsOciArtifactRegistryReference(BicepCompletionContext context)
