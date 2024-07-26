@@ -1,4 +1,4 @@
-﻿/*
+/*
   This is a block comment.
 */
 
@@ -209,3 +209,5 @@ param decoratedArray array = [
     utcNow()
     newGuid()
 ]
+
+param nameofParam string = nameof(decoratedArray)

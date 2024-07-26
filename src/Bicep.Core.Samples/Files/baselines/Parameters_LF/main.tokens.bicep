@@ -882,6 +882,17 @@ param decoratedArray array = [
 //@[013:014) NewLine |\n|
 ]
 //@[000:001) RightSquare |]|
-//@[001:002) NewLine |\n|
+//@[001:003) NewLine |\n\n|
+
+param nameofParam string = nameof(decoratedArray)
+//@[000:005) Identifier |param|
+//@[006:017) Identifier |nameofParam|
+//@[018:024) Identifier |string|
+//@[025:026) Assignment |=|
+//@[027:033) Identifier |nameof|
+//@[033:034) LeftParen |(|
+//@[034:048) Identifier |decoratedArray|
+//@[048:049) RightParen |)|
+//@[049:050) NewLine |\n|
 
 //@[000:000) EndOfFile ||

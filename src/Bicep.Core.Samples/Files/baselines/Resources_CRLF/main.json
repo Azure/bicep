@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9175006065683431096"
+      "templateHash": "2858757969212984934"
     }
   },
   "parameters": {
@@ -57,9 +57,29 @@
       "db1",
       "db2",
       "db3"
-    ]
+    ],
+    "nameof1": "sqlServer",
+    "nameof2": "location",
+    "nameof3": "minCapacity",
+    "nameof4": "creationTime",
+    "nameof5": "id",
+    "sqlConfig": {
+      "westus": {},
+      "server-name": {}
+    }
   },
   "resources": [
+    {
+      "type": "Microsoft.Sql/servers/databases/advancedThreatProtectionSettings",
+      "apiVersion": "2021-11-01",
+      "name": "[format('{0}/{1}/{2}', 'sql-server-name', 'primary-db', 'Default')]",
+      "properties": {
+        "state": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers/databases', 'sql-server-name', 'primary-db')]"
+      ]
+    },
     {
       "copy": {
         "name": "sqlDatabases",
@@ -629,6 +649,12 @@
       "apiVersion": "2021-11-01",
       "name": "sql-server-name",
       "location": "polandcentral"
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-11-01",
+      "name": "[format('sql-server-nameof-{0}', '''server-name''')]",
+      "location": "westus"
     }
   ],
   "outputs": {

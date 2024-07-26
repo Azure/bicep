@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5913067076123852117"
+      "templateHash": "1954512251654163120"
     }
   },
   "parameters": {
@@ -53,7 +53,9 @@
         "name": "secret02",
         "version": "versionB"
       }
-    ]
+    ],
+    "nameofModule": "folderWithSpace",
+    "nameofModuleParam": "exposedSecureString"
   },
   "resources": [
     {

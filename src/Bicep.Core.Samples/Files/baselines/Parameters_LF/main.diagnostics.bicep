@@ -239,8 +239,10 @@ param decoratedObject object = {
 @sys.maxLength(20)
 @sys.description('An array.')
 param decoratedArray array = [
-//@[06:020) [no-unused-params (Warning)] Parameter "decoratedArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedArray|
     utcNow()
     newGuid()
 ]
+
+param nameofParam string = nameof(decoratedArray)
+//@[06:017) [no-unused-params (Warning)] Parameter "nameofParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |nameofParam|
 

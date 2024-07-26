@@ -1,5 +1,5 @@
 /*
-//@[00:5984) ProgramSyntax
+//@[00:6407) ProgramSyntax
   This tests the various cases of invalid expressions.
 */
 //@[02:0004) ├─Token(NewLine) |\n\n|
@@ -2549,6 +2549,184 @@ var partialObject = {
 //@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0003) ├─Token(NewLine) |\n\n|
 
+//nameof expressions
+//@[20:0021) ├─Token(NewLine) |\n|
+var nameOfConstant = nameof('abc')
+//@[00:0034) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0018) | ├─IdentifierSyntax
+//@[04:0018) | | └─Token(Identifier) |nameOfConstant|
+//@[19:0020) | ├─Token(Assignment) |=|
+//@[21:0034) | └─FunctionCallSyntax
+//@[21:0027) |   ├─IdentifierSyntax
+//@[21:0027) |   | └─Token(Identifier) |nameof|
+//@[27:0028) |   ├─Token(LeftParen) |(|
+//@[28:0033) |   ├─FunctionArgumentSyntax
+//@[28:0033) |   | └─StringSyntax
+//@[28:0033) |   |   └─Token(StringComplete) |'abc'|
+//@[33:0034) |   └─Token(RightParen) |)|
+//@[34:0035) ├─Token(NewLine) |\n|
+var nameOfKeyword1 = nameof(param)
+//@[00:0034) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0018) | ├─IdentifierSyntax
+//@[04:0018) | | └─Token(Identifier) |nameOfKeyword1|
+//@[19:0020) | ├─Token(Assignment) |=|
+//@[21:0034) | └─FunctionCallSyntax
+//@[21:0027) |   ├─IdentifierSyntax
+//@[21:0027) |   | └─Token(Identifier) |nameof|
+//@[27:0028) |   ├─Token(LeftParen) |(|
+//@[28:0033) |   ├─FunctionArgumentSyntax
+//@[28:0033) |   | └─VariableAccessSyntax
+//@[28:0033) |   |   └─IdentifierSyntax
+//@[28:0033) |   |     └─Token(Identifier) |param|
+//@[33:0034) |   └─Token(RightParen) |)|
+//@[34:0035) ├─Token(NewLine) |\n|
+var nameOfKeyword2 = nameof(var)
+//@[00:0032) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0018) | ├─IdentifierSyntax
+//@[04:0018) | | └─Token(Identifier) |nameOfKeyword2|
+//@[19:0020) | ├─Token(Assignment) |=|
+//@[21:0032) | └─FunctionCallSyntax
+//@[21:0027) |   ├─IdentifierSyntax
+//@[21:0027) |   | └─Token(Identifier) |nameof|
+//@[27:0028) |   ├─Token(LeftParen) |(|
+//@[28:0031) |   ├─FunctionArgumentSyntax
+//@[28:0031) |   | └─VariableAccessSyntax
+//@[28:0031) |   |   └─IdentifierSyntax
+//@[28:0031) |   |     └─Token(Identifier) |var|
+//@[31:0032) |   └─Token(RightParen) |)|
+//@[32:0033) ├─Token(NewLine) |\n|
+var nameOfKeyword3 = nameof(resource)
+//@[00:0037) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0018) | ├─IdentifierSyntax
+//@[04:0018) | | └─Token(Identifier) |nameOfKeyword3|
+//@[19:0020) | ├─Token(Assignment) |=|
+//@[21:0037) | └─FunctionCallSyntax
+//@[21:0027) |   ├─IdentifierSyntax
+//@[21:0027) |   | └─Token(Identifier) |nameof|
+//@[27:0028) |   ├─Token(LeftParen) |(|
+//@[28:0036) |   ├─FunctionArgumentSyntax
+//@[28:0036) |   | └─VariableAccessSyntax
+//@[28:0036) |   |   └─IdentifierSyntax
+//@[28:0036) |   |     └─Token(Identifier) |resource|
+//@[36:0037) |   └─Token(RightParen) |)|
+//@[37:0038) ├─Token(NewLine) |\n|
+var nameOfKeyword4 = nameof(module)
+//@[00:0035) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0018) | ├─IdentifierSyntax
+//@[04:0018) | | └─Token(Identifier) |nameOfKeyword4|
+//@[19:0020) | ├─Token(Assignment) |=|
+//@[21:0035) | └─FunctionCallSyntax
+//@[21:0027) |   ├─IdentifierSyntax
+//@[21:0027) |   | └─Token(Identifier) |nameof|
+//@[27:0028) |   ├─Token(LeftParen) |(|
+//@[28:0034) |   ├─FunctionArgumentSyntax
+//@[28:0034) |   | └─VariableAccessSyntax
+//@[28:0034) |   |   └─IdentifierSyntax
+//@[28:0034) |   |     └─Token(Identifier) |module|
+//@[34:0035) |   └─Token(RightParen) |)|
+//@[35:0036) ├─Token(NewLine) |\n|
+var nameOfKeyword5 = nameof(output)
+//@[00:0035) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0018) | ├─IdentifierSyntax
+//@[04:0018) | | └─Token(Identifier) |nameOfKeyword5|
+//@[19:0020) | ├─Token(Assignment) |=|
+//@[21:0035) | └─FunctionCallSyntax
+//@[21:0027) |   ├─IdentifierSyntax
+//@[21:0027) |   | └─Token(Identifier) |nameof|
+//@[27:0028) |   ├─Token(LeftParen) |(|
+//@[28:0034) |   ├─FunctionArgumentSyntax
+//@[28:0034) |   | └─VariableAccessSyntax
+//@[28:0034) |   |   └─IdentifierSyntax
+//@[28:0034) |   |     └─Token(Identifier) |output|
+//@[34:0035) |   └─Token(RightParen) |)|
+//@[35:0036) ├─Token(NewLine) |\n|
+var nameofExpression1 = nameof(1 + 2)
+//@[00:0037) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0021) | ├─IdentifierSyntax
+//@[04:0021) | | └─Token(Identifier) |nameofExpression1|
+//@[22:0023) | ├─Token(Assignment) |=|
+//@[24:0037) | └─FunctionCallSyntax
+//@[24:0030) |   ├─IdentifierSyntax
+//@[24:0030) |   | └─Token(Identifier) |nameof|
+//@[30:0031) |   ├─Token(LeftParen) |(|
+//@[31:0036) |   ├─FunctionArgumentSyntax
+//@[31:0036) |   | └─BinaryOperationSyntax
+//@[31:0032) |   |   ├─IntegerLiteralSyntax
+//@[31:0032) |   |   | └─Token(Integer) |1|
+//@[33:0034) |   |   ├─Token(Plus) |+|
+//@[35:0036) |   |   └─IntegerLiteralSyntax
+//@[35:0036) |   |     └─Token(Integer) |2|
+//@[36:0037) |   └─Token(RightParen) |)|
+//@[37:0038) ├─Token(NewLine) |\n|
+var nameofVar= 'abc'
+//@[00:0020) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0013) | ├─IdentifierSyntax
+//@[04:0013) | | └─Token(Identifier) |nameofVar|
+//@[13:0014) | ├─Token(Assignment) |=|
+//@[15:0020) | └─StringSyntax
+//@[15:0020) |   └─Token(StringComplete) |'abc'|
+//@[20:0021) ├─Token(NewLine) |\n|
+var nameofExpression2 = nameof(true ? nameofVar : nameofVar)
+//@[00:0060) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0021) | ├─IdentifierSyntax
+//@[04:0021) | | └─Token(Identifier) |nameofExpression2|
+//@[22:0023) | ├─Token(Assignment) |=|
+//@[24:0060) | └─FunctionCallSyntax
+//@[24:0030) |   ├─IdentifierSyntax
+//@[24:0030) |   | └─Token(Identifier) |nameof|
+//@[30:0031) |   ├─Token(LeftParen) |(|
+//@[31:0059) |   ├─FunctionArgumentSyntax
+//@[31:0059) |   | └─TernaryOperationSyntax
+//@[31:0035) |   |   ├─BooleanLiteralSyntax
+//@[31:0035) |   |   | └─Token(TrueKeyword) |true|
+//@[36:0037) |   |   ├─Token(Question) |?|
+//@[38:0047) |   |   ├─VariableAccessSyntax
+//@[38:0047) |   |   | └─IdentifierSyntax
+//@[38:0047) |   |   |   └─Token(Identifier) |nameofVar|
+//@[48:0049) |   |   ├─Token(Colon) |:|
+//@[50:0059) |   |   └─VariableAccessSyntax
+//@[50:0059) |   |     └─IdentifierSyntax
+//@[50:0059) |   |       └─Token(Identifier) |nameofVar|
+//@[59:0060) |   └─Token(RightParen) |)|
+//@[60:0061) ├─Token(NewLine) |\n|
+var nameofUnknown = nameof(symbolNotFound)
+//@[00:0042) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0017) | ├─IdentifierSyntax
+//@[04:0017) | | └─Token(Identifier) |nameofUnknown|
+//@[18:0019) | ├─Token(Assignment) |=|
+//@[20:0042) | └─FunctionCallSyntax
+//@[20:0026) |   ├─IdentifierSyntax
+//@[20:0026) |   | └─Token(Identifier) |nameof|
+//@[26:0027) |   ├─Token(LeftParen) |(|
+//@[27:0041) |   ├─FunctionArgumentSyntax
+//@[27:0041) |   | └─VariableAccessSyntax
+//@[27:0041) |   |   └─IdentifierSyntax
+//@[27:0041) |   |     └─Token(Identifier) |symbolNotFound|
+//@[41:0042) |   └─Token(RightParen) |)|
+//@[42:0043) ├─Token(NewLine) |\n|
+var nameofEmpty = nameof()
+//@[00:0026) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |nameofEmpty|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0026) | └─FunctionCallSyntax
+//@[18:0024) |   ├─IdentifierSyntax
+//@[18:0024) |   | └─Token(Identifier) |nameof|
+//@[24:0025) |   ├─Token(LeftParen) |(|
+//@[25:0026) |   └─Token(RightParen) |)|
+//@[26:0028) ├─Token(NewLine) |\n\n|
+
 // dangling decorators - to make sure the tests work, please do not add contents after this line
 //@[96:0097) ├─Token(NewLine) |\n|
 @concat()
@@ -2663,7 +2841,7 @@ var unterminated2 = (,
 // trailing decorator with no declaration
 //@[41:0042) ├─Token(NewLine) |\n|
 @minLength()
-//@[00:0016) ├─MissingDeclarationSyntax
+//@[00:0014) ├─MissingDeclarationSyntax
 //@[00:0012) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
 //@[01:0012) | | └─FunctionCallSyntax
@@ -2671,9 +2849,7 @@ var unterminated2 = (,
 //@[01:0010) | |   | └─Token(Identifier) |minLength|
 //@[10:0011) | |   ├─Token(LeftParen) |(|
 //@[11:0012) | |   └─Token(RightParen) |)|
-//@[12:0016) | └─Token(NewLine) |\n\n\n\n|
-
-
+//@[12:0014) | └─Token(NewLine) |\n\n|
 
 
 //@[00:0000) └─Token(EndOfFile) ||

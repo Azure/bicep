@@ -33,8 +33,14 @@ namespace Bicep.Core.TypeSystem
 
         protected ResourceTypeResolver ResourceTypeResolver { get; }
 
+        private bool insideNameofFunction;
+
         protected void FlagDeployTimeConstantViolation(SyntaxBase errorSyntax, DeclaredSymbol? accessedSymbol = null, ObjectType? accessedObjectType = null, IEnumerable<string>? variableDependencyChain = null, string? violatingPropertyName = null)
         {
+            if (insideNameofFunction)
+            {
+                return;
+            }
             var accessedSymbolName = accessedSymbol?.Name;
             var accessiblePropertyNames = GetAccessiblePropertyNames(accessedSymbol, accessedObjectType);
 
@@ -94,6 +100,13 @@ namespace Bicep.Core.TypeSystem
             }
 
             return accessiblePropertyNames;
+        }
+
+        public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
+        {
+            insideNameofFunction = syntax.Name.IdentifierName == LanguageConstants.NameofFunctionName;
+            base.VisitFunctionCallSyntax(syntax);
+            insideNameofFunction = false;
         }
     }
 }

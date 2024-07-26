@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3772439174458986220"
+      "templateHash": "12058230623899485737"
     }
   },
   "parameters": {
@@ -288,7 +288,10 @@
     "isPrefixed": "[startsWith('food', 'foo')]",
     "spread": "[shallowMerge(createArray(createObject('foo', 'abc'), variables('issue1332')))]",
     "test": "[shallowMerge(createArray(variables('spread'), createObject('bar', 'def')))]",
-    "arraySpread": "[flatten(createArray(variables('arrayOfBooleans'), variables('arrayOfHardCodedNumbers'), variables('arrayOfHardCodedStrings')))]"
+    "arraySpread": "[flatten(createArray(variables('arrayOfBooleans'), variables('arrayOfHardCodedNumbers'), variables('arrayOfHardCodedStrings')))]",
+    "nameof1": "arraySpread",
+    "nameof2": "foo",
+    "nameof3": "nested"
   },
   "resources": []
 }

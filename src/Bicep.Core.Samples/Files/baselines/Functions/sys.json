@@ -1129,6 +1129,25 @@
     ]
   },
   {
+    "name": "nameof",
+    "description": "Returns the name of a variable, resource, module or property as the string constant. Function is evaluated at compile time and has no effect during deployment.",
+    "fixedParameters": [
+      {
+        "name": "symbol",
+        "description": "The variable, resource, module or property to produce the name.",
+        "type": "any",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(symbol: any): string",
+    "parameterTypeSignatures": [
+      "symbol: any"
+    ]
+  },
+  {
     "name": "newGuid",
     "description": "Returns a value in the format of a globally unique identifier. **This function can only be used in the default value for a parameter**.",
     "fixedParameters": [],

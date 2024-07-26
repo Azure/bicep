@@ -2189,7 +2189,7 @@ var vaults = [
 ]
 var secrets = [
 //@    "secrets": [
-//@    ]
+//@    ],
   {
 //@      {
 //@      },
@@ -2411,4 +2411,9 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
   name: 'childWithSpace'
 //@      "name": "childWithSpace",
 }
+
+// nameof
+
+var nameofModule = nameof(folderWithSpace)
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
 

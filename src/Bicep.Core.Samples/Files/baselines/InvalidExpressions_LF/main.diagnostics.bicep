@@ -585,6 +585,39 @@ var partialObject = {
 //@[07:08) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |%|
 }
 
+//nameof expressions
+var nameOfConstant = nameof('abc')
+//@[04:18) [no-unused-vars (Warning)] Variable "nameOfConstant" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameOfConstant|
+//@[28:33) [BCP407 (Error)] Expression does not have a name (CodeDescription: none) |'abc'|
+var nameOfKeyword1 = nameof(param)
+//@[04:18) [no-unused-vars (Warning)] Variable "nameOfKeyword1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameOfKeyword1|
+//@[28:33) [BCP057 (Error)] The name "param" does not exist in the current context. (CodeDescription: none) |param|
+var nameOfKeyword2 = nameof(var)
+//@[04:18) [no-unused-vars (Warning)] Variable "nameOfKeyword2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameOfKeyword2|
+//@[28:31) [BCP057 (Error)] The name "var" does not exist in the current context. (CodeDescription: none) |var|
+var nameOfKeyword3 = nameof(resource)
+//@[04:18) [no-unused-vars (Warning)] Variable "nameOfKeyword3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameOfKeyword3|
+//@[28:36) [BCP057 (Error)] The name "resource" does not exist in the current context. (CodeDescription: none) |resource|
+var nameOfKeyword4 = nameof(module)
+//@[04:18) [no-unused-vars (Warning)] Variable "nameOfKeyword4" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameOfKeyword4|
+//@[28:34) [BCP057 (Error)] The name "module" does not exist in the current context. (CodeDescription: none) |module|
+var nameOfKeyword5 = nameof(output)
+//@[04:18) [no-unused-vars (Warning)] Variable "nameOfKeyword5" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameOfKeyword5|
+//@[28:34) [BCP057 (Error)] The name "output" does not exist in the current context. (CodeDescription: none) |output|
+var nameofExpression1 = nameof(1 + 2)
+//@[04:21) [no-unused-vars (Warning)] Variable "nameofExpression1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameofExpression1|
+//@[31:36) [BCP407 (Error)] Expression does not have a name (CodeDescription: none) |1 + 2|
+var nameofVar= 'abc'
+var nameofExpression2 = nameof(true ? nameofVar : nameofVar)
+//@[04:21) [no-unused-vars (Warning)] Variable "nameofExpression2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameofExpression2|
+//@[31:59) [BCP407 (Error)] Expression does not have a name (CodeDescription: none) |true ? nameofVar : nameofVar|
+var nameofUnknown = nameof(symbolNotFound)
+//@[04:17) [no-unused-vars (Warning)] Variable "nameofUnknown" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameofUnknown|
+//@[27:41) [BCP057 (Error)] The name "symbolNotFound" does not exist in the current context. (CodeDescription: none) |symbolNotFound|
+var nameofEmpty = nameof()
+//@[04:15) [no-unused-vars (Warning)] Variable "nameofEmpty" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameofEmpty|
+//@[24:26) [BCP071 (Error)] Expected 1 argument, but got 0. (CodeDescription: none) |()|
+
 // dangling decorators - to make sure the tests work, please do not add contents after this line
 @concat()
 //@[01:07) [BCP152 (Error)] Function "concat" cannot be used as a decorator. (CodeDescription: none) |concat|
@@ -617,7 +650,5 @@ var unterminated2 = (,
 @minLength()
 //@[00:12) [BCP292 (Error)] Expected a parameter, output, or type declaration after the decorator. (CodeDescription: none) |@minLength()|
 //@[10:12) [BCP071 (Error)] Expected 1 argument, but got 0. (CodeDescription: none) |()|
-
-
 
 

@@ -1,5 +1,5 @@
 
-//@[000:8922) ProgramSyntax
+//@[000:9059) ProgramSyntax
 //@[000:0002) ├─Token(NewLine) |\r\n|
 @sys.description('this is deployTimeSuffix param')
 //@[000:0093) ├─ParameterDeclarationSyntax
@@ -3351,6 +3351,10 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@[024:0026) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
-//@[001:0003) ├─Token(NewLine) |\r\n|
+//@[001:0004) ├─Token(NewLine) |\r\n\n|
 
-//@[000:0000) └─Token(EndOfFile) ||
+// nameof
+
+var nameofModule = nameof(folderWithSpace)
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+

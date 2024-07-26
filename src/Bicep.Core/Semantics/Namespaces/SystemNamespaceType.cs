@@ -1053,6 +1053,41 @@ namespace Bicep.Core.Semantics.Namespaces
                         return new(LanguageConstants.Object);
                     }, LanguageConstants.Object)
                     .Build();
+
+                yield return new FunctionOverloadBuilder(LanguageConstants.NameofFunctionName)
+                    .WithGenericDescription("Returns the name of a variable, resource, module or property as the string constant. Function is evaluated at compile time and has no effect during deployment.")
+                    .WithRequiredParameter("symbol", LanguageConstants.Any, "The variable, resource, module or property to produce the name.")
+                    .WithReturnResultBuilder((model, diagnostics, call, argumentTypes) =>
+                    {
+                        var x = call.Arguments[0].Expression switch
+                        {
+                            VariableAccessSyntax variableAccess => variableAccess.Name.IdentifierName,
+                            PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
+                            ResourceAccessSyntax resourceAccess => resourceAccess.ResourceName.IdentifierName,
+                            ModuleDeclarationSyntax moduleDeclaration => moduleDeclaration.Name.IdentifierName,
+                            ArrayAccessSyntax arrayAccess => arrayAccess.IndexExpression.ToString(),
+                            _ => null,
+                        };
+                        if (x is null)
+                        {
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(call.Arguments[0]).ExpressionDoesNotHaveAName()));
+                        }
+                        return new(new StringLiteralType(x, TypeSymbolValidationFlags.Default));
+                    }, LanguageConstants.String)
+                    .WithEvaluator(expression =>
+                    {
+                        var x = expression.Parameters[0].SourceSyntax switch
+                        {
+                            VariableAccessSyntax variableAccess => variableAccess.Name.IdentifierName,
+                            PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
+                            ResourceAccessSyntax resourceAccess => resourceAccess.ResourceName.IdentifierName,
+                            ModuleDeclarationSyntax moduleDeclaration => moduleDeclaration.Name.IdentifierName,
+                            ArrayAccessSyntax arrayAccess => arrayAccess.IndexExpression.ToString(),
+                            _ => string.Empty,
+                        };
+                        return new StringLiteralExpression(expression.Parameters[0].SourceSyntax, x);
+                    })
+                    .Build();
             }
 
             static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()

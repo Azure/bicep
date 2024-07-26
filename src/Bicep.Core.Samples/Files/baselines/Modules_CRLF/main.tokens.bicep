@@ -2102,6 +2102,10 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@[024:026) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:003) NewLine |\r\n|
+//@[001:004) NewLine |\r\n\n|
 
-//@[000:000) EndOfFile ||
+// nameof
+
+var nameofModule = nameof(folderWithSpace)
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+

@@ -2046,6 +2046,41 @@ var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHar
 //@[067:070) Ellipsis |...|
 //@[070:093) Identifier |arrayOfHardCodedStrings|
 //@[093:094) RightSquare |]|
-//@[094:095) NewLine |\n|
+//@[094:097) NewLine |\n\n\n|
+
+
+var nameof1 = nameof(arraySpread)
+//@[000:003) Identifier |var|
+//@[004:011) Identifier |nameof1|
+//@[012:013) Assignment |=|
+//@[014:020) Identifier |nameof|
+//@[020:021) LeftParen |(|
+//@[021:032) Identifier |arraySpread|
+//@[032:033) RightParen |)|
+//@[033:034) NewLine |\n|
+var nameof2 = nameof(spread.foo)
+//@[000:003) Identifier |var|
+//@[004:011) Identifier |nameof2|
+//@[012:013) Assignment |=|
+//@[014:020) Identifier |nameof|
+//@[020:021) LeftParen |(|
+//@[021:027) Identifier |spread|
+//@[027:028) Dot |.|
+//@[028:031) Identifier |foo|
+//@[031:032) RightParen |)|
+//@[032:033) NewLine |\n|
+var nameof3 = nameof(myObj.obj.nested)
+//@[000:003) Identifier |var|
+//@[004:011) Identifier |nameof3|
+//@[012:013) Assignment |=|
+//@[014:020) Identifier |nameof|
+//@[020:021) LeftParen |(|
+//@[021:026) Identifier |myObj|
+//@[026:027) Dot |.|
+//@[027:030) Identifier |obj|
+//@[030:031) Dot |.|
+//@[031:037) Identifier |nested|
+//@[037:038) RightParen |)|
+//@[038:039) NewLine |\n|
 
 //@[000:000) EndOfFile ||

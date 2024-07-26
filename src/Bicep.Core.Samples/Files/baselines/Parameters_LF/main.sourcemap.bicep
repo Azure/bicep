@@ -433,10 +433,16 @@ param decoratedArray array = [
 //@      "type": "array",
 //@      "defaultValue": [
 //@      ],
-//@    }
+//@    },
     utcNow()
 //@        "[utcNow()]",
     newGuid()
 //@        "[newGuid()]"
 ]
+
+param nameofParam string = nameof(decoratedArray)
+//@    "nameofParam": {
+//@      "type": "string",
+//@      "defaultValue": "decoratedArray"
+//@    }
 

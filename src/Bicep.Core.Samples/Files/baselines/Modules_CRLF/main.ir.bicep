@@ -1,5 +1,5 @@
 
-//@[000:8922) ProgramExpression
+//@[000:9059) ProgramExpression
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) | | └─ModuleReferenceExpression [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
@@ -1252,4 +1252,9 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@[002:0006) |     ├─StringLiteralExpression { Value = name }
 //@[008:0024) |     └─StringLiteralExpression { Value = childWithSpace }
 }
+
+// nameof
+
+var nameofModule = nameof(folderWithSpace)
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
 
