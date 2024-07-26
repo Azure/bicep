@@ -918,9 +918,14 @@ output foo object = {
 }
 ";
 
-        var (parameters, diag, comp) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+        var (parameters, diag, comp) = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", bicepparamText),
+            ("main.bicep", bicepTemplateText),
+            ("module.bicep", bicepModuleText));
 
-        var result = CompilationHelper.Compile(("main.bicep", bicepTemplateText), ("module.bicep", bicepModuleText));
+        var result = CompilationHelper.Compile(
+            ("main.bicep", bicepTemplateText),
+            ("module.bicep", bicepModuleText));
 
         var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters, config => config with
         {

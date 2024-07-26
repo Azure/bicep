@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 import { DefaultTheme } from "styled-components";
 
-const fontFamily = getComputedStyle(document.body)
-  .getPropertyValue("--vscode-font-family")
-  .replace(/"/g, "");
+const fontFamily = getComputedStyle(document.body).getPropertyValue("--vscode-font-family").replace(/"/g, "");
 
 export const darkTheme: DefaultTheme = {
   name: "dark",
@@ -17,8 +15,7 @@ export const darkTheme: DefaultTheme = {
   },
   canvas: {
     backgroundColor: "#111111",
-    backgroundImage:
-      "radial-gradient(circle at 1px 1px, #3f3f3f 1px, transparent 0)",
+    backgroundImage: "radial-gradient(circle at 1px 1px, #3f3f3f 1px, transparent 0)",
   },
   graph: {
     childlessNode: {
@@ -56,8 +53,7 @@ export const lightTheme: DefaultTheme = {
   },
   canvas: {
     backgroundColor: "#ffffff",
-    backgroundImage:
-      "radial-gradient(circle at 1px 1px, #a0a6af 1px, transparent 0)",
+    backgroundImage: "radial-gradient(circle at 1px 1px, #a0a6af 1px, transparent 0)",
   },
   graph: {
     childlessNode: {

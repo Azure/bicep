@@ -20,7 +20,6 @@ import {
   ISubscriptionContext,
   nonNullProp,
 } from "@microsoft/vscode-azext-utils";
-
 import { createResourceManagementClient } from "../azure/azureClients";
 import { localize } from "../utils/localize";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
@@ -37,10 +36,7 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     this._outputChannelManager = outputChannelManager;
   }
 
-  public readonly childTypeLabel: string = localize(
-    "resourceGroup",
-    "Resource Group",
-  );
+  public readonly childTypeLabel: string = localize("resourceGroup", "Resource Group");
 
   private _nextLink: string | undefined;
   private _outputChannelManager: OutputChannelManager;
@@ -50,18 +46,12 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
   }
 
   // Loads resource group
-  public async loadMoreChildrenImpl(
-    clearCache: boolean,
-    context: IActionContext,
-  ): Promise<AzExtTreeItem[]> {
+  public async loadMoreChildrenImpl(clearCache: boolean, context: IActionContext): Promise<AzExtTreeItem[]> {
     if (clearCache) {
       this._nextLink = undefined;
     }
-    const client: ResourceManagementClient =
-      await createResourceManagementClient([context, this]);
-    const rgs: ResourceGroup[] = await uiUtils.listAllIterator(
-      client.resourceGroups.list(),
-    );
+    const client: ResourceManagementClient = await createResourceManagementClient([context, this]);
+    const rgs: ResourceGroup[] = await uiUtils.listAllIterator(client.resourceGroups.list());
     const resourceGroupItems = await this.createTreeItemsWithErrorHandling(
       rgs,
       "invalidResourceGroup",
@@ -73,46 +63,31 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
   }
 
   // Adds 'create' option in the resource group tree picker
-  public async createChildImpl(
-    context: ICreateChildImplContext,
-  ): Promise<AzExtTreeItem> {
-    const title: string = localize(
-      "createResourceGroup",
-      "Create Resource Group",
-    );
+  public async createChildImpl(context: ICreateChildImplContext): Promise<AzExtTreeItem> {
+    const title: string = localize("createResourceGroup", "Create Resource Group");
     const wizardContext: IResourceGroupWizardContext = {
       ...context,
       ...this.subscription,
       suppress403Handling: true,
     };
-    const promptSteps: AzureWizardPromptStep<IResourceGroupWizardContext>[] = [
-      new ResourceGroupNameStep(),
-    ];
+    const promptSteps: AzureWizardPromptStep<IResourceGroupWizardContext>[] = [new ResourceGroupNameStep()];
     LocationListStep.addStep(wizardContext, promptSteps);
-    const executeSteps: AzureWizardExecuteStep<IResourceGroupWizardContext>[] =
-      [new ResourceGroupCreateStep()];
+    const executeSteps: AzureWizardExecuteStep<IResourceGroupWizardContext>[] = [new ResourceGroupCreateStep()];
 
-    const wizard: AzureWizard<IResourceGroupWizardContext> = new AzureWizard(
-      wizardContext,
-      { title, promptSteps, executeSteps },
-    );
+    const wizard: AzureWizard<IResourceGroupWizardContext> = new AzureWizard(wizardContext, {
+      title,
+      promptSteps,
+      executeSteps,
+    });
     await wizard.prompt();
-    context.showCreatingTreeItem(
-      nonNullProp(wizardContext, "newResourceGroupName"),
-    );
+    context.showCreatingTreeItem(nonNullProp(wizardContext, "newResourceGroupName"));
     await wizard.execute();
 
     const azTreeItem = nonNullProp(wizardContext, "resourceGroup");
     const newResourceGroupItemName = azTreeItem.name;
-    const newResourceGroupItem = new GenericAzExtTreeItem(
-      this,
-      azTreeItem.id,
-      newResourceGroupItemName,
-    );
+    const newResourceGroupItem = new GenericAzExtTreeItem(this, azTreeItem.id, newResourceGroupItemName);
 
-    this._outputChannelManager.appendToOutputChannel(
-      `Created resource group -> ${newResourceGroupItemName}`,
-    );
+    this._outputChannelManager.appendToOutputChannel(`Created resource group -> ${newResourceGroupItemName}`);
 
     return newResourceGroupItem;
   }

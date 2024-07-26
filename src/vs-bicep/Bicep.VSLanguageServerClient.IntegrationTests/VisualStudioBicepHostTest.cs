@@ -32,7 +32,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
 
             VsHostUtility.VsHost = VisualStudio;
 
-            Solution.Open(SolutionPath);
+            Solution.Open(SolutionPath!);
             Solution.WaitForFullyLoaded();
 
             TestProject = Solution[ProjectName];

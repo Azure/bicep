@@ -1,17 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import { existsSync } from "fs";
+import * as path from "path";
+import { callWithTelemetryAndErrorHandlingSync, IActionContext, parseError } from "@microsoft/vscode-azext-utils";
 import * as vscode from "vscode";
 import * as lsp from "vscode-languageclient/node";
-import * as path from "path";
-import { existsSync } from "fs";
-import { getLogger } from "../utils/logger";
-import {
-  callWithTelemetryAndErrorHandlingSync,
-  IActionContext,
-  parseError,
-} from "@microsoft/vscode-azext-utils";
 import { Message, TransportKind } from "vscode-languageclient/node";
 import { writeDeploymentOutputMessageToBicepOperationsOutputChannel } from "../commands/deployHelper";
+import { getLogger } from "../utils/logger";
 import { bicepLanguageId } from "./constants";
 
 const dotnetRuntimeVersion = "8.0";
@@ -67,7 +63,6 @@ function getServerStartupOptions(
 }
 
 export async function createLanguageService(
-  actionContext: IActionContext,
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel,
   dotnetCommandPath: string,
@@ -104,12 +99,7 @@ export async function createLanguageService(
     },
   };
 
-  const client = new lsp.LanguageClient(
-    bicepLanguageId,
-    "Bicep",
-    serverOptions,
-    clientOptions,
-  );
+  const client = new lsp.LanguageClient(bicepLanguageId, "Bicep", serverOptions, clientOptions);
 
   client.registerProposedFeatures();
 
@@ -118,10 +108,7 @@ export async function createLanguageService(
   // To enable language server tracing, you MUST have a package setting named 'bicep.trace.server'; I was unable to find a way to enable it through code.
   // See https://github.com/microsoft/vscode-languageserver-node/blob/77c3a10a051ac619e4e3ef62a3865717702b64a3/client/src/common/client.ts#L3268
 
-  client.onNotification(
-    "deploymentComplete",
-    writeDeploymentOutputMessageToBicepOperationsOutputChannel,
-  );
+  client.onNotification("deploymentComplete", writeDeploymentOutputMessageToBicepOperationsOutputChannel);
 
   client.onNotification("bicep/triggerEditorCompletion", async () => {
     await vscode.commands.executeCommand("editor.action.triggerSuggest");
@@ -141,9 +128,7 @@ function getCustomDotnetRuntimePathConfig() {
   return acquireConfig.filter((x) => x.extensionId === extensionId)[0];
 }
 
-export async function ensureDotnetRuntimeInstalled(
-  actionContext: IActionContext,
-): Promise<string> {
+export async function ensureDotnetRuntimeInstalled(actionContext: IActionContext): Promise<string> {
   getLogger().info("Acquiring dotnet runtime...");
 
   const customDotnetRuntimePathConfig = getCustomDotnetRuntimePathConfig();
@@ -156,13 +141,10 @@ export async function ensureDotnetRuntimeInstalled(
     );
   }
 
-  const result = await vscode.commands.executeCommand<{ dotnetPath: string }>(
-    "dotnet.acquire",
-    {
-      version: dotnetRuntimeVersion,
-      requestingExtensionId: extensionId,
-    },
-  );
+  const result = await vscode.commands.executeCommand<{ dotnetPath: string }>("dotnet.acquire", {
+    version: dotnetRuntimeVersion,
+    requestingExtensionId: extensionId,
+  });
 
   if (!result) {
     // Suppress the 'Report Issue' button - we want people to use the dialog displayed by the .NET installer extension.
@@ -197,9 +179,7 @@ function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
     context.asAbsolutePath(packagedServerPath); // Packaged server.
 
   if (!existsSync(languageServerPath)) {
-    throw new Error(
-      `Language server does not exist at '${languageServerPath}'.`,
-    );
+    throw new Error(`Language server does not exist at '${languageServerPath}'.`);
   }
 
   return path.resolve(languageServerPath);
@@ -209,52 +189,29 @@ function configureTelemetry(client: lsp.LanguageClient) {
   const startTime = Date.now();
   const defaultErrorHandler = client.createDefaultErrorHandler();
 
-  client.onTelemetry(
-    (telemetryData: {
-      eventName: string;
-      properties: { [key: string]: string | undefined };
-    }) => {
-      callWithTelemetryAndErrorHandlingSync(
-        telemetryData.eventName,
-        (telemetryActionContext) => {
-          telemetryActionContext.errorHandling.suppressDisplay = true;
-          telemetryActionContext.telemetry.properties =
-            telemetryData.properties;
-        },
-      );
-    },
-  );
+  client.onTelemetry((telemetryData: { eventName: string; properties: { [key: string]: string | undefined } }) => {
+    callWithTelemetryAndErrorHandlingSync(telemetryData.eventName, (telemetryActionContext) => {
+      telemetryActionContext.errorHandling.suppressDisplay = true;
+      telemetryActionContext.telemetry.properties = telemetryData.properties;
+    });
+  });
 
   client.clientOptions.errorHandler = {
-    error(
-      error: Error,
-      message: Message | undefined,
-      count: number | undefined,
-    ) {
-      callWithTelemetryAndErrorHandlingSync(
-        "bicep.lsp-error",
-        (context: IActionContext) => {
-          context.telemetry.properties.jsonrpcMessage = message
-            ? message.jsonrpc
-            : "";
-          context.telemetry.measurements.secondsSinceStart =
-            (Date.now() - startTime) / 1000;
+    error(error: Error, message: Message | undefined, count: number | undefined) {
+      callWithTelemetryAndErrorHandlingSync("bicep.lsp-error", (context: IActionContext) => {
+        context.telemetry.properties.jsonrpcMessage = message ? message.jsonrpc : "";
+        context.telemetry.measurements.secondsSinceStart = (Date.now() - startTime) / 1000;
 
-          throw new Error(`Error: ${parseError(error).message}`);
-        },
-      );
+        throw new Error(`Error: ${parseError(error).message}`);
+      });
       return defaultErrorHandler.error(error, message, count);
     },
     closed() {
-      callWithTelemetryAndErrorHandlingSync(
-        "bicep.lsp-error",
-        (context: IActionContext) => {
-          context.telemetry.measurements.secondsSinceStart =
-            (Date.now() - startTime) / 1000;
+      callWithTelemetryAndErrorHandlingSync("bicep.lsp-error", (context: IActionContext) => {
+        context.telemetry.measurements.secondsSinceStart = (Date.now() - startTime) / 1000;
 
-          throw new Error(`Connection closed`);
-        },
-      );
+        throw new Error(`Connection closed`);
+      });
       return defaultErrorHandler.closed();
     },
   };

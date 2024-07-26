@@ -40,6 +40,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ILanguageServerFacade languageServer;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly DocumentSelectorFactory documentSelectorFactory;
 
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
@@ -47,7 +48,8 @@ namespace Bicep.LanguageServer.Handlers
             IFileResolver fileResolver,
             ILanguageServerFacade languageServer,
             IModuleDispatcher moduleDispatcher,
-            IFeatureProviderFactory featureProviderFactory) : base()
+            IFeatureProviderFactory featureProviderFactory,
+            DocumentSelectorFactory documentSelectorFactory) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
@@ -55,6 +57,7 @@ namespace Bicep.LanguageServer.Handlers
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
             this.featureProviderFactory = featureProviderFactory;
+            this.documentSelectorFactory = documentSelectorFactory;
         }
 
         public override async Task<LocationOrLocationLinks?> Handle(DefinitionParams request, CancellationToken cancellationToken)
@@ -98,7 +101,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams()
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };
 
         private LocationOrLocationLinks HandleUnboundSymbolLocation(DefinitionParams request, CompilationContext context)

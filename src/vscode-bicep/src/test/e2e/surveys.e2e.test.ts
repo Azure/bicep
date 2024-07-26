@@ -57,28 +57,19 @@ describe("surveys-e2etests", () => {
       expect(context.telemetry.properties.surveyLinkStatus).toBe("ENOTFOUND");
     });
 
-    // eslint-disable-next-line jest/prefer-lowercase-title
     it("Other errors", async () => {
       const context = createActionContextMock();
 
-      const isAvailable = await Survey.getIsSurveyAvailable(
-        context,
-        "foo://aka.ms/bicep/tests/surveytests/active",
-      );
+      const isAvailable = await Survey.getIsSurveyAvailable(context, "foo://aka.ms/bicep/tests/surveytests/active");
 
       expect(isAvailable).toBeFalsy();
-      expect(context.telemetry.properties.surveyLinkStatus).toBe(
-        "ERR_INVALID_PROTOCOL",
-      );
+      expect(context.telemetry.properties.surveyLinkStatus).toBe("ERR_INVALID_PROTOCOL");
     });
 
     it("other status code returned", async () => {
       const context = createActionContextMock();
 
-      const isAvailable = await Survey.getIsSurveyAvailable(
-        context,
-        "https://github.com/Azure/bicep",
-      );
+      const isAvailable = await Survey.getIsSurveyAvailable(context, "https://github.com/Azure/bicep");
 
       expect(isAvailable).toBeFalsy();
       expect(context.telemetry.properties.surveyLinkStatus).toBe("200");

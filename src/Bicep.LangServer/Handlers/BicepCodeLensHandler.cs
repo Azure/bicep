@@ -14,10 +14,12 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepCodeLensHandler : CodeLensHandlerBase
     {
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly DocumentSelectorFactory documentSelectorFactory;
 
-        public BicepCodeLensHandler(IModuleDispatcher moduleDispatcher)
+        public BicepCodeLensHandler(IModuleDispatcher moduleDispatcher, DocumentSelectorFactory documentSelectorFactory)
         {
             this.moduleDispatcher = moduleDispatcher;
+            this.documentSelectorFactory = documentSelectorFactory;
         }
 
         public override Task<CodeLensContainer?> Handle(CodeLensParams request, CancellationToken cancellationToken)
@@ -37,7 +39,7 @@ namespace Bicep.LanguageServer.Handlers
         protected override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability, ClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = new(
-                DocumentSelectorFactory.AllSupportedLangIds
+                documentSelectorFactory.CreateForAllSupportedLangIds()
                 .Concat(TextDocumentFilter.ForScheme(LangServerConstants.ExternalSourceFileScheme))),
             ResolveProvider = false
         };

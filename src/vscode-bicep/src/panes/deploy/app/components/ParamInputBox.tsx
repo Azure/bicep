@@ -1,4 +1,13 @@
-import { VSCodeButton, VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeTextArea, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import {
+  VSCodeButton,
+  VSCodeCheckbox,
+  VSCodeDropdown,
+  VSCodeOption,
+  VSCodeTextArea,
+  VSCodeTextField,
+} from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
 import { ParamData, ParamDefinition } from "../../models";
 
@@ -14,7 +23,7 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
   const { name, defaultValue, type } = definition;
   const { value } = data;
 
-  function handleValueChange(value: any) {
+  function handleValueChange(value: unknown) {
     onChangeData({ ...data, value });
   }
 
@@ -24,25 +33,23 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
 
   function getInputBox() {
     switch (type) {
-      case 'bool':
+      case "bool":
         return (
-          <VSCodeCheckbox
-            checked={!!value}
-            onChange={() => handleValueChange(!value)}
-            disabled={disabled}>
+          <VSCodeCheckbox checked={!!value} onChange={() => handleValueChange(!value)} disabled={disabled}>
             {name}
           </VSCodeCheckbox>
         );
-      case 'int':
+      case "int":
         return (
           <VSCodeTextField
             value={`${value ?? 0}`}
-            onChange={e => handleValueChange(parseInt((e.currentTarget as HTMLInputElement).value, 10))}
-            disabled={disabled}>
+            onChange={(e) => handleValueChange(parseInt((e.currentTarget as HTMLInputElement).value, 10))}
+            disabled={disabled}
+          >
             {name}
           </VSCodeTextField>
         );
-      case 'string':
+      case "string":
         if (definition.allowedValues) {
           const dropdownHtmlId = `param-input-${name.toLowerCase()}`;
           return (
@@ -50,9 +57,10 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
               <label htmlFor={dropdownHtmlId}>{name}</label>
               <VSCodeDropdown
                 id={dropdownHtmlId}
-                onChange={e => handleValueChange((e.currentTarget as HTMLSelectElement).value)}
-                disabled={disabled}>
-                {definition.allowedValues.map(option => (
+                onChange={(e) => handleValueChange((e.currentTarget as HTMLSelectElement).value)}
+                disabled={disabled}
+              >
+                {definition.allowedValues.map((option) => (
                   <VSCodeOption key={option} selected={value === option}>
                     {option}
                   </VSCodeOption>
@@ -63,9 +71,10 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
         } else {
           return (
             <VSCodeTextField
-              value={`${value ?? ''}`}
-              onChange={e => handleValueChange((e.currentTarget as HTMLInputElement).value)}
-              disabled={disabled}>
+              value={`${value ?? ""}`}
+              onChange={(e) => handleValueChange((e.currentTarget as HTMLInputElement).value)}
+              disabled={disabled}
+            >
               {name}
             </VSCodeTextField>
           );
@@ -75,9 +84,10 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
           <VSCodeTextArea
             className="code-textarea-container"
             resize="vertical"
-            value={value ? JSON.stringify(value, null, 2) : ''}
-            onChange={e => handleValueChange(JSON.parse((e.currentTarget as HTMLInputElement).value))}
-            disabled={disabled}>
+            value={value ? JSON.stringify(value, null, 2) : ""}
+            onChange={(e) => handleValueChange(JSON.parse((e.currentTarget as HTMLInputElement).value))}
+            disabled={disabled}
+          >
             {name}
           </VSCodeTextArea>
         );
@@ -87,11 +97,11 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
   return (
     <span className="input-row">
       {getInputBox()}
-      {(defaultValue !== undefined && value !== defaultValue) && (
+      {defaultValue !== undefined && value !== defaultValue && (
         <VSCodeButton onClick={handleResetToDefaultClick} disabled={disabled}>
           Reset to default
         </VSCodeButton>
       )}
     </span>
   );
-}
+};

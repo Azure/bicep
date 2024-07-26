@@ -42,5 +42,20 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
 
             return new AndConstraint<OmniSharpDiagnosticAssertions>(this);
         }
+
+        public AndConstraint<OmniSharpDiagnosticAssertions> HaveDocumentationUrl(Uri docsUrl, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .Given(() => Subject.Message)
+                .ForCondition(x => !string.IsNullOrWhiteSpace(x))
+                .FailWith("Expected message to have content but it was '{0}'", m => m)
+                .Then
+                .Given<CodeDescription?>(_ => Subject.CodeDescription)
+                .ForCondition(x => x?.Href == docsUrl)
+                .FailWith("Expected URL to be '{0}' but it was '{1}'", _ => docsUrl, x => x?.Href);
+
+            return new AndConstraint<OmniSharpDiagnosticAssertions>(this);
+        }
     }
 }

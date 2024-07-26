@@ -8,6 +8,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Tracing;
 using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Options;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Settings;
@@ -23,8 +24,7 @@ namespace Bicep.LanguageServer
     public class Server : IDisposable
     {
         private readonly OmnisharpLanguageServer server;
-
-        public Server(Action<LanguageServerOptions> onOptionsFunc)
+        public Server(BicepLangServerOptions bicepLangServerOptions, Action<LanguageServerOptions> onOptionsFunc)
         {
             server = OmnisharpLanguageServer.PreInit(options =>
             {
@@ -69,7 +69,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<InsertResourceHandler>()
                     .WithHandler<ConfigurationSettingsHandler>()
                     .WithHandler<LocalDeployHandler>()
-                    .WithServices(RegisterServices);
+                    .WithServices(services => services.AddServerDependencies(bicepLangServerOptions));
 
                 onOptionsFunc(options);
             });
@@ -98,11 +98,6 @@ namespace Bicep.LanguageServer
 
             var moduleMetadataProvider = server.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
             moduleMetadataProvider.StartUpdateCache();
-        }
-
-        private static void RegisterServices(IServiceCollection services)
-        {
-            services.AddServerDependencies();
         }
 
         public void Dispose()

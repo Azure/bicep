@@ -1,17 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-
-import { DeployPaneView } from "./view";
-import { Disposable } from "../../utils/disposable";
-import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { IAzureUiManager } from "../../azure/types";
+import { Disposable } from "../../utils/disposable";
+import { DeployPaneView } from "./view";
 
-export class DeployPaneViewManager
-  extends Disposable
-  implements vscode.WebviewPanelSerializer
-{
+export class DeployPaneViewManager extends Disposable implements vscode.WebviewPanelSerializer {
   private static readonly deployPaneActiveContextKey = "deployPaneFocus";
 
   private readonly viewsByPath = new Map<string, DeployPaneView>();
@@ -27,15 +23,9 @@ export class DeployPaneViewManager
   ) {
     super();
 
-    this.register(
-      vscode.window.registerWebviewPanelSerializer(
-        DeployPaneView.viewType,
-        this,
-      ),
-    );
+    this.register(vscode.window.registerWebviewPanelSerializer(DeployPaneView.viewType, this));
 
-    const existingMiddleware =
-      languageClient.clientOptions.middleware?.handleDiagnostics;
+    const existingMiddleware = languageClient.clientOptions.middleware?.handleDiagnostics;
 
     this.languageClient.clientOptions.middleware = {
       ...(this.languageClient.clientOptions.middleware ?? {}),
@@ -57,10 +47,7 @@ export class DeployPaneViewManager
     return this.activeUri;
   }
 
-  public async openView(
-    documentUri: vscode.Uri,
-    viewColumn: vscode.ViewColumn,
-  ): Promise<void> {
+  public async openView(documentUri: vscode.Uri, viewColumn: vscode.ViewColumn): Promise<void> {
     const existingView = this.viewsByPath.get(documentUri.fsPath);
 
     if (existingView) {
@@ -85,10 +72,7 @@ export class DeployPaneViewManager
     this.activeUri = documentUri;
   }
 
-  public async deserializeWebviewPanel(
-    webviewPanel: vscode.WebviewPanel,
-    documentPath: string,
-  ): Promise<void> {
+  public async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, documentPath: string): Promise<void> {
     const documentUri = vscode.Uri.file(documentPath);
 
     this.registerView(
@@ -120,10 +104,7 @@ export class DeployPaneViewManager
     this.viewsByPath.clear();
   }
 
-  private registerView(
-    documentUri: vscode.Uri,
-    view: DeployPaneView,
-  ): DeployPaneView {
+  private registerView(documentUri: vscode.Uri, view: DeployPaneView): DeployPaneView {
     this.viewsByPath.set(documentUri.fsPath, view);
 
     view.onDidChangeViewState((e) => {
@@ -149,10 +130,6 @@ export class DeployPaneViewManager
   }
 
   private async setDeployPaneActiveContext(value: boolean) {
-    await vscode.commands.executeCommand(
-      "setContext",
-      DeployPaneViewManager.deployPaneActiveContextKey,
-      value,
-    );
+    await vscode.commands.executeCommand("setContext", DeployPaneViewManager.deployPaneActiveContextKey, value);
   }
 }

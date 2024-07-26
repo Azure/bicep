@@ -4,7 +4,6 @@ import fs from "fs";
 import path from "path";
 import vscode from "vscode";
 import { sleep } from "../../utils/time";
-
 import { executeBuildParamsCommand, executeCloseAllEditors } from "./commands";
 import { resolveExamplePath } from "./examples";
 
@@ -23,10 +22,7 @@ describe("buildParams", (): void => {
     await executeBuildParamsCommand(textDocument.uri);
 
     const folderContainingSourceFile = path.dirname(examplePath);
-    const compiledFilePath = path.join(
-      folderContainingSourceFile,
-      "main.parameters.json",
-    );
+    const compiledFilePath = path.join(folderContainingSourceFile, "main.parameters.json");
 
     expect(fs.existsSync(compiledFilePath)).toBe(true);
 

@@ -56,7 +56,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Information,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
 
             // update bicepconfig.json and verify diagnostics message is not sent
@@ -113,7 +113,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Information,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
 
             // Delete bicepconfig.json and verify diagnostics are based off of default bicepconfig.json
@@ -133,7 +133,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Warning,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
         }
 
@@ -155,7 +155,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Warning,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
 
             // Create bicepconfig.json and verify diagnostics
@@ -188,7 +188,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Information,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
         }
 
@@ -210,7 +210,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Warning,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
 
             // Create bicepconfig.json and verify diagnostics
@@ -244,7 +244,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Information,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
         }
 
@@ -283,7 +283,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Information,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
 
             // create new bicepconfig.json and verify diagnostics
@@ -317,7 +317,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Warning,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
         }
 
@@ -355,7 +355,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Information,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
 
             // add bicepconfig.json to parent directory and verify diagnostics
@@ -388,7 +388,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Information,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
         }
 
@@ -427,7 +427,7 @@ namespace Bicep.LangServer.IntegrationTests
                         DiagnosticSeverity.Warning,
                         new Position(0, 6),
                         new Position(0, 24),
-                        "https://aka.ms/bicep/linter/no-unused-params"));
+                        "no-unused-params"));
             }
 
             // update bicepconfig.json and verify diagnostics
@@ -458,7 +458,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Warning,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
         }
 
@@ -498,7 +498,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Information,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
 
             // add bicepconfig.json to parent directory and verify diagnostics
@@ -536,7 +536,7 @@ namespace Bicep.LangServer.IntegrationTests
                     DiagnosticSeverity.Warning,
                     new Position(0, 6),
                     new Position(0, 24),
-                    "https://aka.ms/bicep/linter/no-unused-params"));
+                    "no-unused-params"));
             }
         }
 

@@ -39,10 +39,10 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            return await GenerateCompiledFileAndReturnBuildOutputMessage(bicepFilePath, documentUri);
+            return await GenerateCompiledFileAndReturnBuildOutputMessageAsync(bicepFilePath, documentUri);
         }
 
-        private async Task<string> GenerateCompiledFileAndReturnBuildOutputMessage(string bicepFilePath, DocumentUri documentUri)
+        private async Task<string> GenerateCompiledFileAndReturnBuildOutputMessageAsync(string bicepFilePath, DocumentUri documentUri)
         {
             string compiledFilePath = PathHelper.GetDefaultBuildOutputPath(bicepFilePath);
 

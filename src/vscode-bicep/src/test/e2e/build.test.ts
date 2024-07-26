@@ -4,9 +4,9 @@ import fs from "fs";
 import path from "path";
 import vscode from "vscode";
 import { sleep } from "../../utils/time";
-
 import { executeBuildCommand, executeCloseAllEditors } from "./commands";
 import { resolveExamplePath } from "./examples";
+
 describe("build", (): void => {
   afterEach(async () => {
     await executeCloseAllEditors();

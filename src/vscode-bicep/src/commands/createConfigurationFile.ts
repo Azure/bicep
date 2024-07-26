@@ -1,20 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { window, Uri, workspace } from "vscode";
-import { Command } from "./types";
+import path from "path";
+import { IActionContext, UserCancelledError } from "@microsoft/vscode-azext-utils";
+import * as fse from "fs-extra";
+import { Uri, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import {
-  IActionContext,
-  UserCancelledError,
-} from "@microsoft/vscode-azext-utils";
-import path from "path";
-import * as fse from "fs-extra";
-import {
-  GetRecommendedConfigLocationResult,
-  getRecommendedConfigLocationRequestType,
   CreateBicepConfigParams,
+  getRecommendedConfigLocationRequestType,
+  GetRecommendedConfigLocationResult,
 } from "../language/protocol";
+import { Command } from "./types";
 
 const bicepConfig = "bicepconfig.json";
 
@@ -35,27 +32,17 @@ export class CreateBicepConfigurationFile implements Command {
 
     let recommendation: GetRecommendedConfigLocationResult;
     try {
-      recommendation = await this.client.sendRequest(
-        getRecommendedConfigLocationRequestType,
-        {
-          bicepFilePath: documentUri?.fsPath,
-        },
-      );
+      recommendation = await this.client.sendRequest(getRecommendedConfigLocationRequestType, {
+        bicepFilePath: documentUri?.fsPath,
+      });
     } catch (err) {
       throw new Error("Failed determining recommended configuration location");
     }
     if (recommendation.error || !recommendation.recommendedFolder) {
-      throw new Error(
-        `Could not determine recommended configuration location: ${
-          recommendation.error ?? "Unknown"
-        }`,
-      );
+      throw new Error(`Could not determine recommended configuration location: ${recommendation.error ?? "Unknown"}`);
     }
 
-    const recommendedPath = path.join(
-      recommendation.recommendedFolder,
-      bicepConfig,
-    );
+    const recommendedPath = path.join(recommendation.recommendedFolder, bicepConfig);
     let selectedPath: string = recommendedPath;
 
     if (!suppressQuery) {
@@ -74,9 +61,7 @@ export class CreateBicepConfigurationFile implements Command {
 
         if (path.basename(selectedPath) !== bicepConfig) {
           // Don't wait
-          void window.showErrorMessage(
-            `A Bicep configuration file must be named ${bicepConfig}`,
-          );
+          void window.showErrorMessage(`A Bicep configuration file must be named ${bicepConfig}`);
           selectedPath = path.join(path.dirname(selectedPath), bicepConfig);
         } else {
           break;
@@ -84,9 +69,7 @@ export class CreateBicepConfigurationFile implements Command {
       }
     }
 
-    context.telemetry.properties.usingRecommendedLocation = String(
-      selectedPath === recommendedPath,
-    );
+    context.telemetry.properties.usingRecommendedLocation = String(selectedPath === recommendedPath);
     context.telemetry.properties.sameFolderAsBicep = String(
       recommendation.recommendedFolder === path.dirname(selectedPath),
     );
@@ -105,9 +88,7 @@ export class CreateBicepConfigurationFile implements Command {
       await window.showTextDocument(textDocument);
       return selectedPath;
     } else {
-      throw new Error(
-        "Configuration file was not created by the language server",
-      );
+      throw new Error("Configuration file was not created by the language server");
     }
   }
 }

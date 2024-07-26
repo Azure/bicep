@@ -205,6 +205,7 @@ namespace Bicep.Core.Semantics
         }
 
         public BicepSourceFile SourceFile { get; }
+
         public IEnvironment Environment { get; }
 
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
@@ -503,7 +504,28 @@ namespace Bicep.Core.Semantics
                 // get diagnostics relating to missing parameter assignments or declarations
                 GatherParameterMismatchDiagnostics(semanticModel)
                 // get diagnostics relating to type mismatch of params between Bicep and params files
-                .Concat(GatherTypeMismatchDiagnostics());
+                .Concat(GatherTypeMismatchDiagnostics())
+                // get diagnostics on whether the module referenced in the using statement is valid
+                .Concat(GatherUsingModelInvalidDiagnostics(semanticModel));
+        }
+
+        private IEnumerable<IDiagnostic> GatherUsingModelInvalidDiagnostics(ISemanticModel usingModel)
+        {
+            // emit diagnostic only if there is a using statement
+            var usingSyntax = this.Root.UsingDeclarationSyntax;
+
+            if (usingSyntax is null ||
+                usingSyntax.Path is NoneLiteralSyntax)
+            {
+                yield break;
+            }
+
+            if (usingModel.HasErrors())
+            {
+                yield return usingModel is ArmTemplateSemanticModel
+                    ? DiagnosticBuilder.ForPosition(usingSyntax.Path).ReferencedArmTemplateHasErrors()
+                    : DiagnosticBuilder.ForPosition(usingSyntax.Path).ReferencedModuleHasErrors();
+            }
         }
 
         private IEnumerable<IDiagnostic> GatherParameterMismatchDiagnostics(ISemanticModel usingModel)

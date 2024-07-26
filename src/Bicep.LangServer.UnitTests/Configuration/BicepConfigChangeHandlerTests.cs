@@ -63,7 +63,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 {
                     x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
                     x.Severity.Should().Be(DiagnosticSeverity.Information);
-                    x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                    x.Code?.String.Should().Be("no-unused-params");
                     x.Range.Should().Be(new Range
                     {
                         Start = new Position(0, 6),
@@ -111,7 +111,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 {
                     x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
                     x.Severity.Should().Be(DiagnosticSeverity.Warning);
-                    x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                    x.Code?.String.Should().Be("no-unused-params");
                     x.Range.Should().Be(new Range
                     {
                         Start = new Position(0, 6),
@@ -154,7 +154,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 {
                     x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
                     x.Severity.Should().Be(DiagnosticSeverity.Warning);
-                    x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                    x.Code?.String.Should().Be("no-unused-params");
                     x.Range.Should().Be(new Range
                     {
                         Start = new Position(0, 6),
@@ -210,7 +210,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 {
                     x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
                     x.Severity.Should().Be(DiagnosticSeverity.Warning);
-                    x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                    x.Code?.String.Should().Be("no-unused-params");
                     x.Range.Should().Be(new Range
                     {
                         Start = new Position(0, 6),
