@@ -16,7 +16,7 @@
     "monaco-editor-core": "^0.50.0",
     "ts-jest": "^29.2.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.4"
   },
   "engines": {
     "node": ">=14.0.0"
