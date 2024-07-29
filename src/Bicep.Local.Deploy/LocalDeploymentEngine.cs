@@ -31,7 +31,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Local.Deploy;
 
-internal class LocalDeploymentEngine
+public class LocalDeploymentEngine
 {
 
     public LocalDeploymentEngine(

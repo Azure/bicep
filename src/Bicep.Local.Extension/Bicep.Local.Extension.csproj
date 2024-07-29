@@ -22,6 +22,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Grpc.Net.Client" Version="2.63.0" />
+    <PackageReference Include="Azure.Deployments.Extensibility.Core" Version="0.1.55" />
   </ItemGroup>
 
   <ItemGroup>

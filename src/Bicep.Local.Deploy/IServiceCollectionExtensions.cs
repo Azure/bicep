@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Web.Services.Description;
 using Azure.Deployments.Core.EventSources;
 using Azure.Deployments.Core.Exceptions;
 using Azure.Deployments.Core.FeatureEnablement;
@@ -72,6 +73,100 @@ public static class IServiceCollectionExtensions
         services.AddSingleton(extensibilityHandler);
 
         services.AddSingleton<LocalDeploymentEngine>();
+        services.AddSingleton<LocalExtensionHostManager>();
+        services.AddSingleton<LocalDeploy>();
+
+        return services;
+    }
+
+    public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services)
+    {
+        var eventSource = new TraceEventSource();
+        services.AddSingleton<IGeneralEventSource>(eventSource);
+        services.AddSingleton<IDeploymentEventSource>(eventSource);
+
+        services.AddSingleton<IKeyVaultDataProvider, LocalKeyVaultDataProvider>();
+        services.AddSingleton<IAzureDeploymentSettings, LocalDeploymentSettings>();
+        services.AddSingleton<IEnablementConfigProvider, LocalEnablementConfigProvider>();
+        services.AddSingleton<IAzureDeploymentEngineHost, LocalDeploymentEngineHost>();
+        services.AddSingleton<IPreflightEngineHost, PreflightEngineHost>();
+        services.AddSingleton<IDeploymentDependency, DependencyProcessor>();
+        services.AddSingleton<ITemplateExceptionHandler, TemplateExceptionHandler>();
+
+        services.AddSingleton<AzureDeploymentValidation>();
+        services.AddSingleton<IAzureDeploymentConfiguration, LocalDeploymentConfiguration>();
+        services.AddSingleton<AzureDeploymentEngine>();
+        services.AddSingleton<IDeploymentEntityFactory, VolatileDeploymentEntityFactory>();
+        services.AddSingleton<IDeploymentJobsDataProvider, VolatileDeploymentJobDataProvider>();
+        services.AddSingleton<IDataProviderHolder, VolatileDataProviderHolder>();
+
+        var jobConfiguration = new JobConfigurationBase
+        {
+            Location = "local",
+            EventSource = eventSource,
+        };
+        services.AddSingleton(jobConfiguration);
+        RegisterJobsAsService(services);
+
+        services.AddSingleton<VolatileMemoryStorage>();
+        services.AddSingleton<IJobInstanceResolver, JobInstanceResolver>();
+        services.AddSingleton<JobCallbackFactory, DeploymentJobCallbackFactory>();
+        services.AddSingleton<WorkerJobDispatcherClient>();
+
+        services.AddSingleton<IDeploymentsRequestContext, LocalRequestContext>();
+        services.AddSingleton<LocalRequestContext>();
+
+        services.AddSingleton<LocalDeploymentEngine>();
+        services.AddSingleton<LocalExtensionHostManager>();
+        services.AddSingleton<ILocalExtensionFactoryManager, LocalExtensionFactoryManager>();
+        services.AddSingleton<ILocalExtensionHost, LocalExtensionHost>();
+        services.AddSingleton<LocalDeploy>();
+
+        return services;
+    }
+
+    public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services, LocalExtensionHostManager extensionHostManager)
+    {
+        var eventSource = new TraceEventSource();
+        services.AddSingleton<IGeneralEventSource>(eventSource);
+        services.AddSingleton<IDeploymentEventSource>(eventSource);
+
+        services.AddSingleton<IKeyVaultDataProvider, LocalKeyVaultDataProvider>();
+        services.AddSingleton<IAzureDeploymentSettings, LocalDeploymentSettings>();
+        services.AddSingleton<IEnablementConfigProvider, LocalEnablementConfigProvider>();
+        services.AddSingleton<IAzureDeploymentEngineHost, LocalDeploymentEngineHost>();
+        services.AddSingleton<IPreflightEngineHost, PreflightEngineHost>();
+        services.AddSingleton<IDeploymentDependency, DependencyProcessor>();
+        services.AddSingleton<ITemplateExceptionHandler, TemplateExceptionHandler>();
+
+        services.AddSingleton<AzureDeploymentValidation>();
+        services.AddSingleton<IAzureDeploymentConfiguration, LocalDeploymentConfiguration>();
+        services.AddSingleton<AzureDeploymentEngine>();
+        services.AddSingleton<IDeploymentEntityFactory, VolatileDeploymentEntityFactory>();
+        services.AddSingleton<IDeploymentJobsDataProvider, VolatileDeploymentJobDataProvider>();
+        services.AddSingleton<IDataProviderHolder, VolatileDataProviderHolder>();
+
+        var jobConfiguration = new JobConfigurationBase
+        {
+            Location = "local",
+            EventSource = eventSource,
+        };
+        services.AddSingleton(jobConfiguration);
+        RegisterJobsAsService(services);
+
+        services.AddSingleton<VolatileMemoryStorage>();
+        services.AddSingleton<IJobInstanceResolver, JobInstanceResolver>();
+        services.AddSingleton<JobCallbackFactory, DeploymentJobCallbackFactory>();
+        services.AddSingleton<WorkerJobDispatcherClient>();
+
+        services.AddSingleton<IDeploymentsRequestContext, LocalRequestContext>();
+        services.AddSingleton<LocalRequestContext>();
+
+        services.AddSingleton<LocalDeploymentEngine>();
+        services.AddSingleton<LocalExtensionHostManager>(extensionHostManager);
+
+        services.AddSingleton<ILocalExtensionFactoryManager, LocalExtensionFactoryManager>();
+        services.AddSingleton<ILocalExtensionHost, LocalExtensionHost>();
 
         return services;
     }

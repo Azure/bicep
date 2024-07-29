@@ -47,6 +47,10 @@ public record LocalExtensibilityOperationResponse(
     Resource? Resource,
     ErrorData? ErrorData);
 
+public record LocalExtensionOperationResponse(
+    Azure.Deployments.Extensibility.Core.V2.Models.Resource? Resource,
+    Azure.Deployments.Extensibility.Core.V2.Models.ErrorData? ErrorData);
+
 public interface IGenericResourceHandler
 {
     Task<LocalExtensibilityOperationResponse> CreateOrUpdate(
@@ -67,6 +71,11 @@ public interface IGenericResourceHandler
 }
 
 public interface IResourceHandler : IGenericResourceHandler
+{
+    string ResourceType { get; }
+}
+
+public interface ILocalExtensionHandler : ILocalExtension
 {
     string ResourceType { get; }
 }

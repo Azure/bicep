@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.Text;
 using System.Text.Json.Nodes;
 using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Azure.Deployments.Extensibility.Messages;
@@ -12,6 +14,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
@@ -21,6 +24,8 @@ using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Extension;
 using FluentAssertions;
+using Microsoft.Azure.Deployments.Service.Shared.Jobs;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
@@ -101,7 +106,7 @@ param coords = {
                     { "namespace", "someNamespace" }
                 };
 
-        var providerMock = StrictMock.Of<LocalExtensibilityHost>();
+        var providerMock = StrictMock.Of<Extension.Protocol.ILocalExtension>();
         providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
@@ -114,7 +119,7 @@ param coords = {
   }
 }
 """;
-                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
+                return Task.FromResult(new Extension.Protocol.LocalExtensionOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
             });
 
         providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
@@ -138,14 +143,24 @@ param coords = {
   }
 }
 """;
-                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
+                return Task.FromResult(new Extension.Protocol.LocalExtensionOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
             });
 
-        var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
-        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
-        await extensibilityHandler.InitializeExtensions(result.Compilation);
+        var localExtensionFactory = StrictMock.Of<ILocalExtensionFactory>();
+        localExtensionFactory
+            .Setup(x => x.CreateLocalExtensionAsync(It.IsAny<LocalExtensionKey>(), It.IsAny<Uri>()))
+            .ReturnsAsync(providerMock.Object);
 
-        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var moduleDispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
+
+        var extensionFactoryManager = new LocalExtensionFactoryManager(localExtensionFactory.Object);
+        var extensionHostManager = new LocalExtensionHostManager(
+            extensionFactoryManager,
+            new LocalExtensionHost(extensionFactoryManager));
+
+        extensionHostManager.InitializeLocalExtensions(GetBinaryExtensions(result.Compilation, moduleDispatcher).ToImmutableList());
+
+        var localDeployResult = await LocalDeployment.Deploy(extensionHostManager, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Succeeded);
         localDeployResult.Deployment.Properties.Outputs["forecast"].Value.Should().DeepEqual(JToken.Parse("""
@@ -160,6 +175,23 @@ param coords = {
   }
 ]
 """));
+    }
+
+    private IEnumerable<BinaryExtensionReference> GetBinaryExtensions(Compilation compilation, IModuleDispatcher moduleDispatcher)
+    {
+        var namespaceTypes = compilation.GetAllBicepModels()
+            .Select(x => x.Root.NamespaceResolver)
+            .SelectMany(x => x.GetNamespaceNames().Select(x.TryGetNamespace))
+            .WhereNotNull();
+
+        foreach (var namespaceType in namespaceTypes)
+        {
+            if (namespaceType.Artifact is { } artifact &&
+                moduleDispatcher.TryGetProviderBinary(artifact) is { } binaryUri)
+            {
+                yield return new(namespaceType, binaryUri);
+            }
+        }
     }
 
     [TestMethod]
