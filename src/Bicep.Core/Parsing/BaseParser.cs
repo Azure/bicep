@@ -591,13 +591,13 @@ namespace Bicep.Core.Parsing
                     // we don't want to allow mixing and matching, and we want to insert dummy elements between commas
                     if (Check(TokenType.NewLine))
                     {
-                        var count = 1;
-                        while (Check(TokenType.NewLine) && CheckTrivia(this.reader.PeekAhead(count)?.LeadingTrivia, [SyntaxTriviaType.SingleLineComment, SyntaxTriviaType.MultiLineComment]))
+                        var peekPosition = 1;
+                        while (Check(this.reader.PeekAhead(peekPosition), TokenType.NewLine) && CheckTrivia(this.reader.PeekAhead(peekPosition)?.LeadingTrivia, [SyntaxTriviaType.SingleLineComment, SyntaxTriviaType.MultiLineComment]))
                         {
                             // Check End of comments for closingTokenType
-                            count++;
+                            peekPosition++;
                         }
-                        if (!Check(this.reader.PeekAhead(count), closingTokenType))
+                        if (!Check(this.reader.PeekAhead(peekPosition), closingTokenType))
                         {
                             itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCommaSeparator()));
                         }
