@@ -446,6 +446,52 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [DataTestMethod]
+        [DataRow("var a = abc().bc|d",
+            """
+            var abcBcd = abc().bcd
+            var a = abcBcd
+            """)]
+        [DataRow("var a = abc|().bcd",
+            """
+            var newVariable = abc()
+            var a = newVariable.bcd
+            """)]
+        [DataRow("var a = abc.bcd.|def",
+            """
+            var bcdDef = abc.bcd.def
+            var a = bcdDef
+            """)]
+        [DataRow("var a = abc.b|cd",
+            """
+            var abcBcd = abc.bcd
+            var a = abcBcd
+            """)]
+        [DataRow("var a = abc.bc|d",
+            """
+            var abcBcd = abc.bcd
+            var a = abcBcd
+            """)]
+        [DataRow("var a = reference(storageAccount.id, '2018-02-01').primaryEndpoints.blob|",
+            """
+            var primaryEndpointsBlob = reference(storageAccount.id, '2018-02-01').primaryEndpoints.blob
+            var a = primaryEndpointsBlob
+            """)]
+        [DataRow("var a = reference(storageAccount.id, '2018-02-01').prim|aryEndpoints.blob",
+            """
+            var referencePrimaryEndpoints = reference(storageAccount.id, '2018-02-01').primaryEndpoints
+            var a = referencePrimaryEndpoints.blob
+            """)]
+        [DataRow("var a = a.b.|c.d.e",
+            """
+            var bC = a.b.c
+            var a = bC.d.e
+            """)]
+        public async Task PickUpNameFromProperyAccess_UpToTwoLevels(string fileWithSelection, string expectedText)
+        {
+            await RunExtractToVariableTest(fileWithSelection, expectedText);
+        }
+
+        [DataTestMethod]
         //
         // Closest ancestor expression is the top-level expression itself -> offer to update full expression
         //
@@ -488,8 +534,8 @@ namespace Bicep.LangServer.IntegrationTests
         // ... reference() call
         [DataRow(
             "storageUri: reference(storageAccount.id, '2018-02-01').|primaryEndpoints.blob",
-            "var newVariable = reference(storageAccount.id, '2018-02-01').primaryEndpoints",
-            "storageUri: newVariable.blob"
+            "var referencePrimaryEndpoints = reference(storageAccount.id, '2018-02-01').primaryEndpoints",
+            "storageUri: referencePrimaryEndpoints.blob"
             )]
         [DataRow(
             "storageUri: reference|(storageAccount.id, '2018-02-01').primaryEndpoints.blob",
@@ -515,13 +561,13 @@ namespace Bicep.LangServer.IntegrationTests
         //   ... storageAccount.id
         [DataRow(
             "storageUri: reference(storageAccount.|id, '2018-02-01').primaryEndpoints.blob",
-            "var newVariable = storageAccount.id",
-            "storageUri: reference(newVariable, '2018-02-01').primaryEndpoints.blob"
+            "var storageAccountId = storageAccount.id",
+            "storageUri: reference(storageAccountId, '2018-02-01').primaryEndpoints.blob"
             )]
         [DataRow(
             "storageUri: reference(storageAccount.i|d, '2018-02-01').primaryEndpoints.blob",
-            "var newVariable = storageAccount.id",
-            "storageUri: reference(newVariable, '2018-02-01').primaryEndpoints.blob"
+            "var storageAccountId = storageAccount.id",
+            "storageUri: reference(storageAccountId, '2018-02-01').primaryEndpoints.blob"
             )]
         // ... storageAccount
         [DataRow(
@@ -591,8 +637,8 @@ namespace Bicep.LangServer.IntegrationTests
         [DataTestMethod]
         [DataRow(
             "storageUri: reference(stora<<geAccount.i>>d, '2018-02-01').primaryEndpoints.blob",
-            "var newVariable = storageAccount.id",
-            "storageUri: reference(newVariable, '2018-02-01').primaryEndpoints.blob"
+            "var storageAccountId = storageAccount.id",
+            "storageUri: reference(storageAccountId, '2018-02-01').primaryEndpoints.blob"
             )]
         [DataRow(
             "storageUri: refer<<ence(storageAccount.id, '2018-02-01').primaryEndpoints.bl>>ob",

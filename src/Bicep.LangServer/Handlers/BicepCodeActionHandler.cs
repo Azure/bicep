@@ -140,19 +140,21 @@ namespace Bicep.LanguageServer.Handlers
                 yield break;
             }
 
-            var varName = "newVariable";
+            var defaultVarName = "newVariable";
 
+            // Semi-intelligent default names for new variable
             if (semanticModel.Binder.GetParent(expressionSyntax) is ObjectPropertySyntax propertySyntax
                 && propertySyntax.TryGetKeyText() is string propertyName)
             {
-                //asdfg comment
-                varName = propertyName;
+                // objectPropertyName: <expression> => use objectPropertyName as default name
+                defaultVarName = propertyName;
             }
             else if (expressionSyntax is ObjectPropertySyntax propertySyntax2
                 && propertySyntax2.TryGetKeyText() is string propertyName2)
             {
                 //asdfg combine with last
-                varName = propertyName2;
+                // objectPropertyName: <expression> => use objectPropertyName as default name
+                defaultVarName = propertyName2;
 
                 var propertyValueSyntax = propertySyntax2.Value as ExpressionSyntax;
                 if (propertyValueSyntax != null)
@@ -164,14 +166,29 @@ namespace Bicep.LanguageServer.Handlers
                     yield break;
                 }
             }
+            else if (expressionSyntax is PropertyAccessSyntax propertyAccessSyntax)
+            {
+                // object.topPropertyName.propertyName and similar => use topPropertyName.propertyName as default variable name
+                // Only consider two levels
+                string lastPartName = propertyAccessSyntax.PropertyName.IdentifierName;
+                var parent = propertyAccessSyntax.BaseExpression;
+                string? firstPartName = parent switch {
+                    PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
+                    VariableAccessSyntax variableAccess => variableAccess.Name.IdentifierName,
+                    FunctionCallSyntax functionCall => functionCall.Name.IdentifierName,
+                    _ => null
+                };
+
+                defaultVarName = firstPartName is { } ? firstPartName + lastPartName.UppercaseFirstLetter() : lastPartName;
+            }
 
             var activeScopes = ActiveScopesVisitor.GetActiveScopes(compilation.GetEntrypointSemanticModel().Root, expressionSyntax.Span.Position);
             for (int i = 1; i < int.MaxValue; ++i)
             {
-                var tryingName = $"{varName}{(i < 2 ? "" : i)}";
+                var tryingName = $"{defaultVarName}{(i < 2 ? "" : i)}";
                 if (!activeScopes.Any(s => s.GetDeclarationsByName(tryingName).Any()))
                 {
-                    varName = tryingName;
+                    defaultVarName = tryingName;
                     break;
                 }
             }
@@ -181,7 +198,7 @@ namespace Bicep.LanguageServer.Handlers
                 yield break;
             }
 
-            var declarationSyntax = SyntaxFactory.CreateVariableDeclaration(varName, expressionSyntax);
+            var declarationSyntax = SyntaxFactory.CreateVariableDeclaration(defaultVarName, expressionSyntax);
             //var newline = semanticModel.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence(); //asdfg exctract
             //var declarationText = SyntaxStringifier.Stringify(declarationSyntax) + "\n"; //asdfg \n okay?
             var declarationText = PrettyPrinterV2.PrintValid(declarationSyntax, PrettyPrinterV2Options.Default)
@@ -196,7 +213,7 @@ namespace Bicep.LanguageServer.Handlers
                 $"Create variable for {GetQuotedExpressionText(expressionSyntax)}",
                 isPreferred: false,
                 CodeFixKind.RefactorExtract,
-                new CodeReplacement(expressionSyntax.Span, varName),
+                new CodeReplacement(expressionSyntax.Span, defaultVarName),
                 new CodeReplacement(declarationReplacementSpan, declarationText));
         }
 
@@ -204,7 +221,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             return "\""
                 + SyntaxStringifier.Stringify(expressionSyntax, newlineReplacement: " ")
-                    .Truncate(MaxExpressionLengthInAction)
+                    .TruncateWithEllipses(MaxExpressionLengthInAction)
                     .Trim()
                 + "\"";
         }
