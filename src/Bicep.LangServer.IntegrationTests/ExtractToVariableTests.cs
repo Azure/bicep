@@ -548,7 +548,7 @@ namespace Bicep.LangServer.IntegrationTests
             "storageUri: newVariable.primaryEndpoints.blob"
             )]
         //   ... '2018-02-01'
-        [DataRow(//asdfg
+        [DataRow(
             "storageUri: reference(storageAccount.id, |'2018-02-01').primaryEndpoints.blob",
             "var newVariable = '2018-02-01'",
             "storageUri: reference(storageAccount.id, newVariable).primaryEndpoints.blob"
