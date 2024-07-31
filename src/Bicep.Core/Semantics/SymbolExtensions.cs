@@ -88,15 +88,15 @@ namespace Bicep.Core.Semantics
         public static bool CanBeReferenced(this DeclaredSymbol declaredSymbol)
             => declaredSymbol is not OutputSymbol and not MetadataSymbol;
 
-        public static string? TryGetDescriptionFromDecorator(this DeclaredSymbol symbol)
-            => symbol.DeclaringSyntax is DecorableSyntax decorableSyntax ? DescriptionHelper.TryGetFromDecorator(symbol.Context.Compilation.GetSemanticModel(symbol.Context.SourceFile), decorableSyntax) : null;
+        public static string? TryGetDescriptionFromDecorator(this DeclaredSymbol symbol, SemanticModel model)
+            => symbol.DeclaringSyntax is DecorableSyntax decorableSyntax ? DescriptionHelper.TryGetFromDecorator(model, decorableSyntax) : null;
 
-        public static DecoratorSyntax? TryGetDecorator(this Symbol symbol, string @namespace, string decoratorName)
+        public static DecoratorSyntax? TryGetDecorator(this Symbol symbol, SemanticModel model, string @namespace, string decoratorName)
             => symbol is DeclaredSymbol declaredSymbol && declaredSymbol.DeclaringSyntax is DecorableSyntax decorableSyntax ?
-                SemanticModelHelper.TryGetDecoratorInNamespace(declaredSymbol.Context.SemanticModel, decorableSyntax, @namespace, decoratorName) :
+                SemanticModelHelper.TryGetDecoratorInNamespace(model, decorableSyntax, @namespace, decoratorName) :
                 null;
 
-        public static bool IsExported(this Symbol symbol)
-            => TryGetDecorator(symbol, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is { };
+        public static bool IsExported(this Symbol symbol, SemanticModel model)
+            => TryGetDecorator(symbol, model, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is { };
     }
 }
