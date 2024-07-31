@@ -2,14 +2,19 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.Xml;
 using Bicep.Core;
 using Bicep.Core.Analyzers;
 using Bicep.Core.CodeAction;
 using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -23,6 +28,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using static Bicep.LanguageServer.Completions.BicepCompletionContext;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Handlers
@@ -30,6 +36,7 @@ namespace Bicep.LanguageServer.Handlers
     // Provides code actions/fixes for a range in a Bicep document
     public class BicepCodeActionHandler : CodeActionHandlerBase
     {
+        private const int MaxExpressionLengthInAction = 100;
         private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
         private readonly ICompilationManager compilationManager;
         private readonly DocumentSelectorFactory documentSelectorFactory;
@@ -54,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
                 return null;
             }
 
-            var requestStartOffset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Range.Start);
+            var requestStartOffset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Range.Start); //asdfg refactor (and below)
             var requestEndOffset = request.Range.Start != request.Range.End
                 ? PositionHelper.GetOffset(compilationContext.LineStarts, request.Range.End)
                 : requestStartOffset;
@@ -69,7 +76,7 @@ namespace Bicep.LanguageServer.Handlers
                     fixable.Span.ContainsInclusive(requestEndOffset) ||
                     (requestStartOffset <= fixable.Span.Position && fixable.GetEndPosition() <= requestEndOffset))
                 .OfType<IFixable>()
-                .SelectMany(fixable => fixable.Fixes.Select(fix => CreateCodeFix(request.TextDocument.Uri, compilationContext, fix)));
+                .SelectMany(fixable => fixable.Fixes.Select(fix => CreateCodeAction(request.TextDocument.Uri, compilationContext, fix)));
 
             List<CommandOrCodeAction> commandOrCodeActions = new();
 
@@ -112,18 +119,125 @@ namespace Bicep.LanguageServer.Handlers
                 commandOrCodeActions.AddRange(editLinterRuleActions);
             }
 
-            var matchingNodes = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
+            var nodesInRange = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
             var codeFixes = GetDecoratorCodeFixProviders(semanticModel)
-                .SelectMany(provider => provider.GetFixes(semanticModel, matchingNodes))
-                .Select(fix => CreateCodeFix(request.TextDocument.Uri, compilationContext, fix));
+                .SelectMany(provider => provider.GetFixes(semanticModel, nodesInRange))
+                .Select(fix => CreateCodeAction(request.TextDocument.Uri, compilationContext, fix));
             commandOrCodeActions.AddRange(codeFixes);
 
+            commandOrCodeActions.AddRange(
+                GetExtractionRefactorings(request, compilationContext, compilation, semanticModel, nodesInRange)
+                .Select(fix => CreateCodeAction(documentUri, compilationContext, fix)));
+
             return new(commandOrCodeActions);
+        }
+
+        // asdfg all params needed?
+        private static IEnumerable<CodeFix> GetExtractionRefactorings(CodeActionParams request, CompilationContext compilationContext, Compilation compilation, SemanticModel semanticModel, List<SyntaxBase> nodesInRange)
+        {
+            if (SyntaxMatcher.FindLastNodeOfType<ExpressionSyntax, ExpressionSyntax>(nodesInRange) is not (ExpressionSyntax expressionSyntax, _))
+            {
+                yield break;
+            }
+
+            var defaultVarName = "newVariable";
+
+            // Semi-intelligent default names for new variable
+            if (semanticModel.Binder.GetParent(expressionSyntax) is ObjectPropertySyntax propertySyntax
+                && propertySyntax.TryGetKeyText() is string propertyName)
+            {
+                // objectPropertyName: <expression> => use objectPropertyName as default name
+                defaultVarName = propertyName;
+            }
+            else if (expressionSyntax is ObjectPropertySyntax propertySyntax2
+                && propertySyntax2.TryGetKeyText() is string propertyName2)
+            {
+                //asdfg combine with last
+                // objectPropertyName: <expression> => use objectPropertyName as default name
+                defaultVarName = propertyName2;
+
+                var propertyValueSyntax = propertySyntax2.Value as ExpressionSyntax;
+                if (propertyValueSyntax != null)
+                {
+                    expressionSyntax = propertyValueSyntax;
+                }
+                else
+                {
+                    yield break;
+                }
+            }
+            else if (expressionSyntax is PropertyAccessSyntax propertyAccessSyntax)
+            {
+                // object.topPropertyName.propertyName and similar => use topPropertyName.propertyName as default variable name
+                // Only consider two levels
+                string lastPartName = propertyAccessSyntax.PropertyName.IdentifierName;
+                var parent = propertyAccessSyntax.BaseExpression;
+                string? firstPartName = parent switch {
+                    PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
+                    VariableAccessSyntax variableAccess => variableAccess.Name.IdentifierName,
+                    FunctionCallSyntax functionCall => functionCall.Name.IdentifierName,
+                    _ => null
+                };
+
+                defaultVarName = firstPartName is { } ? firstPartName + lastPartName.UppercaseFirstLetter() : lastPartName;
+            }
+
+            var activeScopes = ActiveScopesVisitor.GetActiveScopes(compilation.GetEntrypointSemanticModel().Root, expressionSyntax.Span.Position);
+            for (int i = 1; i < int.MaxValue; ++i)
+            {
+                var tryingName = $"{defaultVarName}{(i < 2 ? "" : i)}";
+                if (!activeScopes.Any(s => s.GetDeclarationsByName(tryingName).Any()))
+                {
+                    defaultVarName = tryingName;
+                    break;
+                }
+            }
+
+            if (semanticModel.Binder.GetNearestAncestor<StatementSyntax>(expressionSyntax) is not StatementSyntax statementSyntax)
+            {
+                yield break;
+            }
+
+            var declarationSyntax = SyntaxFactory.CreateVariableDeclaration(defaultVarName, expressionSyntax);
+            //var newline = semanticModel.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence(); //asdfg exctract
+            //var declarationText = SyntaxStringifier.Stringify(declarationSyntax) + "\n"; //asdfg \n okay?
+            var declarationText = PrettyPrinterV2.PrintValid(declarationSyntax, PrettyPrinterV2Options.Default)
+                + "\n"; //asdfg \n okay?
+            //asdfg var declarationText = $"{declarationSyntax}\n"; 
+            var statementLine = TextCoordinateConverter.GetPosition(compilationContext.LineStarts, statementSyntax.Span.Position).line;
+            var declarationReplacementSpan = new TextSpan(
+                TextCoordinateConverter.GetOffset(compilationContext.LineStarts, statementLine, 0),
+                0);
+
+            yield return new CodeFix(
+                $"Create variable for {GetQuotedExpressionText(expressionSyntax)}",
+                isPreferred: false,
+                CodeFixKind.RefactorExtract,
+                new CodeReplacement(expressionSyntax.Span, defaultVarName),
+                new CodeReplacement(declarationReplacementSpan, declarationText));
+        }
+
+        private static string GetQuotedExpressionText(ExpressionSyntax expressionSyntax)
+        {
+            return "\""
+                + SyntaxStringifier.Stringify(expressionSyntax, newlineReplacement: " ")
+                    .TruncateWithEllipses(MaxExpressionLengthInAction)
+                    .Trim()
+                + "\"";
         }
 
         private IEnumerable<DecoratorCodeFixProvider> GetDecoratorCodeFixProviders(SemanticModel semanticModel)
         {
             var nsResolver = semanticModel.Binder.NamespaceResolver;
+            var a = nsResolver.GetNamespaceNames().Select(nsResolver.TryGetNamespace).WhereNotNull().ToArray();
+            var b = a.SelectMany(ns => ns.DecoratorResolver.GetKnownDecoratorFunctions().Select(kvp => (ns, kvp.Key, kvp.Value))).ToArray();
+            var c = b.ToLookup(t => t.Key);
+            var d = c.SelectMany(grouping => grouping.Count() > 1
+                    ? grouping.SelectMany(tuple => tuple.Value.Overloads.Select(tuple.ns.DecoratorResolver.TryGetDecorator).WhereNotNull().Select(decorator => ($"{tuple.ns.Name}.{tuple.Key}", decorator)))
+                    : grouping.SelectMany(tuple => tuple.Value.Overloads.Select(tuple.ns.DecoratorResolver.TryGetDecorator).WhereNotNull().Select(decorator => (tuple.Key, decorator))))
+                .ToArray();
+            var e = d.Select(t => new DecoratorCodeFixProvider(t.Item1, t.decorator)).ToArray();
+
             return nsResolver.GetNamespaceNames().Select(nsResolver.TryGetNamespace).WhereNotNull()
                 .SelectMany(ns => ns.DecoratorResolver.GetKnownDecoratorFunctions().Select(kvp => (ns, kvp.Key, kvp.Value)))
                 .ToLookup(t => t.Key)
@@ -209,12 +323,13 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult(request);
         }
 
-        private static CommandOrCodeAction CreateCodeFix(DocumentUri uri, CompilationContext context, CodeFix fix)
+        private static CommandOrCodeAction CreateCodeAction(DocumentUri uri, CompilationContext context, CodeFix fix)
         {
             var codeActionKind = fix.Kind switch
             {
                 CodeFixKind.QuickFix => CodeActionKind.QuickFix,
                 CodeFixKind.Refactor => CodeActionKind.Refactor,
+                CodeFixKind.RefactorExtract => CodeActionKind.RefactorExtract,
                 _ => CodeActionKind.Empty,
             };
 

@@ -386,5 +386,13 @@ namespace Bicep.Core.Syntax
                 left,
                 CreateToken(operatorType, SingleSpaceTrivia, SingleSpaceTrivia),
                 right);
+
+        public static VariableDeclarationSyntax CreateVariableDeclaration(string name, SyntaxBase value)
+            => new(
+                [],
+                VariableKeywordToken,
+                CreateIdentifierWithTrailingSpace(name),
+                AssignmentToken,
+                value);
     }
 }

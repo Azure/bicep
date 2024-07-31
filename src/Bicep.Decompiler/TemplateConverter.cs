@@ -944,12 +944,7 @@ namespace Bicep.Decompiler
                 variableValue = ParseJToken(value);
             }
 
-            return new VariableDeclarationSyntax(
-                ImmutableArray<SyntaxBase>.Empty,
-                SyntaxFactory.VariableKeywordToken,
-                SyntaxFactory.CreateIdentifierWithTrailingSpace(identifier),
-                SyntaxFactory.AssignmentToken,
-                variableValue);
+            return SyntaxFactory.CreateVariableDeclaration(identifier, variableValue); //asdfg testpoint
         }
 
         private (SyntaxBase moduleFilePathStringLiteral, Uri? jsonTemplateUri) GetModuleFilePath(string templateLink)

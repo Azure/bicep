@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Core.Navigation
+namespace Bicep.Core.Navigation //asdfg wrong place for SpanWithTrivia
 {
     public static class SyntaxBaseExtensions
     {
@@ -19,6 +20,20 @@ namespace Bicep.Core.Navigation
 
             return visitor.Result;
         }
+
+        //asdfg
+        //public static TextSpan SpanWithTrivia(this SyntaxBase root)
+        //{
+        //    if (root is Token token)
+        //    {
+        //        List<TextSpan> triviaSpans = [
+        //            ..token.LeadingTrivia.Select(x => x.Span),
+        //            ..token.TrailingTrivia.Select(x => x.Span)];
+        //        return triviaSpans.Aggregate(root.Span, TextSpan.Between);
+        //    }
+
+        //    return root.Span;
+        //}
 
         private sealed class NavigationSearchVisitor : CstVisitor
         {

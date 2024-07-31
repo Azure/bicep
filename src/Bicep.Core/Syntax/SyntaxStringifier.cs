@@ -27,7 +27,7 @@ namespace Bicep.Core.Syntax
             return writer.ToString();
         }
 
-        public static void StringifyTo(TextWriter writer, SyntaxBase syntax, string? newlineReplacement = null)
+        public static void StringifyTo(TextWriter writer, SyntaxBase syntax, string? newlineReplacement = null)//asdfg
         {
             var stringifier = new SyntaxStringifier(writer, newlineReplacement);
 

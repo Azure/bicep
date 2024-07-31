@@ -1368,7 +1368,7 @@ namespace Bicep.LanguageServer.Completions
             };
         }
 
-        private class ActiveScopesVisitor : SymbolVisitor
+        public/*asdfg was private - extract*/ class ActiveScopesVisitor : SymbolVisitor
         {
             private readonly int offset;
 

@@ -174,7 +174,7 @@ namespace Bicep.LanguageServer.Completions
             return nodes;
         }
 
-        public static ImmutableArray<SyntaxBase> FindNodesInRange(ProgramSyntax syntax, int startOffset, int endOffset)
+        public static List<SyntaxBase> FindNodesInRange(ProgramSyntax syntax, int startOffset, int endOffset)
         {
             var startNodes = FindNodesMatchingOffset(syntax, startOffset);
             var endNodes = FindNodesMatchingOffset(syntax, endOffset);
@@ -183,7 +183,7 @@ namespace Bicep.LanguageServer.Completions
                 .Zip(endNodes, (x, y) => object.ReferenceEquals(x, y) ? x : null)
                 .TakeWhile(x => x is not null)
                 .WhereNotNull()
-                .ToImmutableArray();
+                .ToList();
         }
 
         public static List<SyntaxBase> FindNodesMatchingOffsetExclusive(ProgramSyntax syntax, int offset)
@@ -205,5 +205,8 @@ namespace Bicep.LanguageServer.Completions
 
             return (node, index);
         }
+
+        public static (TPredicate? node, int index) FindLastNodeOfType<TPredicate>(List<SyntaxBase> matchingNodes) where TPredicate : SyntaxBase //asdfg refactor to use
+            => FindLastNodeOfType<TPredicate, TPredicate>(matchingNodes);
     }
 }
