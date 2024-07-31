@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
@@ -233,7 +234,7 @@ namespace Bicep.Core.Emit
         {
             var (@base, properties, safeAccess) = ConvertBaseExpression(expression);
 
-            if (expression is ModuleOutputPropertyAccessExpression moduleOutputExpression)
+            if (expression is ModuleOutputPropertyAccessExpression)
             {
                 var isSecureOutput = @base is FunctionExpression functionExpression && functionExpression.Function == "listOutputWithSecureValues";
 
@@ -414,8 +415,7 @@ namespace Bicep.Core.Emit
 
                 case "outputs":
                     var moduleSymbol = reference.Module;
-                    var bodyObjectType = moduleSymbol.TryGetBodyObjectType();
-                    var hasSecureOutput = bodyObjectType?.Properties.Any(p => p.Value.Flags.HasFlag(TypeSystem.Types.TypePropertyFlags.WriteOnly)) ?? false;
+                    var hasSecureOutput = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(context.SemanticModel, moduleSymbol.DeclaringModule).Any();
 
                     if (hasSecureOutput)
                     {
