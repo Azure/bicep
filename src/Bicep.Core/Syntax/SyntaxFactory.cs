@@ -386,5 +386,8 @@ namespace Bicep.Core.Syntax
                 left,
                 CreateToken(operatorType, SingleSpaceTrivia, SingleSpaceTrivia),
                 right);
+
+        public static ParenthesizedExpressionSyntax CreateParenthesized(SyntaxBase inner)
+            => new(LeftParenToken, inner, RightParenToken);
     }
 }
