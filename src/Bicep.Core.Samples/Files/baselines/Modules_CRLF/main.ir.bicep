@@ -1,5 +1,5 @@
 
-//@[000:9059) ProgramExpression
+//@[000:9180) ProgramExpression
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) | | └─ModuleReferenceExpression [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
@@ -1257,4 +1257,9 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 
 var nameofModule = nameof(folderWithSpace)
 var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+
+module moduleWithNameof 'modulea.bicep' = {
+  name: 'nameofModule'
+  scope: resourceGroup(nameof(nameofModuleParam))
+}
 

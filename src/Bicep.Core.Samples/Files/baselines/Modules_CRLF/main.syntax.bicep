@@ -1,5 +1,5 @@
 
-//@[000:9059) ProgramSyntax
+//@[000:9180) ProgramSyntax
 //@[000:0002) ├─Token(NewLine) |\r\n|
 @sys.description('this is deployTimeSuffix param')
 //@[000:0093) ├─ParameterDeclarationSyntax
@@ -3358,3 +3358,9 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 var nameofModule = nameof(folderWithSpace)
 var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
 
+module moduleWithNameof 'modulea.bicep' = {
+  name: 'nameofModule'
+  scope: resourceGroup(nameof(nameofModuleParam))
+}
+
+//@[009:0011) ├─Token(NewLine) |\n\n|

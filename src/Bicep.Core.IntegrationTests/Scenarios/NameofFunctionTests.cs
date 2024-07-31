@@ -12,10 +12,10 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     [TestClass]
     public class NameofFunctionTests
     {
-        [DataRow("prop",".prop")]
-        [DataRow("'complex-prop'","['complex-prop']")]
+        [DataRow("prop",".prop", "prop")]
+        [DataRow("'complex-prop'","['complex-prop']","complex-prop")]
         [DataTestMethod]
-        public void NameofFunction_OnObjectProperty_ReturnsPropertyName(string propertyName, string propertyAccess)
+        public void NameofFunction_OnObjectProperty_ReturnsPropertyName(string propertyName, string propertyAccess, string expectedResult)
         {
             var result = CompilationHelper.Compile($$"""
 var obj = {
@@ -27,7 +27,7 @@ output name string = nameof(obj{{propertyAccess}})
             using (new AssertionScope())
             {
                 result.Should().NotHaveAnyCompilationBlockingDiagnostics();
-                result.Template.Should().HaveValueAtPath("$.outputs['name'].value", propertyName);
+                result.Template.Should().HaveValueAtPath("$.outputs['name'].value", expectedResult);
             }
         }
 
@@ -208,5 +208,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
                 result.Template.Should().NotHaveValueAtPath("$.resources[?(@.type == 'Microsoft.Sql/servers')].dependsOn", "Depends on should not be generated for nameof function usage");
             }
         }
+
+        //TODO: Add some negative tests when nameof is used in invalid context
     }
 }

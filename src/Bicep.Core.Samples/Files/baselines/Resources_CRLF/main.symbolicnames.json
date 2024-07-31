@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9746601616780415170"
+      "templateHash": "8109054727710049017"
     }
   },
   "parameters": {
@@ -703,7 +703,7 @@
     "sqlServerWithNameof": {
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2021-11-01",
-      "name": "[format('sql-server-nameof-{0}', '''server-name''')]",
+      "name": "[format('sql-server-nameof-{0}', 'server-name')]",
       "location": "westus"
     }
   },
