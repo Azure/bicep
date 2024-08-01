@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -1853,9 +1855,34 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(decorator, (_, _) => true);
             }
 
+            //foreach (var decorator in GetBicepTemplateDecorators())
+            //{
+            //    yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
+            //}
             foreach (var decorator in GetBicepTemplateDecorators())
             {
-                yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
+                if (decorator.Overload.Name == LanguageConstants.ParameterSecurePropertyName)
+                {
+                    yield return new(decorator, (features, sfk) =>
+                    {
+                        var isValid = sfk == BicepSourceFileKind.BicepFile;
+
+                        if (features.SecureOutputsEnabled)
+                        {
+                            isValid &= (decorator.Overload.Flags & FunctionFlags.ParameterOutputOrTypeDecorator) == decorator.Overload.Flags;
+                        }
+                        else
+                        {
+                            isValid &= (decorator.Overload.Flags & FunctionFlags.ParameterOrTypeDecorator) == decorator.Overload.Flags;
+                        }
+                        return isValid;
+                    });
+                }
+                else
+                {
+                    yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
+                }
+                
             }
         }
 

@@ -24,11 +24,15 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class SecureOutputsTests
 {
+
+    [NotNull]
+    public TestContext? TestContext { get; set; }
+
     [TestMethod]
     public void Test_Issue2163_Deployments_Secure_Outputs_E2E()
     {
         // https://github.com/Azure/bicep/issues/2163
-        var result = CompilationHelper.Compile(
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, SecureOutputsEnabled: true)),
             ("main.bicep", @"
                 @secure()
                 param myInput string
@@ -55,10 +59,43 @@ public class SecureOutputsTests
     }
 
     [TestMethod]
-    public void Test_Issue2163_Deployments_Secure_Outputs_Decorator_Translates_To_SecureString_And_SecureObject()
+    public void Test_Issue2163_Deployments_Secure_Outputs_Expect_Error_SecureOutputsNotEnabled()
     {
         // https://github.com/Azure/bicep/issues/2163
         var result = CompilationHelper.Compile(
+            ("main.bicep", @"
+                @secure()
+                param myInput string
+ 
+                module foo 'foo.bicep' = {
+                  name: 'foo'
+                  params: {
+                    myInput : myInput
+                  }
+                }
+ 
+                output myOutput string = foo.outputs.myOutput
+            "),
+            ("foo.bicep", @"
+                @secure()
+                param myInput string
+ 
+                @secure()
+                output myOutput string = myInput
+            ")
+        );
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP057", DiagnosticLevel.Error, "The name \"secure\" does not exist in the current context."),
+            ("BCP104", DiagnosticLevel.Error, "The referenced module has errors.")
+        });
+    }
+
+    [TestMethod]
+    public void Test_Issue2163_Deployments_Secure_Outputs_Decorator_Translates_To_SecureString_And_SecureObject()
+    {
+        // https://github.com/Azure/bicep/issues/2163
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, SecureOutputsEnabled: true)),
             ("main.bicep", @"
                 @secure()
                 output secureStringOutput string = 'intern project 2024'
@@ -80,7 +117,7 @@ public class SecureOutputsTests
     public void Test_Issue2163_Deployments_Secure_Outputs_Call_Correct_API()
     {
         // https://github.com/Azure/bicep/issues/2163
-        var result = CompilationHelper.Compile(
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, SecureOutputsEnabled: true)),
             ("main.bicep", @"
                 @secure()
                 param foo string

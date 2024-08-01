@@ -416,7 +416,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 ExtensionRegistry: false,
                 OptionalModuleNames: false,
                 LocalDeploy: false,
-                ResourceDerivedTypes: false);
+                ResourceDerivedTypes: false,
+                SecureOutputs: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
