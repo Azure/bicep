@@ -1,5 +1,5 @@
 
-//@[000:13326) ProgramSyntax
+//@[000:13327) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 @sys.description('this is basicStorage')
 //@[000:00225) ├─ResourceDeclarationSyntax
@@ -2664,7 +2664,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 //@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // duplicate identifiers in global and single loop scope are allowed (inner variable hides the outer)
-//@[100:00102) ├─Token(NewLine) |\r\n|
+//@[101:00103) ├─Token(NewLine) |\r\n|
 var canHaveDuplicatesAcrossScopes = 'hello'
 //@[000:00043) ├─VariableDeclarationSyntax
 //@[000:00003) | ├─Token(Identifier) |var|

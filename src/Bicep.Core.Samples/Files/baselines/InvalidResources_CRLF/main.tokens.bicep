@@ -3142,10 +3142,10 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[018:022) NewLine |\r\n\r\n|
 
   properties: {
-//@[002:011) Identifier |properties|
-//@[011:012) Colon |:|
-//@[013:014) LeftBrace |{|
-//@[014:016) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
 //@[003:005) NewLine |\r\n|
@@ -7912,9 +7912,9 @@ resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
 //@[002:003) At |@|
 //@[003:014) Identifier |description|
 //@[014:015) LeftParen |(|
-//@[015:040) StringComplete |'missing resource keyword'|
-//@[040:041) RightParen |)|
-//@[041:045) NewLine |\r\n\r\n|
+//@[015:041) StringComplete |'missing resource keyword'|
+//@[041:042) RightParen |)|
+//@[042:046) NewLine |\r\n\r\n|
 
 }
 //@[000:001) RightBrace |}|

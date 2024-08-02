@@ -24,9 +24,9 @@ param sshRSAPublicKey string
 //@[009:010) NewLine |\n|
 param servicePrincipalClientId string
 //@[000:005) Identifier |param|
-//@[006:029) Identifier |servicePrincipalClientId|
-//@[030:036) Identifier |string|
-//@[036:038) NewLine |\n\n|
+//@[006:030) Identifier |servicePrincipalClientId|
+//@[031:037) Identifier |string|
+//@[037:039) NewLine |\n\n|
 
 @secure()
 //@[000:001) At |@|
@@ -229,8 +229,8 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
             clientId: servicePrincipalClientId
 //@[012:020) Identifier |clientId|
 //@[020:021) Colon |:|
-//@[022:045) Identifier |servicePrincipalClientId|
-//@[045:046) NewLine |\n|
+//@[022:046) Identifier |servicePrincipalClientId|
+//@[046:047) NewLine |\n|
             secret: servicePrincipalClientSecret
 //@[012:018) Identifier |secret|
 //@[018:019) Colon |:|
@@ -249,4 +249,6 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 // fyi - dot property access (aks.fqdn) has not been spec'd
 //@[059:060) NewLine |\n|
 //output controlPlaneFQDN string = aks.properties.fqdn
-//@[055:055) EndOfFile ||
+//@[054:055) NewLine |\n|
+
+//@[000:000) EndOfFile ||

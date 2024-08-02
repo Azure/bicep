@@ -63,10 +63,10 @@ type test = {
 
 type strangeFormatting = {
 //@[00:04) Identifier |type|
-//@[05:23) Identifier |strangeFormatting|
-//@[24:25) Assignment |=|
-//@[26:27) LeftBrace |{|
-//@[27:28) NewLine |\n|
+//@[05:22) Identifier |strangeFormatting|
+//@[23:24) Assignment |=|
+//@[25:26) LeftBrace |{|
+//@[26:27) NewLine |\n|
   test: resource<
 //@[02:06) Identifier |test|
 //@[06:07) Colon |:|

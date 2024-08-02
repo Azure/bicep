@@ -863,7 +863,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetT
 
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[009:031) Resource incorrectPropertiesKey. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 132
+//@[009:031) Resource incorrectPropertiesKey. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 133
   kind: 'AzureCLI'
 
   properties: {
@@ -2062,7 +2062,7 @@ resource sqlServer2 'Microsoft.Sql/servers@2021-11-01' = {
   }
 }
 resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
-//@[009:019) Resource sqlServer3. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 159
+//@[009:019) Resource sqlServer3. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 160
   name: 'sqlServer3'
   location: 'polandcentral'
 

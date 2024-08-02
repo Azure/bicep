@@ -230,13 +230,13 @@ module moduleWithInvalidScope2 './empty.bicep' = {
 }
 
 module moduleWithUnsupportedScope1 './mg_empty.bicep' = {
-//@[07:33) Module moduleWithUnsupportedScope1. Type: module. Declaration start char: 0, length: 122
+//@[07:34) Module moduleWithUnsupportedScope1. Type: module. Declaration start char: 0, length: 124
   name: 'moduleWithUnsupportedScope1'
   scope: managementGroup()
 }
 
 module moduleWithUnsupportedScope2 './mg_empty.bicep' = {
-//@[07:33) Module moduleWithUnsupportedScope2. Type: module. Declaration start char: 0, length: 126
+//@[07:34) Module moduleWithUnsupportedScope2. Type: module. Declaration start char: 0, length: 128
   name: 'moduleWithUnsupportedScope2'
   scope: managementGroup('MG')
 }

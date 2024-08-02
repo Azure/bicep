@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12820056084073504429"
+      "templateHash": "7197265589075352462"
     }
   },
   "parameters": {
@@ -19,14 +19,14 @@
     "availabilityOption": {
       "type": "string",
       "defaultValue": "None",
-      "metadata": {
-        "description": "The availability option for the VMs."
-      },
       "allowedValues": [
         "None",
         "AvailabilitySet",
         "AvailabilityZone"
-      ]
+      ],
+      "metadata": {
+        "description": "The availability option for the VMs."
+      }
     },
     "availabilitySetName": {
       "type": "string",
@@ -38,14 +38,14 @@
     "availabilityZone": {
       "type": "int",
       "defaultValue": 1,
-      "metadata": {
-        "description": "The number of availability zone to be used when create the VMs."
-      },
       "allowedValues": [
         1,
         2,
         3
-      ]
+      ],
+      "metadata": {
+        "description": "The number of availability zone to be used when create the VMs."
+      }
     },
     "vmImageVhdUri": {
       "type": "string",
@@ -95,14 +95,14 @@
     },
     "rdshVMDiskType": {
       "type": "string",
-      "metadata": {
-        "description": "The VM disk type for the VM: HDD or SSD."
-      },
       "allowedValues": [
         "Premium_LRS",
         "StandardSSD_LRS",
         "Standard_LRS"
-      ]
+      ],
+      "metadata": {
+        "description": "The VM disk type for the VM: HDD or SSD."
+      }
     },
     "rdshVmSize": {
       "type": "string",

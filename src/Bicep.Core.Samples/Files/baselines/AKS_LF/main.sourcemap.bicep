@@ -128,3 +128,4 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 
 // fyi - dot property access (aks.fqdn) has not been spec'd
 //output controlPlaneFQDN string = aks.properties.fqdn
+

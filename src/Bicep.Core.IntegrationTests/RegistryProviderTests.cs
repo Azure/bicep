@@ -530,7 +530,7 @@ output joke string = dadJoke.joke
 extension 'br:example.azurecr.io/providers/foo:1.2.3' with {
   namespace: 'ThirdPartyNamespace'
   config: 'Some path to config file'
-  context: 'Some ThirdParty context'
+  contex: 'Some ThirdParty context'
 }
 
 resource dadJoke 'fooType@v1' = {
@@ -543,7 +543,7 @@ output joke string = dadJoke.joke
 
         result.Should().NotGenerateATemplate();
         result.Should().HaveDiagnostics(new[]{
-            ("BCP089", DiagnosticLevel.Error, "The property \"context\" is not allowed on objects of type \"config\". Did you mean \"context\"?")
+            ("BCP089", DiagnosticLevel.Error, "The property \"contex\" is not allowed on objects of type \"config\". Did you mean \"context\"?")
         });
     }
 
