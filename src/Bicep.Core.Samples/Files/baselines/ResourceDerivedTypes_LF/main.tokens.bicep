@@ -61,9 +61,9 @@ type test = {
 //@[00:01) RightBrace |}|
 //@[01:03) NewLine |\n\n|
 
-type strangeFormattings = {
+type strangeFormatting = {
 //@[00:04) Identifier |type|
-//@[05:23) Identifier |strangeFormattings|
+//@[05:23) Identifier |strangeFormatting|
 //@[24:25) Assignment |=|
 //@[26:27) LeftBrace |{|
 //@[27:28) NewLine |\n|

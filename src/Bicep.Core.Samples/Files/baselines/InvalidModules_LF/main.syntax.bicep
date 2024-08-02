@@ -1078,24 +1078,24 @@ module moduleWithInvalidScope2 './empty.bicep' = {
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00003) ├─Token(NewLine) |\n\n|
 
-module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
+module moduleWithUnsupportedScope1 './mg_empty.bicep' = {
 //@[000:00122) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00033) | ├─IdentifierSyntax
-//@[007:00033) | | └─Token(Identifier) |moduleWithUnsupprtedScope1|
+//@[007:00033) | | └─Token(Identifier) |moduleWithUnsupportedScope1|
 //@[034:00052) | ├─StringSyntax
 //@[034:00052) | | └─Token(StringComplete) |'./mg_empty.bicep'|
 //@[053:00054) | ├─Token(Assignment) |=|
 //@[055:00122) | └─ObjectSyntax
 //@[055:00056) |   ├─Token(LeftBrace) |{|
 //@[056:00057) |   ├─Token(NewLine) |\n|
-  name: 'moduleWithUnsupprtedScope1'
+  name: 'moduleWithUnsupportedScope1'
 //@[002:00036) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
 //@[008:00036) |   | └─StringSyntax
-//@[008:00036) |   |   └─Token(StringComplete) |'moduleWithUnsupprtedScope1'|
+//@[008:00036) |   |   └─Token(StringComplete) |'moduleWithUnsupportedScope1'|
 //@[036:00037) |   ├─Token(NewLine) |\n|
   scope: managementGroup()
 //@[002:00026) |   ├─ObjectPropertySyntax
@@ -1112,24 +1112,24 @@ module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00003) ├─Token(NewLine) |\n\n|
 
-module moduleWithUnsupprtedScope2 './mg_empty.bicep' = {
+module moduleWithUnsupportedScope2 './mg_empty.bicep' = {
 //@[000:00126) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00033) | ├─IdentifierSyntax
-//@[007:00033) | | └─Token(Identifier) |moduleWithUnsupprtedScope2|
+//@[007:00033) | | └─Token(Identifier) |moduleWithUnsupportedScope2|
 //@[034:00052) | ├─StringSyntax
 //@[034:00052) | | └─Token(StringComplete) |'./mg_empty.bicep'|
 //@[053:00054) | ├─Token(Assignment) |=|
 //@[055:00126) | └─ObjectSyntax
 //@[055:00056) |   ├─Token(LeftBrace) |{|
 //@[056:00057) |   ├─Token(NewLine) |\n|
-  name: 'moduleWithUnsupprtedScope2'
+  name: 'moduleWithUnsupportedScope2'
 //@[002:00036) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
 //@[008:00036) |   | └─StringSyntax
-//@[008:00036) |   |   └─Token(StringComplete) |'moduleWithUnsupprtedScope2'|
+//@[008:00036) |   |   └─Token(StringComplete) |'moduleWithUnsupportedScope2'|
 //@[036:00037) |   ├─Token(NewLine) |\n|
   scope: managementGroup('MG')
 //@[002:00030) |   ├─ObjectPropertySyntax

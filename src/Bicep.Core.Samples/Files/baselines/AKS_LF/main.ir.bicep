@@ -11,9 +11,9 @@ param sshRSAPublicKey string
 //@[22:0028) | └─AmbientTypeReferenceExpression { Name = string }
 
 @secure()
-//@[00:0046) ├─DeclaredParameterExpression { Name = servcePrincipalClientId }
+//@[00:0046) ├─DeclaredParameterExpression { Name = servicePrincipalClientId }
 //@[01:0009) | ├─FunctionCallExpression { Name = secure }
-param servcePrincipalClientId string
+param servicePrincipalClientId string
 //@[30:0036) | └─AmbientTypeReferenceExpression { Name = string }
 
 @secure()
@@ -131,10 +131,10 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[08:0139)         └─ObjectPropertyExpression
 //@[08:0031)           ├─StringLiteralExpression { Value = servicePrincipalProfile }
 //@[33:0139)           └─ObjectExpression
-            clientId: servcePrincipalClientId
+            clientId: servicePrincipalClientId
 //@[12:0045)             ├─ObjectPropertyExpression
 //@[12:0020)             | ├─StringLiteralExpression { Value = clientId }
-//@[22:0045)             | └─ParametersReferenceExpression { Parameter = servcePrincipalClientId }
+//@[22:0045)             | └─ParametersReferenceExpression { Parameter = servicePrincipalClientId }
             secret: servicePrincipalClientSecret
 //@[12:0048)             └─ObjectPropertyExpression
 //@[12:0018)               ├─StringLiteralExpression { Value = secret }
@@ -144,4 +144,4 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 }
 
 // fyi - dot property access (aks.fqdn) has not been spec'd
-//output controlPlaneFQDN string = aks.properties.fqdn 
+//output controlPlaneFQDN string = aks.properties.fqdn

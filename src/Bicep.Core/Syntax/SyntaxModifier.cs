@@ -50,7 +50,7 @@ public class SyntaxModifier
 
         if (@object.Properties.Skip(newPropertyIndex).FirstOrDefault() is { } propertyToAddBefore)
         {
-            // we're inserting before an existing propert
+            // we're inserting before an existing property
             spliceIndex = @object.Children.IndexOf(propertyToAddBefore);
             var prevSeparator = spliceIndex > 0 ? @object.Children[spliceIndex - 1] as Token : null;
 

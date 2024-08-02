@@ -35,8 +35,8 @@ resource vmName_0_CreateAdForest 'Microsoft.Compute/virtualMachines/extensions@2
   location: location
 }
 
-resource vmName_1_PepareBDC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: '${vmName[1]}/PepareBDC'
+resource vmName_1_PrepareBDC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+  name: '${vmName[1]}/PrepareBDC'
   location: location
 }
 

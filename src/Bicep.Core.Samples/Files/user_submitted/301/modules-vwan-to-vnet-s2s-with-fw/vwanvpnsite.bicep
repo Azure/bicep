@@ -1,16 +1,16 @@
 param vpnsitename string
 param location string = resourceGroup().location
 
-@description('Specifices the VPN Sites local IP Addresses')
+@description('Specifies the VPN Sites local IP Addresses')
 param addressprefix string
 
-@description('Specifices the VPN Sites BGP Peering IP Addresses')
+@description('Specifies the VPN Sites BGP Peering IP Addresses')
 param bgppeeringpddress string
 
-@description('Specifices the VPN Sites VPN Device IP Address')
+@description('Specifies the VPN Sites VPN Device IP Address')
 param ipaddress string
 
-@description('Specifices the resource ID of the Virtual WAN where the VPN Site should be created')
+@description('Specifies the resource ID of the Virtual WAN where the VPN Site should be created')
 param wanid string
 
 @description('BGP AS-Number used by the remote site')

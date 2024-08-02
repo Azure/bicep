@@ -59,7 +59,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
                     if (isAdditionalPropertyError && shouldSkipAdditionalPropertyError)
                     {
                         // According to the JSON schema spec, if any non-additional property is not valid, "properties" doesn't
-                        // generate any annotaion. As a result, "additionalProperties": false applies to all properties, which
+                        // generate any annotation. As a result, "additionalProperties": false applies to all properties, which
                         // creates additional property errors even for non-additional properties. To make it less confusing,
                         // we skip additional property errors if there are other error types.
                         // See https://github.com/gregsdennis/json-everything/issues/39#issuecomment-730116851 for details.

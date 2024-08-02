@@ -29,7 +29,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         /// <summary>
-        /// Returns a name for this type that was formatted for inclusion in the name of another compount type.
+        /// Returns a name for this type that was formatted for inclusion in the name of another compound type.
         /// For most types, this is the same as name.
         /// </summary>
         public virtual string FormatNameForCompoundTypes() => this.Name;

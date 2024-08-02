@@ -50,7 +50,7 @@ namespace Bicep.Core.TypeSystem
             ObjectPropertySyntax objectPropertySyntax => objectPropertySyntax.Key.AsEnumerable().Concat(objectPropertySyntax.Value),
             IfConditionSyntax ifConditionSyntax => ifConditionSyntax.ConditionExpression.AsEnumerable(),
 
-            // If the ForSyntax is a child of a variable declartion, we should validate both the for-expression and the for-body.
+            // If the ForSyntax is a child of a variable declaration, we should validate both the for-expression and the for-body.
             ForSyntax forSyntax when semanticModel.Binder.GetParent(forSyntax) is VariableDeclarationSyntax => forSyntax.Expression.AsEnumerable().Concat(forSyntax.Body),
 
             // Only validate the for-expression in other cases.

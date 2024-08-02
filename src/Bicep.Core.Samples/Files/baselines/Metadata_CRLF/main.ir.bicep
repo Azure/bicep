@@ -97,7 +97,7 @@ metadata myArrayMetadata = [
 //@[02:005) |   └─StringLiteralExpression { Value = c }
 ]
 
-// emtpy object and array
+// empty object and array
 metadata myEmptyObj = { }
 //@[00:025) ├─DeclaredMetadataExpression { Name = myEmptyObj }
 //@[22:025) | └─ObjectExpression

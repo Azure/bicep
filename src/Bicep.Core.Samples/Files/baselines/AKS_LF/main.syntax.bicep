@@ -39,10 +39,10 @@ param sshRSAPublicKey string
 //@[007:0008) | |   ├─Token(LeftParen) |(|
 //@[008:0009) | |   └─Token(RightParen) |)|
 //@[009:0010) | ├─Token(NewLine) |\n|
-param servcePrincipalClientId string
+param servicePrincipalClientId string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0029) | ├─IdentifierSyntax
-//@[006:0029) | | └─Token(Identifier) |servcePrincipalClientId|
+//@[006:0029) | | └─Token(Identifier) |servicePrincipalClientId|
 //@[030:0036) | └─TypeVariableAccessSyntax
 //@[030:0036) |   └─IdentifierSyntax
 //@[030:0036) |     └─Token(Identifier) |string|
@@ -369,14 +369,14 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[033:0139) |   |   | └─ObjectSyntax
 //@[033:0034) |   |   |   ├─Token(LeftBrace) |{|
 //@[034:0035) |   |   |   ├─Token(NewLine) |\n|
-            clientId: servcePrincipalClientId
+            clientId: servicePrincipalClientId
 //@[012:0045) |   |   |   ├─ObjectPropertySyntax
 //@[012:0020) |   |   |   | ├─IdentifierSyntax
 //@[012:0020) |   |   |   | | └─Token(Identifier) |clientId|
 //@[020:0021) |   |   |   | ├─Token(Colon) |:|
 //@[022:0045) |   |   |   | └─VariableAccessSyntax
 //@[022:0045) |   |   |   |   └─IdentifierSyntax
-//@[022:0045) |   |   |   |     └─Token(Identifier) |servcePrincipalClientId|
+//@[022:0045) |   |   |   |     └─Token(Identifier) |servicePrincipalClientId|
 //@[045:0046) |   |   |   ├─Token(NewLine) |\n|
             secret: servicePrincipalClientSecret
 //@[012:0048) |   |   |   ├─ObjectPropertySyntax
@@ -399,5 +399,5 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 
 // fyi - dot property access (aks.fqdn) has not been spec'd
 //@[059:0060) ├─Token(NewLine) |\n|
-//output controlPlaneFQDN string = aks.properties.fqdn 
+//output controlPlaneFQDN string = aks.properties.fqdn
 //@[055:0055) └─Token(EndOfFile) ||

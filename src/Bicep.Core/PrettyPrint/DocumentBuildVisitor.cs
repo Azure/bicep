@@ -815,7 +815,7 @@ namespace Bicep.Core.PrettyPrint
                 visitAction();
                 this.visitingBrokenStatement = false;
 
-                // Everyting left on the stack will be concatenated by the top level Concat rule defined in VisitProgram.
+                // Everything left on the stack will be concatenated by the top level Concat rule defined in VisitProgram.
                 return;
             }
 
@@ -827,7 +827,7 @@ namespace Bicep.Core.PrettyPrint
             {
                 var splitIndex = Array.IndexOf(children, Nil);
 
-                // Need to concat leading decorators and the statment keyword.
+                // Need to concat leading decorators and the statement keyword.
                 var head = Concat(children.Take(splitIndex));
                 var tail = children.Skip(splitIndex + 1);
 
@@ -927,7 +927,7 @@ namespace Bicep.Core.PrettyPrint
             }
             else if (visitingComment)
             {
-                // Add a space before the comment if it's not at the begining of the file or after a newline.
+                // Add a space before the comment if it's not at the beginning of the file or after a newline.
                 ILinkedDocument gap = top != NoLine && top != Line && top != SingleLine && top != DoubleLine ? Space : Nil;
 
                 // Combine the comment and the document at the top of the stack. This is the key to simplify VisitToken.

@@ -54,12 +54,12 @@ namespace Bicep.Core.Emit
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            var vistingModuleParams = elementsRecorder.Contains(VisitedElement.Module)
+            var visitingModuleParams = elementsRecorder.Contains(VisitedElement.Module)
                 && !(elementsRecorder.TryPeek(out var head) && head == VisitedElement.ModuleParams)
                 && syntax.Key is IdentifierSyntax identifierSyntax
                 && string.Equals(identifierSyntax.IdentifierName, LanguageConstants.ModuleParamsPropertyName, LanguageConstants.IdentifierComparison);
 
-            using var _ = vistingModuleParams ? elementsRecorder.Scope(VisitedElement.ModuleParams) : null;
+            using var _ = visitingModuleParams ? elementsRecorder.Scope(VisitedElement.ModuleParams) : null;
             base.VisitObjectPropertySyntax(syntax);
 
         }
@@ -82,7 +82,7 @@ namespace Bicep.Core.Emit
             {
                 if (functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ModuleSecureParameterOnly))
                 {
-                    // we can check placement only for funtions that were matched and has a proper placement flag
+                    // we can check placement only for functions that were matched and has a proper placement flag
                     var (_, levelUpSymbol) = syntaxRecorder.Skip(1).SkipWhile(x => x.syntax is TernaryOperationSyntax).FirstOrDefault();
                     if (!(elementsRecorder.TryPeek(out var head) && head == VisitedElement.ModuleParams)
                         || levelUpSymbol is not PropertySymbol propertySymbol

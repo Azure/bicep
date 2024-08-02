@@ -46,7 +46,7 @@ metadata myArrayMetadata = [
   'c'
 ]
 
-// emtpy object and array
+// empty object and array
 metadata myEmptyObj = { }
 metadata myEmptyArray = [ ]
 

@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("ABCDABCDABCDABCDABCDABCDABCDABCDAbC", "ABCDABCDABCDABCDABCDABCDABCDABCDAbC$5ffffffff")]
         [DataRow(OciArtifactModuleReferenceTests.ExampleTagOfMaxLength, OciArtifactModuleReferenceTests.ExampleTagOfMaxLength + "$ffffff800000000000")]
         [DataTestMethod]
-        public void EncoderShouldProduceExpectedOutut(string tag, string expected) => TagEncoder.Encode(tag).Should().Be(expected);
+        public void EncoderShouldProduceExpectedOutput(string tag, string expected) => TagEncoder.Encode(tag).Should().Be(expected);
 
         [TestMethod]
         public void EncoderShouldThrowWhenMaxTagLengthIsExceeded() =>

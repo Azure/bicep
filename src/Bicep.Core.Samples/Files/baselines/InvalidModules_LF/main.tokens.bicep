@@ -721,17 +721,17 @@ module moduleWithInvalidScope2 './empty.bicep' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
+module moduleWithUnsupportedScope1 './mg_empty.bicep' = {
 //@[000:006) Identifier |module|
-//@[007:033) Identifier |moduleWithUnsupprtedScope1|
+//@[007:033) Identifier |moduleWithUnsupportedScope1|
 //@[034:052) StringComplete |'./mg_empty.bicep'|
 //@[053:054) Assignment |=|
 //@[055:056) LeftBrace |{|
 //@[056:057) NewLine |\n|
-  name: 'moduleWithUnsupprtedScope1'
+  name: 'moduleWithUnsupportedScope1'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:036) StringComplete |'moduleWithUnsupprtedScope1'|
+//@[008:036) StringComplete |'moduleWithUnsupportedScope1'|
 //@[036:037) NewLine |\n|
   scope: managementGroup()
 //@[002:007) Identifier |scope|
@@ -744,17 +744,17 @@ module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-module moduleWithUnsupprtedScope2 './mg_empty.bicep' = {
+module moduleWithUnsupportedScope2 './mg_empty.bicep' = {
 //@[000:006) Identifier |module|
-//@[007:033) Identifier |moduleWithUnsupprtedScope2|
+//@[007:033) Identifier |moduleWithUnsupportedScope2|
 //@[034:052) StringComplete |'./mg_empty.bicep'|
 //@[053:054) Assignment |=|
 //@[055:056) LeftBrace |{|
 //@[056:057) NewLine |\n|
-  name: 'moduleWithUnsupprtedScope2'
+  name: 'moduleWithUnsupportedScope2'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:036) StringComplete |'moduleWithUnsupprtedScope2'|
+//@[008:036) StringComplete |'moduleWithUnsupportedScope2'|
 //@[036:037) NewLine |\n|
   scope: managementGroup('MG')
 //@[002:007) Identifier |scope|

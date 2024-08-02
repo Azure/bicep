@@ -399,7 +399,7 @@ var invalidPropAccess = objectJson.invalidProp
         }
 
         [TestMethod]
-        public void Json_function_returns_error_for_unparseable_json()
+        public void Json_function_returns_error_for_unparsable_json()
         {
             var program = @"
 var invalidJson = json('{""prop"": ""value')

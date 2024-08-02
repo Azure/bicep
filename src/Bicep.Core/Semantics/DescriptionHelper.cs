@@ -46,7 +46,7 @@ namespace Bicep.Core.Semantics
         }
 
         /// <summary>
-        /// Retrieves description for a given module repesented by a semantic model (bicep or json ARM)
+        /// Retrieves description for a given module represented by a semantic model (bicep or json ARM)
         /// </summary>
         public static string? TryGetFromSemanticModel(ISemanticModel semanticModel)
         {
@@ -83,7 +83,7 @@ namespace Bicep.Core.Semantics
         }
 
         /// <summary>
-        /// Retrieves description for a given module repesented by a JSON ARM template
+        /// Retrieves description for a given module represented by a JSON ARM template
         /// </summary>
         public static string? TryGetFromArmTemplate(Stream jsonArmTemplateContents)
         {
@@ -95,7 +95,7 @@ namespace Bicep.Core.Semantics
             => TryGetFromArmTemplate(jsonArmTemplateContents.ToStream());
 
         /// <summary>
-        /// Retrieves description for a given module repesented by a template spec's contents
+        /// Retrieves description for a given module represented by a template spec's contents
         /// </summary>
         public static string? TryGetFromTemplateSpec(Stream templateSpec)
         {

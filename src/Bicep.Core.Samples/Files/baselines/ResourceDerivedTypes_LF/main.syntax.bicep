@@ -107,11 +107,11 @@ type test = {
 //@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0003) ├─Token(NewLine) |\n\n|
 
-type strangeFormattings = {
+type strangeFormatting = {
 //@[00:0273) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0023) | ├─IdentifierSyntax
-//@[05:0023) | | └─Token(Identifier) |strangeFormattings|
+//@[05:0023) | | └─Token(Identifier) |strangeFormatting|
 //@[24:0025) | ├─Token(Assignment) |=|
 //@[26:0273) | └─ObjectTypeSyntax
 //@[26:0027) |   ├─Token(LeftBrace) |{|

@@ -42,7 +42,7 @@
         }
       }
     },
-    "strangeFormattings": {
+    "strangeFormatting": {
       "type": "object",
       "properties": {
         "test": {

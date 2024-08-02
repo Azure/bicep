@@ -95,7 +95,7 @@ namespace Bicep.Core.Collections.Trees
             node.Right = IntervalTreeNode<TData>.Nil;
 
             PaintRed(node);
-            FixAdjancentRed(node);
+            FixAdjacentRed(node);
         }
 
         /// <summary>
@@ -111,28 +111,28 @@ namespace Bicep.Core.Collections.Trees
 
             if (node.Left.IsNil || node.Right.IsNil)
             {
-                var subsitution = node.Left.IsNil ? node.Right : node.Left;
+                var substitution = node.Left.IsNil ? node.Right : node.Left;
 
-                this.Transplant(node, subsitution);
-                subsitution.Parent.RefreshMaxEndUpwards();
+                this.Transplant(node, substitution);
+                substitution.Parent.RefreshMaxEndUpwards();
 
                 if (IsBlack(node))
                 {
-                    this.FixExtraBlack(subsitution);
+                    this.FixExtraBlack(substitution);
                 }
             }
             else
             {
                 var successor = node.Right.GetSuccessor();
-                var successorSubsitution = successor.Right;
+                var successorSubstitution = successor.Right;
 
                 if (successor.Parent == node)
                 {
-                    successorSubsitution.Parent = successor; // Normalize the special case where successorSubsitution is Nil.
+                    successorSubstitution.Parent = successor; // Normalize the special case where successorSubstitution is Nil.
                 }
                 else
                 {
-                    this.Transplant(successor, successorSubsitution);
+                    this.Transplant(successor, successorSubstitution);
                     successor.Right = node.Right;
                     successor.Right.Parent = successor;
                 }
@@ -141,7 +141,7 @@ namespace Bicep.Core.Collections.Trees
                 successor.Left = node.Left;
                 successor.Left.Parent = successor;
 
-                successorSubsitution.Parent.RefreshMaxEndUpwards();
+                successorSubstitution.Parent.RefreshMaxEndUpwards();
 
                 var successorWasBlack = this.IsBlack(successor);
 
@@ -149,7 +149,7 @@ namespace Bicep.Core.Collections.Trees
 
                 if (successorWasBlack)
                 {
-                    this.FixExtraBlack(successorSubsitution);
+                    this.FixExtraBlack(successorSubstitution);
                 }
             }
 
@@ -203,34 +203,34 @@ namespace Bicep.Core.Collections.Trees
         }
 
         /// <summary>
-        /// Within the current tree, replace a sub-tree whose root is node by a sub-tree whose root is subsitution.
+        /// Within the current tree, replace a sub-tree whose root is node by a sub-tree whose root is substitution.
         /// </summary>
         /// <param name="node">The root of the sub-tree to be replaced.</param>
-        /// <param name="subsitution">The root of the sub-tree to transplant.</param>
-        private void Transplant(IntervalTreeNode<TData> node, IntervalTreeNode<TData> subsitution)
+        /// <param name="substitution">The root of the sub-tree to transplant.</param>
+        private void Transplant(IntervalTreeNode<TData> node, IntervalTreeNode<TData> substitution)
         {
             if (node.IsRoot)
             {
-                this.Root = subsitution;
+                this.Root = substitution;
             }
             else if (node.IsLeft)
             {
-                node.Parent.Left = subsitution;
+                node.Parent.Left = substitution;
             }
             else
             {
-                node.Parent.Right = subsitution;
+                node.Parent.Right = substitution;
             }
 
-            subsitution.Parent = node.Parent;
+            substitution.Parent = node.Parent;
         }
 
         /// <summary>
         /// The method is called after an insertion to fix the violation to the red-black tree property that
-        /// if a node is red, then both its children are black (no adjancent red nodes).
+        /// if a node is red, then both its children are black (no adjacent red nodes).
         /// </summary>
         /// <param name="node">The node to fix.</param>
-        private void FixAdjancentRed(IntervalTreeNode<TData> node)
+        private void FixAdjacentRed(IntervalTreeNode<TData> node)
         {
             while (IsRed(node.Parent))
             {

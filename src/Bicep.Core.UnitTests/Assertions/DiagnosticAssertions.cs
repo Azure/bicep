@@ -94,7 +94,7 @@ namespace Bicep.Core.UnitTests.Assertions
                 .Then
                 .Given<IFixable>(_ => (IFixable)Subject)
                 .ForCondition(x => x.Fixes.Single().Replacements.Single().Text == replacement)
-                .FailWith("Expected diagnositc's fix to have replacement '{0}'{reason} but it was '{1}'", _ => replacement, x => x.Fixes.Single().Replacements.Single().Text);
+                .FailWith("Expected diagnostic's fix to have replacement '{0}'{reason} but it was '{1}'", _ => replacement, x => x.Fixes.Single().Replacements.Single().Text);
 
             return new AndConstraint<DiagnosticAssertions>(this);
         }

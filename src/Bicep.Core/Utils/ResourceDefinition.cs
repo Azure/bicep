@@ -22,7 +22,7 @@ namespace Bicep.Core.Utils
 
 
         public static readonly IEqualityComparer<ResourceDefinition> EqualityComparer = new ResourceComparer();
-        // comparers below are very simple now, however in future it might be used to do more exact comparsion on property value to include interpolations
+        // comparers below are very simple now, however in future it might be used to do more exact comparison on property value to include interpolations
         // also, we expect StringSyntax as values it can be other types as well (function calls, variable accesses, etc.)
         private class ResourceComparer : IEqualityComparer<ResourceDefinition>
         {

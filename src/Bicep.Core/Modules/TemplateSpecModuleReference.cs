@@ -86,7 +86,7 @@ namespace Bicep.Core.Modules
             // Validate subscription ID.
             if (!Guid.TryParse(subscriptionId, out _))
             {
-                return new(x => x.InvalidTemplateSpecReferenceInvalidSubscirptionId(aliasName, subscriptionId, FullyQualify(referenceValue)));
+                return new(x => x.InvalidTemplateSpecReferenceInvalidSubscriptionId(aliasName, subscriptionId, FullyQualify(referenceValue)));
             }
 
             // Validate resource group name.

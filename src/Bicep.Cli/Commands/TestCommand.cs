@@ -95,7 +95,7 @@ namespace Bicep.Cli.Commands
             else
             {
                 io.Error.WriteLine($"Evaluation Summary: Failure!");
-                io.Error.WriteLine($"Total: {testResults.TotalEvaluations} - Success: {testResults.SuccessfullEvaluations} - Skipped: {testResults.SkippedEvaluations} - Failed: {testResults.FailedEvaluations}");
+                io.Error.WriteLine($"Total: {testResults.TotalEvaluations} - Success: {testResults.SuccessfulEvaluations} - Skipped: {testResults.SkippedEvaluations} - Failed: {testResults.FailedEvaluations}");
             }
         }
 

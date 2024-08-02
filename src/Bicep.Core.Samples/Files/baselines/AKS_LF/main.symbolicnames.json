@@ -19,7 +19,7 @@
     "sshRSAPublicKey": {
       "type": "string"
     },
-    "servcePrincipalClientId": {
+    "servicePrincipalClientId": {
       "type": "securestring"
     },
     "servicePrincipalClientSecret": {
@@ -78,7 +78,7 @@
           }
         },
         "servicePrincipalProfile": {
-          "clientId": "[parameters('servcePrincipalClientId')]",
+          "clientId": "[parameters('servicePrincipalClientId')]",
           "secret": "[parameters('servicePrincipalClientSecret')]"
         }
       }

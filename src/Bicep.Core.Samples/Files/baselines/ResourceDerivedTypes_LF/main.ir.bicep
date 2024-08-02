@@ -24,8 +24,8 @@ type test = {
 //@[08:0071) |       └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
 }
 
-type strangeFormattings = {
-//@[00:0273) ├─DeclaredTypeExpression { Name = strangeFormattings }
+type strangeFormatting = {
+//@[00:0273) ├─DeclaredTypeExpression { Name = strangeFormatting }
 //@[26:0273) | └─ObjectTypeExpression { Name = { test: string, test2: string, test3: string } }
   test: resource<
 //@[02:0080) |   ├─ObjectTypePropertyExpression

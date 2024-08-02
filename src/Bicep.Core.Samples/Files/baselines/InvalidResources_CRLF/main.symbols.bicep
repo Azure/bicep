@@ -866,7 +866,7 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[009:031) Resource incorrectPropertiesKey. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 132
   kind: 'AzureCLI'
 
-  propertes: {
+  properties: {
   }
 }
 
@@ -2066,7 +2066,7 @@ resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sqlServer3'
   location: 'polandcentral'
 
-  @description('mising resource keyword')
+  @description('missing resource keyword')
 
 }
 resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {

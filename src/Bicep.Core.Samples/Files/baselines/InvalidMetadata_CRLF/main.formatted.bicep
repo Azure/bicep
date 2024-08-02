@@ -11,7 +11,7 @@ metadata _2
 // missing value
 metadata missingValueAndType =
 
-metadata missingAssignment 'noAssingmentOperator'
+metadata missingAssignment 'noAssignmentOperator'
 
 // metadata referencing metadata
 metadata myMetadata = 'hello'

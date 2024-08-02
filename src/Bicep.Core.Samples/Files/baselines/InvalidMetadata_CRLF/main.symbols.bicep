@@ -16,7 +16,7 @@ metadata _2
 metadata missingValueAndType = 
 //@[9:28) Metadata missingValueAndType. Type: error. Declaration start char: 0, length: 31
 
-metadata missingAssignment 'noAssingmentOperator'
+metadata missingAssignment 'noAssignmentOperator'
 //@[9:26) Metadata missingAssignment. Type: error. Declaration start char: 0, length: 49
 
 // metadata referencing metadata

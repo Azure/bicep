@@ -32,7 +32,7 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "The name of avaiability set to be used when create the VMs."
+        "description": "The name of availability set to be used when create the VMs."
       }
     },
     "availabilityZone": {

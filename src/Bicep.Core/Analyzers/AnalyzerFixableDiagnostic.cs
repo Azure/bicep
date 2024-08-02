@@ -8,7 +8,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Analyzers
 {
-    public class AnalyzerFixableDiagnostic : AnalyzerDiagnostic, IBicepAnalyerFixableDiagnostic
+    public class AnalyzerFixableDiagnostic : AnalyzerDiagnostic, IBicepAnalyzerFixableDiagnostic
     {
         public AnalyzerFixableDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level,
             string code, string message, Uri? documentationUri,

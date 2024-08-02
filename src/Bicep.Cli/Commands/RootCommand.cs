@@ -228,7 +228,7 @@ Usage:
       bicep build-params params.bicepparam --diagnostics-format sarif
 
   {exeName} jsonrpc [options]
-    Runs a JSONRPC server for interacting with Bicep programatically.
+    Runs a JSONRPC server for interacting with Bicep programmatically.
 
     Options:
       --pipe <name>   Runs the JSONRPC server using a named pipe.

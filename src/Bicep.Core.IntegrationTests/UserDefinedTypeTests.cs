@@ -455,7 +455,7 @@ param anotherObject object = {prop: 'someVal'}
     {
         var result = CompilationHelper.Compile("""
             type emptyObject = {}
-            type untypedObect = object
+            type untypedObject = object
             """);
 
         result.Template.Should().HaveValueAtPath("definitions.emptyObject.properties", new JObject());
@@ -1559,7 +1559,7 @@ param myParam string
         result.Template.Should().BeNull();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP394", DiagnosticLevel.Error, "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted."),
+            ("BCP394", DiagnosticLevel.Error, "Resource-derived type expressions must dereference a property within the resource body. Using the entire resource body type is not permitted."),
         });
     }
 

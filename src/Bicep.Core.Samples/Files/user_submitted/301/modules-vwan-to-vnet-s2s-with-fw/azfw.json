@@ -29,7 +29,7 @@
     "fwpolicyid": {
       "type": "string",
       "metadata": {
-        "description": "Resoruce ID to the Firewall Policy to associate with the Azure Firewall"
+        "description": "Resource ID to the Firewall Policy to associate with the Azure Firewall"
       }
     },
     "hubid": {

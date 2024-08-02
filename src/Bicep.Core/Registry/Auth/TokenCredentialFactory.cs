@@ -49,7 +49,7 @@ namespace Bicep.Core.Registry.Auth
                 CredentialType.Environment => new EnvironmentCredential(new() { AuthorityHost = authorityUri }),
                 CredentialType.VisualStudio => new VisualStudioCredential(new() { AuthorityHost = authorityUri }),
                 CredentialType.VisualStudioCode => new VisualStudioCodeCredential(new() { AuthorityHost = authorityUri }),
-                // AzureCLICrediential does not accept options. Azure CLI has built-in cloud profiles so AuthorityHost is not needed.
+                // AzureCLICredential does not accept options. Azure CLI has built-in cloud profiles so AuthorityHost is not needed.
                 CredentialType.AzureCLI => new AzureCliCredential(),
                 CredentialType.AzurePowerShell => new AzurePowerShellCredential(new() { AuthorityHost = authorityUri }),
 

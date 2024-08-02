@@ -55,7 +55,7 @@ namespace Bicep.Core.Text
             if (line < 0)
             {
                 // If the actual line start was not found,
-                // the binary search returns the 2's-complement of the next line start, so substracting 1.
+                // the binary search returns the 2's-complement of the next line start, so subtracting 1.
                 line = ~line - 1;
             }
 

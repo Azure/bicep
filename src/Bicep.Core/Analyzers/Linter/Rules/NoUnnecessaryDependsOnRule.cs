@@ -89,7 +89,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 foreach (ArrayItemSyntax declaredDependency in declaredDependencies.Items)
                 {
                     if (model.GetSymbolInfo(declaredDependency.Value) is not ResourceSymbol referencedResource ||
-                        // Ignore dependsOn entries pointing to a resource collection - dependency analyis would
+                        // Ignore dependsOn entries pointing to a resource collection - dependency analysis would
                         // be complex and user probably knows what they're doing.
                         referencedResource.IsCollection)
                     {
@@ -120,7 +120,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         }
                     }
 
-                    // if the syntax is in an invald state, we may not have a replacement.
+                    // if the syntax is in an invalid state, we may not have a replacement.
                     // just return a diagnostic and leave it up to the user.
                     if (codeReplacement.IsNil)
                     {

@@ -169,7 +169,7 @@ param vmSshKey string
 
 @allowed(['Premium_LRS', 'StandardSSD_LRS', 'Standard_LRS', 'UltraSSD_LRS'])
 @description('Specifies the storage account type for OS and data disk.')
-param diskStorageAccounType string = 'Premium_LRS'
+param diskStorageAccountType string = 'Premium_LRS'
 
 @minValue(0)
 @maxValue(64)
@@ -241,7 +241,7 @@ module jumpbox 'jumpbox.bicep' = {
 
     vmSize: vmSize
 
-    diskStorageAccounType: diskStorageAccounType
+    diskStorageAccountType: diskStorageAccountType
     osDiskSize: osDiskSize
     dataDiskCaching: dataDiskCaching
     dataDiskSize: dataDiskSize

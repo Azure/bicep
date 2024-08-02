@@ -4820,10 +4820,10 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[008:00018) |   |   └─Token(StringComplete) |'AzureCLI'|
 //@[018:00022) |   ├─Token(NewLine) |\r\n\r\n|
 
-  propertes: {
+  properties: {
 //@[002:00019) |   ├─ObjectPropertySyntax
 //@[002:00011) |   | ├─IdentifierSyntax
-//@[002:00011) |   | | └─Token(Identifier) |propertes|
+//@[002:00011) |   | | └─Token(Identifier) |properties|
 //@[011:00012) |   | ├─Token(Colon) |:|
 //@[013:00019) |   | └─ObjectSyntax
 //@[013:00014) |   |   ├─Token(LeftBrace) |{|
@@ -12260,7 +12260,7 @@ resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
 //@[012:00027) |   |   └─Token(StringComplete) |'polandcentral'|
 //@[027:00031) |   ├─Token(NewLine) |\r\n\r\n|
 
-  @description('mising resource keyword')
+  @description('missing resource keyword')
 //@[002:00045) |   ├─MissingDeclarationSyntax
 //@[002:00041) |   | ├─DecoratorSyntax
 //@[002:00003) |   | | ├─Token(At) |@|
@@ -12270,7 +12270,7 @@ resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
 //@[014:00015) |   | |   ├─Token(LeftParen) |(|
 //@[015:00040) |   | |   ├─FunctionArgumentSyntax
 //@[015:00040) |   | |   | └─StringSyntax
-//@[015:00040) |   | |   |   └─Token(StringComplete) |'mising resource keyword'|
+//@[015:00040) |   | |   |   └─Token(StringComplete) |'missing resource keyword'|
 //@[040:00041) |   | |   └─Token(RightParen) |)|
 //@[041:00045) |   | └─Token(NewLine) |\r\n\r\n|
 

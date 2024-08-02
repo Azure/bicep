@@ -61,7 +61,7 @@ namespace Bicep.Core.Diagnostics
                     // are spans of diagnostics attached to syntax nodes, and one syntax node can overlap with
                     // another only when one of them is enclosed by the other, the following situation is impossible:
                     //
-                    // ---|diganostic1.start...diagnostic1.end|
+                    // ---|diagnostic1.start...diagnostic1.end|
                     // --------|diagnostic1.start...diagnostic2.end|
                     // 
                     // If start < current.Start, and current is not enclosed by [start, end], end must be smaller

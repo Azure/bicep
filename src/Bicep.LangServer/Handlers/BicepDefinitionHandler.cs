@@ -393,15 +393,15 @@ namespace Bicep.LanguageServer.Handlers
             if (armTemplateUri is not null && originalSymbolName is string nonNullName && sourceModel.Exports.TryGetValue(nonNullName, out var exportMetadata))
             {
                 if (exportMetadata.Kind == ExportMetadataKind.Type &&
-                    armTemplate?.Definitions?.TryGetValue(nonNullName, out var originalTypeDefintion) is true &&
-                    ToRange(originalTypeDefintion) is Range typeDefintionRange)
+                    armTemplate?.Definitions?.TryGetValue(nonNullName, out var originalTypeDefinition) is true &&
+                    ToRange(originalTypeDefinition) is Range typeDefinitionRange)
                 {
                     return new(new LocationOrLocationLink(new LocationLink
                     {
                         OriginSelectionRange = originSelectionRange,
                         TargetUri = armTemplateUri,
-                        TargetRange = typeDefintionRange,
-                        TargetSelectionRange = typeDefintionRange,
+                        TargetRange = typeDefinitionRange,
+                        TargetSelectionRange = typeDefinitionRange,
                     }));
                 }
 

@@ -2,16 +2,16 @@ param location string = resourceGroup().location
 param localnetworkgwname string
 param connectionname string = 'onprem-hub-cn'
 
-@description('Specifices the address prefixes of the remote site')
+@description('Specifies the address prefixes of the remote site')
 param addressprefixes array
 
-@description('Specifices the VPN Sites BGP Peering IP Addresses')
+@description('Specifies the VPN Sites BGP Peering IP Addresses')
 param bgppeeringpddress string
 
-@description('Specifices the VPN Sites VPN Device IP Address')
+@description('Specifies the VPN Sites VPN Device IP Address')
 param gwipaddress string
 
-@description('Specifices the resource ID of the VPN Gateway to connect to the site to site vpn')
+@description('Specifies the resource ID of the VPN Gateway to connect to the site to site vpn')
 param vpngwid string
 
 @secure()

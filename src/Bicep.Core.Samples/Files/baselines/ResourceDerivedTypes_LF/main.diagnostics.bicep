@@ -7,7 +7,7 @@ type test = {
   resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
 }
 
-type strangeFormattings = {
+type strangeFormatting = {
   test: resource<
 
   'Astronomer.Astro/organizations@2023-08-01-preview'

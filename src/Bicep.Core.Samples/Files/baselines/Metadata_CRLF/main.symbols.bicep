@@ -54,7 +54,7 @@ metadata myArrayMetadata = [
   'c'
 ]
 
-// emtpy object and array
+// empty object and array
 metadata myEmptyObj = { }
 //@[9:19) Metadata myEmptyObj. Type: object. Declaration start char: 0, length: 25
 metadata myEmptyArray = [ ]

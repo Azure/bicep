@@ -116,7 +116,7 @@ new string[] { "firstParam", "secondParam" },
 new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
 )
 ]
-        public async Task Request_for_parameter_identifier_completions_should_return_correct_identifiers(string paramTextWithCursor, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
+        public async Task Request_for_parameter_identifier_completions_should_return_correct_identifiers(string paramTextWithCursor, string bicepText, string[] completionLabels, CompletionItemKind[] completionItemKinds)
         {
             var fileTextsByUri = new Dictionary<Uri, string>
             {
@@ -128,7 +128,7 @@ new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
             var expectedValueIndex = 0;
             foreach (var completion in completions)
             {
-                completion.Label.Should().Be(completionLables[expectedValueIndex]);
+                completion.Label.Should().Be(completionLabels[expectedValueIndex]);
                 completion.Kind.Should().Be(completionItemKinds[expectedValueIndex]);
                 expectedValueIndex += 1;
             }

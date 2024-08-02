@@ -975,7 +975,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
   }
 }]
 
-// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
+// duplicate identifiers in global and single loop scope are allowed (inner variable hides the outer)
 var canHaveDuplicatesAcrossScopes = 'hello'
 //@[000:00043) ├─DeclaredVariableExpression { Name = canHaveDuplicatesAcrossScopes }
 //@[036:00043) | └─StringLiteralExpression { Value = hello }

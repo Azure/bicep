@@ -38,13 +38,13 @@ describe("bicep jsonrpc", () => {
       connection,
       pathToExampleFile("bicepparam", "main.bicepparam"),
       {
-        foo: "OVERIDDEN",
+        foo: "OVERRIDDEN",
       }
     );
 
     expect(result.success).toBeTruthy();
     expect(result.parameters?.length).toBeGreaterThan(0);
-    expect(JSON.parse(result.parameters!).parameters.foo.value).toBe('OVERIDDEN');
+    expect(JSON.parse(result.parameters!).parameters.foo.value).toBe('OVERRIDDEN');
   });
 
   it("should return a deployment graph", async () => {

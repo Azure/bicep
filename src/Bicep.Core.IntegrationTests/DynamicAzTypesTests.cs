@@ -243,12 +243,12 @@ namespace Bicep.Core.IntegrationTests
             const string unreachableRegistryAddress = "unknown.registry.azurecr.io";
             const string NoSuchHostMessage = $" (No such host is known. ({unreachableRegistryAddress}:443))";
             var AggregateExceptionMessage = $"Retry failed after 4 tries. Retry settings can be adjusted in ClientOptions.Retry or by configuring a custom retry policy in ClientOptions.RetryPolicy.{string.Concat(Enumerable.Repeat(NoSuchHostMessage, 4))}";
-            var unreacheable = new ArtifactRegistryAddress(unreachableRegistryAddress, "bicep/providers/az", placeholderProviderVersion);
+            var unreachable = new ArtifactRegistryAddress(unreachableRegistryAddress, "bicep/providers/az", placeholderProviderVersion);
             yield return new object[] {
-                unreacheable,
+                unreachable,
                 new AggregateException(AggregateExceptionMessage),
                 new (string, DiagnosticLevel, string)[]{
-                    ("BCP192", DiagnosticLevel.Error, @$"Unable to restore the artifact with reference ""{unreacheable.ToSpecificationString(':')}"": {AggregateExceptionMessage}")
+                    ("BCP192", DiagnosticLevel.Error, @$"Unable to restore the artifact with reference ""{unreachable.ToSpecificationString(':')}"": {AggregateExceptionMessage}")
                 },
             };
 

@@ -3,7 +3,7 @@
 // $3 = location
 // $4 = 'name'
 // $5 = 'subnet.id'
-// $6 = 'publicIPAdresses.id'
+// $6 = 'publicIPAddresses.id'
 // $7 = Basic
 // $8 = Basic
 // $9 = Vpn
@@ -25,7 +25,7 @@ resource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11
             id: 'subnet.id'
           }
           publicIPAddress: {
-            id: 'publicIPAdresses.id'
+            id: 'publicIPAddresses.id'
           }
         }
       }

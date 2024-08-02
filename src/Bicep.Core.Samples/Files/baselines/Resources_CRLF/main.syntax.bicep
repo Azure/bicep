@@ -2663,7 +2663,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 //@[001:00002) |   └─Token(RightSquare) |]|
 //@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
-// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
+// duplicate identifiers in global and single loop scope are allowed (inner variable hides the outer)
 //@[100:00102) ├─Token(NewLine) |\r\n|
 var canHaveDuplicatesAcrossScopes = 'hello'
 //@[000:00043) ├─VariableDeclarationSyntax

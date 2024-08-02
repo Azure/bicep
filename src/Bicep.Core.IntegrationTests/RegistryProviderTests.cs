@@ -493,11 +493,11 @@ output joke string = dadJoke.joke
     }
 
     [TestMethod]
-    public async Task Mispelled_required_configuration_property_throws_error()
+    public async Task Misspelled_required_configuration_property_throws_error()
     {
         var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(), AllFeaturesEnabled);
 
-        // Mispelled the required configuration property: namespace
+        // Misspelled the required configuration property: namespace
         var result = await CompilationHelper.RestoreAndCompile(services, """
 extension 'br:example.azurecr.io/providers/foo:1.2.3' with {
   namespac: 'ThirdPartyNamespace'
@@ -521,16 +521,16 @@ output joke string = dadJoke.joke
     }
 
     [TestMethod]
-    public async Task Mispelled_optional_configuration_property_throws_error()
+    public async Task Misspelled_optional_configuration_property_throws_error()
     {
         var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(), AllFeaturesEnabled);
 
-        // Mispelled the optional configuration property: context
+        // Misspelled the optional configuration property: context
         var result = await CompilationHelper.RestoreAndCompile(services, """
 extension 'br:example.azurecr.io/providers/foo:1.2.3' with {
   namespace: 'ThirdPartyNamespace'
   config: 'Some path to config file'
-  contex: 'Some ThirdParty context'
+  context: 'Some ThirdParty context'
 }
 
 resource dadJoke 'fooType@v1' = {
@@ -543,7 +543,7 @@ output joke string = dadJoke.joke
 
         result.Should().NotGenerateATemplate();
         result.Should().HaveDiagnostics(new[]{
-            ("BCP089", DiagnosticLevel.Error, "The property \"contex\" is not allowed on objects of type \"config\". Did you mean \"context\"?")
+            ("BCP089", DiagnosticLevel.Error, "The property \"context\" is not allowed on objects of type \"config\". Did you mean \"context\"?")
         });
     }
 

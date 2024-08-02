@@ -40,7 +40,7 @@ namespace Bicep.RegistryModuleTool.Extensions
 
         public static void WriteError(this IConsole console, string error) => console.WriteMessage(console.Error, ConsoleColor.Red, error);
 
-        private static void WriteMessage(this IConsole console, IStandardStreamWriter writer, ConsoleColor color, string messsage)
+        private static void WriteMessage(this IConsole console, IStandardStreamWriter writer, ConsoleColor color, string message)
         {
             var terminal = console.GetTerminal(preferVirtualTerminal: false);
             var originalForegroundColor = terminal?.ForegroundColor ?? Console.ForegroundColor;
@@ -50,7 +50,7 @@ namespace Bicep.RegistryModuleTool.Extensions
                 terminal.ForegroundColor = color;
             }
 
-            writer.WriteLine(messsage);
+            writer.WriteLine(message);
 
             if (terminal is not null)
             {

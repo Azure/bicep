@@ -46,7 +46,7 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "The name of the workspace to be attach to new Applicaiton Group."
+        "description": "The name of the workspace to be attach to new Application Group."
       }
     },
     "workspaceLocation": {
@@ -120,7 +120,7 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "The name of avaiability set to be used when create the VMs."
+        "description": "The name of availability set to be used when create the VMs."
       }
     },
     "createAvailabilitySet": {
@@ -156,7 +156,7 @@
         20
       ],
       "metadata": {
-        "description": "The platform update domain count of avaiability set to be created."
+        "description": "The platform update domain count of availability set to be created."
       }
     },
     "availabilitySetFaultDomainCount": {
@@ -168,7 +168,7 @@
         3
       ],
       "metadata": {
-        "description": "The platform fault domain count of avaiability set to be created."
+        "description": "The platform fault domain count of availability set to be created."
       }
     },
     "availabilityZone": {
@@ -461,7 +461,7 @@
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Whether to use validation enviroment."
+        "description": "Whether to use validation environment."
       }
     },
     "preferredAppGroupType": {
@@ -864,7 +864,7 @@
               "type": "string",
               "defaultValue": "",
               "metadata": {
-                "description": "The name of avaiability set to be used when create the VMs."
+                "description": "The name of availability set to be used when create the VMs."
               }
             },
             "availabilityZone": {
@@ -1550,7 +1550,7 @@
               "type": "string",
               "defaultValue": "",
               "metadata": {
-                "description": "The name of avaiability set to be used when create the VMs."
+                "description": "The name of availability set to be used when create the VMs."
               }
             },
             "availabilityZone": {
@@ -2221,7 +2221,7 @@
               "type": "string",
               "defaultValue": "",
               "metadata": {
-                "description": "The name of avaiability set to be used when create the VMs."
+                "description": "The name of availability set to be used when create the VMs."
               }
             },
             "availabilityZone": {
@@ -2888,7 +2888,7 @@
               "type": "string",
               "defaultValue": "",
               "metadata": {
-                "description": "The name of avaiability set to be used when create the VMs."
+                "description": "The name of availability set to be used when create the VMs."
               }
             },
             "availabilityZone": {

@@ -7,8 +7,8 @@ param sshRSAPublicKey string
 //@[6:21) Parameter sshRSAPublicKey. Type: string. Declaration start char: 0, length: 28
 
 @secure()
-param servcePrincipalClientId string
-//@[6:29) Parameter servcePrincipalClientId. Type: string. Declaration start char: 0, length: 46
+param servicePrincipalClientId string
+//@[6:29) Parameter servicePrincipalClientId. Type: string. Declaration start char: 0, length: 46
 
 @secure()
 param servicePrincipalClientSecret string
@@ -60,11 +60,11 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
             }
         }
         servicePrincipalProfile: {
-            clientId: servcePrincipalClientId
+            clientId: servicePrincipalClientId
             secret: servicePrincipalClientSecret
         }
     }
 }
 
 // fyi - dot property access (aks.fqdn) has not been spec'd
-//output controlPlaneFQDN string = aks.properties.fqdn 
+//output controlPlaneFQDN string = aks.properties.fqdn
