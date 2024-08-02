@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using System.ComponentModel;
 using Bicep.Core.Extensions;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Json.Pointer;
 
@@ -386,5 +387,29 @@ namespace Bicep.Core.Syntax
                 left,
                 CreateToken(operatorType, SingleSpaceTrivia, SingleSpaceTrivia),
                 right);
-    }
+
+        public static VariableDeclarationSyntax CreateVariableDeclaration(string name, SyntaxBase value)
+            => new(
+                [],
+                VariableKeywordToken,
+                CreateIdentifierWithTrailingSpace(name),
+                AssignmentToken,
+                value);
+
+        public static ParameterDeclarationSyntax CreateParameterDeclaration(string name, SyntaxBase type, SyntaxBase? defaultValue = null)
+            => new(
+                [],
+                ParameterKeywordToken,
+                CreateIdentifierWithTrailingSpace(name),
+                type,
+                //asdfg
+/*
+                         syntax is ObjectTypeSyntax || //asdfg?
+        syntax is ArrayTypeSyntax ||
+        syntax is TupleTypeSyntax ||
+        syntax is UnionTypeSyntax ||
+        syntax is NullableTypeSyntax,
+*/
+defaultValue is { } ? new ParameterDefaultValueSyntax(AssignmentToken, defaultValue) : null);
+}
 }

@@ -66,8 +66,8 @@ namespace Bicep.Core.IntegrationTests
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
                 dataSet.Syntax,
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
-                actualLocation: resultsFile);
+                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
+                actualPath: resultsFile);
         }
 
         [DataTestMethod]

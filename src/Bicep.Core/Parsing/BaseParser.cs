@@ -1435,7 +1435,7 @@ namespace Bicep.Core.Parsing
 
         protected SyntaxBase TypeExpression()
         {
-            // Parse optional leading '|' for union types.
+            // Parse optional leading '|' for union types. asdfg?
             List<SyntaxBase>? unionTypeNodes = HasUnionMemberSeparator()
                 ? new(NewLines()) { reader.Read() }
                 : null;
@@ -1540,7 +1540,7 @@ namespace Bicep.Core.Parsing
             {
                 yield return this.Decorator();
 
-                // All decorators must followed by a newline.
+                // All decorators must be followed by a newline.
                 yield return this.WithRecovery(this.NewLine, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
 
 

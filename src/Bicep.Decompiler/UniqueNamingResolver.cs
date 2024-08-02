@@ -10,7 +10,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Decompiler
 {
-    public class UniqueNamingResolver : INamingResolver
+    public class UniqueNamingResolver : INamingResolver //asdfgasdfg
     {
         private readonly Dictionary<string, Dictionary<NameType, string>> assignedNames = new(StringComparer.OrdinalIgnoreCase);
 

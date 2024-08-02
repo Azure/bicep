@@ -792,7 +792,7 @@ namespace Bicep.Core.PrettyPrintV2
             return danglingLeadingTrivia.Any() ? danglingLeadingTrivia.Append(text) : text;
         }
 
-        private static IEnumerable<Document> LayoutWithLeadingAndTrailingTrivia(Document text, IEnumerable<Document> leadingTrivia, IEnumerable<Document> trailingTrivia, SuffixDocument? suffix)
+        private static IEnumerable<Document> LayoutWithLeadingAndTrailingTrivia/*asdfg*/(Document text, IEnumerable<Document> leadingTrivia, IEnumerable<Document> trailingTrivia, SuffixDocument? suffix)
         {
             if (leadingTrivia.Any() || trailingTrivia.Any())
             {

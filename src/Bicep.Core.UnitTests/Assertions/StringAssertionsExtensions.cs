@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests.Utils;
@@ -55,7 +57,39 @@ namespace Bicep.Core.UnitTests.Assertions
             return string.Join('\n', lineLogs);
         }
 
-        public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
+        public static AndConstraint<StringAssertions> EqualWithLineByLineDiff(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
+        {
+            var lineDiff = CalculateDiff(expected, instance.Subject);
+            var hasNewlineDiffsOnly = lineDiff is null && !expected.Equals(instance.Subject, System.StringComparison.Ordinal);
+            var testPassed = lineDiff is null && !hasNewlineDiffsOnly;
+
+            var output = new StringBuilder();
+            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(testPassed)
+                .FailWith(
+                    """
+                    Expected strings to be equal{reason}, but they are not.
+                    ===== DIFF (--actual, ++expected) =====
+                    {4}
+                    ===== ACTUAL (length {0}) =====
+                    {1}
+                    ===== EXPECTED (length {2}) =====
+                    {3}
+                    ===== END =====
+                    """,
+                    instance.Subject.Length,
+                    instance.Subject,
+                    expected.Length,
+                    expected,
+                    lineDiff ?? "differences in newlines only");
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedPath, string actualPath, string because = "", params object[] becauseArgs)
         {
             var lineDiff = CalculateDiff(expected, instance.Subject);
             var hasNewlineDiffsOnly = lineDiff is null && !expected.Equals(instance.Subject, System.StringComparison.Ordinal);
@@ -64,7 +98,7 @@ namespace Bicep.Core.UnitTests.Assertions
             var isBaselineUpdate = !testPassed && BaselineHelper.ShouldSetBaseline(testContext);
             if (isBaselineUpdate)
             {
-                BaselineHelper.SetBaseline(actualLocation, expectedLocation);
+                BaselineHelper.SetBaseline(actualPath, expectedPath);
             }
 
             Execute.Assertion
@@ -73,8 +107,8 @@ namespace Bicep.Core.UnitTests.Assertions
                 .FailWith(
                     BaselineHelper.GetAssertionFormatString(isBaselineUpdate),
                     lineDiff ?? "differences in newlines only",
-                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(actualLocation),
-                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(expectedLocation));
+                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(actualPath),
+                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(expectedPath));
 
             return new AndConstraint<StringAssertions>(instance);
         }

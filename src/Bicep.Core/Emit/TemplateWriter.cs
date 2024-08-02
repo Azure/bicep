@@ -686,7 +686,7 @@ namespace Bicep.Core.Emit
         }
 
         private static ObjectPropertyExpression TypeProperty(string typeName, SyntaxBase? sourceSyntax)
-            => Property(TypePropertyName, new StringLiteralExpression(sourceSyntax, typeName), sourceSyntax);
+            => Property(TypePropertyName, new StringLiteralExpression(sourceSyntax, typeName), sourceSyntax);//asdfg
 
         private static ObjectPropertyExpression AllowedValuesProperty(ArrayExpression allowedValues, SyntaxBase? sourceSyntax)
             => Property("allowedValues", allowedValues, sourceSyntax);
@@ -694,7 +694,7 @@ namespace Bicep.Core.Emit
         private static ObjectPropertyExpression Property(string name, Expression value, SyntaxBase? sourceSyntax)
             => ExpressionFactory.CreateObjectProperty(name, value, sourceSyntax);
 
-        private static ObjectExpression GetTypePropertiesForResourceType(ResourceTypeExpression expression)
+        private static ObjectExpression GetTypePropertiesForResourceType(ResourceTypeExpression expression)//asdfg
         {
             var typeString = expression.ExpressedResourceType.TypeReference.FormatName();
 

@@ -117,7 +117,7 @@ namespace Bicep.Core.Parsing
         {
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
-            var type = this.WithRecovery(() => Type(allowOptionalResourceType: false), GetSuppressionFlag(name), TokenType.Assignment, TokenType.LeftBrace, TokenType.NewLine);
+            var type = this.WithRecovery(() => Type(allowOptionalResourceType: false/*asdfg?*/), GetSuppressionFlag(name), TokenType.Assignment, TokenType.LeftBrace, TokenType.NewLine);
 
             // TODO: Need a better way to choose the terminating token
             SyntaxBase? modifier = this.WithRecoveryNullable(

@@ -56,8 +56,8 @@ namespace Bicep.Core.IntegrationTests.Semantics
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
                 dataSet.Diagnostics,
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
-                actualLocation: resultsFile);
+                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
+                actualPath: resultsFile);
         }
 
         [TestMethod]
@@ -95,8 +95,8 @@ namespace Bicep.Core.IntegrationTests.Semantics
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
                 dataSet.Symbols,
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
-                actualLocation: resultsFile);
+                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
+                actualPath: resultsFile);
         }
 
         [DataTestMethod]
@@ -346,8 +346,8 @@ param storageAccount string = 'testStorageAccount'";
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
                 dataSet.Ir ?? "",
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainIr),
-                actualLocation: resultsFile);
+                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainIr),
+                actualPath: resultsFile);
         }
 
         private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program)

@@ -79,8 +79,8 @@ namespace Bicep.Core.UnitTests.Baselines
             "".Should().EqualWithLineByLineDiffOutput(
                 this.EntryFile.TestContext,
                 "<missing>",
-                expectedLocation: embeddedFile.RelativeSourcePath,
-                actualLocation: outputFile);
+                expectedPath: embeddedFile.RelativeSourcePath,
+                actualPath: outputFile);
             throw new NotImplementedException("Code cannot reach this point as the previous line will always throw");
         }
     }

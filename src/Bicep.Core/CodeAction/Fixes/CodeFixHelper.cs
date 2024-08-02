@@ -13,7 +13,7 @@ namespace Bicep.Core.CodeAction.Fixes;
 
 public static class CodeFixHelper
 {
-    public static CodeFix GetCodeFixForMissingBicepParams(ProgramSyntax program, ImmutableArray<string> missingRequiredParams)
+    public static CodeFix GetCodeFixForMissingBicepParams(ProgramSyntax program, ImmutableArray<string> missingRequiredParams) //asdfg interesting
     {
         var terminatingNewlines = program.Children.LastOrDefault() is Token { Type: TokenType.NewLine } newLineToken ?
             StringUtils.CountNewlines(newLineToken.Text) :

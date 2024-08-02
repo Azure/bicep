@@ -45,16 +45,21 @@ namespace Bicep.Core.Parsing
 
         public override string ToString() => $"[{Position}:{Position + Length}]";
 
+        public TextSpan MoveBy(int offset)
+        {
+            return new TextSpan(this.Position +offset, this.Length);
+        }
+
         public bool Contains(int offset) => offset >= this.Position && offset < this.Position + this.Length;
 
         public bool ContainsInclusive(int offset) => offset >= this.Position && offset <= this.Position + this.Length;
 
         /// <summary>
-        /// Calculates the span from the beginning of the first span to the end of the second span.
+        /// Calculates the span from the beginning of the first (by coordinate position) span to the end of the last span (i.e., the union)
         /// </summary>
         /// <param name="a">The first span</param>
         /// <param name="b">The second span</param>
-        /// <returns>the span from the beginning of the first span to the end of the second span</returns>
+        /// <returns>the span from the beginning of the earlier span to the end of the second span</returns>
         public static TextSpan Between(TextSpan a, TextSpan b)
         {
             if (a.IsNil || b.IsNil)

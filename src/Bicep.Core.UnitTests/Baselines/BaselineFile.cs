@@ -29,8 +29,8 @@ namespace Bicep.Core.UnitTests.Baselines
             this.ReadFromOutputFolder().Should().EqualWithLineByLineDiffOutput(
                 TestContext,
                 EmbeddedFile.Contents,
-                expectedLocation: EmbeddedFile.RelativeSourcePath,
-                actualLocation: OutputFilePath);
+                expectedPath: EmbeddedFile.RelativeSourcePath,
+                actualPath: OutputFilePath);
         }
 
         public void ShouldHaveExpectedJsonValue()

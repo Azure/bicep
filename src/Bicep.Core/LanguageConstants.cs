@@ -210,7 +210,7 @@ namespace Bicep.Core
         // the type of the dependsOn property in module and resource bodies
         public static readonly TypeSymbol ResourceOrResourceCollectionRefArray = new TypedArrayType(ResourceOrResourceCollectionRefItem, TypeSymbolValidationFlags.Default);
 
-        public static readonly TypeSymbol String = TypeFactory.CreateStringType();
+        public static readonly TypeSymbol String = TypeFactory.CreateStringType(); //asdfg
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol LooseString = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment);
         // SecureString should be regarded as equal to the 'string' type, but with different validation behavior

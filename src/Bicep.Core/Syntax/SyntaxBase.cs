@@ -85,6 +85,6 @@ namespace Bicep.Core.Syntax
         /// </summary>
         public override string ToString() => SyntaxStringifier.Stringify(this);
 
-        public string GetDebuggerDisplay() => ToString();
+        public string GetDebuggerDisplay() => $"[{GetType().Name}] {ToString()}";
     }
 }

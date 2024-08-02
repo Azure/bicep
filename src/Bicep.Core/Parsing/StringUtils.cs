@@ -57,8 +57,11 @@ namespace Bicep.Core.Parsing
 
         public static string MatchNewline(string value) => NewLineRegex().Match(value).Value;
 
-        public static string ReplaceNewlines(string value, string newlineReplacement) =>
+        public static string ReplaceNewlines(this string value, string newlineReplacement) =>
             NewLineRegex().Replace(value, newlineReplacement);
+
+        public static string NormalizeNewlines(this string value) =>
+            ReplaceNewlines(value, "\n");
 
         public static IEnumerable<string> SplitOnNewLine(string value) =>
             value.Split(

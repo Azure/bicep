@@ -34,8 +34,8 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             output.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
                 expected,
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
-                actualLocation: outputFile);
+                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
+                actualPath: outputFile);
 
             AssertConsistentOutput(output, options);
         }
@@ -52,8 +52,8 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             output.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
                 dataSet.Formatted,
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
-                actualLocation: outputFile);
+                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
+                actualPath: outputFile);
 
             AssertConsistentOutput(output, PrettyPrinterV2Options.Default);
         }

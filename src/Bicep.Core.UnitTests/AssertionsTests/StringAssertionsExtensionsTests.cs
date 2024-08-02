@@ -36,5 +36,56 @@ namespace Bicep.Core.UnitTests.AssertionsTests
 
             actualMessage.Should().Be(expectedFailureMessage);
         }
+
+        [TestMethod]
+        public void EqualWithLineByLineDiff()
+        {
+            string s1 = """
+                    abc
+                    def
+                    ghi
+                    jkl
+                    mno
+                    """;
+            string s2 = """
+                    abc
+                    def
+                    jkl
+                    mnop
+                    """;
+            string expectedMessage = """
+                    Expected strings to be equal because I said so, but they are not.
+                    ===== DIFF (--actual, ++expected) =====
+                    "[3] ++ ghi
+                    [] -- mnop
+                    [5] ++ mno"
+                    ===== ACTUAL (length 19) =====
+                    "abc
+                    def
+                    ghi
+                    jkl
+                    mno"
+                    ===== EXPECTED (length 16) =====
+                    "abc
+                    def
+                    jkl
+                    mnop"
+                    ===== END =====
+                    """;
+
+            string? actualMessage;
+            try
+            {
+                s1.Should().EqualWithLineByLineDiff(s2, "because I said so");
+                actualMessage = null;
+            }
+            catch (Exception ex)
+            {
+                actualMessage = ex.Message;
+            }
+
+            actualMessage.Should().Be(expectedMessage);
+
+        }
     }
 }

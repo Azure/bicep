@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 
 namespace Bicep.Core.UnitTests.Assertions
@@ -26,7 +28,10 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<BicepFileAssertions> HaveSourceText(string expected, string because = "", params object[] becauseArgs)
         {
-            Subject.ProgramSyntax.ToString().Should().EqualIgnoringNewlines(expected, because, becauseArgs);
+            var actual = Subject.ProgramSyntax.ToString().NormalizeNewlines();
+            expected = expected.NormalizeNewlines();
+
+            actual.Should().EqualWithLineByLineDiff(expected);
 
             return new AndConstraint<BicepFileAssertions>(this);
         }

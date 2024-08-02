@@ -11,7 +11,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
         /// <summary>
         /// True if the given type symbol is a string type (and not "any")
         /// </summary>
-        public static bool IsString(this TypeSymbol typeSymbol)
+        public static bool IsString(this TypeSymbol typeSymbol)//asdfg
         {
             return typeSymbol is not AnyType
                 && TypeValidator.AreTypesAssignable(typeSymbol, LanguageConstants.String);

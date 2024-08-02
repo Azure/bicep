@@ -976,6 +976,8 @@ namespace Bicep.LanguageServer.Completions
 
         private static IndexedSyntaxContext<ParameterizedTypeInstantiationSyntaxBase>? TryGetTypeArgumentContext(List<SyntaxBase> matchingNodes, int offset)
         {
+            //asdfg use IsTailMatch like this??
+
             // someType<|>
             // abc.someType(|)
             if (SyntaxMatcher.IsTailMatch<ParameterizedTypeInstantiationSyntaxBase, Token>(matchingNodes, (instantiation, token) => token == instantiation.OpenChevron))
@@ -1368,7 +1370,7 @@ namespace Bicep.LanguageServer.Completions
             };
         }
 
-        private class ActiveScopesVisitor : SymbolVisitor
+        public/*asdfg was private - extract*/ class ActiveScopesVisitor : SymbolVisitor
         {
             private readonly int offset;
 

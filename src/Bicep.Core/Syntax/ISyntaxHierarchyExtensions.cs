@@ -10,8 +10,13 @@ namespace Bicep.Core.Syntax
         /// <summary>
         /// Enumerate ancestor nodes in ascending order.
         /// </summary>
-        public static IEnumerable<SyntaxBase> EnumerateAncestorsUpwards(this ISyntaxHierarchy hierarchy, SyntaxBase syntax)
+        public static IEnumerable<SyntaxBase> EnumerateAncestorsUpwards(this ISyntaxHierarchy hierarchy, SyntaxBase syntax, bool includeSelf = false)
         {
+            if (includeSelf)
+            {
+                yield return syntax;
+            }
+
             var parent = hierarchy.GetParent(syntax);
             while (parent is not null)
             {
@@ -42,9 +47,9 @@ namespace Bicep.Core.Syntax
         /// <param name="syntax">The syntax node.</param>
         /// <typeparam name="TSyntax">The type of node to query.</typeparam>
         /// <returns>The nearest ancestor or <c>null</c>.</returns>
-        public static TSyntax? GetNearestAncestor<TSyntax>(this ISyntaxHierarchy hierarchy, SyntaxBase syntax)
+        public static TSyntax? GetNearestAncestor<TSyntax>(this ISyntaxHierarchy hierarchy, SyntaxBase syntax, bool includeSelf = false) //adsfg not needed?
             where TSyntax : SyntaxBase
-            => EnumerateAncestorsUpwards(hierarchy, syntax)
+            => EnumerateAncestorsUpwards(hierarchy, syntax, includeSelf)
                 .OfType<TSyntax>()
                 .FirstOrDefault();
 

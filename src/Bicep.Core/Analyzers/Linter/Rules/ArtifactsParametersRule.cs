@@ -216,7 +216,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        private static string? GetParameterType(SemanticModel model, ParameterSymbol parameterSymbol)
+        private static string? GetParameterType(SemanticModel model, ParameterSymbol parameterSymbol) //asdfg?
         {
             if (parameterSymbol.DeclaringSyntax is ParameterDeclarationSyntax parameterDeclaration
                && parameterDeclaration.Type is TypeVariableAccessSyntax typeSyntax)

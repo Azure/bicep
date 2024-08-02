@@ -18,18 +18,18 @@ namespace Bicep.Core.UnitTests.Assertions
         public static bool ShouldSetBaseline(TestContext testContext) =>
             testContext.Properties.Contains(SetBaseLineSettingName) && string.Equals(testContext.Properties[SetBaseLineSettingName] as string, bool.TrueString, StringComparison.OrdinalIgnoreCase);
 
-        public static void SetBaseline(string actualLocation, string expectedLocation)
+        public static void SetBaseline(string actualPath, string expectedPath)
         {
-            actualLocation = GetAbsolutePathRelativeToRepoRoot(actualLocation);
-            expectedLocation = GetAbsolutePathRelativeToRepoRoot(expectedLocation);
+            actualPath = GetAbsolutePathRelativeToRepoRoot(actualPath);
+            expectedPath = GetAbsolutePathRelativeToRepoRoot(expectedPath);
 
-            if (Path.GetDirectoryName(expectedLocation) is { } parentDir &&
+            if (Path.GetDirectoryName(expectedPath) is { } parentDir &&
                 !Directory.Exists(parentDir))
             {
                 Directory.CreateDirectory(parentDir);
             }
 
-            File.Copy(actualLocation, expectedLocation, overwrite: true);
+            File.Copy(actualPath, expectedPath, overwrite: true);
         }
 
         public static string GetAbsolutePathRelativeToRepoRoot(string path)

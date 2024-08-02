@@ -699,7 +699,7 @@ namespace Bicep.Core.Emit
         {
             static bool IsPermittedResourceDerivedTypeParent(IBinder binder, SyntaxBase? syntax) => syntax switch
             {
-                ParenthesizedExpressionSyntax or
+                ParenthesizedExpressionSyntax or //asdfg?
                 NonNullAssertionSyntax or
                 NullableTypeSyntax => IsPermittedResourceDerivedTypeParent(binder, binder.GetParent(syntax)),
                 TypePropertyAccessSyntax or

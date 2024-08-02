@@ -32,7 +32,7 @@ namespace Bicep.Core.Emit
                 SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
                     seed: false,
                     function: (hasUserDefinedTypeSyntax, syntax) => hasUserDefinedTypeSyntax ||
-                        syntax is ObjectTypeSyntax ||
+                        syntax is ObjectTypeSyntax || //asdfg?
                         syntax is ArrayTypeSyntax ||
                         syntax is TupleTypeSyntax ||
                         syntax is UnionTypeSyntax ||

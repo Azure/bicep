@@ -21,7 +21,7 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
 {
-    public sealed class TypeAssignmentVisitor : AstVisitor
+    public sealed class TypeAssignmentVisitor : AstVisitor //asdfgasdfg
     {
         private readonly IFeatureProvider features;
         private readonly ITypeManager typeManager;
@@ -652,7 +652,7 @@ namespace Bicep.Core.TypeSystem
             TypeSymbol otherwise => (otherwise, memberSyntax).AsEnumerable(),
         };
 
-        private static TypeSymbol? GetNonLiteralType(TypeSymbol? type) => type switch
+        private static TypeSymbol? GetNonLiteralType(TypeSymbol? type) => type switch //asdfgasdfg
         {
             StringLiteralType => LanguageConstants.String,
             IntegerLiteralType => LanguageConstants.Int,

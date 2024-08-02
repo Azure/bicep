@@ -443,7 +443,7 @@ namespace Bicep.Core.TypeSystem
         private ITypeReference? TryGetTypeFromTypeSyntax(SyntaxBase syntax)
             => TryGetTypeAssignmentFromTypeSyntax(syntax)?.Reference;
 
-        private DeclaredTypeAssignment? TryGetTypeAssignmentFromTypeSyntax(SyntaxBase syntax) => declaredTypes.GetOrAdd(syntax, s =>
+        private DeclaredTypeAssignment? TryGetTypeAssignmentFromTypeSyntax(SyntaxBase syntax) => declaredTypes.GetOrAdd(syntax, s =>//asdfgasdfg
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
@@ -1207,7 +1207,7 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private DeclaredTypeAssignment? GetPropertyAccessType(DeclaredTypeAssignment baseExpressionAssignment, PropertyAccessSyntax syntax)
+        private DeclaredTypeAssignment? GetPropertyAccessType(DeclaredTypeAssignment baseExpressionAssignment, PropertyAccessSyntax syntax) //asdfg
         {
             if (!syntax.PropertyName.IsValid)
             {
@@ -1254,7 +1254,7 @@ namespace Bicep.Core.TypeSystem
             };
         }
 
-        private DeclaredTypeAssignment? GetResourceAccessType(ResourceAccessSyntax syntax)
+        private DeclaredTypeAssignment? GetResourceAccessType(ResourceAccessSyntax syntax)//asdfg
         {
             if (!syntax.ResourceName.IsValid)
             {
@@ -1349,9 +1349,9 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private DeclaredTypeAssignment? GetAccessExpressionType(AccessExpressionSyntax syntax)
+        private DeclaredTypeAssignment? GetAccessExpressionType(AccessExpressionSyntax syntax)//asdfg
         {
-            Stack<AccessExpressionSyntax> chainedAccesses = syntax.ToAccessExpressionStack();
+            Stack<AccessExpressionSyntax> chainedAccesses = syntax.ToAccessExpressionStack(); //asdfg
             var baseAssignment = chainedAccesses.Peek() switch
             {
                 AccessExpressionSyntax access when access.BaseExpression is ForSyntax
@@ -1446,7 +1446,7 @@ namespace Bicep.Core.TypeSystem
             return typeAssignment;
         }
 
-        private DeclaredTypeAssignment? GetStringType(StringSyntax syntax)
+        private DeclaredTypeAssignment? GetStringType(StringSyntax syntax) //asdfg
         {
             var parent = this.binder.GetParent(syntax);
 

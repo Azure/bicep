@@ -4,7 +4,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class ResourceTypeSyntax : TypeSyntax
+    public class ResourceTypeSyntax : TypeSyntax//asdfg
     {
         public ResourceTypeSyntax(Token keyword, SyntaxBase? type)
         {
