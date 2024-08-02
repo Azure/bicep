@@ -28,7 +28,7 @@ namespace Bicep.Wasm
             this.serviceProvider = serviceProvider;
         }
 
-        [JSInvocable]
+        [JSInvokable]
         public async Task<CompileResult> CompileAndEmitDiagnostics(string content)
         {
             try
@@ -55,7 +55,7 @@ namespace Bicep.Wasm
             }
         }
 
-        [JSInvocable]
+        [JSInvokable]
         public async Task<DecompileResult> Decompile(string jsonContent)
         {
             using var serviceScope = serviceProvider.CreateScope();
@@ -73,7 +73,7 @@ namespace Bicep.Wasm
             }
         }
 
-        [JSInvocable]
+        [JSInvokable]
         public object GetSemanticTokensLegend()
         {
             var tokenTypes = Enum.GetValues(typeof(SemanticTokenType)).Cast<SemanticTokenType>();
@@ -86,7 +86,7 @@ namespace Bicep.Wasm
             };
         }
 
-        [JSInvocable]
+        [JSInvokable]
         public async Task<object> GetSemanticTokens(string content)
         {
             var compilation = await GetCompilation(content);
