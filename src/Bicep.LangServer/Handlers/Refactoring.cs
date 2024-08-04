@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Text;
 using Bicep.Core;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
@@ -15,6 +18,7 @@ using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using static Bicep.LanguageServer.Completions.BicepCompletionContext;
+using static Google.Protobuf.Reflection.ExtensionRangeOptions.Types;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -22,6 +26,8 @@ namespace Bicep.LanguageServer.Handlers
     public static class Refactoring
     {
         private const int MaxExpressionLengthInAction = 100;
+
+        static string NewLine(SemanticModel semanticModel) => semanticModel.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence();
 
         public static IEnumerable<CodeFix> GetExtractionRefactorings(
             CompilationContext compilationContext,
@@ -34,7 +40,7 @@ namespace Bicep.LanguageServer.Handlers
                 yield break;
             }
 
-            string newLine = semanticModel.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence();
+//asdfg            PrintAllTypes(semanticModel);
 
             string? defaultNewName = null;
 
@@ -96,60 +102,158 @@ namespace Bicep.LanguageServer.Handlers
             var newParamName = FindUnusedName(compilation, expressionSyntax.Span.Position, defaultNewName ?? "newParameter");
 
             var varDeclarationSyntax = SyntaxFactory.CreateVariableDeclaration(newVarName, expressionSyntax);
-            var varDeclaration = PrettyPrinterV2.PrintValid(varDeclarationSyntax, PrettyPrinterV2Options.Default) + newLine;
-            var statementLine = TextCoordinateConverter.GetPosition(compilationContext.LineStarts, statementSyntax.Span.Position).line;
+            var varDeclaration = PrettyPrinterV2.PrintValid(varDeclarationSyntax, PrettyPrinterV2Options.Default) + NewLine(semanticModel);
 
-            var definitionInsertionPosition = TextCoordinateConverter.GetOffset(compilationContext.LineStarts, statementLine, 0);
+            var statementLineNumber = TextCoordinateConverter.GetPosition(compilationContext.LineStarts, statementSyntax.Span.Position).line;
+            var definitionInsertionPosition = TextCoordinateConverter.GetOffset(compilationContext.LineStarts, statementLineNumber, 0);
+
+            yield return new CodeFix(
+               $"Create variable for {GetQuotedExpressionText(expressionSyntax)}",
+               isPreferred: false,
+               CodeFixKind.RefactorExtract,
+               new CodeReplacement(expressionSyntax.Span, newVarName),
+               new CodeReplacement(new TextSpan(definitionInsertionPosition, 0), varDeclaration));
+
 
             // For the new param's type, try to use the declared type if there is one (i.e. the type of
             //   what we're assigning to), otherwise use the actual calculated type of the expression
             var inferredType = semanticModel.GetTypeInfo(expressionSyntax);
             var declaredType = semanticModel.GetDeclaredType(expressionSyntax);
             var newParamType = NullIfErrorOrAnyType(declaredType) ?? NullIfErrorOrAnyType(inferredType);
-            var expressionTypeSymbol = GetNonLiteralType(newParamType) ?? newParamType;
 
+            yield return CreateExtractParameterCodeFix(
+                semanticModel, newParamType, newParamName, definitionInsertionPosition, expressionSyntax, Strictness.Medium);
+            yield return CreateExtractParameterCodeFix(
+                semanticModel, newParamType, newParamName, definitionInsertionPosition, expressionSyntax, Strictness.Loose);
+            yield return CreateExtractParameterCodeFix(
+                semanticModel, newParamType, newParamName, definitionInsertionPosition, expressionSyntax, Strictness.Strict);
+        }
 
-            var expressionTypeIdentifier = SyntaxFactory.CreateIdentifierWithTrailingSpace(expressionTypeSymbol?.Name ?? "unknown");
+        private static CodeFix CreateExtractParameterCodeFix(
+            SemanticModel semanticModel,
+            TypeSymbol? newParamType,
+            string newParamName,
+            int definitionInsertionPosition,
+            ExpressionSyntax expressionSyntax,
+            Strictness strictness)
+        {
+            var declaration = CreateNewParameterDeclaration(semanticModel, newParamType, newParamName, expressionSyntax, strictness);
+
+            return new CodeFix(
+                $"Create parameter ({Enum.GetName<Strictness>(strictness)} for {GetQuotedExpressionText(expressionSyntax)}",
+                isPreferred: false,
+                CodeFixKind.RefactorExtract,
+                new CodeReplacement(expressionSyntax.Span, newParamName),
+                new CodeReplacement(new TextSpan(definitionInsertionPosition, 0), declaration));
+        }
+
+        private static string CreateNewParameterDeclaration(
+            SemanticModel semanticModel,
+            TypeSymbol? newParamType,
+            string newParamName,
+            SyntaxBase defaultValueSyntax,
+            Strictness strictness)
+        {
+            var expressionTypeName = GetTypeString(newParamType, strictness);
+            Trace.WriteLine($"{Enum.GetName<Strictness>(strictness)}: {expressionTypeName}"); //asdfg
+
+            //asdfg use syntax nodes properly
+            var expressionTypeIdentifier = SyntaxFactory.CreateIdentifierWithTrailingSpace(expressionTypeName);
 
             var paramDeclarationSyntax = SyntaxFactory.CreateParameterDeclaration(
                 newParamName,
                 new TypeVariableAccessSyntax(expressionTypeIdentifier),
-                expressionSyntax);
-            var paramDeclaration = PrettyPrinterV2.PrintValid(paramDeclarationSyntax, PrettyPrinterV2Options.Default) + newLine;
-
-
-            yield return new CodeFix(
-                $"Create variable for {GetQuotedExpressionText(expressionSyntax)}",
-                isPreferred: false,
-                CodeFixKind.RefactorExtract,
-                new CodeReplacement(expressionSyntax.Span, newVarName),
-                new CodeReplacement(new TextSpan(definitionInsertionPosition, 0), varDeclaration));
-            yield return new CodeFix(
-                $"Create parameter for {GetQuotedExpressionText(expressionSyntax)}",
-                isPreferred: false,
-                CodeFixKind.RefactorExtract,
-                new CodeReplacement(expressionSyntax.Span, newParamName),
-                new CodeReplacement(new TextSpan(definitionInsertionPosition, 0), paramDeclaration));
+                defaultValueSyntax);
+            var paramDeclaration = PrettyPrinterV2.PrintValid(paramDeclarationSyntax, PrettyPrinterV2Options.Default) + NewLine(semanticModel);
+            return paramDeclaration;
         }
 
         private static TypeSymbol? NullIfErrorOrAnyType(TypeSymbol? type) => type is ErrorType || type is AnyType ? null : type;
 
-        private static TypeSymbol? GetNonLiteralType(TypeSymbol? type) => type switch
+        //asdfg
+        //private static TypeSymbol? GetLooseTypeString(TypeSymbol? type) => type switch
+        //{
+        //    StringLiteralType => LanguageConstants.String,
+        //    IntegerLiteralType => LanguageConstants.Int,
+        //    BooleanLiteralType => LanguageConstants.Bool,
+        //    BooleanType => LanguageConstants.Bool,
+        //    IntegerType => LanguageConstants.Int,
+        //    StringType => LanguageConstants.String,
+        //    // If it's a custom object like "{ i: int, o: { i2: int } }", keep it that way.
+        //    // Otherwise, e.g. for resource types (for now) or external types like "VirtualMachineExtensionProperties"
+        //    //   that aren't recognized in Bicep code, change to Object
+        //    ObjectType when !type.Name.StartsWith('{') => LanguageConstants.Object,
+        //    TupleType => LanguageConstants.Array,
+        //    NullType => LanguageConstants.Null,
+        //    _ => null,
+        //};
+
+        private const string UnknownTypeName = "unknown";
+
+        private enum Strictness
         {
-            StringLiteralType => LanguageConstants.String,
-            IntegerLiteralType => LanguageConstants.Int,
-            BooleanLiteralType => LanguageConstants.Bool,
-            BooleanType => LanguageConstants.Bool,
-            IntegerType => LanguageConstants.Int,
-            StringType => LanguageConstants.String,
-            // If it's a custom object like "{ i: int, o: { i2: int } }", keep it that way.
-            // Otherwise, e.g. for resource types (for now) or external types like "VirtualMachineExtensionProperties"
-            //   that aren't recognized in Bicep code, change to Object
-            ObjectType when !type.Name.StartsWith('{') => LanguageConstants.Object,
-            TupleType => LanguageConstants.Array,
-            NullType => LanguageConstants.Null,
-            _ => null,
-        };
+            Loose,
+            Medium, //asdfg??
+            Strict,
+        }
+
+        //asdfg should this be creating syntax nodes?  Probably...
+        //asdfg recursive types
+        private static string GetTypeString(TypeSymbol? type, Strictness strictness)
+        {
+            //asdfg test
+            return type switch
+            {
+                // Strict literal types
+                StringLiteralType
+                   or IntegerLiteralType
+                   or BooleanLiteralType
+                   or TupleType
+                   when strictness == Strictness.Strict => type.Name,
+
+                // Loose/medium literal ltypes
+                StringLiteralType => LanguageConstants.String.Name,
+                IntegerLiteralType => LanguageConstants.Int.Name,
+                BooleanLiteralType => LanguageConstants.Bool.Name,
+
+                // Non-literal types
+                BooleanType => LanguageConstants.Bool.Name,
+                IntegerType => LanguageConstants.Int.Name,
+                StringType => LanguageConstants.String.Name,
+                TupleType => LanguageConstants.Array.Name,
+                NullType => LanguageConstants.Null.Name,
+
+                ObjectType => GetObjectTypeString((ObjectType)type, strictness),
+
+                //asdfg
+                //// If it's a custom object like "{ i: int, o: { i2: int } }", keep it that way.
+                //// Otherwise, e.g. for resource types (for now) or external types like "VirtualMachineExtensionProperties"
+                ////   that aren't recognized in Bicep code, change to Object
+                //ObjectType when !type.Name.StartsWith('{') => LanguageConstants.Object.Name,
+                //ObjectType => GetObjectTypeString(type),
+
+                _ => UnknownTypeName, //asdfg
+            };
+        }
+
+        private static string GetObjectTypeString(ObjectType type, Strictness strictness)
+        {
+            if (strictness == Strictness.Loose)
+            {
+                return LanguageConstants.Object.Name;
+            }
+
+            // asdfg??
+            //type.AdditionalPropertiesFlags
+            // type.AdditionalPropertiesType
+            // type.UnwrapArrayType
+
+            //asdfg what if key needs escaping?
+            var members =
+                string.Join(", ",
+                    type.Properties.Select(p => $"{p.Key}: {GetTypeString(p.Value.TypeReference.Type, strictness)}"));
+            return $"{{ {members} }}";
+        }
 
         private static string FindUnusedName(Compilation compilation, int offset, string preferredName) //asdfg
         {
@@ -174,6 +278,66 @@ namespace Bicep.LanguageServer.Handlers
                     .TruncateWithEllipses(MaxExpressionLengthInAction)
                     .Trim()
                 + "\"";
+        }
+
+        //asdfg: remove
+        //private static void PrintAllTypes(SemanticModel semanticModel)
+        //{
+        //    var asdfg = SyntaxCollectorVisitor.Build(semanticModel.Root.Syntax);
+        //    foreach (var node1 in asdfg.Where(s => s.Syntax is not Token))
+        //    {
+        //        //asdfg
+        //        var node = node1.Syntax;
+        //        Trace.WriteLine($"** {node.GetDebuggerDisplay().ReplaceNewlines(" ").TruncateWithEllipses(150)}");
+        //        Trace.WriteLine($"  ... type info: {semanticModel.GetTypeInfo(node).Name}");
+        //        Trace.WriteLine($"  ... declared type: {semanticModel.GetDeclaredType(node)?.Name}");
+        //    }
+        //}
+
+        //asdfg: remove
+        public class SyntaxCollectorVisitor : CstVisitor
+        {
+            public record SyntaxItem(SyntaxBase Syntax, SyntaxItem? Parent, int Depth)
+            {
+                public IEnumerable<SyntaxCollectorVisitor.SyntaxItem> GetAncestors()
+                {
+                    var data = this;
+                    while (data.Parent is { } parent)
+                    {
+                        yield return parent;
+                        data = parent;
+                    }
+                }
+            }
+
+            private readonly IList<SyntaxItem> syntaxList = new List<SyntaxItem>();
+            private SyntaxItem? parent = null;
+            private int depth = 0;
+
+            private SyntaxCollectorVisitor()
+            {
+            }
+
+            public static ImmutableArray<SyntaxItem> Build(SyntaxBase syntax)
+            {
+                var visitor = new SyntaxCollectorVisitor();
+                visitor.Visit(syntax);
+
+                return [..visitor.syntaxList];
+            }
+
+            protected override void VisitInternal(SyntaxBase syntax)
+            {
+                var syntaxItem = new SyntaxItem(Syntax: syntax, Parent: parent, Depth: depth);
+                syntaxList.Add(syntaxItem);
+
+                var prevParent = parent;
+                parent = syntaxItem;
+                depth++;
+                base.VisitInternal(syntax);
+                depth--;
+                parent = prevParent;
+            }
         }
     }
 }

@@ -32,7 +32,13 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 /*
  type foo = {
   property: foo?
-}*/
+}
+
+bad:
+param <<p1>> int = 2
+ 
+ */
+
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -40,7 +46,96 @@ namespace Bicep.LangServer.IntegrationTests
     public class ExtractToVarAndParamTests : CodeActionTestBase
     {
         private const string ExtractToVariableTitle = "Create variable for";
-        private const string ExtractToParameterTitle = "Create parameter for";
+        private const string ExtractToParameterTitle = "Create parameter ";
+
+        [DataTestMethod]
+
+
+        //Extracted value is in a var statement and has no declared type: the type will be based on the value. You might get recursive types or unions if the value contains a reference to a parameter, but you can pull the type clause from the parameter declaration.
+        //Extracted value is in a param statement (or something else with an explicit type declaration): you may be able to use the declared type syntax of the enclosing statement rather than working from the type backwards to a declaration.
+        //Extracted value is in a resource body: definite possibility of complex structures, recursion, and a few type constructs that aren't fully expressible in Bicep syntax (e.g., "open" enums like 'foo' | 'bar' | string). Resource-derived types might be a good solution here, but they're still behind a feature flag
+
+        // Extracted value is in a var statement and has no declared type: the type will be based on the value.
+        // You might get recursive types or unions if the value contains a reference to a parameter, but you can
+        //   pull the type clause from the parameter declaration.
+        [DataRow(
+            """
+                var foo = <<{ intVal: 2 }>>
+                """,
+            """
+                param newParameter { intVal: int } = { intVal: 2 }
+                var foo = newParameter
+                """)]
+
+        //Extracted value is in a param statement (or something else with an explicit type declaration)
+        //  you may be able to use the declared type syntax of the enclosing statement rather than working
+        //  from the type backwards to a declaration.
+        [DataRow(
+            """
+                param p1 { intVal: int}
+                output o = <<p1>>
+                """,
+            """
+                param p1 { intVal: int}
+                param newParameter { intVal: int } = p1
+                output o = newParameter
+                """)]
+
+        [DataRow(
+            """
+                var isWindowsOS = true
+                var provisionExtensions = true
+                param _artifactsLocation string
+                @secure()
+                param _artifactsLocationSasToken string
+
+                resource resourceWithProperties 'Microsoft.Compute/virtualMachines/extensions@2019-12-01' = if (isWindowsOS && provisionExtensions) {
+                  name: 'cse-windows/extension'
+                  location: 'location'
+                  properties: {
+                    publisher: 'Microsoft.Compute'
+                    type: 'CustomScriptExtension'
+                    typeHandlerVersion: '1.8'
+                    autoUpgradeMinorVersion: true
+                    setting|s: {
+                      fileUris: [
+                        uri(_artifactsLocation, 'writeblob.ps1${_artifactsLocationSasToken}')
+                      ]
+                      commandToExecute: 'commandToExecute'
+                    }
+                  }
+                }
+                """,
+            //asdfg we don't have strongly typed array?   fileUris: [string]?
+            """
+                var isWindowsOS = true
+                var provisionExtensions = true
+                param _artifactsLocation string
+                @secure()
+                param _artifactsLocationSasToken string
+
+                param settings { commandToExecute: string, fileUris: array } = {
+                  fileUris: [
+                    uri(_artifactsLocation, 'writeblob.ps1${_artifactsLocationSasToken}')
+                  ]
+                  commandToExecute: 'commandToExecute'
+                }
+                resource resourceWithProperties 'Microsoft.Compute/virtualMachines/extensions@2019-12-01' = if (isWindowsOS && provisionExtensions) {
+                  name: 'cse-windows/extension'
+                  location: 'location'
+                  properties: {
+                    publisher: 'Microsoft.Compute'
+                    type: 'CustomScriptExtension'
+                    typeHandlerVersion: '1.8'
+                    autoUpgradeMinorVersion: true
+                    settings: settings
+                  }
+                }
+                """)]
+        public async Task Params_InferType_BicepDiscussion(string fileWithSelection, string expectedText)
+        {
+            await RunExtractToParameterTest(fileWithSelection, expectedText);
+        }
 
         [DataTestMethod]
         [DataRow("""
@@ -373,33 +468,6 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [DataTestMethod]
-        //asdfg delete
-        [DataRow("""
-                resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {
-                	name: 'virtualNetwork/name'
-                	properties: {
-                		allowVirtualNetworkAccess: true
-                		remoteVirtualNetwork: {
-                			id: |'virtualNetworksId'
-                		}
-                	}
-                }
-                """,
-            """
-                param id string = 'virtualNetworksId'
-                resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {
-                	name: 'virtualNetwork/name'
-                	properties: {
-                		allowVirtualNetworkAccess: true
-                		remoteVirtualNetwork: {
-                			id: id
-                		}
-                	}
-                }
-                """,
-            DisplayName = "resource types 3 asdfg")]
-
-
         [DataRow("""
                 var i = <<1>>
                 """,
@@ -606,6 +674,12 @@ namespace Bicep.LangServer.IntegrationTests
                 }
                 """,
             DisplayName = "resource properties unknown property, follows expression's inferred type")]
+        [DataRow("""
+                var foo = <<{ intVal: 2 }>>
+                """,
+            """
+                param { intVal: int } = { intVal: 2 }
+                """)]
 
         //asdf TODO(??)
         //[DataRow("""
@@ -760,6 +834,16 @@ namespace Bicep.LangServer.IntegrationTests
                 var v = newParameter
                 """,
             DisplayName = "error types")]
+        [DataRow("""
+            param p1 { a: { b: string } }
+            var v = p1
+            """,
+            """
+                param p1 { a: { b: string } }
+                param newParameter { a: { b: string } } = p1
+                var v = newParameter
+            """
+            )]
 
         //asdfg TODO: secure types
         //[DataRow(""" TODO: asdfg
@@ -787,7 +871,7 @@ namespace Bicep.LangServer.IntegrationTests
         //    var j = newParameter
         //    """,
         //    DisplayName = "expression with secure string param reference")]
-        public async Task Params_CorrectlyInferType(string fileWithSelection, string expectedText)
+        public async Task Params_InferType(string fileWithSelection, string expectedText)
         {
             await RunExtractToParameterTest(fileWithSelection, expectedText);
         }
@@ -795,7 +879,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task IfJustPropertyNameSelected_ThenExtractPropertyValue()
         {
-            await RunExtractToVariableAndOrParameterTest("""                                
+            await RunExtractToVariableAndOrParameterTest("""
                 var isWindowsOS = true
                 var provisionExtensions = true
                 param _artifactsLocation string
@@ -857,7 +941,7 @@ namespace Bicep.LangServer.IntegrationTests
                   fileUris: [
                     uri(_artifactsLocation, 'writeblob.ps1${_artifactsLocationSasToken}')
                   ]
-                  commandToExecute: 'commandToExecute'
+                  param settings { commandToExecute: string, fileUris: [string] } = {"
                 }
                 resource resourceWithProperties 'Microsoft.Compute/virtualMachines/extensions@2019-12-01' = if (isWindowsOS && provisionExtensions) {
                   name: 'cse-windows/extension'
@@ -1382,7 +1466,7 @@ namespace Bicep.LangServer.IntegrationTests
         private async Task RunExtractToParameterTest(string fileWithSelection, string? expectedText)
         {
             (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithSelection);
-            var extractedParam = codeActions.FirstOrDefault(x => x.Title.StartsWith(ExtractToParameterTitle));
+            var extractedParam = codeActions.FirstOrDefault(x => x.Title.StartsWith(ExtractToParameterTitle)); //asdfg assert if too many
 
             if (expectedText == null)
             {
