@@ -48,7 +48,7 @@ public sealed class UseSafeAccessRule : LinterRuleBase
             var rhsNeedsParentheses = ternary.FalseExpression switch
             {
                 TernaryOperationSyntax => true,
-                BinaryOperationSyntax binaryOperation => 
+                BinaryOperationSyntax binaryOperation =>
                     TokenTypeHelper.GetOperatorPrecedence(binaryOperation.OperatorToken.Type) < TokenTypeHelper.GetOperatorPrecedence(TokenType.DoubleQuestion),
                 _ => false,
             };
