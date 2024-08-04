@@ -132,6 +132,20 @@ namespace Bicep.LangServer.IntegrationTests
                   }
                 }
                 """)]
+
+        [DataRow(asdfg
+            // rhs is more strictly typed than lhs
+            // medium picks up strict type, loose just object
+            // asdfg why isn't it picking up declared type of object??
+            """
+                param p1 { intVal: int} = { intVal:123}
+                output o object = <<p1>>
+                """,
+            """
+                param p1 { intVal: int} = { intVal:123}
+                param newParameter { intVal: int } = p1
+                output o object = newParameter
+                """)]
         public async Task Params_InferType_BicepDiscussion(string fileWithSelection, string expectedText)
         {
             await RunExtractToParameterTest(fileWithSelection, expectedText);
