@@ -209,12 +209,16 @@ namespace Bicep.LanguageServer.Handlers
                    or IntegerLiteralType
                    or BooleanLiteralType
                    or TupleType
-                   when strictness == Strictness.Strict => type.Name,
+                   or UnionType
+                   when strictness == Strictness.Strict => type.Name,//asdfg ?? is type.Name good enough?
 
                 // Loose/medium literal ltypes
                 StringLiteralType => LanguageConstants.String.Name,
                 IntegerLiteralType => LanguageConstants.Int.Name,
                 BooleanLiteralType => LanguageConstants.Bool.Name,
+
+                UnionType when strictness == Strictness.Medium => type.Name, //asdfg ?? is type.Name good enough?
+                UnionType when strictness == Strictness.Loose => LanguageConstants.String.Name, // asdfg handle other union types
 
                 // Non-literal types
                 BooleanType => LanguageConstants.Bool.Name,
@@ -222,6 +226,7 @@ namespace Bicep.LanguageServer.Handlers
                 StringType => LanguageConstants.String.Name,
                 TupleType => LanguageConstants.Array.Name,
                 NullType => LanguageConstants.Null.Name,
+
 
                 ObjectType => GetObjectTypeString((ObjectType)type, strictness),
 
