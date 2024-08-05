@@ -127,7 +127,7 @@ namespace Bicep.LanguageServer.Handlers
                 .Select(fix => CreateCodeAction(request.TextDocument.Uri, compilationContext, fix));
             commandOrCodeActions.AddRange(codeFixes);
 
-            var refactoringFixes = Refactoring.GetExtractionRefactorings(compilationContext, compilation, semanticModel, nodesInRange)
+            var refactoringFixes = Refactor.GetExtractionRefactorings(compilationContext, compilation, semanticModel, nodesInRange)
                 .Select(fix => CreateCodeAction(documentUri, compilationContext, fix));
             commandOrCodeActions.AddRange(refactoringFixes);
 

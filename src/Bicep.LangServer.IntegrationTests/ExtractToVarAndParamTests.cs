@@ -49,18 +49,40 @@ namespace Bicep.LangServer.IntegrationTests
         private const string ExtractToParameterTitle = "Create parameter ";
 
         //asdfg param p2 'foo' | 'bar' | string = 'bar'
-
+        // asdfg nullable
 
 
 
         [DataTestMethod]
+
+        //asdfg BUG:
+        /*
+         param p1 { intVal: int }
+            param p2 object = p1
+            var v1 = p2
+        =>
+        param newParameter {  } = p2
+var v1 = newParameter
+
+        */
+
+        [DataRow(
+            """
+                var blah = |[{foo: 'bar'}, {foo: 'baz'}]
+                """,
+            """
+                asdfg
+                """)]
+
+
+
 
         //asdfg TODO:
         // what should behavior be?
         [DataRow(
             """
                 param p1 { intVal: int} = { intVal:123}
-                output o object = p1
+                output o object = <<p1>>
                 """,
             """
                 param p1 { intVal: int} = { intVal:123}
@@ -83,26 +105,14 @@ namespace Bicep.LangServer.IntegrationTests
         // What should type of new parameter be?  Currently it's unknown
 
 
-        //TODO: unknown
+        //Extracted value is in a var statement and has no declared type: the type will be based on the value. You might get recursive types or unions if the value contains a reference to a parameter, but you can pull the type clause from the parameter declaration.
+        //Extracted value is in a param statement (or something else with an explicit type declaration): you may be able to use the declared type syntax of the enclosing statement rather than working from the type backwards to a declaration.
+        //Extracted value is in a resource body: definite possibility of complex structures, recursion, and a few type constructs that aren't fully expressible in Bicep syntax (e.g., "open" enums like 'foo' | 'bar' | string). Resource-derived types might be a good solution here, but they're still behind a feature flag
+
+        // Extracted value is in a var statement and has no declared type: the type will be based on the value.
+        // You might get recursive types or unions if the value contains a reference to a parameter, but you can
+        //   pull the type clause from the parameter declaration.
         [DataRow(
-        """
-            param p1 {a: string | int}
-            var v1 = <<p1>>
-            """,
-         """
-             param p1 {a: string | int}
-             param newParameter { a: unknown } = p1
-             var v1 = newParameter             
-             """)]
-
-//Extracted value is in a var statement and has no declared type: the type will be based on the value. You might get recursive types or unions if the value contains a reference to a parameter, but you can pull the type clause from the parameter declaration.
-//Extracted value is in a param statement (or something else with an explicit type declaration): you may be able to use the declared type syntax of the enclosing statement rather than working from the type backwards to a declaration.
-//Extracted value is in a resource body: definite possibility of complex structures, recursion, and a few type constructs that aren't fully expressible in Bicep syntax (e.g., "open" enums like 'foo' | 'bar' | string). Resource-derived types might be a good solution here, but they're still behind a feature flag
-
-// Extracted value is in a var statement and has no declared type: the type will be based on the value.
-// You might get recursive types or unions if the value contains a reference to a parameter, but you can
-//   pull the type clause from the parameter declaration.
-[DataRow(
     """
         var foo = <<{ intVal: 2 }>>
         """,
@@ -181,7 +191,7 @@ namespace Bicep.LangServer.IntegrationTests
                 resource resourceWithProperties 'Microsoft.Compute/virtualMachines/extensions@2019-12-01' = {
                   name: 'cse/windows'
                   location: 'location'
-                  properties: {
+                  |properties: {
                     // Entire properties object selected
                     publisher: 'Microsoft.Compute'
                     type: 'CustomScriptExtension'
@@ -198,6 +208,24 @@ namespace Bicep.LangServer.IntegrationTests
                 """,
             """
                 asdfg TODO: getting some unknowns and readonly types
+                param properties { autoUpgradeMinorVersion: bool, forceUpdateTag: string, instanceView: { name: string, statuses: array, substatuses: array, type: string, typeHandlerVersion: string }, protectedSettings: unknown, provisioningState: string, publisher: string, settings: unknown, type: string, typeHandlerVersion: string } = {
+                  // Entire properties object selected
+                  publisher: 'Microsoft.Compute'
+                  type: 'CustomScriptExtension'
+                  typeHandlerVersion: '1.8'
+                  autoUpgradeMinorVersion: true
+                  settings: {
+                    fileUris: [
+                      uri(_artifactsLocation, 'writeblob.ps1${_artifactsLocationSasToken}')
+                    ]
+                    commandToExecute: 'commandToExecute'
+                  }
+                }
+                resource resourceWithProperties 'Microsoft.Compute/virtualMachines/extensions@2019-12-01' = {
+                  name: 'cse/windows'
+                  location: 'location'
+                  properties: properties
+                }
                 """)]
         [DataRow(
             """
@@ -274,10 +302,24 @@ namespace Bicep.LangServer.IntegrationTests
                 param newParameter { property: foo } = pfoo2
                 var v = newParameter
                 """)]
-        public async Task Params_InferType_BicepDiscussion(string fileWithSelection, string expectedText)
-{
-    await RunExtractToParameterTest(fileWithSelection, expectedText);
-}
+
+        //TODO: swapping order of string/int
+        [DataRow(
+        """
+            param p1 {a: string || int}
+            var v1 = <<p1>>
+            """,
+         """
+             param p1 {a: string | int}
+             param newParameter { a: int | string } = p1
+             var v1 = newParameter
+             """)]
+
+
+        public async Task BicepDiscussion(string fileWithSelection, string expectedText)
+        {
+            await RunExtractToParameterTest(fileWithSelection, expectedText);
+        }
 
 [DataTestMethod]
 [DataRow("""

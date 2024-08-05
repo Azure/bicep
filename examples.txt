@@ -1,9 +1,0 @@
-Extracted value is in a var statement and has no declared type: the type will be based on the value.
--> Correct, I'm using the inferred type here.
-
-You might get recursive types or unions if the value contains a reference to a parameter, but you can pull the type clause from the parameter declaration.
-
-
-
-Extracted value is in a param statement (or something else with an explicit type declaration): you may be able to use the declared type syntax of the enclosing statement rather than working from the type backwards to a declaration.
-Extracted value is in a resource body: definite possibility of complex structures, recursion, and a few type constructs that aren't fully expressible in Bicep syntax (e.g., "open" enums like 'foo' | 'bar' | string). Resource-derived types might be a good solution here, but they're still behind a feature flag

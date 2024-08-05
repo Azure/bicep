@@ -23,7 +23,7 @@ using static Google.Protobuf.Reflection.ExtensionRangeOptions.Types;
 namespace Bicep.LanguageServer.Handlers
 {
     // Provides code actions/fixes for a range in a Bicep document
-    public static class Refactoring
+    public static class Refactor
     {
         private const int MaxExpressionLengthInAction = 100;
 
@@ -210,12 +210,16 @@ namespace Bicep.LanguageServer.Handlers
                    or BooleanLiteralType
                    or TupleType
                    or UnionType
+                   
                    when strictness == Strictness.Strict => type.Name,//asdfg ?? is type.Name good enough?
 
-                // Loose/medium literal ltypes
+                // Loose/medium literal types
                 StringLiteralType => LanguageConstants.String.Name,
                 IntegerLiteralType => LanguageConstants.Int.Name,
                 BooleanLiteralType => LanguageConstants.Bool.Name,
+
+                TypedArrayType when strictness != Strictness.Loose => type.Name,
+                TypedArrayType => LanguageConstants.Array.Name,
 
                 UnionType when strictness == Strictness.Medium => type.Name, //asdfg ?? is type.Name good enough?
                 UnionType when strictness == Strictness.Loose => LanguageConstants.String.Name, // asdfg handle other union types
@@ -236,6 +240,8 @@ namespace Bicep.LanguageServer.Handlers
                 ////   that aren't recognized in Bicep code, change to Object
                 //ObjectType when !type.Name.StartsWith('{') => LanguageConstants.Object.Name,
                 //ObjectType => GetObjectTypeString(type),
+
+                AnyType => LanguageConstants.Any.Name, //asdfg???
 
                 _ => UnknownTypeName, //asdfg
             };
