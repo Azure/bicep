@@ -32,9 +32,9 @@
       },
       "Grpc.Tools": {
         "type": "Direct",
-        "requested": "[2.64.0, )",
-        "resolved": "2.64.0",
-        "contentHash": "W5RrhDFHUhioASktxfuDs5fTjWUxwegljZAig9zFL8nWNskeyQA6OXN2choWKYxGrljer25VqCJCMbWz7XHvqg=="
+        "requested": "[2.65.0, )",
+        "resolved": "2.65.0",
+        "contentHash": "2HX7+tPCIXwx1nsyj2h0i703D8SM2CMTUqdjDHAsU3HmKKksMJ7K6x31Rhg9yLJsW76OJItyoD9fk7W3HP/Wgw=="
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
