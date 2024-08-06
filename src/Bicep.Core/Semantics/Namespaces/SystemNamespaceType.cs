@@ -59,7 +59,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetSystemOverloads().ToImmutableArray();
 
-        private static readonly ImmutableArray<NamespaceValue<Decorator>> Decorators = GetSystemDecorators().ToImmutableArray();
+        //private static readonly ImmutableArray<NamespaceValue<Decorator>> Decorators = GetSystemDecorators().ToImmutableArray();
 
         private static readonly ImmutableArray<NamespaceValue<TypeProperty>> AmbientSymbols = GetSystemAmbientSymbols().ToImmutableArray();
 
@@ -1498,7 +1498,7 @@ namespace Bicep.Core.Semantics.Namespaces
             BannedFunction.CreateForOperator("coalesce", "??")
         ];
 
-        private static IEnumerable<NamespaceValue<Decorator>> GetSystemDecorators()
+        private static IEnumerable<NamespaceValue<Decorator>> GetSystemDecorators(IFeatureProvider featureProvider)
         {
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
@@ -1855,34 +1855,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(decorator, (_, _) => true);
             }
 
-            //foreach (var decorator in GetBicepTemplateDecorators())
-            //{
-            //    yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
-            //}
             foreach (var decorator in GetBicepTemplateDecorators())
             {
-                if (decorator.Overload.Name == LanguageConstants.ParameterSecurePropertyName)
-                {
-                    yield return new(decorator, (features, sfk) =>
-                    {
-                        var isValid = sfk == BicepSourceFileKind.BicepFile;
-
-                        if (features.SecureOutputsEnabled)
-                        {
-                            isValid &= (decorator.Overload.Flags & FunctionFlags.ParameterOutputOrTypeDecorator) == decorator.Overload.Flags;
-                        }
-                        else
-                        {
-                            isValid &= (decorator.Overload.Flags & FunctionFlags.ParameterOrTypeDecorator) == decorator.Overload.Flags;
-                        }
-                        return isValid;
-                    });
-                }
-                else
-                {
-                    yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
-                }
-                
+                yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
             }
         }
 
@@ -1985,7 +1960,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 AmbientSymbols.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 Overloads.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 BannedFunctions,
-                Decorators.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
+                GetSystemDecorators(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 new EmptyResourceTypeProvider());
         }
     }
