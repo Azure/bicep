@@ -73,7 +73,7 @@ public class SecureOutputsTests
                     myInput : myInput
                   }
                 }
- 
+                @secure()
                 output myOutput string = foo.outputs.myOutput
             "),
             ("foo.bicep", @"
@@ -86,8 +86,8 @@ public class SecureOutputsTests
         );
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP057", DiagnosticLevel.Error, "The name \"secure\" does not exist in the current context."),
-            ("BCP104", DiagnosticLevel.Error, "The referenced module has errors.")
+            ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
+            ("BCP129", DiagnosticLevel.Error, "Function \"secure\" cannot be used as an output decorator.")
         });
     }
 

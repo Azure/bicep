@@ -59,8 +59,6 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetSystemOverloads().ToImmutableArray();
 
-        //private static readonly ImmutableArray<NamespaceValue<Decorator>> Decorators = GetSystemDecorators().ToImmutableArray();
-
         private static readonly ImmutableArray<NamespaceValue<TypeProperty>> AmbientSymbols = GetSystemAmbientSymbols().ToImmutableArray();
 
         private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads()
@@ -1592,11 +1590,11 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
-            static IEnumerable<Decorator> GetBicepTemplateDecorators()
+            static IEnumerable<Decorator> GetBicepTemplateDecorators(IFeatureProvider featureProvider)
             {
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
-                    .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
+                    .WithFlags(featureProvider.SecureOutputsEnabled ? FunctionFlags.ParameterOutputOrTypeDecorator : FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                     .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((functionCall, decorated) =>
@@ -1855,7 +1853,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(decorator, (_, _) => true);
             }
 
-            foreach (var decorator in GetBicepTemplateDecorators())
+            foreach (var decorator in GetBicepTemplateDecorators(featureProvider))
             {
                 yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
             }
