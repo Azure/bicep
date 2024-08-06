@@ -40,6 +40,9 @@ If enabled, templates can reuse resource types wherever a type is expected. For 
 ### `resourceTypedParamsAndOutputs`
 Enables the type for a parameter or output to be of type resource to make it easier to pass resource references between modules. This feature is only partially implemented. See [Simplifying resource referencing](https://github.com/azure/bicep/issues/2245).
 
+### `secureOutputs`
+Enables the secure decorator for outputs. This feature aims to enhance security and to improve user experience (https://github.com/Azure/bicep/issues/2163).
+
 ### `sourceMapping`
 Enables basic source mapping to map an error location returned in the ARM template layer back to the relevant location in the Bicep file.
 

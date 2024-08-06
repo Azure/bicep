@@ -856,6 +856,10 @@
         "resourceDerivedTypes": {
           "type": "boolean",
           "description": "If enabled, templates can reuse resource types wherever a type is expected. See https://aka.ms/bicep/experimental-features#resourcederivedtypes"
+        },
+        "secureOutputs": {
+          "type": "boolean",
+          "description": "If enabled, templates can use secureOutputs"
         }
       },
       "additionalProperties": false
