@@ -157,7 +157,7 @@ namespace Bicep.LanguageServer.Handlers
             SyntaxBase defaultValueSyntax,
             SyntaxForType.Strictness strictness)
         {
-            var expressionTypeName = SyntaxForType.GetSyntaxForType(newParamType, strictness);
+            var expressionTypeName = SyntaxForType.GetSyntaxStringForType(newParamType, strictness);
             Trace.WriteLine($"{Enum.GetName<SyntaxForType.Strictness>(strictness)}: {expressionTypeName}"); //asdfg
 
             //asdfg use syntax nodes properly
@@ -172,25 +172,6 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         private static TypeSymbol? NullIfErrorOrAnyType(TypeSymbol? type) => type is ErrorType || type is AnyType ? null : type;
-
-        //asdfg
-        //private static TypeSymbol? GetLooseTypeString(TypeSymbol? type) => type switch
-        //{
-        //    StringLiteralType => LanguageConstants.String,
-        //    IntegerLiteralType => LanguageConstants.Int,
-        //    BooleanLiteralType => LanguageConstants.Bool,
-        //    BooleanType => LanguageConstants.Bool,
-        //    IntegerType => LanguageConstants.Int,
-        //    StringType => LanguageConstants.String,
-        //    // If it's a custom object like "{ i: int, o: { i2: int } }", keep it that way.
-        //    // Otherwise, e.g. for resource types (for now) or external types like "VirtualMachineExtensionProperties"
-        //    //   that aren't recognized in Bicep code, change to Object
-        //    ObjectType when !type.Name.StartsWith('{') => LanguageConstants.Object,
-        //    TupleType => LanguageConstants.Array,
-        //    NullType => LanguageConstants.Null,
-        //    _ => null,
-        //};
-
 
         private static string FindUnusedName(Compilation compilation, int offset, string preferredName) //asdfg
         {

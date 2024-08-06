@@ -73,7 +73,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (syntax is StringSyntax stringSyntax &&
                     stringSyntax.TryGetLiteralValue() is { } literalValue)
                 {
-                    if (Lexer.IsValidIdentifier(literalValue) &&
+                    if (Lexer.IsValidIdentifier(literalValue) && //asdfgasdfg
                         // exclude non-contextual keywords like 'nul and 'true' - see https://github.com/Azure/bicep/issues/13347.
                         !LanguageConstants.NonContextualKeywords.ContainsKey(literalValue))
                     {

@@ -6,7 +6,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.TypeSystem;
 
-internal class ObjectTypeNameBuilder
+internal class ObjectTypeNameBuilder //asdfgasdfg
 {
     private readonly StringBuilder builder = new("{");
     private bool hasProperties = false;

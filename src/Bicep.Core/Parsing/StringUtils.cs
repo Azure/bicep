@@ -53,6 +53,13 @@ namespace Bicep.Core.Parsing
             return buffer.ToString();
         }
 
+        public static string FormatBicepPropertyName(string propertyName)
+        {
+            return Lexer.IsValidIdentifier(propertyName) && !LanguageConstants.NonContextualKeywords.ContainsKey(propertyName)
+                ? propertyName
+                : EscapeBicepString(propertyName);
+        }
+
         public static int CountNewlines(string value) => NewLineRegex().Matches(value).Count;
 
         public static string MatchNewline(string value) => NewLineRegex().Match(value).Value;

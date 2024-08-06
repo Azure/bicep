@@ -64,7 +64,7 @@ namespace Bicep.Core.TypeSystem
         public static TypeSymbol CreateTypeUnion(params ITypeReference[] members)
             => CreateTypeUnion((IEnumerable<ITypeReference>)members);
 
-        public static bool IsLiteralType(TypeSymbol type) => type switch
+        public static bool IsLiteralType(TypeSymbol type) => type switch //asdfgasdfg
         {
             StringLiteralType or
             IntegerLiteralType or
@@ -338,7 +338,7 @@ namespace Bicep.Core.TypeSystem
             _ => null,
         };
 
-        public static bool IsNullable(TypeSymbol type) => TryRemoveNullability(type) is not null;
+        public static bool IsNullable(TypeSymbol type) => TryRemoveNullability(type) is not null; //asdfgasdfg
 
         public static bool IsRequired(TypeProperty typeProperty)
             => typeProperty.Flags.HasFlag(TypePropertyFlags.Required) && !TypeHelper.IsNullable(typeProperty.TypeReference.Type);

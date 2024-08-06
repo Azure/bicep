@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.TypeSystem;
 using Bicep.Core;
+using Bicep.Core.Parsing;
+using static Bicep.LanguageServer.Refactor.SyntaxForType;
+using Bicep.Core.Syntax;
 
 namespace Bicep.LanguageServer.Refactor
 {
@@ -25,56 +28,54 @@ namespace Bicep.LanguageServer.Refactor
 
         //asdfg should this be creating syntax nodes?  Probably...
         //asdfg recursive types
-        public static string GetSyntaxForType(TypeSymbol? type, Strictness strictness) //asdfg test
+        public static string GetSyntaxStringForType(TypeSymbol? type, Strictness strictness) //asdfg test
         {
             //asdfg test
             return type switch
             {
-                // Strict literal types
+                // Literal types - keep as is only when strict
                 StringLiteralType
                    or IntegerLiteralType
                    or BooleanLiteralType
-                   or TupleType
-                   or UnionType
-                   when strictness == Strictness.Strict => type.Name,//asdfg ?? is type.Name good enough?
+                   when strictness == Strictness.Strict => type.Name,
 
-                // Loose/medium literal types
+                // ... otherwise widen to simple type
                 StringLiteralType => LanguageConstants.String.Name,
                 IntegerLiteralType => LanguageConstants.Int.Name,
                 BooleanLiteralType => LanguageConstants.Bool.Name,
 
-                TypedArrayType when strictness != Strictness.Loose => type.Name,
-                TypedArrayType => LanguageConstants.Array.Name,
+                TupleType when strictness == Strictness.Loose => LanguageConstants.Array.Name,
+                TupleType => type.Name, //asdfg
 
-                UnionType when strictness == Strictness.Medium => type.Name, //asdfg ?? is type.Name good enough?
-                UnionType when strictness == Strictness.Loose => LanguageConstants.String.Name, // asdfg handle other union types
+                //asdfg
+                TypedArrayType when strictness == Strictness.Loose => LanguageConstants.Array.Name,
+                TypedArrayType => type.Name,//asdfg test
+               
+
+                UnionType when strictness == Strictness.Loose =>
+                    // Widen to the item type (which are supposed to all be literal types of the same type)
+                    GetSyntaxStringForType(((UnionType)type).Members.FirstOrDefault()?.Type, strictness),
+                UnionType => type.Name,
 
                 // Non-literal types
                 BooleanType => LanguageConstants.Bool.Name,
                 IntegerType => LanguageConstants.Int.Name,
                 StringType => LanguageConstants.String.Name,
-                TupleType => LanguageConstants.Array.Name,
                 NullType => LanguageConstants.Null.Name,
 
 
                 ObjectType => GetObjectTypeString((ObjectType)type, strictness),
 
-                //asdfg
-                //// If it's a custom object like "{ i: int, o: { i2: int } }", keep it that way.
-                //// Otherwise, e.g. for resource types (for now) or external types like "VirtualMachineExtensionProperties"
-                ////   that aren't recognized in Bicep code, change to Object
-                //ObjectType when !type.Name.StartsWith('{') => LanguageConstants.Object.Name,
-                //ObjectType => GetObjectTypeString(type),
-
                 AnyType => LanguageConstants.Any.Name, //asdfg???
 
-                _ => UnknownTypeName, //asdfg
+                _ => UnknownTypeName,
             };
         }
 
+
         private static string GetObjectTypeString(ObjectType type, Strictness strictness)
         {
-            if (strictness == Strictness.Loose)
+            if (strictness == Strictness.Loose || type.Properties.Count == 0)
             {
                 return LanguageConstants.Object.Name;
             }
@@ -85,10 +86,18 @@ namespace Bicep.LanguageServer.Refactor
             // type.UnwrapArrayType
 
             //asdfg what if key needs escaping?
+            var asdfg = type.Name;
+           
             var members =
                 string.Join(", ",
-                    type.Properties.Select(p => $"{p.Key}: {GetSyntaxForType(p.Value.TypeReference.Type, strictness)}"));
+                    type.Properties.Select(p => GetFormattedTypeProperty(p.Value, strictness)));
             return $"{{ {members} }}";
+        }
+
+        private static string GetFormattedTypeProperty(TypeProperty property, Strictness strictness)
+        {
+            return
+                $"{StringUtils.FormatBicepPropertyName(property.Name)}: {GetSyntaxStringForType(property.TypeReference.Type, strictness)}";
         }
     }
 }
