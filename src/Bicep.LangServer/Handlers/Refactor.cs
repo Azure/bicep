@@ -16,12 +16,15 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Refactor;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using static Bicep.LanguageServer.Completions.BicepCompletionContext;
 using static Google.Protobuf.Reflection.ExtensionRangeOptions.Types;
 
 namespace Bicep.LanguageServer.Handlers
 {
+    // asdfg Convert var to param
+
     // Provides code actions/fixes for a range in a Bicep document
     public static class Refactor
     {
@@ -40,7 +43,7 @@ namespace Bicep.LanguageServer.Handlers
                 yield break;
             }
 
-//asdfg            PrintAllTypes(semanticModel);
+            //asdfg            PrintAllTypes(semanticModel);
 
             string? defaultNewName = null;
 
@@ -122,11 +125,11 @@ namespace Bicep.LanguageServer.Handlers
             var newParamType = NullIfErrorOrAnyType(declaredType) ?? NullIfErrorOrAnyType(inferredType);
 
             yield return CreateExtractParameterCodeFix(
-                semanticModel, newParamType, newParamName, definitionInsertionPosition, expressionSyntax, Strictness.Medium);
+                semanticModel, newParamType, newParamName, definitionInsertionPosition, expressionSyntax, SyntaxForType.Strictness.Medium);
             yield return CreateExtractParameterCodeFix(
-                semanticModel, newParamType, newParamName, definitionInsertionPosition, expressionSyntax, Strictness.Loose);
+                semanticModel, newParamType, newParamName, definitionInsertionPosition, expressionSyntax, SyntaxForType.Strictness.Loose);
             yield return CreateExtractParameterCodeFix(
-                semanticModel, newParamType, newParamName, definitionInsertionPosition, expressionSyntax, Strictness.Strict);
+                semanticModel, newParamType, newParamName, definitionInsertionPosition, expressionSyntax, SyntaxForType.Strictness.Strict);
         }
 
         private static CodeFix CreateExtractParameterCodeFix(
@@ -135,12 +138,12 @@ namespace Bicep.LanguageServer.Handlers
             string newParamName,
             int definitionInsertionPosition,
             ExpressionSyntax expressionSyntax,
-            Strictness strictness)
+            SyntaxForType.Strictness strictness)
         {
             var declaration = CreateNewParameterDeclaration(semanticModel, newParamType, newParamName, expressionSyntax, strictness);
 
             return new CodeFix(
-                $"Create parameter ({Enum.GetName<Strictness>(strictness)} for {GetQuotedExpressionText(expressionSyntax)}",
+                $"Create parameter ({Enum.GetName<SyntaxForType.Strictness>(strictness)} for {GetQuotedExpressionText(expressionSyntax)}",
                 isPreferred: false,
                 CodeFixKind.RefactorExtract,
                 new CodeReplacement(expressionSyntax.Span, newParamName),
@@ -152,10 +155,10 @@ namespace Bicep.LanguageServer.Handlers
             TypeSymbol? newParamType,
             string newParamName,
             SyntaxBase defaultValueSyntax,
-            Strictness strictness)
+            SyntaxForType.Strictness strictness)
         {
-            var expressionTypeName = GetTypeString(newParamType, strictness);
-            Trace.WriteLine($"{Enum.GetName<Strictness>(strictness)}: {expressionTypeName}"); //asdfg
+            var expressionTypeName = SyntaxForType.GetSyntaxForType(newParamType, strictness);
+            Trace.WriteLine($"{Enum.GetName<SyntaxForType.Strictness>(strictness)}: {expressionTypeName}"); //asdfg
 
             //asdfg use syntax nodes properly
             var expressionTypeIdentifier = SyntaxFactory.CreateIdentifierWithTrailingSpace(expressionTypeName);
@@ -188,83 +191,6 @@ namespace Bicep.LanguageServer.Handlers
         //    _ => null,
         //};
 
-        private const string UnknownTypeName = "unknown";
-
-        private enum Strictness
-        {
-            Loose,
-            Medium, //asdfg??
-            Strict,
-        }
-
-        //asdfg should this be creating syntax nodes?  Probably...
-        //asdfg recursive types
-        private static string GetTypeString(TypeSymbol? type, Strictness strictness)
-        {
-            //asdfg test
-            return type switch
-            {
-                // Strict literal types
-                StringLiteralType
-                   or IntegerLiteralType
-                   or BooleanLiteralType
-                   or TupleType
-                   or UnionType
-                   
-                   when strictness == Strictness.Strict => type.Name,//asdfg ?? is type.Name good enough?
-
-                // Loose/medium literal types
-                StringLiteralType => LanguageConstants.String.Name,
-                IntegerLiteralType => LanguageConstants.Int.Name,
-                BooleanLiteralType => LanguageConstants.Bool.Name,
-
-                TypedArrayType when strictness != Strictness.Loose => type.Name,
-                TypedArrayType => LanguageConstants.Array.Name,
-
-                UnionType when strictness == Strictness.Medium => type.Name, //asdfg ?? is type.Name good enough?
-                UnionType when strictness == Strictness.Loose => LanguageConstants.String.Name, // asdfg handle other union types
-
-                // Non-literal types
-                BooleanType => LanguageConstants.Bool.Name,
-                IntegerType => LanguageConstants.Int.Name,
-                StringType => LanguageConstants.String.Name,
-                TupleType => LanguageConstants.Array.Name,
-                NullType => LanguageConstants.Null.Name,
-
-
-                ObjectType => GetObjectTypeString((ObjectType)type, strictness),
-
-                //asdfg
-                //// If it's a custom object like "{ i: int, o: { i2: int } }", keep it that way.
-                //// Otherwise, e.g. for resource types (for now) or external types like "VirtualMachineExtensionProperties"
-                ////   that aren't recognized in Bicep code, change to Object
-                //ObjectType when !type.Name.StartsWith('{') => LanguageConstants.Object.Name,
-                //ObjectType => GetObjectTypeString(type),
-
-                AnyType => LanguageConstants.Any.Name, //asdfg???
-
-                _ => UnknownTypeName, //asdfg
-            };
-        }
-
-        private static string GetObjectTypeString(ObjectType type, Strictness strictness)
-        {
-            if (strictness == Strictness.Loose)
-            {
-                return LanguageConstants.Object.Name;
-            }
-
-            // asdfg??
-            //type.AdditionalPropertiesFlags
-            // type.AdditionalPropertiesType
-            // type.UnwrapArrayType
-
-            //asdfg what if key needs escaping?
-            var members =
-                string.Join(", ",
-                    type.Properties.Select(p => $"{p.Key}: {GetTypeString(p.Value.TypeReference.Type, strictness)}"));
-            return $"{{ {members} }}";
-        }
 
         private static string FindUnusedName(Compilation compilation, int offset, string preferredName) //asdfg
         {
@@ -334,7 +260,7 @@ namespace Bicep.LanguageServer.Handlers
                 var visitor = new SyntaxCollectorVisitor();
                 visitor.Visit(syntax);
 
-                return [..visitor.syntaxList];
+                return [.. visitor.syntaxList];
             }
 
             protected override void VisitInternal(SyntaxBase syntax)

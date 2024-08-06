@@ -39,6 +39,11 @@ param <<p1>> int = 2
  
  */
 
+//asdfg move new parameter/var to top
+//asdfg rename
+// asdfg multi-line formatting
+
+
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -54,6 +59,24 @@ namespace Bicep.LangServer.IntegrationTests
 
 
         [DataTestMethod]
+
+        [DataRow(
+            """
+                type superComplexType = {
+                    p: string
+                    i: 123 || 456
+                }
+                
+                param p { *: superComplexType } = {
+                    a: <<{ p: 'mystring', i: 123 }>>
+                }
+                """,
+            """
+                param a { i: int, p: string } = { p: 'mystring', i: 123 } // asdfg would prefer param superComplexType = { p: 'mystring', i: 123 }
+                param p { *: superComplexType } = {
+                  a: a
+                }
+                """)]
 
         //asdfg BUG:
         /*
