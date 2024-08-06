@@ -589,7 +589,7 @@ var partialObject = {
 @concat()
 //@[01:07) [BCP152 (Error)] Function "concat" cannot be used as a decorator. (CodeDescription: none) |concat|
 @sys.secure()
-//@[00:13) [BCP292 (Error)] Expected a parameter, output, or type declaration after the decorator. (CodeDescription: none) |@sys.secure()|
+//@[00:13) [BCP290 (Error)] Expected a parameter or type declaration after the decorator. (CodeDescription: none) |@sys.secure()|
 xxxxx
 //@[00:05) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |xxxxx|
 
