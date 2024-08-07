@@ -45,59 +45,47 @@ namespace Bicep.LanguageServer.Refactor
                 BooleanLiteralType => LanguageConstants.Bool.Name,
 
                 TupleType when strictness == Strictness.Loose => LanguageConstants.Array.Name,
-                TupleType => type.Name, //asdfg
+                TupleType tupleType => $"[{string.Join(", ", tupleType.Items.Select(tt => GetSyntaxStringForType(tt.Type, strictness)))}]",
 
-                //asdfg
                 TypedArrayType when strictness == Strictness.Loose => LanguageConstants.Array.Name,
-                TypedArrayType => type.Name,//asdfg test
-               
+                TypedArrayType typedArrayType =>
+                    $"{
+                        (typedArrayType.Item.Type is UnionType
+                            ? $"({GetSyntaxStringForType(typedArrayType.Item.Type, strictness)})"
+                            : GetSyntaxStringForType(typedArrayType.Item.Type, strictness))
+                        }[]",                    
 
-                UnionType when strictness == Strictness.Loose =>
+                UnionType unionType when strictness == Strictness.Loose =>
                     // Widen to the item type (which are supposed to all be literal types of the same type)
-                    GetSyntaxStringForType(((UnionType)type).Members.FirstOrDefault()?.Type, strictness),
+                    GetSyntaxStringForType(unionType.Members.FirstOrDefault()?.Type, strictness),
                 UnionType => type.Name,
 
-                // Non-literal types
                 BooleanType => LanguageConstants.Bool.Name,
                 IntegerType => LanguageConstants.Int.Name,
                 StringType => LanguageConstants.String.Name,
                 NullType => LanguageConstants.Null.Name,
 
 
-                ObjectType => GetObjectTypeString((ObjectType)type, strictness),
+                ObjectType objectType when (strictness == Strictness.Loose || objectType.Properties.Count == 0) => LanguageConstants.Object.Name,
+                ObjectType objectType => $"{{ {
+                    string.Join(", ", objectType.Properties.Select(p => GetFormattedTypeProperty(p.Value, strictness)))
+                } }}",
 
-                AnyType => LanguageConstants.Any.Name, //asdfg???
+                AnyType => LanguageConstants.Any.Name, //asdfg??? test
 
                 _ => UnknownTypeName,
             };
         }
 
-
-        private static string GetObjectTypeString(ObjectType type, Strictness strictness)
-        {
-            if (strictness == Strictness.Loose || type.Properties.Count == 0)
-            {
-                return LanguageConstants.Object.Name;
-            }
-
-            // asdfg??
-            //type.AdditionalPropertiesFlags
-            // type.AdditionalPropertiesType
-            // type.UnwrapArrayType
-
-            //asdfg what if key needs escaping?
-            var asdfg = type.Name;
-           
-            var members =
-                string.Join(", ",
-                    type.Properties.Select(p => GetFormattedTypeProperty(p.Value, strictness)));
-            return $"{{ {members} }}";
-        }
+        // asdfg??
+        //type.AdditionalPropertiesFlags
+        // type.AdditionalPropertiesType
+        // type.UnwrapArrayType
 
         private static string GetFormattedTypeProperty(TypeProperty property, Strictness strictness)
         {
             return
-                $"{StringUtils.FormatBicepPropertyName(property.Name)}: {GetSyntaxStringForType(property.TypeReference.Type, strictness)}";
+                $"{StringUtils.EscapeBicepPropertyName(property.Name)}: {GetSyntaxStringForType(property.TypeReference.Type, strictness)}";
         }
     }
 }

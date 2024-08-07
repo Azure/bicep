@@ -36,6 +36,12 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 bad:
 param <<p1>> int = 2
+
+
+type recursive1 = [string, recursive1?]
+param p1 recursive1 = ['a', ['b', ['c', ['d', null]]]]
+var a1 = p1
+
  
  */
 

@@ -164,10 +164,17 @@ namespace Bicep.Core.UnitTests.Assertions
         /// </summary>
         public static AndConstraint<StringAssertions> EqualIgnoringWhitespace(this StringAssertions instance, string? expected, string because = "", params object[] becauseArgs)
         {
-            var normalizedActual = instance.Subject is null ? null : new Regex("\\s*").Replace(instance.Subject, "");
-            var normalizedExpected = expected is null ? null : new Regex("\\s*").Replace(expected, "");
+            var actualStringWithoutWhitespace = instance.Subject is null ? null : new Regex("\\s*").Replace(instance.Subject, "");
+            var expectedStringWithoutWhitespace = expected is null ? null : new Regex("\\s*").Replace(expected, "");
 
-            normalizedActual.Should().Be(normalizedExpected, because, becauseArgs);
+            using (new AssertionScope()) {
+                Execute.Assertion
+                    .BecauseOf(because, becauseArgs)
+                    .ForCondition(string.Equals(expectedStringWithoutWhitespace, actualStringWithoutWhitespace, StringComparison.Ordinal))
+                    .FailWith("Expected {context:string} to be {0}{reason} when ignoring whitespace, but found {1}.  See next message for details.", expected, instance.Subject);
+
+                actualStringWithoutWhitespace.Should().Be(expectedStringWithoutWhitespace);
+            }
 
             return new AndConstraint<StringAssertions>(instance);
         }

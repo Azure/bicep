@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Parsing
 {
@@ -13,6 +14,7 @@ namespace Bicep.Core.Parsing
         [GeneratedRegex(@"(\r\n|\r|\n)")]
         private static partial Regex NewLineRegex();
 
+        //asdfg move?
         public static string EscapeBicepString(string value)
             => EscapeBicepString(value, "'", "'");
 
@@ -53,11 +55,14 @@ namespace Bicep.Core.Parsing
             return buffer.ToString();
         }
 
-        public static string FormatBicepPropertyName(string propertyName)
+        public static bool IsPropertyNameEscapingRequired(string propertyName) =>
+            !Lexer.IsValidIdentifier(propertyName) || LanguageConstants.NonContextualKeywords.ContainsKey(propertyName);
+
+        public static string EscapeBicepPropertyName(string propertyName)
         {
-            return Lexer.IsValidIdentifier(propertyName) && !LanguageConstants.NonContextualKeywords.ContainsKey(propertyName)
-                ? propertyName
-                : EscapeBicepString(propertyName);
+            return IsPropertyNameEscapingRequired(propertyName)
+                ? EscapeBicepString(propertyName)
+                : propertyName;
         }
 
         public static int CountNewlines(string value) => NewLineRegex().Matches(value).Count;
