@@ -1073,11 +1073,10 @@
       },
       "Serilog.Sinks.TextWriter": {
         "type": "Transitive",
-        "resolved": "2.1.0",
-        "contentHash": "rgDZVwl68RqOFogKO27RbYLlwCQehjUQv4gimLT/Fd7dYV7XRVtWTp73BJphjWgVq4DP8trv1ta9Ork5H8oDXw==",
+        "resolved": "3.0.0",
+        "contentHash": "K0by195kCAJTqlgP+2MjVpulpLKiZ7s7lk7UugGdRMY7DBsQZ6HEbwHeiEls9lSp6/8L1fDygZkSuYuMiFmq4w==",
         "dependencies": {
-          "Serilog": "2.0.0",
-          "System.IO": "4.1.0"
+          "Serilog": "4.0.0"
         }
       },
       "SharpYaml": {
@@ -1740,7 +1739,7 @@
           "Microsoft.Extensions.Logging": "[8.0.0, )",
           "Serilog.Extensions.Hosting": "[8.0.0, )",
           "Serilog.Sinks.Console": "[6.0.0, )",
-          "Serilog.Sinks.TextWriter": "[2.1.0, )",
+          "Serilog.Sinks.TextWriter": "[3.0.0, )",
           "System.CommandLine": "[2.0.0-beta4.22272.1, )",
           "System.CommandLine.Hosting": "[0.4.0-alpha.22272.1, )",
           "System.CommandLine.NamingConventionBinder": "[2.0.0-beta4.22272.1, )",
