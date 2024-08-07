@@ -141,6 +141,6 @@ public class SecureOutputsTests
         );
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveValueAtPath("$.outputs['bar'].value", "[listOutputWithSecureValues(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').bar]");
+        result.Template.Should().HaveValueAtPath("$.outputs['bar'].value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').bar]");
     }
 }

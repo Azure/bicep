@@ -18,6 +18,8 @@ namespace Bicep.Core.Emit
 {
     public class ExpressionConverter
     {
+        private const string secureOutputsApi = "listOutputsWithSecureValues";
+
         private readonly EmitterContext context;
         private readonly ExpressionBuilder expressionBuilder;
 
@@ -236,7 +238,7 @@ namespace Bicep.Core.Emit
 
             if (expression is ModuleOutputPropertyAccessExpression)
             {
-                var isSecureOutput = @base is FunctionExpression functionExpression && functionExpression.Function == "listOutputWithSecureValues";
+                var isSecureOutput = @base is FunctionExpression functionExpression && functionExpression.Function == secureOutputsApi;
 
                 if (safeAccess)
                 {
@@ -244,7 +246,7 @@ namespace Bicep.Core.Emit
                     //   - conditional outputs (where the accessed property will be omitted from the `outputs` object)
                     //   - outputs with a null value (where the accessed property will be present in the `outputs` object, but its `value` property will be omitted)
                     @base = CreateFunction("tryGet", @base.AsEnumerable().Concat(properties));
-                    properties = new[] { new JTokenExpression("value") };
+                    properties = isSecureOutput ? Enumerable.Empty<LanguageExpression>() : new[] { new JTokenExpression("value") };
                 }
                 else
                 {
@@ -421,7 +423,7 @@ namespace Bicep.Core.Emit
                     {
                         var deploymentResourceId = GetFullyQualifiedResourceId(moduleSymbol);
                         var apiVersion = new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion);
-                        return (CreateFunction("listOutputWithSecureValues",deploymentResourceId,apiVersion),
+                        return (CreateFunction(secureOutputsApi, deploymentResourceId,apiVersion),
                             Enumerable.Empty<LanguageExpression>(), expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess));
                     }
 
