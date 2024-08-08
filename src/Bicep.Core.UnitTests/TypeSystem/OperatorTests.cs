@@ -284,7 +284,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Case(BinaryOperator.Multiply, TypeFactory.CreateIntegerLiteralType(10), TypeFactory.CreateIntegerLiteralType(10), TypeFactory.CreateIntegerLiteralType(100)),
                 Case(BinaryOperator.Multiply, TypeFactory.CreateIntegerLiteralType(long.MaxValue), TypeFactory.CreateIntegerLiteralType(long.MaxValue), LanguageConstants.Int,
                     new DiagnosticMatcherData(DiagnosticLevel.Warning, "BCP234",
-                        "The ARM function \"mul\" failed when invoked on the value [9223372036854775807, 9223372036854775807]: The template language function 'mul' overflowed with the operands '9223372036854775807' and '9223372036854775807'. Please see https://aka.ms/arm-functions for usage details.")),
+                        "The ARM function \"mul\" failed when invoked on the value [9223372036854775807, 9223372036854775807]: The template language function 'mul' overflowed with the operants '9223372036854775807' and '9223372036854775807'. Please see https://aka.ms/arm-functions for usage details.")),
 
                 // /
                 Case(BinaryOperator.Divide, LanguageConstants.Int, LanguageConstants.Int, LanguageConstants.Int),
