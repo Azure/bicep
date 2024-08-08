@@ -73,6 +73,7 @@ namespace Bicep.LanguageServer.Refactor
 
                 AnyType => LanguageConstants.Any.Name, //asdfg??? test
 
+                ErrorType => LanguageConstants.ErrorName,
                 _ => UnknownTypeName,
             };
         }

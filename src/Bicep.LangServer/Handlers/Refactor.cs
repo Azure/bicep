@@ -26,7 +26,7 @@ namespace Bicep.LanguageServer.Handlers
     // asdfg Convert var to param
 
     // Provides code actions/fixes for a range in a Bicep document
-    public static class Refactor
+    public static class Refactor //asdfg move file, rename to ExtractVarAndParam
     {
         private const int MaxExpressionLengthInAction = 100;
 
@@ -43,7 +43,7 @@ namespace Bicep.LanguageServer.Handlers
                 yield break;
             }
 
-            //asdfg            PrintAllTypes(semanticModel);
+            PrintAllTypes(semanticModel);
 
             string? defaultNewName = null;
 
@@ -199,18 +199,18 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         //asdfg: remove
-        //private static void PrintAllTypes(SemanticModel semanticModel)
-        //{
-        //    var asdfg = SyntaxCollectorVisitor.Build(semanticModel.Root.Syntax);
-        //    foreach (var node1 in asdfg.Where(s => s.Syntax is not Token))
-        //    {
-        //        //asdfg
-        //        var node = node1.Syntax;
-        //        Trace.WriteLine($"** {node.GetDebuggerDisplay().ReplaceNewlines(" ").TruncateWithEllipses(150)}");
-        //        Trace.WriteLine($"  ... type info: {semanticModel.GetTypeInfo(node).Name}");
-        //        Trace.WriteLine($"  ... declared type: {semanticModel.GetDeclaredType(node)?.Name}");
-        //    }
-        //}
+        private static void PrintAllTypes(SemanticModel semanticModel)
+        {
+            var asdfg = SyntaxCollectorVisitor.Build(semanticModel.Root.Syntax);
+            foreach (var node1 in asdfg.Where(s => s.Syntax is not Token))
+            {
+                //asdfg
+                var node = node1.Syntax;
+                Trace.WriteLine($"** {node.GetDebuggerDisplay().ReplaceNewlines(" ").TruncateWithEllipses(150)}");
+                Trace.WriteLine($"  ... type info: {semanticModel.GetTypeInfo(node).Name}");
+                Trace.WriteLine($"  ... declared type: {semanticModel.GetDeclaredType(node)?.Name}");
+            }
+        }
 
         //asdfg: remove
         public class SyntaxCollectorVisitor : CstVisitor
