@@ -81,9 +81,9 @@ namespace Bicep.LanguageServer.Handlers
                 if (!string.IsNullOrEmpty(template))
                 {
                     JToken jtoken = template.FromJson<JToken>();
-                    if (TemplateHelpers.TryGetTemplateGeneratorObject(jtoken, out DeploymentTemplateGeneratorMetadata generator))
+                    if (TemplateHelpers.TryGetTemplateGeneratorObject(jtoken, out DeploymentTemplateGeneratorMetadata? generator))
                     {
-                        if (generator.Name == "bicep")
+                        if (generator?.Name == "bicep")
                         {
                             return true;
                         }

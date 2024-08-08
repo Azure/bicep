@@ -108,7 +108,7 @@ export class DeployCommand implements Command {
       const fileName = path.basename(documentPath, ".bicep");
       const options = {
         title: `Please enter name for deployment`,
-        value: fileName.concat("-", moment.utc().format("YYMMDD-HHMM")),
+        value: fileName.concat("-", moment.utc().format("YYMMDD-HHmm")),
       };
       let deploymentName = await context.ui.showInputBox(options);
       // Replace special characters with '_'
