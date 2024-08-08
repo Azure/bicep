@@ -47,7 +47,6 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
         {
             var sut = CreateGenerateCommand(fileSystemBeforeGeneration);
 
-
             for (int i = 0; i < 2; i++)
             {
                 await sut.InvokeAsync("");
