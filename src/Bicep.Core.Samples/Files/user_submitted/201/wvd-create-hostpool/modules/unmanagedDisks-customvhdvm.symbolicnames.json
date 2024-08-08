@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17419355184121949173"
+      "templateHash": "6562596862556652789"
     }
   },
   "parameters": {
@@ -33,7 +33,7 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "The name of avaiability set to be used when create the VMs."
+        "description": "The name of availability set to be used when create the VMs."
       }
     },
     "availabilityZone": {

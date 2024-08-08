@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18300915462242659286"
+      "templateHash": "11093856560557107596"
     },
     "name": "Sample module",
     "description": "Sample description",
@@ -151,7 +151,7 @@
     "osDiskSizeGB": {
       "$ref": "#/definitions/DiskSizeGB",
       "metadata": {
-        "description": "Override default describtion"
+        "description": "Override default description"
       },
       "value": "[parameters('osDiskSizeGB')]"
     }

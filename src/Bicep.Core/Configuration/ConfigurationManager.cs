@@ -159,7 +159,7 @@ namespace Bicep.Core.Configuration
                     }
                     catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or SecurityException)
                     {
-                        // The exception could happen in senarios where users may not have read permission on the parent folder.
+                        // The exception could happen in scenarios where users may not have read permission on the parent folder.
                         // We should not throw ConfigurationException in such cases since it will block compilation.
                         lookupDiagnostic = x => x.PotentialConfigDirectoryCouldNotBeScanned(currentDirectory, exception.Message);
                         break;

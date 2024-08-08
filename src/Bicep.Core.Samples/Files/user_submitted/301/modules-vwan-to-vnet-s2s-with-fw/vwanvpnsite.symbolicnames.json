@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15554866133565502743"
+      "templateHash": "7540302005305677536"
     }
   },
   "parameters": {
@@ -20,25 +20,25 @@
     "addressprefix": {
       "type": "string",
       "metadata": {
-        "description": "Specifices the VPN Sites local IP Addresses"
+        "description": "Specifies the VPN Sites local IP Addresses"
       }
     },
     "bgppeeringpddress": {
       "type": "string",
       "metadata": {
-        "description": "Specifices the VPN Sites BGP Peering IP Addresses"
+        "description": "Specifies the VPN Sites BGP Peering IP Addresses"
       }
     },
     "ipaddress": {
       "type": "string",
       "metadata": {
-        "description": "Specifices the VPN Sites VPN Device IP Address"
+        "description": "Specifies the VPN Sites VPN Device IP Address"
       }
     },
     "wanid": {
       "type": "string",
       "metadata": {
-        "description": "Specifices the resource ID of the Virtual WAN where the VPN Site should be created"
+        "description": "Specifies the resource ID of the Virtual WAN where the VPN Site should be created"
       }
     },
     "remotesiteasn": {

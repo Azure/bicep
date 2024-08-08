@@ -556,7 +556,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remove unneccessary dependsOn.
+        ///   Looks up a localized string similar to Remove unnecessary dependsOn.
         /// </summary>
         internal static string NoUnnecessaryDependsOnRuleCodeFix {
             get {

@@ -13,13 +13,13 @@ using OmniSharpRange = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
 namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
 {
     [TestClass]
-    public class HandleGotoDefintionMiddleLayerTests
+    public class HandleGotoDefinitionMiddleLayerTests
     {
         [TestMethod]
         [Obsolete] // TODO: Fix obsolete errors properly
         public void GetVSLocations_WithValidLocation_ShouldReturnVSLocation()
         {
-            var handleGotoDefintionMiddleLayer = new HandleGotoDefinitionMiddleLayer();
+            var handleGotoDefinitionMiddleLayer = new HandleGotoDefinitionMiddleLayer();
             var uri = DocumentUri.From("some_path");
             var omniSharpLocation = new OmniSharpLocation
             {
@@ -32,7 +32,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
             };
             var locationOrLocationLink = new LocationOrLocationLink(omniSharpLocation);
 
-            var vsLocation = handleGotoDefintionMiddleLayer.GetVSLocation(locationOrLocationLink);
+            var vsLocation = handleGotoDefinitionMiddleLayer.GetVSLocation(locationOrLocationLink);
 
             Assert.IsNotNull(vsLocation);
             vsLocation.Uri.Should().Be(uri.ToUriEncoded());
@@ -50,7 +50,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         [Obsolete] // TODO: Fix obsolete errors properly
         public void GetVSLocations_WithValidLocationLink_ShouldReturnVSLocation()
         {
-            var handleGotoDefintionMiddleLayer = new HandleGotoDefinitionMiddleLayer();
+            var handleGotoDefinitionMiddleLayer = new HandleGotoDefinitionMiddleLayer();
             var uri = DocumentUri.From("some_path");
             var omniSharpLocationLink = new LocationLink
             {
@@ -73,7 +73,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
             };
             var locationOrLocationLink = new LocationOrLocationLink(omniSharpLocationLink);
 
-            var vsLocation = handleGotoDefintionMiddleLayer.GetVSLocation(locationOrLocationLink);
+            var vsLocation = handleGotoDefinitionMiddleLayer.GetVSLocation(locationOrLocationLink);
 
             Assert.IsNotNull(vsLocation);
             vsLocation.Uri.Should().Be(uri.ToUriEncoded());

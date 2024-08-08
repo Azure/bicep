@@ -17,7 +17,7 @@ namespace Bicep.LangServer.UnitTests
     {
 
         [TestMethod]
-        public void CreateOmnisharpDiagnosticWithCodeDesription()
+        public void CreateOmnisharpDiagnosticWithCodeDescription()
         {
             var sampleUri = new Uri("https://aka.ms/this/is/a/test");
             var analyzerName = "unit test";
@@ -47,7 +47,7 @@ namespace Bicep.LangServer.UnitTests
         }
 
         [TestMethod]
-        public void CreateOmnisharpDiagnosticWithoutCodeDesription()
+        public void CreateOmnisharpDiagnosticWithoutCodeDescription()
         {
             var analyzerName = "unit test";
             IEnumerable<IDiagnostic> diags = new[]

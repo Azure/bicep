@@ -52,13 +52,13 @@ metadata missingValueAndType =
 //@[31:031) | └─SkippedTriviaSyntax
 //@[31:035) ├─Token(NewLine) |\r\n\r\n|
 
-metadata missingAssignment 'noAssingmentOperator'
+metadata missingAssignment 'noAssignmentOperator'
 //@[00:049) ├─MetadataDeclarationSyntax
 //@[00:008) | ├─Token(Identifier) |metadata|
 //@[09:026) | ├─IdentifierSyntax
 //@[09:026) | | └─Token(Identifier) |missingAssignment|
 //@[27:049) | ├─SkippedTriviaSyntax
-//@[27:049) | | └─Token(StringComplete) |'noAssingmentOperator'|
+//@[27:049) | | └─Token(StringComplete) |'noAssignmentOperator'|
 //@[49:049) | └─SkippedTriviaSyntax
 //@[49:053) ├─Token(NewLine) |\r\n\r\n|
 

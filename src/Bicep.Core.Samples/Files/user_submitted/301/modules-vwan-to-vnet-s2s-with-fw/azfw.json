@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13061494399356137884"
+      "templateHash": "4203779018786152000"
     }
   },
   "parameters": {
@@ -18,18 +18,18 @@
     },
     "fwtype": {
       "type": "string",
-      "metadata": {
-        "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
-      },
       "allowedValues": [
         "VNet",
         "vWAN"
-      ]
+      ],
+      "metadata": {
+        "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
+      }
     },
     "fwpolicyid": {
       "type": "string",
       "metadata": {
-        "description": "Resoruce ID to the Firewall Policy to associate with the Azure Firewall"
+        "description": "Resource ID to the Firewall Policy to associate with the Azure Firewall"
       }
     },
     "hubid": {

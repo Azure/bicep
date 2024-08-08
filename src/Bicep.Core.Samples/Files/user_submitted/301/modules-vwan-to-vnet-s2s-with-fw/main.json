@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2774264600477280928"
+      "templateHash": "5134441768256836026"
     }
   },
   "parameters": {
@@ -778,7 +778,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13061494399356137884"
+              "templateHash": "4203779018786152000"
             }
           },
           "parameters": {
@@ -802,7 +802,7 @@
             "fwpolicyid": {
               "type": "string",
               "metadata": {
-                "description": "Resoruce ID to the Firewall Policy to associate with the Azure Firewall"
+                "description": "Resource ID to the Firewall Policy to associate with the Azure Firewall"
               }
             },
             "hubid": {
@@ -1270,7 +1270,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13061494399356137884"
+              "templateHash": "4203779018786152000"
             }
           },
           "parameters": {
@@ -1294,7 +1294,7 @@
             "fwpolicyid": {
               "type": "string",
               "metadata": {
-                "description": "Resoruce ID to the Firewall Policy to associate with the Azure Firewall"
+                "description": "Resource ID to the Firewall Policy to associate with the Azure Firewall"
               }
             },
             "hubid": {
@@ -1528,7 +1528,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8505973820543281231"
+              "templateHash": "16392076717328558760"
             }
           },
           "parameters": {
@@ -1542,25 +1542,25 @@
             "addressprefix": {
               "type": "string",
               "metadata": {
-                "description": "Specifices the VPN Sites local IP Addresses"
+                "description": "Specifies the VPN Sites local IP Addresses"
               }
             },
             "bgppeeringpddress": {
               "type": "string",
               "metadata": {
-                "description": "Specifices the VPN Sites BGP Peering IP Addresses"
+                "description": "Specifies the VPN Sites BGP Peering IP Addresses"
               }
             },
             "ipaddress": {
               "type": "string",
               "metadata": {
-                "description": "Specifices the VPN Sites VPN Device IP Address"
+                "description": "Specifies the VPN Sites VPN Device IP Address"
               }
             },
             "wanid": {
               "type": "string",
               "metadata": {
-                "description": "Specifices the resource ID of the Virtual WAN where the VPN Site should be created"
+                "description": "Specifies the resource ID of the Virtual WAN where the VPN Site should be created"
               }
             },
             "remotesiteasn": {
@@ -1731,7 +1731,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14339240566669068445"
+              "templateHash": "16400262183732912885"
             }
           },
           "parameters": {
@@ -1749,25 +1749,25 @@
             "addressprefixes": {
               "type": "array",
               "metadata": {
-                "description": "Specifices the address prefixes of the remote site"
+                "description": "Specifies the address prefixes of the remote site"
               }
             },
             "bgppeeringpddress": {
               "type": "string",
               "metadata": {
-                "description": "Specifices the VPN Sites BGP Peering IP Addresses"
+                "description": "Specifies the VPN Sites BGP Peering IP Addresses"
               }
             },
             "gwipaddress": {
               "type": "string",
               "metadata": {
-                "description": "Specifices the VPN Sites VPN Device IP Address"
+                "description": "Specifies the VPN Sites VPN Device IP Address"
               }
             },
             "vpngwid": {
               "type": "string",
               "metadata": {
-                "description": "Specifices the resource ID of the VPN Gateway to connect to the site to site vpn"
+                "description": "Specifies the resource ID of the VPN Gateway to connect to the site to site vpn"
               }
             },
             "psk": {

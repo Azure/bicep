@@ -11,8 +11,8 @@ public class ImportedFunctionSymbol : ImportedSymbol<ExportedFunctionMetadata>, 
 {
     private readonly Lazy<FunctionOverload> overloadLazy;
 
-    public ImportedFunctionSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, ExportedFunctionMetadata exportedFunctionMetadata)
-        : base(context, declaringSyntax, enclosingDeclartion, sourceModel, exportedFunctionMetadata)
+    public ImportedFunctionSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclaration, ISemanticModel sourceModel, ExportedFunctionMetadata exportedFunctionMetadata)
+        : base(context, declaringSyntax, enclosingDeclaration, sourceModel, exportedFunctionMetadata)
     {
         overloadLazy = new(() => TypeHelper.OverloadWithResolvedTypes(new(context.Binder), exportedFunctionMetadata));
     }

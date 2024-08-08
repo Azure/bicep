@@ -18,7 +18,7 @@ namespace Bicep.Cli.Services
     {
         public int TotalEvaluations => Results.Length;
 
-        public int SuccessfullEvaluations => Results.Count(x => x.Result.Success);
+        public int SuccessfulEvaluations => Results.Count(x => x.Result.Success);
 
         public int FailedEvaluations => Results.Count(x => !x.Result.Success);
 

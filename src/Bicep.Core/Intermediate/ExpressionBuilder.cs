@@ -59,9 +59,9 @@ public class ExpressionBuilder
 
     public Expression Convert(SyntaxBase syntax)
     {
-        var expresion = ConvertWithoutLowering(syntax);
+        var expression = ConvertWithoutLowering(syntax);
 
-        return ExpressionLoweringVisitor.Lower(expresion);
+        return ExpressionLoweringVisitor.Lower(expression);
     }
 
     private Expression ConvertWithoutLowering(SyntaxBase syntax)
@@ -673,7 +673,7 @@ public class ExpressionBuilder
         //
         // Children inherit the conditions of their parents, etc. This avoids a problem
         // where we emit a dependsOn to something that's not in the template, or not
-        // being evaulated in the template.
+        // being evaluated in the template.
         var ancestors = this.Context.SemanticModel.ResourceAncestors.GetAncestors(resource);
         foreach (var ancestor in ancestors)
         {

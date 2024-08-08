@@ -508,8 +508,8 @@ module moduleB './moduleB.bicep' = {
 ",
             };
 
-            var diagsReceieved = new List<PublishDiagnosticsParams>();
-            var document = BicepCompilationManagerHelper.CreateMockDocument(p => diagsReceieved.Add(p));
+            var diagsReceived = new List<PublishDiagnosticsParams>();
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => diagsReceived.Add(p));
             var server = BicepCompilationManagerHelper.CreateMockServer(document);
 
             var fileResolver = new InMemoryFileResolver(fileDict);
@@ -535,7 +535,7 @@ module moduleB './moduleB.bicep' = {
                 linterRulesProvider,
                 BicepTestConstants.FileResolver);
 
-            diagsReceieved.Should().BeEmpty();
+            diagsReceived.Should().BeEmpty();
 
             IReadOnlyDictionary<Uri, Compilation> GetCompilations() => new Dictionary<Uri, Compilation>
             {
@@ -559,10 +559,10 @@ module moduleB './moduleB.bicep' = {
             {
                 compilationManager.OpenCompilation(uris.main, 1, fileDict[uris.main], "bicep");
 
-                diagsReceieved.Should().SatisfyRespectively(
+                diagsReceived.Should().SatisfyRespectively(
                     x => x.Uri.ToUriEncoded().Should().Be(uris.main)
                 );
-                diagsReceieved.Clear();
+                diagsReceived.Clear();
             }
 
             // open all files
@@ -570,7 +570,7 @@ module moduleB './moduleB.bicep' = {
                 compilationManager.OpenCompilation(uris.moduleA, 1, fileDict[uris.moduleA], "bicep");
                 compilationManager.OpenCompilation(uris.moduleB, 1, fileDict[uris.moduleB], "bicep");
                 compilationManager.OpenCompilation(uris.moduleC, 1, fileDict[uris.moduleC], "bicep");
-                diagsReceieved.Clear();
+                diagsReceived.Clear();
 
                 EnsureSemanticModelsAndSourceFilesDeduplicated();
             }
@@ -579,11 +579,11 @@ module moduleB './moduleB.bicep' = {
             {
                 compilationManager.OpenCompilation(uris.moduleA, 2, fileDict[uris.moduleA], "bicep");
 
-                diagsReceieved.Should().SatisfyRespectively(
+                diagsReceived.Should().SatisfyRespectively(
                     x => x.Uri.ToUriEncoded().Should().Be(uris.moduleA),
                     x => x.Uri.ToUriEncoded().Should().Be(uris.main)
                 );
-                diagsReceieved.Clear();
+                diagsReceived.Clear();
 
                 var compilations = GetCompilations();
                 var moduleBSource = compilations[uris.moduleB].SourceFileGrouping.EntryPoint;
@@ -599,11 +599,11 @@ module moduleB './moduleB.bicep' = {
             {
                 compilationManager.OpenCompilation(uris.moduleC, 2, fileDict[uris.moduleC], "bicep");
 
-                diagsReceieved.Should().SatisfyRespectively(
+                diagsReceived.Should().SatisfyRespectively(
                     x => x.Uri.ToUriEncoded().Should().Be(uris.moduleC),
                     x => x.Uri.ToUriEncoded().Should().Be(uris.main)
                 );
-                diagsReceieved.Clear();
+                diagsReceived.Clear();
 
                 EnsureSemanticModelsAndSourceFilesDeduplicated();
             }
@@ -612,10 +612,10 @@ module moduleB './moduleB.bicep' = {
             {
                 compilationManager.OpenCompilation(uris.main, 3, fileDict[uris.main], "bicep");
 
-                diagsReceieved.Should().SatisfyRespectively(
+                diagsReceived.Should().SatisfyRespectively(
                     x => x.Uri.ToUriEncoded().Should().Be(uris.main)
                 );
-                diagsReceieved.Clear();
+                diagsReceived.Clear();
 
                 EnsureSemanticModelsAndSourceFilesDeduplicated();
             }

@@ -12,7 +12,7 @@ public static class SyntaxExtensions
     private static TypeProperty? TryGetTypeProperty(SemanticModel model, SyntaxBase objectSyntax, string propertyName)
     {
         // Cannot use assigned type here because it won't handle the case where the property value
-        // is an array accesss or a string interpolation.
+        // is an array access or a string interpolation.
         return model.TypeManager.GetDeclaredType(objectSyntax) switch
         {
             ObjectType { Properties: var properties }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9016440230757337651"
+      "templateHash": "13329550984881458583"
     }
   },
   "parameters": {
@@ -18,7 +18,7 @@
     "sshRSAPublicKey": {
       "type": "string"
     },
-    "servcePrincipalClientId": {
+    "servicePrincipalClientId": {
       "type": "securestring"
     },
     "servicePrincipalClientSecret": {
@@ -35,14 +35,14 @@
     "osDiskSizeGB": {
       "type": "int",
       "defaultValue": 0,
-      "maxValue": 1023,
-      "minValue": 0
+      "minValue": 0,
+      "maxValue": 1023
     },
     "agentCount": {
       "type": "int",
       "defaultValue": 3,
-      "maxValue": 50,
-      "minValue": 1
+      "minValue": 1,
+      "maxValue": 50
     },
     "agentVMSize": {
       "type": "string",
@@ -77,7 +77,7 @@
           }
         },
         "servicePrincipalProfile": {
-          "clientId": "[parameters('servcePrincipalClientId')]",
+          "clientId": "[parameters('servicePrincipalClientId')]",
           "secret": "[parameters('servicePrincipalClientSecret')]"
         }
       }

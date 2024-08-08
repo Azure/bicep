@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14278942243521340475"
+      "templateHash": "3374352344527551547"
     }
   },
   "definitions": {
@@ -42,7 +42,7 @@
         }
       }
     },
-    "strangeFormattings": {
+    "strangeFormatting": {
       "type": "object",
       "properties": {
         "test": {

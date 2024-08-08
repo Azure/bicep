@@ -1271,7 +1271,7 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Importing_a_name_that_refers_to_mulitple_exports_should_raise_diagnostic()
+    public void Importing_a_name_that_refers_to_multiple_exports_should_raise_diagnostic()
     {
         var result = CompilationHelper.Compile(
             ("main.bicep", """

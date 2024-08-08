@@ -5,7 +5,7 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Analyzers.Interfaces
 {
-    public interface IBicepAnalyerFixableDiagnostic : IDiagnostic, IFixable
+    public interface IBicepAnalyzerFixableDiagnostic : IDiagnostic, IFixable
     {
     }
 }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9132068450143405321"
+      "templateHash": "4610187181164377132"
     }
   },
   "parameters": {
@@ -46,7 +46,7 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "The name of the workspace to be attach to new Applicaiton Group."
+        "description": "The name of the workspace to be attach to new Application Group."
       }
     },
     "workspaceLocation": {
@@ -120,7 +120,7 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "The name of avaiability set to be used when create the VMs."
+        "description": "The name of availability set to be used when create the VMs."
       }
     },
     "createAvailabilitySet": {
@@ -156,7 +156,7 @@
         20
       ],
       "metadata": {
-        "description": "The platform update domain count of avaiability set to be created."
+        "description": "The platform update domain count of availability set to be created."
       }
     },
     "availabilitySetFaultDomainCount": {
@@ -168,7 +168,7 @@
         3
       ],
       "metadata": {
-        "description": "The platform fault domain count of avaiability set to be created."
+        "description": "The platform fault domain count of availability set to be created."
       }
     },
     "availabilityZone": {
@@ -461,7 +461,7 @@
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Whether to use validation enviroment."
+        "description": "Whether to use validation environment."
       }
     },
     "preferredAppGroupType": {
@@ -837,7 +837,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5496671400759637143"
+              "templateHash": "907235324145397886"
             }
           },
           "parameters": {
@@ -864,7 +864,7 @@
               "type": "string",
               "defaultValue": "",
               "metadata": {
-                "description": "The name of avaiability set to be used when create the VMs."
+                "description": "The name of availability set to be used when create the VMs."
               }
             },
             "availabilityZone": {
@@ -1523,7 +1523,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12820056084073504429"
+              "templateHash": "7197265589075352462"
             }
           },
           "parameters": {
@@ -1550,7 +1550,7 @@
               "type": "string",
               "defaultValue": "",
               "metadata": {
-                "description": "The name of avaiability set to be used when create the VMs."
+                "description": "The name of availability set to be used when create the VMs."
               }
             },
             "availabilityZone": {
@@ -2194,7 +2194,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5275119469596650755"
+              "templateHash": "13465518065116705754"
             }
           },
           "parameters": {
@@ -2221,7 +2221,7 @@
               "type": "string",
               "defaultValue": "",
               "metadata": {
-                "description": "The name of avaiability set to be used when create the VMs."
+                "description": "The name of availability set to be used when create the VMs."
               }
             },
             "availabilityZone": {
@@ -2861,7 +2861,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "951626561695186356"
+              "templateHash": "13067940537263603097"
             }
           },
           "parameters": {
@@ -2888,7 +2888,7 @@
               "type": "string",
               "defaultValue": "",
               "metadata": {
-                "description": "The name of avaiability set to be used when create the VMs."
+                "description": "The name of availability set to be used when create the VMs."
               }
             },
             "availabilityZone": {

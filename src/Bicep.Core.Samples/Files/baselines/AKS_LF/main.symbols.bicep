@@ -7,8 +7,8 @@ param sshRSAPublicKey string
 //@[6:21) Parameter sshRSAPublicKey. Type: string. Declaration start char: 0, length: 28
 
 @secure()
-param servcePrincipalClientId string
-//@[6:29) Parameter servcePrincipalClientId. Type: string. Declaration start char: 0, length: 46
+param servicePrincipalClientId string
+//@[6:30) Parameter servicePrincipalClientId. Type: string. Declaration start char: 0, length: 47
 
 @secure()
 param servicePrincipalClientSecret string
@@ -35,7 +35,7 @@ param agentVMSize string = 'Standard_DS2_v2'
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
 
 resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
-//@[9:12) Resource aks. Type: Microsoft.ContainerService/managedClusters@2020-03-01. Declaration start char: 0, length: 825
+//@[9:12) Resource aks. Type: Microsoft.ContainerService/managedClusters@2020-03-01. Declaration start char: 0, length: 826
     name: clusterName
     location: location
     properties: {
@@ -60,11 +60,12 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
             }
         }
         servicePrincipalProfile: {
-            clientId: servcePrincipalClientId
+            clientId: servicePrincipalClientId
             secret: servicePrincipalClientSecret
         }
     }
 }
 
 // fyi - dot property access (aks.fqdn) has not been spec'd
-//output controlPlaneFQDN string = aks.properties.fqdn 
+//output controlPlaneFQDN string = aks.properties.fqdn
+

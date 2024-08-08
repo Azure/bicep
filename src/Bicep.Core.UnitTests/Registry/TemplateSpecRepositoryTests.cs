@@ -57,7 +57,7 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [TestMethod]
-        public async Task FindTemplateSpecByIdAsync_TemlateSpecFound_ReturnsTemplateSpec()
+        public async Task FindTemplateSpecByIdAsync_TemplateSpecFound_ReturnsTemplateSpec()
         {
             var data = new TemplateSpecVersionData("westus");
             var content = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });

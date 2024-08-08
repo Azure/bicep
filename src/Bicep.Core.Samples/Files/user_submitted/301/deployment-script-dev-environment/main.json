@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17567947960576152813"
+      "templateHash": "682755921336611479"
     }
   },
   "parameters": {
@@ -193,7 +193,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12360193174347893668"
+              "templateHash": "3787686062478122116"
             }
           },
           "parameters": {
@@ -215,7 +215,7 @@
               "type": "string",
               "defaultValue": "",
               "metadata": {
-                "description": "Use to overide the version to use for Azure CLI or AzurePowerShell"
+                "description": "Use to override the version to use for Azure CLI or AzurePowerShell"
               }
             },
             "mountPath": {

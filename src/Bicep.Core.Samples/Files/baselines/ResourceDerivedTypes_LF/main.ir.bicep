@@ -1,5 +1,5 @@
 type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
-//@[00:1215) ProgramExpression
+//@[00:1214) ProgramExpression
 //@[00:0072) ├─DeclaredTypeExpression { Name = foo }
 //@[11:0072) | └─TypeReferencePropertyAccessExpression { Name = string }
 //@[11:0067) |   └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
@@ -24,9 +24,9 @@ type test = {
 //@[08:0071) |       └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
 }
 
-type strangeFormattings = {
-//@[00:0273) ├─DeclaredTypeExpression { Name = strangeFormattings }
-//@[26:0273) | └─ObjectTypeExpression { Name = { test: string, test2: string, test3: string } }
+type strangeFormatting = {
+//@[00:0272) ├─DeclaredTypeExpression { Name = strangeFormatting }
+//@[25:0272) | └─ObjectTypeExpression { Name = { test: string, test2: string, test3: string } }
   test: resource<
 //@[02:0080) |   ├─ObjectTypePropertyExpression
 //@[08:0080) |   | └─TypeReferencePropertyAccessExpression { Name = string }

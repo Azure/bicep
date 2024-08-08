@@ -12,7 +12,7 @@ namespace Bicep.Core.UnitTests.Utils
             var contract = base.CreateContract(objectType);
 
             // the omnisharp library specifies the NumberEnumConverter on some of the enum types
-            // which supercedes our serialization settings
+            // which supersedes our serialization settings
             if (objectType.IsEnum && !(contract.Converter is StringEnumConverter))
             {
                 // force our converter on enum types

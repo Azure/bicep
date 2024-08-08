@@ -269,7 +269,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ["0.3.0", "0.4.0", "0.5.0", "1.0.1"]
             );
 
-            var diag = (IBicepAnalyerFixableDiagnostic)result.Diagnostics.Where(d => d.Code == UseRecentModuleVersionsRule.Code).First();
+            var diag = (IBicepAnalyzerFixableDiagnostic)result.Diagnostics.Where(d => d.Code == UseRecentModuleVersionsRule.Code).First();
             var fixes = diag.Fixes.ToArray();
             fixes.Should().HaveCount(1);
             fixes[0].Replacements.Should().HaveCount(1);

@@ -403,7 +403,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
   }
 }]
 
-// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
+// duplicate identifiers in global and single loop scope are allowed (inner variable hides the outer)
 var canHaveDuplicatesAcrossScopes = 'hello'
 //@[04:033) Variable canHaveDuplicatesAcrossScopes. Type: 'hello'. Declaration start char: 0, length: 43
 resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {

@@ -39,8 +39,8 @@ type test = {
 //@          }
 }
 
-type strangeFormattings = {
-//@    "strangeFormattings": {
+type strangeFormatting = {
+//@    "strangeFormatting": {
 //@      "type": "object",
 //@      "properties": {
 //@        "test": {

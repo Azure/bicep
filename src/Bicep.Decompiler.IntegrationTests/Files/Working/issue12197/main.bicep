@@ -4,7 +4,7 @@ param location string
 @description('Base name that will appear for all resources.')
 param baseName string = 'adecosmosapp2'
 
-@description('Three letter environment abreviation to denote environment that will appear in all resource names')
+@description('Three letter environment abbreviation to denote environment that will appear in all resource names')
 param environmentName string = 'cicd'
 
 @description('App Service Plan Sku')
@@ -65,7 +65,7 @@ module appServiceModule './nested_appServiceModule.bicep' = {
     appServicePlanID: reference(appServicePlanModule.id, '2022-09-01').outputs.appServicePlanID.value
 //@[53:55) [BCP053 (Error)] The type "module" does not contain property "id". Available properties include "name", "outputs". (CodeDescription: none) |id|
     appServiceName: nameSuffix
-    principalId: reference(userAssignedIdentityModule.id, '2022-09-01').outputs.userIdentityResrouceId.value
+    principalId: reference(userAssignedIdentityModule.id, '2022-09-01').outputs.userIdentityResourceId.value
 //@[54:56) [BCP053 (Error)] The type "module" does not contain property "id". Available properties include "name", "outputs". (CodeDescription: none) |id|
     appSettingsArray: [
       {

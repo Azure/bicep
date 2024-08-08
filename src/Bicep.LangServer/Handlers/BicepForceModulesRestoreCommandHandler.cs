@@ -17,7 +17,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 namespace Bicep.LanguageServer.Handlers
 {
     // This handler is used to force the modules restore for given a bicep file.
-    // It returns Restore (force) succeeded/failed message, which can be displayed approriately in IDE output window
+    // It returns Restore (force) succeeded/failed message, which can be displayed appropriately in IDE output window
     public class BicepForceModulesRestoreCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly IFileResolver fileResolver;

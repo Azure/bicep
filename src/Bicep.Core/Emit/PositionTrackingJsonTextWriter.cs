@@ -214,7 +214,7 @@ namespace Bicep.Core.Emit
                         return lineStarts;
                     });
 
-            // get position and length of template hash (relying on the first occurence)
+            // get position and length of template hash (relying on the first occurrence)
             (var templateHashStartPosition, var templateHashLength) = formattedTemplateLines
                 .Select((value, index) => new { lineNumber = index, lineValue = value })
                 .Where(item => item.lineValue.Contains(TemplateWriter.TemplateHashPropertyName))

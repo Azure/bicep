@@ -17,7 +17,7 @@ namespace Bicep.Core.Emit
         {
             NotInline,
             Inline,
-            SkipInline //decision to not inline, however it might be overriden if outer syntax requires inlining
+            SkipInline //decision to not inline, however it might be overridden if outer syntax requires inlining
         }
         private readonly SemanticModel model;
         private readonly IDictionary<VariableSymbol, Decision> shouldInlineCache;

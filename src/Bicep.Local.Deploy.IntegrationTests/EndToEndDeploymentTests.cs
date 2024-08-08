@@ -53,12 +53,12 @@ public class EndToEndDeploymentTests : TestBase
 extension http
 
 param coords {
-  lattitude: string
+  latitude: string
   longitude: string
 }
 
 resource gridpointsReq 'request@v1' = {
-  uri: 'https://api.weather.gov/points/${coords.lattitude},${coords.longitude}'
+  uri: 'https://api.weather.gov/points/${coords.latitude},${coords.longitude}'
   format: 'raw'
 }
 
@@ -85,7 +85,7 @@ output forecast forecastType[] = map(forecast.periods, p => {
 using 'main.bicep'
 
 param coords = {
-  lattitude: '47.6363726'
+  latitude: '47.6363726'
   longitude: '-122.1357068'
 }
 """));
@@ -184,12 +184,12 @@ param coords = {
 extension http
 
 param coords {
-  lattitude: string
+  latitude: string
   longitude: string
 }
 
 resource gridpointsReq 'request@v1' = {
-  uri: 'https://api.weather.gov/points/${coords.lattitude},${coords.longitude}'
+  uri: 'https://api.weather.gov/points/${coords.latitude},${coords.longitude}'
   format: 'raw'
 }
 
@@ -216,7 +216,7 @@ output forecast forecastType[] = map(forecast.periods, p => {
 using 'main.bicep'
 
 param coords = {
-  lattitude: '47.6363726'
+  latitude: '47.6363726'
   longitude: '-122.1357068'
 }
 """));
@@ -285,12 +285,12 @@ param coords = {
 extension http
 
 param coords {
-  lattitude: string
+  latitude: string
   longitude: string
 }
 
 resource gridpointsReq 'request@v1' = {
-  uri: 'https://api.weather.gov/points/${coords.lattitude},${coords.longitude}'
+  uri: 'https://api.weather.gov/points/${coords.latitude},${coords.longitude}'
   format: 'raw'
 }
 
@@ -317,7 +317,7 @@ output forecast forecastType[] = map(forecast.periods, p => {
 using 'main.bicep'
 
 param coords = {
-  lattitude: '47.6363726'
+  latitude: '47.6363726'
   longitude: '-122.1357068'
 }
 """));
@@ -386,12 +386,12 @@ param coords = {
 extension http
 
 param coords {
-  lattitude: string
+  latitude: string
   longitude: string
 }
 
 resource gridpointsReq 'request@v1' = {
-  uri: 'https://api.weather.gov/points/${coords.lattitude},${coords.longitude}'
+  uri: 'https://api.weather.gov/points/${coords.latitude},${coords.longitude}'
   format: 'raw'
 }
 
@@ -418,7 +418,7 @@ output forecast forecastType[] = map(forecast.periods, p => {
 using 'main.bicep'
 
 param coords = {
-  lattitude: '47.6363726'
+  latitude: '47.6363726'
   longitude: '-122.1357068'
 }
 """));

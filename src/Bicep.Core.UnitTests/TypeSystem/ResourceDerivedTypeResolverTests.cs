@@ -120,7 +120,7 @@ public class ResourceDerivedTypeResolverTests
     }
 
     [TestMethod]
-    public void Hydrates_object_additinalProperties_types()
+    public void Hydrates_object_additionalProperties_types()
     {
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);

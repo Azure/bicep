@@ -19,7 +19,7 @@ namespace Bicep.VSLanguageServerClient.Settings
         /// </summary>
         Tabs,
         /// <summary>
-        /// Indent elements using space charaters
+        /// Indent elements using space characters
         /// </summary>
         Spaces
     }

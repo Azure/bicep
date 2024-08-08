@@ -136,7 +136,7 @@ public class LinterRuleTestsBase
         using (new AssertionScope().WithVisualCursor(result.Compilation.GetEntrypointSemanticModel().SourceFile, cursor))
         {
             var matchingDiagnostics = result.Diagnostics
-                .OfType<IBicepAnalyerFixableDiagnostic>()
+                .OfType<IBicepAnalyzerFixableDiagnostic>()
                 .Where(x => x.Span.IsOverlapping(cursor));
 
             matchingDiagnostics.Should().ContainSingle(x => x.Code == expectedCode);

@@ -97,7 +97,7 @@ namespace Bicep.Core.Syntax
             //     /* dangling comment */ ]
             //
             // Trailing comment is sticky to Question because it can be used as 1) a nullable type marker
-            // after a type identifer; 2) a placeholder with a trailing TODO comment in decompiled code.
+            // after a type identifier; 2) a placeholder with a trailing TODO comment in decompiled code.
             TokenType.RightParen or
             TokenType.RightSquare or
             TokenType.RightBrace or
@@ -105,7 +105,7 @@ namespace Bicep.Core.Syntax
             TokenType.Question => CommentStickiness.Trailing,
 
             // The following tokens may have comments attached
-            // to both sides. Exlamation is included because
+            // to both sides. Exclamation is included because
             // it can have leading comments when used as a
             // not operator before an exapression, and it can
             // have trailing comments when used as a non-null

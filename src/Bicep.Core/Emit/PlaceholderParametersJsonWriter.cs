@@ -40,7 +40,7 @@ namespace Bicep.Core.Emit
                 }
             }
 
-            // Template is used for calcualting template hash, template jtoken is used for writing to file.
+            // Template is used for calculating template hash, template jtoken is used for writing to file.
             var templateJToken = GenerateTemplate(existingContentVersion);
 
             if (existingParamsContent != null)

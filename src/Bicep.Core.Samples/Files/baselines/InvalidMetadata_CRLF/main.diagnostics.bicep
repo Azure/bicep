@@ -18,8 +18,8 @@ metadata _2
 metadata missingValueAndType = 
 //@[31:31) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
-metadata missingAssignment 'noAssingmentOperator'
-//@[27:49) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) |'noAssingmentOperator'|
+metadata missingAssignment 'noAssignmentOperator'
+//@[27:49) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) |'noAssignmentOperator'|
 //@[49:49) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 // metadata referencing metadata

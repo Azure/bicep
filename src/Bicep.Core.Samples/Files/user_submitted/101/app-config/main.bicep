@@ -10,7 +10,7 @@ param keyValueNames array = [
 // Specifies the values of the key-value resources. It's optional
 param keyValueValues array = ['key-value without label', 'key-value with label']
 
-param contentType string = 'the-content-type' // suprised this isn't an enum value?
+param contentType string = 'the-content-type' // surprised this isn't an enum value?
 
 resource config 'Microsoft.AppConfiguration/configurationStores@2020-07-01-preview' = {
   name: configStoreName

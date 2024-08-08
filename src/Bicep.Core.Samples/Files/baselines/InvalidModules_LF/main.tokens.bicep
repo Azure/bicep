@@ -721,18 +721,18 @@ module moduleWithInvalidScope2 './empty.bicep' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
+module moduleWithUnsupportedScope1 './mg_empty.bicep' = {
 //@[000:006) Identifier |module|
-//@[007:033) Identifier |moduleWithUnsupprtedScope1|
-//@[034:052) StringComplete |'./mg_empty.bicep'|
-//@[053:054) Assignment |=|
-//@[055:056) LeftBrace |{|
-//@[056:057) NewLine |\n|
-  name: 'moduleWithUnsupprtedScope1'
+//@[007:034) Identifier |moduleWithUnsupportedScope1|
+//@[035:053) StringComplete |'./mg_empty.bicep'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:058) NewLine |\n|
+  name: 'moduleWithUnsupportedScope1'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:036) StringComplete |'moduleWithUnsupprtedScope1'|
-//@[036:037) NewLine |\n|
+//@[008:037) StringComplete |'moduleWithUnsupportedScope1'|
+//@[037:038) NewLine |\n|
   scope: managementGroup()
 //@[002:007) Identifier |scope|
 //@[007:008) Colon |:|
@@ -744,18 +744,18 @@ module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-module moduleWithUnsupprtedScope2 './mg_empty.bicep' = {
+module moduleWithUnsupportedScope2 './mg_empty.bicep' = {
 //@[000:006) Identifier |module|
-//@[007:033) Identifier |moduleWithUnsupprtedScope2|
-//@[034:052) StringComplete |'./mg_empty.bicep'|
-//@[053:054) Assignment |=|
-//@[055:056) LeftBrace |{|
-//@[056:057) NewLine |\n|
-  name: 'moduleWithUnsupprtedScope2'
+//@[007:034) Identifier |moduleWithUnsupportedScope2|
+//@[035:053) StringComplete |'./mg_empty.bicep'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:058) NewLine |\n|
+  name: 'moduleWithUnsupportedScope2'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:036) StringComplete |'moduleWithUnsupprtedScope2'|
-//@[036:037) NewLine |\n|
+//@[008:037) StringComplete |'moduleWithUnsupportedScope2'|
+//@[037:038) NewLine |\n|
   scope: managementGroup('MG')
 //@[002:007) Identifier |scope|
 //@[007:008) Colon |:|

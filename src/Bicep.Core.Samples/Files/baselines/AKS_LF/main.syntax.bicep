@@ -1,5 +1,5 @@
 // mandatory params
-//@[000:1520) ProgramSyntax
+//@[000:1522) ProgramSyntax
 //@[019:0020) ├─Token(NewLine) |\n|
 param dnsPrefix string
 //@[000:0022) ├─ParameterDeclarationSyntax
@@ -30,7 +30,7 @@ param sshRSAPublicKey string
 //@[028:0030) ├─Token(NewLine) |\n\n|
 
 @secure()
-//@[000:0046) ├─ParameterDeclarationSyntax
+//@[000:0047) ├─ParameterDeclarationSyntax
 //@[000:0009) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
 //@[001:0009) | | └─FunctionCallSyntax
@@ -39,14 +39,14 @@ param sshRSAPublicKey string
 //@[007:0008) | |   ├─Token(LeftParen) |(|
 //@[008:0009) | |   └─Token(RightParen) |)|
 //@[009:0010) | ├─Token(NewLine) |\n|
-param servcePrincipalClientId string
+param servicePrincipalClientId string
 //@[000:0005) | ├─Token(Identifier) |param|
-//@[006:0029) | ├─IdentifierSyntax
-//@[006:0029) | | └─Token(Identifier) |servcePrincipalClientId|
-//@[030:0036) | └─TypeVariableAccessSyntax
-//@[030:0036) |   └─IdentifierSyntax
-//@[030:0036) |     └─Token(Identifier) |string|
-//@[036:0038) ├─Token(NewLine) |\n\n|
+//@[006:0030) | ├─IdentifierSyntax
+//@[006:0030) | | └─Token(Identifier) |servicePrincipalClientId|
+//@[031:0037) | └─TypeVariableAccessSyntax
+//@[031:0037) |   └─IdentifierSyntax
+//@[031:0037) |     └─Token(Identifier) |string|
+//@[037:0039) ├─Token(NewLine) |\n\n|
 
 @secure()
 //@[000:0051) ├─ParameterDeclarationSyntax
@@ -196,14 +196,14 @@ param agentVMSize string = 'Standard_DS2_v2'
 //@[103:0105) ├─Token(NewLine) |\n\n|
 
 resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
-//@[000:0825) ├─ResourceDeclarationSyntax
+//@[000:0826) ├─ResourceDeclarationSyntax
 //@[000:0008) | ├─Token(Identifier) |resource|
 //@[009:0012) | ├─IdentifierSyntax
 //@[009:0012) | | └─Token(Identifier) |aks|
 //@[013:0068) | ├─StringSyntax
 //@[013:0068) | | └─Token(StringComplete) |'Microsoft.ContainerService/managedClusters@2020-03-01'|
 //@[069:0070) | ├─Token(Assignment) |=|
-//@[071:0825) | └─ObjectSyntax
+//@[071:0826) | └─ObjectSyntax
 //@[071:0072) |   ├─Token(LeftBrace) |{|
 //@[072:0073) |   ├─Token(NewLine) |\n|
     name: clusterName
@@ -225,11 +225,11 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[014:0022) |   |     └─Token(Identifier) |location|
 //@[022:0023) |   ├─Token(NewLine) |\n|
     properties: {
-//@[004:0705) |   ├─ObjectPropertySyntax
+//@[004:0706) |   ├─ObjectPropertySyntax
 //@[004:0014) |   | ├─IdentifierSyntax
 //@[004:0014) |   | | └─Token(Identifier) |properties|
 //@[014:0015) |   | ├─Token(Colon) |:|
-//@[016:0705) |   | └─ObjectSyntax
+//@[016:0706) |   | └─ObjectSyntax
 //@[016:0017) |   |   ├─Token(LeftBrace) |{|
 //@[017:0018) |   |   ├─Token(NewLine) |\n|
         dnsPrefix: dnsPrefix
@@ -362,22 +362,22 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[008:0009) |   |   |   └─Token(RightBrace) |}|
 //@[009:0010) |   |   ├─Token(NewLine) |\n|
         servicePrincipalProfile: {
-//@[008:0139) |   |   ├─ObjectPropertySyntax
+//@[008:0140) |   |   ├─ObjectPropertySyntax
 //@[008:0031) |   |   | ├─IdentifierSyntax
 //@[008:0031) |   |   | | └─Token(Identifier) |servicePrincipalProfile|
 //@[031:0032) |   |   | ├─Token(Colon) |:|
-//@[033:0139) |   |   | └─ObjectSyntax
+//@[033:0140) |   |   | └─ObjectSyntax
 //@[033:0034) |   |   |   ├─Token(LeftBrace) |{|
 //@[034:0035) |   |   |   ├─Token(NewLine) |\n|
-            clientId: servcePrincipalClientId
-//@[012:0045) |   |   |   ├─ObjectPropertySyntax
+            clientId: servicePrincipalClientId
+//@[012:0046) |   |   |   ├─ObjectPropertySyntax
 //@[012:0020) |   |   |   | ├─IdentifierSyntax
 //@[012:0020) |   |   |   | | └─Token(Identifier) |clientId|
 //@[020:0021) |   |   |   | ├─Token(Colon) |:|
-//@[022:0045) |   |   |   | └─VariableAccessSyntax
-//@[022:0045) |   |   |   |   └─IdentifierSyntax
-//@[022:0045) |   |   |   |     └─Token(Identifier) |servcePrincipalClientId|
-//@[045:0046) |   |   |   ├─Token(NewLine) |\n|
+//@[022:0046) |   |   |   | └─VariableAccessSyntax
+//@[022:0046) |   |   |   |   └─IdentifierSyntax
+//@[022:0046) |   |   |   |     └─Token(Identifier) |servicePrincipalClientId|
+//@[046:0047) |   |   |   ├─Token(NewLine) |\n|
             secret: servicePrincipalClientSecret
 //@[012:0048) |   |   |   ├─ObjectPropertySyntax
 //@[012:0018) |   |   |   | ├─IdentifierSyntax
@@ -399,5 +399,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 
 // fyi - dot property access (aks.fqdn) has not been spec'd
 //@[059:0060) ├─Token(NewLine) |\n|
-//output controlPlaneFQDN string = aks.properties.fqdn 
-//@[055:0055) └─Token(EndOfFile) ||
+//output controlPlaneFQDN string = aks.properties.fqdn
+//@[054:0055) ├─Token(NewLine) |\n|
+
+//@[000:0000) └─Token(EndOfFile) ||

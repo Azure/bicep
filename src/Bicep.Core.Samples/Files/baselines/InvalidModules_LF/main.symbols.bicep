@@ -229,15 +229,15 @@ module moduleWithInvalidScope2 './empty.bicep' = {
   scope: managementGroup()
 }
 
-module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
-//@[07:33) Module moduleWithUnsupprtedScope1. Type: module. Declaration start char: 0, length: 122
-  name: 'moduleWithUnsupprtedScope1'
+module moduleWithUnsupportedScope1 './mg_empty.bicep' = {
+//@[07:34) Module moduleWithUnsupportedScope1. Type: module. Declaration start char: 0, length: 124
+  name: 'moduleWithUnsupportedScope1'
   scope: managementGroup()
 }
 
-module moduleWithUnsupprtedScope2 './mg_empty.bicep' = {
-//@[07:33) Module moduleWithUnsupprtedScope2. Type: module. Declaration start char: 0, length: 126
-  name: 'moduleWithUnsupprtedScope2'
+module moduleWithUnsupportedScope2 './mg_empty.bicep' = {
+//@[07:34) Module moduleWithUnsupportedScope2. Type: module. Declaration start char: 0, length: 128
+  name: 'moduleWithUnsupportedScope2'
   scope: managementGroup('MG')
 }
 

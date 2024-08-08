@@ -448,9 +448,9 @@ namespace Bicep.Core.UnitTests.Configuration
             foreach (var (id, (rule, ruleSchema)) in AllRulesAndSchemasById)
             {
                 var defaultLevel = rule.DefaultDiagnosticLevel.ToString();
-                var descripton = ruleSchema.SelectToken("allOf")?[0]?.SelectToken("description")?.ToString();
+                var description = ruleSchema.SelectToken("allOf")?[0]?.SelectToken("description")?.ToString();
 
-                descripton.Should().MatchRegex($"\\. Defaults to '{defaultLevel}'\\. See https:",
+                description.Should().MatchRegex($"\\. Defaults to '{defaultLevel}'\\. See https:",
                     "rule description should indicate its default diagnostic level");
             }
         }

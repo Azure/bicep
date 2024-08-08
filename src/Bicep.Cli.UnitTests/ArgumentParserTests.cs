@@ -272,42 +272,42 @@ namespace Bicep.Cli.UnitTests
         public void DecompileOneFile_ShouldReturnOneFile()
         {
             var arguments = ArgumentParser.TryParse(["decompile", "file1"], IO, FileSystem);
-            var bulidOrDecompileArguments = (DecompileArguments?)arguments;
+            var buildOrDecompileArguments = (DecompileArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
-            bulidOrDecompileArguments!.InputFile.Should().Be("file1");
-            bulidOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
-            bulidOrDecompileArguments!.OutputDir.Should().BeNull();
-            bulidOrDecompileArguments!.OutputFile.Should().BeNull();
+            buildOrDecompileArguments!.InputFile.Should().Be("file1");
+            buildOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
+            buildOrDecompileArguments!.OutputDir.Should().BeNull();
+            buildOrDecompileArguments!.OutputFile.Should().BeNull();
         }
 
         [TestMethod]
         public void DecompileOneFileStdOut_ShouldReturnOneFileAndStdout()
         {
             var arguments = ArgumentParser.TryParse(["decompile", "--stdout", "file1"], IO, FileSystem);
-            var bulidOrDecompileArguments = (DecompileArguments?)arguments;
+            var buildOrDecompileArguments = (DecompileArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
-            bulidOrDecompileArguments!.InputFile.Should().Be("file1");
-            bulidOrDecompileArguments!.OutputToStdOut.Should().BeTrue();
-            bulidOrDecompileArguments!.OutputDir.Should().BeNull();
-            bulidOrDecompileArguments!.OutputFile.Should().BeNull();
+            buildOrDecompileArguments!.InputFile.Should().Be("file1");
+            buildOrDecompileArguments!.OutputToStdOut.Should().BeTrue();
+            buildOrDecompileArguments!.OutputDir.Should().BeNull();
+            buildOrDecompileArguments!.OutputFile.Should().BeNull();
         }
 
         [TestMethod]
         public void DecompileOneFileStdOutAllCaps_ShouldReturnOneFileAndStdout()
         {
             var arguments = ArgumentParser.TryParse(["decompile", "--STDOUT", "file1"], IO, FileSystem);
-            var bulidOrDecompileArguments = (DecompileArguments?)arguments;
+            var buildOrDecompileArguments = (DecompileArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
-            bulidOrDecompileArguments!.InputFile.Should().Be("file1");
-            bulidOrDecompileArguments!.OutputToStdOut.Should().BeTrue();
-            bulidOrDecompileArguments!.OutputDir.Should().BeNull();
-            bulidOrDecompileArguments!.OutputFile.Should().BeNull();
+            buildOrDecompileArguments!.InputFile.Should().Be("file1");
+            buildOrDecompileArguments!.OutputToStdOut.Should().BeTrue();
+            buildOrDecompileArguments!.OutputDir.Should().BeNull();
+            buildOrDecompileArguments!.OutputFile.Should().BeNull();
         }
 
         [TestMethod]
@@ -315,28 +315,28 @@ namespace Bicep.Cli.UnitTests
         {
             // Use relative . to ensure directory exists else the parser will throw.
             var arguments = ArgumentParser.TryParse(["decompile", "--outdir", ".", "file1"], IO, FileSystem);
-            var bulidOrDecompileArguments = (DecompileArguments?)arguments;
+            var buildOrDecompileArguments = (DecompileArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
-            bulidOrDecompileArguments!.InputFile.Should().Be("file1");
-            bulidOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
-            bulidOrDecompileArguments!.OutputDir.Should().Be(".");
-            bulidOrDecompileArguments!.OutputFile.Should().BeNull();
+            buildOrDecompileArguments!.InputFile.Should().Be("file1");
+            buildOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
+            buildOrDecompileArguments!.OutputDir.Should().Be(".");
+            buildOrDecompileArguments!.OutputFile.Should().BeNull();
         }
 
         [TestMethod]
         public void Decompile_with_outputfile_parameter_should_parse_correctly()
         {
             var arguments = ArgumentParser.TryParse(["decompile", "--outfile", "jsonFile", "file1"], IO, FileSystem);
-            var bulidOrDecompileArguments = (DecompileArguments?)arguments;
+            var buildOrDecompileArguments = (DecompileArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
-            bulidOrDecompileArguments!.InputFile.Should().Be("file1");
-            bulidOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
-            bulidOrDecompileArguments!.OutputDir.Should().BeNull();
-            bulidOrDecompileArguments!.OutputFile.Should().Be("jsonFile");
+            buildOrDecompileArguments!.InputFile.Should().Be("file1");
+            buildOrDecompileArguments!.OutputToStdOut.Should().BeFalse();
+            buildOrDecompileArguments!.OutputDir.Should().BeNull();
+            buildOrDecompileArguments!.OutputFile.Should().Be("jsonFile");
         }
 
         [TestMethod]

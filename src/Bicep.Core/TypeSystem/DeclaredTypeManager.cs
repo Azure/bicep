@@ -641,7 +641,7 @@ namespace Bicep.Core.TypeSystem
 
             if (diagnostics.Any())
             {
-                // foward any diagnostics gathered from parsing properties to the return type. normally, these diagnostics would be gathered by the SemanticDiagnosticVisitor (which would visit the properties of an ObjectType looking for errors).
+                // forward any diagnostics gathered from parsing properties to the return type. normally, these diagnostics would be gathered by the SemanticDiagnosticVisitor (which would visit the properties of an ObjectType looking for errors).
                 // Errors hidden behind DeferredTypeReferences will unfortunately be dropped, as we can't resolve their type without risking an infinite loop (in the case that a recursive object type has errors)
                 return ErrorType.Create(diagnostics.Concat(properties.Select(p => p.TypeReference).OfType<TypeSymbol>().SelectMany(e => e.GetDiagnostics())));
             }
@@ -689,7 +689,7 @@ namespace Bicep.Core.TypeSystem
             for (int i = 0; i < syntax.SegmentValues.Length + syntax.Expressions.Length; i++)
             {
                 // String syntax should have alternating blocks of literal values and expressions.
-                // If i is even, process the next literal value. If it's odd, process the next expresssion
+                // If i is even, process the next literal value. If it's odd, process the next expression
                 if (i % 2 == 0)
                 {
                     literalText.Append(syntax.SegmentValues[i / 2]);
@@ -2069,7 +2069,7 @@ namespace Bicep.Core.TypeSystem
         private TypeSymbol CreateTestType(IEnumerable<TypeProperty> paramsProperties, string typeName)
         {
             var paramsType = new ObjectType(LanguageConstants.TestParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
-            // If none of the params are reqired, we can allow the 'params' declaration to be omitted entirely
+            // If none of the params are required, we can allow the 'params' declaration to be omitted entirely
             var paramsRequiredFlag = paramsProperties.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None;
 
             var testBody = new ObjectType(

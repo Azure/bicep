@@ -11,7 +11,7 @@ param clusterLoginUserName string
 @secure()
 param clusterLoginPassword string
 
-@description('These credentials can be used to remotely access the cluster. The sshUserName can only consit of digits, upper or lowercase letters, and/or the following special characters (%&\'^_`{}~). Also, it cannot be the same as the cluster login username or a reserved word')
+@description('These credentials can be used to remotely access the cluster. The sshUserName can only consist of digits, upper or lowercase letters, and/or the following special characters (%&\'^_`{}~). Also, it cannot be the same as the cluster login username or a reserved word')
 @minLength(2)
 param sshUserName string
 

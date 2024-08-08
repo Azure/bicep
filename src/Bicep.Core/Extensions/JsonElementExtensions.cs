@@ -128,10 +128,10 @@ namespace Bicep.Core.Extensions
 
                     foreach (var propertyInFirst in first.EnumerateObject())
                     {
-                        if (second.TryGetProperty(propertyInFirst.Name, out var properyInSecondValue))
+                        if (second.TryGetProperty(propertyInFirst.Name, out var propertyInSecondValue))
                         {
                             writer.WritePropertyName(propertyInFirst.Name);
-                            Merge(propertyInFirst.Value, properyInSecondValue, writer);
+                            Merge(propertyInFirst.Value, propertyInSecondValue, writer);
                         }
                         else
                         {

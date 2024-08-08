@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2187496986171293588"
+      "templateHash": "10069637296889276643"
     }
   },
   "parameters": {
@@ -44,7 +44,7 @@
       "properties": {
         "policyType": "Custom",
         "displayName": "[variables('initiativeDefinitionName')]",
-        "description": "Initiative Definition for Resource Locatoin and VM SKUs",
+        "description": "Initiative Definition for Resource Location and VM SKUs",
         "metadata": {
           "category": "BICEP Example Initiative"
         },

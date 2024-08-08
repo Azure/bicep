@@ -262,14 +262,14 @@ module moduleWithInvalidScope2 './empty.bicep' = {
 //@[024:026) [BCP071 (Error)] Expected 1 argument, but got 0. (CodeDescription: none) |()|
 }
 
-module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
-  name: 'moduleWithUnsupprtedScope1'
+module moduleWithUnsupportedScope1 './mg_empty.bicep' = {
+  name: 'moduleWithUnsupportedScope1'
   scope: managementGroup()
 //@[024:026) [BCP071 (Error)] Expected 1 argument, but got 0. (CodeDescription: none) |()|
 }
 
-module moduleWithUnsupprtedScope2 './mg_empty.bicep' = {
-  name: 'moduleWithUnsupprtedScope2'
+module moduleWithUnsupportedScope2 './mg_empty.bicep' = {
+  name: 'moduleWithUnsupportedScope2'
   scope: managementGroup('MG')
 //@[009:030) [BCP134 (Error)] Scope "managementGroup" is not valid for this module. Permitted scopes: "subscription". (CodeDescription: none) |managementGroup('MG')|
 }

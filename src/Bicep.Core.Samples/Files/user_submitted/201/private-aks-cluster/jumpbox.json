@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8709710893014230448"
+      "templateHash": "10248377191802904671"
     }
   },
   "parameters": {
@@ -75,27 +75,27 @@
         "description": "Specifies the SSH Key or password for the virtual machine. SSH key is recommended."
       }
     },
-    "diskStorageAccounType": {
+    "diskStorageAccountType": {
       "type": "string",
       "defaultValue": "Premium_LRS",
-      "metadata": {
-        "description": "Specifies the storage account type for OS and data disk."
-      },
       "allowedValues": [
         "Premium_LRS",
         "StandardSSD_LRS",
         "Standard_LRS",
         "UltraSSD_LRS"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the storage account type for OS and data disk."
+      }
     },
     "numDataDisks": {
       "type": "int",
       "defaultValue": 1,
+      "minValue": 0,
+      "maxValue": 64,
       "metadata": {
         "description": "Specifies the number of data disks of the virtual machine."
-      },
-      "maxValue": 64,
-      "minValue": 0
+      }
     },
     "osDiskSize": {
       "type": "int",
@@ -218,7 +218,7 @@
                 "name": "[format('{0}-DataDisk{1}', parameters('vmName'), range(0, parameters('numDataDisks'))[copyIndex('dataDisks')])]",
                 "createOption": "Empty",
                 "managedDisk": {
-                  "storageAccountType": "[parameters('diskStorageAccounType')]"
+                  "storageAccountType": "[parameters('diskStorageAccountType')]"
                 }
               }
             }
@@ -235,7 +235,7 @@
             "createOption": "FromImage",
             "diskSizeGB": "[parameters('osDiskSize')]",
             "managedDisk": {
-              "storageAccountType": "[parameters('diskStorageAccounType')]"
+              "storageAccountType": "[parameters('diskStorageAccountType')]"
             }
           }
         },

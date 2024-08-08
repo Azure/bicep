@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15585322861441161766"
+      "templateHash": "10850142416497237299"
     }
   },
   "parameters": {
@@ -409,7 +409,7 @@
         "description": "Specifies the SSH Key or password for the virtual machine. SSH key is recommended."
       }
     },
-    "diskStorageAccounType": {
+    "diskStorageAccountType": {
       "type": "string",
       "defaultValue": "Premium_LRS",
       "allowedValues": [
@@ -1031,8 +1031,8 @@
           "vmSize": {
             "value": "[parameters('vmSize')]"
           },
-          "diskStorageAccounType": {
-            "value": "[parameters('diskStorageAccounType')]"
+          "diskStorageAccountType": {
+            "value": "[parameters('diskStorageAccountType')]"
           },
           "osDiskSize": {
             "value": "[parameters('osDiskSize')]"
@@ -1078,7 +1078,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8709710893014230448"
+              "templateHash": "10248377191802904671"
             }
           },
           "parameters": {
@@ -1148,7 +1148,7 @@
                 "description": "Specifies the SSH Key or password for the virtual machine. SSH key is recommended."
               }
             },
-            "diskStorageAccounType": {
+            "diskStorageAccountType": {
               "type": "string",
               "defaultValue": "Premium_LRS",
               "allowedValues": [
@@ -1291,7 +1291,7 @@
                         "name": "[format('{0}-DataDisk{1}', parameters('vmName'), range(0, parameters('numDataDisks'))[copyIndex('dataDisks')])]",
                         "createOption": "Empty",
                         "managedDisk": {
-                          "storageAccountType": "[parameters('diskStorageAccounType')]"
+                          "storageAccountType": "[parameters('diskStorageAccountType')]"
                         }
                       }
                     }
@@ -1308,7 +1308,7 @@
                     "createOption": "FromImage",
                     "diskSizeGB": "[parameters('osDiskSize')]",
                     "managedDisk": {
-                      "storageAccountType": "[parameters('diskStorageAccounType')]"
+                      "storageAccountType": "[parameters('diskStorageAccountType')]"
                     }
                   }
                 },

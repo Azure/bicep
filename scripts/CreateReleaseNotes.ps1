@@ -5,7 +5,7 @@ Note: Non-MSFT users do not have permissions to execute this script successfully
 
 Prerequisites:
 - GitHub CLI installed on the machine
-- Completed login procecures for GH CLI
+- Completed login procedures for GH CLI
 
 Parameters:
 - WorkingDir - Directory used for temporary work. Contents will be deleted.
@@ -51,7 +51,7 @@ foreach ($line in $shortLogOutput) {
     $pullRequestNumber = $match.Groups['pr'].Value
     $pullRequestInfo = gh pr view $pullRequestNumber --json author,title
     $json = $pullRequestInfo | ConvertFrom-Json;
-    
+
     if($json.author.login -ne $currentAuthor)
     {
       $currentAuthor = $json.author.login;

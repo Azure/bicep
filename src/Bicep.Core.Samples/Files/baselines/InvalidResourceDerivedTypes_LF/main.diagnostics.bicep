@@ -30,7 +30,7 @@ type invalid12 = resource<resourceGroup()>
 //@[040:040) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 
 type thisIsWeird = resource</*
-//@[019:093) [BCP394 (Error)] Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted. (CodeDescription: none) |resource</*\n*/'Astronomer.Astro/organizations@2023-08-01-preview'\n///  >\n>|
+//@[019:093) [BCP394 (Error)] Resource-derived type expressions must dereference a property within the resource body. Using the entire resource body type is not permitted. (CodeDescription: none) |resource</*\n*/'Astronomer.Astro/organizations@2023-08-01-preview'\n///  >\n>|
 */'Astronomer.Astro/organizations@2023-08-01-preview'
 ///  >
 >
@@ -41,13 +41,13 @@ type interpolated = resource<'Microsoft.${'Storage'}/storageAccounts@2022-09-01'
 @sealed()
 //@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (CodeDescription: none) |@sealed()|
 type shouldNotBeSealable = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
-//@[027:083) [BCP394 (Error)] Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted. (CodeDescription: none) |resource<'Microsoft.Storage/storageAccounts@2022-09-01'>|
+//@[027:083) [BCP394 (Error)] Resource-derived type expressions must dereference a property within the resource body. Using the entire resource body type is not permitted. (CodeDescription: none) |resource<'Microsoft.Storage/storageAccounts@2022-09-01'>|
 
 type hello = {
   @discriminator('hi')
 //@[002:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('hi')|
   bar: resource<'Astronomer.Astro/organizations@2023-08-01-preview'>
-//@[007:068) [BCP394 (Error)] Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted. (CodeDescription: none) |resource<'Astronomer.Astro/organizations@2023-08-01-preview'>|
+//@[007:068) [BCP394 (Error)] Resource-derived type expressions must dereference a property within the resource body. Using the entire resource body type is not permitted. (CodeDescription: none) |resource<'Astronomer.Astro/organizations@2023-08-01-preview'>|
 }
 
 type typoInPropertyName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.nom

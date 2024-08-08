@@ -36,24 +36,24 @@ namespace Bicep.Core.UnitTests.Utils
                 (10, 6),
             };
 
-            var vertexes = graph.SelectMany(x => new[] { x.from, x.to }).Distinct().ToDictionary(i => i, i => new Vertex(i));
-            var vertexLookup = graph.ToLookup(x => vertexes[x.from], x => vertexes[x.to]);
+            var vertices = graph.SelectMany(x => new[] { x.from, x.to }).Distinct().ToDictionary(i => i, i => new Vertex(i));
+            var vertexLookup = graph.ToLookup(x => vertices[x.from], x => vertices[x.to]);
 
             var cycles = CycleDetector<Vertex>.FindCycles(vertexLookup);
 
-            cycles.Keys.Should().BeEquivalentTo(new[] { vertexes[1], vertexes[2], vertexes[3], vertexes[6], vertexes[7], vertexes[8], vertexes[9], vertexes[10] });
+            cycles.Keys.Should().BeEquivalentTo(new[] { vertices[1], vertices[2], vertices[3], vertices[6], vertices[7], vertices[8], vertices[9], vertices[10] });
 
-            cycles[vertexes[1]].Should().ContainInOrder([vertexes[1]]);
+            cycles[vertices[1]].Should().ContainInOrder([vertices[1]]);
 
-            cycles[vertexes[2]].Should().ContainInOrder([vertexes[2], vertexes[3]]);
-            cycles[vertexes[3]].Should().ContainInOrder([vertexes[3], vertexes[2]]);
+            cycles[vertices[2]].Should().ContainInOrder([vertices[2], vertices[3]]);
+            cycles[vertices[3]].Should().ContainInOrder([vertices[3], vertices[2]]);
 
             // note that the cycle for each key should be returned in-order, starting with the key
-            cycles[vertexes[6]].Should().ContainInOrder([vertexes[6], vertexes[7], vertexes[8], vertexes[9], vertexes[10]]);
-            cycles[vertexes[7]].Should().ContainInOrder([vertexes[7], vertexes[8], vertexes[9], vertexes[10], vertexes[6]]);
-            cycles[vertexes[8]].Should().ContainInOrder([vertexes[8], vertexes[9], vertexes[10], vertexes[6], vertexes[7]]);
-            cycles[vertexes[9]].Should().ContainInOrder([vertexes[9], vertexes[10], vertexes[6], vertexes[7], vertexes[8]]);
-            cycles[vertexes[10]].Should().ContainInOrder([vertexes[10], vertexes[6], vertexes[7], vertexes[8], vertexes[9]]);
+            cycles[vertices[6]].Should().ContainInOrder([vertices[6], vertices[7], vertices[8], vertices[9], vertices[10]]);
+            cycles[vertices[7]].Should().ContainInOrder([vertices[7], vertices[8], vertices[9], vertices[10], vertices[6]]);
+            cycles[vertices[8]].Should().ContainInOrder([vertices[8], vertices[9], vertices[10], vertices[6], vertices[7]]);
+            cycles[vertices[9]].Should().ContainInOrder([vertices[9], vertices[10], vertices[6], vertices[7], vertices[8]]);
+            cycles[vertices[10]].Should().ContainInOrder([vertices[10], vertices[6], vertices[7], vertices[8], vertices[9]]);
         }
     }
 }

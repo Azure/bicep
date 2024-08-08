@@ -114,7 +114,7 @@ namespace Bicep.Core.UnitTests.Semantics
         }
 
         [TestMethod]
-        public void Unparseable_YAML()
+        public void Unparsable_YAML()
         {
             var invalidYml = @"
                 string: someVal
@@ -137,7 +137,7 @@ namespace Bicep.Core.UnitTests.Semantics
         }
 
         [TestMethod]
-        public void Unparseable_JSON()
+        public void Unparsable_JSON()
         {
             var invalidJson = @"
                 string: someVal

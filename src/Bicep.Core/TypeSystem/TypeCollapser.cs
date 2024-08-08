@@ -250,7 +250,7 @@ internal static class TypeCollapser
 
         private class ArrayCollapse : UnionCollapseState
         {
-            private readonly ConcurrentDictionary<TypeSymbol, RefinementSpanCollapser> spanCollapsersByItemType = new();
+            private readonly ConcurrentDictionary<TypeSymbol, RefinementSpanCollapser> spanCollapsesByItemType = new();
             private readonly HashSet<TupleType> tuples = new();
             private bool nullable;
 
@@ -270,7 +270,7 @@ internal static class TypeCollapser
             {
                 foreach (var tuple in tuples.ToArray())
                 {
-                    if (spanCollapsersByItemType.Any(kvp => kvp.Value.Spans.Any(span => span.Min <= tuple.Items.Length && tuple.Items.Length <= span.Max) &&
+                    if (spanCollapsesByItemType.Any(kvp => kvp.Value.Spans.Any(span => span.Min <= tuple.Items.Length && tuple.Items.Length <= span.Max) &&
                         TypeValidator.AreTypesAssignable(tuple.Item.Type, kvp.Key)))
                     {
                         tuples.Remove(tuple);
@@ -278,7 +278,7 @@ internal static class TypeCollapser
                 }
 
                 return CreateTypeUnion(
-                    tuples.Concat(spanCollapsersByItemType.SelectMany(kvp => kvp.Value.Spans.Select(span => TypeFactory.CreateArrayType(kvp.Key,
+                    tuples.Concat(spanCollapsesByItemType.SelectMany(kvp => kvp.Value.Spans.Select(span => TypeFactory.CreateArrayType(kvp.Key,
                         span.Min switch
                         {
                             <= 0 => null,
@@ -326,7 +326,7 @@ internal static class TypeCollapser
             }
 
             private void PushArraySpan(ArrayType array)
-                => spanCollapsersByItemType.GetOrAdd(array.Item.Type, _ => new RefinementSpanCollapser()).PushSpan(RefinementSpan.For(array));
+                => spanCollapsesByItemType.GetOrAdd(array.Item.Type, _ => new RefinementSpanCollapser()).PushSpan(RefinementSpan.For(array));
         }
 
         private class ObjectCollapse : UnionCollapseState
