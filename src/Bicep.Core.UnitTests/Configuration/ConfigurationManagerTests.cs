@@ -118,7 +118,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false
+          "resourceDerivedTypes": false,
+          "secureOutputs": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -208,7 +209,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false
+          "resourceDerivedTypes": false,
+          "secureOutputs": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -323,7 +325,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false
+          "resourceDerivedTypes": false,
+          "secureOutputs": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -416,7 +419,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 ExtensionRegistry: false,
                 OptionalModuleNames: false,
                 LocalDeploy: false,
-                ResourceDerivedTypes: false);
+                ResourceDerivedTypes: false,
+                SecureOutputs: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -510,7 +514,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "extensionRegistry": false,
                 "optionalModuleNames": false,
                 "localDeploy": false,
-                "resourceDerivedTypes": false
+                "resourceDerivedTypes": false,
+                "secureOutputs": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -892,7 +897,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false
+          "resourceDerivedTypes": false,
+          "secureOutputs": false
         },
         "formatting": {
           "indentKind": "Space",
