@@ -36,7 +36,7 @@ resource res1 'Test.Rp/basicTests@2020-01-01' = {
 
 resource res2 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'res2'
-  properties: {
+  properites: {
     readwrite: mod1.outputs.output1
   }
 }
