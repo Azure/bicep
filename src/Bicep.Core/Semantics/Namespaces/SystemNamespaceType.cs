@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -56,8 +58,6 @@ namespace Bicep.Core.Semantics.Namespaces
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
         private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetSystemOverloads().ToImmutableArray();
-
-        private static readonly ImmutableArray<NamespaceValue<Decorator>> Decorators = GetSystemDecorators().ToImmutableArray();
 
         private static readonly ImmutableArray<NamespaceValue<TypeProperty>> AmbientSymbols = GetSystemAmbientSymbols().ToImmutableArray();
 
@@ -1496,7 +1496,7 @@ namespace Bicep.Core.Semantics.Namespaces
             BannedFunction.CreateForOperator("coalesce", "??")
         ];
 
-        private static IEnumerable<NamespaceValue<Decorator>> GetSystemDecorators()
+        private static IEnumerable<NamespaceValue<Decorator>> GetSystemDecorators(IFeatureProvider featureProvider)
         {
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
@@ -1590,11 +1590,11 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
-            static IEnumerable<Decorator> GetBicepTemplateDecorators()
+            static IEnumerable<Decorator> GetBicepTemplateDecorators(IFeatureProvider featureProvider)
             {
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
-                    .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
+                    .WithFlags(featureProvider.SecureOutputsEnabled ? FunctionFlags.ParameterOutputOrTypeDecorator : FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                     .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((functionCall, decorated) =>
@@ -1853,7 +1853,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(decorator, (_, _) => true);
             }
 
-            foreach (var decorator in GetBicepTemplateDecorators())
+            foreach (var decorator in GetBicepTemplateDecorators(featureProvider))
             {
                 yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
             }
@@ -1958,7 +1958,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 AmbientSymbols.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 Overloads.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 BannedFunctions,
-                Decorators.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
+                GetSystemDecorators(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 new EmptyResourceTypeProvider());
         }
     }

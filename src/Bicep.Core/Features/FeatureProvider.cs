@@ -48,6 +48,8 @@ namespace Bicep.Core.Features
 
         public bool ResourceDerivedTypesEnabled => configuration.ExperimentalFeaturesEnabled.ResourceDerivedTypes;
 
+        public bool SecureOutputsEnabled => configuration.ExperimentalFeaturesEnabled.SecureOutputs;
+
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 
