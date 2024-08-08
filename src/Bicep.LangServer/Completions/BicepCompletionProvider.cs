@@ -443,7 +443,7 @@ namespace Bicep.LanguageServer.Completions
                     // Doesn't matter which one of the group we take, we're leaving out the version.
                     items.Add(CreateResourceTypeSegmentCompletion(group.First(), index++, context.ReplacementRange, includeApiVersion: false, displayApiVersion: parentResourceType.TypeReference.ApiVersion));
 
-                    foreach (var resourceType in group.Where(rt => rt.ApiVersion is not null).OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance))
+                    foreach (var resourceType in group.Where(rt => rt.ApiVersion is not null).OrderByDescending(rt => rt.ApiVersion ?? "", ApiVersionComparer.Instance))
                     {
                         items.Add(CreateResourceTypeSegmentCompletion(resourceType, index++, context.ReplacementRange, includeApiVersion: true, displayApiVersion: resourceType.ApiVersion));
                     }
@@ -479,7 +479,7 @@ namespace Bicep.LanguageServer.Completions
                 // strict filtering on type so that we show api versions for only the selected type
                 return model.Binder.NamespaceResolver.GetGroupedResourceTypes()[resourceType]
                     .SelectMany(x => x)
-                    .OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
+                    .OrderByDescending(rt => rt.ApiVersion ?? "", ApiVersionComparer.Instance)
                     .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true));
             }
 
@@ -487,7 +487,7 @@ namespace Bicep.LanguageServer.Completions
             // we need to ensure that Microsoft.Compute/virtualMachines comes before Microsoft.Compute/virtualMachines/extensions
             // we still order by apiVersion first to have consistent indexes
             return model.Binder.NamespaceResolver.GetGroupedResourceTypes()
-                .Select(rt => rt.SelectMany(x => x).OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance).First())
+                .Select(rt => rt.SelectMany(x => x).OrderByDescending(rt => rt.ApiVersion ?? "", ApiVersionComparer.Instance).First())
                 .OrderBy(rt => rt.Type, StringComparer.OrdinalIgnoreCase)
                 .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false));
         }

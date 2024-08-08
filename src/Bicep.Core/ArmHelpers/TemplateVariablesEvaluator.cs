@@ -35,7 +35,7 @@ internal class TemplateVariablesEvaluator
     private readonly ConcurrentDictionary<string, IEvaluationResult> evaluatedVariables = new();
     private readonly Stack<string> variableEvaluationStack = new();
     private readonly Template template;
-    private readonly ExpressionEvaluationContext evaluationContext;
+    private readonly IEvaluationContext evaluationContext;
 
     internal TemplateVariablesEvaluator(Template template)
     {

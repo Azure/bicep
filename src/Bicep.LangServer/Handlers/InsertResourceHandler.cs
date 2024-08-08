@@ -85,7 +85,7 @@ namespace Bicep.LanguageServer.Handlers
                 var azResourceTypeProvider = namespaces.First(ns => ns?.ProviderName == AzNamespaceType.BuiltInName).ResourceTypeProvider;
                 var matchedType = azResourceTypeProvider.GetAvailableTypes()
                     .Where(x => StringComparer.OrdinalIgnoreCase.Equals(resourceId.FullyQualifiedType, x.FormatType()))
-                    .OrderByDescending(x => x.ApiVersion, ApiVersionComparer.Instance)
+                    .OrderByDescending(x => x.ApiVersion ?? "", ApiVersionComparer.Instance)
                     .FirstOrDefault();
 
                 if (matchedType is null || matchedType.ApiVersion is null)

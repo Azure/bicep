@@ -55,7 +55,7 @@ public class TraceEventSource : ICommonEventSource, IDeploymentEventSource
     public void Debug(string operationName, string message, Exception exception = null)
         => WriteToTrace(new { operationName, message, exception, });
 
-    public void DeploymentOperations(string apiVerion, string resourceGroupName, string resourceGroupLocation, string deploymentName, string deploymentSequenceId, string operationId, DateTime startTime, string executionStatus, string statusCode, string statusMessage, string providerNamespace, string provisioningOperation, string resourceType, string resourceName, string resourceId, string resourceLocation, string resourceExtendedLocation, long totalExecutionCount, string resourceReferenceType)
+    public void DeploymentOperations(string apiVersion, string resourceGroupName, string resourceGroupLocation, string deploymentName, string deploymentSequenceId, string operationId, DateTime startTime, string executionStatus, string statusCode, string statusMessage, string providerNamespace, string provisioningOperation, string resourceType, string resourceName, string resourceId, string resourceLocation, string resourceExtendedLocation, long totalExecutionCount, string resourceReferenceType, string additionalProperties)
     {
     }
 
