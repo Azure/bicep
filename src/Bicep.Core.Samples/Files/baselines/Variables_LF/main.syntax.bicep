@@ -1,5 +1,5 @@
 
-//@[000:8106) ProgramSyntax
+//@[000:8214) ProgramSyntax
 //@[000:0001) ├─Token(NewLine) |\n|
 // int
 //@[006:0007) ├─Token(NewLine) |\n|
@@ -3251,6 +3251,68 @@ var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHar
 //@[070:0093) |   |   └─IdentifierSyntax
 //@[070:0093) |   |     └─Token(Identifier) |arrayOfHardCodedStrings|
 //@[093:0094) |   └─Token(RightSquare) |]|
-//@[094:0095) ├─Token(NewLine) |\n|
+//@[094:0097) ├─Token(NewLine) |\n\n\n|
+
+
+var nameof1 = nameof(arraySpread)
+//@[000:0033) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0011) | ├─IdentifierSyntax
+//@[004:0011) | | └─Token(Identifier) |nameof1|
+//@[012:0013) | ├─Token(Assignment) |=|
+//@[014:0033) | └─FunctionCallSyntax
+//@[014:0020) |   ├─IdentifierSyntax
+//@[014:0020) |   | └─Token(Identifier) |nameof|
+//@[020:0021) |   ├─Token(LeftParen) |(|
+//@[021:0032) |   ├─FunctionArgumentSyntax
+//@[021:0032) |   | └─VariableAccessSyntax
+//@[021:0032) |   |   └─IdentifierSyntax
+//@[021:0032) |   |     └─Token(Identifier) |arraySpread|
+//@[032:0033) |   └─Token(RightParen) |)|
+//@[033:0034) ├─Token(NewLine) |\n|
+var nameof2 = nameof(spread.foo)
+//@[000:0032) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0011) | ├─IdentifierSyntax
+//@[004:0011) | | └─Token(Identifier) |nameof2|
+//@[012:0013) | ├─Token(Assignment) |=|
+//@[014:0032) | └─FunctionCallSyntax
+//@[014:0020) |   ├─IdentifierSyntax
+//@[014:0020) |   | └─Token(Identifier) |nameof|
+//@[020:0021) |   ├─Token(LeftParen) |(|
+//@[021:0031) |   ├─FunctionArgumentSyntax
+//@[021:0031) |   | └─PropertyAccessSyntax
+//@[021:0027) |   |   ├─VariableAccessSyntax
+//@[021:0027) |   |   | └─IdentifierSyntax
+//@[021:0027) |   |   |   └─Token(Identifier) |spread|
+//@[027:0028) |   |   ├─Token(Dot) |.|
+//@[028:0031) |   |   └─IdentifierSyntax
+//@[028:0031) |   |     └─Token(Identifier) |foo|
+//@[031:0032) |   └─Token(RightParen) |)|
+//@[032:0033) ├─Token(NewLine) |\n|
+var nameof3 = nameof(myObj.obj.nested)
+//@[000:0038) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0011) | ├─IdentifierSyntax
+//@[004:0011) | | └─Token(Identifier) |nameof3|
+//@[012:0013) | ├─Token(Assignment) |=|
+//@[014:0038) | └─FunctionCallSyntax
+//@[014:0020) |   ├─IdentifierSyntax
+//@[014:0020) |   | └─Token(Identifier) |nameof|
+//@[020:0021) |   ├─Token(LeftParen) |(|
+//@[021:0037) |   ├─FunctionArgumentSyntax
+//@[021:0037) |   | └─PropertyAccessSyntax
+//@[021:0030) |   |   ├─PropertyAccessSyntax
+//@[021:0026) |   |   | ├─VariableAccessSyntax
+//@[021:0026) |   |   | | └─IdentifierSyntax
+//@[021:0026) |   |   | |   └─Token(Identifier) |myObj|
+//@[026:0027) |   |   | ├─Token(Dot) |.|
+//@[027:0030) |   |   | └─IdentifierSyntax
+//@[027:0030) |   |   |   └─Token(Identifier) |obj|
+//@[030:0031) |   |   ├─Token(Dot) |.|
+//@[031:0037) |   |   └─IdentifierSyntax
+//@[031:0037) |   |     └─Token(Identifier) |nested|
+//@[037:0038) |   └─Token(RightParen) |)|
+//@[038:0039) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

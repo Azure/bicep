@@ -56,7 +56,6 @@ var myEmptyArray = [ ]
 // object
 @sys.description('a object variable')
 var myObj = {
-//@[04:09) [no-unused-vars (Warning)] Variable "myObj" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |myObj|
   a: 'a'
   b: -12
   c: true
@@ -459,5 +458,12 @@ var test = {
 }
 
 var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
-//@[04:15) [no-unused-vars (Warning)] Variable "arraySpread" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |arraySpread|
+
+
+var nameof1 = nameof(arraySpread)
+//@[04:11) [no-unused-vars (Warning)] Variable "nameof1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameof1|
+var nameof2 = nameof(spread.foo)
+//@[04:11) [no-unused-vars (Warning)] Variable "nameof2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameof2|
+var nameof3 = nameof(myObj.obj.nested)
+//@[04:11) [no-unused-vars (Warning)] Variable "nameof3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nameof3|
 

@@ -1,5 +1,5 @@
 
-//@[000:8106) ProgramExpression
+//@[000:8214) ProgramExpression
 // int
 @sys.description('an int variable')
 //@[000:0050) ├─DeclaredVariableExpression { Name = myInt }
@@ -1111,10 +1111,21 @@ var test = {
 }
 
 var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
-//@[000:0094) └─DeclaredVariableExpression { Name = arraySpread }
-//@[018:0094)   └─FunctionCallExpression { Name = flatten }
-//@[018:0094)     └─ArrayExpression
-//@[022:0037)       ├─VariableReferenceExpression { Variable = arrayOfBooleans }
-//@[042:0065)       ├─VariableReferenceExpression { Variable = arrayOfHardCodedNumbers }
-//@[070:0093)       └─VariableReferenceExpression { Variable = arrayOfHardCodedStrings }
+//@[000:0094) ├─DeclaredVariableExpression { Name = arraySpread }
+//@[018:0094) | └─FunctionCallExpression { Name = flatten }
+//@[018:0094) |   └─ArrayExpression
+//@[022:0037) |     ├─VariableReferenceExpression { Variable = arrayOfBooleans }
+//@[042:0065) |     ├─VariableReferenceExpression { Variable = arrayOfHardCodedNumbers }
+//@[070:0093) |     └─VariableReferenceExpression { Variable = arrayOfHardCodedStrings }
+
+
+var nameof1 = nameof(arraySpread)
+//@[000:0033) ├─DeclaredVariableExpression { Name = nameof1 }
+//@[021:0032) | └─StringLiteralExpression { Value = arraySpread }
+var nameof2 = nameof(spread.foo)
+//@[000:0032) ├─DeclaredVariableExpression { Name = nameof2 }
+//@[021:0031) | └─StringLiteralExpression { Value = foo }
+var nameof3 = nameof(myObj.obj.nested)
+//@[000:0038) └─DeclaredVariableExpression { Name = nameof3 }
+//@[021:0037)   └─StringLiteralExpression { Value = nested }
 

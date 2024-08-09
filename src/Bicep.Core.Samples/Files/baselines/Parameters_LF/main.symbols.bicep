@@ -240,3 +240,6 @@ param decoratedArray array = [
     newGuid()
 ]
 
+param nameofParam string = nameof(decoratedArray)
+//@[6:17) Parameter nameofParam. Type: string. Declaration start char: 0, length: 49
+

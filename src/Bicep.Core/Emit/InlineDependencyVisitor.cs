@@ -110,6 +110,11 @@ namespace Bicep.Core.Emit
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
             VisitFunctionCallSyntaxBaseInternal(syntax);
+            if (string.Equals(syntax.Name.IdentifierName, LanguageConstants.NameofFunctionName, StringComparison.Ordinal))
+            {
+                // anything within nameof function will never be inlined, so we can skip checking deeper
+                return;
+            }
             base.VisitFunctionCallSyntax(syntax);
         }
 

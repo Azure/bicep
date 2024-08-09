@@ -61,6 +61,7 @@ namespace Bicep.Core.Emit
         private bool insideTopLevelDependsOn = false;
 
         private bool insideProperties = false;
+        private bool insideNameOfFunction = false;
 
         private ForSyntaxValidatorVisitor(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
@@ -251,6 +252,13 @@ namespace Bicep.Core.Emit
             base.VisitResourceAccessSyntax(syntax);
         }
 
+        public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
+        {
+            insideNameOfFunction = syntax.Name.IdentifierName == LanguageConstants.NameofFunctionName;
+            base.VisitFunctionCallSyntax(syntax);
+            insideNameOfFunction = false;
+        }
+
         protected override void VisitInternal(SyntaxBase node)
         {
             var previousIsPropertyLoopPotentiallyAllowed = this.isPropertyLoopPotentiallyAllowed;
@@ -285,7 +293,7 @@ namespace Bicep.Core.Emit
             {
                 // we are inside a dependsOn property and the referenced symbol is a resource/module collection
                 var parent = this.semanticModel.Binder.GetParent(variableOrResourceAccessSyntax);
-                if (!this.insideTopLevelDependsOn && parent is not ArrayAccessSyntax)
+                if (!insideNameOfFunction && !this.insideTopLevelDependsOn && parent is not ArrayAccessSyntax)
                 {
                     // the parent is not array access, which means that someone is doing a direct reference to the collection
                     // NOTE(kylealbert): Direct access to resource collections:
@@ -295,11 +303,12 @@ namespace Bicep.Core.Emit
                     //  1. Allowed in a variable declaration value
                     //  1. Allowed in an output value
                     var isValidResourceCollectionDirectAccessLocation =
-                        this.semanticModel.Features.SymbolicNameCodegenEnabled
-                        && this.loopLevel == 0
-                        && (this.insideProperties
-                            || this.currentOutputDeclarationSyntax != null
-                            || (this.currentVariableDeclarationSyntax != null && this.variableAccessForInlineCheck == null));
+                        (this.semanticModel.Features.SymbolicNameCodegenEnabled
+                         && this.loopLevel == 0
+                         && (this.insideProperties
+                             || this.currentOutputDeclarationSyntax != null
+                             || (this.currentVariableDeclarationSyntax != null && this.variableAccessForInlineCheck == null))
+                        );
 
                     if (!isValidResourceCollectionDirectAccessLocation)
                     {

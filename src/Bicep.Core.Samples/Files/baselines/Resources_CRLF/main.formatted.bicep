@@ -536,5 +536,29 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   resource primaryDb 'databases' = {
     name: 'primary-db'
     location: 'polandcentral'
+
+    resource threatProtection 'advancedThreatProtectionSettings' = {
+      name: 'Default'
+      properties: {
+        state: 'Enabled'
+      }
+    }
   }
+}
+
+//nameof
+var nameof1 = nameof(sqlServer)
+var nameof2 = nameof(sqlServer.location)
+var nameof3 = nameof(sqlServer::primaryDb.properties.minCapacity)
+var nameof4 = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+var nameof5 = nameof(sqlServer::sqlDatabases[0].id)
+
+var sqlConfig = {
+  westus: {}
+  'server-name': {}
+}
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+  location: nameof(sqlConfig.westus)
 }

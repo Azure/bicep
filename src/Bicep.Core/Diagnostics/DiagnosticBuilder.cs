@@ -2211,6 +2211,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP406",
                 $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
+
+            public ErrorDiagnostic ExpressionDoesNotHaveAName() => new(
+                TextSpan,
+                "BCP407",
+                $"Expression does not have a name");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

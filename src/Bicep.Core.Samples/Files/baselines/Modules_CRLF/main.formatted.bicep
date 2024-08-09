@@ -389,3 +389,13 @@ module withSpace 'module with space.bicep' = {
 module folderWithSpace 'child/folder with space/child with space.bicep' = {
   name: 'childWithSpace'
 }
+
+// nameof
+
+var nameofModule = nameof(folderWithSpace)
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+
+module moduleWithNameof 'modulea.bicep' = {
+  name: 'nameofModule'
+  scope: resourceGroup(nameof(nameofModuleParam))
+}

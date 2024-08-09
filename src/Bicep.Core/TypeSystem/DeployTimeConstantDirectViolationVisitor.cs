@@ -74,7 +74,6 @@ namespace Bicep.Core.TypeSystem
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
             this.FlagIfFunctionRequiresInlining(syntax);
-
             base.VisitFunctionCallSyntax(syntax);
         }
 

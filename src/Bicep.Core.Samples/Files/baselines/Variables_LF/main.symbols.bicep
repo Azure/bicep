@@ -508,3 +508,11 @@ var test = {
 var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
 //@[04:15) Variable arraySpread. Type: ('hi' | 3 | bool)[]. Declaration start char: 0, length: 94
 
+
+var nameof1 = nameof(arraySpread)
+//@[04:11) Variable nameof1. Type: 'arraySpread'. Declaration start char: 0, length: 33
+var nameof2 = nameof(spread.foo)
+//@[04:11) Variable nameof2. Type: 'foo'. Declaration start char: 0, length: 32
+var nameof3 = nameof(myObj.obj.nested)
+//@[04:11) Variable nameof3. Type: 'nested'. Declaration start char: 0, length: 38
+

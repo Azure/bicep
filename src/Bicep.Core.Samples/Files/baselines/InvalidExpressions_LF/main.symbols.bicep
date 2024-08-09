@@ -365,6 +365,30 @@ var partialObject = {
   d  : %
 }
 
+//nameof expressions
+var nameOfConstant = nameof('abc')
+//@[4:18) Variable nameOfConstant. Type: error. Declaration start char: 0, length: 34
+var nameOfKeyword1 = nameof(param)
+//@[4:18) Variable nameOfKeyword1. Type: error. Declaration start char: 0, length: 34
+var nameOfKeyword2 = nameof(var)
+//@[4:18) Variable nameOfKeyword2. Type: error. Declaration start char: 0, length: 32
+var nameOfKeyword3 = nameof(resource)
+//@[4:18) Variable nameOfKeyword3. Type: error. Declaration start char: 0, length: 37
+var nameOfKeyword4 = nameof(module)
+//@[4:18) Variable nameOfKeyword4. Type: error. Declaration start char: 0, length: 35
+var nameOfKeyword5 = nameof(output)
+//@[4:18) Variable nameOfKeyword5. Type: error. Declaration start char: 0, length: 35
+var nameofExpression1 = nameof(1 + 2)
+//@[4:21) Variable nameofExpression1. Type: error. Declaration start char: 0, length: 37
+var nameofVar= 'abc'
+//@[4:13) Variable nameofVar. Type: 'abc'. Declaration start char: 0, length: 20
+var nameofExpression2 = nameof(true ? nameofVar : nameofVar)
+//@[4:21) Variable nameofExpression2. Type: error. Declaration start char: 0, length: 60
+var nameofUnknown = nameof(symbolNotFound)
+//@[4:17) Variable nameofUnknown. Type: error. Declaration start char: 0, length: 42
+var nameofEmpty = nameof()
+//@[4:15) Variable nameofEmpty. Type: error. Declaration start char: 0, length: 26
+
 // dangling decorators - to make sure the tests work, please do not add contents after this line
 @concat()
 @sys.secure()
@@ -385,7 +409,5 @@ var unterminated2 = (,
 
 // trailing decorator with no declaration
 @minLength()
-
-
 
 
