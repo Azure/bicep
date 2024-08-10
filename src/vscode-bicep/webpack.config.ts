@@ -159,12 +159,6 @@ const deployPaneConfig: webpack.Configuration = {
     new webpack.ProvidePlugin({
       React: "react",
     }),
-    new CopyPlugin({
-      patterns: [
-        { from: "node_modules/@vscode/codicons/dist/codicon.css", to: outputPath },
-        { from: "node_modules/@vscode/codicons/dist/codicon.ttf", to: outputPath },
-      ],
-    }),
   ],
 };
 

@@ -16,6 +16,7 @@ import { FormSection } from "./sections/FormSection";
 import { ParametersInputView } from "./sections/ParametersInputView";
 import { ResultsView } from "./sections/ResultsView";
 import { WhatIfChangesView } from "./sections/WhatIfChangesView";
+import { Codicon } from "@vscode-bicep-ui/components";
 
 export const App: FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -75,7 +76,7 @@ export const App: FC = () => {
         <>
           <FormSection title="Experimental Warning">
             <div className="alert-error">
-              <span className="codicon codicon-beaker" />
+              <Codicon name="beaker" size={14} />
               The Bicep Deployment Pane is an experimental feature.
               <br />
               Documentation is available{" "}
@@ -97,7 +98,7 @@ export const App: FC = () => {
           <FormSection title="Actions">
             {errorMessage && (
               <div className="alert-error">
-                <span className="codicon codicon-error" />
+                <Codicon name="error" size={14} />
                 {errorMessage}
               </div>
             )}
@@ -130,7 +131,7 @@ export const App: FC = () => {
         <>
           <FormSection title="Experimental Warning">
             <div className="alert-error">
-              <span className="codicon codicon-beaker" />
+                <Codicon name="error" size={14} />
               Local Deployment is an experimental feature.
             </div>
           </FormSection>
@@ -148,7 +149,7 @@ export const App: FC = () => {
               <FormSection title="Actions">
                 {errorMessage && (
                   <div className="alert-error">
-                    <span className="codicon codicon-error" />
+                    <Codicon name="error" size={14} />
                     {errorMessage}
                   </div>
                 )}

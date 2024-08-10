@@ -12,6 +12,7 @@ import { FC } from "react";
 import { DeploymentScope } from "../../../models";
 import { getPreformattedJson, isFailed, isInProgress } from "../utils";
 import { FormSection } from "./FormSection";
+import { Codicon } from "@vscode-bicep-ui/components";
 
 interface DeploymentOperationsViewProps {
   scope: DeploymentScope;
@@ -84,7 +85,7 @@ function getResourceNameContents(scope: DeploymentScope, operation: DeploymentOp
       {resourceId && isPutOrGet && (
         // It only makes sense to share a link to the portal if we're doing a PUT / GET on a resource (as opposed to a POST action)
         <VSCodeLink title="Open in Portal" href={`${scope.portalUrl}/#@${scope.tenantId}/resource${resourceId}`}>
-          <span className="codicon codicon-globe" />
+          <Codicon name="error" size={12} />
         </VSCodeLink>
       )}
     </>

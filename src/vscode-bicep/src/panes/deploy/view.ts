@@ -248,10 +248,6 @@ export class DeployPaneView extends Disposable {
       vscode.Uri.joinPath(this.extensionUri, "out", "deployPane.js"),
     );
 
-    const codiconCssUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "codicon.css"),
-    );
-
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -261,9 +257,8 @@ export class DeployPaneView extends Disposable {
         Use a content security policy to only allow loading images from our extension directory,
         and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://management.azure.com; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src ${cspSource};">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://management.azure.com; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src data: ${cspSource};">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" nonce="${nonce}" href="${codiconCssUri}">
       </head>
       <body>
         <div id="root"></div>
