@@ -29,12 +29,12 @@ jobs:
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
-          
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
+
       - name: npm ci
         run: npm ci
         working-directory: ./src/vscode-bicep
@@ -43,7 +43,11 @@ jobs:
         run: |
           dotnet format
           dotnet format style --diagnostics IDE0005 --severity info
-      
+
+      - name: Format vscode-bicep-ui
+        run: npm run format
+        working-directory: ./src/vscode-bicep-ui
+
       - name: Format vscode-bicep
         run: npm run format
         working-directory: ./src/vscode-bicep

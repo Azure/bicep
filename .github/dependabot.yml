@@ -46,6 +46,11 @@ updates:
         versions:
         - ">1.52.0"
   - package-ecosystem: "npm"
+    directory: "/src/vscode-bicep-ui"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+  - package-ecosystem: "npm"
     directory: "/src/playground"
     schedule:
       interval: "weekly"
