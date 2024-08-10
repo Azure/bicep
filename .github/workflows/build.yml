@@ -113,11 +113,11 @@ jobs:
 
       - name: npm ci (vscode-bicep-ui)
         run: npm ci
-        working-directory: ./src/vscode-bicep
+        working-directory: ./src/vscode-bicep-ci
 
       - name: Build vscode-bicep-ui
         run: npm run build
-        working-directory: ./src/vscode-bicep
+        working-directory: ./src/vscode-bicep-ci
 
       - name: npm ci (vscode-bicep)
         run: npm ci --install-links
