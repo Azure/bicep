@@ -1,5 +1,5 @@
 import dts from "vite-plugin-dts";
-import { defineConfig } from "vitest/config";
+import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -28,7 +28,7 @@ export default defineConfig({
     environment: "happy-dom",
     coverage: {
       enabled: true,
-      exclude: ["src/index.ts"],
+      exclude: ["src/index.ts", ...coverageConfigDefaults.exclude],
     },
     setupFiles: ["src/__tests__/setupGlobals.ts"],
     onConsoleLog: (log) => {

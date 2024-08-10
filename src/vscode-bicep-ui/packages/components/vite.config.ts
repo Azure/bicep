@@ -13,7 +13,7 @@ export default defineConfig({
     svgr(),
     dts({
       include: ["src/**/*.ts", "src/**/*.tsx"],
-      exclude: ["src/**/*.stories.ts", "src/**/*.stories.tsx"],
+      exclude: ["src/**/*.stories.ts", "src/**/*.stories.tsx", "src/**/__tests__/**"],
       insertTypesEntry: true,
     }),
     libInjectCss(),
