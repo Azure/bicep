@@ -164,6 +164,10 @@ jobs:
         with:
           node-version: 20
 
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/vscode-bicep-ui
+
       - name: Run lint
         run: npm run lint
         working-directory: ./src/vscode-bicep-ui
