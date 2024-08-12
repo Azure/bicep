@@ -744,8 +744,8 @@
     "test:update-snapshot": "jest --config jest.config.snapshot.js --updateSnapshot",
     "testlocal:e2e": "(export BICEP_LANGUAGE_SERVER_PATH=${INIT_CWD}/../Bicep.LangServer/bin/Debug/net8.0/Bicep.LangServer.dll || set BICEP_LANGUAGE_SERVER_PATH=%INIT_CWD%/../Bicep.LangServer/bin/Debug/net8.0/Bicep.LangServer.dll) && npm run build && npm run build:e2e && npm run test:e2e",
     "clean": "rimraf ./out ./coverage",
-    "package": "npm run clean && nbgv-setversion && vsce package --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset",
-    "packagelocal": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net8.0 ./bicepLanguageServer && npm run package"
+    "package": "npm run clean && nbgv-setversion && vsce package --no-dependencies --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset",
+    "package:local": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net8.0 ./bicepLanguageServer && npm run package"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
@@ -799,7 +799,7 @@
     "@azure/identity": "^4.4.1",
     "@microsoft/vscode-azext-azureutils": "^3.0.1",
     "@microsoft/vscode-azext-utils": "^2.5.4",
-    "@vscode/codicons": "^0.0.36",
+    "@vscode-bicep-ui/components": "file:../vscode-bicep-ui/packages/components",
     "@vscode/webview-ui-toolkit": "^1.4.0",
     "cytoscape": "^3.30.2",
     "cytoscape-elk": "^2.2.0",
