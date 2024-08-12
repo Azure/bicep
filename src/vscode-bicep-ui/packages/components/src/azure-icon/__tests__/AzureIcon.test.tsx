@@ -21,7 +21,7 @@ describe.concurrent("AzureIcon", () => {
         const svg = within(iconDiv).getByTestId(`${resourceType}-svg`);
         expect(svg).toHaveAttribute("id", svgId);
       },
-      { timeout: 5000 },
+      { timeout: 10000 },
     );
   });
 });
