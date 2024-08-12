@@ -423,7 +423,7 @@ namespace Bicep.Core.Emit
                     {
                         var deploymentResourceId = GetFullyQualifiedResourceId(moduleSymbol);
                         var apiVersion = new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion);
-                        return (CreateFunction(secureOutputsApi, deploymentResourceId,apiVersion),
+                        return (CreateFunction(secureOutputsApi, deploymentResourceId, apiVersion),
                             Enumerable.Empty<LanguageExpression>(), expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess));
                     }
 
