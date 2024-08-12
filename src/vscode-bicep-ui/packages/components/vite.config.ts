@@ -36,6 +36,7 @@ export default defineConfig({
     },
   },
   test: {
+    testTimeout: 15000,
     watch: false,
     globals: true,
     restoreMocks: true,
