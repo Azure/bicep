@@ -58,15 +58,20 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(LocalModuleReference reference)
         {
-            if (reference.ArtifactType == ArtifactType.Provider)
-            {
-                return new(GetTypesTgzUri(reference));
-            }
-
             var localUri = FileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path);
             if (localUri is null)
             {
                 return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ParentModuleUri.LocalPath));
+            }
+
+            if (reference.ArtifactType == ArtifactType.Provider)
+            {
+                if (TryGetTypesTgzUri(reference) is null)
+                {
+                    return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ParentModuleUri.LocalPath));
+                }
+
+                return new(GetTypesTgzUri(reference));
             }
 
             return new(localUri);
@@ -174,11 +179,11 @@ namespace Bicep.Core.Registry
             this.FileResolver.Write(typesUri, entity.Provider.Types.ToStream());
         }
 
-        protected override string GetArtifactDirectoryPath(LocalModuleReference reference)
+        private string? TryGetArtifactDirectoryPath(LocalModuleReference reference)
         {
             if (TryReadContent(reference) is not { } binaryData)
             {
-                throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
+                return null;
             }
 
             // Provider packages are unpacked to '~/.bicep/local/sha256_<digest>'.
@@ -189,6 +194,16 @@ namespace Bicep.Core.Registry
                 this.featureProvider.CacheRootDirectory,
                 "local",
                 digest);
+        }
+
+        protected override string GetArtifactDirectoryPath(LocalModuleReference reference)
+        {
+            if (TryGetArtifactDirectoryPath(reference) is not { } path)
+            {
+                throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
+            }
+            
+            return path;
         }
 
         private BinaryData? TryReadContent(LocalModuleReference reference)
@@ -204,11 +219,18 @@ namespace Bicep.Core.Registry
 
         private Uri GetTypesTgzUri(LocalModuleReference reference) => GetFileUri(reference, "types.tgz");
 
+        private Uri? TryGetTypesTgzUri(LocalModuleReference reference) => TryGetFileUri(reference, "types.tgz");
+
         private Uri GetProviderBinUri(LocalModuleReference reference) => GetFileUri(reference, "provider.bin");
 
         protected override Uri GetArtifactLockFileUri(LocalModuleReference reference) => GetFileUri(reference, "lock");
 
         private Uri GetFileUri(LocalModuleReference reference, string path)
-            => new(FileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), path), UriKind.Absolute);
+            => TryGetFileUri(reference, path) ?? throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
+
+        private Uri? TryGetFileUri(LocalModuleReference reference, string path)
+            => TryGetArtifactDirectoryPath(reference) is {} directoryPath ? 
+            new(FileSystem.Path.Combine(directoryPath, path), UriKind.Absolute) :
+            null;
     }
 }

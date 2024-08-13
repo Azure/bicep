@@ -91,11 +91,13 @@ namespace Bicep.Core.Registry
             if (artifactReferenceSyntax is ProviderDeclarationSyntax providerDeclarationSyntax)
             {
                 var artifactAddressResult = TryGetArtifactAddress(providerDeclarationSyntax, parentModuleUri);
-                if (!artifactAddressResult.IsSuccess(out var providerArtifactPath, out var providerDeclarationPathFailureBuilder))
+                if (!artifactAddressResult.IsSuccess(out var result, out var providerDeclarationPathFailureBuilder))
                 {
                     return new(providerDeclarationPathFailureBuilder);
                 }
-                return this.TryGetArtifactReference(artifactReferenceSyntax.GetArtifactType(), providerArtifactPath, parentModuleUri);
+
+                var sourceUri = result.ConfigSource?.ConfigFileUri ?? parentModuleUri;
+                return this.TryGetArtifactReference(artifactReferenceSyntax.GetArtifactType(), result.PathValue, sourceUri);
             }
 
             var artifactPathResult = SyntaxHelper.TryGetForeignTemplatePath(artifactReferenceSyntax, GetErrorBuilderDelegate(artifactReferenceSyntax));
@@ -116,7 +118,11 @@ namespace Bicep.Core.Registry
             _ => throw new NotImplementedException($"Unexpected artifact reference syntax type '{artifactReferenceSyntax.GetType().Name}'.")
         };
 
-        private ResultWithDiagnostic<string> TryGetArtifactAddress(ProviderDeclarationSyntax providerDeclarationSyntax, Uri parentModuleUri)
+        private record ArtifactAddressResult(
+            string PathValue,
+            RootConfiguration? ConfigSource);
+
+        private ResultWithDiagnostic<ArtifactAddressResult> TryGetArtifactAddress(ProviderDeclarationSyntax providerDeclarationSyntax, Uri parentModuleUri)
         {
             switch (providerDeclarationSyntax.SpecificationString)
             {
@@ -126,11 +132,11 @@ namespace Bicep.Core.Registry
                         return new(x => x.ProviderSpecificationInterpolationUnsupported());
                     }
 
-                    return new(pathValue);
+                    return new(new ArtifactAddressResult(pathValue, null));
                 case IdentifierSyntax configSpec:
                     var config = configurationManager.GetConfiguration(parentModuleUri);
 
-                    return config.Extensions.TryGetProviderSource(configSpec.IdentifierName).Transform(x => x.Value);
+                    return config.Extensions.TryGetProviderSource(configSpec.IdentifierName).Transform(x => new ArtifactAddressResult(x.Value, config));
                 default:
                     return new(x => x.ExpectedProviderSpecification());
             }

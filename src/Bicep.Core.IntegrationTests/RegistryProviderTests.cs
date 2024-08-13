@@ -4,10 +4,12 @@
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry.Providers;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Features;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -108,6 +110,114 @@ resource fooRes 'fooType@v1' = {
         var result = CompilationHelper.GetCompilationResult(compilation);
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public async Task Filesystem_extensions_can_be_compiled()
+    {
+        // See https://github.com/Azure/bicep/issues/14770 for context
+        var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();
+        var providerTgz = await ProviderV1Archive.Build(new(typesTgz, false, []));
+
+        var result = await CompilationHelper.RestoreAndCompile(
+          ("main.bicep", new("""
+extension '../provider.tgz'
+
+resource fooRes 'fooType@v1' = {
+  identifier: 'foo'
+  properties: {
+    required: 'bar'
+  }
+}
+""")), ("../bicepconfig.json", new("""
+{
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "extensionRegistry": true
+  }
+}
+""")), ("../provider.tgz", providerTgz));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public async Task Filesystem_extensions_can_be_compiled_bicepconfig()
+    {
+        // See https://github.com/Azure/bicep/issues/14770 for context
+        var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();
+        var providerTgz = await ProviderV1Archive.Build(new(typesTgz, false, []));
+
+        var result = await CompilationHelper.RestoreAndCompile(
+          ("main.bicep", new("""
+extension myProvider
+
+resource fooRes 'fooType@v1' = {
+  identifier: 'foo'
+  properties: {
+    required: 'bar'
+  }
+}
+""")), ("../bicepconfig.json", new("""
+{
+  "extensions": {
+    "myProvider": "./provider.tgz"
+  },
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "extensionRegistry": true
+  }
+}
+""")), ("../provider.tgz", providerTgz));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public async Task Missing_extension_file_raises_a_diagnostic()
+    {
+        // See https://github.com/Azure/bicep/issues/14770 for context
+        var result = await CompilationHelper.RestoreAndCompile(
+          ("main.bicep", new("""
+extension './non_existent.tgz'
+""")), ("bicepconfig.json", new("""
+{
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "extensionRegistry": true
+  }
+}
+""")));
+
+        var sourceUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
+        result.Should().HaveDiagnostics([
+            ("BCP093", DiagnosticLevel.Error, $"File path \"./non_existent.tgz\" could not be resolved relative to \"{sourceUri.LocalPath}\"."),
+        ]);
+    }
+
+    [TestMethod]
+    public async Task Missing_extension_file_raises_a_diagnostic_bicepconfig()
+    {
+        // See https://github.com/Azure/bicep/issues/14770 for context
+        var result = await CompilationHelper.RestoreAndCompile(
+          ("main.bicep", new("""
+extension nonExistent
+""")), ("../bicepconfig.json", new("""
+{
+  "extensions": {
+    "nonExistent": "./non_existent.tgz"
+  },
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "extensionRegistry": true
+  }
+}
+""")));
+
+        var sourceUri = InMemoryFileResolver.GetFileUri("/path/bicepconfig.json");
+        result.Should().HaveDiagnostics([
+            ("BCP093", DiagnosticLevel.Error, $"File path \"./non_existent.tgz\" could not be resolved relative to \"{sourceUri.LocalPath}\"."),
+        ]);
     }
 
     [TestMethod]
