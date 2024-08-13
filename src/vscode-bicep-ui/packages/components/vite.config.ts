@@ -25,6 +25,8 @@ export default defineConfig({
         index: "src/index.ts",
         "azure-icon": "src/azure-icon/index.ts",
         codicon: "src/codicon/index.ts",
+        list: "src/list/index.ts",
+        "pan-zoom": "src/pan-zoom/index.ts",
       },
     },
     rollupOptions: {
@@ -43,7 +45,7 @@ export default defineConfig({
     environment: "happy-dom",
     coverage: {
       enabled: true,
-      exclude: ["src/**/*.stories.ts", "src/**/*.stories.tsx", "src/**/index.ts", ...coverageConfigDefaults.exclude],
+      exclude: ["src/**/*.stories.ts", "src/**/*.stories.tsx", "src/**/index.ts", "src/**/types.ts", ...coverageConfigDefaults.exclude],
     },
     setupFiles: ["src/__tests__/extendMatchers.ts"],
   },

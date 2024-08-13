@@ -21,7 +21,7 @@ const meta: Meta<typeof Accordion> = {
 
 export default meta;
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof Accordion>;
 
 const TextBlock = styled.div`
   padding: 20px;

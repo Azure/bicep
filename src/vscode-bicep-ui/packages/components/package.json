@@ -20,19 +20,19 @@
   },
   "peerDependencies": {
     "framer-motion": "^11.3.24",
+    "jotai": "^2.9.3",
+    "jotai-scope": "^0.7.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "styled-components": "^6.1.11"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^8.2.8",
-    "@storybook/addon-interactions": "^8.2.8",
     "@storybook/addon-links": "^8.2.8",
     "@storybook/addon-themes": "^8.2.8",
     "@storybook/blocks": "^8.2.2",
     "@storybook/react": "^8.2.2",
     "@storybook/react-vite": "^8.2.8",
-    "@storybook/test": "^8.2.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
