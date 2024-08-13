@@ -26,7 +26,6 @@
     "typescript": "^5.5.2"
   },
   "dependencies": {
-    "framer-motion": "^11.3.8",
-    "jotai": "^2.9.0"
+    "framer-motion": "^11.3.8"
   }
 }
