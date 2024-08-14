@@ -166,7 +166,7 @@ namespace Bicep.VSLanguageServerClient.ProcessLauncher
         }
 
         /// <summary>
-        /// IClientProcess implemenation for executables started on Arm64 
+        /// IClientProcess implementation for executables started on Arm64 
         /// </summary>
         private class ClientProcessArm64 : IDisposable, IClientProcess
         {
@@ -193,7 +193,7 @@ namespace Bicep.VSLanguageServerClient.ProcessLauncher
         }
 
         /// <summary>
-        /// IClientProcess implemenation for executables started on normally using the Process class
+        /// IClientProcess implementation for executables started on normally using the Process class
         /// </summary>
         private class ClientProcessAmd64 : IDisposable, IClientProcess
         {

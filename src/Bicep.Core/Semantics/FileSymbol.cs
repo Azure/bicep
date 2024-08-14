@@ -30,7 +30,7 @@ namespace Bicep.Core.Semantics
             this.FileKind = sourceFile.FileKind;
             this.LocalScopes = fileScope.ChildScopes;
 
-            var declartionsBySyntax = ImmutableDictionary.CreateBuilder<SyntaxBase, DeclaredSymbol>();
+            var declarationsBySyntax = ImmutableDictionary.CreateBuilder<SyntaxBase, DeclaredSymbol>();
             var providerDeclarations = ImmutableArray.CreateBuilder<ProviderNamespaceSymbol>();
             var metadataDeclarations = ImmutableArray.CreateBuilder<MetadataSymbol>();
             var parameterDeclarations = ImmutableArray.CreateBuilder<ParameterSymbol>();
@@ -51,7 +51,7 @@ namespace Bicep.Core.Semantics
 
             foreach (var declaration in fileScope.Declarations)
             {
-                declartionsBySyntax.Add(declaration.DeclaringSyntax, declaration);
+                declarationsBySyntax.Add(declaration.DeclaringSyntax, declaration);
 
                 switch (declaration)
                 {
@@ -109,7 +109,7 @@ namespace Bicep.Core.Semantics
                 }
             }
 
-            DeclarationsBySyntax = declartionsBySyntax.ToImmutable();
+            DeclarationsBySyntax = declarationsBySyntax.ToImmutable();
             ProviderDeclarations = providerDeclarations.ToImmutable();
             MetadataDeclarations = metadataDeclarations.ToImmutable();
             ParameterDeclarations = parameterDeclarations.ToImmutable();

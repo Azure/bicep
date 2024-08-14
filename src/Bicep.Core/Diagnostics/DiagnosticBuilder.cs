@@ -1124,7 +1124,7 @@ namespace Bicep.Core.Diagnostics
                "BCP185",
                $"Encoding mismatch. File was loaded with '{detectedEncoding}' encoding.");
 
-            public ErrorDiagnostic UnparseableJsonType() => new(
+            public ErrorDiagnostic UnparsableJsonType() => new(
                TextSpan,
                "BCP186",
                $"Unable to parse literal JSON value. Please ensure that it is well-formed.");
@@ -1301,7 +1301,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP216",
                 $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidSubscirptionId(string? aliasName, string subscriptionId, string referenceValue) => new(
+            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidSubscriptionId(string? aliasName, string subscriptionId, string referenceValue) => new(
                 TextSpan,
                 "BCP217",
                 $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The subscription ID \"{subscriptionId}\" in is not a GUID.");
@@ -1314,7 +1314,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidResourceGroupName(string? aliasName, string resourceGroupName, string referenceValue) => new(
                 TextSpan,
                 "BCP219",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The resource group name \"{resourceGroupName}\" is invalid. Valid characters are alphanumeric, unicode charaters, \".\", \"_\", \"-\", \"(\", or \")\", but the resource group name cannot end with \".\".");
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The resource group name \"{resourceGroupName}\" is invalid. Valid characters are alphanumeric, unicode characters, \".\", \"_\", \"-\", \"(\", or \")\", but the resource group name cannot end with \".\".");
 
             public ErrorDiagnostic InvalidTemplateSpecReferenceTemplateSpecNameTooLong(string? aliasName, string templateSpecName, string referenceValue, int maximumLength) => new(
                 TextSpan,
@@ -1654,7 +1654,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidTypeUnion() => new(
                 TextSpan,
                 "BCP294",
-                "Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool').");
+                "Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool').");
 
             public ErrorDiagnostic DecoratorNotPermittedOnLiteralType(string decoratorName) => new(
                 TextSpan,
@@ -1890,7 +1890,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP339",
                 $"""The provided array index value of "{indexSought}" is not valid. Array index should be greater than or equal to 0.""");
 
-            public ErrorDiagnostic UnparseableYamlType() => new(
+            public ErrorDiagnostic UnparsableYamlType() => new(
                TextSpan,
                "BCP340",
                $"Unable to parse literal YAML value. Please ensure that it is well-formed.");
@@ -2154,7 +2154,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic CannotUseEntireResourceBodyAsType() => new(
                 TextSpan,
                 "BCP394",
-                "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted.");
+                "Resource-derived type expressions must dereference a property within the resource body. Using the entire resource body type is not permitted.");
 
             public ErrorDiagnostic InvalidTypesTgzPackage_DeserializationFailed() => new(
                 TextSpan,

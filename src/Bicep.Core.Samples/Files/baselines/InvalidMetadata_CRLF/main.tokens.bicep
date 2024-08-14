@@ -29,10 +29,10 @@ metadata missingValueAndType =
 //@[29:30) Assignment |=|
 //@[31:35) NewLine |\r\n\r\n|
 
-metadata missingAssignment 'noAssingmentOperator'
+metadata missingAssignment 'noAssignmentOperator'
 //@[00:08) Identifier |metadata|
 //@[09:26) Identifier |missingAssignment|
-//@[27:49) StringComplete |'noAssingmentOperator'|
+//@[27:49) StringComplete |'noAssignmentOperator'|
 //@[49:53) NewLine |\r\n\r\n|
 
 // metadata referencing metadata

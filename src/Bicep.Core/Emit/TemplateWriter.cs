@@ -77,7 +77,7 @@ namespace Bicep.Core.Emit
 
         public void Write(SourceAwareJsonTextWriter writer)
         {
-            // Template is used for calcualting template hash, template jtoken is used for writing to file.
+            // Template is used for calculating template hash, template jtoken is used for writing to file.
             var (template, templateJToken) = GenerateTemplateWithoutHash(writer.TrackingJsonWriter);
             var templateHash = TemplateHelpers.ComputeTemplateHash(template.ToJToken());
             if (templateJToken.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
@@ -1411,7 +1411,7 @@ namespace Bicep.Core.Emit
                 emitter.EmitProperty("type", NestedDeploymentResourceType);
                 emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
 
-                // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
+                // emit all properties apart from 'params'. In practice, this currently only allows 'name', but we may choose to allow other top-level resource properties in future.
                 // params requires special handling (see below).
                 emitter.EmitObjectProperties((ObjectExpression)body);
 

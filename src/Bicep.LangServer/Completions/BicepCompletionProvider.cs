@@ -690,11 +690,11 @@ namespace Bicep.LanguageServer.Completions
                 (ModuleRegistryWithoutAliasPattern.IsMatch(text) || ModuleRegistryWithAliasPattern.IsMatch(text));
         }
 
-        private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Compilation compitation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Compilation computation, BicepCompletionContext context)
         {
             if (context.EnclosingDeclaration is ParameterDeclarationSyntax parameterDeclarationSyntax)
             {
-                var bicepFile = compitation.SourceFileGrouping.EntryPoint;
+                var bicepFile = computation.SourceFileGrouping.EntryPoint;
                 Range enclosingDeclarationRange = parameterDeclarationSyntax.Keyword.ToRange(bicepFile.LineStarts);
                 TextEdit textEdit = new()
                 {
@@ -1018,7 +1018,7 @@ namespace Bicep.LanguageServer.Completions
                 // reverse loop iteration
                 foreach (var scope in context.ActiveScopes.Reverse())
                 {
-                    // add referencable declarations with valid identifiers at current scope
+                    // add referenceable declarations with valid identifiers at current scope
                     AddSymbolCompletions(completions, scope.Declarations
                         .Where(symbolFilter)
                         .Where(decl => decl.NameSource.IsValid && decl.CanBeReferenced()));
@@ -1041,7 +1041,7 @@ namespace Bicep.LanguageServer.Completions
                 AddSymbolCompletions(completions, nsTypeDict.Keys.Where(
                     ns => GetAccessibleDecoratorFunctionsWithCache(nsTypeDict[ns]).Any()));
 
-                // Record the names of referencable declarations which will be used to check name clashes later.
+                // Record the names of referenceable declarations which will be used to check name clashes later.
                 declaredNames.UnionWith(model.Root.Declarations.Where(decl => decl.NameSource.IsValid && decl.CanBeReferenced()).Select(decl => decl.Name));
             }
 

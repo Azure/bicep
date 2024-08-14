@@ -54,7 +54,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) => this.Apply(syntax, this.LayoutProviderWithClauseSyntax);
 
-        public void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) => this.Apply(syntax, this.LayoutIntanceFunctionCallSyntax);
+        public void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) => this.Apply(syntax, this.LayoutInstanceFunctionCallSyntax);
 
         public void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax) => this.Layout(syntax.Literal);
 

@@ -709,7 +709,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetT
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
 
-  propertes: {}
+  properties: {}
 }
 
 var mock = incorrectPropertiesKey.p
@@ -1672,7 +1672,7 @@ resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sqlServer3'
   location: 'polandcentral'
 
-  @description('mising resource keyword')
+  @description('missing resource keyword')
 }
 resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sqlServer4'

@@ -13,7 +13,7 @@ param hostpoolDescription string = ''
 @description('The location where the resources will be deployed.')
 param location string
 
-@description('The name of the workspace to be attach to new Applicaiton Group.')
+@description('The name of the workspace to be attach to new Application Group.')
 param workSpaceName string = ''
 
 @description('The location of the workspace.')
@@ -46,18 +46,18 @@ param vmAdministratorAccountPassword string = ''
 @description('Select the availability options for the VMs.')
 param availabilityOption string = 'None'
 
-@description('The name of avaiability set to be used when create the VMs.')
+@description('The name of availability set to be used when create the VMs.')
 param availabilitySetName string = ''
 
 @description('Whether to create a new availability set for the VMs.')
 param createAvailabilitySet bool = false
 
 @allowed([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
-@description('The platform update domain count of avaiability set to be created.')
+@description('The platform update domain count of availability set to be created.')
 param availabilitySetUpdateDomainCount int = 5
 
 @allowed([1, 2, 3])
-@description('The platform fault domain count of avaiability set to be created.')
+@description('The platform fault domain count of availability set to be created.')
 param availabilitySetFaultDomainCount int = 2
 
 @allowed([1, 2, 3])
@@ -177,7 +177,7 @@ param apiVersion string = '2019-12-10-preview'
 @description('GUID for the deployment')
 param deploymentId string = ''
 
-@description('Whether to use validation enviroment.')
+@description('Whether to use validation environment.')
 param validationEnvironment bool = false
 
 @description('Preferred App Group type to display')
@@ -374,7 +374,7 @@ module vmCreation_customVHD_unmanagedDisks './modules/unmanagedDisks-customvhdvm
 }
 
 // Deploy vmImageType = CustomImage
-module vmCreation_customeImage './modules/managedDisks-customimagevm.bicep' = if ((createVMs) && (vmImageType == 'CustomImage')) {
+module vmCreation_customImage './modules/managedDisks-customimagevm.bicep' = if ((createVMs) && (vmImageType == 'CustomImage')) {
   name: 'vmCreation-linkedTemplate-${deploymentId}-managedDisks-customimagevm'
   scope: resourceGroup(vmResourceGroup)
   params: {

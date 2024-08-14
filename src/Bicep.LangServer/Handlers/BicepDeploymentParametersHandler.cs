@@ -21,7 +21,7 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Handles getDeploymentParameters LSP request.
     /// The BicepDeploymentParametersHandler returns information about deployment parameters, parameters file name and error message, if any.
-    /// List of <see cref="BicepDeploymentParameter"/>, included in the response has informtion about the parameter e.g. name , value, if the parameter has
+    /// List of <see cref="BicepDeploymentParameter"/>, included in the response has information about the parameter e.g. name , value, if the parameter has
     /// @secure() decorator, if it's missing default value/is not present in parameters file, is an expression etc
     /// The above information will be used to display appropriate controls in UI.
     /// </summary>

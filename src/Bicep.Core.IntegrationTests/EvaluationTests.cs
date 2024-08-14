@@ -67,7 +67,7 @@ var arr = [
 var multiline = '''
 these escapes
   are not
-  evaluted:
+  evaluated:
 \r\n\t\\\'\${}
 '''
 
@@ -84,7 +84,7 @@ output multiline string = multiline
             evaluated.Should().HaveValueAtPath("$.outputs['literal'].value", "hello!");
             evaluated.Should().HaveValueAtPath("$.outputs['interp'].value", ">False<>12948<>hello!<>{'a':'b','!c':2}<>[true,2893,'abc']<");
             evaluated.Should().HaveValueAtPath("$.outputs['escapes'].value", "\r\n\t\\'${}");
-            evaluated.Should().HaveValueAtPath("$.outputs['multiline'].value", "these escapes\n  are not\n  evaluted:\n\\r\\n\\t\\\\\\'\\${}\n");
+            evaluated.Should().HaveValueAtPath("$.outputs['multiline'].value", "these escapes\n  are not\n  evaluated:\n\\r\\n\\t\\\\\\'\\${}\n");
         }
     }
 

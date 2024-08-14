@@ -1458,7 +1458,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
                 // If the in-line JSON is so complex that troubleshooting is difficult, then that's a sign that the user should
                 // instead break it out into a separate file and use loadTextContent().
-                var error = DiagnosticBuilder.ForPosition(arguments[0].Expression).UnparseableJsonType();
+                var error = DiagnosticBuilder.ForPosition(arguments[0].Expression).UnparsableJsonType();
 
                 return new(ErrorType.Create(error));
             }

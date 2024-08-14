@@ -2284,10 +2284,10 @@ namespace Bicep.Core.TypeSystem
                 else if (countMismatches.Any())
                 {
                     // Argument type mismatch wins over count mismatch. Handle count mismatch only when there's no type mismatch.
-                    var (actualCount, mininumArgumentCount, maximumArgumentCount) = countMismatches.Aggregate(ArgumentCountMismatch.Reduce);
+                    var (actualCount, minimumArgumentCount, maximumArgumentCount) = countMismatches.Aggregate(ArgumentCountMismatch.Reduce);
                     var argumentsSpan = TextSpan.Between(syntax.OpenParen, syntax.CloseParen);
 
-                    errors.Add(DiagnosticBuilder.ForPosition(argumentsSpan).ArgumentCountMismatch(actualCount, mininumArgumentCount, maximumArgumentCount));
+                    errors.Add(DiagnosticBuilder.ForPosition(argumentsSpan).ArgumentCountMismatch(actualCount, minimumArgumentCount, maximumArgumentCount));
                 }
             }
 

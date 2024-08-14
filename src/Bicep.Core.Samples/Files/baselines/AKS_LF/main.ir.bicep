@@ -1,5 +1,5 @@
 // mandatory params
-//@[00:1520) ProgramExpression
+//@[00:1522) ProgramExpression
 param dnsPrefix string
 //@[00:0022) ├─DeclaredParameterExpression { Name = dnsPrefix }
 //@[16:0022) | └─AmbientTypeReferenceExpression { Name = string }
@@ -11,10 +11,10 @@ param sshRSAPublicKey string
 //@[22:0028) | └─AmbientTypeReferenceExpression { Name = string }
 
 @secure()
-//@[00:0046) ├─DeclaredParameterExpression { Name = servcePrincipalClientId }
+//@[00:0047) ├─DeclaredParameterExpression { Name = servicePrincipalClientId }
 //@[01:0009) | ├─FunctionCallExpression { Name = secure }
-param servcePrincipalClientId string
-//@[30:0036) | └─AmbientTypeReferenceExpression { Name = string }
+param servicePrincipalClientId string
+//@[31:0037) | └─AmbientTypeReferenceExpression { Name = string }
 
 @secure()
 //@[00:0051) ├─DeclaredParameterExpression { Name = servicePrincipalClientSecret }
@@ -58,17 +58,17 @@ param agentVMSize string = 'Standard_DS2_v2'
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
 
 resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
-//@[00:0825) └─DeclaredResourceExpression
-//@[71:0825)   └─ObjectExpression
+//@[00:0826) └─DeclaredResourceExpression
+//@[71:0826)   └─ObjectExpression
     name: clusterName
     location: location
 //@[04:0022)     ├─ObjectPropertyExpression
 //@[04:0012)     | ├─StringLiteralExpression { Value = location }
 //@[14:0022)     | └─ParametersReferenceExpression { Parameter = location }
     properties: {
-//@[04:0705)     └─ObjectPropertyExpression
+//@[04:0706)     └─ObjectPropertyExpression
 //@[04:0014)       ├─StringLiteralExpression { Value = properties }
-//@[16:0705)       └─ObjectExpression
+//@[16:0706)       └─ObjectExpression
         dnsPrefix: dnsPrefix
 //@[08:0028)         ├─ObjectPropertyExpression
 //@[08:0017)         | ├─StringLiteralExpression { Value = dnsPrefix }
@@ -128,13 +128,13 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
             }
         }
         servicePrincipalProfile: {
-//@[08:0139)         └─ObjectPropertyExpression
+//@[08:0140)         └─ObjectPropertyExpression
 //@[08:0031)           ├─StringLiteralExpression { Value = servicePrincipalProfile }
-//@[33:0139)           └─ObjectExpression
-            clientId: servcePrincipalClientId
-//@[12:0045)             ├─ObjectPropertyExpression
+//@[33:0140)           └─ObjectExpression
+            clientId: servicePrincipalClientId
+//@[12:0046)             ├─ObjectPropertyExpression
 //@[12:0020)             | ├─StringLiteralExpression { Value = clientId }
-//@[22:0045)             | └─ParametersReferenceExpression { Parameter = servcePrincipalClientId }
+//@[22:0046)             | └─ParametersReferenceExpression { Parameter = servicePrincipalClientId }
             secret: servicePrincipalClientSecret
 //@[12:0048)             └─ObjectPropertyExpression
 //@[12:0018)               ├─StringLiteralExpression { Value = secret }
@@ -144,4 +144,5 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 }
 
 // fyi - dot property access (aks.fqdn) has not been spec'd
-//output controlPlaneFQDN string = aks.properties.fqdn 
+//output controlPlaneFQDN string = aks.properties.fqdn
+
