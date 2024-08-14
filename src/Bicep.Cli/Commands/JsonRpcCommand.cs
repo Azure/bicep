@@ -26,8 +26,6 @@ public class JsonRpcCommand : ICommand
 
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
     {
-        await io.Error.WriteLineAsync("The 'jsonrpc' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
-
         if (args.Pipe is { } pipeName)
         {
             if (pipeName.StartsWith(@"\\.\pipe\"))

@@ -87,12 +87,12 @@ public class DecoratorCodeFixProvider : ICodeFixProvider
             switch (decorator.Overload.FixedParameters[0].Type)
             {
                 case ArrayType:
-                    return new[] { SyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()) };
+                    return new[] { SyntaxFactory.CreateArray([]) };
                 case StringType:
                     return new[] { SyntaxFactory.CreateStringLiteral(String.Empty) };
             }
         }
 
-        return Array.Empty<SyntaxBase>();
+        return [];
     }
 }

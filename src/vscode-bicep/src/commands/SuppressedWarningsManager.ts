@@ -5,8 +5,7 @@ import { ConfigurationTarget, WorkspaceConfiguration } from "vscode";
 import { getBicepConfiguration } from "../language/getBicepConfiguration";
 
 export class SuppressedWarningsManager {
-  public static readonly suppressedWarningsConfigurationKey =
-    "suppressedWarnings";
+  public static readonly suppressedWarningsConfigurationKey = "suppressedWarnings";
 
   public static readonly keys = {
     decompileOnPasteWarning: "Decompile on paste",

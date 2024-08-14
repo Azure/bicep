@@ -37,7 +37,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
             mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
 
-            matches.Single().ResultBuilder(CreateDummySemanticModel(), mockDiagnosticWriter.Object, functionCall, argumentTypes.ToImmutableArray()).Type.Should().Be(expectedReturnType);
+            matches.Single().ResultBuilder(CreateDummySemanticModel(), mockDiagnosticWriter.Object, functionCall, [.. argumentTypes]).Type.Should().Be(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -89,7 +89,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             countMismatches.Should().BeEmpty();
             typeMismatches.Should().HaveCount(parameterTypeAtIndexOverloads.Count);
 
-            typeMismatches = typeMismatches.OrderBy(tm => tm.ArgumentIndex).ToList();
+            typeMismatches = [.. typeMismatches.OrderBy(tm => tm.ArgumentIndex)];
 
             for (int i = 0; i < typeMismatches.Count; i++)
             {
@@ -107,8 +107,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
         public void LengthOfNonLiteralTuplesIsLiteral()
         {
             var evaluated = EvaluateFunction("length",
-                new List<TypeSymbol> { new TupleType("nonLiteralTuple", ImmutableArray.Create<ITypeReference>(LanguageConstants.Int, LanguageConstants.String, LanguageConstants.Bool), default) },
-                new FunctionArgumentSyntax[0]);
+                new List<TypeSymbol> { new TupleType("nonLiteralTuple", [LanguageConstants.Int, LanguageConstants.String, LanguageConstants.Bool], default) },
+                []);
 
             evaluated.Type.Should().Be(TypeFactory.CreateIntegerLiteralType(3));
         }
@@ -124,7 +124,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetInputsThatFlattenToArrayOfAny), DynamicDataSourceType.Method)]
         public void ShouldFlattenToArrayOfAny(TypeSymbol typeToFlatten)
         {
-            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) })
+            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))])
                 .Type.As<ArrayType>()
                 .Item.Should().Be(LanguageConstants.Any);
         }
@@ -133,14 +133,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetFlattenPositiveTestCases), DynamicDataSourceType.Method)]
         public void ShouldFlattenTo(TypeSymbol typeToFlatten, TypeSymbol expected)
         {
-            TypeValidator.AreTypesAssignable(EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) }).Type, expected).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type, expected).Should().BeTrue();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetFlattenNegativeTestCases), DynamicDataSourceType.Method)]
         public void ShouldNotFlatten(TypeSymbol typeToFlatten, params string[] diagnosticMessages)
         {
-            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) }).Type.GetDiagnostics().Cast<IDiagnostic>()
+            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type.GetDiagnostics().Cast<IDiagnostic>()
                 .Should().HaveDiagnostics(diagnosticMessages.Select(message => ("BCP309", DiagnosticLevel.Error, message)));
         }
 
@@ -148,14 +148,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetFirstTestCases), DynamicDataSourceType.Method)]
         public void FirstReturnsCorrectType(TypeSymbol inputArrayType, TypeSymbol expected)
         {
-            TypeValidator.AreTypesAssignable(EvaluateFunction("first", new List<TypeSymbol> { inputArrayType }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) }).Type, expected).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(EvaluateFunction("first", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type, expected).Should().BeTrue();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetLastTestCases), DynamicDataSourceType.Method)]
         public void LastReturnsCorrectType(TypeSymbol inputArrayType, TypeSymbol expected)
         {
-            TypeValidator.AreTypesAssignable(EvaluateFunction("last", new List<TypeSymbol> { inputArrayType }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) }).Type, expected).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(EvaluateFunction("last", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type, expected).Should().BeTrue();
         }
 
         [TestMethod]
@@ -163,7 +163,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("split",
                 new List<TypeSymbol> { LanguageConstants.String, LanguageConstants.String },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar"))])
                 .Type;
 
             var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
@@ -177,7 +177,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("concat",
                 new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 10), LanguageConstants.Array, TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 11) },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz"))])
                 .Type;
 
             var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
@@ -190,7 +190,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("concat",
                 new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 10), TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 11) },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar"))])
                 .Type;
 
             var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
@@ -203,7 +203,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("concat",
                 new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 10), LanguageConstants.Array, TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 11) },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz"))])
                 .Type;
 
             var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
@@ -216,11 +216,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var returnType = EvaluateFunction("concat",
                 new List<TypeSymbol>
                 {
-                    new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.String, LanguageConstants.Int), default),
-                    new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.Bool), default),
-                    new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateIntegerLiteralType(123)), default),
+                    new TupleType([LanguageConstants.String, LanguageConstants.Int], default),
+                    new TupleType([LanguageConstants.Bool], default),
+                    new TupleType([TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateIntegerLiteralType(123)], default),
                 },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz"))])
                 .Type;
 
             var returnedTuple = returnType.Should().BeAssignableTo<TupleType>().Subject;
@@ -233,7 +233,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("skip",
                 new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 10, maxLength: 20), TypeFactory.CreateIntegerLiteralType(9) },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar"))])
                 .Type;
 
             var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
@@ -249,7 +249,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("take",
                 new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 5, maxLength: 20), TypeFactory.CreateIntegerLiteralType(9) },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar"))])
                 .Type;
 
             var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
@@ -265,7 +265,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("split",
                 new List<TypeSymbol> { LanguageConstants.Any, LanguageConstants.Any },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar"))])
                 .Type;
 
             var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
@@ -286,7 +286,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetPadLeftTestCases()
         {
             static object[] CreateRow(TypeSymbol expectedReturnType, params TypeSymbol[] argumentTypes)
-                => new object[] { argumentTypes.ToList(), expectedReturnType };
+                => [argumentTypes.ToList(), expectedReturnType];
 
             return new[]
             {
@@ -311,7 +311,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("toLower",
                 new List<TypeSymbol> { LanguageConstants.SecureString },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")) })
+                [new(TestSyntaxFactory.CreateVariableAccess("foo"))])
                 .Type;
 
             returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
@@ -323,7 +323,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("toUpper",
                 new List<TypeSymbol> { LanguageConstants.SecureString },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")) })
+                [new(TestSyntaxFactory.CreateVariableAccess("foo"))])
                 .Type;
 
             returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
@@ -336,7 +336,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("length",
                 new List<TypeSymbol> { argumentType },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")) });
+                [new(TestSyntaxFactory.CreateVariableAccess("foo"))]);
 
             returnType.Type.Should().Be(expectedReturn);
         }
@@ -344,7 +344,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetLengthTestCases()
         {
             static object[] CreateRow(TypeSymbol argumentType, TypeSymbol returnType)
-                => new object[] { argumentType, returnType };
+                => [argumentType, returnType];
 
             return new[]
             {
@@ -406,7 +406,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
                 CreateRow(TypeFactory.CreateArrayType(1, 10, default),
                     TypeFactory.CreateIntegerType(1, 10)),
-                CreateRow(new TupleType("tuple", ImmutableArray.Create<ITypeReference>(LanguageConstants.Object, LanguageConstants.String, LanguageConstants.Int), default),
+                CreateRow(new TupleType("tuple", [LanguageConstants.Object, LanguageConstants.String, LanguageConstants.Int], default),
                     TypeFactory.CreateIntegerLiteralType(3)),
             };
         }
@@ -417,7 +417,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("join",
                 new List<TypeSymbol> { typeToJoin, delimiterType },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("foo")) });
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("foo"))]);
 
             returnType.Type.Should().Be(expectedReturn);
         }
@@ -425,7 +425,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetJoinTestCases()
         {
             static object[] CreateRow(TypeSymbol typeToJoin, TypeSymbol delimiterType, TypeSymbol returnType)
-                => new object[] { typeToJoin, delimiterType, returnType };
+                => [typeToJoin, delimiterType, returnType];
 
             return new[]
             {
@@ -436,16 +436,16 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(new TypedArrayType(TypeFactory.CreateStringType(1, 10), default, 1, 10),
                     LanguageConstants.String,
                     TypeFactory.CreateStringType(1)),
-                CreateRow(new TupleType("tuple", ImmutableArray.Create<ITypeReference>(LanguageConstants.Object, LanguageConstants.String, LanguageConstants.Int), default),
+                CreateRow(new TupleType("tuple", [LanguageConstants.Object, LanguageConstants.String, LanguageConstants.Int], default),
                     TypeFactory.CreateStringLiteralType(", "),
                     TypeFactory.CreateStringType(7)),
-                CreateRow(new TupleType("tuple", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(0, 9)), default),
+                CreateRow(new TupleType("tuple", [TypeFactory.CreateIntegerType(0, 9)], default),
                     TypeFactory.CreateStringLiteralType(", "),
                     TypeFactory.CreateStringType(1, 1)),
-                CreateRow(new TupleType("tuple", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(0, 9), TypeFactory.CreateIntegerType(0, 9)), default),
+                CreateRow(new TupleType("tuple", [TypeFactory.CreateIntegerType(0, 9), TypeFactory.CreateIntegerType(0, 9)], default),
                     TypeFactory.CreateStringLiteralType(", "),
                     TypeFactory.CreateStringType(4, 4)),
-                CreateRow(new TupleType("tuple", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(0, 9), TypeFactory.CreateIntegerType(0, 9)), default),
+                CreateRow(new TupleType("tuple", [TypeFactory.CreateIntegerType(0, 9), TypeFactory.CreateIntegerType(0, 9)], default),
                     TypeFactory.CreateStringType(),
                     TypeFactory.CreateStringType(2)),
             };
@@ -464,7 +464,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetSubstringTestCases()
         {
             static object[] CreateRow(TypeSymbol expectedReturnType, params TypeSymbol[] argumentTypes)
-                => new object[] { argumentTypes.ToList(), expectedReturnType };
+                => [argumentTypes.ToList(), expectedReturnType];
 
             return new[]
             {
@@ -494,7 +494,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("skip",
                 new List<TypeSymbol> { originalValue, numberToSkip },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) });
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar"))]);
 
             returnType.Type.Should().Be(expectedReturn);
         }
@@ -502,7 +502,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetSkipTestCases()
         {
             static object[] CreateRow(TypeSymbol originalValue, TypeSymbol numberToSkip, TypeSymbol expectedReturn)
-                => new object[] { originalValue, numberToSkip, expectedReturn };
+                => [originalValue, numberToSkip, expectedReturn];
 
             return new[]
             {
@@ -537,7 +537,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("take",
                 new List<TypeSymbol> { originalValue, numberToTake },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) });
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar"))]);
 
             returnType.Type.Should().Be(expectedReturn);
         }
@@ -545,7 +545,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetTakeTestCases()
         {
             static object[] CreateRow(TypeSymbol originalValue, TypeSymbol numberToTake, TypeSymbol expectedReturn)
-                => new object[] { originalValue, numberToTake, expectedReturn };
+                => [originalValue, numberToTake, expectedReturn];
 
             return new[]
             {
@@ -581,7 +581,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("trim",
                 new List<TypeSymbol> { TypeFactory.CreateStringType(10, 20, TypeSymbolValidationFlags.IsSecure) },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")) })
+                [new(TestSyntaxFactory.CreateVariableAccess("foo"))])
                 .Type;
 
             returnType.Should().Be(TypeFactory.CreateStringType(minLength: null, 20, TypeSymbolValidationFlags.IsSecure));
@@ -593,7 +593,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var returnType = EvaluateFunction("range",
                 new List<TypeSymbol> { startIndex, count },
-                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) });
+                [new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar"))]);
 
             returnType.Type.Should().Be(expectedReturn);
         }
@@ -601,7 +601,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetRangeTestCases()
         {
             static object[] CreateRow(TypeSymbol startIndex, TypeSymbol count, TypeSymbol expectedReturn)
-                => new object[] { startIndex, count, expectedReturn };
+                => [startIndex, count, expectedReturn];
 
             return new[]
             {
@@ -639,18 +639,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateDummySemanticModel(),
                 Repository.Create<IDiagnosticWriter>().Object,
                 SyntaxFactory.CreateFunctionCall(functionName, arguments),
-                argumentTypes.ToImmutableArray());
+                [.. argumentTypes]);
         }
 
         private static IEnumerable<object[]> GetInputsThatFlattenToArrayOfAny() => new[]
         {
             new object[] { LanguageConstants.Any },
-            new object[] { LanguageConstants.Array },
-            new object[] { TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), LanguageConstants.Any) },
-            new object[] { TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), LanguageConstants.Array) },
-            new object[] { TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.Array, default)) },
-            new object[] { new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.Any), default) },
-            new object[] { new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.Array), default) },
+            [LanguageConstants.Array],
+            [TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), LanguageConstants.Any)],
+            [TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), LanguageConstants.Array)],
+            [TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.Array, default))],
+            [new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.Any), default)],
+            [new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.Array), default)],
         };
 
         private static IEnumerable<object[]> GetFlattenPositiveTestCases() => new[]
@@ -658,37 +658,41 @@ namespace Bicep.Core.UnitTests.TypeSystem
             // flatten(string[][]) -> string[]
             new object[] { new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.String, default) },
             // flatten((string[] | int[])[]) -> (string | int)[]
-            new object[]
-            {
+            [
                 new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), new TypedArrayType(LanguageConstants.Int, default)), default),
                 new TypedArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), default),
-            },
+            ],
             // flatten(string[][] | int[][]) -> (string | int)[]
-            new object[]
-            {
+            [
                 TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(new TypedArrayType(LanguageConstants.Int, default), default)),
                 new TypedArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), default),
-            },
+            ],
             // flatten([[1, 2], [3, 4]]) -> [1, 2, 3, 4]
-            new object[]
-            {
+            [
                 new TupleType("[[1, 2], [3, 4]]",
-                    ImmutableArray.Create<ITypeReference>(
-                        new TupleType("[1, 2]", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(2)), default),
-                        new TupleType("[3, 4]", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerLiteralType(4)), default)),
+                    [
+                        new TupleType("[1, 2]", [TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(2)], default),
+                        new TupleType("[3, 4]", [TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerLiteralType(4)], default),
+                    ],
                     default),
-                new TupleType("[1, 2, 3, 4]", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(2), TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerLiteralType(4)), default),
-            },
+                new TupleType("[1, 2, 3, 4]",
+                [
+                    TypeFactory.CreateIntegerLiteralType(1),
+                    TypeFactory.CreateIntegerLiteralType(2),
+                    TypeFactory.CreateIntegerLiteralType(3),
+                    TypeFactory.CreateIntegerLiteralType(4),
+                ], default),
+            ],
             // flatten([[1, 2], (3 | 4)[]]) -> (1 | 2 | 3 | 4)[]
-            new object[]
-            {
+            [
                 new TupleType("[[1, 2], (3, 4)[]]",
-                    ImmutableArray.Create<ITypeReference>(
-                        new TupleType("[1, 2]", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(2)), default),
-                        new TypedArrayType(TypeHelper.CreateTypeUnion(TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerLiteralType(4)), default)),
+                    [
+                        new TupleType("[1, 2]", [TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(2)], default),
+                        new TypedArrayType(TypeHelper.CreateTypeUnion(TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerLiteralType(4)), default),
+                    ],
                     default),
                 new TypedArrayType(TypeHelper.CreateTypeUnion(TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(2), TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerLiteralType(4)), default),
-            },
+            ],
         };
 
         private static IEnumerable<object[]> GetFlattenNegativeTestCases() => new[]
@@ -696,18 +700,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
             // flatten(string[]) -> <error>
             new object[] { new TypedArrayType(LanguageConstants.String, default), @"Values of type ""string[]"" cannot be flattened because ""string"" is not an array type." },
             // flatten((string[] | string)[]) -> <error>
-            new object[] { new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.String), default), @"Values of type ""(string | string[])[]"" cannot be flattened because ""string"" is not an array type." },
+            [new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.String), default), @"Values of type ""(string | string[])[]"" cannot be flattened because ""string"" is not an array type."],
             // flatten((string[] | string | int)[]) -> <error>
-            new object[] {
+            [
                 new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.String, LanguageConstants.Int), default),
                 @"Values of type ""(int | string | string[])[]"" cannot be flattened because ""int"" is not an array type.",
                 @"Values of type ""(int | string | string[])[]"" cannot be flattened because ""string"" is not an array type.",
-            },
+            ],
             // flatten(string[][] | bool[]) -> <error>
-            new object[] {
+            [
                 TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.Bool, default)),
                 @"Values of type ""bool[] | string[][]"" cannot be flattened because ""bool"" is not an array type.",
-            },
+            ],
         };
 
         private static IEnumerable<object[]> GetFirstTestCases() => new[]
@@ -719,45 +723,39 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
             },
             // first(string[] {@minLength(1)}) -> string
-            new object[]
-            {
+            [
                 new TypedArrayType(LanguageConstants.String, default, minLength: 1),
                 LanguageConstants.String,
-            },
+            ],
             // first(['test', 3]) -> 'test'
-            new object[]
-            {
+            [
                 new TupleType("['test', 3]",
-                    ImmutableArray.Create<ITypeReference>(
-                        TypeFactory.CreateStringLiteralType("test"),
-                        TypeFactory.CreateIntegerLiteralType(3)
-                    ),
+                    [TypeFactory.CreateStringLiteralType("test"), TypeFactory.CreateIntegerLiteralType(3)
+],
                 default),
                 TypeFactory.CreateStringLiteralType("test")
-            },
+            ],
             // first([resourceGroup, subscription]) => resourceGroup
-            new object[]
-            {
+            [
                 new TupleType("[resourceGroup, subscription]",
-                    ImmutableArray.Create<ITypeReference>(
+                    [
                         LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup),
                         LanguageConstants.CreateResourceScopeReference(ResourceScope.Subscription)
-                    ),
+,
+                    ],
                 default),
                 LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup)
-            },
+            ],
             // first(string) => string {@minLength(0), @maxLength(1)}
-            new object[]
-            {
+            [
                 LanguageConstants.String,
                 TypeFactory.CreateStringType(0, 1),
-            },
+            ],
             // first(string {@minLength(> 0)}) => string {@minLength(1), @maxLength(1)}
-            new object[]
-            {
+            [
                 TypeFactory.CreateStringType(1),
                 TypeFactory.CreateStringType(1, 1),
-            },
+            ],
         };
 
         private static IEnumerable<object[]> GetLastTestCases() => new[]
@@ -769,45 +767,39 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
             },
             // last(string[] {@minLength(1)}) -> string
-            new object[]
-            {
+            [
                 new TypedArrayType(LanguageConstants.String, default, minLength: 1),
                 LanguageConstants.String,
-            },
+            ],
             // last(['test', 3]) -> 3
-            new object[]
-            {
+            [
                 new TupleType("['test', 3]",
-                    ImmutableArray.Create<ITypeReference>(
-                        TypeFactory.CreateStringLiteralType("test"),
-                        TypeFactory.CreateIntegerLiteralType(3)
-                    ),
+                    [TypeFactory.CreateStringLiteralType("test"), TypeFactory.CreateIntegerLiteralType(3)
+],
                 default),
                 TypeFactory.CreateIntegerLiteralType(3)
-            },
+            ],
             // last([resourceGroup, subscription]) => subscription
-            new object[]
-            {
+            [
                 new TupleType("[resourceGroup, subscription]",
-                    ImmutableArray.Create<ITypeReference>(
+                    [
                         LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup),
                         LanguageConstants.CreateResourceScopeReference(ResourceScope.Subscription)
-                    ),
+,
+                    ],
                 default),
                 LanguageConstants.CreateResourceScopeReference(ResourceScope.Subscription)
-            },
+            ],
             // last(string) => string {@minLength(0), @maxLength(1)}
-            new object[]
-            {
+            [
                 LanguageConstants.String,
                 TypeFactory.CreateStringType(0, 1),
-            },
+            ],
             // last(string {@minLength(> 0)}) => string {@minLength(1), @maxLength(1)}
-            new object[]
-            {
+            [
                 TypeFactory.CreateStringType(1),
                 TypeFactory.CreateStringType(1, 1),
-            },
+            ],
         };
 
         private static IEnumerable<object[]> GetLiteralTransformations()
@@ -843,7 +835,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var argumentTypeLiterals = argumentLiterals.Select(ToTypeLiteral).ToList();
 
                 string displayName = $@"{functionName}({string.Join(", ", argumentLiterals.Select(l => $@"""{l}"""))}): ""{returnedLiteral}""";
-                return new object[] { displayName, functionName, argumentTypeLiterals, argumentLiteralSyntaxes, ToTypeLiteral(returnedLiteral) };
+                return [displayName, functionName, argumentTypeLiterals, argumentLiteralSyntaxes, ToTypeLiteral(returnedLiteral)];
             }
 
             return new[]
@@ -909,7 +901,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             object[] CreateRow(string functionName, TypeSymbol expectedReturnType, params TypeSymbol[] argumentTypes)
             {
                 string displayName = $"{functionName}({argumentTypes.Select(a => a.ToString()).ConcatString(", ")}): {expectedReturnType}";
-                return new object[] { displayName, functionName, expectedReturnType, argumentTypes };
+                return [displayName, functionName, expectedReturnType, argumentTypes];
             }
 
             // various concat overloads
@@ -943,7 +935,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             object[] CreateRow(string functionName, int argumentCount, params TypeSymbol[] expectedReturnTypes)
             {
                 string displayName = $"{functionName}({Enumerable.Repeat(LanguageConstants.Any, argumentCount).Select(a => a.ToString()).ConcatString(", ")}): {TypeHelper.CreateTypeUnion(expectedReturnTypes)}";
-                return new object[] { displayName, functionName, argumentCount, expectedReturnTypes };
+                return [displayName, functionName, argumentCount, expectedReturnTypes];
             }
 
             yield return CreateRow("concat", 2, LanguageConstants.String, LanguageConstants.Array);
@@ -958,7 +950,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             object[] CreateRow(string functionName, Tuple<int, int?> argumentCountRange, params TypeSymbol[] argumentTypes)
             {
                 string displayName = $"{functionName}({argumentTypes.Select(a => a.ToString()).ConcatString(", ")})";
-                return new object[] { displayName, functionName, argumentCountRange, argumentTypes };
+                return [displayName, functionName, argumentCountRange, argumentTypes];
             }
 
             yield return CreateRow("concat", Tuple.Create(1, (int?)null));
@@ -973,7 +965,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             object[] CreateRow(string functionName, List<Tuple<int, TypeSymbol>> parameterTypeAtIndexOverloads, params TypeSymbol[] argumentTypes)
             {
                 string displayName = $"{functionName}({argumentTypes.Select(a => a.ToString()).ConcatString(", ")})";
-                return new object[] { displayName, functionName, parameterTypeAtIndexOverloads, argumentTypes };
+                return [displayName, functionName, parameterTypeAtIndexOverloads, argumentTypes];
             }
 
             yield return CreateRow(
@@ -1003,7 +995,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             object[] CreateRow(string functionName, params TypeSymbol[] argumentTypes)
             {
                 string displayName = $"{functionName}({argumentTypes.Select(a => a.ToString()).ConcatString(", ")})";
-                return new object[] { displayName, functionName, argumentTypes };
+                return [displayName, functionName, argumentTypes];
             }
 
             // wrong types

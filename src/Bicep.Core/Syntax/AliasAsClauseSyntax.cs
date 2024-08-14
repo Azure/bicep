@@ -9,7 +9,7 @@ public class AliasAsClauseSyntax : SyntaxBase
 {
     public AliasAsClauseSyntax(Token keyword, IdentifierSyntax alias)
     {
-        AssertTokenType(keyword, nameof(keyword), TokenType.AsKeyword);
+        AssertKeyword(keyword, nameof(keyword), LanguageConstants.AsKeyword);
         AssertSyntaxType(alias, nameof(alias), typeof(IdentifierSyntax), typeof(SkippedTriviaSyntax));
 
         this.Keyword = keyword;

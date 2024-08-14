@@ -12,7 +12,7 @@ namespace Bicep.Cli.Helpers;
 
 public static class ParamsFileHelper
 {
-    private static readonly ImmutableHashSet<JTokenType> SupportedJsonTokenTypes = new[] { JTokenType.Object, JTokenType.Array, JTokenType.String, JTokenType.Integer, JTokenType.Float, JTokenType.Boolean, JTokenType.Null }.ToImmutableHashSet();
+    private static readonly ImmutableHashSet<JTokenType> SupportedJsonTokenTypes = [JTokenType.Object, JTokenType.Array, JTokenType.String, JTokenType.Integer, JTokenType.Float, JTokenType.Boolean, JTokenType.Null];
 
     private static SyntaxBase ConvertJsonToBicepSyntax(JToken token) =>
     token switch

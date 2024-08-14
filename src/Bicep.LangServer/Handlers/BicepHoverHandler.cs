@@ -25,15 +25,18 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IArtifactRegistryProvider moduleRegistryProvider;
         private readonly ISymbolResolver symbolResolver;
+        private readonly DocumentSelectorFactory documentSelectorFactory;
 
         public BicepHoverHandler(
             IModuleDispatcher moduleDispatcher,
             IArtifactRegistryProvider moduleRegistryProvider,
-            ISymbolResolver symbolResolver)
+            ISymbolResolver symbolResolver,
+            DocumentSelectorFactory documentSelectorFactory)
         {
             this.moduleDispatcher = moduleDispatcher;
             this.moduleRegistryProvider = moduleRegistryProvider;
             this.symbolResolver = symbolResolver;
+            this.documentSelectorFactory = documentSelectorFactory;
         }
 
         public override async Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
@@ -341,7 +344,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams()
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };
     }
 }

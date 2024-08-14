@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry.PublicRegistry;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
@@ -45,7 +46,7 @@ namespace Bicep.Core.Registry
 
             // Using IServiceProvider instead of constructor injection due to a dependency cycle
             builder.Add(new LocalModuleRegistry(fileResolver, fileSystem, features, templateUri));
-            builder.Add(new OciArtifactRegistry(this.fileResolver, this.fileSystem, this.clientFactory, features, configuration, templateUri));
+            builder.Add(new OciArtifactRegistry(this.fileResolver, this.fileSystem, this.clientFactory, features, configuration, serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>(), templateUri));
             builder.Add(new TemplateSpecModuleRegistry(this.fileResolver, this.fileSystem, this.templateSpecRepositoryFactory, features, configuration, templateUri));
 
             return builder.ToImmutableArray();

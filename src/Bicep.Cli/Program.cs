@@ -92,7 +92,10 @@ namespace Bicep.Cli
                     case PublishArguments publishArguments when publishArguments.CommandName == Constants.Command.Publish: // bicep publish [options]
                         return await services.GetRequiredService<PublishCommand>().RunAsync(publishArguments);
 
-                    case PublishProviderArguments publishProviderArguments when publishProviderArguments.CommandName == Constants.Command.PublishProvider: // bicep publish provider [options]
+                    case PublishProviderArguments publishProviderArguments when publishProviderArguments.CommandName == Constants.Command.PublishProvider: // bicep publish-provider [options]
+                        return await services.GetRequiredService<PublishProviderCommand>().RunAsync(publishProviderArguments);
+
+                    case PublishProviderArguments publishProviderArguments when publishProviderArguments.CommandName == Constants.Command.PublishExtension: // bicep publish-extension [options]
                         return await services.GetRequiredService<PublishProviderCommand>().RunAsync(publishProviderArguments);
 
                     case RestoreArguments restoreArguments when restoreArguments.CommandName == Constants.Command.Restore: // bicep restore

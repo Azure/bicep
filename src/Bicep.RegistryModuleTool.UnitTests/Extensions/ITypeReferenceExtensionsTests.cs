@@ -38,30 +38,31 @@ namespace Bicep.RegistryModuleTool.UnitTests.Extensions
             yield return CreateTestCase(TypeFactory.CreateBooleanLiteralType(true), LanguageConstants.Bool.Name);
             yield return CreateTestCase(TypeFactory.CreateStringLiteralType("foobar"), LanguageConstants.String.Name);
 
-            var tupleType = new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.Int, LanguageConstants.Bool), TypeSymbolValidationFlags.Default);
+            var tupleType = new TupleType([LanguageConstants.Int, LanguageConstants.Bool], TypeSymbolValidationFlags.Default);
             yield return CreateTestCase(tupleType, LanguageConstants.ArrayType);
 
-            var discriminatedObjectType = new DiscriminatedObjectType("", TypeSymbolValidationFlags.Default, "", Enumerable.Empty<ITypeReference>());
+            var discriminatedObjectType = new DiscriminatedObjectType("", TypeSymbolValidationFlags.Default, "", []);
             yield return CreateTestCase(discriminatedObjectType, LanguageConstants.ObjectType);
 
             var unionType = new UnionType(
                 "int | bool | object | array",
-                ImmutableArray.Create<ITypeReference>(
+                [
                     LanguageConstants.Int,
                     TypeFactory.CreateIntegerLiteralType(0),
                     TypeFactory.CreateBooleanLiteralType(false),
                     LanguageConstants.Object,
                     discriminatedObjectType,
                     tupleType,
-                    LanguageConstants.Array));
+                    LanguageConstants.Array,
+                ]);
 
             yield return CreateTestCase(unionType, unionType.Name);
 
-            static object[] CreateTestCase(ITypeReference typeReference, string expectedPrimitiveTypeName) => new object[]
-            {
+            static object[] CreateTestCase(ITypeReference typeReference, string expectedPrimitiveTypeName) =>
+            [
                 typeReference,
                 expectedPrimitiveTypeName,
-            };
+            ];
         }
     }
 }

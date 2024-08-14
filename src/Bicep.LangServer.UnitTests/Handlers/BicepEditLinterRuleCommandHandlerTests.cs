@@ -413,7 +413,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             server.WorkspaceMock.OnRequestWorkspaceFolders(
                 new Container<WorkspaceFolder>(
-                    new WorkspaceFolder[] { new() { Name = "my workspace", Uri = DocumentUri.File(rootFolder) } }));
+                    [new() { Name = "my workspace", Uri = DocumentUri.File(rootFolder) }]));
 
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             BicepTelemetryEvent? ev = null;

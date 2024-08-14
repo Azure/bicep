@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as azureextensionui from "@microsoft/vscode-azext-utils";
 import assert from "assert";
+import * as azureextensionui from "@microsoft/vscode-azext-utils";
 import * as fse from "fs-extra";
 import { ExtensionContext, Uri } from "vscode";
 import { Disposable } from "../utils/disposable";
@@ -15,9 +15,7 @@ export class CommandManager extends Disposable {
     super();
   }
 
-  public async registerCommands<T extends [Command, ...Command[]]>(
-    ...commands: T
-  ): Promise<void> {
+  public async registerCommands<T extends [Command, ...Command[]]>(...commands: T): Promise<void> {
     commands.map((command) => this.registerCommand(command));
   }
 
@@ -44,10 +42,7 @@ export class CommandManager extends Disposable {
         // If the command is coming from a [command:xxx] inside a markdown file (e.g. from
         //   a walkthrough), and the command contains a query string, the query string values
         //   will be in an object in the next argument.
-        if (
-          args[0] instanceof Object &&
-          (<{ walkthrough?: string }>args[0])["walkthrough"] === "true"
-        ) {
+        if (args[0] instanceof Object && (<{ walkthrough?: string }>args[0])["walkthrough"] === "true") {
           // Marked as a walkthrough via query string in markdow
           isFromWalkthrough = true;
         }
@@ -70,22 +65,16 @@ export class CommandManager extends Disposable {
 
   private validateCommand<T extends Command>(command: T): void {
     if (!this._packageJson) {
-      this._packageJson = <IPackageJson>(
-        fse.readJsonSync(this.extensionContext.asAbsolutePath("package.json"))
-      );
+      this._packageJson = <IPackageJson>fse.readJsonSync(this.extensionContext.asAbsolutePath("package.json"));
     }
 
-    assert(
-      command.id.startsWith("bicep."),
-      `Command ID doesn't start with 'bicep.': ${command.id}`,
-    );
+    assert(command.id.startsWith("bicep."), `Command ID doesn't start with 'bicep.': ${command.id}`);
 
     // Walkthrough commands shouldn't be shown in the command palette
     if (command.id.match(/gettingStarted/i)) {
-      const commandPaletteWhen: string | undefined =
-        this._packageJson.contributes?.menus?.commandPalette?.find(
-          (m) => m.command === command.id,
-        )?.when;
+      const commandPaletteWhen: string | undefined = this._packageJson.contributes?.menus?.commandPalette?.find(
+        (m) => m.command === command.id,
+      )?.when;
       assert(
         commandPaletteWhen === "never",
         `Internal error: Add an entry for '${command.id}' to package.json's contributes/menus/commandPalette array with a 'when' value of 'never'.`,

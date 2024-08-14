@@ -8,20 +8,20 @@ namespace Bicep.Core.Tracing
 {
     public static class DiagnosticOptionsExtensions
     {
-        private static readonly ImmutableArray<string> ArmClientAdditionalLoggedHeaders = new[]
-        {
+        private static readonly ImmutableArray<string> ArmClientAdditionalLoggedHeaders =
+        [
             "x-ms-ratelimit-remaining-subscription-reads",
             "x-ms-correlation-request-id",
             "x-ms-routing-request-id"
-        }.ToImmutableArray();
+        ];
 
-        private static readonly ImmutableArray<string> ArmClientAdditionalLoggedQueryParams = new[]
-        {
+        private static readonly ImmutableArray<string> ArmClientAdditionalLoggedQueryParams =
+        [
             "api-version"
-        }.ToImmutableArray();
+        ];
 
-        private static readonly ImmutableArray<string> AcrClientAdditionalLoggedHeaders = new[]
-        {
+        private static readonly ImmutableArray<string> AcrClientAdditionalLoggedHeaders =
+        [
             "Accept-Ranges",
             "x-ms-version",
             "Docker-Content-Digest",
@@ -29,9 +29,9 @@ namespace Bicep.Core.Tracing
             "X-Content-Type-Options",
             "X-Ms-Correlation-Request-Id",
             "x-ms-ratelimit-remaining-calls-per-second"
-        }.ToImmutableArray();
+        ];
 
-        private static readonly ImmutableArray<string> AcrClientAdditionalLoggedQueryParams = ImmutableArray<string>.Empty;
+        private static readonly ImmutableArray<string> AcrClientAdditionalLoggedQueryParams = [];
 
         public static void ApplySharedResourceManagerSettings(this DiagnosticsOptions options) =>
             options.ApplySharedDiagnosticsSettings(ArmClientAdditionalLoggedHeaders, ArmClientAdditionalLoggedQueryParams);

@@ -26,7 +26,7 @@ module.exports = {
       files: ["*.ts"],
       extends: [
         "plugin:@typescript-eslint/recommended",
-        "plugin:jest/all",
+        "plugin:jest/recommended",
         "plugin:prettier/recommended",
       ],
       rules: {

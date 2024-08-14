@@ -69,7 +69,7 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
             var (leftSiblings, overlappingNode) = LeftSiblingsCollector.CollectLeftSiblings(ancestors[^1], offset);
 
             // pattern nodes = ancestors + left siblings + overlapping node.
-            return ancestors.Concat(leftSiblings).Append(overlappingNode).ToImmutableArray();
+            return [.. ancestors, .. leftSiblings, overlappingNode];
         }
 
         private static (string text, int offset) ProcessTextWithCursor(char cursor, string textWithCursor)

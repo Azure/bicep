@@ -146,7 +146,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var sourceMap = emitResult.SourceMap!;
 
             using var streamReader = new StreamReader(new MemoryStream(memoryStream.ToArray()));
-            var jsonLines = (await streamReader.ReadToEndAsync()).Split(System.Environment.NewLine);
+            var jsonLines = (await streamReader.ReadToEndAsync()).Split("\n");
 
             var sourceTextWithSourceMap = OutputHelper.AddSourceMapToSourceText(
                 dataSet.Bicep, DataSet.TestFileMain, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", sourceMap, jsonLines);
@@ -268,7 +268,7 @@ this
 
             var (template, _, _) = CompilationHelper.Compile(StringUtils.ReplaceNewlines(inputFile, newlineSequence));
 
-            var expected = string.Join(newlineSequence, new[] { "this", "  is", "    a", "      multiline", "        string", "" });
+            var expected = string.Join(newlineSequence, ["this", "  is", "    a", "      multiline", "        string", ""]);
             template.Should().HaveValueAtPath("$.variables.multiline", expected);
         }
 

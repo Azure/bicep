@@ -22,7 +22,7 @@ namespace Bicep.Core.Samples
     {
         public static IEnumerable<object[]> ToDynamicTestData(this IEnumerable<DataSet> source) => source.Select(ToDynamicTestData);
 
-        public static object[] ToDynamicTestData(this DataSet ds) => new object[] { ds };
+        public static object[] ToDynamicTestData(this DataSet ds) => [ds];
 
         public static bool HasCrLfNewlines(this DataSet dataSet)
             => dataSet.Name.EndsWith("_CRLF", StringComparison.Ordinal);
@@ -70,7 +70,7 @@ namespace Bicep.Core.Samples
                 clients.Add((targetReference.Registry, targetReference.Repository));
             }
 
-            return RegistryHelper.CreateMockRegistryClients(clients.Concat(additionalClients).ToArray()).factoryMock;
+            return RegistryHelper.CreateMockRegistryClients([.. clients, .. additionalClients]).factoryMock;
         }
 
         public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory()

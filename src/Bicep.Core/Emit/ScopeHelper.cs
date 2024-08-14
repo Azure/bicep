@@ -199,7 +199,7 @@ namespace Bicep.Core.Emit
                     arguments.Add(new JTokenExpression(fullyQualifiedType));
                     arguments.AddRange(nameSegments);
 
-                    return new FunctionExpression("subscriptionResourceId", arguments.ToArray(), Array.Empty<LanguageExpression>());
+                    return new FunctionExpression("subscriptionResourceId", [.. arguments], []);
                 case ResourceScope.ResourceGroup:
                     // We avoid using the 'resourceId' function at all here, because its behavior differs depending on the scope that it is called FROM.
                     LanguageExpression scope;
@@ -211,7 +211,7 @@ namespace Bicep.Core.Emit
                         }
                         else
                         {
-                            var subscriptionId = new FunctionExpression("subscription", Array.Empty<LanguageExpression>(), new LanguageExpression[] { new JTokenExpression("subscriptionId") });
+                            var subscriptionId = new FunctionExpression("subscription", [], [new JTokenExpression("subscriptionId")]);
                             var resourceGroup = converter.ConvertExpression(scopeData.ResourceGroupProperty);
                             scope = ExpressionConverter.GenerateResourceGroupScope(subscriptionId, resourceGroup);
                         }

@@ -121,7 +121,7 @@ namespace Bicep.LanguageServer.Handlers
                         output.ToString(),
                         ex.Message,
                         null,
-                        new string[] { })
+                        [])
                 );
             }
         }
@@ -139,7 +139,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 // Create a bicep file with unique name alongside the existing bicep file
                 string newBicepPath = FindUniqueFileOrFolderName(outputFolder, mainBicepPath);
-                return new[] { (newBicepPath, outputFiles[0].bicepContents) };
+                return [(newBicepPath, outputFiles[0].bicepContents)];
             }
             else
             {
@@ -154,7 +154,7 @@ namespace Bicep.LanguageServer.Handlers
                     newOutputFiles.Add((newPath, outputFile.bicepContents));
                 }
 
-                return newOutputFiles.ToArray();
+                return [.. newOutputFiles];
             }
         }
 

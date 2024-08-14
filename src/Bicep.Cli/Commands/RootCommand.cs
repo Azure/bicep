@@ -227,6 +227,18 @@ Usage:
       bicep build-params params.bicepparam --no-restore
       bicep build-params params.bicepparam --diagnostics-format sarif
 
+  {exeName} jsonrpc [options]
+    Runs a JSONRPC server for interacting with Bicep programatically.
+
+    Options:
+      --pipe <name>   Runs the JSONRPC server using a named pipe.
+      --socket <dir>  Runs the JSONRPC server on a specific port.
+      --stdio         Runs the JSONRPC server over stdin/stdout.
+
+    Examples:
+      bicep jsonrpc --pipe /path/to/pipe.sock
+      bicep jsonrpc --stdio
+
 "; // this newline is intentional
 
             io.Output.Write(output);

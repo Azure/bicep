@@ -56,6 +56,7 @@ namespace Bicep.Core.Parsing
                         TokenType.Identifier => ValidateKeyword(current.Text) switch
                         {
                             LanguageConstants.UsingKeyword => this.UsingDeclaration(),
+                            LanguageConstants.ExtendsKeyword => this.ExtendsDeclaration(),
                             LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
@@ -74,13 +75,26 @@ namespace Bicep.Core.Parsing
         private UsingDeclarationSyntax UsingDeclaration()
         {
             var keyword = ExpectKeyword(LanguageConstants.UsingKeyword);
+
+            SyntaxBase expression = reader.Peek().Type switch
+            {
+                TokenType.Identifier => new NoneLiteralSyntax(ExpectKeyword(LanguageConstants.NoneKeyword)),
+                TokenType.StringComplete => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
+                _ => SkipEmpty(b => b.ExpectedSymbolListOrWildcard()),
+            };
+
+            return new(keyword, expression);
+        }
+
+        private ExtendsDeclarationSyntax ExtendsDeclaration()
+        {
+            var keyword = ExpectKeyword(LanguageConstants.ExtendsKeyword);
             var path = this.WithRecovery(
-                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExtendsPathHasNotBeenSpecified()),
                 GetSuppressionFlag(keyword),
-                TokenType.Assignment, TokenType.NewLine);
+                TokenType.NewLine);
 
-            return new UsingDeclarationSyntax(keyword, path);
-
+            return new ExtendsDeclarationSyntax(keyword, path);
         }
 
         private SyntaxBase ParameterAssignment()

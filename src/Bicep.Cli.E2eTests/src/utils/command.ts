@@ -6,6 +6,7 @@ import spawn from "cross-spawn";
 
 import { bicepCli } from "./fs";
 import { EnvironmentOverrides } from "./types";
+import { logStdErr } from "./log";
 
 class StdoutAssertionBuilder {
   constructor(private readonly stdout: string) {}
@@ -57,16 +58,13 @@ class BicepCommandTestRunner {
 
   shouldSucceed(): StdoutAssertionBuilder {
     const result = this.runCommand();
-
-    if (result.stderr.length > 0) {
-      console.error(result.stderr);
-    }
+    logStdErr(result.stderr);
 
     expect(result.status).toBe(0);
 
     return new StdoutAssertionBuilder(result.stdout);
   }
-
+  
   shouldFail(): StderrAssertionBuilder {
     const result = this.runCommand();
     expect(result.status).toBe(1);

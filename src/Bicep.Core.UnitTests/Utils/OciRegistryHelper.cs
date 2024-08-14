@@ -7,6 +7,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
@@ -89,6 +90,7 @@ namespace Bicep.Core.UnitTests.Utils
                 clientFactory.Object,
                 featureProvider,
                 BicepTestConstants.BuiltInConfiguration,
+                StrictMock.Of<IPublicRegistryModuleMetadataProvider>().Object,
                 parentModuleUri);
 
             return (registry, blobClient);

@@ -1,7 +1,10 @@
 {
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "providerRegistry": true,
+    "extensionRegistry": true,
     "localDeploy": true
+  },
+  "extensions": {
+    "mock": "$TARGET_REFERENCE"
   }
 }

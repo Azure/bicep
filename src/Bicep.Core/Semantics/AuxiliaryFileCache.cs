@@ -45,7 +45,7 @@ public class AuxiliaryFileCache : IReadableFileCache
             });
 
     public ImmutableArray<Uri> GetEntries()
-        => fileCache.Keys.ToImmutableArray();
+        => [.. fileCache.Keys];
 
     public void ClearEntries(IEnumerable<Uri> uris)
     {

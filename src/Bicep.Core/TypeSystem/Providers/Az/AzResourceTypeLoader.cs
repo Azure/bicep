@@ -44,7 +44,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 reference.ApiVersion is null ||
                 !apiFunctions.TryGetValue(reference.ApiVersion, out var functions))
             {
-                functions = ImmutableArray<CrossFileTypeReference>.Empty;
+                functions = [];
             }
 
             var functionOverloads = functions.SelectMany(typeLocation => resourceTypeFactory.GetResourceFunctionOverloads(typeLoader.LoadResourceFunctionType(typeLocation)));

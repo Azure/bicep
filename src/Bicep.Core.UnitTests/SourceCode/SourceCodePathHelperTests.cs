@@ -56,18 +56,18 @@ public class SourceCodePathHelperTests
     public void GetUniquePathRoots_ShouldVerifyNormalized()
     {
         var cacheRoot = RootC("Users/username/.bicep");
-        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, new[] { RootC("a.txt"), RootC("b.txt"), RootC("folder/c.txt") }))).Should().NotThrow();
-        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, new[] { RootC("a.txt"), RootD("b.txt"), RootC("folder\\c.txt") }))).Should().Throw<ArgumentException>().WithMessage("*normalized*");
+        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, [RootC("a.txt"), RootC("b.txt"), RootC("folder/c.txt")]))).Should().NotThrow();
+        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, [RootC("a.txt"), RootD("b.txt"), RootC("folder\\c.txt")]))).Should().Throw<ArgumentException>().WithMessage("*normalized*");
     }
 
     [TestMethod]
     public void GetUniquePathRoots_ShouldThrowIfNotFullyQualified()
     {
         var cacheRoot = RootC("Users/username/.bicep");
-        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, new[] { RootC("a.txt"), RootC("dir/b.txt"), RootC("c.txt") }))).Should().NotThrow();
-        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, new[] { RootC("a.txt"), RootC("dir/b.txt"), "" }))).Should().Throw<ArgumentException>().WithMessage("*qualified*");
-        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, new[] { RootC("a.txt"), RootC("dir/b.txt"), "/" }))).Should().Throw<ArgumentException>().WithMessage("*qualified*");
-        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, new[] { RootC("a.txt"), RootC("dir/b.txt"), "c.txt" }))).Should().Throw<ArgumentException>().WithMessage("*qualified*");
+        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, [RootC("a.txt"), RootC("dir/b.txt"), RootC("c.txt")]))).Should().NotThrow();
+        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, [RootC("a.txt"), RootC("dir/b.txt"), ""]))).Should().Throw<ArgumentException>().WithMessage("*qualified*");
+        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, [RootC("a.txt"), RootC("dir/b.txt"), "/"]))).Should().Throw<ArgumentException>().WithMessage("*qualified*");
+        ((Action)(() => SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, [RootC("a.txt"), RootC("dir/b.txt"), "c.txt"]))).Should().Throw<ArgumentException>().WithMessage("*qualified*");
     }
 
     [TestMethod]
@@ -94,72 +94,57 @@ public class SourceCodePathHelperTests
 
     public static IEnumerable<object[]> GetGetUniquePathRootsTestcases()
     {
-        object[] data(string[] paths, string[] expectedRoots) => new object[] { (paths, expectedRoots) };
+        object[] data(string[] paths, string[] expectedRoots) => [(paths, expectedRoots)];
 
         yield return data(
-            new string[]
-            {
-            },
-            new string[]
-            {
-            });
+            [],
+            []);
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("a.txt")
-            },
-            new string[]
-            {
+            ],
+            [
                     RootC("")
-            });
+            ]);
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("a.txt"),
                 RootC("b.txt")
-            },
-            new string[]
-            {
+            ],
+            [
                 RootC("")
-            });
+            ]);
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("folder/a.txt")
-            },
-            new string[]
-            {
+            ],
+            [
                 RootC("folder")
-            });
+            ]);
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("a.txt"),
                 RootC("folder/a.txt"),
-            },
-            new string[]
-            {
+            ],
+            [
                     RootC("")
-            });
+            ]);
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("folder/a.txt"),
                 RootC("a.txt"),
-            },
-            new string[]
-            {
+            ],
+            [
                 RootC("")
-            });
+            ]);
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("folder/a.txt"),
                 RootC("a.txt"),
                 RootC("folder/b.txt"),
@@ -170,17 +155,15 @@ public class SourceCodePathHelperTests
                 RootD("folder/sub1/sub2/b.txt"),
                 RootD("folder/sub1/sub2/c.txt"),
                 RootD("folder2/sub1/sub2/b.txt"),
-            },
-            new string[]
-            {
+            ],
+            [
                 RootC(""),
                 RootD("folder/sub1"),
                 RootD("folder2/sub1/sub2"),
-            });
+            ]);
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("folder/a.txt"),
                 RootC("folder2/abc/def/ghi/a.txt"),
                 RootC("folder/b.txt"),
@@ -192,117 +175,102 @@ public class SourceCodePathHelperTests
                 RootD("folder/sub1/sub2/b.txt"),
                 RootD("folder/sub1/sub2/c.txt"),
                 RootD("folder2/sub1/sub2/b.txt"),
-            },
-            new string[]
-            {
+            ],
+            [
                 RootC("folder"),
                 RootC("folder2/abc"),
                 RootD("folder/sub1"),
                 RootD("folder2/sub1/sub2"),
-            });
+            ]);
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("users/username/repos/deployment/src/main.bicep"),
                 RootC("users/username/repos/deployment/src/modules/module1.bicep"),
                 RootC("users/username/repos/deployment/src/modules/module2.bicep"),
                 RootC("users/username/repos/deployment/shared/shared1.bicep"),
                 RootD("bicepcacheroot/br/example.azurecr.io/test$provider$http/1.2.3$/main.json"),
-                },
-            new string[]
-            {
+            ],
+            [
                 RootC("users/username/repos/deployment/src"),
                 RootC("users/username/repos/deployment/shared"),
                 RootD("bicepcacheroot/br/example.azurecr.io/test$provider$http/1.2.3$"),
-            });
+            ]);
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("a.txt"),
                 RootC("Users/username/.bicep/br/mcr.microsoft.com/bicep$compute$virtual-machine/1.0.1$/main.json"),
-            },
-            new string[]
-            {
+            ],
+            [
                 RootC(""),
                 RootC("Users/username/.bicep"),
-            });
+            ]);
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("deployment/a.txt"),
                 RootC("deployment/b.txt"),
                 RootC("Users/username/.bicep/br/mcr.microsoft.com/bicep$compute$virtual-machine/1.0.1$/main.json"),
                 RootC("Users/username/.bicep/br/mcr.microsoft.com/bicep$compute$virtual-machine/1.0.2$/main.json"),
                 RootC("Users/username/.bicep/br/mcr.microsoft.com/bicep$compute$virtual-machine/1.0.3$/main.json"),
-            },
-            new string[]
-            {
+            ],
+            [
                 RootC("deployment"),
                 RootC("Users/username/.bicep"),
-            });
+            ]);
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("deployment/a.txt"),
                 RootC("deployment/b.txt"),
                 RootC("Users/username/.bicep/br/mcr.microsoft.com/bicep$storage$account/1.0.1$/main.json"),
                 RootC("Users/username/.bicep/br/mcr.microsoft.com/bicep$compute$virtual-machine/1.0.1$/main.json"),
-            },
-            new string[]
-            {
+            ],
+            [
                 RootC("deployment"),
                 RootC("Users/username/.bicep"),
-            });
+            ]);
 
 #if WINDOWS_BUILD
 
         yield return data(
-            new string[]
-            {
+            [
                 RootC("deployment/a.txt"),
                 RootC("Deployment/b&.txt"),
                 RootC("DeployMENT/B|.txt"),
                 RootC("Users/USERNAME/.bicep/br/mcr.microsoft.com/bicep$storage$account/1.0.1$/main.json"),
                 RootC("Users/username/.bicep/br/mcr.microsoft.com/bicep$compute$virtual-machine/1.0.1$/main.json"),
-            },
-            new string[]
-            {
+            ],
+            [
                 RootC("deployment"),
                 RootC("Users/username/.bicep"),
-            });
+            ]);
 
 #endif
 
 #if !WINDOWS_BUILD
 
         yield return data(
-            new string[]
-            {
+            [
                 $"/a.txt",
                 $"/b.txt",
                 $"/c/b.txt",
-            },
-            new string[]
-            {
+            ],
+            [
                 $"/"
-            });
+            ]);
 
         yield return data(
-            new string[]
-            {
+            [
                 "/a/a.txt",
                 "/a/b.txt",
                 "/c/b.txt",
-            },
-            new string[]
-            {
+            ],
+            [
                 $"/a",
                 "/c",
-            });
+            ]);
 #endif
 
     }

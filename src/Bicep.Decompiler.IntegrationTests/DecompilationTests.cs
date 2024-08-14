@@ -265,7 +265,7 @@ namespace Bicep.Core.IntegrationTests
                 var decompiler = CreateDecompiler();
                 var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
 
-                filesToSave[entryPointUri].Should().Contain($"var cpu = '0.25'");
+                filesToSave[entryPointUri].Should().Contain($"var cpu = json('0.25')");
             }
             finally
             {

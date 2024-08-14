@@ -78,7 +78,6 @@ public record NullLiteralExpression(
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitNullLiteralExpression(this);
 }
-
 public record InterpolatedStringExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<string> SegmentValues,

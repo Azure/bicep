@@ -22,23 +22,23 @@ namespace Bicep.Core.Intermediate;
 
 public class ExpressionBuilder
 {
-    private static readonly ImmutableHashSet<string> NonAzResourcePropertiesToOmit = new[] {
+    private static readonly ImmutableHashSet<string> NonAzResourcePropertiesToOmit = [
         LanguageConstants.ResourceDependsOnPropertyName,
-    }.ToImmutableHashSet();
+    ];
 
-    private static readonly ImmutableHashSet<string> AzResourcePropertiesToOmit = new[] {
+    private static readonly ImmutableHashSet<string> AzResourcePropertiesToOmit = [
         AzResourceTypeProvider.ResourceNamePropertyName,
         LanguageConstants.ResourceScopePropertyName,
         LanguageConstants.ResourceParentPropertyName,
         LanguageConstants.ResourceDependsOnPropertyName,
-    }.ToImmutableHashSet();
+    ];
 
-    private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = new[] {
+    private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = [
         AzResourceTypeProvider.ResourceNamePropertyName,
         LanguageConstants.ModuleParamsPropertyName,
         LanguageConstants.ResourceScopePropertyName,
         LanguageConstants.ResourceDependsOnPropertyName,
-    }.ToImmutableHashSet();
+    ];
 
     private static readonly int MaxCopyIndexStringLength = LanguageConstants.MaxResourceCopyIndexValue.ToString().Length;
 
@@ -289,7 +289,7 @@ public class ExpressionBuilder
                 UnionType unionType => new UnionTypeExpression(syntax, unionType, ImmutableArray.CreateRange(unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)))),
                 // If a union type expression's members all refer to the same literal value, the type of the expression will be a single literal rather than a union
                 TypeSymbol otherwise => new UnionTypeExpression(syntax,
-                    new UnionType(string.Empty, ImmutableArray.Create<ITypeReference>(otherwise)),
+                    new UnionType(string.Empty, [otherwise]),
                     ImmutableArray.CreateRange(unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)))),
             },
             ParenthesizedTypeSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
@@ -749,7 +749,7 @@ public class ExpressionBuilder
         {
             if (currentChunk.Count > 0)
             {
-                chunks.Add(new ArrayExpression(array, currentChunk.ToImmutableArray()));
+                chunks.Add(new ArrayExpression(array, [.. currentChunk]));
                 currentChunk.Clear();
             }
         }
@@ -774,7 +774,7 @@ public class ExpressionBuilder
             0 => new ArrayExpression(array, []),
             // preserve [ ...[ bar ] ] rather than converting it to [ foo: bar ]
             1 when !hasSpread => chunks[0],
-            _ => new FunctionCallExpression(array, "flatten", [new ArrayExpression(array, chunks.ToImmutableArray())]),
+            _ => new FunctionCallExpression(array, "flatten", [new ArrayExpression(array, [.. chunks])]),
         };
     }
 
@@ -787,7 +787,7 @@ public class ExpressionBuilder
         {
             if (currentChunk.Count > 0)
             {
-                chunks.Add(new ObjectExpression(@object, currentChunk.ToImmutableArray()));
+                chunks.Add(new ObjectExpression(@object, [.. currentChunk]));
                 currentChunk.Clear();
             }
         }
@@ -812,7 +812,7 @@ public class ExpressionBuilder
             0 => new ObjectExpression(@object, []),
             // preserve { ...{ foo: bar } } rather than converting it to { foo: bar }
             1 when !hasSpread => chunks[0],
-            _ => new FunctionCallExpression(@object, "shallowMerge", [new ArrayExpression(@object, chunks.ToImmutableArray())]),
+            _ => new FunctionCallExpression(@object, "shallowMerge", [new ArrayExpression(@object, [.. chunks])]),
         };
     }
 
@@ -861,13 +861,13 @@ public class ExpressionBuilder
                     return new FunctionCallExpression(
                         method,
                         "invokeResourceMethod",
-                        new Expression[] {
+                        [
                             nameExpression,
                             new StringLiteralExpression(method.Name, method.Name.IdentifierName),
                             new ArrayExpression(
                                 method,
                                 method.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray()),
-                        }.ToImmutableArray());
+                        ]);
                 }
 
                 var indexContext = resource switch
@@ -972,12 +972,12 @@ public class ExpressionBuilder
         {
             if (convertedBase is AccessExpression baseAccess)
             {
-                return new AccessChainExpression(arrayAccess, baseAccess, ImmutableArray.Create(convertedIndex));
+                return new AccessChainExpression(arrayAccess, baseAccess, [convertedIndex]);
             }
 
             if (convertedBase is AccessChainExpression accessChain)
             {
-                return new AccessChainExpression(arrayAccess, accessChain.FirstLink, accessChain.AdditionalProperties.Append(convertedIndex).ToImmutableArray());
+                return new AccessChainExpression(arrayAccess, accessChain.FirstLink, [.. accessChain.AdditionalProperties, convertedIndex]);
             }
         }
 
@@ -1067,12 +1067,12 @@ public class ExpressionBuilder
 
             if (convertedBase is AccessExpression baseAccess)
             {
-                return new AccessChainExpression(propertyAccess, baseAccess, ImmutableArray.Create(nextLink));
+                return new AccessChainExpression(propertyAccess, baseAccess, [nextLink]);
             }
 
             if (convertedBase is AccessChainExpression accessChain)
             {
-                return new AccessChainExpression(propertyAccess, accessChain.FirstLink, accessChain.AdditionalProperties.Append(nextLink).ToImmutableArray());
+                return new AccessChainExpression(propertyAccess, accessChain.FirstLink, [.. accessChain.AdditionalProperties, nextLink]);
             }
         }
 
@@ -1520,7 +1520,7 @@ public class ExpressionBuilder
                 else if (Context.SemanticModel.TargetScope == ResourceScope.ResourceGroup)
                 {
                     // TODO: It's very suspicious that this doesn't reference scopeData.IndexExpression
-                    expressionEmitter.EmitProperty("subscriptionId", new FunctionExpression("subscription", Array.Empty<LanguageExpression>(), new LanguageExpression[] { new JTokenExpression("subscriptionId") }));
+                    expressionEmitter.EmitProperty("subscriptionId", new FunctionExpression("subscription", [], [new JTokenExpression("subscriptionId")]));
                 }
                 return;
             case ResourceScope.ResourceGroup:

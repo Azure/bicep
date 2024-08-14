@@ -34,12 +34,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         protected void ExpectPass(string bicepText, Options? options = null)
         {
-            AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, new string[] { }, options);
+            AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, [], options);
         }
 
         protected void ExpectFail(string bicepText, string expectedMessage)
         {
-            AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, new string[] { expectedMessage });
+            AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, [expectedMessage]);
         }
 
         protected void ExpectFailWithFix(string bicepText, string expectedMessage, ExpectedCodeFix expectedFix)

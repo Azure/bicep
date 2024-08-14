@@ -5,7 +5,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 {
     public static class DocumentOperators
     {
-        public static readonly IEnumerable<Document> Empty = Enumerable.Empty<Document>();
+        public static readonly IEnumerable<Document> Empty = [];
 
         /// <summary>
         /// Prints a whitespace.

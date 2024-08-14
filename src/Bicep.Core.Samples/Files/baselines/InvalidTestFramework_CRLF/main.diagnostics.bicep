@@ -90,7 +90,7 @@ test sample 'samples/sample1.bicep'{
 
 test sample ={
 //@[05:11) [BCP028 (Error)] Identifier "sample" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |sample|
-//@[12:13) [BCP0347 (Error)] Expected a test path string at this location. (CodeDescription: none) |=|
+//@[12:13) [BCP347 (Error)] Expected a test path string at this location. (CodeDescription: none) |=|
 //@[12:14) [BCP358 (Error)] This declaration is missing a template file path reference. (CodeDescription: none) |={|
 //@[14:14) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
     params: {
@@ -113,7 +113,7 @@ test sample 'samples/sample1.bicep'{
 
 test sample{
 //@[05:11) [BCP028 (Error)] Identifier "sample" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |sample|
-//@[11:12) [BCP0347 (Error)] Expected a test path string at this location. (CodeDescription: none) |{|
+//@[11:12) [BCP347 (Error)] Expected a test path string at this location. (CodeDescription: none) |{|
 //@[11:12) [BCP358 (Error)] This declaration is missing a template file path reference. (CodeDescription: none) |{|
 //@[12:12) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
     params: {
@@ -127,7 +127,7 @@ test sample{
 
 test sample{
 //@[05:11) [BCP028 (Error)] Identifier "sample" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |sample|
-//@[11:12) [BCP0347 (Error)] Expected a test path string at this location. (CodeDescription: none) |{|
+//@[11:12) [BCP347 (Error)] Expected a test path string at this location. (CodeDescription: none) |{|
 //@[11:12) [BCP358 (Error)] This declaration is missing a template file path reference. (CodeDescription: none) |{|
 //@[12:12) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
     params: {
@@ -141,7 +141,7 @@ test sample{
 
 test sample{
 //@[05:11) [BCP028 (Error)] Identifier "sample" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |sample|
-//@[11:12) [BCP0347 (Error)] Expected a test path string at this location. (CodeDescription: none) |{|
+//@[11:12) [BCP347 (Error)] Expected a test path string at this location. (CodeDescription: none) |{|
 //@[11:12) [BCP358 (Error)] This declaration is missing a template file path reference. (CodeDescription: none) |{|
 //@[12:12) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
     params: {
@@ -156,7 +156,7 @@ test sample{
 //@[02:03) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |}|
 
 test 'samples/sample1.bicep'{
-//@[05:28) [BCP0346 (Error)] Expected a test identifier at this location. (CodeDescription: none) |'samples/sample1.bicep'|
+//@[05:28) [BCP346 (Error)] Expected a test identifier at this location. (CodeDescription: none) |'samples/sample1.bicep'|
 //@[28:29) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) |{|
     params: {
       location: 'westus',
@@ -167,12 +167,12 @@ test 'samples/sample1.bicep'{
   }
 
 test
-//@[04:04) [BCP0346 (Error)] Expected a test identifier at this location. (CodeDescription: none) ||
+//@[04:04) [BCP346 (Error)] Expected a test identifier at this location. (CodeDescription: none) ||
 //@[04:04) [BCP358 (Error)] This declaration is missing a template file path reference. (CodeDescription: none) ||
 
 test sample
 //@[05:11) [BCP028 (Error)] Identifier "sample" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |sample|
-//@[11:11) [BCP0347 (Error)] Expected a test path string at this location. (CodeDescription: none) ||
+//@[11:11) [BCP347 (Error)] Expected a test path string at this location. (CodeDescription: none) ||
 //@[11:11) [BCP358 (Error)] This declaration is missing a template file path reference. (CodeDescription: none) ||
 
 test sample 'samples/sample1.bicep'

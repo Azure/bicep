@@ -1,30 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as path from "path";
 import * as cp from "child_process";
-import * as os from "os";
 import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import { downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath, runTests } from "@vscode/test-electron";
 import { minVersion } from "semver";
-import {
-  runTests,
-  downloadAndUnzipVSCode,
-  resolveCliArgsFromVSCodeExecutablePath,
-} from "@vscode/test-electron";
 
 async function go() {
   try {
     // Do not import the json file directly because it's not under /src.
     // We also don't want it to be included in the /out folder.
     const packageJsonPath = path.resolve(__dirname, "../../../package.json");
-    const packageJson = JSON.parse(
-      fs.readFileSync(packageJsonPath, { encoding: "utf-8" }),
-    );
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, { encoding: "utf-8" }));
     const minSupportedVSCodeSemver = minVersion(packageJson.engines.vscode);
 
     if (!minSupportedVSCodeSemver) {
-      throw new Error(
-        "Ensure 'engines.vscode' is properly set in package.json",
-      );
+      throw new Error("Ensure 'engines.vscode' is properly set in package.json");
     }
 
     const vscodeVersionsToVerify = [minSupportedVSCodeSemver.version, "stable"];
@@ -33,8 +25,7 @@ async function go() {
       console.log(`Running tests against VSCode-${vscodeVersion}`);
 
       const vscodeExecutablePath = await downloadAndUnzipVSCode(vscodeVersion);
-      const [cliRawPath, ...cliArguments] =
-        resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
+      const [cliRawPath, ...cliArguments] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
       const cliPath = `"${cliRawPath}"`;
 
       const isRoot = os.userInfo().username === "root";
@@ -50,16 +41,10 @@ async function go() {
         "ms-dotnettools.vscode-dotnet-runtime",
         ...userDataArguments,
       ];
-      const extensionListArguments = [
-        ...cliArguments,
-        "--list-extensions",
-        ...userDataArguments,
-      ];
+      const extensionListArguments = [...cliArguments, "--list-extensions", ...userDataArguments];
 
       // Install .NET Install Tool extension as a dependency.
-      console.log(
-        `Installing dotnet extension: ${cliPath} ${extensionInstallArguments.join(" ")}`,
-      );
+      console.log(`Installing dotnet extension: ${cliPath} ${extensionInstallArguments.join(" ")}`);
       let result = cp.spawnSync(cliPath, extensionInstallArguments, {
         encoding: "utf-8",
         stdio: "inherit",

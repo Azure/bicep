@@ -741,7 +741,7 @@ namespace Bicep.Core.TypeSystem
                 narrowedVariables[i] = NarrowType(config, variables[i], targetType.GetArgumentType(i).Type);
             }
 
-            return new LambdaType(narrowedVariables.ToImmutableArray(), ImmutableArray<ITypeReference>.Empty, returnType);
+            return new LambdaType([.. narrowedVariables], [], returnType);
         }
 
         private TypeSymbol NarrowVariableAccessType(TypeValidatorConfig config, VariableAccessSyntax variableAccess, TypeSymbol targetType)
@@ -1056,7 +1056,7 @@ namespace Bicep.Core.TypeSystem
             {
                 var missingRequiredProperties = expressionObjectType.AdditionalPropertiesType is not null
                     // if the assigned value allows additional properties, we can't know if it's missing any
-                    ? ImmutableArray<TypeProperty>.Empty
+                    ? []
                     // otherwise, look for required properties on the target for which there is no declared counterpart on the assigned value
                     : targetType.Properties.Values
                         .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) &&
@@ -1192,7 +1192,7 @@ namespace Bicep.Core.TypeSystem
                         });
                     }
 
-                    foreach (var unknownProperty in (expression as ObjectSyntax)?.Properties.Where(p => p.TryGetKeyText() is null) ?? Enumerable.Empty<ObjectPropertySyntax>())
+                    foreach (var unknownProperty in (expression as ObjectSyntax)?.Properties.Where(p => p.TryGetKeyText() is null) ?? [])
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(unknownProperty.Key).DisallowedInterpolatedKeyProperty(shouldWarn,
                             TryGetSourceDeclaration(config),

@@ -18,10 +18,11 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
     [TestClass]
     public class UpdateFormatSettingsMiddleLayerTests
     {
-        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
+        private static readonly MockRepository Repository = new(MockBehavior.Strict);
         private Mock<IBicepSettings> BicepSettingsMock = Repository.Create<IBicepSettings>();
 
         [TestMethod]
+        [Obsolete] // TODO: Fix obsolete errors properly
         public void UpdateFormatOptions_WithInvalidInput_ShouldThrow()
         {
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer(BicepSettingsMock.Object);
@@ -29,16 +30,17 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
 
             Task task = updateFormatSettingsMiddleLayer.UpdateFormatOptionsAsync(jtoken);
 
-#pragma warning disable VSTHRD110 // Observe result of async calls
+#pragma warning disable VSTHRD110, VSSDK007 // Observe result of async calls
             Action action = () => ThreadHelper.JoinableTaskFactory.RunAsync(async delegate {
                 await updateFormatSettingsMiddleLayer.UpdateFormatOptionsAsync(jtoken);
             });
-#pragma warning restore VSTHRD110 // Observe result of async calls
+#pragma warning restore VSTHRD110, VSSDK007 // Observe result of async calls
 
             action.Should().Throw<Exception>();
         }
 
         [TestMethod]
+        [Obsolete] // TODO: Fix obsolete errors properly
         public async Task UpdateFormatOptions_WithValidInput_ShouldUpdateFormattingOptions()
         {
             var documentFormattingParams = new DocumentFormattingParams();

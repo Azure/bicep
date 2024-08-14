@@ -32,9 +32,9 @@ Easily explore all available resource types and api versions for a given type. Y
 
 ### Other intellisense and completions
 
-* Keyword declarations. On an empty line you will get completions for all keywords (`param`, `var`, `resource`, etc.)
-* `param` and `output` types (i.e. `param myParam `)
-* target scopes (i.e. `targetScope = `)
+- Keyword declarations. On an empty line you will get completions for all keywords (`param`, `var`, `resource`, etc.)
+- `param` and `output` types (i.e. `param myParam `)
+- target scopes (i.e. `targetScope = `)
 
 ### Snippets
 
@@ -78,12 +78,12 @@ You can rename any symbol such as a `param` or `resource` and bicep will intelli
 
 ### Formatting
 
-* Default keybinding is `alt` + `shift` + `f` on Windows, `option` + `shift` + `f` on macOS
-  * You can also format via the VS Code UI. `View` -> `Command palette...` then type `format document`
+- Default keybinding is `alt` + `shift` + `f` on Windows, `option` + `shift` + `f` on macOS
+  - You can also format via the VS Code UI. `View` -> `Command palette...` then type `format document`
 
 ![formatting a bicep file that is disorganized](/docs/images/format.gif)
 
-* Bicep will set the following default settings for `.bicep` files when installed:
+- Bicep will set the following default settings for `.bicep` files when installed:
 
 ```json
   "[bicep]": {
@@ -94,9 +94,9 @@ You can rename any symbol such as a `param` or `resource` and bicep will intelli
 
 You can change the default settings in the following places (sorted by precedence in ascending order):
 
-* VSCode global user settings
-* VSCode workspace settings
-* `.editorconfig` files (requires EditorConfig for VSCode extension to be installed)
+- VSCode global user settings
+- VSCode workspace settings
+- `.editorconfig` files (requires EditorConfig for VSCode extension to be installed)
 
 ### Quick fixes
 

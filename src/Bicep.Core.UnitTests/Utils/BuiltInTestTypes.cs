@@ -243,7 +243,7 @@ namespace Bicep.Core.UnitTests.Utils
                     overloads));
         }
 
-        public static ImmutableArray<ResourceTypeComponents> Types { get; } = new[] {
+        public static ImmutableArray<ResourceTypeComponents> Types { get; } = [
             BasicTestsType(),
             ReadWriteTestsType(),
             ReadOnlyTestsType(),
@@ -252,7 +252,7 @@ namespace Bicep.Core.UnitTests.Utils
             DiscriminatedPropertiesTestsType2(),
             FallbackPropertyTestsType(),
             ListFunctionsType(),
-        }.ToImmutableArray();
+        ];
 
         public static INamespaceProvider Create()
             => new NamespaceProvider(

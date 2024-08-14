@@ -35,7 +35,7 @@ internal class TemplateVariablesEvaluator
     private readonly ConcurrentDictionary<string, IEvaluationResult> evaluatedVariables = new();
     private readonly Stack<string> variableEvaluationStack = new();
     private readonly Template template;
-    private readonly ExpressionEvaluationContext evaluationContext;
+    private readonly IEvaluationContext evaluationContext;
 
     internal TemplateVariablesEvaluator(Template template)
     {
@@ -141,9 +141,10 @@ internal class TemplateVariablesEvaluator
 
         if (TryGetRawUnevaluatedCopyDeclaration(name) is JObject copiedVariable)
         {
-            if (!copiedVariable.TryGetValue(CopyCountPropertyName, StringComparison.OrdinalIgnoreCase, out var copyCountToken))
+            if (!copiedVariable.TryGetValue(CopyCountPropertyName, StringComparison.OrdinalIgnoreCase, out var copyCountToken) ||
+                ExpressionsEngine.EvaluateLanguageExpressionAsInteger(copyCountToken, evaluationContext, new())?.ToObject<int>() is not { } copyCount)
             {
-                throw new InvalidOperationException($"The '{name}' variable did not declare a copy count.");
+                throw new InvalidOperationException($"The '{name}' variable did not declare a valid copy count.");
             }
 
             if (!copiedVariable.TryGetValue(CopyItemValuePropertyName, StringComparison.OrdinalIgnoreCase, out var copyItemToken))
@@ -151,7 +152,6 @@ internal class TemplateVariablesEvaluator
                 throw new InvalidOperationException($"The '{name}' variable did not declare a copy input.");
             }
 
-            var copyCount = ExpressionsEngine.EvaluateLanguageExpressionAsInteger(copyCountToken, evaluationContext, null).ToObject<int>();
             JArray target = new();
             for (int i = 0; i < copyCount; i++)
             {

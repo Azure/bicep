@@ -30,7 +30,7 @@ namespace Bicep.Core.Text
                 }
             }
 
-            return lineStarts.ToImmutableArray();
+            return [.. lineStarts];
         }
 
         public static (int line, int character) GetPosition(IReadOnlyList<int> lineStarts, int offset)

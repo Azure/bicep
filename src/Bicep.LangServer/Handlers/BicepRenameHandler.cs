@@ -14,18 +14,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepRenameHandler : RenameHandlerBase
+    public class BicepRenameHandler(ISymbolResolver symbolResolver, DocumentSelectorFactory documentSelectorFactory) : RenameHandlerBase
     {
-        private readonly ISymbolResolver symbolResolver;
-
-        public BicepRenameHandler(ISymbolResolver symbolResolver) : base()
-        {
-            this.symbolResolver = symbolResolver;
-        }
-
         public override Task<WorkspaceEdit?> Handle(RenameParams request, CancellationToken cancellationToken)
         {
-            var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
+            var result = symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
             if (result == null || !(result.Symbol is DeclaredSymbol))
             {
                 // result is not a symbol or it's a built-in symbol that was not declared by the user (namespaces, functions, for example)
@@ -89,7 +82,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override RenameRegistrationOptions CreateRegistrationOptions(RenameCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams(),
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             PrepareProvider = false
         };
     }

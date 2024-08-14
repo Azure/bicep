@@ -249,7 +249,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetStringDomainNarrowingData()
         {
             static object[] Row(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, params (string code, DiagnosticLevel level, string message)[] diagnostics)
-                => new object[] { sourceType, targetType, expectedType, diagnostics };
+                => [sourceType, targetType, expectedType, diagnostics];
 
             return new[]
             {
@@ -339,7 +339,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetIntegerDomainNarrowingData()
         {
             static object[] Row(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, params (string code, DiagnosticLevel level, string message)[] diagnostics)
-                => new object[] { sourceType, targetType, expectedType, diagnostics };
+                => [sourceType, targetType, expectedType, diagnostics];
 
             return new[]
             {
@@ -489,7 +489,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var arrayLiteral = TestSyntaxFactory.CreateArray(new SyntaxBase[] { TestSyntaxFactory.CreateString("foo"), TestSyntaxFactory.CreateInt(5), TestSyntaxFactory.CreateNull() });
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(SyntaxHierarchy.Build(arrayLiteral), arrayLiteral, new TupleType(
-                ImmutableArray.Create<ITypeReference>(TypeFactory.CreateStringType(maxLength: 2), TypeFactory.CreateIntegerType(minValue: 6)),
+                [TypeFactory.CreateStringType(maxLength: 2), TypeFactory.CreateIntegerType(minValue: 6)],
                 default));
 
             diagnostics.Should().HaveDiagnostics(new[]
@@ -531,7 +531,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetArrayDomainNarrowingData()
         {
             static object[] Row(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedReturnType, params (string code, DiagnosticLevel level, string message)[] diagnostics)
-                => new object[] { sourceType, targetType, expectedReturnType, diagnostics };
+                => [sourceType, targetType, expectedReturnType, diagnostics];
 
             return new[]
             {
@@ -547,9 +547,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     new TypedArrayType(TypeFactory.CreateIntegerType(1, 10), default)),
 
                 // A source tuple should narrow its items
-                Row(new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateStringType(1, 10)), default),
-                    new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(-5, 11), TypeFactory.CreateStringType(maxLength: 20)), default),
-                    new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateStringType(1, 10)), default)),
+                Row(new TupleType([TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateStringType(1, 10)], default),
+                    new TupleType([TypeFactory.CreateIntegerType(-5, 11), TypeFactory.CreateStringType(maxLength: 20)], default),
+                    new TupleType([TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateStringType(1, 10)], default)),
 
                 // A source type whose domain overlaps but extends below the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateArrayType(1, 10),
@@ -746,7 +746,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // incorrect type specified for the discriminator field
                 var obj = TestSyntaxFactory.CreateObject(new[]
                 {
-                    TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>())),
+                    TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateObject([])),
                     TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
                 });
 
@@ -849,7 +849,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             {
                 // pick an invalid path (object) - we should get diagnosticWriter
-                var objectSyntax = TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>());
+                var objectSyntax = TestSyntaxFactory.CreateObject([]);
                 var hierarchy = SyntaxHierarchy.Build(objectSyntax);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, objectSyntax, unionType);
 
@@ -903,7 +903,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private static IEnumerable<object[]> GetData()
         {
-            static object[] CreateRow(string name, ObjectSyntax @object) => new object[] { name, @object };
+            static object[] CreateRow(string name, ObjectSyntax @object) => [name, @object];
 
             // empty object
             yield return CreateRow("Empty", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]));

@@ -85,7 +85,7 @@ namespace Bicep.LanguageServer.Deploy
                             updatedDeploymentParameter.value,
                             JObject.Parse("{}"));
 
-                        (int line, int column, string text)? insertion = jsonEditor.InsertIfNotExist(propertyPaths.ToArray(), valueObject);
+                        (int line, int column, string text)? insertion = jsonEditor.InsertIfNotExist([.. propertyPaths], valueObject);
 
                         if (insertion.HasValue)
                         {

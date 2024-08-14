@@ -14,7 +14,7 @@ namespace Bicep.Core.PrettyPrint.Documents
         private readonly ImmutableArray<ILinkedDocument> successors;
 
         public TextDocument(string text)
-            : this(text, ImmutableArray<ILinkedDocument>.Empty)
+            : this(text, [])
         {
         }
 

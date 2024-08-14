@@ -66,7 +66,7 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        public ImmutableArray<Token> GetTokens() => tokens.ToImmutableArray();
+        public ImmutableArray<Token> GetTokens() => [.. tokens];
 
         /// <summary>
         /// Converts a set of string literal tokens into their raw values. Returns null if any of the tokens are of the wrong type or malformed.
@@ -466,7 +466,7 @@ namespace Bicep.Core.Parsing
 
             if (text.Length > 0)
             {
-                return new FreeformToken(TokenType.StringComplete, textWindow.GetSpan(), text.ToString(), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
+                return new FreeformToken(TokenType.StringComplete, textWindow.GetSpan(), text.ToString(), [], []);
             }
 
             return null;
@@ -820,7 +820,7 @@ namespace Bicep.Core.Parsing
         {
             var identifier = textWindow.GetText().ToString();
 
-            if (LanguageConstants.Keywords.TryGetValue(identifier, out var tokenType))
+            if (LanguageConstants.NonContextualKeywords.TryGetValue(identifier, out var tokenType))
             {
                 return tokenType;
             }

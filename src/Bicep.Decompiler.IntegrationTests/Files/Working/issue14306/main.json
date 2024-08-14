@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "logRetentionDays": -10,
+    "test": "[not(equals(variables('logRetentionDays'), -10))]"
+  },
+  "resources": [],
+  "outputs": {
+    "test": {
+      "type": "bool",
+      "value": "[variables('test')]"
+    }
+  }
+}

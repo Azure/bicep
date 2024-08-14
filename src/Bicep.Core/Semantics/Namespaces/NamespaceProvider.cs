@@ -194,7 +194,7 @@ public class NamespaceProvider : INamespaceProvider
             return new(x => x.FetchingAzTypesRequiresExperimentalFeature());
         }
 
-        if (!useAzLoader && !features.ProviderRegistryEnabled)
+        if (!useAzLoader && !features.ExtensionRegistryEnabled)
         {
             return new(x => x.FetchingTypesRequiresExperimentalFeature());
         }

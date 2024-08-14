@@ -26,7 +26,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void ExpectDiagnosticWithFix(string text, string expectedFix, Options? options = null)
         {
-            ExpectDiagnosticWithFix(text, new string[] { expectedFix }, options);
+            ExpectDiagnosticWithFix(text, [expectedFix], options);
         }
 
         private void ExpectDiagnosticWithFix(string text, string[] expectedFixes, Options? options = null)

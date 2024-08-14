@@ -148,7 +148,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
         SyntaxBase newSyntax = SyntaxFactory.CreateIdentifier(resource.Symbol.Name);
         if (!isFull)
         {
-            newSyntax = SyntaxFactory.CreatePropertyAccess(newSyntax, "properties");
+            newSyntax = SyntaxFactory.CreateAccessSyntax(newSyntax, "properties");
         }
 
         var codeReplacement = new CodeReplacement(functionCall.Span, newSyntax.ToString());
@@ -180,7 +180,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
 
         var newArgs = functionCall.Arguments.Length == 2 ?
             new SyntaxBase[] { } :
-            new SyntaxBase[] { functionCall.Arguments[1].Expression, functionCall.Arguments[2].Expression };
+            [functionCall.Arguments[1].Expression, functionCall.Arguments[2].Expression];
 
         var newFunctionCall = SyntaxFactory.CreateInstanceFunctionCall(
             SyntaxFactory.CreateIdentifier(resource.Symbol.Name),

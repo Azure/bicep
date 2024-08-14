@@ -141,7 +141,7 @@
         }
       }
     },
-    "providerConfig": {
+    "extensionConfig": {
       "type": "string",
       "pattern": "^(builtin:|br:.*)$"
     },
@@ -157,7 +157,7 @@
       ],
       "additionalProperties": false
     },
-    "bicepRegistryProviderAlias": {
+    "bicepRegistryExtensionAlias": {
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -171,9 +171,9 @@
           "minLength": 1,
           "maxLength": 255
         },
-        "providerPath": {
-          "title": "Provider Path",
-          "description": "The OCI repository address to use for the alias",
+        "extensionPath": {
+          "title": "Extension Path",
+          "description": "The OCI repository path to use for the alias",
           "type": "string",
           "minLength": 1
         }
@@ -297,8 +297,9 @@
         }
       }
     },
-    "providerAliases": {
-      "title": "Module Aliases",
+    "extensionAliases": {
+      "title": "Bicep Extension Aliases ",
+      "description": "Bicep extension aliases for simplifying extension references",
       "type": "object",
       "additionalProperties": false,
       "default": {
@@ -306,21 +307,20 @@
       },
       "properties": {
         "br": {
-          "title": "Bicep Registry Provider Aliases",
-          "description": "Bicep Registry provider alias definitions",
+          "description": "Bicep Registry extension alias definitions",
           "additionalProperties": {
-            "$ref": "#/definitions/bicepRegistryProviderAlias"
+            "$ref": "#/definitions/bicepRegistryExtensionAlias"
           }
         }
       }
     },
-    "providers": {
-      "title": "Resource Type Providers Configuration",
-      "description": "Resource type providers configuration",
+    "extensions": {
+      "title": "Bicep Extensions",
+      "description": "Bicep extension references",
       "type": "object",
       "patternProperties": {
         "^(?!sys$).*": {
-          "$ref": "#/definitions/providerConfig"
+          "$ref": "#/definitions/extensionConfig"
         }
       },
       "additionalProperties": false,
@@ -330,8 +330,9 @@
         "microsoftGraph": "builtin:"
       }
     },
-    "implicitProviders": {
-      "description": "Resource type providers that should be implicitly imported",
+    "implicitExtensions": {
+      "title": "Implicit Bicep Extensions",
+      "description": "Bicep extensions that should be used implicitly",
       "type": "array",
       "default": [
         "az"
@@ -700,6 +701,16 @@
                     }
                   ]
                 },
+                "use-safe-access": {
+                  "allOf": [
+                    {
+                      "description": "Use the safe access (.?) operator instead of checking object contents with the 'contains' function. Defaults to 'Warning'. See https://aka.ms/bicep/linter/use-safe-access"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "use-recent-api-versions": {
                   "allOf": [
                     {
@@ -713,6 +724,17 @@
                           "minimum": 0
                         }
                       }
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-recent-module-versions": {
+                  "allOf": [
+                    {
+                      "description": "Use recent module versions. Defaults to 'Off'. See https://aka.ms/bicep/linter/use-recent-module-versions",
+                      "type": "object"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-off"
@@ -783,6 +805,10 @@
       "type": "object",
       "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file. See https://aka.ms/bicep/experimental-features for more information.",
       "properties": {
+        "extendableParamFiles": {
+          "type": "boolean",
+          "description": "Allows the use of 'extends' keyword. See https://aka.ms/bicep/experimental-features#extendableparamfiles"
+        },
         "symbolicNameCodegen": {
           "type": "boolean",
           "description": "Allows the ARM template layer to use a new schema to represent resources as an object dictionary rather than an array of objects. See https://aka.ms/bicep/experimental-features#symbolicnamecodegen"
@@ -815,7 +841,8 @@
           "description": "Enables dynamic type loading for resource type providers. See https://aka.ms/bicep/experimental-features#dynamictypeloading",
           "type": "boolean"
         },
-        "providerRegistry": {
+        "extensionRegistry": {
+          "description": "Enables dynamic type loading for third party extensions. See https://aka.ms/bicep/experimental-features#extensionregistry",
           "type": "boolean"
         },
         "localDeploy": {
@@ -829,6 +856,10 @@
         "resourceDerivedTypes": {
           "type": "boolean",
           "description": "If enabled, templates can reuse resource types wherever a type is expected. See https://aka.ms/bicep/experimental-features#resourcederivedtypes"
+        },
+        "secureOutputs": {
+            "type": "boolean",
+            "description": "If enabled, users can use the secure decorator for outputs. See https://aka.ms/bicep/experimental-features#secureoutputs"
         }
       },
       "additionalProperties": false

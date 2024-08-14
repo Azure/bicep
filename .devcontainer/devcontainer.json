@@ -12,7 +12,9 @@
         "editorconfig.editorconfig",
         "github.vscode-pull-request-github",
         "github.vscode-github-actions",
-        "ms-dotnettools.csdevkit"
+        "ms-dotnettools.csdevkit",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
       ]
     }
   },

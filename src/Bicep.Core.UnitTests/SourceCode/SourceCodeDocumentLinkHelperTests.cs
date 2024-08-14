@@ -22,9 +22,9 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
     public void Single()
     {
         var result = CompilationHelper.Compile(
-            new (string fileName, string fileContents)[] {
+            [
                     ("createVM.bicep", ""),
-                    ("main.bicep", """
+                ("main.bicep", """
                         // A comment
                         module creatingVM 'createVM.bicep' = { // 'createVM.bicep' = [1:18]-[1:34]
                           name: 'creatingVM'
@@ -35,7 +35,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                             adminUsername: 'adminUsername'
                           }
                         }
-                        """)});
+                        """)]);
 
         var links = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(result.Compilation.SourceFileGrouping);
 
@@ -55,13 +55,13 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
     public void StartingWithDotDot()
     {
         var result = CompilationHelper.Compile(
-            new (string fileName, string fileContents)[] {
+            [
                     ("createVM.bicep", ""),
-                    ("main.bicep", """
+                ("main.bicep", """
                         // A comment
                         module creatingVM '../createVM.bicep' = { // '../createVM.bicep' = [1:18]-[1:37]
                         }
-                        """)});
+                        """)]);
 
         var links = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(result.Compilation.SourceFileGrouping);
 
@@ -81,19 +81,19 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
     public void Multiple()
     {
         var result = CompilationHelper.Compile(
-            new (string fileName, string fileContents)[] {
+            [
                     ("createVM.bicep", """
                         module main '../../whatever.bicep' = {
                         }
                         """),
-                    ("main.bicep", """
+                ("main.bicep", """
                         module bing 'modules/ai/bing-resources.json' = {
                         }
                         module creatingVM 'createVM.bicep' = {
                         }
                         """),
-                    ("../../whatever.bicep", ""),
-                    ("modules/ai/bing-resources.json", """
+                ("../../whatever.bicep", ""),
+                ("modules/ai/bing-resources.json", """
                         {
                           "$schema": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                           "contentVersion": "1.0.0.0",
@@ -111,7 +111,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                           }
                         }
                         """),
-            });
+            ]);
 
         var links = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(result.Compilation.SourceFileGrouping);
 
@@ -139,7 +139,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
     public void IsButsAndArrays()
     {
         var result = CompilationHelper.Compile(
-            new (string fileName, string fileContents)[] {
+            [
                     ("main.bicep", """
                         module keyVault_accessPolicies 'access-policy/main.bicep' = if (!empty(accessPolicies)) {
                         name: '${uniqueString(deployment().name, location)}-KeyVault-AccessPolicies'
@@ -182,7 +182,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                           }
                         }]
                         """),
-            });
+            ]);
 
         var links = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(result.Compilation.SourceFileGrouping);
 

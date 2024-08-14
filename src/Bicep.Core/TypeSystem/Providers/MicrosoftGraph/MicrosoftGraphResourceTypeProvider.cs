@@ -12,18 +12,18 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
         public const string AppIdPropertyName = "appId";
         public const string NamePropertyName = "name";
 
-        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
+        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], LanguageConstants.String, TypePropertyFlags.None);
 
         private readonly MicrosoftGraphResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
-        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
-        {
+        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
+        [
             UniqueNamePropertyName,
             AppIdPropertyName,
             NamePropertyName,
-        }.ToImmutableHashSet();
+        ];
 
         /*
          * The following top-level properties must be set deploy-time constant values,

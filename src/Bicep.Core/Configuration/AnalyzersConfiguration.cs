@@ -11,6 +11,8 @@ namespace Bicep.Core.Configuration
     {
         public AnalyzersConfiguration(JsonElement data) : base(data) { }
 
+        public AnalyzersConfiguration(string json) : base(JsonElementFactory.CreateElement(json)) { }
+
         public static AnalyzersConfiguration Empty => CreateEmptyAnalyzersConfiguration();
 
         public T GetValue<T>(string path, T defaultValue)

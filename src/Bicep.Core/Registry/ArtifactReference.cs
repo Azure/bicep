@@ -35,5 +35,7 @@ namespace Bicep.Core.Registry
         /// Gets a value indicating whether this reference points to an external artifact.
         /// </summary>
         public abstract bool IsExternal { get; }
+
+        public override string ToString() => FullyQualifiedReference;
     }
 }

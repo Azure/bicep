@@ -41,7 +41,7 @@ namespace Bicep.Core.Semantics
         {
             // bind identifiers to declarations
             var bindings = new Dictionary<SyntaxBase, Symbol>();
-            var allLocalScopes = ScopeCollectorVisitor.Build(ImmutableArray.Create(fileScope));
+            var allLocalScopes = ScopeCollectorVisitor.Build([fileScope]);
             var binder = new NameBindingVisitor(bindings, namespaceResolver, allLocalScopes);
             binder.Visit(programSyntax);
 

@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
+using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -14,6 +17,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
@@ -54,8 +58,6 @@ namespace Bicep.Core.Semantics.Namespaces
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
         private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetSystemOverloads().ToImmutableArray();
-
-        private static readonly ImmutableArray<NamespaceValue<Decorator>> Decorators = GetSystemDecorators().ToImmutableArray();
 
         private static readonly ImmutableArray<NamespaceValue<TypeProperty>> AmbientSymbols = GetSystemAmbientSymbols().ToImmutableArray();
 
@@ -427,7 +429,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         return new(argumentTypes[0] switch
                         {
                             TupleType tupleType when minToTake == maxToTake && minToTake >= tupleType.Items.Length => tupleType,
-                            TupleType tupleType when minToTake == maxToTake && minToTake <= 0 => new TupleType(ImmutableArray<ITypeReference>.Empty, tupleType.ValidationFlags),
+                            TupleType tupleType when minToTake == maxToTake && minToTake <= 0 => new TupleType([], tupleType.ValidationFlags),
                             TupleType tupleType when minToTake == maxToTake && minToTake <= int.MaxValue => new TupleType(tupleType.Items.Take((int)minToTake).ToImmutableArray(), tupleType.ValidationFlags),
                             ArrayType array => TypeFactory.CreateArrayType(array.Item,
                                 !array.MinLength.HasValue ? null : minToTake switch
@@ -1173,7 +1175,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             var arguments = functionCall.Arguments.ToImmutableArray();
             string? tokenSelectorPath = null;
-            IPositionable[] positionables = arguments.Length > 1 ? new IPositionable[] { arguments[0], arguments[1] } : new IPositionable[] { arguments[0] };
+            IPositionable[] positionables = arguments.Length > 1 ? [arguments[0], arguments[1]] : [arguments[0]];
             if (arguments.Length > 1)
             {
                 if (argumentTypes[1] is not StringLiteralType tokenSelectorType)
@@ -1213,9 +1215,32 @@ namespace Bicep.Core.Semantics.Namespaces
                 }
                 else
                 {
+                    var envVariableNames = model.Environment.GetVariableNames();
+                    var suggestion = SpellChecker.GetSpellingSuggestion(envVariableName, envVariableNames);
+                    if (suggestion != null)
+                    {
+                        suggestion = $" Did you mean \"{suggestion}\"?";
+                    }
+                    //log available environment variables if verbose logging is enabled
+                    if (model.Configuration.Analyzers.GetValue(LinterAnalyzer.LinterEnabledSetting, false) && model.Configuration.Analyzers.GetValue(LinterAnalyzer.LinterVerboseSetting, false))
+                    {
+                        diagnostics.Write(
+                            new Diagnostic(
+                                arguments[0].Span,
+                                DiagnosticLevel.Info,
+                                "Bicepparam ReadEnvironmentVariable function",
+                                $"Available environment variables are: {string.Join(", ", envVariableNames)}",
+                                null)
+                        );
+                    }
+
                     //error to fail the build-param with clear message of the missing env var name
-                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(envVariableName,
-                    "Environment variable does not exist, and no default value set")));
+                    var paramAssignmentDefinition = model.Root.ParameterAssignments.Where(
+                        p => p.DeclaringParameterAssignment.Value.Span.Position == functionCall.Span.Position
+                    ).FirstOrDefault();
+                    var paramName = paramAssignmentDefinition?.Name ?? "";
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(paramName,
+                    $"Environment variable \"{envVariableName}\" does not exist, and no default value set.{suggestion}")));
                 }
             }
             return new(TypeFactory.CreateStringLiteralType(envVariableValue),
@@ -1306,7 +1331,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new(ErrorType.Create(errorDiagnostic));
         }
 
-        private static readonly ImmutableHashSet<JTokenType> SupportedJsonTokenTypes = new[] { JTokenType.Object, JTokenType.Array, JTokenType.String, JTokenType.Integer, JTokenType.Float, JTokenType.Boolean, JTokenType.Null }.ToImmutableHashSet();
+        private static readonly ImmutableHashSet<JTokenType> SupportedJsonTokenTypes = [JTokenType.Object, JTokenType.Array, JTokenType.String, JTokenType.Integer, JTokenType.Float, JTokenType.Boolean, JTokenType.Null];
         private static Expression ConvertJsonToExpression(JToken token)
             => token switch
             {
@@ -1323,7 +1348,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     JTokenType.String => new StringLiteralExpression(null, value.ToString(CultureInfo.InvariantCulture)),
                     JTokenType.Integer => new IntegerLiteralExpression(null, value.ToObject<long>()),
                     // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
-                    JTokenType.Float => new FunctionCallExpression(null, "json", ImmutableArray.Create<Expression>(new StringLiteralExpression(null, value.ToObject<double>().ToString(CultureInfo.InvariantCulture)))),
+                    JTokenType.Float => new FunctionCallExpression(null, "json", [new StringLiteralExpression(null, value.ToObject<double>().ToString(CultureInfo.InvariantCulture))]),
                     JTokenType.Boolean => new BooleanLiteralExpression(null, value.ToObject<bool>()),
                     JTokenType.Null => new NullLiteralExpression(null),
                     _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported value token type: {value.Type}"),
@@ -1442,8 +1467,8 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         // TODO: Add copyIndex here when we support loops.
-        private static readonly ImmutableArray<BannedFunction> BannedFunctions = new[]
-        {
+        private static readonly ImmutableArray<BannedFunction> BannedFunctions =
+        [
             /*
              * The true(), false(), and null() functions are not included in this list because
              * we parse true, false and null as keywords in the lexer, so they can't be used as functions anyway.
@@ -1469,9 +1494,9 @@ namespace Bicep.Core.Semantics.Namespaces
             BannedFunction.CreateForOperator("and", "&&"),
             BannedFunction.CreateForOperator("or", "||"),
             BannedFunction.CreateForOperator("coalesce", "??")
-        }.ToImmutableArray();
+        ];
 
-        private static IEnumerable<NamespaceValue<Decorator>> GetSystemDecorators()
+        private static IEnumerable<NamespaceValue<Decorator>> GetSystemDecorators(IFeatureProvider featureProvider)
         {
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
@@ -1565,11 +1590,11 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
-            static IEnumerable<Decorator> GetBicepTemplateDecorators()
+            static IEnumerable<Decorator> GetBicepTemplateDecorators(IFeatureProvider featureProvider)
             {
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
-                    .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
+                    .WithFlags(featureProvider.SecureOutputsEnabled ? FunctionFlags.ParameterOutputOrTypeDecorator : FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                     .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((functionCall, decorated) =>
@@ -1828,7 +1853,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(decorator, (_, _) => true);
             }
 
-            foreach (var decorator in GetBicepTemplateDecorators())
+            foreach (var decorator in GetBicepTemplateDecorators(featureProvider))
             {
                 yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
             }
@@ -1887,9 +1912,11 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new(LanguageConstants.TypeNameResource,
                     new TypeTemplate(LanguageConstants.TypeNameResource,
-                        ImmutableArray.Create(new TypeParameter("ResourceTypeIdentifier",
-                            "A string of the format '<type-name>@<api-version>' that identifies the kind of resource whose body type definition is to be used.",
-                            LanguageConstants.StringResourceIdentifier)),
+                        [
+                            new TypeParameter("ResourceTypeIdentifier",
+                                        "A string of the format '<type-name>@<api-version>' that identifies the kind of resource whose body type definition is to be used.",
+                                        LanguageConstants.StringResourceIdentifier),
+                        ],
                         (binder, syntax, argumentTypes) =>
                         {
                             if (syntax.Arguments.FirstOrDefault()?.Expression is not StringTypeLiteralSyntax stringArg || stringArg.SegmentValues.Length > 1)
@@ -1931,7 +1958,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 AmbientSymbols.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 Overloads.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 BannedFunctions,
-                Decorators.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
+                GetSystemDecorators(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 new EmptyResourceTypeProvider());
         }
     }

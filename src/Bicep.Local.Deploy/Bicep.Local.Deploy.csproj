@@ -2,13 +2,6 @@
   <PropertyGroup>
     <AssemblyName>Azure.Bicep.Local.Deploy</AssemblyName>
     <RootNamespace>Bicep.Local.Deploy</RootNamespace>
-    <EnableNuget>true</EnableNuget>
-    <PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
-    <Description>
-      Bicep compiler local deploy functionality.
-      The Bicep team has made this NuGet package publicly available on nuget.org. While it is public, it is not a supported package. Any dependency you take on this package will be done at your own risk and we reserve the right to push breaking changes to this package at any time.
-    </Description>
-
     <!-- enable trimmer warnings for Bicep CLI and projects it references -->
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
@@ -19,7 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Deployments.Engine" Version="1.34.0" />
+    <PackageReference Include="Azure.Deployments.Engine" Version="1.95.0" />
+    <PackageReference Include="Azure.Deployments.Extensibility.Core" Version="0.1.55" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.139" />
   </ItemGroup>
 </Project>

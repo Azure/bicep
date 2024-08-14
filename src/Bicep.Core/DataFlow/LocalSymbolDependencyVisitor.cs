@@ -23,7 +23,7 @@ namespace Bicep.Core.DataFlow
             var visitor = new LocalSymbolDependencyVisitor(semanticModel);
             visitor.Visit(syntax);
 
-            return visitor.SymbolDependencies.ToImmutableHashSet();
+            return [.. visitor.SymbolDependencies];
         }
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)

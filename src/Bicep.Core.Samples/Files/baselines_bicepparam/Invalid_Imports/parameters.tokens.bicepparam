@@ -6,7 +6,7 @@ using 'main.bicep'
 import * as foo from 'foo.bicep'
 //@[00:06) Identifier |import|
 //@[07:08) Asterisk |*|
-//@[09:11) AsKeyword |as|
+//@[09:11) Identifier |as|
 //@[12:15) Identifier |foo|
 //@[16:20) Identifier |from|
 //@[21:32) StringComplete |'foo.bicep'|

@@ -38,6 +38,7 @@ namespace Bicep.Core.Emit
             public PositionTrackingTextWriter(TextWriter textWriter)
             {
                 this.internalWriter = textWriter;
+                this.NewLine = textWriter.NewLine;
             }
 
             public override Encoding Encoding => this.internalWriter.Encoding;
@@ -288,7 +289,7 @@ namespace Bicep.Core.Emit
 
             return new SourceMap(
                entrypointFileName,
-               sourceMapFileEntries.ToImmutableArray());
+               [.. sourceMapFileEntries]);
         }
     }
 }

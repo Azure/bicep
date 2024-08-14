@@ -110,22 +110,22 @@ public class TypeHelperTests
                 TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 4, maxLength: 6),
                 TypeFactory.CreateArrayType(LanguageConstants.Int, minLength: 5, maxLength: 99)),
             // collapse(array{6,7}, [string, int], array{8,9}) -> union(array{6,9}, [string, int])
-            Row(TypeHelper.CreateTypeUnion(TypeFactory.CreateArrayType(minLength: 6, maxLength: 9), new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.String, LanguageConstants.Int), default)),
+            Row(TypeHelper.CreateTypeUnion(TypeFactory.CreateArrayType(minLength: 6, maxLength: 9), new TupleType([LanguageConstants.String, LanguageConstants.Int], default)),
                 TypeFactory.CreateArrayType(minLength: 6, maxLength: 7),
-                new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.String, LanguageConstants.Int), default),
+                new TupleType([LanguageConstants.String, LanguageConstants.Int], default),
                 TypeFactory.CreateArrayType(minLength: 8, maxLength: 9)),
             // collapse(string[], [string, string, string]) -> string[]
             Row(TypeFactory.CreateArrayType(LanguageConstants.String),
                 TypeFactory.CreateArrayType(LanguageConstants.String),
-                new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.String, LanguageConstants.String, LanguageConstants.String), default)),
+                new TupleType([LanguageConstants.String, LanguageConstants.String, LanguageConstants.String], default)),
             // collapse(string[], [string, int, string]) -> union(string[], [string, int, string])
-            Row(TypeHelper.CreateTypeUnion(TypeFactory.CreateArrayType(LanguageConstants.String), new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String), default)),
+            Row(TypeHelper.CreateTypeUnion(TypeFactory.CreateArrayType(LanguageConstants.String), new TupleType([LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String], default)),
                 TypeFactory.CreateArrayType(LanguageConstants.String),
-                new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String), default)),
+                new TupleType([LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String], default)),
             // collapse((string | int)[], [string, int, string]) -> (string | int)[]
             Row(TypeFactory.CreateArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int)),
                 TypeFactory.CreateArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int)),
-                new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String), default)),
+                new TupleType([LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String], default)),
         };
     }
 

@@ -5738,7 +5738,7 @@ param foo2 string[]
                 .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
                 .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
             ("main.bicep", """
-                provider kubernetes with {
+                extension kubernetes with {
                   kubeConfig: 'config'
                   namespace: ''
                 } as k8s
@@ -6141,5 +6141,59 @@ resource addAppConfigValues 'Microsoft.AppConfiguration/configurationStores/keyV
 """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+
+    [TestMethod]
+    public void Test_Issue12800()
+    {
+        // https://github.com/Azure/bicep/issues/12800
+        var result = CompilationHelper.Compile("""
+var fixed = union(
+  {},
+  // Comment
+  {}
+  // Comment
+)
+""");
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue12800_2()
+    {
+        // https://github.com/Azure/bicep/issues/12800
+        var result = CompilationHelper.Compile("""
+var fixed = union(
+  {},
+  /*
+  * Multi-line comment
+  */
+  {}
+  /*
+  * Multi-line comment
+  */
+)
+""");
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue12800_3()
+    {
+        // https://github.com/Azure/bicep/issues/12800
+        var result = CompilationHelper.Compile("""
+var fixed = union(
+  {},
+  // Comment
+  {}
+  // Comment
+  {}
+)
+""");
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+             ("BCP237", DiagnosticLevel.Error, """Expected a comma character at this location."""),
+        });
     }
 }

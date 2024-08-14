@@ -462,6 +462,11 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Keyword,
                 syntax.Path);
 
+        private IEnumerable<Document> LayoutExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax) =>
+            this.Spread(
+                syntax.Keyword,
+                syntax.Path);
+
         private IEnumerable<Document> LayoutVariableBlockSyntax(VariableBlockSyntax syntax) =>
             this.Bracket(
                 syntax.OpenParen,
@@ -551,7 +556,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         public IEnumerable<Document> LayoutImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
             => Spread(syntax.OriginalSymbolName.AsEnumerable<SyntaxBase>()
-                .Concat(syntax.AsClause is SyntaxBase nonNullAsClause ? nonNullAsClause.AsEnumerable() : Enumerable.Empty<SyntaxBase>()));
+                .Concat(syntax.AsClause is SyntaxBase nonNullAsClause ? nonNullAsClause.AsEnumerable() : []));
 
         public IEnumerable<Document> LayoutWildcardImportSyntax(WildcardImportSyntax syntax)
             => Spread(syntax.Wildcard, syntax.AliasAsClause);

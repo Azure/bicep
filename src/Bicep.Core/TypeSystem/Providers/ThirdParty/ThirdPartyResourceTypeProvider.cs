@@ -8,7 +8,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 {
     public class ThirdPartyResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
-        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
+        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], LanguageConstants.String, TypePropertyFlags.None);
 
         private readonly ThirdPartyResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
@@ -133,7 +133,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 resourceType.ReadOnlyScopes,
                 resourceType.Flags,
                 resourceType.Body,
-                ImmutableHashSet<string>.Empty);
+                []);
         }
 
         public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
@@ -161,7 +161,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                     resourceType.ReadOnlyScopes,
                     resourceType.Flags,
                     resourceType.Body,
-                    ImmutableHashSet<string>.Empty);
+                    []);
             }
 
             return null;

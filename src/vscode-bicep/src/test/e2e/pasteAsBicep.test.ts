@@ -3,21 +3,17 @@
 
 /* eslint-disable jest/expect-expect */
 
+import assert from "assert";
+import * as path from "path";
+import * as fse from "fs-extra";
 import vscode, { ConfigurationTarget, Selection, TextDocument } from "vscode";
-import {
-  executeCloseAllEditors,
-  executeEditorPasteCommand,
-  executePasteAsBicepCommand,
-} from "./commands";
-import { getBicepConfiguration } from "../../language/getBicepConfiguration";
-import { normalizeMultilineString } from "../utils/normalizeMultilineString";
 import { SuppressedWarningsManager } from "../../commands/SuppressedWarningsManager";
 import { bicepConfigurationKeys } from "../../language/constants";
-import assert from "assert";
-import { until } from "../utils/time";
-import * as fse from "fs-extra";
-import * as path from "path";
+import { getBicepConfiguration } from "../../language/getBicepConfiguration";
 import { e2eLogName } from "../../utils/logger";
+import { normalizeMultilineString } from "../utils/normalizeMultilineString";
+import { until } from "../utils/time";
+import { executeCloseAllEditors, executeEditorPasteCommand, executePasteAsBicepCommand } from "./commands";
 
 const extensionLogPath = path.join(__dirname, `../../../${e2eLogName}`);
 
@@ -28,11 +24,7 @@ describe("pasteAsBicep", (): void => {
 
   async function configureSettings(): Promise<void> {
     // Make sure Decompile on Paste is on
-    await getBicepConfiguration().update(
-      bicepConfigurationKeys.decompileOnPaste,
-      true,
-      ConfigurationTarget.Global,
-    );
+    await getBicepConfiguration().update(bicepConfigurationKeys.decompileOnPaste, true, ConfigurationTarget.Global);
 
     // Make sure decompile on paste warning is on
     await getBicepConfiguration().update(
@@ -42,9 +34,7 @@ describe("pasteAsBicep", (): void => {
     );
   }
 
-  function getTextAndMarkers(
-    s: string,
-  ): [text: string, markerOffset: number, markerLength: number] {
+  function getTextAndMarkers(s: string): [text: string, markerOffset: number, markerLength: number] {
     const offset = s.indexOf("|");
     assert(offset >= 0, "Couldn't find marker in text");
 
@@ -62,11 +52,7 @@ describe("pasteAsBicep", (): void => {
     return [s, offset, length];
   }
 
-  function setSelection(
-    document: TextDocument,
-    offsetStart: number,
-    offsetLength: number,
-  ): void {
+  function setSelection(document: TextDocument, offsetStart: number, offsetLength: number): void {
     const start = document.positionAt(offsetStart);
     const end = document.positionAt(offsetStart + offsetLength);
     const activeTextEditor = vscode.window.activeTextEditor;
@@ -83,15 +69,11 @@ describe("pasteAsBicep", (): void => {
       error?: string;
     },
   ): Promise<{ log: string }> {
-    const initialLogContentsLength = fse
-      .readFileSync(extensionLogPath)
-      .toString().length;
+    const initialLogContentsLength = fse.readFileSync(extensionLogPath).toString().length;
 
     await configureSettings();
 
-    const [initialBicep, offsetStart, offsetLength] = getTextAndMarkers(
-      initialBicepWithMarker,
-    );
+    const [initialBicep, offsetStart, offsetLength] = getTextAndMarkers(initialBicepWithMarker);
     const textDocument = await vscode.workspace.openTextDocument({
       language: "bicep",
       content: initialBicep,
@@ -114,9 +96,7 @@ describe("pasteAsBicep", (): void => {
       await waitForPasteAsBicep(expected);
     }
     if (expected.error) {
-      const match = new RegExp(
-        `Exception occurred: .*${escapeRegexReplacement(expected.error)}`,
-      );
+      const match = new RegExp(`Exception occurred: .*${escapeRegexReplacement(expected.error)}`);
       expect(getRecentLogContents()).toMatch(match);
     } else {
       expect(getRecentLogContents()).not.toMatch(`Exception occurred`);
@@ -125,24 +105,17 @@ describe("pasteAsBicep", (): void => {
     const buffer = textDocument.getText();
 
     if (typeof expected.bicep === "string") {
-      expect(normalizeMultilineString(buffer)).toBe(
-        normalizeMultilineString(expected.bicep),
-      );
+      expect(normalizeMultilineString(buffer)).toBe(normalizeMultilineString(expected.bicep));
     }
 
     return { log: getRecentLogContents() };
 
     function getRecentLogContents() {
-      const logContents = fse
-        .readFileSync(extensionLogPath)
-        .toString()
-        .substring(initialLogContentsLength);
+      const logContents = fse.readFileSync(extensionLogPath).toString().substring(initialLogContentsLength);
       return logContents;
     }
 
-    async function waitForPasteAsBicep(
-      expectedSubstring: string,
-    ): Promise<void> {
+    async function waitForPasteAsBicep(expectedSubstring: string): Promise<void> {
       await until(() => isReady(), {
         interval: 100,
         timeoutMs: 4000,

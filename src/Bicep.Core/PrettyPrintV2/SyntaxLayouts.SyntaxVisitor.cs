@@ -15,7 +15,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         private readonly PrettyPrinterV2Context context;
 
-        private IEnumerable<Document> current = Enumerable.Empty<Document>();
+        private IEnumerable<Document> current = [];
 
         public SyntaxLayouts(PrettyPrinterV2Context context)
         {
@@ -76,6 +76,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitNullLiteralSyntax(NullLiteralSyntax syntax) => this.Layout(syntax.NullKeyword);
 
+        public void VisitNoneLiteralSyntax(NoneLiteralSyntax syntax) => this.Layout(syntax.NoneKeyword);
+
         public void VisitObjectPropertySyntax(ObjectPropertySyntax syntax) => this.Apply(syntax, this.LayoutObjectPropertySyntax);
 
         public void VisitObjectSyntax(ObjectSyntax syntax) => this.Apply(syntax, this.LayoutObjectSyntax);
@@ -131,6 +133,8 @@ namespace Bicep.Core.PrettyPrintV2
         public void VisitUnionTypeSyntax(UnionTypeSyntax syntax) => this.Apply(syntax, this.LayoutUnionTypeSyntax);
 
         public void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutUsingDeclarationSyntax);
+
+        public void VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutExtendsDeclarationSyntax);
 
         public void VisitVariableAccessSyntax(VariableAccessSyntax syntax) => this.Layout(syntax.Name);
 

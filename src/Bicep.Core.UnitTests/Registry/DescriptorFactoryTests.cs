@@ -13,7 +13,7 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public void UnknownAlgorithmShouldThrow()
         {
-            Action fail = () => OciDescriptor.ComputeDigest("fake", BinaryData.FromBytes(Array.Empty<byte>()));
+            Action fail = () => OciDescriptor.ComputeDigest("fake", BinaryData.FromBytes([]));
             fail.Should().Throw<NotImplementedException>().WithMessage("Unknown hash algorithm 'fake'.");
         }
 

@@ -17,7 +17,7 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
             this.resources = resources;
         }
 
-        public static Sample Empty { get; } = new(Enumerable.Empty<(string, string)>());
+        public static Sample Empty { get; } = new([]);
 
         public static Sample NewlyGenerated { get; } = LoadSample();
 

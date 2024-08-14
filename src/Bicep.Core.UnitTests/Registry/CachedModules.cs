@@ -22,7 +22,7 @@ public static class CachedModules
         var cacheDir = fileSystem.DirectoryInfo.New(cacheRootDirectory);
         if (!cacheDir.Exists)
         {
-            return ImmutableArray<CachedModule>.Empty;
+            return [];
         }
 
         // we create the "br" folder with same casing on all file systems
@@ -42,7 +42,7 @@ public static class CachedModules
                 UnobfuscateFolderName(moduleDirectory.Parent!.Name),
                 UnobfuscateFolderName(moduleDirectory.Name)))
             .ToImmutableArray()
-        ?? ImmutableArray<CachedModule>.Empty;
+        ?? [];
     }
 
     private static string UnobfuscateFolderName(string folderName)

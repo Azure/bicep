@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using Bicep.Local.Deploy;
-using Bicep.Local.Deploy.Extensibility;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.ErrorResponses;
 using Bicep.Core.Extensions;
@@ -11,6 +9,8 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.Local.Deploy;
+using Bicep.Local.Deploy.Extensibility;
 using MediatR;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
@@ -75,14 +75,14 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
             }
 
             var parameters = context.Compilation.Emitter.Parameters();
-            if (parameters.Parameters is not {} parametersString ||
-                parameters.Template?.Template is not {} templateString)
+            if (parameters.Parameters is not { } parametersString ||
+                parameters.Template?.Template is not { } templateString)
             {
                 throw new InvalidOperationException("Bicep file had errors.");
             }
 
-            await using LocalExtensibilityHandler extensibilityHandler = new(moduleDispatcher, GrpcExtensibilityProvider.Start);
-            await extensibilityHandler.InitializeProviders(context.Compilation);
+            await using LocalExtensibilityHostManager extensibilityHandler = new(moduleDispatcher, GrpcBuiltInLocalExtension.Start);
+            await extensibilityHandler.InitializeExtensions(context.Compilation);
 
             var result = await LocalDeployment.Deploy(extensibilityHandler, templateString, parametersString, cancellationToken);
 
@@ -93,7 +93,7 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
             server.Window.LogError($"Unhandled exception during local deployment: {ex}");
             return new(
                 new("Failed", ImmutableDictionary<string, JToken>.Empty, new("UnhandledException", ex.Message, "")),
-                ImmutableArray<LocalDeploymentOperationContent>.Empty
+                []
             );
         }
     }
@@ -102,7 +102,7 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
     {
         var result = operation.Properties.StatusMessage.TryFromJToken<OperationResult>();
         var error = result?.Error?.Message.TryFromJson<ErrorResponseMessage>()?.Error;
-        var operationError = error is {} ? new LocalDeploymentOperationError(error.Code, error.Message, error.Target) : null;
+        var operationError = error is { } ? new LocalDeploymentOperationError(error.Code, error.Message, error.Target) : null;
 
         return new LocalDeploymentOperationContent(
             operation.Properties.TargetResource.SymbolicName,
@@ -112,7 +112,7 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
 
     private static LocalDeployResponse FromResult(LocalDeployment.Result result)
     {
-        var deployError = result.Deployment.Properties.Error is {} error ?
+        var deployError = result.Deployment.Properties.Error is { } error ?
             new LocalDeploymentOperationError(error.Code, error.Message, error.Target) : null;
 
 

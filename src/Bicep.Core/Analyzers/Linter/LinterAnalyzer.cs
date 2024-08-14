@@ -7,7 +7,9 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Analyzers.Linter
 {
@@ -23,10 +25,13 @@ namespace Bicep.Core.Analyzers.Linter
 
         private readonly ImmutableArray<IBicepAnalyzerRule> ruleSet;
 
-        public LinterAnalyzer()
+        private readonly IServiceProvider serviceProvider;
+
+        public LinterAnalyzer(IServiceProvider serviceProvider)
         {
             this.linterRulesProvider = new LinterRulesProvider();
             this.ruleSet = CreateLinterRules();
+            this.serviceProvider = serviceProvider;
         }
 
         private bool LinterEnabled(SemanticModel model) => model.Configuration.Analyzers.GetValue(LinterEnabledSetting, false); // defaults to true in base bicepconfig.json file
@@ -46,7 +51,7 @@ namespace Bicep.Core.Analyzers.Linter
                 rules.Add(Activator.CreateInstance(ruleType) as IBicepAnalyzerRule ?? throw new InvalidOperationException($"Failed to create an instance of \"{ruleType.Name}\"."));
             }
 
-            return rules.ToImmutableArray();
+            return [.. rules];
         }
 
         public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => ruleSet;
@@ -63,7 +68,7 @@ namespace Bicep.Core.Analyzers.Linter
                     diagnostics.Add(GetConfigurationDiagnostic(semanticModel));
                 }
 
-                diagnostics.AddRange(ruleSet.SelectMany(r => r.Analyze(semanticModel)));
+                diagnostics.AddRange(ruleSet.SelectMany(r => r.Analyze(semanticModel, this.serviceProvider)));
             }
             else
             {

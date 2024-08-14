@@ -15,15 +15,17 @@ namespace Bicep.Core.Configuration
     public record ProviderAliases
     {
         [JsonPropertyName("br")]
-        public ImmutableSortedDictionary<string, OciArtifactProviderAlias> OciArtifactProviderAliases { get; init; } = ImmutableSortedDictionary<string, OciArtifactProviderAlias>.Empty;
+        public ImmutableSortedDictionary<string, OciArtifactProviderAlias> OciArtifactExtensionAliases { get; init; } = ImmutableSortedDictionary<string, OciArtifactProviderAlias>.Empty;
     }
 
     public record OciArtifactProviderAlias
     {
         public string? Registry { get; init; }
-        public string? ProviderPath { get; init; }
-        public override string ToString() => this.ProviderPath is not null
-            ? $"{Registry}/{ProviderPath}"
+
+        public string? ExtensionPath { get; init; }
+
+        public override string ToString() => this.ExtensionPath is not null
+            ? $"{Registry}/{this.ExtensionPath}"
             : $"{Registry}";
     }
 
@@ -38,19 +40,16 @@ namespace Bicep.Core.Configuration
         }
         public static ProviderAliasesConfiguration Bind(JsonElement element, Uri? configFileUri) => new(element.ToNonNullObject<ProviderAliases>(), configFileUri);
 
-        public ImmutableSortedDictionary<string, OciArtifactProviderAlias> GetOciArtifactProviderAliases()
-        {
-            return this.Data.OciArtifactProviderAliases;
-        }
+        public ImmutableSortedDictionary<string, OciArtifactProviderAlias> OciArtifactExtensionAliases => this.Data.OciArtifactExtensionAliases;
 
-        public ResultWithDiagnostic<OciArtifactProviderAlias> TryGetOciArtifactProviderAlias(string aliasName)
+        public ResultWithDiagnostic<OciArtifactProviderAlias> TryGetOciArtifactExtensionAlias(string aliasName)
         {
             if (!ValidateAliasName(aliasName, out var errorBuilder))
             {
                 return new(errorBuilder);
             }
 
-            if (!this.Data.OciArtifactProviderAliases.TryGetValue(aliasName, out var alias))
+            if (!this.Data.OciArtifactExtensionAliases.TryGetValue(aliasName, out var alias))
             {
                 return new(x => x.OciArtifactProviderAliasNameDoesNotExistInConfiguration(aliasName, configFileUri));
             }

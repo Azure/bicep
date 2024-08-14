@@ -145,7 +145,7 @@ namespace Bicep.Core.Emit
 
                 if (!resourceDependencies.TryGetValue(declaredSymbol, out dependencies))
                 {
-                    return Enumerable.Empty<ResourceDependency>();
+                    return [];
                 }
             }
 

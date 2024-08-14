@@ -69,7 +69,7 @@ public class SnippetCacheBuilder
             resourceTypeReferenceInfoMap.ToImmutableDictionary(),
             resourceTypeReferenceToDependentsMap.ToImmutableDictionary(),
             resourceTypeReferenceToChildTypeSymbolsMap.ToImmutableDictionary(k => k.Key, k => k.Value.OrderBy(r => r.ToString()).ToImmutableArray()),
-            topLevelNamedDeclarationSnippets.ToImmutableArray());
+            [.. topLevelNamedDeclarationSnippets]);
     }
 
     public async Task<(string description, string snippet)> GetDescriptionAndSnippetText(string template, string manifestResourceName)
@@ -153,7 +153,7 @@ public class SnippetCacheBuilder
                 {
                     resourceTypeReferenceToChildTypeSymbolsMap.AddOrUpdate(
                         resourceTypeReference,
-                        _ => ImmutableArray.Create(childResourceTypeReference),
+                        _ => [childResourceTypeReference],
                         (_, children) => children.Add(childResourceTypeReference));
                 }
 

@@ -4,6 +4,7 @@
 using System.Linq;
 using Azure.Deployments.Core.EventSources;
 using Azure.Deployments.Core.Exceptions;
+using Azure.Deployments.Core.FeatureEnablement;
 using Azure.Deployments.Engine;
 using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.Host.Azure;
@@ -32,7 +33,7 @@ namespace Bicep.Local.Deploy;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services, LocalExtensibilityHandler extensibilityHandler)
+    public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services, LocalExtensibilityHostManager extensibilityHandler)
     {
         var eventSource = new TraceEventSource();
         services.AddSingleton<IGeneralEventSource>(eventSource);
@@ -40,6 +41,7 @@ public static class IServiceCollectionExtensions
 
         services.AddSingleton<IKeyVaultDataProvider, LocalKeyVaultDataProvider>();
         services.AddSingleton<IAzureDeploymentSettings, LocalDeploymentSettings>();
+        services.AddSingleton<IEnablementConfigProvider, LocalEnablementConfigProvider>();
         services.AddSingleton<IAzureDeploymentEngineHost, LocalDeploymentEngineHost>();
         services.AddSingleton<IPreflightEngineHost, PreflightEngineHost>();
         services.AddSingleton<IDeploymentDependency, DependencyProcessor>();

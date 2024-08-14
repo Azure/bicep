@@ -5,13 +5,13 @@ import { DeploymentScopeType, ParamData, ParamDefinition, TemplateMetadata } fro
 
 function getScopeTypeFromSchema(template: Record<string, unknown>): DeploymentScopeType | undefined {
   const lookup: Record<string, DeploymentScopeType> = {
-    'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#': 'resourceGroup',
-    'https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#': 'subscription',
-    'https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#': 'managementGroup',
-    'https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#': 'tenant',
-  }
+    "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#": "resourceGroup",
+    "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#": "subscription",
+    "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#": "managementGroup",
+    "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#": "tenant",
+  };
 
-  return lookup[template['$schema'] as string];
+  return lookup[template["$schema"] as string];
 }
 
 export function parseTemplateJson(json: string): TemplateMetadata {
@@ -61,8 +61,6 @@ export function isSucceeded(operation: DeploymentOperation) {
   return operation.properties?.provisioningState?.toLowerCase() === "succeeded";
 }
 
-export function getPreformattedJson(input: any) {
-  return (
-    <pre className="code-wrapped">{JSON.stringify(input, null, 2)}</pre>
-  );
+export function getPreformattedJson(input: unknown) {
+  return <pre className="code-wrapped">{JSON.stringify(input, null, 2)}</pre>;
 }

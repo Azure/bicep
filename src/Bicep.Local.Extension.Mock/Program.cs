@@ -25,8 +25,6 @@ public static class Program
             return;
         }
 
-        var extension = new KestrelProviderExtension();
-
         await ProviderExtension.Run(new KestrelProviderExtension(), RegisterHandlers, args);
     }
 

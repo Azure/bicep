@@ -75,7 +75,7 @@ var sortNumeric = sort(
     8
     3
     10
-    13
+    -13
     5
   ],
   (x, y) => (x < y)

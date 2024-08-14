@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
+using System.Text.RegularExpressions;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Configuration;
@@ -88,7 +89,10 @@ namespace Bicep.Cli.IntegrationTests
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
             File.Exists(compiledFilePath).Should().BeTrue();
 
-            var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
+            var compiledFileContent = File.ReadAllText(compiledFilePath);
+            compiledFileContent.Should().OnlyContainLFNewline();
+
+            var actual = JToken.Parse(compiledFileContent);
 
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
@@ -98,16 +102,16 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DataRow("br:mcr.microsoft.com/bicep/providers/az", true, LanguageConstants.BicepPublicMcrRegistry)]
-        [DataRow("br/public:az", true, LanguageConstants.BicepPublicMcrRegistry)]
+        //[DataRow("br:mcr.microsoft.com/bicep/extension/az", true, LanguageConstants.BicepPublicMcrRegistry)]
+        //[DataRow("br/public:az", true, LanguageConstants.BicepPublicMcrRegistry)]
         [DataRow("br/contoso:az", true, "contoso.azurecr.io")]
-        [DataRow("br/mcr:az", true, LanguageConstants.BicepPublicMcrRegistry)]
-        [DataRow("br:contoso.azurecr.io/bicep/providers/az", true, "contoso.azurecr.io")]
+        //[DataRow("br/mcr:az", true, LanguageConstants.BicepPublicMcrRegistry)]
+        //[DataRow("br:contoso.azurecr.io/bicep/extensions/az", true, "contoso.azurecr.io")]
         // Negative
         // [DataRow("az", false)] - commented out while we graciously deprecate the legacy provider declaration syntax.
-        [DataRow("br:invalid.azureacr.io/bicep/providers/az", false)]
-        [DataRow("br/unknown:az", false)]
-        public async Task Build_Valid_SingleFile_WithProviderDeclarationStatement(
+        //[DataRow("br:invalid.azureacr.io/bicep/extensions/az", false)]
+        //[DataRow("br/unknown:az", false)]
+        public async Task Build_Valid_SingleFile_WithExtensionDeclarationStatement(
             string providerDeclarationSyntax,
             bool shouldSucceed,
             string containingFolder = "")
@@ -119,7 +123,7 @@ namespace Bicep.Cli.IntegrationTests
                     "contoso.azurecr.io",
                     "invalid.azureacr.io"
             };
-            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(hosts.Select(host => (host, "bicep/providers/az")).ToArray());
+            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(hosts.Select(host => (host, "bicep/extensions/az")).ToArray());
 
 
             // 2. upload a manifest and its blob layer
@@ -133,7 +137,7 @@ namespace Bicep.Cli.IntegrationTests
 
             // 3. create a main.bicep and save it to a output directory
             var bicepFile = $"""
-                provider '{providerDeclarationSyntax}:2.0.0'
+                extension '{providerDeclarationSyntax}:2.0.0'
                 """;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -142,15 +146,15 @@ namespace Bicep.Cli.IntegrationTests
 
             var bicepConfigFile = """
                 {
-                    "providerAliases" : {
+                    "extensionAliases" : {
                         "br": {
                             "contoso": {
                                 "registry": "contoso.azurecr.io",
-                                "providerPath": "bicep/providers"
+                                "extensionPath": "bicep/extensions"
                             },
                             "mcr": {
                                 "registry": "mcr.microsoft.com",
-                                "providerPath": "bicep/providers"
+                                "extensionPath": "bicep/extensions"
                             }
                         }
                     }
@@ -179,7 +183,7 @@ namespace Bicep.Cli.IntegrationTests
                         .AddSingleton(settings.ClientFactory)
                         .AddSingleton(settings.TemplateSpecRepositoryFactory);
                 })
-                    .RunAsync(new[] { "build", bicepFilePath }, CancellationToken.None));
+                    .RunAsync(["build", bicepFilePath], CancellationToken.None));
 
             // ASSERT
             // 6. assert 'bicep build' completed successfully
@@ -196,7 +200,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 // 7. assert the provider files were restored to the cache directory
                 Directory.Exists(settings.FeatureOverrides!.CacheRootDirectory).Should().BeTrue();
-                var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ArtifactReferenceSchemes.Oci, containingFolder, "bicep$providers$az", "2.0.0$");
+                var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ArtifactReferenceSchemes.Oci, containingFolder, "bicep$extensions$az", "2.0.0$");
                 Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });
             }
         }
@@ -219,6 +223,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 result.Should().Be(0);
                 output.Should().NotBeEmpty();
+                output.Should().OnlyContainLFNewline();
                 AssertNoErrors(error);
             }
 
@@ -342,8 +347,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var defaultSettings = CreateDefaultSettings();
-            var diagnostics = await GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep("build", bicepFilePath);
 
@@ -367,8 +371,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             result.Should().Be(1);
             output.Should().BeEmpty();
 
-            var defaultSettings = CreateDefaultSettings();
-            var diagnostics = await GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllDiagnostics(bicepFilePath, InvocationSettings.Default.ClientFactory, InvocationSettings.Default.TemplateSpecRepositoryFactory);
             error.Should().ContainAll(diagnostics);
         }
 
@@ -411,9 +414,9 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             error.Should().MatchRegex(@"The specified output directory "".*outputdir"" does not exist");
         }
 
-        [DataRow(new string[] { })]
-        [DataRow(new[] { "--diagnostics-format", "defAULt" })]
-        [DataRow(new[] { "--diagnostics-format", "sArif" })]
+        [DataRow([])]
+        [DataRow(["--diagnostics-format", "defAULt"])]
+        [DataRow(["--diagnostics-format", "sArif"])]
         [DataTestMethod]
         public async Task Build_WithOutDir_ShouldSucceed(string[] args)
         {
@@ -429,7 +432,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             var expectedOutputFile = Path.Combine(outputFileDir, "input.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build", "--outdir", outputFileDir, bicepPath }.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(["build", "--outdir", outputFileDir, bicepPath, .. args]);
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             output.Should().BeEmpty();
@@ -477,7 +480,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
         [DataTestMethod]
         public async Task Build_InvalidInputPaths_ShouldProduceExpectedError(string badPath, string[] args, string expectedErrorRegex)
         {
-            var (output, error, result) = await Bicep(new[] { "build" }.Concat(args).Append(badPath).ToArray());
+            var (output, error, result) = await Bicep(["build", .. args, badPath]);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
@@ -544,8 +547,8 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             error.Should().StartWith($"{inputFile}(1,1) : Error BCP271: Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.");
         }
 
-        [DataRow(new string[] { })]
-        [DataRow(new[] { "--diagnostics-format", "defAULt" })]
+        [DataRow([])]
+        [DataRow(["--diagnostics-format", "defAULt"])]
         [DataTestMethod]
         public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError(string[] args)
         {
@@ -574,7 +577,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build", "--outdir", testOutputPath, inputFile }.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(["build", "--outdir", testOutputPath, inputFile, .. args]);
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);

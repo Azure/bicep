@@ -26,10 +26,13 @@ namespace Bicep.LanguageServer.Snippets
             this.Prefix = prefix;
             this.Detail = detail;
             this.CompletionPriority = completionPriority;
-            this.Placeholders = matches
-                .Select(CreatePlaceholder)
-                .OrderBy(p => p.Index)
-                .ToImmutableArray();
+            this.Placeholders =
+            [
+                .. matches
+                                .Select(CreatePlaceholder)
+                                .OrderBy(p => p.Index)
+,
+            ];
         }
 
         public string Prefix { get; }

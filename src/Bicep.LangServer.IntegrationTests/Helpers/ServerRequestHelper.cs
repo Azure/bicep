@@ -39,7 +39,7 @@ namespace Bicep.LangServer.IntegrationTests
                 completions.Add(completionList);
             }
 
-            return completions.ToImmutableArray();
+            return [.. completions];
         }
 
         public async Task<CompletionList> RequestCompletion(int cursor)

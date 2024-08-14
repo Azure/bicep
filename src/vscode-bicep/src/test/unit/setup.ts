@@ -9,6 +9,7 @@ jest.mock(
   "vscode",
   () => ({
     $$_this_is_a_mock_$$: "see vscode/src/test/unit/setup.ts",
+    CancellationError: Error,
     ConfigurationTarget: {
       Global: 1,
       Workspace: 2,

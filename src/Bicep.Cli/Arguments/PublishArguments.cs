@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Cli.Extensions;
+
 namespace Bicep.Cli.Arguments
 {
     public class PublishArguments : ArgumentsBase
@@ -32,7 +34,7 @@ namespace Bicep.Cli.Arguments
 
                     case "--documentationuri":
                         // TODO: Uncomment this once Azure CLI is updated to support the new parameter.
-                        //io.WriteParameterDeprecationWarning("--documentationUri", "--documentation-uri");
+                        io.WriteParameterDeprecationWarning("--documentationUri", "--documentation-uri");
 
                         if (isLast)
                         {

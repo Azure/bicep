@@ -5,4 +5,6 @@ namespace Bicep.Core.Utils;
 public interface IEnvironment
 {
     string? GetVariable(string variable);
+
+    IEnumerable<string> GetVariableNames();
 }

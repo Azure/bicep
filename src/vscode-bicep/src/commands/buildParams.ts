@@ -14,10 +14,7 @@ export class BuildParamsCommand implements Command {
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(
-    context: IActionContext,
-    documentUri?: vscode.Uri | undefined,
-  ): Promise<void> {
+  public async execute(context: IActionContext, documentUri?: vscode.Uri | undefined): Promise<void> {
     documentUri = await findOrCreateActiveBicepParamFile(
       context,
       documentUri,
@@ -25,13 +22,10 @@ export class BuildParamsCommand implements Command {
     );
 
     try {
-      const buildOutput: string = await this.client.sendRequest(
-        "workspace/executeCommand",
-        {
-          command: "buildParams",
-          arguments: [documentUri.fsPath],
-        },
-      );
+      const buildOutput: string = await this.client.sendRequest("workspace/executeCommand", {
+        command: "buildParams",
+        arguments: [documentUri.fsPath],
+      });
       this.outputChannelManager.appendToOutputChannel(buildOutput);
     } catch (err) {
       this.client.error("Bicep build failed", parseError(err).message, true);

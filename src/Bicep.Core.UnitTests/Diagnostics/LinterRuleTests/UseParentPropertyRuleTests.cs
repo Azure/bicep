@@ -13,7 +13,7 @@ public class UseParentPropertyRuleTests : LinterRuleTestsBase
         => AssertCodeFix(UseParentPropertyRule.Code, "Use parent property", inputFile, resultFile);
 
     private void AssertNoDiagnostics(string inputFile)
-        => AssertLinterRuleDiagnostics(UseParentPropertyRule.Code, inputFile, new string[] { }, new Options(OnCompileErrors.Ignore, IncludePosition.None));
+        => AssertLinterRuleDiagnostics(UseParentPropertyRule.Code, inputFile, [], new Options(OnCompileErrors.Ignore, IncludePosition.None));
 
     [TestMethod]
     public void Codefix_handles_parent_name_expression() => AssertCodeFix(@"

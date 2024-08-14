@@ -28,10 +28,10 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public string? RemotePdpAadResource { get; set; }
 
-    public string[] DeploymentFrontdoorLocationEnabledSubscriptions { get; } = new string[] { };
+    public string[] DeploymentFrontdoorLocationEnabledSubscriptions { get; } = [];
 
-    public string[] AllowedApiVersions { get; set; } = new string[]
-    {
+    public string[] AllowedApiVersions { get; set; } =
+    [
         "2022-09-01",
         "2022-06-01",
         "2022-01-01",
@@ -79,7 +79,7 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
         "2013-03-01",
         "2014-02-26",
         "2014-04"
-    };
+    ];
 
     public int DeploymentNameLengthLimit { get; set; } = 64;
 
@@ -107,13 +107,13 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public int MaxTagsSizePerResourceInBytes { get; set; } = 24576;
 
-    public string[] ReservedTagKeyPrefixes { get; set; } = new string[] { "microsoft", "azure", "windows" };
+    public string[] ReservedTagKeyPrefixes { get; set; } = ["microsoft", "azure", "windows"];
 
-    public string[] ProtectedTagKeyPrefixes { get; set; } = new string[] { "hidden", "link" };
+    public string[] ProtectedTagKeyPrefixes { get; set; } = ["hidden", "link"];
 
-    public string[] ReservedTagValues { get; set; } = new string[] { "null", "(null)" };
+    public string[] ReservedTagValues { get; set; } = ["null", "(null)"];
 
-    public string[] AsyncOperationCallbackAllowedProviders { get; set; } = new string[] { };
+    public string[] AsyncOperationCallbackAllowedProviders { get; set; } = [];
 
     public TimeSpan ResourceMaximumRetryInterval { get; set; } = TimeSpan.FromMinutes(10);
 
@@ -133,7 +133,7 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public int ExtensibleResourceUnhandledExceptionRetryCount { get; set; } = 5;
 
-    public string[] AllowedProvidersForHeaderBasedOperationTimeout { get; set; } = new string[] { };
+    public string[] AllowedProvidersForHeaderBasedOperationTimeout { get; set; } = [];
 
     public int ResourceGroupNameLengthLimit { get; set; } = 90;
 
@@ -157,11 +157,11 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public double WhatIfLiveTrafficValidationPercentage { get; set; } = 0.2;
 
-    public string[] WhatIfLiveTrafficValidationApplicationWhitelist { get; set; } = new string[] { };
+    public string[] WhatIfLiveTrafficValidationApplicationWhitelist { get; set; } = [];
 
-    public string[] WhatIfLiveTrafficValidationTenantBlacklist { get; set; } = new string[] { };
+    public string[] WhatIfLiveTrafficValidationTenantBlacklist { get; set; } = [];
 
-    public string[] WhatIfLiveTrafficValidationSubscriptionBlacklist { get; set; } = new string[] { };
+    public string[] WhatIfLiveTrafficValidationSubscriptionBlacklist { get; set; } = [];
 
     public string DefaultFrontdoorEndpoint { get; set; } = "localhost";
 
@@ -179,7 +179,7 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public int ResourceValidationRequestSynchronousLimit { get; set; } = 10;
 
-    public KeyValuePair<string, string>[] BlacklistedDeploymentParameters { get; set; } = new KeyValuePair<string, string>[] { };
+    public KeyValuePair<string, string>[] BlacklistedDeploymentParameters { get; set; } = [];
 
     public TimeSpan DeploymentJobTimeout { get; set; } = TimeSpan.FromSeconds(60);
 
@@ -197,22 +197,22 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public TimeSpan PreflightJobMaximumRetryInterval { get; set; } = TimeSpan.FromMinutes(value: 2);
 
-    public string[] PreviewFunctionalityPermittedTenants { get; set; } = new string[] { };
+    public string[] PreviewFunctionalityPermittedTenants { get; set; } = [];
 
-    public string[] PreviewFunctionalityDisabledFeatures { get; set; } = new string[] { };
+    public string[] PreviewFunctionalityDisabledFeatures { get; set; } = [];
 
-    public string[] PreviewFunctionalityExternalPermittedTenants { get; set; } = new string[] { };
+    public string[] PreviewFunctionalityExternalPermittedTenants { get; set; } = [];
 
-    public string[] PreviewFunctionalityPublicFeatures { get; set; } = new string[] {
+    public string[] PreviewFunctionalityPublicFeatures { get; set; } = [
             "ResourceGroupGrooming",
-            "ScopeEscaping",
-            "WhatIfInlineNestedResourcesNormalization",
-            "SubscriptionGrooming",
-            "WhatIfKeyVaultAccessPolicyOperationsNormalization",
-            "TenantLevelGrooming",
-            "ExtensibleResources",
-            "ExpandDeploymentsMetadata"
-        };
+        "ScopeEscaping",
+        "WhatIfInlineNestedResourcesNormalization",
+        "SubscriptionGrooming",
+        "WhatIfKeyVaultAccessPolicyOperationsNormalization",
+        "TenantLevelGrooming",
+        "ExtensibleResources",
+        "ExpandDeploymentsMetadata"
+        ];
 
     public IReadOnlyDictionary<string, List<string>> PreviewFeatureSubscriptionsDictionary { get; set; } = new Dictionary<string, List<string>>();
     public IReadOnlyDictionary<string, List<string>> PreviewFeatureTenantDictionary { get; set; } = new Dictionary<string, List<string>>();
@@ -223,18 +223,18 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
     public IReadOnlyDictionary<string, List<string>> DisabledRegionDictionary { get; set; } = new Dictionary<string, List<string>>();
     public IEnumerable<string> DisabledThresholdFeatures { get; set; } = [];
 
-    public string[] AllowedLocations => new string[] { "local", "west us", "east us" };
+    public string[] AllowedLocations => ["local", "west us", "east us"];
 
     public TimeSpan WhatIfJobMinimumRetryInterval { get; set; } = TimeSpan.FromSeconds(15);
 
     public TimeSpan WhatIfJobMaximumRetryInterval { get; set; } = TimeSpan.FromMinutes(5);
 
-    public string[] StorageAccountHostNameMappings { get; set; } = new[]
-    {
+    public string[] StorageAccountHostNameMappings { get; set; } =
+    [
         ".blob.core.windows.net",
         ".table.core.windows.net",
         ".queue.core.windows.net",
-    };
+    ];
 
     public TimeSpan CleanupJobRetryInterval { get; set; } = TimeSpan.FromMinutes(1);
 
@@ -253,6 +253,8 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
     public string[] ExportTemplateSchemaNotRequiredProviders => [];
 
     public TimeSpan ResourceValidationRequestSynchronousWaitDuration => throw new NotImplementedException();
+
+    public TimeSpan DeploymentSecureOutputsExpirationTime => throw new NotImplementedException();
 
     IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledTenantDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
 

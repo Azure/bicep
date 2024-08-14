@@ -88,7 +88,10 @@ public class TemplateEmitter
     /// <param name="stream">The stream to write the template</param>
     public EmitResult Emit(Stream stream)
     {
-        using var sw = new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true);
+        using var sw = new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true)
+        {
+            NewLine = "\n",
+        };
 
         return Emit(sw);
     }
@@ -124,7 +127,7 @@ public class TemplateEmitter
         var diagnostics = model switch
         {
             SemanticModel x => x.GetAllDiagnostics(),
-            _ => ImmutableArray<IDiagnostic>.Empty,
+            _ => [],
         };
 
         if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))

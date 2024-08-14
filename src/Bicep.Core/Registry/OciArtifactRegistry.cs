@@ -13,6 +13,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
@@ -33,12 +34,15 @@ namespace Bicep.Core.Registry
 
         private readonly IFeatureProvider features;
 
+        private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
+
         public OciArtifactRegistry(
             IFileResolver FileResolver,
             IFileSystem fileSystem,
             IContainerRegistryClientFactory clientFactory,
             IFeatureProvider features,
             RootConfiguration configuration,
+            IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
             Uri parentModuleUri)
             : base(FileResolver, fileSystem)
         {
@@ -47,6 +51,7 @@ namespace Bicep.Core.Registry
             this.configuration = configuration;
             this.features = features;
             this.parentModuleUri = parentModuleUri;
+            this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.Oci;
@@ -210,11 +215,19 @@ namespace Bicep.Core.Registry
             }
         }
 
+        public override async Task OnRestoreArtifacts(bool forceRestore)
+        {
+            await publicRegistryModuleMetadataProvider.TryAwaitCache(forceRestore);
+        }
+
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
         {
             var failures = new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 
-            foreach (var reference in references)
+            var referencesEvaluated = references.ToArray();
+
+            // CONSIDER: Run these in parallel
+            foreach (var reference in referencesEvaluated)
             {
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectoryPath(reference)}");
                 var (result, errorMessage) = await this.TryRestoreArtifactAsync(configuration, reference);
@@ -407,17 +420,18 @@ namespace Bicep.Core.Registry
                     null;
 
                 // if the artifact supports local deployment, fetch the provider binary
-                if (config?.LocalDeployEnabled == true)
+                if (config?.LocalDeployEnabled == true &&
+                    config?.SupportedArchitectures is { } binaryArchitectures)
                 {
                     if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
                     {
-                        throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                        throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute provider extension \"{reference}\".");
                     }
 
-                    var layerName = BicepMediaTypes.GetProviderArtifactLayerV1Binary(architecture);
-                    if (result.TryGetSingleLayerByMediaType(layerName) is not { } sourceData)
+                    if (!binaryArchitectures.Contains(architecture.Name) ||
+                        result.TryGetSingleLayerByMediaType(BicepMediaTypes.GetProviderArtifactLayerV1Binary(architecture)) is not { } sourceData)
                     {
-                        throw new InvalidOperationException($"Unsupported architecture: {RuntimeInformation.ProcessArchitecture}");
+                        throw new InvalidOperationException($"The provider extension \"{reference}\" does not support architecture {architecture.Name}.");
                     }
 
                     using var binaryStream = sourceData.ToStream();

@@ -16,7 +16,7 @@
     1. Bump the Bicep.Types.Az NuGet package version in this project in this [file](https://github.com/Azure/bicep/blob/main/src/Bicep.Core/Bicep.Core.csproj) by creating and merging a PR
         1. Might need to run a `dotnet restore` to update the packages.lock.json files
         1. Might also need to update baseline tests (run `bicep/scripts/SetBaseline.ps1`)
-1. Verify the latest build on the `main` branch is green: ![Build on main](https://github.com/Azure/bicep/actions/workflows/build.yml/badge.svg?branch=main).
+1. Verify the latest build on the `main` branch is green: [Build on main](https://github.com/Azure/bicep/actions/workflows/build.yml).
 1. Review history for changes to [bicepconfig.schema.json](https://github.com/Azure/bicep/commits/main/src/vscode-bicep/schemas/bicepconfig.schema.json). Create a GitHub issue for it if none already exists and notify the team for any recently-added linter rules which do not have public documentation. This is non-blocking for the release process (continue to the next step).
 1. (**end-of-month releases only**) Bump the version number by incrementing the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))
 1. Run the Official Build for BicepMirror (see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror) for instructions).
@@ -36,7 +36,7 @@
 1. Validate VSCode extension and Bicep CLI manually on Windows, Mac & Linux:
     1. Download `vscode-bicep.vsix` from the draft release, and [Install it from VSIX](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix). Verify that you can open a Bicep file, that text is correctly colorized, and that error messages show up as expected.
     1. Download the appropriate Bicep executable for your platform (e.g. `bicep-linux-x64`). Verify you can invoke it with e.g. `bicep-linux-x64 --version`, and that it prints the expected output.
-1. Verify that the draft release on GitHub has at least 27 artifacts associated with it before publishing it. (On the Bicep releases [page](https://github.com/Azure/bicep/releases) it should state that many assets. On the edit page of the draft release itself, there will be two fewer assets because the 2 source code files don't show up.)
+1. Verify that the draft release on GitHub has at least 28 artifacts associated with it before publishing it. (On the Bicep releases [page](https://github.com/Azure/bicep/releases) it should state that many assets. On the edit page of the draft release itself, there will be two fewer assets because the 2 source code files don't show up.)
 1. Publish the release on GitHub.
 1. Upload copyleft dependency source to 3rd party disclosure site. See [instructions](https://msazure.visualstudio.com/One/_wiki/wikis/Azure%20Deployments%20Team%20Wiki/369910/Bicep-release-step-Upload-copyleft-source-to-3rd-party-disclosure-site).
 1. Upload vscode-bicep.VSIX to the VS marketplace [here](https://marketplace.visualstudio.com/manage). You may need access permissions, request help in the team channel.

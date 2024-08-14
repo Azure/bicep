@@ -32,7 +32,7 @@ public class JsonRpcCommandTests : TestBase
             {
                 var result = await Bicep(registerAction, cts.Token, "jsonrpc", "--pipe", pipeName);
                 result.ExitCode.Should().Be(0);
-                result.Stderr.Should().EqualIgnoringNewlines("The 'jsonrpc' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.\n");
+                result.Stderr.Should().Be("");
                 result.Stdout.Should().Be("");
             }),
             Task.Run(async () =>
@@ -132,20 +132,20 @@ output bar string = foo
             async (client, token) =>
             {
                 var response = await client.GetMetadata(new("/main.bicep"), token);
-                response.Metadata.Should().Equal(new GetMetadataResponse.MetadataDefinition[] {
+                response.Metadata.Should().Equal([
                     new("description", "my file"),
-                });
-                response.Parameters.Should().Equal(new GetMetadataResponse.SymbolDefinition[] {
+                ]);
+                response.Parameters.Should().Equal([
                     new(new(new(2, 0), new(3, 16)), "foo", new(null, "string"), "foo param"),
                     new(new(new(5, 0), new(7, 1)), "inlineType", new(null, "{ sdf: string }"), null),
                     new(new(new(9, 0), new(9, 23)), "declaredType", new(new(new(11, 0), new(15, 1)), "asdf"), null),
-                });
-                response.Outputs.Should().Equal(new GetMetadataResponse.SymbolDefinition[] {
+                ]);
+                response.Outputs.Should().Equal([
                     new(new(new(17, 0), new(18, 23)), "bar", new(null, "string"), "bar output"),
-                });
-                response.Exports.Should().Equal(new GetMetadataResponse.ExportDefinition[] {
+                ]);
+                response.Exports.Should().Equal([
                     new(new(new(11, 0), new(15, 1)), "asdf", "TypeAlias", "asdf type"),
-                });
+                ]);
             });
     }
 
@@ -176,15 +176,15 @@ resource baz 'My.Rp/foo@2020-01-01' = {
             async (client, token) =>
             {
                 var response = await client.GetDeploymentGraph(new("/main.bicep"), token);
-                response.Nodes.Should().Equal(new GetDeploymentGraphResponse.Node[] {
+                response.Nodes.Should().Equal([
                     new(new(new(4, 0), new(7, 1)), "bar", "My.Rp/foo", true, null),
                     new(new(new(9, 0), new(12, 1)), "baz", "My.Rp/foo", false, null),
                     new(new(new(0, 0), new(2, 1)), "foo", "My.Rp/foo", false, null),
-                });
-                response.Edges.Should().Equal(new GetDeploymentGraphResponse.Edge[] {
+                ]);
+                response.Edges.Should().Equal([
                     new("bar", "foo"),
                     new("baz", "bar"),
-                });
+                ]);
             });
     }
 
@@ -218,13 +218,13 @@ hello!
             {
                 var response = await client.GetFileReferences(new("/main.bicepparam"), token);
 
-                response.FilePaths.Should().Equal(new[] {
+                response.FilePaths.Should().Equal([
                     "/bicepconfig.json",
                     "/invalid.txt",
                     "/main.bicep",
                     "/main.bicepparam",
                     "/valid.txt",
-                });
+                ]);
             });
     }
 }

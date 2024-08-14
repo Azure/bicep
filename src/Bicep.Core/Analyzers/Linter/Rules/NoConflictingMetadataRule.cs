@@ -35,10 +35,10 @@ public sealed class NoConflictingMetadataRule : LinterRuleBase
 
     private class Visitor : AstVisitor
     {
-        private static readonly ImmutableArray<MetadataPropertySetByDecorator> metadataPropertySetByDecorators = ImmutableArray.CreateRange(new MetadataPropertySetByDecorator[]
-        {
+        private static readonly ImmutableArray<MetadataPropertySetByDecorator> metadataPropertySetByDecorators =
+        [
             new(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName, LanguageConstants.MetadataDescriptionPropertyName),
-        });
+        ];
 
         private readonly List<(ObjectPropertySyntax, MetadataPropertySetByDecorator)> metadataPropertiesInConflictWithDecorators = new();
         private readonly SemanticModel model;

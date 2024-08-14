@@ -30,7 +30,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var firstItem = model.Root.VariableDeclarations.First();
                 return new IDiagnostic[] { CreateDiagnosticForSpan(diagnosticLevel, firstItem.NameSource.Span, MaxNumber) };
             }
-            return Enumerable.Empty<IDiagnostic>();
+            return [];
         }
     }
 }

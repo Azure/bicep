@@ -8,6 +8,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.Options;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -38,12 +39,14 @@ public class LanguageServer
         var clientPipe = new Pipe();
         var serverPipe = new Pipe();
 
-        var server = new Server(options => options
-            .WithInput(serverPipe.Reader)
-            .WithOutput(clientPipe.Writer)
-            .WithServices(services => services
-                .AddSingleton<IScheduler>(ImmediateScheduler.Instance) // force work to run on a single thread to make snapshot profiling simpler
-                .AddSingleton(fileSystem)));
+        var server = new Server(
+            new BicepLangServerOptions(),
+            options => options
+                .WithInput(serverPipe.Reader)
+                .WithOutput(clientPipe.Writer)
+                .WithServices(services => services
+                    .AddSingleton<IScheduler>(ImmediateScheduler.Instance) // force work to run on a single thread to make snapshot profiling simpler
+                    .AddSingleton(fileSystem)));
 
         var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 

@@ -92,11 +92,11 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
             yield return CreateTestCase(Sample.Modified, Sample.Valid);
             yield return CreateTestCase(Sample.Modified_Experimental, Sample.Valid_Experimental);
 
-            static object[] CreateTestCase(Sample before, Sample after) => new object[]
-            {
+            static object[] CreateTestCase(Sample before, Sample after) =>
+            [
                 MockFileSystemFactory.CreateForSample(before),
                 MockFileSystemFactory.CreateForSample(after),
-            };
+            ];
         }
 
         private static GenerateCommand CreateGenerateCommand(IFileSystem fileSystem)

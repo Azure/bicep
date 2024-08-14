@@ -8,4 +8,5 @@ module.exports = {
   coveragePathIgnorePatterns: ["/test/"],
   runner: "groups",
   preset: "ts-jest",
+  setupFilesAfterEnv: ["<rootDir>/src/setup.ts"],
 };

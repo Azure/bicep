@@ -29,7 +29,7 @@ namespace Bicep.Core.Emit
         public SourceAwareJsonTextWriter(TextWriter textWriter, BicepSourceFile? sourceFileToTrack = default) : base(textWriter)
         {
             this.sourceFile = sourceFileToTrack;
-            this.TrackingJsonWriter = new PositionTrackingJsonTextWriter(new StringWriter(), this.sourceFile);
+            this.TrackingJsonWriter = new PositionTrackingJsonTextWriter(new StringWriter() { NewLine = "\n" }, this.sourceFile);
         }
 
         public void ProcessSourceMap(JToken templateWithHash)

@@ -63,6 +63,7 @@ namespace Bicep.Core
         public const string TypeKeyword = "type";
         public const string ParameterKeyword = "param";
         public const string UsingKeyword = "using";
+        public const string ExtendsKeyword = "extends";
         public const string OutputKeyword = "output";
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
@@ -72,6 +73,7 @@ namespace Bicep.Core
         public const string ExistingKeyword = "existing";
         public const string ImportKeyword = "import";
         public const string ProviderKeyword = "provider";
+        public const string ExtensionKeyword = "extension";
         public const string AssertKeyword = "assert";
         public const string WithKeyword = "with";
         public const string AsKeyword = "as";
@@ -117,24 +119,25 @@ namespace Bicep.Core
             .Add(IfKeyword)
             .Add(ForKeyword)
             .Add(InKeyword)
-            .Add(FromKeyword);
+            .Add(FromKeyword)
+            .Add(WithKeyword)
+            .Add(AsKeyword);
 
         public const string TrueKeyword = "true";
         public const string FalseKeyword = "false";
         public const string NullKeyword = "null";
+        public const string NoneKeyword = "none";
         public const string VoidKeyword = "void";
 
         public const string ListFunctionPrefix = "list";
 
         public const string McrRepositoryPrefix = "bicep/";
 
-        public static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
+        public static readonly ImmutableDictionary<string, TokenType> NonContextualKeywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
             [TrueKeyword] = TokenType.TrueKeyword,
             [FalseKeyword] = TokenType.FalseKeyword,
             [NullKeyword] = TokenType.NullKeyword,
-            [WithKeyword] = TokenType.WithKeyword,
-            [AsKeyword] = TokenType.AsKeyword,
         }.ToImmutableDictionary();
 
         // Decorators
@@ -194,7 +197,7 @@ namespace Bicep.Core
 
         public const string AnyFunction = "any";
         public static readonly TypeSymbol Any = new AnyType();
-        public static readonly TypeSymbol Never = new UnionType("never", ImmutableArray<ITypeReference>.Empty);
+        public static readonly TypeSymbol Never = new UnionType("never", []);
 
         public static readonly TypeSymbol ResourceRef = CreateResourceScopeReference(ResourceScope.Module | ResourceScope.Resource);
 
@@ -212,8 +215,8 @@ namespace Bicep.Core
         public static readonly TypeSymbol LooseString = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment);
         // SecureString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol SecureString = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment | TypeSymbolValidationFlags.IsSecure);
-        public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
-        public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
+        public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, [], LanguageConstants.Any);
+        public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, [], LanguageConstants.Any);
         public static readonly TypeSymbol Int = TypeFactory.CreateIntegerType();
         // LooseInt should be regarded as equal to the 'int' type, but with different validation behavior
         public static readonly TypeSymbol LooseInt = TypeFactory.CreateIntegerType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment);
@@ -251,7 +254,7 @@ namespace Bicep.Core
 
         public static readonly ImmutableHashSet<string> ReservedTypeNames = ImmutableHashSet.Create<string>(IdentifierComparer, ResourceKeyword);
 
-        public static readonly ImmutableArray<string> DiscriminatorPreferenceOrder = ImmutableArray.Create("type", "kind");
+        public static readonly ImmutableArray<string> DiscriminatorPreferenceOrder = ["type", "kind"];
 
         private static IEnumerable<TypeProperty> CreateParameterModifierMetadataProperties()
         {

@@ -83,6 +83,6 @@ namespace Bicep.Core.UnitTests.ApiVersions
             => new(
                 new FeatureProvider(
                     IConfigurationManager.GetBuiltInConfiguration()),
-                    resourceTypeReferences ?? Enumerable.Empty<ResourceTypeReference>());
+                    resourceTypeReferences ?? []);
     }
 }

@@ -18,10 +18,12 @@ public record FeatureProviderOverrides(
     bool? TestFrameworkEnabled = default,
     bool? AssertsEnabled = default,
     bool? DynamicTypeLoadingEnabled = default,
-    bool? ProviderRegistry = default,
+    bool? ExtensionRegistry = default,
     bool? OptionalModuleNamesEnabled = default,
     bool? LocalDeployEnabled = default,
     bool? ResourceDerivedTypesEnabled = default,
+    bool? SecureOutputsEnabled = default,
+    bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
     public FeatureProviderOverrides(
@@ -36,10 +38,12 @@ public record FeatureProviderOverrides(
         bool? TestFrameworkEnabled = default,
         bool? AssertsEnabled = default,
         bool? DynamicTypeLoadingEnabled = default,
-        bool? ProviderRegistry = default,
+        bool? ExtensionRegistry = default,
         bool? OptionalModuleNamesEnabled = default,
         bool? LocalDeployEnabled = default,
         bool? ResourceDerivedTypesEnabled = default,
+        bool? SecureOutputsEnabled = default,
+        bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
     ) : this(
         FileHelper.GetCacheRootPath(testContext),
@@ -53,10 +57,12 @@ public record FeatureProviderOverrides(
         TestFrameworkEnabled,
         AssertsEnabled,
         DynamicTypeLoadingEnabled,
-        ProviderRegistry,
+        ExtensionRegistry,
         OptionalModuleNamesEnabled,
         LocalDeployEnabled,
         ResourceDerivedTypesEnabled,
+        SecureOutputsEnabled,
+        ExtendableParamFilesEnabled,
         AssemblyVersion)
     { }
 }

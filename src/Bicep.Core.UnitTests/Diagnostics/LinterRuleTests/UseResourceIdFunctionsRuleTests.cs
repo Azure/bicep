@@ -2084,10 +2084,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "
                         )
                     }),
-                expectedMessages: new string[]
-                {
-                    // pass
-                });
+                expectedMessages: []);
         }
 
         [TestMethod]
@@ -2117,10 +2114,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                       }
                     }
 ",
-                expectedMessages: new string[]
-                {
-                    // pass
-                });
+                expectedMessages: []);
         }
     }
 }

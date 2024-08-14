@@ -2,8 +2,16 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
+using System.Text;
+using System.Text.Json.Nodes;
 using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
+using Azure.Deployments.Extensibility.Core.V2.Models;
 using Azure.Deployments.Extensibility.Messages;
+using Bicep.Core.Configuration;
+using Bicep.Core.Features;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
@@ -14,6 +22,7 @@ using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Extension;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
 using Newtonsoft.Json.Linq;
 
@@ -25,23 +34,23 @@ public class EndToEndDeploymentTests : TestBase
     [TestMethod]
     public async Task End_to_end_deployment_basic()
     {
-        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ProviderRegistry: true, LocalDeployEnabled: true));
+        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
 {
-  "providers": {
+  "extensions": {
     "http": "br:example.azurecr.io/providers/foo:1.2.3"
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "providerRegistry": true,
+    "extensionRegistry": true,
     "localDeploy": true
   }
 }
 """),
             ("main.bicep", """
-provider http
+extension http
 
 param coords {
   lattitude: string
@@ -86,11 +95,17 @@ param coords = {
         var parametersFile = result.Compilation.Emitter.Parameters().Parameters!;
         var templateFile = result.Compilation.Emitter.Parameters().Template!.Template!;
 
-        var providerMock = StrictMock.Of<LocalExtensibilityProvider>();
-        providerMock.Setup(x => x.Save(It.Is<ExtensibilityOperationRequest>(req => req.Resource.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
-            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) =>
+        JsonObject identifiers = new()
+                {
+                    { "name", "someName" },
+                    { "namespace", "someNamespace" }
+                };
+
+        var providerMock = StrictMock.Of<LocalExtensibilityHost>();
+        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
+            .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
-                req.Resource.Properties["body"] = """
+                req.Properties["body"] = """
 {
   "properties": {
     "gridId": "SEW",
@@ -99,13 +114,13 @@ param coords = {
   }
 }
 """;
-
-                return Task.FromResult<ExtensibilityOperationResponse>(new(req.Resource, null, null));
+                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
             });
-        providerMock.Setup(x => x.Save(It.Is<ExtensibilityOperationRequest>(req => req.Resource.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
-            .Returns<ExtensibilityOperationRequest, CancellationToken>((req, _) =>
+
+        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
+            .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
-                req.Resource.Properties["body"] = """
+                req.Properties["body"] = """
 {
   "properties": {
     "periods": [
@@ -123,12 +138,12 @@ param coords = {
   }
 }
 """;
-
-                return Task.FromResult<ExtensibilityOperationResponse>(new(req.Resource, null, null));
+                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
             });
 
-        await using LocalExtensibilityHandler extensibilityHandler = new(BicepTestConstants.ModuleDispatcher, uri => Task.FromResult(providerMock.Object));
-        await extensibilityHandler.InitializeProviders(result.Compilation);
+        var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
+        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
+        await extensibilityHandler.InitializeExtensions(result.Compilation);
 
         var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
@@ -145,5 +160,308 @@ param coords = {
   }
 ]
 """));
+    }
+
+    [TestMethod]
+    public async Task Provider_returning_resource_and_error_data_should_fail()
+    {
+        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
+
+        var result = await CompilationHelper.RestoreAndCompileParams(services,
+            ("bicepconfig.json", """
+{
+  "extensions": {
+    "http": "br:example.azurecr.io/providers/foo:1.2.3"
+  },
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "extensionRegistry": true,
+    "localDeploy": true
+  }
+}
+"""),
+            ("main.bicep", """
+extension http
+
+param coords {
+  lattitude: string
+  longitude: string
+}
+
+resource gridpointsReq 'request@v1' = {
+  uri: 'https://api.weather.gov/points/${coords.lattitude},${coords.longitude}'
+  format: 'raw'
+}
+
+var gridpoints = json(gridpointsReq.body).properties
+
+resource forecastReq 'request@v1' = {
+  uri: 'https://api.weather.gov/gridpoints/${gridpoints.gridId}/${gridpoints.gridX},${gridpoints.gridY}/forecast'
+  format: 'raw'
+}
+
+var forecast = json(forecastReq.body).properties
+
+type forecastType = {
+  name: string
+  temperature: int
+}
+
+output forecast forecastType[] = map(forecast.periods, p => {
+  name: p.name
+  temperature: p.temperature
+})
+"""),
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param coords = {
+  lattitude: '47.6363726'
+  longitude: '-122.1357068'
+}
+"""));
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        var parametersFile = result.Compilation.Emitter.Parameters().Parameters!;
+        var templateFile = result.Compilation.Emitter.Parameters().Template!.Template!;
+
+        JsonObject identifiers = new()
+                {
+                    { "name", "someName" },
+                    { "namespace", "someNamespace" }
+                };
+
+        var providerMock = StrictMock.Of<LocalExtensibilityHost>();
+        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
+            .Returns<ResourceSpecification, CancellationToken>((req, _) =>
+            {
+                req.Properties["body"] = """
+{
+  "properties": {
+    "gridId": "SEW",
+    "gridX": "131",
+    "gridY": "68"
+  }
+}
+""";
+                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
+            });
+
+        var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
+        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
+        await extensibilityHandler.InitializeExtensions(result.Compilation);
+
+        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+
+        localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Provider returned '{nameof(Resource)}' and '{nameof(ErrorData)}' as part of its response and it is not allowed. Providers should return one or the other to indicate success or failure respectively.");
+        localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
+
+        localDeployResult.Deployment.Properties.Error.Code.Should().Be("DeploymentFailed");
+        localDeployResult.Deployment.Properties.Error.Details.Should().NotBeNullOrEmpty();
+        localDeployResult.Deployment.Properties.Error.Details[0].Code.Should().Be("ResourceDeploymentFailure");
+        localDeployResult.Deployment.Properties.Error.Details[0].Target.Should().Be("/resources/gridpointsReq", because: $"Expect a failure when mocking a response for \"/resources/gridpointsReq\" since it is returning '{nameof(Resource)}' and '{nameof(ErrorData)}' when only one type should be returned to indicate success or failure.");
+    }
+
+    [TestMethod]
+    public async Task Provider_not_returning_resource_or_error_data_should_fail()
+    {
+        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
+
+        var result = await CompilationHelper.RestoreAndCompileParams(services,
+            ("bicepconfig.json", """
+{
+  "extensions": {
+    "http": "br:example.azurecr.io/providers/foo:1.2.3"
+  },
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "extensionRegistry": true,
+    "localDeploy": true
+  }
+}
+"""),
+            ("main.bicep", """
+extension http
+
+param coords {
+  lattitude: string
+  longitude: string
+}
+
+resource gridpointsReq 'request@v1' = {
+  uri: 'https://api.weather.gov/points/${coords.lattitude},${coords.longitude}'
+  format: 'raw'
+}
+
+var gridpoints = json(gridpointsReq.body).properties
+
+resource forecastReq 'request@v1' = {
+  uri: 'https://api.weather.gov/gridpoints/${gridpoints.gridId}/${gridpoints.gridX},${gridpoints.gridY}/forecast'
+  format: 'raw'
+}
+
+var forecast = json(forecastReq.body).properties
+
+type forecastType = {
+  name: string
+  temperature: int
+}
+
+output forecast forecastType[] = map(forecast.periods, p => {
+  name: p.name
+  temperature: p.temperature
+})
+"""),
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param coords = {
+  lattitude: '47.6363726'
+  longitude: '-122.1357068'
+}
+"""));
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        var parametersFile = result.Compilation.Emitter.Parameters().Parameters!;
+        var templateFile = result.Compilation.Emitter.Parameters().Template!.Template!;
+
+        JsonObject identifiers = new()
+                {
+                    { "name", "someName" },
+                    { "namespace", "someNamespace" }
+                };
+
+        var providerMock = StrictMock.Of<LocalExtensibilityHost>();
+        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
+            .Returns<ResourceSpecification, CancellationToken>((req, _) =>
+            {
+                req.Properties["body"] = """
+{
+  "properties": {
+    "gridId": "SEW",
+    "gridX": "131",
+    "gridY": "68"
+  }
+}
+""";
+                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
+            });
+
+        var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
+        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
+        await extensibilityHandler.InitializeExtensions(result.Compilation);
+
+        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+
+        localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Provider did not return '{nameof(Resource)}' or '{nameof(ErrorData)}' as part of its response. Providers should return one or the other to indicate success or failure respectively.");
+        localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
+
+        localDeployResult.Deployment.Properties.Error.Code.Should().Be("DeploymentFailed");
+        localDeployResult.Deployment.Properties.Error.Details.Should().NotBeNullOrEmpty();
+        localDeployResult.Deployment.Properties.Error.Details[0].Code.Should().Be("ResourceDeploymentFailure");
+        localDeployResult.Deployment.Properties.Error.Details[0].Target.Should().Be("/resources/gridpointsReq", because: $"Expect a failure when mocking a response for \"/resources/gridpointsReq\" because provider it is not returning '{nameof(Resource)}' or '{nameof(ErrorData)}' and one must be returned to indicate success or failure.");
+    }
+
+    [TestMethod]
+    public async Task Provider_returning_error_data_should_fail()
+    {
+        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
+
+        var result = await CompilationHelper.RestoreAndCompileParams(services,
+            ("bicepconfig.json", """
+{
+  "extensions": {
+    "http": "br:example.azurecr.io/providers/foo:1.2.3"
+  },
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "extensionRegistry": true,
+    "localDeploy": true
+  }
+}
+"""),
+            ("main.bicep", """
+extension http
+
+param coords {
+  lattitude: string
+  longitude: string
+}
+
+resource gridpointsReq 'request@v1' = {
+  uri: 'https://api.weather.gov/points/${coords.lattitude},${coords.longitude}'
+  format: 'raw'
+}
+
+var gridpoints = json(gridpointsReq.body).properties
+
+resource forecastReq 'request@v1' = {
+  uri: 'https://api.weather.gov/gridpoints/${gridpoints.gridId}/${gridpoints.gridX},${gridpoints.gridY}/forecast'
+  format: 'raw'
+}
+
+var forecast = json(forecastReq.body).properties
+
+type forecastType = {
+  name: string
+  temperature: int
+}
+
+output forecast forecastType[] = map(forecast.periods, p => {
+  name: p.name
+  temperature: p.temperature
+})
+"""),
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param coords = {
+  lattitude: '47.6363726'
+  longitude: '-122.1357068'
+}
+"""));
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        var parametersFile = result.Compilation.Emitter.Parameters().Parameters!;
+        var templateFile = result.Compilation.Emitter.Parameters().Template!.Template!;
+
+        JsonObject identifiers = new()
+                {
+                    { "name", "someName" },
+                    { "namespace", "someNamespace" }
+                };
+
+        var providerMock = StrictMock.Of<LocalExtensibilityHost>();
+        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
+            .Returns<ResourceSpecification, CancellationToken>((req, _) =>
+            {
+                req.Properties["body"] = """
+{
+  "properties": {
+    "gridId": "SEW",
+    "gridX": "131",
+    "gridY": "68"
+  }
+}
+""";
+                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
+            });
+
+        var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
+        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
+        await extensibilityHandler.InitializeExtensions(result.Compilation);
+
+        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+
+        localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: "Provider returned a failure when attempting to create a resource.");
+        localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
+
+        localDeployResult.Deployment.Properties.Error.Code.Should().Be("DeploymentFailed");
+        localDeployResult.Deployment.Properties.Error.Details.Should().NotBeNullOrEmpty();
+        localDeployResult.Deployment.Properties.Error.Details[0].Code.Should().Be("ResourceDeploymentFailure");
+        localDeployResult.Deployment.Properties.Error.Details[0].Target.Should().Be("/resources/gridpointsReq", because: $"Expect a failure when mocking a response for \"/resources/gridpointsReq\" because provider returned '{nameof(ErrorData)}' to indicate a failure.");
     }
 }

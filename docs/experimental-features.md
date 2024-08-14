@@ -15,8 +15,15 @@ Should be enabled in tandem with `testFramework` experimental feature flag for e
 Requires `extensibility` to be enabled. If enabled, users are able to fetch the azure resource type definitions from an OCI Registry as a runtime dependency. To fetch the type definitions the following syntax can be used. For example `provider 'br:mcr.microsoft.com/bicep/providers/az@1.0.0' as az`.
 The provider definitions also support aliasing via `bicepconfig.json` similar to [`moduleAliases`](https://learn.microsoft.com/azure/azure-resource-manager/bicep/bicep-config-modules#aliases-for-modules). For example `provider 'br/public:az@1.0.0' as az`.
 
+### `extendableParamFiles`
+Enables the ability to extend bicepparam files from other bicepparam files.
+
 ### `extensibility`
 Allows Bicep to use a provider model to deploy non-ARM resources. Currently, we support Kubernetes provider ([Bicep extensibility Kubernetes provider](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-extensibility-kubernetes-provider)) and Microsoft Graph provider ([Bicep templates for Microsoft Graph](https://aka.ms/graphbicep)).
+
+### `extensionRegistry`
+Requires `dynamicTypeLoading` and `extensibility` to be enabled. If enabled, users are able to fetch the third party resource type definitions from an OCI Registry as a runtime dependency. To fetch the type definitions the following syntax can be used. For example `extension 'br:thirdpartyregistry.azurecr.io/bicep/extension/thirdparty@1.0.0' as thirdparty`.
+The extension definitions also support aliasing via `bicepconfig.json` similar to [`moduleAliases`](https://learn.microsoft.com/azure/azure-resource-manager/bicep/bicep-config-modules#aliases-for-modules). For example `extension 'br/public:thirdparty@1.0.0' as thirdparty`.
 
 ### `legacyFormatter`
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
@@ -33,6 +40,9 @@ If enabled, templates can reuse resource types wherever a type is expected. For 
 ### `resourceTypedParamsAndOutputs`
 Enables the type for a parameter or output to be of type resource to make it easier to pass resource references between modules. This feature is only partially implemented. See [Simplifying resource referencing](https://github.com/azure/bicep/issues/2245).
 
+### `secureOutputs`
+Permits the usage of the `@secure()` decorator for module outputs. This feature must have also been enabled in your Azure subscription or tenant, or the deployment will fail. See [Add securestring support for template output type](https://github.com/Azure/bicep/issues/2163).
+
 ### `sourceMapping`
 Enables basic source mapping to map an error location returned in the ARM template layer back to the relevant location in the Bicep file.
 
@@ -46,9 +56,6 @@ Should be enabled in tandem with `assertions` experimental feature flag for expe
 
 ### `publish-provider` CLI Command
 Command that allows the publishing of providers to container registries. For more information, see [Using the Publish Provider Command](./experimental/publish-provider-command.md).
-
-### `jsonrpc` CLI Command
-Command that launches the CLI in a JSONRPC server mode. Useful for invoking the CLI programatically to consume structured output, and to avoid cold-start delays when compiling multiple files. For more information, see [Using the JSONRPC Command](./experimental/jsonrpc-command.md).
 
 ### Deployment Pane
 The Deployment Pane is a UI panel in VSCode that allows you to connect to your Azure subscription and execute validate, deploy & whatif operations and get instant feedback without leaving the editor. For more information, see [Using the Deployment Pane](./experimental/deploy-ui.md).

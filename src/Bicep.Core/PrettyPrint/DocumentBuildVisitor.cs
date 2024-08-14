@@ -26,9 +26,9 @@ namespace Bicep.Core.PrettyPrint
 
         private static readonly ImmutableDictionary<string, TextDocument> CommonTextCache =
             LanguageConstants.ContextualKeywords
-            .Concat(LanguageConstants.Keywords.Keys)
-            .Concat(new[] { "(", ")", "[", "]", "{", "}", "=", ":", "+", "-", "*", "/", "!" })
-            .Concat(new[] { "name", "properties", "string", "bool", "int", "array", "object" })
+            .Concat(LanguageConstants.NonContextualKeywords.Keys)
+            .Concat(["(", ")", "[", "]", "{", "}", "=", ":", "+", "-", "*", "/", "!"])
+            .Concat(["name", "properties", "string", "bool", "int", "array", "object"])
             .ToImmutableDictionary(value => value, value => new TextDocument(value));
 
         private readonly Stack<ILinkedDocument> documentStack = new();
@@ -351,7 +351,7 @@ namespace Bicep.Core.PrettyPrint
                         return children[0];
                     }
 
-                    return new NestDocument(1, children.ToImmutableArray());
+                    return new NestDocument(1, [.. children]);
                 });
                 return;
             }
@@ -676,7 +676,7 @@ namespace Bicep.Core.PrettyPrint
                     }
 
                     var line = Spread(currentLineDocs);
-                    this.PushDocument(firstLineWritten ? new NestDocument(1, ImmutableArray.Create(line)) : line);
+                    this.PushDocument(firstLineWritten ? new NestDocument(1, [line]) : line);
                     firstLineWritten = true;
                     stackTare++;
                 }

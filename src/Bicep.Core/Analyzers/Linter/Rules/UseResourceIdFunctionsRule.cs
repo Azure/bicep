@@ -50,61 +50,61 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         //   an exact resource type, plus some of them occur in multiple resource types.
 
         // Resource type is a regex pattern (case-insensitive), property name is an exact match (case-insensitive)
-        private static readonly Exclusion[] allowedResourcesAndProperties = new[] {
+        private static readonly Exclusion[] allowedResourcesAndProperties = [
             new Exclusion(null, "appId"),                       // Example: Microsoft.Insights
-                new Exclusion(null, "appId"),                       // Example: Microsoft.Insights
-                new Exclusion(null, "clientId"),                    // Example: Microsoft.BotService - common var name
-                new Exclusion(null, "contentId"),                   // Example: Microsoft.Sentinel/Solutions/Metadata
-                new Exclusion(null, "connectorId"),                 // Example: Microsoft.Sentinel/Solutions/Analytical Rule/Metadata
-                new Exclusion(null, "DataTypeId"),                  // Example: Microsoft.OperationalInsights/workspaces/dataSources
-                new Exclusion(null, "defaultMenuItemId"),           // Example: Microsoft.Portal/dashboards - it's a messy resource
-                new Exclusion(null, "deploymentSpecId"),            // Example: Microsoft.NetApp/netAppAccounts/volumeGroups
-                new Exclusion(null, "detector"),                    // Example: microsoft.alertsmanagement/smartdetectoralertrules (detector.id is the one we want to skip)
-                new Exclusion(null, "groupId"),                     // Example: Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints
-                new Exclusion(null, "IllusiveIncidentId"),          // Example: Microsoft.Sentinel/Solutions/Analytical Rule/Metadata
-                new Exclusion(null, "keyId"),                       // Example: Microsoft.Cdn/profiles urlSigningKeys
-                new Exclusion(null, "keyVaultId"),                  // Example: KeyVaultIDs
-                new Exclusion(null, "keyVaultSecretId"),            // Example: Microsoft.Network/applicationGateways sslCertificates - this is actually a uri created with reference() and concat /secrets/secretname
-                new Exclusion(null, "locations"),                   // Example: Microsoft.Insights/webtests
-                new Exclusion(null, "menuId"),                      // Example: Microsoft.Portal/dashboards
-                new Exclusion(null, "metadata"),                    // Multiple resources
-                new Exclusion(null, "metricId"),                    // Example: Microsoft.ServiceBus/namespaces
-                new Exclusion(null, "nodeAgentSkuId"),              // Example: Microsoft.Batch/batchAccounts/pools
-                new Exclusion(null, "objectId"),                    // Common Property name
-                new Exclusion(null, "parentId"),                    // Example: Microsoft.Sentinel/Solutions/Metadata
-                new Exclusion(null, "policyDefinitionReferenceId"), // Example: Microsft.Authorization/policySetDefinition unique Id used when setting up a PolicyDefinitionReference
-                new Exclusion(null, "requestedServiceObjectiveId"), // Example: Microsoft.Sql/servers/databases
-                new Exclusion(null, "resource"),                    // Example: Microsoft.DocumentDB/databaseAccounts/sqlDatabase and child resources
-                new Exclusion(null, "ruleId"),                      // Example: Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies
-                new Exclusion(null, "schemaId"),                    // Example: Microsoft.ApiManagement/service/apis/operations
-                new Exclusion(null, "servicePrincipalClientId"),    // Common var name
-                new Exclusion(null, "sid"),                         // Example: Microsoft.Sql/servers/administrators/activeDirectory
-                new Exclusion(null, "StartingDeviceID"),            // Example: SQLIaasVMExtension > settings/ServerConfigurationsManagementSettings/SQLStorageUpdateSettings
-                new Exclusion(null, "subscriptionId"),              // Example: Microsoft.Cdn/profiles urlSigningKeys
-                new Exclusion(null, "storageAccountSubscriptionId"),// Example: Microsoft.Sql/servers/auditingSettings
-                new Exclusion(null, "SyntheticMonitorId"),          // Example: Microsoft.Insights/webtests
-                new Exclusion(null, "tags"),                        // Multiple resources
-                new Exclusion(null, "targetProtectionContainerId"), // Example: Microsoft.RecoveryServices/vaults/replicationFabrics/replicationProtectionContainers/replicationProtectionContainerMappings (yes really)
-                new Exclusion(null, "targetWorkerSizeId"),          // Example: Microsoft.Web/serverFarms (later apiVersions)
-                new Exclusion(null, "tenantId"),                    // Common Property name
-                new Exclusion(null, "timezoneId"),                  // Example: Microsoft.SQL/managedInstances
-                new Exclusion(null, "vlanId"),                      // Example: Unique Id to establish peering when setting up an ExpressRoute circuit
-                new Exclusion(null, "workerSizeId"),                // Example: Microsoft.Web/serverFarms (older apiVersions)
-                new Exclusion(null, "UniqueFindingId"),             // Example: Microsoft.Sentinel/Solutions/Metadata
-                new Exclusion(null, "principalId"),                 // Example: Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments
+            new Exclusion(null, "appId"),                       // Example: Microsoft.Insights
+            new Exclusion(null, "clientId"),                    // Example: Microsoft.BotService - common var name
+            new Exclusion(null, "contentId"),                   // Example: Microsoft.Sentinel/Solutions/Metadata
+            new Exclusion(null, "connectorId"),                 // Example: Microsoft.Sentinel/Solutions/Analytical Rule/Metadata
+            new Exclusion(null, "DataTypeId"),                  // Example: Microsoft.OperationalInsights/workspaces/dataSources
+            new Exclusion(null, "defaultMenuItemId"),           // Example: Microsoft.Portal/dashboards - it's a messy resource
+            new Exclusion(null, "deploymentSpecId"),            // Example: Microsoft.NetApp/netAppAccounts/volumeGroups
+            new Exclusion(null, "detector"),                    // Example: microsoft.alertsmanagement/smartdetectoralertrules (detector.id is the one we want to skip)
+            new Exclusion(null, "groupId"),                     // Example: Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints
+            new Exclusion(null, "IllusiveIncidentId"),          // Example: Microsoft.Sentinel/Solutions/Analytical Rule/Metadata
+            new Exclusion(null, "keyId"),                       // Example: Microsoft.Cdn/profiles urlSigningKeys
+            new Exclusion(null, "keyVaultId"),                  // Example: KeyVaultIDs
+            new Exclusion(null, "keyVaultSecretId"),            // Example: Microsoft.Network/applicationGateways sslCertificates - this is actually a uri created with reference() and concat /secrets/secretname
+            new Exclusion(null, "locations"),                   // Example: Microsoft.Insights/webtests
+            new Exclusion(null, "menuId"),                      // Example: Microsoft.Portal/dashboards
+            new Exclusion(null, "metadata"),                    // Multiple resources
+            new Exclusion(null, "metricId"),                    // Example: Microsoft.ServiceBus/namespaces
+            new Exclusion(null, "nodeAgentSkuId"),              // Example: Microsoft.Batch/batchAccounts/pools
+            new Exclusion(null, "objectId"),                    // Common Property name
+            new Exclusion(null, "parentId"),                    // Example: Microsoft.Sentinel/Solutions/Metadata
+            new Exclusion(null, "policyDefinitionReferenceId"), // Example: Microsft.Authorization/policySetDefinition unique Id used when setting up a PolicyDefinitionReference
+            new Exclusion(null, "requestedServiceObjectiveId"), // Example: Microsoft.Sql/servers/databases
+            new Exclusion(null, "resource"),                    // Example: Microsoft.DocumentDB/databaseAccounts/sqlDatabase and child resources
+            new Exclusion(null, "ruleId"),                      // Example: Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies
+            new Exclusion(null, "schemaId"),                    // Example: Microsoft.ApiManagement/service/apis/operations
+            new Exclusion(null, "servicePrincipalClientId"),    // Common var name
+            new Exclusion(null, "sid"),                         // Example: Microsoft.Sql/servers/administrators/activeDirectory
+            new Exclusion(null, "StartingDeviceID"),            // Example: SQLIaasVMExtension > settings/ServerConfigurationsManagementSettings/SQLStorageUpdateSettings
+            new Exclusion(null, "subscriptionId"),              // Example: Microsoft.Cdn/profiles urlSigningKeys
+            new Exclusion(null, "storageAccountSubscriptionId"),// Example: Microsoft.Sql/servers/auditingSettings
+            new Exclusion(null, "SyntheticMonitorId"),          // Example: Microsoft.Insights/webtests
+            new Exclusion(null, "tags"),                        // Multiple resources
+            new Exclusion(null, "targetProtectionContainerId"), // Example: Microsoft.RecoveryServices/vaults/replicationFabrics/replicationProtectionContainers/replicationProtectionContainerMappings (yes really)
+            new Exclusion(null, "targetWorkerSizeId"),          // Example: Microsoft.Web/serverFarms (later apiVersions)
+            new Exclusion(null, "tenantId"),                    // Common Property name
+            new Exclusion(null, "timezoneId"),                  // Example: Microsoft.SQL/managedInstances
+            new Exclusion(null, "vlanId"),                      // Example: Unique Id to establish peering when setting up an ExpressRoute circuit
+            new Exclusion(null, "workerSizeId"),                // Example: Microsoft.Web/serverFarms (older apiVersions)
+            new Exclusion(null, "UniqueFindingId"),             // Example: Microsoft.Sentinel/Solutions/Metadata
+            new Exclusion(null, "principalId"),                 // Example: Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments
 
-                // These resource types are completely excluded from the rule
-                new Exclusion("^microsoft.portal/dashboards$", null),
-                new Exclusion("^microsoft.logic/workflows$", null),
-                new Exclusion("^microsoft.ApiManagement/service/backends$", null),
-                new Exclusion("^Microsoft.Web/sites/config", null),
-                // Skip for Microsoft.DocumentDb/databaseAccounts/mongodbDatabases/collections
-                // and for "other collections" on docDB
-                new Exclusion(@"^Microsoft\.DocumentDb/databaseAccounts/\w{0,}/collections$", null),
+            // These resource types are completely excluded from the rule
+            new Exclusion("^microsoft.portal/dashboards$", null),
+            new Exclusion("^microsoft.logic/workflows$", null),
+            new Exclusion("^microsoft.ApiManagement/service/backends$", null),
+            new Exclusion("^Microsoft.Web/sites/config", null),
+            // Skip for Microsoft.DocumentDb/databaseAccounts/mongodbDatabases/collections
+            // and for "other collections" on docDB
+            new Exclusion(@"^Microsoft\.DocumentDb/databaseAccounts/\w{0,}/collections$", null),
 
-                // Specific properties of specific resource types
-                new Exclusion("^Microsoft.ApiManagement/service/subscriptions$", "ownerId"), // #8382
-            };
+            // Specific properties of specific resource types
+            new Exclusion("^Microsoft.ApiManagement/service/subscriptions$", "ownerId"), // #8382
+        ];
 
         internal record Failure(
             ObjectPropertySyntax Property,
@@ -131,7 +131,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     }
 
                     string[] excludedPropertiesForThisResource = exclusionsMatchingResourceType.Select(excl => excl.propertyName!).ToArray(); // propertyName can't be null in this list
-                    var visitor = new IdPropertyVisitor(model, excludedPropertiesForThisResource.ToArray());
+                    var visitor = new IdPropertyVisitor(model, [.. excludedPropertiesForThisResource]);
                     properties.Accept(visitor);
 
                     foreach (Failure failure in visitor.Failures)
@@ -139,7 +139,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         var propertyName = failure.Property.Key.ToString();
                         var paths = failure.PathToExpression.Any() ?
                             (new string[] { propertyName }).Concat(failure.PathToExpression.Select(s => s.Name)) :
-                            Enumerable.Empty<string>();
+                            [];
                         var path = string.Join(" -> ", paths);
                         yield return CreateDiagnosticForSpan(
                             diagnosticLevel,
@@ -155,7 +155,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             var propertyName = (string)values[0];
             var path = (string)values[1];
-            var allowedList = string.Join(", ", allowedFunctions.OrderByAscendingInsensitively(k => k).ToArray());
+            var allowedList = string.Join(", ", [.. allowedFunctions.OrderByAscendingInsensitively(k => k)]);
             var mainMessage = string.Format(CoreResources.UseResourceIdFunctionsRule_MessageFormat, propertyName, allowedList);
             var pathMessage = string.IsNullOrWhiteSpace(path) ? null : string.Format(CoreResources.UseResourceIdFunctionsRule_NonConformingExprPath, path);
             return pathMessage is null ? mainMessage : $"{mainMessage} {pathMessage}";
@@ -238,7 +238,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var type = model.GetTypeInfo(propertySyntax.Value);
                 if (type.IsString() || type.IsNullableString())
                 {
-                    return AnalyzeIdPropertyValue(model, propertySyntax, propertySyntax.Value, Array.Empty<DeclaredSymbol>());
+                    return AnalyzeIdPropertyValue(model, propertySyntax, propertySyntax.Value, []);
                 }
 
                 return null;

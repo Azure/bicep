@@ -380,7 +380,7 @@ var commentsPropAccess = jsonWithComments.key
 var invalidPropAccess = objectJson.invalidProp
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
+            var model = GetSemanticModelForTest(program, []);
 
             GetTypeForNamedSymbol(model, "objectJson").Name.Should().Be("object");
             GetTypeForNamedSymbol(model, "propAccess").Name.Should().Be("'validValue'");
@@ -405,7 +405,7 @@ var invalidPropAccess = objectJson.invalidProp
 var invalidJson = json('{""prop"": ""value')
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
+            var model = GetSemanticModelForTest(program, []);
 
             GetTypeForNamedSymbol(model, "invalidJson").Name.Should().Be("error");
 
@@ -435,7 +435,7 @@ var singleItemKey = itemsOutput[0].key
 var singleItemValue = itemsOutput[0].value
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
+            var model = GetSemanticModelForTest(program, []);
 
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'123' | 'DEF' | 'abc' | 'arr'");
@@ -451,7 +451,7 @@ var singleItemKey = itemsOutput[0].key
 var singleItemValue = itemsOutput[0].value
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
+            var model = GetSemanticModelForTest(program, []);
 
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("string");

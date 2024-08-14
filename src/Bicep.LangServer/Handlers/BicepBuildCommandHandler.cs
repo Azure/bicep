@@ -39,10 +39,10 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            return await GenerateCompiledFileAndReturnBuildOutputMessage(bicepFilePath, documentUri);
+            return await GenerateCompiledFileAndReturnBuildOutputMessageAsync(bicepFilePath, documentUri);
         }
 
-        private async Task<string> GenerateCompiledFileAndReturnBuildOutputMessage(string bicepFilePath, DocumentUri documentUri)
+        private async Task<string> GenerateCompiledFileAndReturnBuildOutputMessageAsync(string bicepFilePath, DocumentUri documentUri)
         {
             string compiledFilePath = PathHelper.GetDefaultBuildOutputPath(bicepFilePath);
 
@@ -81,9 +81,9 @@ namespace Bicep.LanguageServer.Handlers
                 if (!string.IsNullOrEmpty(template))
                 {
                     JToken jtoken = template.FromJson<JToken>();
-                    if (TemplateHelpers.TryGetTemplateGeneratorObject(jtoken, out DeploymentTemplateGeneratorMetadata generator))
+                    if (TemplateHelpers.TryGetTemplateGeneratorObject(jtoken, out DeploymentTemplateGeneratorMetadata? generator))
                     {
-                        if (generator.Name == "bicep")
+                        if (generator?.Name == "bicep")
                         {
                             return true;
                         }

@@ -71,7 +71,7 @@ public static class ArmTemplateTypeLoader
             var resourceTypeIdentifier = resourceTypeStringParts[0];
             var internalPointerSegments = resourceTypeStringParts.Length > 1
                 ? resourceTypeStringParts[1].Split('/').Select(Bicep.Core.Extensions.StringExtensions.Rfc6901Decode).ToImmutableArray()
-                : ImmutableArray<string>.Empty;
+                : [];
 
             return ResourceTypeReference.TryParse(resourceTypeIdentifier) is ResourceTypeReference resourceTypeReference
                 ? new UnresolvedResourceDerivedType(resourceTypeReference, internalPointerSegments, fallbackType)
@@ -152,7 +152,7 @@ public static class ArmTemplateTypeLoader
                 tupleMembers.Add(type);
             }
 
-            return new TupleType(nameBuilder.ToString(), tupleMembers.ToImmutableArray(), default);
+            return new TupleType(nameBuilder.ToString(), [.. tupleMembers], default);
         }
 
         if (schemaNode.Items?.SchemaNode is { } items)
@@ -236,7 +236,7 @@ public static class ArmTemplateTypeLoader
                     : GetObjectType(
                         context: context,
                         properties: schemaNode.Properties.CoalesceEnumerable().Concat(variant.Properties.CoalesceEnumerable()),
-                        requiredProperties: (schemaNode.Required?.Value ?? Array.Empty<string>()).Concat(variant.Required?.Value ?? Array.Empty<string>()),
+                        requiredProperties: (schemaNode.Required?.Value ?? []).Concat(variant.Required?.Value ?? []),
                         additionalProperties: variant.AdditionalProperties ?? schemaNode.AdditionalProperties,
                         flags));
             }

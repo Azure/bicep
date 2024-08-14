@@ -45,7 +45,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static string PrintFullSource(BicepSourceFile bicepFile, int context, bool includeLineNumbers)
         {
-            return string.Join("\n", GetProgramTextLines(bicepFile).ToArray());
+            return string.Join("\n", [.. GetProgramTextLines(bicepFile)]);
         }
 
         public static string PrintWithAnnotations(BicepSourceFile bicepFile, IEnumerable<Annotation> annotations, int context, bool includeLineNumbers)

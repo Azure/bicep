@@ -21,7 +21,7 @@ public class ImportedFunctionSymbol : ImportedSymbol<ExportedFunctionMetadata>, 
 
     public FunctionOverload Overload => overloadLazy.Value;
 
-    public ImmutableArray<FunctionOverload> Overloads => ImmutableArray.Create(Overload);
+    public ImmutableArray<FunctionOverload> Overloads => [Overload];
 
     public FunctionFlags FunctionFlags => FunctionFlags.Default;
 

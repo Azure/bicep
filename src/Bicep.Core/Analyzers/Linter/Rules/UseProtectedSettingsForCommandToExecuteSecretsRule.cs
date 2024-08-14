@@ -13,12 +13,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "protect-commandtoexecute-secrets";
 
-        private static readonly ImmutableArray<(string publisher, string type)> publisherAndNameList = ImmutableArray.Create<(string publisher, string type)>(
-            // NOTE: This list was obtained by running "az vm extension image list"
+        private static readonly ImmutableArray<(string publisher, string type)> publisherAndNameList =
+        [
             ("Microsoft.Azure.Extensions", "CustomScript"),
             ("Microsoft.Compute", "CustomScriptExtension"),
             ("Microsoft.OSTCExtensions", "CustomScriptForLinux")
-        );
+,
+        ];
 
         public static ImmutableArray<(string publisher, string type)> PublisherAndNameList => publisherAndNameList;
 

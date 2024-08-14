@@ -28,6 +28,7 @@ const keywords = [
   'type',
   'with',
   'using',
+  'extends',
   'func',
   'assert',
   'provider',

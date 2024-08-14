@@ -21,6 +21,18 @@ namespace Bicep.Core.Semantics
                 .Where(s => SemanticModelHelper.TryGetFunctionInNamespace(model, @namespace, s) is { });
         }
 
+        public static FunctionCallSyntaxBase? TryGetNamedFunction(SemanticModel model, string @namespace, string functionName, SyntaxBase syntax)
+        {
+            if (syntax is FunctionCallSyntaxBase functionCall &&
+                functionCall.NameEquals(functionName) &&
+                SemanticModelHelper.TryGetFunctionInNamespace(model, @namespace, functionCall) is { })
+            {
+                return functionCall;
+            }
+
+            return null;
+        }
+
         public static FunctionCallSyntaxBase? TryGetFunctionInNamespace(SemanticModel semanticModel, string @namespace, SyntaxBase syntax)
         {
             if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol function &&
@@ -71,7 +83,13 @@ namespace Bicep.Core.Semantics
             // when we inevitably add a third language ID,
             // the inclusion list style below will prevent the new language ID from being
             // automatically allowed to be referenced via module declarations
-            if (sourceFile is not (BicepFile or ArmTemplateFile or TemplateSpecFile))
+            var isValidReference = (reference, sourceFile) switch
+            {
+                (ExtendsDeclarationSyntax, BicepParamFile) => true,
+                (_, BicepFile or ArmTemplateFile or TemplateSpecFile) => true,
+                _ => false,
+            };
+            if (!isValidReference)
             {
                 return new(onInvalidSourceFileType(DiagnosticBuilder.ForPosition(reference.SourceSyntax)));
             }

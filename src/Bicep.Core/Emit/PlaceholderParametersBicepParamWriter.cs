@@ -91,9 +91,9 @@ namespace Bicep.Core.Emit
                     case "bool":
                         return SyntaxFactory.CreateBooleanLiteral(false);
                     case "array":
-                        return SyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>());
+                        return SyntaxFactory.CreateArray([]);
                     case "object":
-                        return SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>());
+                        return SyntaxFactory.CreateObject([]);
                     case "string":
                     default:
                         return SyntaxFactory.CreateStringLiteral((allowedDecoratorFirstItem as StringSyntax)?.SegmentValues.First() ?? "");

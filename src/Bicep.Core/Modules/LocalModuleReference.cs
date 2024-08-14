@@ -92,8 +92,8 @@ namespace Bicep.Core.Modules
             return new(true);
         }
 
-        private static readonly ImmutableHashSet<char> forbiddenPathChars = "<>:\"\\|?*".ToImmutableHashSet();
-        private static readonly ImmutableHashSet<char> forbiddenPathTerminatorChars = " .".ToImmutableHashSet();
+        private static readonly ImmutableHashSet<char> forbiddenPathChars = [.. "<>:\"\\|?*"];
+        private static readonly ImmutableHashSet<char> forbiddenPathTerminatorChars = [.. " ."];
 
         private static bool IsInvalidPathControlCharacter(char pathChar)
         {

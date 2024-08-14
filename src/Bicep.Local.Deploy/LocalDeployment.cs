@@ -17,7 +17,7 @@ public static class LocalDeployment
         DeploymentContent Deployment,
         ImmutableArray<DeploymentOperationDefinition> Operations);
 
-    public static async Task<Result> Deploy(LocalExtensibilityHandler extensibilityHandler, string templateString, string parametersString, CancellationToken cancellationToken)
+    public static async Task<Result> Deploy(LocalExtensibilityHostManager extensibilityHandler, string templateString, string parametersString, CancellationToken cancellationToken)
     {
         var services = new ServiceCollection()
             .RegisterLocalDeployServices(extensibilityHandler)

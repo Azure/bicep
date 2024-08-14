@@ -40,7 +40,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var bicepFilePath = Path.Join(Environment.CurrentDirectory, "main.bicep");
 
-            var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(new string[] { }, bicepFilePath);
+            var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation([], bicepFilePath);
             var expected = Environment.CurrentDirectory;
 
             actual.Should().Be(expected);
@@ -49,10 +49,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void SingleWorkspaceFolder_NoBicepFile_ShouldReturnFirstWorkspaceFolder()
         {
-            string[] workspaceFolders = new string[]
-            {
+            string[] workspaceFolders =
+            [
                 Environment.CurrentDirectory
-            };
+            ];
 
             var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(workspaceFolders, null);
             var expected = workspaceFolders[0];
@@ -63,11 +63,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void SingleWorkspaceFolder_CurrentFileUnsaved_ShouldReturnFirstWorkspaceFolder()
         {
-            string[] workspaceFolders = new string[]
-            {
+            string[] workspaceFolders =
+            [
                 Environment.CurrentDirectory,
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-            };
+            ];
 
             var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(workspaceFolders, "Untitled-1");
             var expected = Environment.CurrentDirectory;
@@ -78,9 +78,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void NoWorkspaceFolder_CurrentFileUnsaved_ShouldReturnProfileFolder()
         {
-            string[] workspaceFolders = new string[]
-            {
-            };
+            string[] workspaceFolders = [];
 
             var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(workspaceFolders, "Untitled-1");
             var expected = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);

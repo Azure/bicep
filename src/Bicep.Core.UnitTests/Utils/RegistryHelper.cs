@@ -33,7 +33,6 @@ public static class RegistryHelper
         foreach (var (registryHost, repository) in clients)
         {
             containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryHost, repository);
-
         }
 
         return containerRegistryFactoryBuilder.Build();
@@ -158,13 +157,13 @@ public static class RegistryHelper
 
     private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
 
-    public static async Task PublishAzProvider(IDependencyHelper services, string pathToIndexJson)
+    public static async Task PublishAzExtension(IDependencyHelper services, string pathToIndexJson)
     {
-        var version = BicepTestConstants.BuiltinAzProviderVersion;
-        var repository = "bicep/providers/az";
+        var version = BicepTestConstants.BuiltinAzExtensionVersion;
+        var repository = "bicep/extensions/az";
         await PublishProviderToRegistryAsync(services, pathToIndexJson, $"br:{LanguageConstants.BicepPublicMcrRegistry}/{repository}:{version}");
     }
 
-    public static IContainerRegistryClientFactory CreateOciClientForAzProvider()
-        => CreateMockRegistryClients((LanguageConstants.BicepPublicMcrRegistry, $"bicep/providers/az")).factoryMock;
+    public static IContainerRegistryClientFactory CreateOciClientForAzExtension()
+        => CreateMockRegistryClients((LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/az")).factoryMock;
 }

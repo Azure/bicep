@@ -109,7 +109,14 @@ namespace Bicep.Core.Emit
 
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
-                emitter.EmitProperty(LanguageVersionPropertyName, "2.1-experimental");
+                if (Context.SemanticModel.Features.LocalDeployEnabled)
+                {
+                    emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
+                }
+                else
+                {
+                    emitter.EmitProperty(LanguageVersionPropertyName, "2.1-experimental");
+                }
             }
             else if (Context.Settings.EnableSymbolicNames)
             {
@@ -128,7 +135,7 @@ namespace Bicep.Core.Emit
 
             this.EmitVariablesIfPresent(emitter, program.Variables.Concat(Context.ImportClosureInfo.ImportedVariablesInClosure));
 
-            this.EmitProviders(emitter, program.Providers);
+            this.EmitExtensionsIfPresent(emitter, program.Providers);
 
             this.EmitResources(jsonWriter, emitter, program.Resources, program.Modules);
 
@@ -462,7 +469,7 @@ namespace Bicep.Core.Emit
         private record ResourceDerivedTypeResolution(ResourceTypeReference RootResourceTypeReference, ImmutableArray<string> PointerSegments, TypeSymbol DerivedType) : ITypeReferenceExpressionResolution
         {
             internal ResourceDerivedTypeResolution(ResourceDerivedTypeExpression expression)
-                : this(expression.RootResourceType.TypeReference, ImmutableArray<string>.Empty, expression.RootResourceType.Body.Type) { }
+                : this(expression.RootResourceType.TypeReference, [], expression.RootResourceType.Body.Type) { }
 
             public ObjectExpression GetTypePropertiesForResolvedReferenceExpression(SyntaxBase? sourceSyntax)
                 => ExpressionFactory.CreateObject(new[]
@@ -495,7 +502,7 @@ namespace Bicep.Core.Emit
         }
 
         private ResolvedInternalReference ForNamedRoot(string rootName)
-            => new(ImmutableArray.Create(TypeDefinitionsProperty, rootName), declaredTypesByName[rootName].Value);
+            => new([TypeDefinitionsProperty, rootName], declaredTypesByName[rootName].Value);
 
         private ITypeReferenceExpressionResolution ResolveTypeReferenceExpression(TypeExpression expression)
         {
@@ -987,18 +994,26 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
         {
             if (!providers.Any())
             {
                 return;
             }
 
-            if (this.Context.SemanticModel.Features.LocalDeployEnabled)
+            // TODO: Remove if statement once all providers got migrated to extensions (extensibility v2 contract).
+            if (Context.SemanticModel.Features.LocalDeployEnabled)
             {
-                providers = providers.Add(GetProviderForLocalDeploy());
+                EmitExtensions(emitter, providers.Add(GetExtensionForLocalDeploy()));
             }
+            else
+            {
+                EmitProviders(emitter, providers);
+            }
+        }
 
+        private static void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        {
             emitter.EmitObjectProperty("imports", () =>
             {
                 foreach (var provider in providers)
@@ -1018,7 +1033,102 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private DeclaredProviderExpression GetProviderForLocalDeploy()
+        private void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        {
+            emitter.EmitObjectProperty("extensions", () =>
+            {
+                foreach (var provider in providers)
+                {
+                    var settings = provider.Settings;
+
+                    emitter.EmitObjectProperty(provider.Name, () =>
+                    {
+                        emitter.EmitProperty("name", settings.ArmTemplateProviderName);
+                        emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
+
+                        EmitExtensionConfig(provider, emitter);
+                    },
+                    provider.SourceSyntax);
+                }
+            });
+        }
+
+        private void EmitExtensionConfig(DeclaredProviderExpression provider, ExpressionEmitter emitter)
+        {
+            if (provider.Config is null)
+            {
+                return;
+            }
+
+            if (provider.Config is not ObjectExpression providerConfig)
+            {
+                throw new UnreachableException($"Provider config type expected to be of type: '{nameof(ObjectExpression)}' but received: '{provider.Config.GetType()}'");
+            }
+
+            emitter.EmitObjectProperty("config", () =>
+            {
+                foreach (var providerConfigProperty in providerConfig.Properties)
+                {
+                    // Type checking should have validated that the config name is not an expression (e.g. string interpolation), if we get a null value it means something
+                    // was wrong with type checking validation.
+                    var extensionConfigName = providerConfigProperty.TryGetKeyText() ?? throw new UnreachableException("Expressions are not allowed as config names.");
+                    var configType = provider.Settings.ConfigurationType ?? throw new UnreachableException("Config type must be specified.");
+                    var extensionConfigType = GetExtensionConfigType(extensionConfigName, configType);
+
+                    emitter.EmitObjectProperty(extensionConfigName, () =>
+                    {
+                        switch (extensionConfigType)
+                        {
+                            case StringType:
+                                if (extensionConfigType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+                                {
+                                    emitter.EmitProperty("type", "secureString");
+                                }
+                                else
+                                {
+                                    emitter.EmitProperty("type", "string");
+                                }
+                                break;
+                            case IntegerType:
+                                emitter.EmitProperty("type", "int");
+                                break;
+                            case BooleanType:
+                                emitter.EmitProperty("type", "bool");
+                                break;
+                            case ArrayType:
+                                emitter.EmitProperty("type", "array");
+                                break;
+                            case ObjectType:
+                                if (extensionConfigType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+                                {
+                                    emitter.EmitProperty("type", "secureObject");
+                                }
+                                else
+                                {
+                                    emitter.EmitProperty("type", "object");
+                                }
+                                break;
+                            default:
+                                throw new ArgumentException($"Config name: '{extensionConfigName}' specified an unsupported type: '{extensionConfigType}'. Supported types are: 'string', 'secureString', 'int', 'bool', 'array', 'secureObject', 'object'.");
+                        }
+
+                        emitter.EmitProperty("defaultValue", providerConfigProperty.Value);
+                    });
+                }
+            });
+        }
+
+        private TypeSymbol GetExtensionConfigType(string configName, ObjectType configType)
+        {
+            if (configType.Properties.TryGetValue(configName) is { } configItem)
+            {
+                return configItem.TypeReference.Type;
+            }
+
+            throw new UnreachableException($"Configuration name: '{configName}' does not exist as part of provider configuration.");
+        }
+
+        private DeclaredProviderExpression GetExtensionForLocalDeploy()
         {
             return new(
                 null,
@@ -1103,7 +1213,14 @@ namespace Bicep.Core.Emit
                 var importSymbol = Context.SemanticModel.Root.ProviderDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
                 if (importSymbol is not null)
                 {
-                    emitter.EmitProperty("import", importSymbol.Name);
+                    if (this.Context.SemanticModel.Features.LocalDeployEnabled)
+                    {
+                        emitter.EmitProperty("extension", importSymbol.Name);
+                    }
+                    else
+                    {
+                        emitter.EmitProperty("import", importSymbol.Name);
+                    }
                 }
 
                 if (metadata.IsAzResource)
@@ -1225,7 +1342,7 @@ namespace Bicep.Core.Emit
         {
             emitter.EmitObject(() =>
             {
-                emitter.EmitProperty("import", "az0synthesized");
+                emitter.EmitProperty("extension", "az0synthesized");
 
                 var body = module.Body;
                 if (body is ForLoopExpression forLoop)
@@ -1259,7 +1376,7 @@ namespace Bicep.Core.Emit
 
                 this.EmitDependsOn(emitter, module.DependsOn);
 
-                // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
+                // Since we don't want to be mutating the body of the original ObjectSyntax, we create a placeholder body in place
                 // and emit its properties to merge decorator properties.
                 foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
                 {
@@ -1308,7 +1425,7 @@ namespace Bicep.Core.Emit
                         // the deployment() object at resource group scope does not contain a property named 'location', so we have to use resourceGroup().location
                         emitter.EmitProperty("location", new PropertyAccessExpression(
                             null,
-                            new FunctionCallExpression(null, "resourceGroup", ImmutableArray<Expression>.Empty),
+                            new FunctionCallExpression(null, "resourceGroup", []),
                             "location",
                             AccessExpressionFlags.None));
                     }
@@ -1317,7 +1434,7 @@ namespace Bicep.Core.Emit
                         // at all other scopes we can just use deployment().location
                         emitter.EmitProperty("location", new PropertyAccessExpression(
                             null,
-                            new FunctionCallExpression(null, "deployment", ImmutableArray<Expression>.Empty),
+                            new FunctionCallExpression(null, "deployment", []),
                             "location",
                             AccessExpressionFlags.None));
                     }

@@ -3,7 +3,6 @@
 import { SubscriptionClient } from "@azure/arm-resources-subscriptions";
 import { SubscriptionTreeItemBase } from "@microsoft/vscode-azext-azureutils";
 import { AzExtTreeItem, IActionContext } from "@microsoft/vscode-azext-utils";
-
 import { createSubscriptionClient } from "../azure/azureClients";
 import { localize } from "../utils/localize";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
@@ -19,23 +18,15 @@ export class LocationTreeItem extends SubscriptionTreeItemBase {
   }
 
   // Loads locations
-  public async loadMoreChildrenImpl(
-    clearCache: boolean,
-    context: IActionContext,
-  ): Promise<AzExtTreeItem[]> {
+  public async loadMoreChildrenImpl(clearCache: boolean, context: IActionContext): Promise<AzExtTreeItem[]> {
     if (clearCache) {
       this._nextLink = undefined;
     }
-    const client: SubscriptionClient = await createSubscriptionClient([
-      context,
-      this,
-    ]);
+    const client: SubscriptionClient = await createSubscriptionClient([context, this]);
 
     const subscriptionId = this.subscription.subscriptionId;
     const locations = [];
-    for await (const location of client.subscriptions.listLocations(
-      subscriptionId,
-    )) {
+    for await (const location of client.subscriptions.listLocations(subscriptionId)) {
       locations.push(location);
     }
 

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [],
+  "outputs": {
+    "test": {
+      "type": "object",
+      "value": {
+        "val": 0.1
+      }
+    }
+  }
+}

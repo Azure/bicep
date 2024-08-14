@@ -59,6 +59,12 @@ namespace Bicep.Core.Registry
         Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references);
 
         /// <summary>
+        /// Called when time to restore artifacts, even if all artifacts are already restored.  Allows the registry provider
+        /// an opportunity to deal with registry tasks that are not specific to a specific artifact or version.
+        /// </summary>
+        Task OnRestoreArtifacts(bool forceRestore);
+
+        /// <summary>
         /// Invalidate the specified cached modules from the registry.
         /// Returns a mapping of module references to error builders for modules that failed to be invalidated.
         /// </summary>

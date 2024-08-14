@@ -21,7 +21,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
 
             editor.Caret.MoveToEndOfFile();
 
-            string[] expectedCompletionTexts = new string[] { "module", "output", "param", "resource", "targetScope", "var" };
+            string[] expectedCompletionTexts = ["module", "output", "param", "resource", "targetScope", "var"];
 
             CompletionsUtility.VerifyCompletions(editor, expectedCompletionTexts);
         }

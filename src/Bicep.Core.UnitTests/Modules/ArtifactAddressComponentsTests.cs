@@ -124,7 +124,7 @@ namespace Bicep.Core.UnitTests.Modules
         public static IEnumerable<object[]> GetValidCases()
         {
             static object[] CreateRow(string value, string expectedRegistry, string expectedRepository, string? expectedTag, string? expectedDigest) =>
-                new object[] { new ValidCase(value, expectedRegistry, expectedRepository, expectedTag, expectedDigest) };
+                [new ValidCase(value, expectedRegistry, expectedRepository, expectedTag, expectedDigest)];
 
             yield return CreateRow("a/b:C", "a", "b", "C", null);
             yield return CreateRow("localhost/hello:V1", "localhost", "hello", "V1", null);

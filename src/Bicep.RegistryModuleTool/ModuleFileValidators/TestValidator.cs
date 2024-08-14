@@ -40,7 +40,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
                 return NoTestError();
             }
 
-            return Enumerable.Empty<string>();
+            return [];
         }
 
         private static IEnumerable<string> NoTestError()

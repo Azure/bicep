@@ -32,7 +32,6 @@ type invalid12 = resource<resourceGroup()>
 type thisIsWeird = resource</*
 //@[019:093) [BCP394 (Error)] Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted. (CodeDescription: none) |resource</*\n*/'Astronomer.Astro/organizations@2023-08-01-preview'\n///  >\n>|
 */'Astronomer.Astro/organizations@2023-08-01-preview'
-//@[053:053) [BCP237 (Error)] Expected a comma character at this location. (CodeDescription: none) ||
 ///  >
 >
 

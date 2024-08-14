@@ -1,15 +1,16 @@
 using './main.bicep'
 //@[06:20) [BCP258 (Error)] The following parameters are declared in the Bicep file but are missing an assignment in the params file: "additionalMetadata", "decoratedString", "description", "description2", "emptyMetadata", "myBool", "myInt", "myString", "password", "secretObject", "someArray", "someParameter", "storageName", "storageSku", "stringLiteral". (CodeDescription: none) |'./main.bicep'|
+//@[06:20) [BCP104 (Error)] The referenced module has errors. (CodeDescription: none) |'./main.bicep'|
 
 param para1 = 'value
 //@[00:20) [BCP259 (Error)] The parameter "para1" is assigned in the params file without being declared in the Bicep file. (CodeDescription: none) |param para1 = 'value|
 //@[14:20) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |'value|
 
 para
-//@[00:04) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Specify a "using", "param" or "var" declaration. (CodeDescription: none) |para|
+//@[00:04) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Specify a "using", "extends", "param" or "var" declaration. (CodeDescription: none) |para|
 
 para2
-//@[00:05) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Specify a "using", "param" or "var" declaration. (CodeDescription: none) |para2|
+//@[00:05) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Specify a "using", "extends", "param" or "var" declaration. (CodeDescription: none) |para2|
 
 param expr = 1 + 2
 //@[00:18) [BCP259 (Error)] The parameter "expr" is assigned in the params file without being declared in the Bicep file. (CodeDescription: none) |param expr = 1 + 2|

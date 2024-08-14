@@ -90,5 +90,5 @@ public class DiscriminatedObjectTypeBuilder
     }
 
     public (ImmutableHashSet<ObjectType> Members, ImmutableHashSet<string> ViableDiscriminators) Build()
-        => new(members.ToImmutable(), discriminatorCandidates.Keys.ToImmutableHashSet());
+        => new(members.ToImmutable(), [.. discriminatorCandidates.Keys]);
 }

@@ -22,22 +22,15 @@ namespace Bicep.Cli.Commands
     {
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFileSystem fileSystem;
-        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IOContext ioContext;
-        private readonly ILogger logger;
-
         public PublishProviderCommand(
             IOContext ioContext,
-            ILogger logger,
             IModuleDispatcher moduleDispatcher,
-            IFileSystem fileSystem,
-            IFeatureProviderFactory featureProviderFactory)
+            IFileSystem fileSystem)
         {
             this.moduleDispatcher = moduleDispatcher;
             this.fileSystem = fileSystem;
-            this.featureProviderFactory = featureProviderFactory;
             this.ioContext = ioContext;
-            this.logger = logger;
         }
 
         public async Task<int> RunAsync(PublishProviderArguments args)
@@ -49,11 +42,11 @@ namespace Bicep.Cli.Commands
                     return null;
                 }
 
-                var data = BinaryData.FromStream(fileSystem.FileStream.New(PathHelper.ResolvePath(binaryPath), FileMode.Open, FileAccess.Read, FileShare.Read));
-                return new(architecture, data);
+                using var binaryStream = fileSystem.FileStream.New(PathHelper.ResolvePath(binaryPath), FileMode.Open, FileAccess.Read, FileShare.Read);
+                return new(architecture, BinaryData.FromStream(binaryStream));
             }
 
-            await ioContext.Error.WriteLineAsync("The 'publish-provider' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+            await ioContext.Error.WriteLineAsync($"WARNING: The '{args.CommandName}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
 
             var indexPath = PathHelper.ResolvePath(args.IndexFile);
             var indexUri = PathHelper.FilePathToFileUrl(indexPath);
@@ -68,7 +61,7 @@ namespace Bicep.Cli.Commands
             }
             catch (Exception exception)
             {
-                throw new BicepException($"Provider package creation failed: {exception.Message}");
+                throw new BicepException($"Extension package creation failed: {exception.Message}");
             }
 
             var binaries = SupportedArchitectures.All.Select(TryGetBinary).WhereNotNull().ToImmutableArray();
@@ -89,13 +82,13 @@ namespace Bicep.Cli.Commands
                 // If we don't want to overwrite, ensure provider doesn't exist
                 if (!overwriteIfExists && await this.moduleDispatcher.CheckProviderExists(target))
                 {
-                    throw new BicepException($"The Provider \"{target.FullyQualifiedReference}\" already exists. Use --force to overwrite the existing provider.");
+                    throw new BicepException($"The extension \"{target.FullyQualifiedReference}\" already exists. Use --force to overwrite the existing extension.");
                 }
                 await this.moduleDispatcher.PublishProvider(target, package);
             }
             catch (ExternalArtifactException exception)
             {
-                throw new BicepException($"Unable to publish provider \"{target.FullyQualifiedReference}\": {exception.Message}");
+                throw new BicepException($"Unable to publish extension \"{target.FullyQualifiedReference}\": {exception.Message}");
             }
         }
 
@@ -118,7 +111,7 @@ namespace Bicep.Cli.Commands
 
             if (!this.moduleDispatcher.GetRegistryCapabilities(ArtifactType.Provider, providerReference).HasFlag(RegistryCapabilities.Publish))
             {
-                throw new BicepException($"The specified provider target \"{targetProviderReference}\" is not supported.");
+                throw new BicepException($"The specified extension target \"{targetProviderReference}\" is not supported.");
             }
 
             return providerReference;

@@ -1,10 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import vscode, { ExtensionContext } from "vscode";
-import fse from "fs-extra";
-import path from "path";
 import crypto from "crypto";
+import path from "path";
+import { callWithTelemetryAndErrorHandlingSync, IActionContext } from "@microsoft/vscode-azext-utils";
+import fse from "fs-extra";
+import vscode, { ExtensionContext } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+import { IAzureUiManager } from "../../azure/types";
+import { GlobalStateKeys } from "../../globalState";
+import { getDeploymentDataRequestType, localDeployRequestType } from "../../language";
+import { Disposable } from "../../utils/disposable";
+import { getLogger } from "../../utils/logger";
+import { debounce } from "../../utils/time";
 import {
   createDeploymentDataMessage,
   createGetAccessTokenResultMessage,
@@ -14,20 +21,7 @@ import {
   createPickParamsFileResultMessage,
   ViewMessage,
 } from "./messages";
-import {
-  getDeploymentDataRequestType,
-  localDeployRequestType,
-} from "../../language";
-import { Disposable } from "../../utils/disposable";
-import { debounce } from "../../utils/time";
-import { getLogger } from "../../utils/logger";
-import {
-  callWithTelemetryAndErrorHandlingSync,
-  IActionContext,
-} from "@microsoft/vscode-azext-utils";
-import { GlobalStateKeys } from "../../globalState";
 import { DeployPaneState } from "./models";
-import { IAzureUiManager } from "../../azure/types";
 
 export class DeployPaneView extends Disposable {
   public static viewType = "bicep.deployPane";
@@ -54,24 +48,15 @@ export class DeployPaneView extends Disposable {
       new vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>(),
     );
 
-    this.register(
-      this.webviewPanel.webview.onDidReceiveMessage(
-        // eslint-disable-next-line jest/unbound-method
-        this.handleDidReceiveMessage,
-        this,
-      ),
-    );
+    this.register(this.webviewPanel.webview.onDidReceiveMessage(this.handleDidReceiveMessage, this));
 
     if (!this.isDisposed) {
       this.webviewPanel.webview.html = this.createWebviewHtml();
     }
 
     this.registerMultiple(
-      // eslint-disable-next-line jest/unbound-method
       this.webviewPanel.onDidDispose(this.dispose, this),
-      this.webviewPanel.onDidChangeViewState((e) =>
-        this.onDidChangeViewStateEmitter.fire(e),
-      ),
+      this.webviewPanel.onDidChangeViewState((e) => this.onDidChangeViewStateEmitter.fire(e)),
     );
   }
 
@@ -93,15 +78,10 @@ export class DeployPaneView extends Disposable {
     documentUri: vscode.Uri,
   ): DeployPaneView {
     const visualizerTitle = `Deploy ${path.basename(documentUri.fsPath)}`;
-    const webviewPanel = vscode.window.createWebviewPanel(
-      DeployPaneView.viewType,
-      visualizerTitle,
-      viewColumn,
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-      },
-    );
+    const webviewPanel = vscode.window.createWebviewPanel(DeployPaneView.viewType, visualizerTitle, viewColumn, {
+      enableScripts: true,
+      retainContextWhenHidden: true,
+    });
 
     return new DeployPaneView(
       extensionContext,
@@ -167,15 +147,9 @@ export class DeployPaneView extends Disposable {
       return;
     }
 
-    const deploymentData = await this.languageClient.sendRequest(
-      getDeploymentDataRequestType,
-      {
-        textDocument:
-          this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(
-            this.document,
-          ),
-      },
-    );
+    const deploymentData = await this.languageClient.sendRequest(getDeploymentDataRequestType, {
+      textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(this.document),
+    });
 
     if (this.isDisposed) {
       return;
@@ -201,36 +175,25 @@ export class DeployPaneView extends Disposable {
   private async handleDidReceiveMessage(message: ViewMessage) {
     switch (message.kind) {
       case "READY": {
-        getLogger().debug(
-          `Deployment Pane for ${this.documentUri.fsPath} is ready.`,
-        );
+        getLogger().debug(`Deployment Pane for ${this.documentUri.fsPath} is ready.`);
         this.readyToRender = true;
         this.render();
         return;
       }
       case "GET_STATE": {
         const deployPaneState: Record<string, DeployPaneState> =
-          this.extensionContext.globalState.get(
-            GlobalStateKeys.deployPaneStateKey,
-          ) || {};
+          this.extensionContext.globalState.get(GlobalStateKeys.deployPaneStateKey) || {};
         const filteredState = deployPaneState[this.documentUri.toString()];
 
-        await this.webviewPanel.webview.postMessage(
-          createGetStateResultMessage(filteredState),
-        );
+        await this.webviewPanel.webview.postMessage(createGetStateResultMessage(filteredState));
         return;
       }
       case "SAVE_STATE": {
         const deployPaneState: Record<string, DeployPaneState> =
-          this.extensionContext.globalState.get(
-            GlobalStateKeys.deployPaneStateKey,
-          ) || {};
+          this.extensionContext.globalState.get(GlobalStateKeys.deployPaneStateKey) || {};
         deployPaneState[this.documentUri.toString()] = message.state;
 
-        await this.extensionContext.globalState.update(
-          GlobalStateKeys.deployPaneStateKey,
-          deployPaneState,
-        );
+        await this.extensionContext.globalState.update(GlobalStateKeys.deployPaneStateKey, deployPaneState);
         return;
       }
       case "PICK_PARAMS_FILE": {
@@ -239,15 +202,9 @@ export class DeployPaneView extends Disposable {
           openLabel: "Select Parameters file",
           filters: { "Parameters files": ["json"] },
         });
-        const parameterFile = await fse.readFile(
-          parametersFileUri[0].fsPath,
-          "utf-8",
-        );
+        const parameterFile = await fse.readFile(parametersFileUri[0].fsPath, "utf-8");
         await this.webviewPanel.webview.postMessage(
-          createPickParamsFileResultMessage(
-            parametersFileUri[0].fsPath,
-            parameterFile,
-          ),
+          createPickParamsFileResultMessage(parametersFileUri[0].fsPath, parameterFile),
         );
         return;
       }
@@ -255,47 +212,30 @@ export class DeployPaneView extends Disposable {
         try {
           const accessToken = await this.azureMgr.getAccessToken(message.scope);
 
-          await this.webviewPanel.webview.postMessage(
-            createGetAccessTokenResultMessage(accessToken),
-          );
+          await this.webviewPanel.webview.postMessage(createGetAccessTokenResultMessage(accessToken));
         } catch (error) {
-          await this.webviewPanel.webview.postMessage(
-            createGetAccessTokenResultMessage(undefined, error),
-          );
+          await this.webviewPanel.webview.postMessage(createGetAccessTokenResultMessage(undefined, error));
         }
         return;
       }
       case "GET_DEPLOYMENT_SCOPE": {
         const scope = await this.azureMgr.pickScope(message.scopeType);
-        await this.webviewPanel.webview.postMessage(
-          createGetDeploymentScopeResultMessage(scope),
-        );
+        await this.webviewPanel.webview.postMessage(createGetDeploymentScopeResultMessage(scope));
         return;
       }
       case "PUBLISH_TELEMETRY": {
-        callWithTelemetryAndErrorHandlingSync(
-          message.eventName,
-          (telemetryActionContext) => {
-            telemetryActionContext.errorHandling.suppressDisplay = true;
-            telemetryActionContext.telemetry.properties = message.properties;
-          },
-        );
+        callWithTelemetryAndErrorHandlingSync(message.eventName, (telemetryActionContext) => {
+          telemetryActionContext.errorHandling.suppressDisplay = true;
+          telemetryActionContext.telemetry.properties = message.properties;
+        });
         return;
       }
       case "LOCAL_DEPLOY": {
-        const result = await this.languageClient.sendRequest(
-          localDeployRequestType,
-          {
-            textDocument:
-              this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(
-                this.document!,
-              ),
-          },
-        );
+        const result = await this.languageClient.sendRequest(localDeployRequestType, {
+          textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(this.document!),
+        });
 
-        await this.webviewPanel.webview.postMessage(
-          createLocalDeployResultMessage(result),
-        );
+        await this.webviewPanel.webview.postMessage(createLocalDeployResultMessage(result));
         return;
       }
     }
@@ -308,10 +248,6 @@ export class DeployPaneView extends Disposable {
       vscode.Uri.joinPath(this.extensionUri, "out", "deployPane.js"),
     );
 
-    const codiconCssUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "codicon.css"),
-    );
-
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -321,9 +257,8 @@ export class DeployPaneView extends Disposable {
         Use a content security policy to only allow loading images from our extension directory,
         and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://management.azure.com; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src ${cspSource};">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://management.azure.com; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src data: ${cspSource};">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" nonce="${nonce}" href="${codiconCssUri}">
       </head>
       <body>
         <div id="root"></div>

@@ -7,7 +7,7 @@ namespace Bicep.Core.TypeSystem
     public class TypeAssignment
     {
         public TypeAssignment(ITypeReference reference)
-            : this(reference, Enumerable.Empty<IDiagnostic>())
+            : this(reference, [])
         {
         }
 
