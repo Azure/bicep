@@ -79,7 +79,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetOutputValueCompletions(model, context))
                 .Concat(GetOutputTypeFollowerCompletions(context))
                 .Concat(GetTargetScopeCompletions(model, context))
-                .Concat(GetProviderImportCompletions(model, context))
+                .Concat(GetExtensionCompletions(model, context))
                 .Concat(GetCompileTimeImportCompletions(model, context))
                 .Concat(GetFunctionParamCompletions(model, context))
                 .Concat(GetExpressionCompletions(model, context))
@@ -1995,9 +1995,9 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private IEnumerable<CompletionItem> GetProviderImportCompletions(SemanticModel model, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetExtensionCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportSpecification))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionSpecification))
             {
                 var providerNames = model.Configuration.Extensions.Data.Keys
                     .Concat(SystemNamespaceType.BuiltInName)
@@ -2014,13 +2014,13 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportWithOrAsKeyword))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionWithOrAsKeyword))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.WithKeyword, "With keyword", context.ReplacementRange);
                 yield return CreateKeywordCompletion(LanguageConstants.AsKeyword, "As keyword", context.ReplacementRange);
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportConfig))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionConfig))
             {
                 if (context.EnclosingDeclaration is ProviderDeclarationSyntax importSyntax &&
                     model.GetSymbolInfo(importSyntax) is ProviderNamespaceSymbol providerSymbol &&
@@ -2033,7 +2033,7 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportAsKeyword))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionAsKeyword))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.AsKeyword, "As keyword", context.ReplacementRange);
             }
