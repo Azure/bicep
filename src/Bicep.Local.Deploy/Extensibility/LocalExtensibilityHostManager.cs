@@ -80,14 +80,14 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
             case "get":
                 {
                     var resourceReference = await GetResourceReferenceAsync(await content.ReadAsStreamAsync(cancellationToken), cancellationToken);
-                    var extensionResponse = await provider.Delete(resourceReference, cancellationToken);
+                    var extensionResponse = await provider.Get(resourceReference, cancellationToken);
 
                     return await GetHttpResponseMessageAsync(extensionResponse, cancellationToken);
                 }
             case "preview":
                 {
                     var resourceSpecification = await GetResourceSpecificationAsync(await content.ReadAsStreamAsync(cancellationToken), cancellationToken);
-                    var extensionResponse = await provider.CreateOrUpdate(resourceSpecification, cancellationToken);
+                    var extensionResponse = await provider.Preview(resourceSpecification, cancellationToken);
 
                     return await GetHttpResponseMessageAsync(extensionResponse, cancellationToken);
                 }
