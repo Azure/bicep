@@ -4999,5 +4999,64 @@ param test nestedType = {
 }|
 """);
         }
+
+        [TestMethod]
+        public async Task Unions_of_object_types_support_completions()
+        {
+            // https://github.com/azure/bicep/issues/14839
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+var items = [
+  { bar: 'abc' }
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.|]
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+
+            var updatedFile = file.ApplyCompletion(completions, "bar");
+            updatedFile.Should().HaveSourceText("""
+var items = [
+  { bar: 'abc' }
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.bar|]
+""");
+        }
+
+        [TestMethod]
+        public async Task Unions_of_object_types_support_completions_with_additional_properties()
+        {
+            // https://github.com/azure/bicep/issues/14839
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+param firstItem object
+
+var items = [
+  firstItem
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.|]
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+
+            // bar is still offered as a completion, even though there may be other properties supported
+            var updatedFile = file.ApplyCompletion(completions, "bar");
+            updatedFile.Should().HaveSourceText("""
+param firstItem object
+
+var items = [
+  firstItem
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.bar|]
+""");
+        }
     }
 }
