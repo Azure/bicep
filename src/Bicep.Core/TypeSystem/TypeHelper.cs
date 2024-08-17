@@ -13,6 +13,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
+using Json.Patch;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem
@@ -43,6 +44,91 @@ namespace Bicep.Core.TypeSystem
                 1 => normalizedMembers[0].Type,
                 _ => new UnionType(FormatName(normalizedMembers), normalizedMembers)
             };
+        }
+
+        private static TypeProperty GetCombinedTypeProperty(IEnumerable<ObjectType> objectTypes, string propertyName)
+        {
+            var flags = TypePropertyFlags.None;
+            var types = new List<TypeSymbol>();
+            
+            foreach (var objectType in objectTypes)
+            {
+                if (objectType.Properties.TryGetValue(propertyName) is {} namedProperty)
+                {
+                    flags |= namedProperty.Flags;
+                    types.Add(namedProperty.TypeReference.Type);
+                }
+                else if (objectType.AdditionalPropertiesType is {} additionalPropertyType)
+                {
+                    flags |= objectType.AdditionalPropertiesFlags;
+                    types.Add(additionalPropertyType.Type);
+                }
+                else
+                {
+                    flags |= TypePropertyFlags.None;
+                    types.Add(LanguageConstants.Null);
+                }
+            }
+
+            // descriptions are not combined here
+            return new TypeProperty(propertyName, CreateTypeUnion(types), flags);
+        }
+
+        private static (TypeSymbol type, TypePropertyFlags flags)? TryGetCombinedAdditionalProperties(IReadOnlyList<ObjectType> objectTypes)
+        {
+            if (!objectTypes.Any(x => x.AdditionalPropertiesType is {}))
+            {
+                return null;
+            }
+
+            var flags = TypePropertyFlags.None;
+            var types = new List<TypeSymbol>();
+            
+            foreach (var objectType in objectTypes)
+            {
+                if (objectType.AdditionalPropertiesType is {} additionalPropertyType)
+                {
+                    flags |= objectType.AdditionalPropertiesFlags;
+                    types.Add(additionalPropertyType.Type);
+                }
+                else
+                {
+                    flags |= TypePropertyFlags.None;
+                    types.Add(LanguageConstants.Null);
+                }
+            }
+
+            return (CreateTypeUnion(types), flags);
+        }
+
+        /// <summary>
+        /// Converts a set of object types into a single object type with unioned properties
+        /// e.g. { foo: 'abc', bar: 'def' } | { foo: 'ghi', baz: 'jkl' }
+        /// would become { foo: ('abc' | 'ghi'), bar: ('def' | null), baz: ('jkl' | null) }
+        /// </summary>
+        public static ObjectType CreateObjectTypeFromObjectUnion(IReadOnlyList<ObjectType> objectTypes)
+        {
+            var propertyNames = objectTypes
+                .SelectMany(obj => obj.Properties.Select(x => x.Key))
+                .Distinct(LanguageConstants.IdentifierComparer);
+
+            var newProperties = new List<TypeProperty>();
+            foreach (var propertyName in propertyNames)
+            {
+                var newPropertyType = GetCombinedTypeProperty(objectTypes, propertyName);
+                newProperties.Add(newPropertyType);
+            }
+
+            var additionalProperties = TryGetCombinedAdditionalProperties(objectTypes);
+            var validationFlags = objectTypes.Select(x => x.ValidationFlags).Aggregate((a, b) => a | b);
+
+            return new ObjectType(
+                // TODO: Add better naming?
+                LanguageConstants.Object.Name,
+                validationFlags,
+                newProperties,
+                additionalProperties?.type,
+                additionalProperties?.flags ?? TypePropertyFlags.None);
         }
 
         public static LambdaType CreateLambdaType(IEnumerable<ITypeReference> argumentTypes, IEnumerable<ITypeReference> optionalArgumentTypes, TypeSymbol returnType)
@@ -144,6 +230,19 @@ namespace Bicep.Core.TypeSystem
             }
 
             return new TupleType(nameBuilder.ToString(), [.. convertedItems], TypeSymbolValidationFlags.Default);
+        }
+
+        public static TypeSymbol GetNamedPropertyType(UnionType unionType, IPositionable propertyExpressionPositionable, string propertyName, bool shouldWarn, IDiagnosticWriter diagnostics)
+        {
+            if (unionType.Members.IsEmpty ||
+                unionType.Members.Any(x => x is not ObjectType))
+            {
+                // TODO improve later here if necessary - we should be able to block stuff that is obviously wrong
+                return LanguageConstants.Any;
+            }
+
+            var objectType = CreateObjectTypeFromObjectUnion(unionType.Members.OfType<ObjectType>().ToArray());
+            return GetNamedPropertyType(objectType, propertyExpressionPositionable, propertyName, shouldWarn, diagnostics);
         }
 
         /// <summary>

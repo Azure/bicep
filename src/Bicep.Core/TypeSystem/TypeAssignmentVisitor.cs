@@ -1781,40 +1781,6 @@ namespace Bicep.Core.TypeSystem
                 : baseType;
         }
 
-        private static TypeSymbol? TryGetReadablePropertyType(ObjectType objectType, string propertyName)
-        {
-            if (objectType.Properties.TryGetValue(propertyName) is { } property && !property.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-            {
-                return property.TypeReference.Type;
-            }
-
-            if (objectType.AdditionalPropertiesType is { } additionalPropertiesType && !objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.WriteOnly))
-            {
-                return additionalPropertiesType.Type;
-            }
-
-            return null;
-        }
-
-        private static TypeSymbol GetNamedPropertyType(UnionType unionType, string propertyName)
-        {
-            var members = new List<TypeSymbol>();
-            foreach (var member in unionType.Members)
-            {
-                if (member is not ObjectType objectType ||
-                    TryGetReadablePropertyType(objectType, propertyName) is not { } propertyType)
-                {
-                    // fall back to any if we can't definitively obtain the property type.
-                    // this may give some false positives - we can further refine this if desired.
-                    return LanguageConstants.Any;
-                }
-
-                members.Add(propertyType);
-            }
-
-            return TypeHelper.CreateTypeUnion(members);
-        }
-
         private static TypeSymbol GetNamedPropertyType(PropertyAccessSyntax syntax, TypeSymbol baseType, IDiagnosticWriter diagnostics) => UnwrapType(baseType) switch
         {
             ErrorType error => error,
@@ -1832,7 +1798,11 @@ namespace Bicep.Core.TypeSystem
                 syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
                 diagnostics),
 
-            UnionType unionType when syntax.PropertyName.IsValid => GetNamedPropertyType(unionType, syntax.PropertyName.IdentifierName),
+            UnionType unionType when syntax.PropertyName.IsValid => TypeHelper.GetNamedPropertyType(unionType,
+                syntax.PropertyName,
+                syntax.PropertyName.IdentifierName,
+                syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(unionType),
+                diagnostics),
 
             // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
             DiscriminatedObjectType => LanguageConstants.Any,

@@ -6067,7 +6067,7 @@ var test = [
   { }
 ][index]
 
-output val string = test.foo
+output val string? = test.foo
 """);
 
         result.Should().NotHaveAnyDiagnostics();
@@ -6090,7 +6090,7 @@ var s = sort(
     map(items, x => x.obj < 2 ? { order: 1, value: x } : x.obj > 4 ? { order: 2, value: x } : {}),
     x => !(empty(x))
   ),
-  (arg1, arg2) => arg1.order < arg2.order
+  (arg1, arg2) => (arg1.order ?? 0) < (arg2.order ?? 0)
 )
 """);
 
@@ -6195,5 +6195,41 @@ var fixed = union(
         {
              ("BCP237", DiagnosticLevel.Error, """Expected a comma character at this location."""),
         });
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/14839
+    public void Test_Issue14839()
+    {
+        var result = CompilationHelper.Compile(@"
+var items = [
+  { bar: 'abc' }
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.foo]
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP053", DiagnosticLevel.Error, """The type "object" does not contain property "foo". Available properties include "bar"."""),
+        ]);
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/14839
+    public void Test_Issue14839_2()
+    {
+        var result = CompilationHelper.Compile(@"
+param firstItem object
+
+var items = [
+  firstItem
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.foo]
+");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 }
