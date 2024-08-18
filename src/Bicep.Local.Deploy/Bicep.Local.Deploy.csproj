@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Bicep.Types" Version="0.5.81" />
     <PackageReference Include="Azure.Deployments.Engine" Version="1.95.0" />
     <PackageReference Include="Azure.Deployments.Extensibility.Core" Version="0.1.55" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
