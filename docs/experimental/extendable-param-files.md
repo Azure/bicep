@@ -13,7 +13,7 @@ When using extendable bicep parameter files, you will have a base `.bicepparam` 
 ```bicep
 param namePrefix string
 param location string
-param symbolicName
+param symbolicName string
 ```
 
 `base.bicepparam` This is your base bicepparam file, which can be reused by multiple shared.bicepparam files and in multiple deployments.
