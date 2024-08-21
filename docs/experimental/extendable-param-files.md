@@ -1,27 +1,28 @@
-# Using the Extendable Bicep Parameters Feature (Experimental!)
+# Using the Extendable Bicep Parameters Feature
 
 ## What is it?
 
-Extendable Bicep Parameter Files is a feature that allows you to extend `.bicepparam` files from another `.bicepparam` file in order to reuse parameters across multiple deployments.
+Extendable Bicep Parameter Files (enabled with the `extend` keyword) is a feature that allows you to reuse parameters from one `.bicepparam` file in another `.bicepparam` file. This enables better re-use across multiple deployments and helps to keep your code [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself).
 
 When using extendable bicep parameter files, you will have a main `.bicepparam` file that can be consumed by multiple extended `.bicepparam` files.
 
-## Using
+## Example Usage
 
 `main.bicep` This is your main bicep file, which will define your parameters for deployment.
 
 ```bicep
 param namePrefix string
 param location string
-param symbolicName string
+param tag string
 ```
 
 `root.bicepparam` This is your main bicepparam file, which can be reused by multiple extended .bicepparam files and in multiple deployments.
 
 ```bicep
 using none
+// Notice that the first line of this .bicepparam file declares `using none` which tells the compiler not to validate this against any particular .bicep file.
 
-param namePrefix = 'share'
+param namePrefix = 'Prod'
 param location = 'westus'
 ```
 
@@ -32,18 +33,21 @@ using 'main.bicep'
 
 extends 'root.bicepparam'
 
-param namePrefix = 'extend'
-param symbolicName = 'test'
+param namePrefix = 'Dev'
+param tag = 'test'
 ```
 
 Resolved Values
 | Param | Value |
 | -- | -- |
-| namePrefix | `'extend'` |
+| namePrefix | `'Dev'` |
 | location | `'westus'` |
-| symbolicName | `'test'` |
+| tag | `'test'` |
 
-**Note**: As `foo` is defined in both `root.bicepparam` and `leaf.bicepparam` files, any parameter values in the **`leaf.bicepparam`** file will override the values of the parameter in **both** the `main.bicep` and `root.bicepparam` files.
+**Note**: Any parameter values in the **`leaf.bicepparam`** file will override the values of the parameter in **both** the `main.bicep` and `root.bicepparam` files. So in this case, `namePrefix`is defined in both the `root.bicepparam` and `leaf.bicepparam` files, and is given the value `Dev` as defined in the `leaf.bicepparam` file, overriding the original value of `Prod`.
+
+### Nested Parameter Files
+We also support nested parameter files, so that `a.bicepparam` extends `b.bicepparam` extends `c.bicepparam`. In this case, you will use `using none` for file `a.bicepparam` and `b.bicepparam`.
 
 ## Limitations
 
@@ -54,7 +58,7 @@ We do not have support for:
   var namePrefix = 'share'
   ```
 * import function: you will not be able to import a parameter from another file
-* ```bicep
+  ```bicep
   import {bar} from 'main.bicep'
   ```
 * Multiple extends statements
