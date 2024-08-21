@@ -306,7 +306,7 @@ jobs:
           if-no-files-found: error
 
       - name: Run bicep in visual studio unit tests
-        uses: microsoft/vstest-action@v2.0.0
+        uses: microsoft/vstest-action@v1.0.0
         with:
           testAssembly: Bicep.VSLanguageServerClient.UnitTests.dll
           runInParallel: true
