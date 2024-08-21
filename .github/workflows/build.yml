@@ -306,8 +306,7 @@ jobs:
           if-no-files-found: error
 
       - name: Run bicep in visual studio unit tests
-        if: false # Temporarily disable: https://github.com/Azure/bicep/issues/14251
-        uses: microsoft/vstest-action@v1.0.0
+        uses: microsoft/vstest-action@v2.0.0
         with:
           testAssembly: Bicep.VSLanguageServerClient.UnitTests.dll
           runInParallel: true
