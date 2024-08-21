@@ -4,7 +4,7 @@
 
 Extendable Bicep Parameter Files is a feature that allows you to extend `.bicepparam` files from another `.bicepparam` file in order to reuse parameters across multiple deployments.
 
-When using extendable bicep parameter files, you will have a base `.bicepparam` file that can be consumed by multiple shared `.bicepparam` files.
+When using extendable bicep parameter files, you will have a main `.bicepparam` file that can be consumed by multiple extended `.bicepparam` files.
 
 ## Using
 
@@ -16,7 +16,7 @@ param location string
 param symbolicName string
 ```
 
-`base.bicepparam` This is your base bicepparam file, which can be reused by multiple shared.bicepparam files and in multiple deployments.
+`root.bicepparam` This is your main bicepparam file, which can be reused by multiple extended .bicepparam files and in multiple deployments.
 
 ```bicep
 using none
@@ -25,12 +25,12 @@ param namePrefix = 'share'
 param location = 'westus'
 ```
 
-`shared.bicepparam` This is your shared bicepparam file, which will refer to one main.bicep file and one base.bicepparam file. Any parameter value in this file will override all previous values.
+`leaf.bicepparam` This is your extended bicepparam file, which will refer to one main.bicep file and one main .bicepparam file. Any parameter value in this file will override all previous values.
 
 ```bicep
 using 'main.bicep'
 
-extends 'base.bicepparam'
+extends 'root.bicepparam'
 
 param namePrefix = 'extend'
 param symbolicName = 'test'
@@ -43,13 +43,13 @@ Resolved Values
 | location | `'westus'` |
 | symbolicName | `'test'` |
 
-**Note**: As `foo` is defined in both `base.bicepparam` and `shared.bicepparam` files, any parameter values in the **`shared.bicepparam`** file will override the values of the parameter in **both** the `main.bicep` and `base.bicepparam` files.
+**Note**: As `foo` is defined in both `root.bicepparam` and `leaf.bicepparam` files, any parameter values in the **`leaf.bicepparam`** file will override the values of the parameter in **both** the `main.bicep` and `root.bicepparam` files.
 
 ## Limitations
 
 We do not have support for:
 
-* variables: we will not have variable support in the `base.bicepparam` file to be able to read and override values in other files
+* variables: we will not have variable support in the `root.bicepparam` file to be able to read and override values in other files
   ```bicep
   var namePrefix = 'share'
   ```
@@ -61,9 +61,9 @@ We do not have support for:
   ```bicep
   using 'main.bicep'
 
-  extends 'base.bicepparam'
-  extends 'base2.biepparam'
-  extends 'base3.bicepparam'
+  extends 'root1.bicepparam'
+  extends 'root2.biepparam'
+  extends 'root3.bicepparam'
   ```
 * Ability to merge (union) parameters of type object and array
   ```bicep
