@@ -25,6 +25,91 @@ namespace Bicep.Core.Emit;
 
 public class ParameterAssignmentEvaluator
 {
+    private class ParameterAssignmentEvaluationContext : IEvaluationContext
+    {
+        private readonly TemplateExpressionEvaluationHelper evaluationHelper;
+        private readonly ParameterAssignmentEvaluator evaluator;
+
+        public ParameterAssignmentEvaluationContext(TemplateExpressionEvaluationHelper evaluationHelper, ParameterAssignmentEvaluator evaluator)
+            : this(evaluationHelper, evaluator, evaluationHelper.EvaluationContext.Scope)
+        {
+        }
+
+        private ParameterAssignmentEvaluationContext(TemplateExpressionEvaluationHelper evaluationHelper, ParameterAssignmentEvaluator evaluator, ExpressionScope scope)
+        {
+            this.evaluationHelper = evaluationHelper;
+            this.evaluator = evaluator;
+            this.Scope = scope;
+        }
+
+        public bool IsShortCircuitAllowed => evaluationHelper.EvaluationContext.IsShortCircuitAllowed;
+
+        public ExpressionScope Scope { get; }
+
+        public bool AllowInvalidProperty(Exception exception, FunctionExpression functionExpression, FunctionArgument[] functionParametersValues, JToken[] selectedProperties) =>
+            evaluationHelper.EvaluationContext.AllowInvalidProperty(exception, functionExpression, functionParametersValues, selectedProperties);
+
+        public JToken EvaluateFunction(FunctionExpression functionExpression, FunctionArgument[] parameters, IEvaluationContext context, TemplateErrorAdditionalInfo? additionalnfo)
+        {
+            // IsTemplateFunction checks if the function is a user defined function.
+            if (TemplateFunction.IsTemplateFunction(functionExpression.Function))
+            {
+                return this.EvaluateUserDefinedFunction(functionExpression, parameters, additionalnfo);
+            }
+
+            return evaluationHelper.EvaluationContext.EvaluateFunction(functionExpression, parameters, this, additionalnfo);
+        }
+
+        public bool ShouldIgnoreExceptionDuringEvaluation(Exception exception) =>
+            this.evaluationHelper.EvaluationContext.ShouldIgnoreExceptionDuringEvaluation(exception);
+
+        public IEvaluationContext WithNewScope(ExpressionScope scope) => new ParameterAssignmentEvaluationContext(this.evaluationHelper, this.evaluator, scope);
+
+        private JToken EvaluateUserDefinedFunction(FunctionExpression expression, FunctionArgument[] parameters, TemplateErrorAdditionalInfo? additionalProperties)
+        {
+            JToken evaluateFunction(Template template, string originalFunctionName)
+            {
+                var functionsLookup = template.GetFunctionDefinitions().ToOrdinalInsensitiveDictionary(x => x.Key, x => x.Function);
+
+                var rewrittenExpression = new FunctionExpression(
+                    $"{EmitConstants.UserDefinedFunctionsNamespace}.{originalFunctionName}",
+                    expression.Parameters,
+                    expression.Properties);
+
+                // we must explicitly ensure the evaluation takes place in the context of the referenced template,
+                // so that accessing scoped functions works as expected
+                var helper = new TemplateExpressionEvaluationHelper
+                {
+                    OnGetFunction = (name, _) => functionsLookup[name],
+                    ValidationContext = SchemaValidationContext.ForTemplate(template),
+                };
+
+                return helper.EvaluationContext.EvaluateFunction(rewrittenExpression, parameters, this, additionalProperties);
+            }
+
+            if (expression.Function.StartsWith($"{EmitConstants.UserDefinedFunctionsNamespace}.") &&
+                expression.Function[$"{EmitConstants.UserDefinedFunctionsNamespace}.".Length..] is { } functionName &&
+                this.evaluator.importsByName.TryGetValue(functionName, out var imported) &&
+                imported.OriginalSymbolName is { } originalSymbolName)
+            {
+                var template = this.evaluator.GetTemplateWithCaching(imported.SourceModel).Unwrap();
+                var evaluator = this.evaluator.armEvaluators.GetOrAdd(template, importedFrom => new(importedFrom));
+
+
+                return evaluateFunction(template, originalSymbolName);
+            }
+
+            if (this.evaluator.wildcardImportPropertiesByName.TryGetValue(expression.Function, out var wildcardImportProperty))
+            {
+                var template = this.evaluator.GetTemplateWithCaching(wildcardImportProperty.WildcardImport.SourceModel).Unwrap();
+
+                return evaluateFunction(template, wildcardImportProperty.PropertyName);
+            }
+
+            throw new InvalidOperationException($"Function {expression.Function} not found");
+        }
+    }
+
     public class Result
     {
         private Result(JToken? value, ParameterKeyVaultReferenceExpression? keyVaultReference, IDiagnostic? diagnostic)
@@ -253,98 +338,46 @@ public class ParameterAssignmentEvaluator
         }
 
         return null;
+
     }
 
-    private ExpressionEvaluationContext GetExpressionEvaluationContext()
+    private ParameterAssignmentEvaluationContext GetExpressionEvaluationContext()
     {
-        var helper = new TemplateExpressionEvaluationHelper();
-        helper.OnGetVariable = (name, _) =>
+        var helper = new TemplateExpressionEvaluationHelper
         {
-            if (variablesByName.TryGetValue(name, out var variable))
+            OnGetVariable = (name, _) =>
             {
-                return EvaluateVariable(variable).Value ?? throw new InvalidOperationException($"Variable {name} has an invalid value");
-            }
+                if (variablesByName.TryGetValue(name, out var variable))
+                {
+                    return EvaluateVariable(variable).Value ?? throw new InvalidOperationException($"Variable {name} has an invalid value");
+                }
 
-            if (importsByName.TryGetValue(name, out var imported) && imported is ImportedVariableSymbol importedVariable)
+                if (importsByName.TryGetValue(name, out var imported) && imported is ImportedVariableSymbol importedVariable)
+                {
+                    return EvaluateImport(importedVariable).Value ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
+                }
+
+                if (wildcardImportPropertiesByName.TryGetValue(name, out var wildcardImportProperty))
+                {
+                    return EvaluateWildcardImportPropertyAsVariable(wildcardImportProperty).Value
+                        ?? throw new InvalidOperationException($"Imported variable {wildcardImportProperty.WildcardImport.Name}.{wildcardImportProperty.PropertyName} has an invalid value");
+                }
+
+                if (synthesizedVariableValuesByName.TryGetValue(name, out var value))
+                {
+                    return EvaluateSynthesizeVariableExpression(name, value).Value
+                        ?? throw new InvalidOperationException($"Synthesized variable {name} has an invalid value");
+                }
+
+                throw new InvalidOperationException($"Variable {name} not found");
+            },
+            OnGetParameter = (name, _) =>
             {
-                return EvaluateImport(importedVariable).Value ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
+                return EvaluateParameter(paramsByName[name]).Value ?? throw new InvalidOperationException($"Parameter {name} has an invalid value");
             }
-
-            if (wildcardImportPropertiesByName.TryGetValue(name, out var wildcardImportProperty))
-            {
-                return EvaluateWildcardImportPropertyAsVariable(wildcardImportProperty).Value
-                    ?? throw new InvalidOperationException($"Imported variable {wildcardImportProperty.WildcardImport.Name}.{wildcardImportProperty.PropertyName} has an invalid value");
-            }
-
-            if (synthesizedVariableValuesByName.TryGetValue(name, out var value))
-            {
-                return EvaluateSynthesizeVariableExpression(name, value).Value
-                    ?? throw new InvalidOperationException($"Synthesized variable {name} has an invalid value");
-            }
-
-            throw new InvalidOperationException($"Variable {name} not found");
-        };
-        helper.OnGetParameter = (name, _) =>
-        {
-            return EvaluateParameter(paramsByName[name]).Value ?? throw new InvalidOperationException($"Parameter {name} has an invalid value");
-        };
-
-        var defaultEvaluateFunction = helper.EvaluationContext.EvaluateFunction;
-        helper.EvaluationContext.EvaluateFunction = (expression, parameters, additionalProperties) =>
-        {
-            if (TemplateFunction.IsTemplateFunction(expression.Function))
-            {
-                return EvaluateTemplateFunction(expression, parameters, additionalProperties);
-            }
-
-            return defaultEvaluateFunction(expression, parameters, additionalProperties);
         };
 
-        return helper.EvaluationContext;
-    }
-
-    private JToken EvaluateTemplateFunction(FunctionExpression expression, FunctionArgument[] parameters, TemplateErrorAdditionalInfo? additionalProperties)
-    {
-        JToken evaluateFunction(Template template, string originalFunctionName)
-        {
-            var functionsLookup = template.GetFunctionDefinitions().ToOrdinalInsensitiveDictionary(x => x.Key, x => x.Function);
-
-            var rewrittenExpression = new FunctionExpression(
-                $"{EmitConstants.UserDefinedFunctionsNamespace}.{originalFunctionName}",
-                expression.Parameters,
-                expression.Properties);
-
-            // we must explicitly ensure the evaluation takes place in the context of the referenced template,
-            // so that accessing scoped functions works as expected
-            var helper = new TemplateExpressionEvaluationHelper
-            {
-                OnGetFunction = (name, _) => functionsLookup[name],
-                ValidationContext = SchemaValidationContext.ForTemplate(template),
-            };
-
-            return helper.EvaluationContext.EvaluateFunction(rewrittenExpression, parameters, additionalProperties);
-        }
-
-        if (expression.Function.StartsWith($"{EmitConstants.UserDefinedFunctionsNamespace}.") &&
-            expression.Function.Substring($"{EmitConstants.UserDefinedFunctionsNamespace}.".Length) is { } functionName &&
-            importsByName.TryGetValue(functionName, out var imported) &&
-            imported.OriginalSymbolName is { } originalSymbolName)
-        {
-            var template = GetTemplateWithCaching(imported.SourceModel).Unwrap();
-            var evaluator = armEvaluators.GetOrAdd(template, importedFrom => new(importedFrom));
-
-
-            return evaluateFunction(template, originalSymbolName);
-        }
-
-        if (wildcardImportPropertiesByName.TryGetValue(expression.Function, out var wildcardImportProperty))
-        {
-            var template = GetTemplateWithCaching(wildcardImportProperty.WildcardImport.SourceModel).Unwrap();
-
-            return evaluateFunction(template, wildcardImportProperty.PropertyName);
-        }
-
-        throw new InvalidOperationException($"Function {expression.Function} not found");
+        return new(helper, this);
     }
 
     private static ResultWithDiagnostic<Template> GetTemplate(SemanticModel model)

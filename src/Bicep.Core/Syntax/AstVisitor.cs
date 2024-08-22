@@ -324,7 +324,7 @@ namespace Bicep.Core.Syntax
             this.VisitNodes(syntax.LeadingNodes);
         }
 
-        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
+        public override void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.SpecificationString);
@@ -332,7 +332,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.AsClause);
         }
 
-        public override void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax)
+        public override void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax)
         {
             this.Visit(syntax.Config);
         }

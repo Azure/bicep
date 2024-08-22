@@ -53,7 +53,7 @@ type tautologicalUnion = tautologicalUnion|'foo'
 //@[5:22) TypeAlias tautologicalUnion. Type: error. Declaration start char: 0, length: 48
 
 type tautologicalArray = tautologicalArray[]
-//@[5:22) TypeAlias tautologicalArray. Type: Type<tautologicalArray[]>. Declaration start char: 0, length: 44
+//@[5:22) TypeAlias tautologicalArray. Type: error. Declaration start char: 0, length: 44
 
 type directCycleStart = directCycleReturn
 //@[5:21) TypeAlias directCycleStart. Type: error. Declaration start char: 0, length: 41
@@ -83,7 +83,7 @@ type objectWithInvalidPropertyDecorators = {
 }
 
 type objectWithInvalidRecursion = {
-//@[5:31) TypeAlias objectWithInvalidRecursion. Type: Type<{ requiredAndRecursiveProp: objectWithInvalidRecursion }>. Declaration start char: 0, length: 92
+//@[5:31) TypeAlias objectWithInvalidRecursion. Type: error. Declaration start char: 0, length: 92
   requiredAndRecursiveProp: objectWithInvalidRecursion
 }
 
@@ -98,7 +98,7 @@ param disallowedUnionParam 'foo'|-99
 //@[6:26) Parameter disallowedUnionParam. Type: 'foo' | -99. Declaration start char: 0, length: 36
 
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
-//@[6:37) Parameter objectWithInvalidRecursionParam. Type: { requiredAndRecursiveProp: objectWithInvalidRecursion }. Declaration start char: 0, length: 64
+//@[6:37) Parameter objectWithInvalidRecursionParam. Type: error. Declaration start char: 0, length: 64
 
 type typeA = {
 //@[5:10) TypeAlias typeA. Type: Type<{ type: 'a', value: string }>. Declaration start char: 0, length: 44
@@ -222,19 +222,19 @@ type discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA
 
 @discriminator('type')
 type discriminatorInnerSelfCycle1 = typeA | {
-//@[5:33) TypeAlias discriminatorInnerSelfCycle1. Type: Type<{ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfCycle1 }>. Declaration start char: 0, length: 120
+//@[5:33) TypeAlias discriminatorInnerSelfCycle1. Type: error. Declaration start char: 0, length: 120
   type: 'b'
   value: discriminatorInnerSelfCycle1
 }
 
 type discriminatorInnerSelfCycle2Helper = {
-//@[5:39) TypeAlias discriminatorInnerSelfCycle2Helper. Type: Type<{ type: 'b', value: discriminatorInnerSelfCycle2 }>. Declaration start char: 0, length: 95
+//@[5:39) TypeAlias discriminatorInnerSelfCycle2Helper. Type: error. Declaration start char: 0, length: 95
   type: 'b'
   value: discriminatorInnerSelfCycle2
 }
 @discriminator('type')
 type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
-//@[5:33) TypeAlias discriminatorInnerSelfCycle2. Type: Type<{ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfCycle2 }>. Declaration start char: 0, length: 101
+//@[5:33) TypeAlias discriminatorInnerSelfCycle2. Type: error. Declaration start char: 0, length: 101
 
 @discriminator('type')
 type discriminatorTupleBadType1 = [typeA, typeB]

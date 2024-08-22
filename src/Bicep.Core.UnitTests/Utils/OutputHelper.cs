@@ -156,7 +156,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static string NormalizeOutputPath(string outputDirectory, string message)
         {
             message = message.Replace($"{outputDirectory}{Path.DirectorySeparatorChar}", "${TEST_OUTPUT_DIR}/");
-            // Normalize file path seperators across OS
+            // Normalize file path separators across OS
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 message = Regex.Replace(message, @"(""|')\${TEST_OUTPUT_DIR}.*?(""|')", new MatchEvaluator((match) => match.Value.Replace('\\', '/')));

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 /**
- * Tests for "bicep publish-provider".
+ * Tests for "bicep publish-extension".
  *
  * @group CI
  */
@@ -17,19 +17,19 @@ import {
   writeTempFile,
 } from "./utils/fs";
 
-describe("bicep publish-provider", () => {
-  it("should publish provider to the file system", () => {
+describe("bicep publish-extension", () => {
+  it("should publish extension to the file system", () => {
     const indexJsonPath = pathToExampleFile(
-      "providers.prod",
+      "extensions.prod",
       "types",
       "http",
       "index.json",
     );
-    const targetPath = pathToTempFile("publish-provider", "provider.tgz");
+    const targetPath = pathToTempFile("publish-extension", "extension.tgz");
     ensureParentDirExists(targetPath);
 
     invokingBicepCommand(
-      "publish-provider",
+      "publish-extension",
       "--target",
       targetPath,
       indexJsonPath,
@@ -40,18 +40,18 @@ describe("bicep publish-provider", () => {
     expectFileExists(targetPath);
 
     const bicepContents = readFileSync(
-      pathToExampleFile("providers.prod", "main.bicep"),
-    ).replace("$TARGET_REFERENCE", "./provider.tgz");
+      pathToExampleFile("extensions.prod", "main.bicep"),
+    ).replace("$TARGET_REFERENCE", "./extension.tgz");
     const bicepPath = writeTempFile(
-      "publish-provider",
+      "publish-extension",
       "main.bicep",
       bicepContents,
     );
 
     const configContents = readFileSync(
-      pathToExampleFile("providers.prod", "bicepconfig.json"),
+      pathToExampleFile("extensions.prod", "bicepconfig.json"),
     );
-    writeTempFile("publish-provider", "bicepconfig.json", configContents);
+    writeTempFile("publish-extension", "bicepconfig.json", configContents);
 
     // Building with --stdout should emit a valid result.
     invokingBicepCommand("build", "--stdout", bicepPath)

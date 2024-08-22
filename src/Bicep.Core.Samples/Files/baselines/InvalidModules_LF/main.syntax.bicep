@@ -1,5 +1,5 @@
 module nonExistentFileRef './nonExistent.bicep' = {
-//@[000:13814) ProgramSyntax
+//@[000:13818) ProgramSyntax
 //@[000:00054) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00025) | ├─IdentifierSyntax
@@ -1078,25 +1078,25 @@ module moduleWithInvalidScope2 './empty.bicep' = {
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00003) ├─Token(NewLine) |\n\n|
 
-module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
-//@[000:00122) ├─ModuleDeclarationSyntax
+module moduleWithUnsupportedScope1 './mg_empty.bicep' = {
+//@[000:00124) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
-//@[007:00033) | ├─IdentifierSyntax
-//@[007:00033) | | └─Token(Identifier) |moduleWithUnsupprtedScope1|
-//@[034:00052) | ├─StringSyntax
-//@[034:00052) | | └─Token(StringComplete) |'./mg_empty.bicep'|
-//@[053:00054) | ├─Token(Assignment) |=|
-//@[055:00122) | └─ObjectSyntax
-//@[055:00056) |   ├─Token(LeftBrace) |{|
-//@[056:00057) |   ├─Token(NewLine) |\n|
-  name: 'moduleWithUnsupprtedScope1'
-//@[002:00036) |   ├─ObjectPropertySyntax
+//@[007:00034) | ├─IdentifierSyntax
+//@[007:00034) | | └─Token(Identifier) |moduleWithUnsupportedScope1|
+//@[035:00053) | ├─StringSyntax
+//@[035:00053) | | └─Token(StringComplete) |'./mg_empty.bicep'|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00124) | └─ObjectSyntax
+//@[056:00057) |   ├─Token(LeftBrace) |{|
+//@[057:00058) |   ├─Token(NewLine) |\n|
+  name: 'moduleWithUnsupportedScope1'
+//@[002:00037) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00036) |   | └─StringSyntax
-//@[008:00036) |   |   └─Token(StringComplete) |'moduleWithUnsupprtedScope1'|
-//@[036:00037) |   ├─Token(NewLine) |\n|
+//@[008:00037) |   | └─StringSyntax
+//@[008:00037) |   |   └─Token(StringComplete) |'moduleWithUnsupportedScope1'|
+//@[037:00038) |   ├─Token(NewLine) |\n|
   scope: managementGroup()
 //@[002:00026) |   ├─ObjectPropertySyntax
 //@[002:00007) |   | ├─IdentifierSyntax
@@ -1112,25 +1112,25 @@ module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00003) ├─Token(NewLine) |\n\n|
 
-module moduleWithUnsupprtedScope2 './mg_empty.bicep' = {
-//@[000:00126) ├─ModuleDeclarationSyntax
+module moduleWithUnsupportedScope2 './mg_empty.bicep' = {
+//@[000:00128) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
-//@[007:00033) | ├─IdentifierSyntax
-//@[007:00033) | | └─Token(Identifier) |moduleWithUnsupprtedScope2|
-//@[034:00052) | ├─StringSyntax
-//@[034:00052) | | └─Token(StringComplete) |'./mg_empty.bicep'|
-//@[053:00054) | ├─Token(Assignment) |=|
-//@[055:00126) | └─ObjectSyntax
-//@[055:00056) |   ├─Token(LeftBrace) |{|
-//@[056:00057) |   ├─Token(NewLine) |\n|
-  name: 'moduleWithUnsupprtedScope2'
-//@[002:00036) |   ├─ObjectPropertySyntax
+//@[007:00034) | ├─IdentifierSyntax
+//@[007:00034) | | └─Token(Identifier) |moduleWithUnsupportedScope2|
+//@[035:00053) | ├─StringSyntax
+//@[035:00053) | | └─Token(StringComplete) |'./mg_empty.bicep'|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00128) | └─ObjectSyntax
+//@[056:00057) |   ├─Token(LeftBrace) |{|
+//@[057:00058) |   ├─Token(NewLine) |\n|
+  name: 'moduleWithUnsupportedScope2'
+//@[002:00037) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00036) |   | └─StringSyntax
-//@[008:00036) |   |   └─Token(StringComplete) |'moduleWithUnsupprtedScope2'|
-//@[036:00037) |   ├─Token(NewLine) |\n|
+//@[008:00037) |   | └─StringSyntax
+//@[008:00037) |   |   └─Token(StringComplete) |'moduleWithUnsupportedScope2'|
+//@[037:00038) |   ├─Token(NewLine) |\n|
   scope: managementGroup('MG')
 //@[002:00030) |   ├─ObjectPropertySyntax
 //@[002:00007) |   | ├─IdentifierSyntax

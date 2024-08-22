@@ -159,7 +159,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [TestMethod]
-        public void SplitReturnsNonEmtpyArrayOfStrings()
+        public void SplitReturnsNonEmptyArrayOfStrings()
         {
             var returnType = EvaluateFunction("split",
                 new List<TypeSymbol> { LanguageConstants.String, LanguageConstants.String },

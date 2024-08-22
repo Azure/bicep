@@ -21,26 +21,26 @@ namespace Bicep.LanguageServer.Completions
     {
         public record IndexedSyntaxContext<T>(T Syntax, int ArgumentIndex) where T : SyntaxBase?;
 
-        private static readonly CompositeSyntaxPattern ExpectingImportSpecification = CompositeSyntaxPattern.Create(
+        private static readonly CompositeSyntaxPattern ExpectingExtensionSpecification = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "provider |",
-            "provider |kuber",
-            "provider kuber|");
+            "extension |",
+            "extension |kuber",
+            "extension kuber|");
 
-        private static readonly CompositeSyntaxPattern ExpectingImportWithOrAsKeyword = CompositeSyntaxPattern.Create(
+        private static readonly CompositeSyntaxPattern ExpectingExtensionWithOrAsKeyword = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "provider kubernetes |",
-            "provider kubernetes a|",
-            "provider kubernetes |b");
+            "extension kubernetes |",
+            "extension kubernetes a|",
+            "extension kubernetes |b");
 
-        private static readonly CompositeSyntaxPattern ExpectingImportConfig = CompositeSyntaxPattern.Create(
+        private static readonly CompositeSyntaxPattern ExpectingExtensionConfig = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "provider kubernetes with |",
-            "provider kubernetes with | as foo");
+            "extension kubernetes with |",
+            "extension kubernetes with | as foo");
 
-        private static readonly SyntaxPattern ExpectingImportAsKeyword = SyntaxPattern.Create(
+        private static readonly SyntaxPattern ExpectingExtensionAsKeyword = SyntaxPattern.Create(
             cursor: '|',
-            "provider kubernetes with { foo: true } |");
+            "extension kubernetes with { foo: true } |");
 
         // completions will replace only these token types
         // all others will result in an insertion upon completion commit
@@ -222,7 +222,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsTypeMemberAccessContext(matchingNodes, typePropertyAccessInfo, offset), BicepCompletionContextKind.TypeMemberAccess) |
                        ConvertFlag(IsImportIdentifierContext(matchingNodes, offset), BicepCompletionContextKind.ImportIdentifier) |
                        ConvertFlag(IsImportedSymbolListItemContext(matchingNodes, offset), BicepCompletionContextKind.ImportedSymbolIdentifier) |
-                       ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportAsKeyword) |
+                       ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingExtensionAsKeyword) |
                        ConvertFlag(ExpectingContextualFromKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportFromKeyword) |
                        ConvertFlag(IsAfterSpreadTokenContext(matchingNodes, offset), BicepCompletionContextKind.Expression);
 
@@ -230,10 +230,10 @@ namespace Bicep.LanguageServer.Completions
             {
                 var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
 
-                kind |= ConvertFlag(ExpectingImportSpecification.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportSpecification) |
-                    ConvertFlag(ExpectingImportWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportWithOrAsKeyword) |
-                    ConvertFlag(ExpectingImportConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportConfig) |
-                    ConvertFlag(ExpectingImportAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportAsKeyword);
+                kind |= ConvertFlag(ExpectingExtensionSpecification.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionSpecification) |
+                    ConvertFlag(ExpectingExtensionWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionWithOrAsKeyword) |
+                    ConvertFlag(ExpectingExtensionConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionConfig) |
+                    ConvertFlag(ExpectingExtensionAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionAsKeyword);
             }
 
             if (featureProvider.AssertsEnabled)

@@ -10,7 +10,7 @@ using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.Core.UnitTests.Utils;
 
-public static class ProviderTestHelper
+public static class ExtensionTestHelper
 {
     public static ServiceBuilder GetServiceBuilder(
         IFileSystem fileSystem,
@@ -26,17 +26,17 @@ public static class ProviderTestHelper
             .WithContainerRegistryClientFactory(clientFactory);
     }
 
-    public static Task<ServiceBuilder> GetServiceBuilderWithPublishedProvider(BinaryData tgzData, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
-        => GetServiceBuilderWithPublishedProvider(tgzData, "example.azurecr.io/providers/foo:1.2.3", features, fileSystem);
+    public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(BinaryData tgzData, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
+        => GetServiceBuilderWithPublishedExtension(tgzData, "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
 
-    public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedProvider(BinaryData tgzData, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
+    public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(BinaryData tgzData, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
     {
         var reference = OciArtifactReference.TryParseModule(target).Unwrap();
 
         fileSystem ??= new MockFileSystem();
         var services = GetServiceBuilder(fileSystem, reference.Registry, reference.Repository, features);
 
-        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), reference.FullyQualifiedReference, tgzData);
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), reference.FullyQualifiedReference, tgzData);
 
         return services;
     }

@@ -22,6 +22,11 @@ namespace Bicep.LanguageServer.Handlers
 
             if (request.TextDocument.Uri.Scheme == LangServerConstants.ExternalSourceFileScheme)
             {
+                if (request.TextDocument.Uri.Query.StartsWith("ts:", StringComparison.Ordinal))
+                {
+                    yield break;
+                }
+
                 string? message = null;
                 ExternalSourceReference? externalReference = null;
 

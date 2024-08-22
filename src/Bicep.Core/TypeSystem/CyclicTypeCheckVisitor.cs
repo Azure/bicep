@@ -11,38 +11,38 @@ namespace Bicep.Core.TypeSystem;
 
 public sealed class CyclicTypeCheckVisitor : AstVisitor
 {
-    private readonly SemanticModel model;
-    private readonly TypeAliasSymbol currentSymbol;
+    private readonly IBinder binder;
+    private readonly Func<SyntaxBase, TypeSymbol?> getDeclaredType;
     private readonly List<SyntaxBase> declarationAccesses;
     private bool enteredTypeContainer = false;
 
-    public static ImmutableDictionary<TypeAliasSymbol, ImmutableArray<TypeAliasSymbol>> FindCycles(SemanticModel model)
+    public static ImmutableDictionary<TypeAliasSymbol, ImmutableArray<TypeAliasSymbol>> FindCycles(IBinder binder, Func<SyntaxBase, TypeSymbol?> getDeclaredType)
     {
         Dictionary<TypeAliasSymbol, IEnumerable<SyntaxBase>> declarationAccessDict = new();
-        foreach (var typeAliasSymbol in model.Binder.FileSymbol.TypeDeclarations)
+        foreach (var typeAliasSymbol in binder.FileSymbol.TypeDeclarations)
         {
-            var visitor = new CyclicTypeCheckVisitor(model, typeAliasSymbol);
+            var visitor = new CyclicTypeCheckVisitor(binder, getDeclaredType);
             visitor.VisitTypeDeclarationSyntax(typeAliasSymbol.DeclaringType);
             declarationAccessDict[typeAliasSymbol] = visitor.DeclarationAccesses;
         }
 
-        return FindCycles(model, declarationAccessDict);
+        return FindCycles(binder, declarationAccessDict);
     }
 
     private static ImmutableDictionary<TypeAliasSymbol, ImmutableArray<TypeAliasSymbol>>
-    FindCycles(SemanticModel model, IDictionary<TypeAliasSymbol, IEnumerable<SyntaxBase>> declarationAccessDict)
+    FindCycles(IBinder binder, IDictionary<TypeAliasSymbol, IEnumerable<SyntaxBase>> declarationAccessDict)
     {
         var symbolGraph = declarationAccessDict
-            .SelectMany(kvp => kvp.Value.Select(model.Binder.GetSymbolInfo).OfType<TypeAliasSymbol>().Select(x => (kvp.Key, x)))
+            .SelectMany(kvp => kvp.Value.Select(binder.GetSymbolInfo).OfType<TypeAliasSymbol>().Select(x => (kvp.Key, x)))
             .ToLookup(x => x.Item1, x => x.Item2);
 
         return CycleDetector<TypeAliasSymbol>.FindCycles(symbolGraph);
     }
 
-    private CyclicTypeCheckVisitor(SemanticModel model, TypeAliasSymbol currentSymbol)
+    private CyclicTypeCheckVisitor(IBinder binder, Func<SyntaxBase, TypeSymbol?> getDeclaredType)
     {
-        this.model = model;
-        this.currentSymbol = currentSymbol;
+        this.binder = binder;
+        this.getDeclaredType = getDeclaredType;
         declarationAccesses = new();
     }
 
@@ -98,7 +98,7 @@ public sealed class CyclicTypeCheckVisitor : AstVisitor
 
     public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax)
     {
-        if (model.GetDeclaredType(syntax) is DiscriminatedObjectType)
+        if (getDeclaredType(syntax) is DiscriminatedObjectType)
         {
             // cycle detection for unions that are not discriminated is currently handled by CyclicCheckVisitor.
             enteredTypeContainer = true;
@@ -119,8 +119,8 @@ public sealed class CyclicTypeCheckVisitor : AstVisitor
 
     private void VisitContainedTypeSyntax<TSyntax>(TSyntax syntax, Action<TSyntax> visitBaseFunc) where TSyntax : SyntaxBase
     {
-        var containedType = model.GetTypeInfo(syntax);
-        if (containedType is ErrorType)
+        var containedType = getDeclaredType(syntax);
+        if (containedType is null or ErrorType)
         {
             // if the contained type could not be resolved, stop visiting
             return;

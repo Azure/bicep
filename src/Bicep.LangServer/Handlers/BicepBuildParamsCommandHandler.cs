@@ -18,7 +18,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 namespace Bicep.LanguageServer.Handlers
 {
     // This handler is used to build compiled parameters.json file for given a bicep file path.
-    // It returns build-params succeeded/failed message, which can be displayed approriately in IDE output window
+    // It returns build-params succeeded/failed message, which can be displayed appropriately in IDE output window
     public class BicepBuildParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly ICompilationManager compilationManager;

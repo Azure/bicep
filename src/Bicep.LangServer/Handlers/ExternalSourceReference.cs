@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
@@ -89,7 +90,7 @@ namespace Bicep.LanguageServer.Handlers
 
         public ExternalSourceReference(OciArtifactReference moduleReference, SourceArchive? sourceArchive)
         {
-            Debug.Assert(moduleReference.Type == ArtifactType.Module && moduleReference.Scheme == OciArtifactReferenceFacts.Scheme, "Expecting a module reference, not a provider reference");
+            Debug.Assert(moduleReference.Type == ArtifactType.Module && moduleReference.Scheme == OciArtifactReferenceFacts.Scheme, "Expecting a module reference");
             Components = moduleReference.AddressComponents;
 
             if (sourceArchive is { })

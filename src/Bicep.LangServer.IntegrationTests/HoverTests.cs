@@ -1289,8 +1289,8 @@ There might also be a link to something [link](www.google.com)
                         tooltip.Should().Contain($"{local.Name}: {local.Type}");
                         break;
 
-                    case ProviderNamespaceSymbol provider:
-                        tooltip.Should().Contain($"{provider.Name} namespace");
+                    case ExtensionNamespaceSymbol extension:
+                        tooltip.Should().Contain($"{extension.Name} namespace");
                         break;
 
                     case BuiltInNamespaceSymbol @namespace:

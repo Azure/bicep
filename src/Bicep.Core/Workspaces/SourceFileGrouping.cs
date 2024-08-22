@@ -11,9 +11,9 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.Workspaces;
 
-public record ImplicitProvider(
+public record ImplicitExtension(
     string Name,
-    ProviderConfigEntry? Config,
+    ExtensionConfigEntry? Config,
     ArtifactResolutionInfo? Artifact);
 
 public record ArtifactResolutionInfo(
@@ -28,21 +28,21 @@ public record SourceFileGrouping(
     ImmutableArray<ISourceFile> SourceFiles,
     ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup,
     ImmutableDictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> ArtifactLookup,
-    ImmutableDictionary<ISourceFile, ImmutableHashSet<ImplicitProvider>> ImplicitProviders,
+    ImmutableDictionary<ISourceFile, ImmutableHashSet<ImplicitExtension>> ImplicitExtensions,
     ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> SourceFileLookup) : IArtifactFileLookup
 {
     public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore(bool force = false)
     {
-        var artifacts = ArtifactLookup.Values.Concat(ImplicitProviders.Values.SelectMany(x => x).Select(x => x.Artifact));
+        var artifacts = ArtifactLookup.Values.Concat(ImplicitExtensions.Values.SelectMany(x => x).Select(x => x.Artifact));
 
         foreach (var (_, artifact) in ArtifactLookup.Where(x => ShouldRestore(x.Value, force)))
         {
             yield return artifact;
         }
 
-        foreach (var (file, providers) in ImplicitProviders)
+        foreach (var (file, extensions) in ImplicitExtensions)
         {
-            foreach (var artifact in providers.Select(x => x.Artifact).WhereNotNull().Where(artifact => ShouldRestore(artifact, force)))
+            foreach (var artifact in extensions.Select(x => x.Artifact).WhereNotNull().Where(artifact => ShouldRestore(artifact, force)))
             {
                 yield return artifact;
             }

@@ -44,7 +44,7 @@ var metadata = {
   shortName: '{0}${replace(name, '-', '')}${(suffix ?? '') == '' ? '' : suffix}'
 }
 
-// Stroage Account
+// Storage Account
 var storageAccount = {
   name: replace(metadata.shortName, '{0}', 'st')
   location: location

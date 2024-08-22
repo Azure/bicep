@@ -16,7 +16,7 @@ async function showVisualizer(
 
   const viewColumn = sideBySide
     ? vscode.ViewColumn.Beside
-    : vscode.window.activeTextEditor?.viewColumn ?? vscode.ViewColumn.One;
+    : (vscode.window.activeTextEditor?.viewColumn ?? vscode.ViewColumn.One);
 
   await viewManager.openView(documentUri, viewColumn);
 

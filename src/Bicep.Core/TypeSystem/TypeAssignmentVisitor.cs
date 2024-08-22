@@ -302,7 +302,7 @@ namespace Bicep.Core.TypeSystem
                         // TODO move into Az extension
                         var typeSegments = resourceType.TypeReference.TypeSegments;
 
-                        if (resourceType.DeclaringNamespace.ProviderName == AzNamespaceType.BuiltInName &&
+                        if (resourceType.DeclaringNamespace.ExtensionName == AzNamespaceType.BuiltInName &&
                             typeSegments.Length > 2 &&
                             typeSegments.Where((type, i) => i > 1 && i < (typeSegments.Length - 1) && StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
                         {
@@ -871,10 +871,10 @@ namespace Bicep.Core.TypeSystem
             return declaredType;
         }
 
-        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
+        public override void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                if (binder.GetSymbolInfo(syntax) is not ProviderNamespaceSymbol namespaceSymbol)
+                if (binder.GetSymbolInfo(syntax) is not ExtensionNamespaceSymbol namespaceSymbol)
                 {
                     // We have syntax or binding errors, which should have already been handled.
                     return ErrorType.Empty();
@@ -898,7 +898,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     if (namespaceType.ConfigurationType is null)
                     {
-                        diagnostics.Write(syntax.Config, x => x.ProviderDoesNotSupportConfiguration(namespaceType.ProviderName));
+                        diagnostics.Write(syntax.Config, x => x.ExtensionDoesNotSupportConfiguration(namespaceType.ExtensionName));
                     }
                     else
                     {
@@ -912,7 +912,7 @@ namespace Bicep.Core.TypeSystem
                         namespaceType.ConfigurationType is not null &&
                         namespaceType.ConfigurationType.Properties.Values.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)))
                     {
-                        diagnostics.Write(syntax, x => x.ProviderRequiresConfiguration(namespaceType.ProviderName));
+                        diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(namespaceType.ExtensionName));
                     }
                 }
 
@@ -1123,10 +1123,10 @@ namespace Bicep.Core.TypeSystem
 
                 return new NamespaceType(syntax.Name.IdentifierName,
                     new(IsSingleton: true,
-                        BicepProviderName: syntax.Name.IdentifierName,
+                        BicepExtensionName: syntax.Name.IdentifierName,
                         ConfigurationType: null,
-                        ArmTemplateProviderName: syntax.Name.IdentifierName,
-                        ArmTemplateProviderVersion: "1.0.0"),
+                        TemplateExtensionName: syntax.Name.IdentifierName,
+                        TemplateExtensionVersion: "1.0.0"),
                     nsProperties,
                     nsFunctions,
                     ImmutableArray<BannedFunction>.Empty,
@@ -1781,40 +1781,6 @@ namespace Bicep.Core.TypeSystem
                 : baseType;
         }
 
-        private static TypeSymbol? TryGetReadablePropertyType(ObjectType objectType, string propertyName)
-        {
-            if (objectType.Properties.TryGetValue(propertyName) is { } property && !property.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-            {
-                return property.TypeReference.Type;
-            }
-
-            if (objectType.AdditionalPropertiesType is { } additionalPropertiesType && !objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.WriteOnly))
-            {
-                return additionalPropertiesType.Type;
-            }
-
-            return null;
-        }
-
-        private static TypeSymbol GetNamedPropertyType(UnionType unionType, string propertyName)
-        {
-            var members = new List<TypeSymbol>();
-            foreach (var member in unionType.Members)
-            {
-                if (member is not ObjectType objectType ||
-                    TryGetReadablePropertyType(objectType, propertyName) is not { } propertyType)
-                {
-                    // fall back to any if we can't definitively obtain the property type.
-                    // this may give some false positives - we can further refine this if desired.
-                    return LanguageConstants.Any;
-                }
-
-                members.Add(propertyType);
-            }
-
-            return TypeHelper.CreateTypeUnion(members);
-        }
-
         private static TypeSymbol GetNamedPropertyType(PropertyAccessSyntax syntax, TypeSymbol baseType, IDiagnosticWriter diagnostics) => UnwrapType(baseType) switch
         {
             ErrorType error => error,
@@ -1832,7 +1798,11 @@ namespace Bicep.Core.TypeSystem
                 syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
                 diagnostics),
 
-            UnionType unionType when syntax.PropertyName.IsValid => GetNamedPropertyType(unionType, syntax.PropertyName.IdentifierName),
+            UnionType unionType when syntax.PropertyName.IsValid => TypeHelper.GetNamedPropertyType(unionType,
+                syntax.PropertyName,
+                syntax.PropertyName.IdentifierName,
+                syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(unionType),
+                diagnostics),
 
             // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
             DiscriminatedObjectType => LanguageConstants.Any,
@@ -2185,7 +2155,7 @@ namespace Bicep.Core.TypeSystem
                     case ImportedSymbol imported:
                         return imported.Type;
 
-                    case ProviderNamespaceSymbol provider:
+                    case ExtensionNamespaceSymbol provider:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, provider));
 
                     case BuiltInNamespaceSymbol @namespace:
@@ -2284,10 +2254,10 @@ namespace Bicep.Core.TypeSystem
                 else if (countMismatches.Any())
                 {
                     // Argument type mismatch wins over count mismatch. Handle count mismatch only when there's no type mismatch.
-                    var (actualCount, mininumArgumentCount, maximumArgumentCount) = countMismatches.Aggregate(ArgumentCountMismatch.Reduce);
+                    var (actualCount, minimumArgumentCount, maximumArgumentCount) = countMismatches.Aggregate(ArgumentCountMismatch.Reduce);
                     var argumentsSpan = TextSpan.Between(syntax.OpenParen, syntax.CloseParen);
 
-                    errors.Add(DiagnosticBuilder.ForPosition(argumentsSpan).ArgumentCountMismatch(actualCount, mininumArgumentCount, maximumArgumentCount));
+                    errors.Add(DiagnosticBuilder.ForPosition(argumentsSpan).ArgumentCountMismatch(actualCount, minimumArgumentCount, maximumArgumentCount));
                 }
             }
 

@@ -5,7 +5,7 @@ param artifactsLocation string = 'ttps://raw.githubusercontent.com/Azure/RDS-Tem
 @description('The availability option for the VMs.')
 param availabilityOption string = 'None'
 
-@description('The name of avaiability set to be used when create the VMs.')
+@description('The name of availability set to be used when create the VMs.')
 param availabilitySetName string = ''
 
 @allowed([1, 2, 3])

@@ -9,14 +9,14 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Providers;
+using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
-    public record LocalModuleEntity(ProviderPackage Provider);
+    public record LocalModuleEntity(ExtensionPackage Package);
 
     public class LocalModuleRegistry : ExternalArtifactRegistry<LocalModuleReference, LocalModuleEntity>
     {
@@ -36,13 +36,13 @@ namespace Bicep.Core.Registry
             => artifactType switch
             {
                 ArtifactType.Module => RegistryCapabilities.Default,
-                ArtifactType.Provider => RegistryCapabilities.Publish,
+                ArtifactType.Extension => RegistryCapabilities.Publish,
                 _ => throw new UnreachableException(),
             };
 
         public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? alias, string reference)
         {
-            if (artifactType != ArtifactType.Module && artifactType != ArtifactType.Provider)
+            if (artifactType != ArtifactType.Module && artifactType != ArtifactType.Extension)
             {
                 return new(x => x.UnsupportedArtifactType(artifactType));
             }
@@ -58,15 +58,20 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(LocalModuleReference reference)
         {
-            if (reference.ArtifactType == ArtifactType.Provider)
-            {
-                return new(GetTypesTgzUri(reference));
-            }
-
             var localUri = FileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path);
             if (localUri is null)
             {
                 return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ParentModuleUri.LocalPath));
+            }
+
+            if (reference.ArtifactType == ArtifactType.Extension)
+            {
+                if (TryGetTypesTgzUri(reference) is null)
+                {
+                    return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ParentModuleUri.LocalPath));
+                }
+
+                return new(GetTypesTgzUri(reference));
             }
 
             return new(localUri);
@@ -78,7 +83,7 @@ namespace Bicep.Core.Registry
 
             foreach (var reference in references)
             {
-                if (reference.ArtifactType == ArtifactType.Provider)
+                if (reference.ArtifactType == ArtifactType.Extension)
                 {
                     if (TryReadContent(reference) is not { } binaryData)
                     {
@@ -86,7 +91,7 @@ namespace Bicep.Core.Registry
                         continue;
                     }
 
-                    var package = ProviderV1Archive.Read(binaryData);
+                    var package = ExtensionV1Archive.Read(binaryData);
                     await this.WriteArtifactContentToCacheAsync(reference, new(package));
                 }
             }
@@ -101,7 +106,7 @@ namespace Bicep.Core.Registry
 
         public override bool IsArtifactRestoreRequired(LocalModuleReference reference)
         {
-            if (reference.ArtifactType != ArtifactType.Provider)
+            if (reference.ArtifactType != ArtifactType.Extension)
             {
                 return false;
             }
@@ -112,9 +117,9 @@ namespace Bicep.Core.Registry
         public override Task PublishModule(LocalModuleReference moduleReference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, string? description)
             => throw new NotSupportedException("Local modules cannot be published.");
 
-        public override async Task PublishProvider(LocalModuleReference reference, ProviderPackage provider)
+        public override async Task PublishExtension(LocalModuleReference reference, ExtensionPackage package)
         {
-            var archive = await ProviderV1Archive.Build(provider);
+            var archive = await ExtensionV1Archive.Build(package);
 
             var fileUri = PathHelper.TryResolveFilePath(reference.ParentModuleUri, reference.Path)!;
             FileResolver.Write(fileUri, archive.ToStream());
@@ -124,7 +129,7 @@ namespace Bicep.Core.Registry
             => artifactType switch
             {
                 ArtifactType.Module => throw new NotSupportedException("Local modules cannot be published."),
-                ArtifactType.Provider => Task.FromResult(false),
+                ArtifactType.Extension => Task.FromResult(false),
                 _ => throw new UnreachableException(),
             };
 
@@ -145,24 +150,24 @@ namespace Bicep.Core.Registry
             return new(new SourceNotAvailableException());
         }
 
-        public override Uri? TryGetProviderBinary(LocalModuleReference reference)
-            => GetProviderBinUri(reference);
+        public override Uri? TryGetExtensionBinary(LocalModuleReference reference)
+            => GetExtensionBinaryUri(reference);
 
         protected override void WriteArtifactContentToCache(LocalModuleReference reference, LocalModuleEntity entity)
         {
-            if (entity.Provider.LocalDeployEnabled)
+            if (entity.Package.LocalDeployEnabled)
             {
                 if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
                 {
-                    throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute provider extension \"{reference}\".");
+                    throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute extension \"{reference}\".");
                 }
 
-                if (entity.Provider.Binaries.SingleOrDefault(x => x.Architecture.Name == architecture.Name) is not { } binary)
+                if (entity.Package.Binaries.SingleOrDefault(x => x.Architecture.Name == architecture.Name) is not { } binary)
                 {
-                    throw new InvalidOperationException($"The provider extension \"{reference}\" does not support architecture {architecture.Name}.");
+                    throw new InvalidOperationException($"The extension \"{reference}\" does not support architecture {architecture.Name}.");
                 }
 
-                var binaryUri = GetProviderBinUri(reference);
+                var binaryUri = GetExtensionBinaryUri(reference);
                 this.FileResolver.Write(binaryUri, binary.Data.ToStream());
                 if (!OperatingSystem.IsWindows())
                 {
@@ -171,17 +176,17 @@ namespace Bicep.Core.Registry
             }
 
             var typesUri = this.GetTypesTgzUri(reference);
-            this.FileResolver.Write(typesUri, entity.Provider.Types.ToStream());
+            this.FileResolver.Write(typesUri, entity.Package.Types.ToStream());
         }
 
-        protected override string GetArtifactDirectoryPath(LocalModuleReference reference)
+        private string? TryGetArtifactDirectoryPath(LocalModuleReference reference)
         {
             if (TryReadContent(reference) is not { } binaryData)
             {
-                throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
+                return null;
             }
 
-            // Provider packages are unpacked to '~/.bicep/local/sha256_<digest>'.
+            // Extension packages are unpacked to '~/.bicep/local/sha256_<digest>'.
             // We must use '_' as a separator here because Windows does not allow ':' in file paths.
             var digest = OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, binaryData, separator: '_');
 
@@ -189,6 +194,16 @@ namespace Bicep.Core.Registry
                 this.featureProvider.CacheRootDirectory,
                 "local",
                 digest);
+        }
+
+        protected override string GetArtifactDirectoryPath(LocalModuleReference reference)
+        {
+            if (TryGetArtifactDirectoryPath(reference) is not { } path)
+            {
+                throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
+            }
+            
+            return path;
         }
 
         private BinaryData? TryReadContent(LocalModuleReference reference)
@@ -204,11 +219,18 @@ namespace Bicep.Core.Registry
 
         private Uri GetTypesTgzUri(LocalModuleReference reference) => GetFileUri(reference, "types.tgz");
 
-        private Uri GetProviderBinUri(LocalModuleReference reference) => GetFileUri(reference, "provider.bin");
+        private Uri? TryGetTypesTgzUri(LocalModuleReference reference) => TryGetFileUri(reference, "types.tgz");
+
+        private Uri GetExtensionBinaryUri(LocalModuleReference reference) => GetFileUri(reference, "extension.bin");
 
         protected override Uri GetArtifactLockFileUri(LocalModuleReference reference) => GetFileUri(reference, "lock");
 
         private Uri GetFileUri(LocalModuleReference reference, string path)
-            => new(FileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), path), UriKind.Absolute);
+            => TryGetFileUri(reference, path) ?? throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
+
+        private Uri? TryGetFileUri(LocalModuleReference reference, string path)
+            => TryGetArtifactDirectoryPath(reference) is {} directoryPath ? 
+            new(FileSystem.Path.Combine(directoryPath, path), UriKind.Absolute) :
+            null;
     }
 }

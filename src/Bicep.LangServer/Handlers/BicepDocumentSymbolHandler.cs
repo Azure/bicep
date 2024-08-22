@@ -78,7 +78,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private static SymbolKind SelectSymbolKind(DeclaredSymbol symbol) => symbol switch
         {
-            ProviderNamespaceSymbol => SymbolKind.Namespace,
+            ExtensionNamespaceSymbol => SymbolKind.Namespace,
             ParameterSymbol => SymbolKind.Field,
             TypeAliasSymbol => SymbolKind.Field,
             VariableSymbol => SymbolKind.Variable,

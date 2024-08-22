@@ -126,7 +126,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Decompile_WithNonExistantOutDir_ShouldFail_WithExpectedErrorMessage()
+        public async Task Decompile_WithNonExistentOutDir_ShouldFail_WithExpectedErrorMessage()
         {
             var (jsonPath, outputDir) = Setup(TestContext, ValidTemplate, outputDir: "outputDir");
 
@@ -256,7 +256,7 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow("DoesNotExist.json")]
         [DataRow("WrongDir\\Fake.json")]
         [DataTestMethod]
-        public async Task Decompile_InvalidInputPath_ShouldFail_WtihExpectedErrorMessage(string badPath)
+        public async Task Decompile_InvalidInputPath_ShouldFail_WithExpectedErrorMessage(string badPath)
         {
             var badUri = PathHelper.FilePathToFileUrl(Path.GetFullPath(badPath));
 
@@ -274,7 +274,7 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow("DoesNotExist.json")]
         [DataRow("WrongDir\\Fake.json")]
         [DataTestMethod]
-        public async Task Decompile_InvalidInputPath_ToStdout_ShouldFail_WtihExpectedErrorMessage(string badPath)
+        public async Task Decompile_InvalidInputPath_ToStdout_ShouldFail_WithExpectedErrorMessage(string badPath)
         {
             var badUri = PathHelper.FilePathToFileUrl(Path.GetFullPath(badPath));
 

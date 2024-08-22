@@ -6,6 +6,6 @@ namespace Bicep.Core.Registry
     public enum ArtifactType
     {
         Module,
-        Provider
+        Extension,
     }
 }

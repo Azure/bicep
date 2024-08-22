@@ -63,34 +63,6 @@ namespace Bicep.Core.Parsing
 
         private static bool CheckKeyword(Token? token, string keyword) => token?.Type == TokenType.Identifier && token.Text == keyword;
 
-        private static int GetOperatorPrecedence(TokenType tokenType) => tokenType switch
-        {
-            // the absolute values are not important here
-            TokenType.Modulo or
-            TokenType.Asterisk or
-            TokenType.Slash => 100,
-
-            TokenType.Plus or
-            TokenType.Minus => 90,
-
-            TokenType.RightChevron or
-            TokenType.GreaterThanOrEqual or
-            TokenType.LeftChevron or
-            TokenType.LessThanOrEqual => 80,
-
-            TokenType.Equals or
-            TokenType.NotEquals or
-            TokenType.EqualsInsensitive or
-            TokenType.NotEqualsInsensitive => 70,
-
-            // if we add bitwise operators in the future, they should go here
-            TokenType.LogicalAnd => 50,
-            TokenType.LogicalOr => 40,
-            TokenType.DoubleQuestion => 30,
-
-            _ => -1,
-        };
-
         protected static RecoveryFlags GetSuppressionFlag(SyntaxBase precedingNode)
         {
             // local function
@@ -246,7 +218,7 @@ namespace Bicep.Core.Parsing
                 // it could also be the end of file or some other token that is actually valid in this place
                 Token candidateOperatorToken = this.reader.Peek();
 
-                int operatorPrecedence = GetOperatorPrecedence(candidateOperatorToken.Type);
+                int operatorPrecedence = TokenTypeHelper.GetOperatorPrecedence(candidateOperatorToken.Type);
 
                 if (operatorPrecedence <= precedence)
                 {
@@ -288,6 +260,24 @@ namespace Bicep.Core.Parsing
             }
 
             return types.Contains(reader.Peek().Type);
+        }
+
+        protected bool CheckTrivia(ImmutableArray<SyntaxTrivia>? trivia, params SyntaxTriviaType[] types)
+        {
+            if (trivia is null || trivia?.IsEmpty is true)
+            {
+                return false;
+            }
+            var isTypes = false;
+            foreach (var trivium in trivia.GetValueOrDefault())
+            {
+                if (types.Contains(trivium.Type))
+                {
+                    isTypes = true;
+                    break;
+                }
+            }
+            return isTypes;
         }
 
         private bool CheckKeyword(string keyword) => !this.IsAtEnd() && CheckKeyword(this.reader.Peek(), keyword);
@@ -573,7 +563,13 @@ namespace Bicep.Core.Parsing
                     // we don't want to allow mixing and matching, and we want to insert dummy elements between commas
                     if (Check(TokenType.NewLine))
                     {
-                        if (!Check(this.reader.PeekAhead(), closingTokenType))
+                        var peekPosition = 1;
+                        while (Check(this.reader.PeekAhead(peekPosition), TokenType.NewLine) && CheckTrivia(this.reader.PeekAhead(peekPosition)?.LeadingTrivia, [SyntaxTriviaType.SingleLineComment, SyntaxTriviaType.MultiLineComment]))
+                        {
+                            // Check End of comments for closingTokenType
+                            peekPosition++;
+                        }
+                        if (!Check(this.reader.PeekAhead(peekPosition), closingTokenType))
                         {
                             itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCommaSeparator()));
                         }

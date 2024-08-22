@@ -172,7 +172,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public Task PublishModule(ArtifactReference _, BinaryData __, BinaryData? ___, string? ____, string? _____)
                 => throw new NotImplementedException();
 
-            public Task PublishProvider(ArtifactReference _, ProviderPackage __)
+            public Task PublishExtension(ArtifactReference _, ExtensionPackage __)
                 => throw new NotImplementedException();
 
             public Task<bool> CheckArtifactExists(ArtifactType artifactType, ArtifactReference reference) => throw new NotImplementedException();
@@ -204,7 +204,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public ResultWithException<SourceArchive> TryGetSource(ArtifactReference artifactReference) => new(new SourceNotAvailableException());
 
-            public Uri? TryGetProviderBinary(ArtifactReference reference) => null;
+            public Uri? TryGetExtensionBinary(ArtifactReference reference) => null;
             public Task OnRestoreArtifacts(bool forceRestore) => Task.CompletedTask;
         }
 

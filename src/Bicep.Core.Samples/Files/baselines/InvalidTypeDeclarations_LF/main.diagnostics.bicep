@@ -24,21 +24,21 @@ type sealedDictionary = {
 }
 
 type disallowedUnion = 'foo'|21
-//@[23:031) [BCP294 (Error)] Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |'foo'|21|
+//@[23:031) [BCP294 (Error)] Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |'foo'|21|
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 
 type validUnionInvalidAddition = validStringLiteralUnion|10
-//@[33:059) [BCP294 (Error)] Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |validStringLiteralUnion|10|
+//@[33:059) [BCP294 (Error)] Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |validStringLiteralUnion|10|
 
 type invalidUnionInvalidAddition = disallowedUnion|true
-//@[35:055) [BCP294 (Error)] Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |disallowedUnion|true|
+//@[35:055) [BCP294 (Error)] Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |disallowedUnion|true|
 
 type nullLiteral = null
 //@[19:023) [BCP289 (Error)] The type definition is not valid. (CodeDescription: none) |null|
 
 type unionOfNulls = null|null
-//@[20:029) [BCP294 (Error)] Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |null|null|
+//@[20:029) [BCP294 (Error)] Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |null|null|
 
 @minLength(3)
 //@[00:013) [BCP124 (Error)] The decorator "minLength" can only be attached to targets of type "array | string", but the target has type "int". (CodeDescription: none) |@minLength(3)|
@@ -100,10 +100,11 @@ param sealedStringParam string
 
 param disallowedUnionParam 'foo'|-99
 //@[06:026) [no-unused-params (Warning)] Parameter "disallowedUnionParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |disallowedUnionParam|
-//@[27:036) [BCP294 (Error)] Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |'foo'|-99|
+//@[27:036) [BCP294 (Error)] Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |'foo'|-99|
 
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[06:037) [no-unused-params (Warning)] Parameter "objectWithInvalidRecursionParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |objectWithInvalidRecursionParam|
+//@[38:064) [BCP062 (Error)] The referenced declaration with name "objectWithInvalidRecursion" is not valid. (CodeDescription: none) |objectWithInvalidRecursion|
 
 type typeA = {
   type: 'a'

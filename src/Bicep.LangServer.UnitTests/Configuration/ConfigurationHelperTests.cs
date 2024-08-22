@@ -36,7 +36,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void TryGetConfiguration_WithValidDocumentUri_ShoudReturnRootConfiguration()
+        public void TryGetConfiguration_WithValidDocumentUri_ShouldReturnRootConfiguration()
         {
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 

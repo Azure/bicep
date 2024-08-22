@@ -1,5 +1,5 @@
 type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
-//@[00:1215) ProgramSyntax
+//@[00:1214) ProgramSyntax
 //@[00:0072) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0008) | ├─IdentifierSyntax
@@ -107,15 +107,15 @@ type test = {
 //@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0003) ├─Token(NewLine) |\n\n|
 
-type strangeFormattings = {
-//@[00:0273) ├─TypeDeclarationSyntax
+type strangeFormatting = {
+//@[00:0272) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
-//@[05:0023) | ├─IdentifierSyntax
-//@[05:0023) | | └─Token(Identifier) |strangeFormattings|
-//@[24:0025) | ├─Token(Assignment) |=|
-//@[26:0273) | └─ObjectTypeSyntax
-//@[26:0027) |   ├─Token(LeftBrace) |{|
-//@[27:0028) |   ├─Token(NewLine) |\n|
+//@[05:0022) | ├─IdentifierSyntax
+//@[05:0022) | | └─Token(Identifier) |strangeFormatting|
+//@[23:0024) | ├─Token(Assignment) |=|
+//@[25:0272) | └─ObjectTypeSyntax
+//@[25:0026) |   ├─Token(LeftBrace) |{|
+//@[26:0027) |   ├─Token(NewLine) |\n|
   test: resource<
 //@[02:0080) |   ├─ObjectTypePropertySyntax
 //@[02:0006) |   | ├─IdentifierSyntax

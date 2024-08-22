@@ -22,6 +22,7 @@ public record FeatureProviderOverrides(
     bool? OptionalModuleNamesEnabled = default,
     bool? LocalDeployEnabled = default,
     bool? ResourceDerivedTypesEnabled = default,
+    bool? SecureOutputsEnabled = default,
     bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
@@ -41,6 +42,7 @@ public record FeatureProviderOverrides(
         bool? OptionalModuleNamesEnabled = default,
         bool? LocalDeployEnabled = default,
         bool? ResourceDerivedTypesEnabled = default,
+        bool? SecureOutputsEnabled = default,
         bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
     ) : this(
@@ -59,6 +61,7 @@ public record FeatureProviderOverrides(
         OptionalModuleNamesEnabled,
         LocalDeployEnabled,
         ResourceDerivedTypesEnabled,
+        SecureOutputsEnabled,
         ExtendableParamFilesEnabled,
         AssemblyVersion)
     { }

@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "780177480748199917"
+      "templateHash": "1652137765945693868"
     }
   },
   "parameters": {
@@ -24,25 +24,25 @@
     "addressprefixes": {
       "type": "array",
       "metadata": {
-        "description": "Specifices the address prefixes of the remote site"
+        "description": "Specifies the address prefixes of the remote site"
       }
     },
     "bgppeeringpddress": {
       "type": "string",
       "metadata": {
-        "description": "Specifices the VPN Sites BGP Peering IP Addresses"
+        "description": "Specifies the VPN Sites BGP Peering IP Addresses"
       }
     },
     "gwipaddress": {
       "type": "string",
       "metadata": {
-        "description": "Specifices the VPN Sites VPN Device IP Address"
+        "description": "Specifies the VPN Sites VPN Device IP Address"
       }
     },
     "vpngwid": {
       "type": "string",
       "metadata": {
-        "description": "Specifices the resource ID of the VPN Gateway to connect to the site to site vpn"
+        "description": "Specifies the resource ID of the VPN Gateway to connect to the site to site vpn"
       }
     },
     "psk": {

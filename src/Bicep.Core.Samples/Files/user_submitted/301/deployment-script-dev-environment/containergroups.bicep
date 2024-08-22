@@ -4,7 +4,7 @@ param name string
 @allowed(['AzureCLI', 'AzurePowerShell'])
 param type string = 'AzureCLI'
 
-@description('Use to overide the version to use for Azure CLI or AzurePowerShell')
+@description('Use to override the version to use for Azure CLI or AzurePowerShell')
 param toolVersion string = ''
 
 @description('This is the path in the container instance where it\'s mounted to the file share.')

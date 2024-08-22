@@ -29,7 +29,7 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="aliasName">The alias name</param>
         /// <param name="reference">The unqualified artifact reference</param>
-        /// <param name="artifactType">The artifact type. Either "module" or "provider"</param>
+        /// <param name="artifactType">The artifact type.</param>
         ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
 
         /// <summary>
@@ -80,10 +80,10 @@ namespace Bicep.Core.Registry
         Task PublishModule(ArtifactReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description);
 
         /// <summary>
-        /// Publishes a provider types package to the registry.
+        /// Publishes an extension types package to the registry.
         /// </summary>
-        /// <param name="reference">The provider reference</param>
-        Task PublishProvider(ArtifactReference reference, ProviderPackage provider);
+        /// <param name="reference">The extension reference</param>
+        Task PublishExtension(ArtifactReference reference, ExtensionPackage package);
 
         /// <summary>
         /// Returns documentationUri for the module.
@@ -103,6 +103,6 @@ namespace Bicep.Core.Registry
         /// <returns>A source archive</returns>
         ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference);
 
-        Uri? TryGetProviderBinary(ArtifactReference reference);
+        Uri? TryGetExtensionBinary(ArtifactReference reference);
     }
 }

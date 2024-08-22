@@ -417,7 +417,7 @@ output length int =
         [TestMethod]
         public async Task CompletionsShouldContainMicrosoftGraphWhenPreviewFeatureEnabled()
         {
-            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("provider m| as graph");
+            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("extension m| as graph");
 
             var completionProvider = CreateProvider();
             var featureOverrides = new FeatureProviderOverrides(ExtensibilityEnabled: true);

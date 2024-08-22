@@ -996,7 +996,7 @@ namespace Bicep.Decompiler
             where TToken : JToken
         {
             // Give it a fake name for now - it'll be replaced anyway.
-            // This avoids a lot of code duplication to be able to handle the unamed copy loop.
+            // This avoids a lot of code duplication to be able to handle the unnamed copy loop.
 
             return ProcessNamedCopySyntax(input, indexIdentifier, getSyntaxForInputFunc, count, "__BICEP_REPLACE");
         }

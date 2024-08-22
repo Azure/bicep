@@ -31,7 +31,7 @@ public class RadiusCompatibilityTests
         var services = GetServiceBuilder(new MockFileSystem(), registry, repository);
 
         var tgzData = ThirdPartyTypeHelper.GetMockRadiusTypesTgz();
-        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", tgzData);
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", tgzData);
 
         return services;
     }

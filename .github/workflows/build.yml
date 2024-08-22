@@ -111,14 +111,22 @@ jobs:
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
           cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
 
-      - name: npm ci
+      - name: npm ci (vscode-bicep-ui)
         run: npm ci
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: Build vscode-bicep-ui
+        run: npm run build
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: npm ci (vscode-bicep)
+        run: npm ci --install-links
         working-directory: ./src/vscode-bicep
 
       - name: Generate VSIX notice
         run: |
           mkdir -p ./src/vscode-bicep-notice/inputs
-          npm --prefix ./src/vscode-bicep list -a --json > ./src/vscode-bicep-notice/inputs/npm-list.json
+          npm --prefix ./src/vscode-bicep list -a --install-links --json > ./src/vscode-bicep-notice/inputs/npm-list.json
           cp ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/project.assets.json
           dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
 
@@ -132,6 +140,41 @@ jobs:
           name: vscode-bicep.vsix
           path: ./src/vscode-bicep/vscode-bicep.vsix
           if-no-files-found: error
+
+  test-vscode-bicep-ui:
+    name: "Test: VSCode Bicep UI"
+    runs-on: ${{ matrix.os }}
+    needs: build-vscode-ext
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: Run lint
+        run: npm run lint
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: Run tests
+        run: npm run test
+        working-directory: ./src/vscode-bicep-ui
 
   test-vscode-ext:
     name: "Test: VSCode Extension"
@@ -171,16 +214,17 @@ jobs:
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
           cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
 
-      - name: npm ci
+      - name: npm ci (vscode-bicep-ui)
         run: npm ci
-        working-directory: ./src/vscode-bicep
+        working-directory: ./src/vscode-bicep-ui
 
-      - name: Generate VSIX notice
-        run: |
-          mkdir -p ./src/vscode-bicep-notice/inputs
-          npm --prefix ./src/vscode-bicep list -a --json > ./src/vscode-bicep-notice/inputs/npm-list.json
-          cp ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/project.assets.json
-          dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
+      - name: Build vscode-bicep-ui)
+        run: npm run build
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: npm ci (vscode-bicep)
+        run: npm ci --install-links
+        working-directory: ./src/vscode-bicep
 
       - name: Run lint
         run: npm run lint
@@ -630,13 +674,13 @@ jobs:
           pattern: TestResults
           path: TestResults
           merge-multiple: true
-                    
+
       - name: Publish Dotnet Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           check_name: Dotnet Test Results
           files: "TestResults/**/*.trx"
-  
+
   comment-preview-links:
     name: "PR Comment: Preview Links"
     needs: [build-vscode-ext, build-cli]
@@ -664,7 +708,7 @@ jobs:
             </details>
             <details>
               <summary>Azure CLI</summary>
-              
+
               - Mac/Linux
                   ```sh
                   bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --run-id ${{ github.run_id }}
@@ -680,7 +724,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       access_verified: ${{ steps.check-access.outputs.verified && !(github.event_name == 'workflow_dispatch' && github.ref != 'refs/head/main') }}
-      
+
     steps:
       - id: check-access
         env:

@@ -83,7 +83,7 @@ namespace Bicep.Core.Semantics
         }
 
         /// <summary>
-        ///   Certain declarations (outputs and metadata) define symbols which can't be referenced by name. This method allows you to filter out non-referencable symbols.
+        ///   Certain declarations (outputs and metadata) define symbols which can't be referenced by name. This method allows you to filter out non-referenceable symbols.
         /// </summary>
         public static bool CanBeReferenced(this DeclaredSymbol declaredSymbol)
             => declaredSymbol is not OutputSymbol and not MetadataSymbol;

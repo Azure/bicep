@@ -46,12 +46,12 @@ namespace Bicep.Core.UnitTests.Registry
             var got = OciManifest.FromBinaryData(binaryData).Should().BeOfType<OciManifest>().Subject;
 
             got.SchemaVersion.Should().Be(2);
-            got.ArtifactType.Should().Be(BicepMediaTypes.BicepProviderArtifactType);
-            got.Config.MediaType.Should().Be(BicepMediaTypes.BicepProviderConfigV1);
+            got.ArtifactType.Should().Be(BicepMediaTypes.BicepExtensionArtifactType);
+            got.Config.MediaType.Should().Be(BicepMediaTypes.BicepExtensionConfigV1);
             got.Config.Digest.Should().Be("sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a");
             got.Config.Size.Should().Be(2);
             got.Layers.Should().HaveCount(1);
-            got.Layers[0].MediaType.Should().Be(BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip);
+            got.Layers[0].MediaType.Should().Be(BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip);
             got.Annotations.Should().HaveCount(2);
         }
     }

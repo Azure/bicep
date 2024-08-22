@@ -13,7 +13,7 @@ export default defineConfig({
     svgr(),
     dts({
       include: ["src/**/*.ts", "src/**/*.tsx"],
-      exclude: ["src/**/*.stories.ts", "src/**/*.stories.tsx"],
+      exclude: ["src/**/*.stories.ts", "src/**/*.stories.tsx", "src/**/__tests__/**"],
       insertTypesEntry: true,
     }),
     libInjectCss(),
@@ -36,6 +36,7 @@ export default defineConfig({
     },
   },
   test: {
+    testTimeout: 15000,
     watch: false,
     globals: true,
     restoreMocks: true,

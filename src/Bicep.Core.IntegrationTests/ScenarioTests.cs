@@ -6067,7 +6067,7 @@ var test = [
   { }
 ][index]
 
-output val string = test.foo
+output val string? = test.foo
 """);
 
         result.Should().NotHaveAnyDiagnostics();
@@ -6090,7 +6090,7 @@ var s = sort(
     map(items, x => x.obj < 2 ? { order: 1, value: x } : x.obj > 4 ? { order: 2, value: x } : {}),
     x => !(empty(x))
   ),
-  (arg1, arg2) => arg1.order < arg2.order
+  (arg1, arg2) => (arg1.order ?? 0) < (arg2.order ?? 0)
 )
 """);
 
@@ -6141,5 +6141,121 @@ resource addAppConfigValues 'Microsoft.AppConfiguration/configurationStores/keyV
 """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+
+    [TestMethod]
+    public void Test_Issue12800()
+    {
+        // https://github.com/Azure/bicep/issues/12800
+        var result = CompilationHelper.Compile("""
+var fixed = union(
+  {},
+  // Comment
+  {}
+  // Comment
+)
+""");
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue12800_2()
+    {
+        // https://github.com/Azure/bicep/issues/12800
+        var result = CompilationHelper.Compile("""
+var fixed = union(
+  {},
+  /*
+  * Multi-line comment
+  */
+  {}
+  /*
+  * Multi-line comment
+  */
+)
+""");
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue12800_3()
+    {
+        // https://github.com/Azure/bicep/issues/12800
+        var result = CompilationHelper.Compile("""
+var fixed = union(
+  {},
+  // Comment
+  {}
+  // Comment
+  {}
+)
+""");
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+             ("BCP237", DiagnosticLevel.Error, """Expected a comma character at this location."""),
+        });
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/14839
+    public void Test_Issue14839()
+    {
+        var result = CompilationHelper.Compile(@"
+var items = [
+  { bar: 'abc' }
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.foo]
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP053", DiagnosticLevel.Error, """The type "object" does not contain property "foo". Available properties include "bar"."""),
+        ]);
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/14839
+    public void Test_Issue14839_2()
+    {
+        var result = CompilationHelper.Compile(@"
+param firstItem object
+
+var items = [
+  firstItem
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.foo]
+");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Recursive_types_generate_diagnostics_where_referenced()
+    {
+        // https://github.com/Azure/bicep/issues/14867
+        var result = CompilationHelper.Compile("""
+type invalidRecursiveObjectType = {
+  level1: {
+    level2: {
+      level3: {
+        level4: {
+          level5: invalidRecursiveObjectType
+        }
+      }
+    }
+  }
+}
+
+param p invalidRecursiveObjectType = {}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP298", DiagnosticLevel.Error, """This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."""),
+            ("BCP062", DiagnosticLevel.Error, """The referenced declaration with name "invalidRecursiveObjectType" is not valid."""),
+        ]);
     }
 }

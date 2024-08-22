@@ -1013,11 +1013,11 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetT
 
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[009:031) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name", "properties". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |incorrectPropertiesKey|
+//@[009:031) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |incorrectPropertiesKey|
   kind: 'AzureCLI'
 
-  propertes: {
-//@[002:011) [BCP089 (Error)] The property "propertes" is not allowed on objects of type "AzureCLI". Did you mean "properties"? (CodeDescription: none) |propertes|
+  properties: {
+//@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
   }
 }
 
@@ -2312,8 +2312,8 @@ resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sqlServer3'
   location: 'polandcentral'
 
-  @description('mising resource keyword')
-//@[002:041) [BCP132 (Error)] Expected a declaration after the decorator. (CodeDescription: none) |@description('mising resource keyword')|
+  @description('missing resource keyword')
+//@[002:042) [BCP132 (Error)] Expected a declaration after the decorator. (CodeDescription: none) |@description('missing resource keyword')|
 
 }
 resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {

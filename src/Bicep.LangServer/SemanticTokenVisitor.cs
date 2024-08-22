@@ -344,7 +344,7 @@ namespace Bicep.LanguageServer
             base.VisitTargetScopeSyntax(syntax);
         }
 
-        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
+        public override void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             this.Visit(syntax.SpecificationString);
@@ -352,7 +352,7 @@ namespace Bicep.LanguageServer
             this.Visit(syntax.AsClause);
         }
 
-        public override void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax)
+        public override void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             this.Visit(syntax.Config);

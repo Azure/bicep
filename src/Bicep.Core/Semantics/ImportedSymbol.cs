@@ -10,10 +10,10 @@ namespace Bicep.Core.Semantics;
 
 public abstract class ImportedSymbol : DeclaredSymbol
 {
-    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel)
+    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclaration, ISemanticModel sourceModel)
         : base(context, declaringSyntax.Name.IdentifierName, declaringSyntax, declaringSyntax.Name)
     {
-        EnclosingDeclaration = enclosingDeclartion;
+        EnclosingDeclaration = enclosingDeclaration;
         SourceModel = sourceModel;
     }
 
@@ -33,8 +33,8 @@ public abstract class ImportedSymbol : DeclaredSymbol
 
 public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadata
 {
-    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, T exportMetadata)
-        : base(context, declaringSyntax, enclosingDeclartion, sourceModel)
+    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclaration, ISemanticModel sourceModel, T exportMetadata)
+        : base(context, declaringSyntax, enclosingDeclaration, sourceModel)
     {
         ExportMetadata = exportMetadata;
     }
