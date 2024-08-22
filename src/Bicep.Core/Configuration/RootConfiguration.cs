@@ -33,9 +33,9 @@ namespace Bicep.Core.Configuration
         public RootConfiguration(
             CloudConfiguration cloud,
             ModuleAliasesConfiguration moduleAliases,
-            ProviderAliasesConfiguration extensionAliases,
-            ProvidersConfiguration extensions,
-            ImplicitProvidersConfiguration implicitExtensions,
+            ExtensionAliasesConfiguration extensionAliases,
+            ExtensionsConfiguration extensions,
+            ImplicitExtensionsConfiguration implicitExtensions,
             AnalyzersConfiguration analyzers,
             string? cacheRootDirectory,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
@@ -65,9 +65,9 @@ namespace Bicep.Core.Configuration
             var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
             var formatting = FormattingConfiguration.Bind(element.GetProperty(FormattingKey));
 
-            var extensionAliases = ProviderAliasesConfiguration.Bind(element.GetProperty(ExtensionAliasesKey), configFileUri);
-            var extensions = ProvidersConfiguration.Bind(element.GetProperty(ExtensionsKey));
-            var implicitExtensions = ImplicitProvidersConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
+            var extensionAliases = ExtensionAliasesConfiguration.Bind(element.GetProperty(ExtensionAliasesKey), configFileUri);
+            var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
+            var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
 
             return new(cloud, moduleAliases, extensionAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configFileUri, diagnosticBuilders);
         }
@@ -76,11 +76,11 @@ namespace Bicep.Core.Configuration
 
         public ModuleAliasesConfiguration ModuleAliases { get; }
 
-        public ProviderAliasesConfiguration ExtensionAliases { get; }
+        public ExtensionAliasesConfiguration ExtensionAliases { get; }
 
-        public ProvidersConfiguration Extensions { get; }
+        public ExtensionsConfiguration Extensions { get; }
 
-        public ImplicitProvidersConfiguration ImplicitExtensions { get; }
+        public ImplicitExtensionsConfiguration ImplicitExtensions { get; }
 
         public AnalyzersConfiguration Analyzers { get; }
 

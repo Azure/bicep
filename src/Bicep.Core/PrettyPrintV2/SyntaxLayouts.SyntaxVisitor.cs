@@ -50,9 +50,9 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax) => this.Apply(syntax, this.LayoutAliasAsClauseSyntax);
 
-        public void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutProviderDeclarationSyntax);
+        public void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutExtensionDeclarationSyntax);
 
-        public void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) => this.Apply(syntax, this.LayoutProviderWithClauseSyntax);
+        public void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax) => this.Apply(syntax, this.LayoutExtensionWithClauseSyntax);
 
         public void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) => this.Apply(syntax, this.LayoutInstanceFunctionCallSyntax);
 

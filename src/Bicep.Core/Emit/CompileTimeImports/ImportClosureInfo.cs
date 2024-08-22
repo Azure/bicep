@@ -271,7 +271,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
         => typeReference.SourceBicepModel.Binder.GetSymbolsReferencedInDeclarationOf(typeReference.Symbol)
             .Select<DeclaredSymbol, SymbolicReference?>(symbol => symbol switch
             {
-                ProviderNamespaceSymbol => null, // this was the base expression of a fully qualified ambient type reference (e.g., sys.string)
+                ExtensionNamespaceSymbol => null, // this was the base expression of a fully qualified ambient type reference (e.g., sys.string)
                 LocalVariableSymbol => null, // local variables are contained within the expression and are not external references
                 TypeAliasSymbol typeAlias => IntraTemplateSymbolicReferenceFactory.SymbolFor(typeAlias, typeReference),
                 VariableSymbol variable => IntraTemplateSymbolicReferenceFactory.SymbolFor(variable, typeReference),

@@ -90,7 +90,7 @@ namespace Bicep.LanguageServer.Handlers
 
         public ExternalSourceReference(OciArtifactReference moduleReference, SourceArchive? sourceArchive)
         {
-            Debug.Assert(moduleReference.Type == ArtifactType.Module && moduleReference.Scheme == OciArtifactReferenceFacts.Scheme, "Expecting a module reference, not a provider reference");
+            Debug.Assert(moduleReference.Type == ArtifactType.Module && moduleReference.Scheme == OciArtifactReferenceFacts.Scheme, "Expecting a module reference");
             Components = moduleReference.AddressComponents;
 
             if (sourceArchive is { })

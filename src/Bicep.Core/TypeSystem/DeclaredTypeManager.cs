@@ -96,8 +96,8 @@ namespace Bicep.Core.TypeSystem
 
             switch (syntax)
             {
-                case ProviderDeclarationSyntax provider:
-                    return GetProviderType(provider);
+                case ExtensionDeclarationSyntax extension:
+                    return GetExtensionType(extension);
 
                 case MetadataDeclarationSyntax metadata:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(metadata.Value), metadata);
@@ -540,7 +540,7 @@ namespace Bicep.Core.TypeSystem
 
         private static bool IsExtensibilityType(ResourceType resourceType)
         {
-            return resourceType.DeclaringNamespace.ProviderName != AzNamespaceType.BuiltInName;
+            return resourceType.DeclaringNamespace.ExtensionName != AzNamespaceType.BuiltInName;
         }
 
         private TypeSymbol? GetOutputValueType(SyntaxBase syntax) => binder.GetParent(syntax) switch
@@ -554,7 +554,7 @@ namespace Bicep.Core.TypeSystem
             => binder.GetSymbolInfo(syntax) switch
             {
                 BuiltInNamespaceSymbol builtInNamespace => builtInNamespace.Type,
-                ProviderNamespaceSymbol providerNamespace => providerNamespace.Type,
+                ExtensionNamespaceSymbol extensionNamespace => extensionNamespace.Type,
                 WildcardImportSymbol wildcardImport => wildcardImport.Type,
                 AmbientTypeSymbol ambientType => UnwrapType(syntax, ambientType.Type),
                 ImportedTypeSymbol importedType => UnwrapType(syntax, importedType.Type),
@@ -962,11 +962,11 @@ namespace Bicep.Core.TypeSystem
             // as is accessing elements of a resource-derived type
             ParameterizedTypeInstantiationSyntax parameterized
                 when binder.GetSymbolInfo(parameterized) is AmbientTypeSymbol ambient &&
-                ambient.DeclaringNamespace.ProviderNameEquals(SystemNamespaceType.BuiltInName) &&
+                ambient.DeclaringNamespace.ExtensionNameEquals(SystemNamespaceType.BuiltInName) &&
                 LanguageConstants.IdentifierComparer.Equals(ambient.Name, LanguageConstants.TypeNameResource) => true,
             InstanceParameterizedTypeInstantiationSyntax parameterized
                 when binder.GetSymbolInfo(parameterized.BaseExpression) is BuiltInNamespaceSymbol ns &&
-                ns.TryGetNamespaceType()?.ProviderNameEquals(SystemNamespaceType.BuiltInName) is true &&
+                ns.TryGetNamespaceType()?.ExtensionNameEquals(SystemNamespaceType.BuiltInName) is true &&
                 LanguageConstants.IdentifierComparer.Equals(parameterized.Name.IdentifierName, LanguageConstants.TypeNameResource) => true,
             _ => false,
         };
@@ -1164,9 +1164,9 @@ namespace Bicep.Core.TypeSystem
             TypeSymbol otherwise => otherwise,
         };
 
-        private DeclaredTypeAssignment? GetProviderType(ProviderDeclarationSyntax syntax)
+        private DeclaredTypeAssignment? GetExtensionType(ExtensionDeclarationSyntax syntax)
         {
-            if (this.binder.GetSymbolInfo(syntax) is ProviderNamespaceSymbol importedNamespace)
+            if (this.binder.GetSymbolInfo(syntax) is ExtensionNamespaceSymbol importedNamespace)
             {
                 return new(importedNamespace.DeclaredType, syntax);
             }
@@ -1723,7 +1723,7 @@ namespace Bicep.Core.TypeSystem
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(arrayParent, syntax), syntax, arrayItemAssignment.Flags);
 
-                case ProviderWithClauseSyntax:
+                case ExtensionWithClauseSyntax:
                     parent = this.binder.GetParent(parent);
 
                     if (parent is null)
@@ -1731,8 +1731,8 @@ namespace Bicep.Core.TypeSystem
                         throw new InvalidOperationException("Expected ImportWithClauseSyntax to have a parent.");
                     }
 
-                    if (GetDeclaredTypeAssignment(parent) is not { } providerAssignment ||
-                        providerAssignment.Reference.Type is not NamespaceType namespaceType)
+                    if (GetDeclaredTypeAssignment(parent) is not { } extensionAssignment ||
+                        extensionAssignment.Reference.Type is not NamespaceType namespaceType)
                     {
                         return null;
                     }
@@ -1746,7 +1746,7 @@ namespace Bicep.Core.TypeSystem
 
                     // the object is an item in an array
                     // use the item's type and propagate flags
-                    return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, providerAssignment.Flags);
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, extensionAssignment.Flags);
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                     if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)

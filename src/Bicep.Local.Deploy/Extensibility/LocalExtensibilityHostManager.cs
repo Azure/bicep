@@ -35,7 +35,7 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
     {
         this.moduleDispatcher = moduleDispatcher;
         this.extensionFactory = extensionFactory;
-        // Built in provider for handling nested deployments
+        // Built in extension for handling nested deployments
         RegisteredExtensions[new("LocalNested", "0.0.0")] = new NestedDeploymentBuiltInLocalExtension(this);
     }
 
@@ -57,7 +57,7 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
 
     private async Task<HttpResponseMessage> CallExtension(
         string method,
-        LocalExtensibilityHost provider,
+        LocalExtensibilityHost extensibilityHost,
         HttpContent content,
         CancellationToken cancellationToken)
     {
@@ -66,28 +66,28 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
             case "createOrUpdate":
                 {
                     var resourceSpecification = await GetResourceSpecificationAsync(await content.ReadAsStreamAsync(cancellationToken), cancellationToken);
-                    var extensionResponse = await provider.CreateOrUpdate(resourceSpecification, cancellationToken);
+                    var extensionResponse = await extensibilityHost.CreateOrUpdate(resourceSpecification, cancellationToken);
 
                     return await GetHttpResponseMessageAsync(extensionResponse, cancellationToken);
                 }
             case "delete":
                 {
                     var resourceReference = await GetResourceReferenceAsync(await content.ReadAsStreamAsync(cancellationToken), cancellationToken);
-                    var extensionResponse = await provider.Delete(resourceReference, cancellationToken);
+                    var extensionResponse = await extensibilityHost.Delete(resourceReference, cancellationToken);
 
                     return await GetHttpResponseMessageAsync(extensionResponse, cancellationToken);
                 }
             case "get":
                 {
                     var resourceReference = await GetResourceReferenceAsync(await content.ReadAsStreamAsync(cancellationToken), cancellationToken);
-                    var extensionResponse = await provider.Get(resourceReference, cancellationToken);
+                    var extensionResponse = await extensibilityHost.Get(resourceReference, cancellationToken);
 
                     return await GetHttpResponseMessageAsync(extensionResponse, cancellationToken);
                 }
             case "preview":
                 {
                     var resourceSpecification = await GetResourceSpecificationAsync(await content.ReadAsStreamAsync(cancellationToken), cancellationToken);
-                    var extensionResponse = await provider.Preview(resourceSpecification, cancellationToken);
+                    var extensionResponse = await extensibilityHost.Preview(resourceSpecification, cancellationToken);
 
                     return await GetHttpResponseMessageAsync(extensionResponse, cancellationToken);
                 }
@@ -164,7 +164,7 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
         foreach (var namespaceType in namespaceTypes)
         {
             if (namespaceType.Artifact is { } artifact &&
-                moduleDispatcher.TryGetProviderBinary(artifact) is { } binaryUri)
+                moduleDispatcher.TryGetExtensionBinary(artifact) is { } binaryUri)
             {
                 yield return (namespaceType, binaryUri);
             }
@@ -177,18 +177,18 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
 
         foreach (var (namespaceType, binaryUri) in binaryExtensions)
         {
-            ExtensionKey providerKey = new(namespaceType.Settings.ArmTemplateProviderName, namespaceType.Settings.ArmTemplateProviderVersion);
-            RegisteredExtensions[providerKey] = await extensionFactory(binaryUri);
+            ExtensionKey extensionKey = new(namespaceType.Settings.TemplateExtensionName, namespaceType.Settings.TemplateExtensionVersion);
+            RegisteredExtensions[extensionKey] = await extensionFactory(binaryUri);
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        await Task.WhenAll(RegisteredExtensions.Values.Select(async provider =>
+        await Task.WhenAll(RegisteredExtensions.Values.Select(async extension =>
         {
             try
             {
-                await provider.DisposeAsync();
+                await extension.DisposeAsync();
             }
             catch
             {

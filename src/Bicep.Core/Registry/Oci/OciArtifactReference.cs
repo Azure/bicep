@@ -8,7 +8,6 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Registry.Oci
 {
-    // Currently this can be a module or a provider.
     public class OciArtifactReference : ArtifactReference, IOciArtifactReference
     {
         public OciArtifactReference(ArtifactType type, IArtifactAddressComponents artifactIdParts, Uri parentModuleUri) :
@@ -36,7 +35,7 @@ namespace Bicep.Core.Registry.Oci
         public IArtifactAddressComponents AddressComponents { get; }
 
         /// <summary>
-        /// Gets the type of artifact reference. Either module or provider.
+        /// Gets the type of artifact reference.
         /// </summary>
         public ArtifactType Type { get; }
 
@@ -113,12 +112,12 @@ namespace Bicep.Core.Registry.Oci
                         }
                         unqualifiedReference = $"{moduleAlias}/{unqualifiedReference}";
                         break;
-                    case ArtifactType.Provider:
-                        if (!configuration.ExtensionAliases.TryGetOciArtifactExtensionAlias(aliasName).IsSuccess(out var providerAlias, out var providerFailureBuilder))
+                    case ArtifactType.Extension:
+                        if (!configuration.ExtensionAliases.TryGetOciArtifactExtensionAlias(aliasName).IsSuccess(out var extensionAlias, out var extensionFailureBuilder))
                         {
-                            return new(providerFailureBuilder);
+                            return new(extensionFailureBuilder);
                         }
-                        unqualifiedReference = $"{providerAlias}/{unqualifiedReference}";
+                        unqualifiedReference = $"{extensionAlias}/{unqualifiedReference}";
                         break;
                     default:
                         return new(x => x.UnsupportedArtifactType(type));

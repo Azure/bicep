@@ -48,10 +48,10 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
-            BicepProviderName: BuiltInName,
+            BicepExtensionName: BuiltInName,
             ConfigurationType: null,
-            ArmTemplateProviderName: "System",
-            ArmTemplateProviderVersion: "1.0.0");
+            TemplateExtensionName: "System",
+            TemplateExtensionVersion: "1.0.0");
 
         private delegate bool VisibilityDelegate(IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind);
 

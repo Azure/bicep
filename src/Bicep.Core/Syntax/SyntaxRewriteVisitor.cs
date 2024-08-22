@@ -345,7 +345,7 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceOutputDeclarationSyntax);
 
-        protected virtual SyntaxBase ReplaceProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
+        protected virtual SyntaxBase ReplaceExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
@@ -358,11 +358,11 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ProviderDeclarationSyntax(leadingNodes, keyword, specification, withClause, asClause);
+            return new ExtensionDeclarationSyntax(leadingNodes, keyword, specification, withClause, asClause);
         }
-        void ISyntaxVisitor.VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceProviderDeclarationSyntax);
+        void ISyntaxVisitor.VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceExtensionDeclarationSyntax);
 
-        protected virtual SyntaxBase ReplaceProviderWithClauseSyntax(ProviderWithClauseSyntax syntax)
+        protected virtual SyntaxBase ReplaceExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Config, out var config);
@@ -372,9 +372,9 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ProviderWithClauseSyntax(keyword, config);
+            return new ExtensionWithClauseSyntax(keyword, config);
         }
-        void ISyntaxVisitor.VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceProviderWithClauseSyntax);
+        void ISyntaxVisitor.VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceExtensionWithClauseSyntax);
 
         protected virtual SyntaxBase ReplaceAliasAsClauseSyntax(AliasAsClauseSyntax syntax)
         {

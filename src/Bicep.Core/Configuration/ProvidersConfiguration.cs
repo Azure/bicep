@@ -10,13 +10,13 @@ using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.Configuration;
 
-public record ProviderConfigEntry
+public record ExtensionConfigEntry
 {
     public bool BuiltIn => this.Value == "builtin:";
 
     public string Value { get; }
 
-    public ProviderConfigEntry(string value)
+    public ExtensionConfigEntry(string value)
     {
         Value = value;
     }
@@ -25,24 +25,24 @@ public record ProviderConfigEntry
         => Value;
 }
 
-public partial class ProvidersConfiguration : ConfigurationSection<ImmutableDictionary<string, ProviderConfigEntry>>
+public partial class ExtensionsConfiguration : ConfigurationSection<ImmutableDictionary<string, ExtensionConfigEntry>>
 {
-    private ProvidersConfiguration(ImmutableDictionary<string, ProviderConfigEntry> data) : base(data) { }
+    private ExtensionsConfiguration(ImmutableDictionary<string, ExtensionConfigEntry> data) : base(data) { }
 
-    public static ProvidersConfiguration Bind(JsonElement element)
+    public static ExtensionsConfiguration Bind(JsonElement element)
         => new(element.ToNonNullObject<ImmutableDictionary<string, string>>()
             .ToImmutableDictionary(
                 pair => pair.Key,
-                pair => new ProviderConfigEntry(pair.Value))
+                pair => new ExtensionConfigEntry(pair.Value))
         );
 
-    public ResultWithDiagnostic<ProviderConfigEntry> TryGetProviderSource(string providerName)
+    public ResultWithDiagnostic<ExtensionConfigEntry> TryGetExtensionSource(string extensionName)
     {
-        if (!this.Data.TryGetValue(providerName, out var providerConfigEntry))
+        if (!this.Data.TryGetValue(extensionName, out var extensionConfigEntry))
         {
-            return new(x => x.UnrecognizedProvider(providerName));
+            return new(x => x.UnrecognizedExtension(extensionName));
         }
-        return new(providerConfigEntry);
+        return new(extensionConfigEntry);
     }
 
     public override void WriteTo(Utf8JsonWriter writer)
@@ -56,6 +56,6 @@ public partial class ProvidersConfiguration : ConfigurationSection<ImmutableDict
         writer.WriteEndObject();
     }
 
-    public bool IsSysOrBuiltIn(string providerName)
-        => providerName == SystemNamespaceType.BuiltInName || this.Data.TryGetValue(providerName)?.BuiltIn == true;
+    public bool IsSysOrBuiltIn(string extensionName)
+        => extensionName == SystemNamespaceType.BuiltInName || this.Data.TryGetValue(extensionName)?.BuiltIn == true;
 }

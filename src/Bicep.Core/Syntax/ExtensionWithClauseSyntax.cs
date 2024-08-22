@@ -5,9 +5,9 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class ProviderWithClauseSyntax : SyntaxBase
+    public class ExtensionWithClauseSyntax : SyntaxBase
     {
-        public ProviderWithClauseSyntax(Token keyword, SyntaxBase config)
+        public ExtensionWithClauseSyntax(Token keyword, SyntaxBase config)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.WithKeyword);
             AssertSyntaxType(config, nameof(config), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
@@ -22,6 +22,6 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, this.Config);
 
-        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderWithClauseSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitExtensionWithClauseSyntax(this);
     }
 }

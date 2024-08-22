@@ -22,7 +22,7 @@ namespace Bicep.Core.Registry
 
         public abstract Task PublishModule(T reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description);
 
-        public abstract Task PublishProvider(T reference, ProviderPackage provider);
+        public abstract Task PublishExtension(T reference, ExtensionPackage package);
 
         public virtual Task OnRestoreArtifacts(bool forceRestore)
         {
@@ -51,8 +51,8 @@ namespace Bicep.Core.Registry
         public Task PublishModule(ArtifactReference artifactReference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
             => this.PublishModule(ConvertReference(artifactReference), compiled, bicepSources, documentationUri, description);
 
-        public Task PublishProvider(ArtifactReference reference, ProviderPackage provider)
-            => this.PublishProvider(ConvertReference(reference), provider);
+        public Task PublishExtension(ArtifactReference reference, ExtensionPackage package)
+            => this.PublishExtension(ConvertReference(reference), package);
 
         public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references) =>
             this.RestoreArtifacts(references.Select(ConvertReference));
@@ -70,9 +70,9 @@ namespace Bicep.Core.Registry
 
         public ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
 
-        public abstract Uri? TryGetProviderBinary(T reference);
+        public abstract Uri? TryGetExtensionBinary(T reference);
 
-        public Uri? TryGetProviderBinary(ArtifactReference reference) => this.TryGetProviderBinary(ConvertReference(reference));
+        public Uri? TryGetExtensionBinary(ArtifactReference reference) => this.TryGetExtensionBinary(ConvertReference(reference));
 
         public abstract RegistryCapabilities GetCapabilities(ArtifactType artifactType, T reference);
 

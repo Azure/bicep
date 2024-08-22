@@ -15,10 +15,10 @@ namespace Bicep.Core.IntegrationTests.Extensibility;
 
 public class TestExtensibilityNamespaceProvider : NamespaceProvider
 {
-    public delegate NamespaceType? NamespaceTypeCreator(string providerName, string aliasName);
+    public delegate NamespaceType? NamespaceTypeCreator(string extensionName, string aliasName);
 
     public static INamespaceProvider CreateWithDefaults()
-        => Create((providerName, aliasName) => providerName switch
+        => Create((extensionName, aliasName) => extensionName switch
         {
             FooNamespaceType.BuiltInName => FooNamespaceType.Create(aliasName),
             BarNamespaceType.BuiltInName => BarNamespaceType.Create(aliasName),
@@ -38,14 +38,14 @@ public class TestExtensibilityNamespaceProvider : NamespaceProvider
 
     private readonly NamespaceTypeCreator namespaceCreatorFunc;
 
-    protected override TypeSymbol GetNamespaceTypeForConfigManagedProvider(RootConfiguration rootConfig, IFeatureProvider features, BicepSourceFile sourceFile, ResourceScope targetScope, ArtifactResolutionInfo? artifact, ProviderDeclarationSyntax? syntax, string providerName)
+    protected override TypeSymbol GetNamespaceTypeForConfigManagedExtension(RootConfiguration rootConfig, IFeatureProvider features, BicepSourceFile sourceFile, ResourceScope targetScope, ArtifactResolutionInfo? artifact, ExtensionDeclarationSyntax? syntax, string extensionName)
     {
-        var aliasName = syntax?.Alias?.IdentifierName ?? providerName;
-        if (namespaceCreatorFunc(providerName, aliasName) is { } namespaceType)
+        var aliasName = syntax?.Alias?.IdentifierName ?? extensionName;
+        if (namespaceCreatorFunc(extensionName, aliasName) is { } namespaceType)
         {
             return namespaceType;
         }
 
-        return base.GetNamespaceTypeForConfigManagedProvider(rootConfig, features, sourceFile, targetScope, artifact, syntax, providerName);
+        return base.GetNamespaceTypeForConfigManagedExtension(rootConfig, features, sourceFile, targetScope, artifact, syntax, extensionName);
     }
 }

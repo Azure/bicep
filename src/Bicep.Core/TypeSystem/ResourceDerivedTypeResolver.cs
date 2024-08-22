@@ -59,9 +59,9 @@ public class ResourceDerivedTypeResolver
 
     private TypeSymbol ResolveType(IUnresolvedResourceDerivedType unresolved)
     {
-        // TODO support types derived from resources other than the `az` provider. This will require some refactoring of how provider artifacts are restored
+        // TODO support types derived from resources other than the `az` extension. This will require some refactoring of how extension artifacts are restored
         if (binder.NamespaceResolver.GetMatchingResourceTypes(unresolved.TypeReference, ResourceTypeGenerationFlags.None)
-            .Where(resourceType => LanguageConstants.IdentifierComparer.Equals(resourceType.DeclaringNamespace.ProviderName, AzNamespaceType.BuiltInName))
+            .Where(resourceType => LanguageConstants.IdentifierComparer.Equals(resourceType.DeclaringNamespace.ExtensionName, AzNamespaceType.BuiltInName))
             .FirstOrDefault()
             ?.Body.Type is TypeSymbol bodyType)
         {

@@ -257,10 +257,10 @@ extension madeUpNamespace
                 "ns1",
                 new NamespaceSettings(
                     IsSingleton: true,
-                    BicepProviderName: "ns1",
+                    BicepExtensionName: "ns1",
                     ConfigurationType: null,
-                    ArmTemplateProviderName: "Ns1-Unused",
-                    ArmTemplateProviderVersion: "1.0"),
+                    TemplateExtensionName: "Ns1-Unused",
+                    TemplateExtensionVersion: "1.0"),
                 ImmutableArray<TypeProperty>.Empty,
                 new[] {
                     new FunctionOverloadBuilder("ns1Func").Build(),
@@ -274,10 +274,10 @@ extension madeUpNamespace
                 "ns2",
                 new NamespaceSettings(
                     IsSingleton: true,
-                    BicepProviderName: "ns2",
+                    BicepExtensionName: "ns2",
                     ConfigurationType: null,
-                    ArmTemplateProviderName: "Ns2-Unused",
-                    ArmTemplateProviderVersion: "1.0"),
+                    TemplateExtensionName: "Ns2-Unused",
+                    TemplateExtensionVersion: "1.0"),
                 ImmutableArray<TypeProperty>.Empty,
                 new[] {
                     new FunctionOverloadBuilder("ns2Func").Build(),
@@ -287,7 +287,7 @@ extension madeUpNamespace
                 ImmutableArray<Decorator>.Empty,
                 new EmptyResourceTypeProvider());
 
-            var nsProvider = TestExtensibilityNamespaceProvider.Create((providerName, aliasName) => providerName switch
+            var nsProvider = TestExtensibilityNamespaceProvider.Create((extensionName, aliasName) => extensionName switch
             {
                 "ns1" => ns1,
                 "ns2" => ns2,
@@ -337,7 +337,7 @@ extension madeUpNamespace
                 "mockNs",
                 new(
                     IsSingleton: false,
-                    BicepProviderName: "mockNs",
+                    BicepExtensionName: "mockNs",
                     ConfigurationType: new ObjectType(
                         "mockNs",
                         TypeSymbolValidationFlags.Default,
@@ -346,15 +346,15 @@ extension madeUpNamespace
                             new TypeProperty("optionalConfig", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant),
                         },
                         null),
-                    ArmTemplateProviderName: "Unused",
-                    ArmTemplateProviderVersion: "1.0.0"),
+                    TemplateExtensionName: "Unused",
+                    TemplateExtensionVersion: "1.0.0"),
                 ImmutableArray<TypeProperty>.Empty,
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,
                 new EmptyResourceTypeProvider());
 
-            var nsProvider = TestExtensibilityNamespaceProvider.Create((providerName, aliasName) => providerName switch
+            var nsProvider = TestExtensibilityNamespaceProvider.Create((extensionName, aliasName) => extensionName switch
             {
                 "mockNs" => mockNs,
                 _ => null,

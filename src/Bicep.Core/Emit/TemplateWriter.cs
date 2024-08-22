@@ -135,7 +135,7 @@ namespace Bicep.Core.Emit
 
             this.EmitVariablesIfPresent(emitter, program.Variables.Concat(Context.ImportClosureInfo.ImportedVariablesInClosure));
 
-            this.EmitExtensionsIfPresent(emitter, program.Providers);
+            this.EmitExtensionsIfPresent(emitter, program.Extensions);
 
             this.EmitResources(jsonWriter, emitter, program.Resources, program.Modules);
 
@@ -994,9 +994,9 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
         {
-            if (!providers.Any())
+            if (!extensions.Any())
             {
                 return;
             }
@@ -1004,75 +1004,75 @@ namespace Bicep.Core.Emit
             // TODO: Remove if statement once all providers got migrated to extensions (extensibility v2 contract).
             if (Context.SemanticModel.Features.LocalDeployEnabled)
             {
-                EmitExtensions(emitter, providers.Add(GetExtensionForLocalDeploy()));
+                EmitExtensions(emitter, extensions.Add(GetExtensionForLocalDeploy()));
             }
             else
             {
-                EmitProviders(emitter, providers);
+                EmitProviders(emitter, extensions);
             }
         }
 
-        private static void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        private static void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
         {
             emitter.EmitObjectProperty("imports", () =>
             {
-                foreach (var provider in providers)
+                foreach (var extension in extensions)
                 {
-                    var settings = provider.Settings;
+                    var settings = extension.Settings;
 
-                    emitter.EmitObjectProperty(provider.Name, () =>
+                    emitter.EmitObjectProperty(extension.Name, () =>
                     {
-                        emitter.EmitProperty("provider", settings.ArmTemplateProviderName);
-                        emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
-                        if (provider.Config is not null)
+                        emitter.EmitProperty("provider", settings.TemplateExtensionName);
+                        emitter.EmitProperty("version", settings.TemplateExtensionVersion);
+                        if (extension.Config is not null)
                         {
-                            emitter.EmitProperty("config", provider.Config);
+                            emitter.EmitProperty("config", extension.Config);
                         }
-                    }, provider.SourceSyntax);
+                    }, extension.SourceSyntax);
                 }
             });
         }
 
-        private void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        private void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
         {
             emitter.EmitObjectProperty("extensions", () =>
             {
-                foreach (var provider in providers)
+                foreach (var extension in extensions)
                 {
-                    var settings = provider.Settings;
+                    var settings = extension.Settings;
 
-                    emitter.EmitObjectProperty(provider.Name, () =>
+                    emitter.EmitObjectProperty(extension.Name, () =>
                     {
-                        emitter.EmitProperty("name", settings.ArmTemplateProviderName);
-                        emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
+                        emitter.EmitProperty("name", settings.TemplateExtensionName);
+                        emitter.EmitProperty("version", settings.TemplateExtensionVersion);
 
-                        EmitExtensionConfig(provider, emitter);
+                        EmitExtensionConfig(extension, emitter);
                     },
-                    provider.SourceSyntax);
+                    extension.SourceSyntax);
                 }
             });
         }
 
-        private void EmitExtensionConfig(DeclaredProviderExpression provider, ExpressionEmitter emitter)
+        private void EmitExtensionConfig(DeclaredExtensionExpression extension, ExpressionEmitter emitter)
         {
-            if (provider.Config is null)
+            if (extension.Config is null)
             {
                 return;
             }
 
-            if (provider.Config is not ObjectExpression providerConfig)
+            if (extension.Config is not ObjectExpression config)
             {
-                throw new UnreachableException($"Provider config type expected to be of type: '{nameof(ObjectExpression)}' but received: '{provider.Config.GetType()}'");
+                throw new UnreachableException($"Extension config type expected to be of type: '{nameof(ObjectExpression)}' but received: '{extension.Config.GetType()}'");
             }
 
             emitter.EmitObjectProperty("config", () =>
             {
-                foreach (var providerConfigProperty in providerConfig.Properties)
+                foreach (var configProperty in config.Properties)
                 {
                     // Type checking should have validated that the config name is not an expression (e.g. string interpolation), if we get a null value it means something
                     // was wrong with type checking validation.
-                    var extensionConfigName = providerConfigProperty.TryGetKeyText() ?? throw new UnreachableException("Expressions are not allowed as config names.");
-                    var configType = provider.Settings.ConfigurationType ?? throw new UnreachableException("Config type must be specified.");
+                    var extensionConfigName = configProperty.TryGetKeyText() ?? throw new UnreachableException("Expressions are not allowed as config names.");
+                    var configType = extension.Settings.ConfigurationType ?? throw new UnreachableException("Config type must be specified.");
                     var extensionConfigType = GetExtensionConfigType(extensionConfigName, configType);
 
                     emitter.EmitObjectProperty(extensionConfigName, () =>
@@ -1112,7 +1112,7 @@ namespace Bicep.Core.Emit
                                 throw new ArgumentException($"Config name: '{extensionConfigName}' specified an unsupported type: '{extensionConfigType}'. Supported types are: 'string', 'secureString', 'int', 'bool', 'array', 'secureObject', 'object'.");
                         }
 
-                        emitter.EmitProperty("defaultValue", providerConfigProperty.Value);
+                        emitter.EmitProperty("defaultValue", configProperty.Value);
                     });
                 }
             });
@@ -1125,10 +1125,10 @@ namespace Bicep.Core.Emit
                 return configItem.TypeReference.Type;
             }
 
-            throw new UnreachableException($"Configuration name: '{configName}' does not exist as part of provider configuration.");
+            throw new UnreachableException($"Configuration name: '{configName}' does not exist as part of extension configuration.");
         }
 
-        private DeclaredProviderExpression GetExtensionForLocalDeploy()
+        private DeclaredExtensionExpression GetExtensionForLocalDeploy()
         {
             return new(
                 null,
@@ -1210,7 +1210,7 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("existing", new BooleanLiteralExpression(null, true));
                 }
 
-                var importSymbol = Context.SemanticModel.Root.ProviderDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
+                var importSymbol = Context.SemanticModel.Root.ExtensionDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
                 if (importSymbol is not null)
                 {
                     if (this.Context.SemanticModel.Features.LocalDeployEnabled)

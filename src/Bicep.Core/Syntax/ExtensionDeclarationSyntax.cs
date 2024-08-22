@@ -8,9 +8,9 @@ using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Core.Syntax
 {
-    public class ProviderDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
+    public class ExtensionDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
-        public ProviderDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase specificationString, SyntaxBase withClause, SyntaxBase asClause)
+        public ExtensionDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase specificationString, SyntaxBase withClause, SyntaxBase asClause)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ImportKeyword, LanguageConstants.ProviderKeyword, LanguageConstants.ExtensionKeyword);
@@ -30,7 +30,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase AsClause { get; }
 
-        public ObjectSyntax? Config => (this.WithClause as ProviderWithClauseSyntax)?.Config as ObjectSyntax;
+        public ObjectSyntax? Config => (this.WithClause as ExtensionWithClauseSyntax)?.Config as ObjectSyntax;
 
         public IdentifierSyntax? Alias => (this.AsClause as AliasAsClauseSyntax)?.Alias;
 
@@ -38,11 +38,11 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase SourceSyntax => SpecificationString;
 
-        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderDeclarationSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitExtensionDeclarationSyntax(this);
 
-        public ArtifactType GetArtifactType() => ArtifactType.Provider;
+        public ArtifactType GetArtifactType() => ArtifactType.Extension;
 
-        // if the provider specification is inlined return a value otherwise return null
+        // if the extension specification is inlined return a value otherwise return null
         public SyntaxBase? Path => this.SpecificationString as StringSyntax;
     }
 }

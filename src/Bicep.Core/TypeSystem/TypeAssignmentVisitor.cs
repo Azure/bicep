@@ -302,7 +302,7 @@ namespace Bicep.Core.TypeSystem
                         // TODO move into Az extension
                         var typeSegments = resourceType.TypeReference.TypeSegments;
 
-                        if (resourceType.DeclaringNamespace.ProviderName == AzNamespaceType.BuiltInName &&
+                        if (resourceType.DeclaringNamespace.ExtensionName == AzNamespaceType.BuiltInName &&
                             typeSegments.Length > 2 &&
                             typeSegments.Where((type, i) => i > 1 && i < (typeSegments.Length - 1) && StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
                         {
@@ -871,10 +871,10 @@ namespace Bicep.Core.TypeSystem
             return declaredType;
         }
 
-        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
+        public override void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                if (binder.GetSymbolInfo(syntax) is not ProviderNamespaceSymbol namespaceSymbol)
+                if (binder.GetSymbolInfo(syntax) is not ExtensionNamespaceSymbol namespaceSymbol)
                 {
                     // We have syntax or binding errors, which should have already been handled.
                     return ErrorType.Empty();
@@ -898,7 +898,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     if (namespaceType.ConfigurationType is null)
                     {
-                        diagnostics.Write(syntax.Config, x => x.ProviderDoesNotSupportConfiguration(namespaceType.ProviderName));
+                        diagnostics.Write(syntax.Config, x => x.ExtensionDoesNotSupportConfiguration(namespaceType.ExtensionName));
                     }
                     else
                     {
@@ -912,7 +912,7 @@ namespace Bicep.Core.TypeSystem
                         namespaceType.ConfigurationType is not null &&
                         namespaceType.ConfigurationType.Properties.Values.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)))
                     {
-                        diagnostics.Write(syntax, x => x.ProviderRequiresConfiguration(namespaceType.ProviderName));
+                        diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(namespaceType.ExtensionName));
                     }
                 }
 
@@ -1123,10 +1123,10 @@ namespace Bicep.Core.TypeSystem
 
                 return new NamespaceType(syntax.Name.IdentifierName,
                     new(IsSingleton: true,
-                        BicepProviderName: syntax.Name.IdentifierName,
+                        BicepExtensionName: syntax.Name.IdentifierName,
                         ConfigurationType: null,
-                        ArmTemplateProviderName: syntax.Name.IdentifierName,
-                        ArmTemplateProviderVersion: "1.0.0"),
+                        TemplateExtensionName: syntax.Name.IdentifierName,
+                        TemplateExtensionVersion: "1.0.0"),
                     nsProperties,
                     nsFunctions,
                     ImmutableArray<BannedFunction>.Empty,
@@ -2155,7 +2155,7 @@ namespace Bicep.Core.TypeSystem
                     case ImportedSymbol imported:
                         return imported.Type;
 
-                    case ProviderNamespaceSymbol provider:
+                    case ExtensionNamespaceSymbol provider:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, provider));
 
                     case BuiltInNamespaceSymbol @namespace:

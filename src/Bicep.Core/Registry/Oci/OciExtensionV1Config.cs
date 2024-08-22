@@ -7,11 +7,11 @@ using System.Text.Json.Serialization;
 
 namespace Bicep.Core.Registry.Oci;
 
-[JsonSerializable(typeof(OciProvidersV1Config))]
+[JsonSerializable(typeof(OciExtensionV1Config))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-public partial class OciProvidersV1ConfigSerializationContext : JsonSerializerContext { }
+public partial class OciExtensionV1ConfigSerializationContext : JsonSerializerContext { }
 
-public class OciProvidersV1Config
+public class OciExtensionV1Config
 {
     // Avoid writing null properties for backwards compatibility
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -22,7 +22,7 @@ public class OciProvidersV1Config
     public ImmutableArray<string>? SupportedArchitectures { get; }
 
     [JsonConstructor]
-    public OciProvidersV1Config(bool? localDeployEnabled, ImmutableArray<string>? supportedArchitectures)
+    public OciExtensionV1Config(bool? localDeployEnabled, ImmutableArray<string>? supportedArchitectures)
     {
         LocalDeployEnabled = localDeployEnabled;
         SupportedArchitectures = supportedArchitectures;

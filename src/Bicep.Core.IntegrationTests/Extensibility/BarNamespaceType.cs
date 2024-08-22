@@ -21,10 +21,10 @@ public static class BarNamespaceType
 
     public static NamespaceSettings Settings { get; } = new(
         IsSingleton: false,
-        BicepProviderName: BuiltInName,
+        BicepExtensionName: BuiltInName,
         ConfigurationType: GetConfigurationType(),
-        ArmTemplateProviderName: "Bar",
-        ArmTemplateProviderVersion: "0.0.1");
+        TemplateExtensionName: "Bar",
+        TemplateExtensionVersion: "0.0.1");
 
     private static ObjectType GetConfigurationType()
     {

@@ -221,16 +221,16 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         [DataRow(new string[] { "unknown1", BicepMediaTypes.BicepModuleLayerV1Json, "unknown2" }, null)]
         [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json, "unknown1", "unknown2" }, null)]
         [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json, "unknown1", "unknown1", "unknown2", "unknown2" }, null)]
-        [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip }, null)]
+        [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip }, null)]
         // *** Negative Cases ***
         [DataRow(
-            new string[] { BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip },
+            new string[] { BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip },
             ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
         [DataRow(
             new string[] { },
             ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
         [DataRow(
-            new string[] { "unknown", BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip },
+            new string[] { "unknown", BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip },
             ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
         [DataRow(
             new string[] { "unknown2", "unknown1" },
@@ -238,9 +238,9 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         [DataRow(
             new string[] { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepModuleLayerV1Json },
             $".*Did not expect to find multiple layer media types of application\\/vnd.ms.bicep.module.layer.v1\\+json")]
-        // TODO: doesn't work because provider error handling is still coupled with module error handling.
+        // TODO: doesn't work because extension error handling is still coupled with module error handling.
         [DataRow(
-            new string[] { BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip },
+            new string[] { BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip, BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip },
             ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
         public async Task Restore_Artifacts_LayerMediaTypes(string[] layerMediaTypes, string expectedErrorRegex)
         {

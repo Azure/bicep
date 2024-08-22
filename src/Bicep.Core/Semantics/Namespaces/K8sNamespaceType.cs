@@ -18,10 +18,10 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
-            BicepProviderName: BuiltInName,
+            BicepExtensionName: BuiltInName,
             ConfigurationType: GetConfigurationType(),
-            ArmTemplateProviderName: "Kubernetes",
-            ArmTemplateProviderVersion: BuiltInVersion);
+            TemplateExtensionName: "Kubernetes",
+            TemplateExtensionVersion: BuiltInVersion);
 
         private static ObjectType GetConfigurationType()
         {

@@ -9,14 +9,14 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
-    public record ProviderBinary(
+    public record ExtensionBinary(
         SupportedArchitecture Architecture,
         BinaryData Data);
 
-    public record ProviderPackage(
+    public record ExtensionPackage(
         BinaryData Types,
         bool LocalDeployEnabled,
-        ImmutableArray<ProviderBinary> Binaries);
+        ImmutableArray<ExtensionBinary> Binaries);
 
     public interface IModuleDispatcher : IArtifactReferenceFactory
     {
@@ -30,17 +30,17 @@ namespace Bicep.Core.Registry
 
         Task<bool> CheckModuleExists(ArtifactReference reference);
 
-        Task<bool> CheckProviderExists(ArtifactReference reference);
+        Task<bool> CheckExtensionExists(ArtifactReference reference);
 
         Task PublishModule(ArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri);
 
-        Task PublishProvider(ArtifactReference reference, ProviderPackage provider);
+        Task PublishExtension(ArtifactReference reference, ExtensionPackage package);
 
         void PruneRestoreStatuses();
 
         // Retrieves the sources that have been restored along with the module into the cache (if available)
         ResultWithException<SourceArchive> TryGetModuleSources(ArtifactReference reference);
 
-        Uri? TryGetProviderBinary(ArtifactReference reference);
+        Uri? TryGetExtensionBinary(ArtifactReference reference);
     }
 }
