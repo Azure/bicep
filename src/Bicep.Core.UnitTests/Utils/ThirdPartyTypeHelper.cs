@@ -14,7 +14,7 @@ namespace Bicep.Core.UnitTests.Utils;
 
 public static class ThirdPartyTypeHelper
 {
-    public static IReadOnlyDictionary<string, string> GetHttpProviderTypes()
+    public static IReadOnlyDictionary<string, string> GetHttpExtensionTypes()
     {
         var factory = new TypeFactory([]);
 
@@ -66,8 +66,8 @@ public static class ThirdPartyTypeHelper
         };
     }
 
-    public static BinaryData GetHttpProviderTypesTgz()
-        => GetTypesTgzBytesFromFiles(GetHttpProviderTypes().Select(x => (x.Key, x.Value)).ToArray());
+    public static BinaryData GetHttpExtensionTypesTgz()
+        => GetTypesTgzBytesFromFiles(GetHttpExtensionTypes().Select(x => (x.Key, x.Value)).ToArray());
 
     /// <summary>
     /// Returns a .tgz file containing a set of pre-defined types for testing purposes.
@@ -108,7 +108,7 @@ public static class ThirdPartyTypeHelper
                 ["convertBarToBaz"] = new(factory.GetReference(barFunctionType), "Converts a bar into a baz!")
             }));
 
-        var settings = new TypeSettings(name: "ThirdPartyProvider", version: "1.0.0", isSingleton: false, configurationType: null!);
+        var settings = new TypeSettings(name: "ThirdPartyExtension", version: "1.0.0", isSingleton: false, configurationType: null!);
 
         var index = new TypeIndex(new Dictionary<string, CrossFileTypeReference>
         {
@@ -175,7 +175,7 @@ public static class ThirdPartyTypeHelper
             ["context"] = new(rootFactory.GetReference(stringTypeRoot), ObjectTypePropertyFlags.None, "Not required context property.")
         }, null));
 
-        var settings = new TypeSettings(name: "ThirdPartyProvider", version: "1.0.0", isSingleton: false, configurationType: new CrossFileTypeReference("types.json", rootFactory.GetIndex(configurationType)));
+        var settings = new TypeSettings(name: "ThirdPartyExtension", version: "1.0.0", isSingleton: false, configurationType: new CrossFileTypeReference("types.json", rootFactory.GetIndex(configurationType)));
 
         var index = new TypeIndex(new Dictionary<string, CrossFileTypeReference>
         {

@@ -12,10 +12,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Configuration;
 
 [TestClass]
-public class ProvidersConfigurationTests
+public class ExtensionsConfigurationTests
 {
     [TestMethod]
-    public void ProviderConfiguration_deserialization()
+    public void ExtensionConfiguration_deserialization()
     {
         var data = JsonElementFactory.CreateElement("""
         {
@@ -26,43 +26,43 @@ public class ProvidersConfigurationTests
         }
         """);
 
-        var providers = ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ExtensionsKey));
-        providers.Should().NotBeNull();
+        var extensions = ExtensionsConfiguration.Bind(data.GetProperty(RootConfiguration.ExtensionsKey));
+        extensions.Should().NotBeNull();
 
-        providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
-        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/extensions/az:0.2.3");
+        extensions.TryGetExtensionSource("az").IsSuccess(out var azExtension).Should().BeTrue();
+        azExtension!.Value.Should().Be("br:mcr.microsoft.com/bicep/extensions/az:0.2.3");
 
-        providers.TryGetProviderSource("kubernetes").IsSuccess(out var k8sProvider).Should().BeTrue();
-        k8sProvider.Should().NotBeNull();
-        k8sProvider!.Value.Should().Be("builtin:");
+        extensions.TryGetExtensionSource("kubernetes").IsSuccess(out var k8sExtension).Should().BeTrue();
+        k8sExtension.Should().NotBeNull();
+        k8sExtension!.Value.Should().Be("builtin:");
 
-        providers.TryGetProviderSource("unspecified").IsSuccess(out var provider, out var errorBuilder).Should().BeFalse();
-        provider.Should().BeNull();
+        extensions.TryGetExtensionSource("unspecified").IsSuccess(out var extension, out var errorBuilder).Should().BeFalse();
+        extension.Should().BeNull();
         errorBuilder!.Should().NotBeNull();
         errorBuilder!.Should().HaveCode("BCP204");
         errorBuilder!.Should().HaveMessage($"Extension \"unspecified\" is not recognized.");
     }
 
     [TestMethod]
-    public void ProviderConfiguration_default_configuration_returns_known_list_of_built_in_providers_with_expected_default_values()
+    public void ExtensionConfiguration_default_configuration_returns_known_list_of_built_in_extensions_with_expected_default_values()
     {
         var config = IConfigurationManager.GetBuiltInConfiguration();
 
         config.Should().NotBeNull();
         config!.Extensions.Should().NotBeNull();
 
-        foreach (var providerName in new[] { "az", "kubernetes", "microsoftGraph" })
+        foreach (var extensionName in new[] { "az", "kubernetes", "microsoftGraph" })
         {
-            config.Extensions!.TryGetProviderSource(providerName).IsSuccess(out var provider).Should().BeTrue();
-            provider!.Value.Should().Be("builtin:");
+            config.Extensions!.TryGetExtensionSource(extensionName).IsSuccess(out var extension).Should().BeTrue();
+            extension!.Value.Should().Be("builtin:");
         }
 
         // assert that 'sys' is not present in the default configuration
-        config.Extensions!.TryGetProviderSource("sys").IsSuccess().Should().BeFalse();
+        config.Extensions!.TryGetExtensionSource("sys").IsSuccess().Should().BeFalse();
     }
 
     [TestMethod]
-    public void ProviderConfiguration_user_provided_configuration_overrides_default_configuration()
+    public void ExtensionConfiguration_user_provided_configuration_overrides_default_configuration()
     {
         var bicepConfigFileName = "bicepconfig.json";
         var fs = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -84,18 +84,18 @@ public class ProvidersConfigurationTests
         config.Should().NotBeNull();
         config!.Extensions.Should().NotBeNull();
 
-        var providers = config.Extensions!;
+        var extensions = config.Extensions!;
         // assert 'source' and 'version' are valid properties for 'foo'
-        providers.TryGetProviderSource("foo").IsSuccess(out var fooProvider).Should().BeTrue();
-        fooProvider!.Value.Should().Be("br:example.azurecr.io/some/fake/path:1.0.0");
+        extensions.TryGetExtensionSource("foo").IsSuccess(out var fooExtension).Should().BeTrue();
+        fooExtension!.Value.Should().Be("br:example.azurecr.io/some/fake/path:1.0.0");
 
-        // assert 'az' provider properties are overridden by the user provided configuration
-        providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
-        azProvider!.Value.Should().Be("br:mcr.microsoft.com/bicep/extensions/az:0.2.3");
+        // assert 'az' extension properties are overridden by the user provided configuration
+        extensions.TryGetExtensionSource("az").IsSuccess(out var azExtension).Should().BeTrue();
+        azExtension!.Value.Should().Be("br:mcr.microsoft.com/bicep/extensions/az:0.2.3");
 
         // assert that 'sys' is not present in the merged configuration
-        providers.TryGetProviderSource("sys").IsSuccess(out var provider, out var errorBuilder).Should().BeFalse();
-        provider.Should().BeNull();
+        extensions.TryGetExtensionSource("sys").IsSuccess(out var extension, out var errorBuilder).Should().BeFalse();
+        extension.Should().BeNull();
         errorBuilder!.Should().NotBeNull();
         errorBuilder!.Should().HaveCode("BCP204");
         errorBuilder!.Should().HaveMessage($"Extension \"sys\" is not recognized.");

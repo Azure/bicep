@@ -1872,20 +1872,20 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         }
 
         [TestMethod]
-        public async Task Provider_completions_work_if_feature_enabled()
+        public async Task Extension_completions_work_if_feature_enabled()
         {
 
             var fileWithCursors = @"
             |
-            provider ns1 |
-            provider ns2 a|
-            provider ns3 as|
-            provider |
-            provider a|
+            extension ns1 |
+            extension ns2 a|
+            extension ns3 as|
+            extension |
+            extension a|
             ";
             await RunCompletionScenarioTest(this.TestContext, ServerWithExtensibilityEnabled, fileWithCursors,
                 completions => completions.Should().SatisfyRespectively(
-                    c => c!.Select(x => x.Label).Should().Contain("provider"),
+                    c => c!.Select(x => x.Label).Should().Contain("extension"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
@@ -1896,7 +1896,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
 
             await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors,
                 completions => completions.Should().SatisfyRespectively(
-                    c => c!.Select(x => x.Label).Should().NotContain("provider"),
+                    c => c!.Select(x => x.Label).Should().NotContain("extension"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
@@ -1911,7 +1911,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             {
                 var fileWithCursors = @"
-provider kubernetes with | as k8s
+extension kubernetes with | as k8s
 ";
 
                 var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
@@ -1923,7 +1923,7 @@ provider kubernetes with | as k8s
 
                 var updatedFile = file.ApplyCompletion(completions, "required-properties");
                 updatedFile.Should().HaveSourceText(@"
-provider kubernetes with {
+extension kubernetes with {
   kubeConfig: $1
   namespace: $2
 }| as k8s
@@ -1932,7 +1932,7 @@ provider kubernetes with {
 
             {
                 var fileWithCursors = @"
-provider kubernetes with {
+extension kubernetes with {
   |
 }
 ";
@@ -1946,7 +1946,7 @@ provider kubernetes with {
 
                 var updatedFile = file.ApplyCompletion(completions, "kubeConfig");
                 updatedFile.Should().HaveSourceText(@"
-provider kubernetes with {
+extension kubernetes with {
   kubeConfig:|
 }
 ");

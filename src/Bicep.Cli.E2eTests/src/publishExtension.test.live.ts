@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 /**
- * Live tests for "bicep publish-provider".
+ * Live tests for "bicep publish-extension".
  *
  * @group live
  */
@@ -13,20 +13,20 @@ import { invokingBicepCommand } from "./utils/command";
 import { pathToExampleFile, readFileSync, writeTempFile } from "./utils/fs";
 import { getEnvironment } from "./utils/liveTestEnvironments";
 
-describe("bicep publish-provider live", () => {
-  const testArea = "publish-provider";
+describe("bicep publish-extension live", () => {
+  const testArea = "publish-extension";
   const environment = getEnvironment();
 
-  it("should publish provider", () => {
+  it("should publish extension", () => {
     const builder = new BicepRegistryReferenceBuilder(
       environment.registryUri,
       testArea,
     );
-    const baseFolder = pathToExampleFile("providers" + environment.suffix);
+    const baseFolder = pathToExampleFile("extensions" + environment.suffix);
     const indexJsonPath = path.join(baseFolder, "types/http/index.json");
     const target = builder.getBicepReference("http", "0.0.1");
 
-    invokingBicepCommand("publish-provider", indexJsonPath, "--target", target)
+    invokingBicepCommand("publish-extension", indexJsonPath, "--target", target)
       .withEnvironmentOverrides(environment.environmentOverrides)
       .shouldSucceed();
   });
@@ -36,11 +36,11 @@ describe("bicep publish-provider live", () => {
       environment.registryUri,
       testArea,
     );
-    const baseFolder = pathToExampleFile("providers" + environment.suffix);
+    const baseFolder = pathToExampleFile("extensions" + environment.suffix);
     const indexJsonPath = path.join(baseFolder, "types/http/index.json");
     const target = builder.getBicepReference("http", "0.0.1");
 
-    invokingBicepCommand("publish-provider", indexJsonPath, "--target", target)
+    invokingBicepCommand("publish-extension", indexJsonPath, "--target", target)
       .withEnvironmentOverrides(environment.environmentOverrides)
       .shouldSucceed();
 
@@ -48,7 +48,7 @@ describe("bicep publish-provider live", () => {
       path.join(baseFolder, "main.bicep"),
     ).replace("$TARGET_REFERENCE", target);
     const bicepPath = writeTempFile(
-      "restore-provider",
+      "restore-extension",
       "main.bicep",
       bicepContents,
     );
@@ -56,7 +56,7 @@ describe("bicep publish-provider live", () => {
     const configContents = readFileSync(
       path.join(baseFolder, "bicepconfig.json"),
     );
-    writeTempFile("restore-provider", "bicepconfig.json", configContents);
+    writeTempFile("restore-extension", "bicepconfig.json", configContents);
 
     // Building with --stdout should emit a valid result.
     invokingBicepCommand("build", "--stdout", bicepPath)

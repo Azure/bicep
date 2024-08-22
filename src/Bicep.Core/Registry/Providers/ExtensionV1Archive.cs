@@ -6,11 +6,11 @@ using System.IO.Compression;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry.Oci;
 
-namespace Bicep.Core.Registry.Providers;
+namespace Bicep.Core.Registry.Extensions;
 
-public static class ProviderV1Archive
+public static class ExtensionV1Archive
 {
-    public static async Task<BinaryData> Build(ProviderPackage provider)
+    public static async Task<BinaryData> Build(ExtensionPackage package)
     {
         using var stream = new MemoryStream();
 
@@ -18,9 +18,9 @@ public static class ProviderV1Archive
         {
             using var tarWriter = new TarWriter(gzStream, leaveOpen: true);
 
-            await AddFileToTar(tarWriter, "types.tgz", provider.Types);
+            await AddFileToTar(tarWriter, "types.tgz", package.Types);
 
-            foreach (var binary in provider.Binaries)
+            foreach (var binary in package.Binaries)
             {
                 await AddFileToTar(tarWriter, $"{binary.Architecture.Name}.bin", binary.Data);
             }
@@ -31,7 +31,7 @@ public static class ProviderV1Archive
         return BinaryData.FromStream(stream);
     }
 
-    public static ProviderPackage Read(BinaryData binaryData)
+    public static ExtensionPackage Read(BinaryData binaryData)
     {
         using var gzipStream = new GZipStream(binaryData.ToStream(), CompressionMode.Decompress);
         using var tarReader = new TarReader(gzipStream);
@@ -44,7 +44,7 @@ public static class ProviderV1Archive
             dataDict[entry.Name] = BinaryData.FromStream(stream);
         }
 
-        var binaries = new List<ProviderBinary>();
+        var binaries = new List<ExtensionBinary>();
         foreach (var architecture in SupportedArchitectures.All)
         {
             if (dataDict.TryGetValue($"{architecture.Name}.bin") is { } binary)

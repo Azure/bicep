@@ -13,10 +13,10 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
-            BicepProviderName: string.Empty,
+            BicepExtensionName: string.Empty,
             ConfigurationType: null,
-            ArmTemplateProviderName: string.Empty,
-            ArmTemplateProviderVersion: string.Empty);
+            TemplateExtensionName: string.Empty,
+            TemplateExtensionVersion: string.Empty);
 
         public static NamespaceType Create(string? aliasName, IResourceTypeProvider resourceTypeProvider, ArtifactReference? artifact)
         {
@@ -27,10 +27,10 @@ namespace Bicep.Core.Semantics.Namespaces
                     aliasName ?? namespaceConfig.Name,
                     new NamespaceSettings(
                         IsSingleton: namespaceConfig.IsSingleton,
-                        BicepProviderName: namespaceConfig.Name,
+                        BicepExtensionName: namespaceConfig.Name,
                         ConfigurationType: namespaceConfig.ConfigurationObject,
-                        ArmTemplateProviderName: namespaceConfig.Name,
-                        ArmTemplateProviderVersion: namespaceConfig.Version),
+                        TemplateExtensionName: namespaceConfig.Name,
+                        TemplateExtensionVersion: namespaceConfig.Version),
                     ImmutableArray<TypeProperty>.Empty,
                     ImmutableArray<FunctionOverload>.Empty,
                     ImmutableArray<BannedFunction>.Empty,

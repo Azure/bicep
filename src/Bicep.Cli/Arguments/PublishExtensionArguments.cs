@@ -5,9 +5,9 @@ using Bicep.Core.Registry.Oci;
 
 namespace Bicep.Cli.Arguments
 {
-    public class PublishProviderArguments : ArgumentsBase
+    public class PublishExtensionArguments : ArgumentsBase
     {
-        public PublishProviderArguments(string[] args, string commandName, IOContext io) : base(commandName)
+        public PublishExtensionArguments(string[] args, string commandName, IOContext io) : base(commandName)
         {
             if (commandName.Equals(Constants.Command.PublishProvider, StringComparison.Ordinal))
             {
@@ -25,12 +25,12 @@ namespace Bicep.Cli.Arguments
                             throw new CommandLineException("The --target parameter expects an argument.");
                         }
 
-                        if (this.TargetProviderReference is not null)
+                        if (this.TargetExtensionReference is not null)
                         {
                             throw new CommandLineException("The --target parameter cannot be specified twice.");
                         }
 
-                        TargetProviderReference = args[i + 1];
+                        TargetExtensionReference = args[i + 1];
                         i++;
                         break;
 
@@ -76,9 +76,9 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException($"The input file path was not specified.");
             }
 
-            if (TargetProviderReference is null)
+            if (TargetExtensionReference is null)
             {
-                throw new CommandLineException("The target provider was not specified.");
+                throw new CommandLineException("The target extension was not specified.");
             }
         }
 
@@ -86,7 +86,7 @@ namespace Bicep.Cli.Arguments
 
         public string IndexFile { get; }
 
-        public string TargetProviderReference { get; }
+        public string TargetExtensionReference { get; }
 
         public bool Force { get; }
     }

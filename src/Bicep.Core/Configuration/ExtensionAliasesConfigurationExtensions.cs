@@ -5,18 +5,18 @@ using System.Text.Json;
 
 namespace Bicep.Core.Configuration;
 
-public static class ProviderAliasesConfigurationExtensions
+public static class ExtensionAliasesConfigurationExtensions
 {
-    public static ProviderAliasesConfiguration WithExtensionAlias(this ProviderAliasesConfiguration c, string extensionAliasJsonString)
-        => ProviderAliasesConfiguration.Bind(
+    public static ExtensionAliasesConfiguration WithExtensionAlias(this ExtensionAliasesConfiguration c, string extensionAliasJsonString)
+        => ExtensionAliasesConfiguration.Bind(
                 JsonDocument.Parse(extensionAliasJsonString).RootElement,
                 null);
 
-    public static ProvidersConfiguration WithExtensions(this ProvidersConfiguration c, string providersJsonString)
-        => ProvidersConfiguration.Bind(JsonDocument.Parse(providersJsonString).RootElement);
+    public static ExtensionsConfiguration WithExtensions(this ExtensionsConfiguration c, string extensionsJsonString)
+        => ExtensionsConfiguration.Bind(JsonDocument.Parse(extensionsJsonString).RootElement);
 
-    public static ImplicitProvidersConfiguration WithImplicitExtensions(this ImplicitProvidersConfiguration c, string implicitExtensionsJsonString)
-        => ImplicitProvidersConfiguration.Bind(JsonDocument.Parse(implicitExtensionsJsonString).RootElement);
+    public static ImplicitExtensionsConfiguration WithImplicitExtensions(this ImplicitExtensionsConfiguration c, string implicitExtensionsJsonString)
+        => ImplicitExtensionsConfiguration.Bind(JsonDocument.Parse(implicitExtensionsJsonString).RootElement);
 
 
     public static RootConfiguration WithExtensionAliases(this RootConfiguration rootConfiguration, string payload)

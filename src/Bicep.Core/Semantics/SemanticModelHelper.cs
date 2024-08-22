@@ -37,7 +37,7 @@ namespace Bicep.Core.Semantics
         {
             if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol function &&
                 function.DeclaringObject is NamespaceType namespaceType &&
-                LanguageConstants.IdentifierComparer.Equals(namespaceType.ProviderName, @namespace))
+                LanguageConstants.IdentifierComparer.Equals(namespaceType.ExtensionName, @namespace))
             {
                 return syntax as FunctionCallSyntaxBase;
             }
@@ -58,7 +58,7 @@ namespace Bicep.Core.Semantics
                     return false;
                 }
 
-                return LanguageConstants.IdentifierComparer.Equals(namespaceType.ProviderName, @namespace) &&
+                return LanguageConstants.IdentifierComparer.Equals(namespaceType.ExtensionName, @namespace) &&
                     LanguageConstants.IdentifierComparer.Equals(functionSymbol.Name, decoratorName);
             });
         }

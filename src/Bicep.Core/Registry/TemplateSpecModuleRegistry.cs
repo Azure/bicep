@@ -59,8 +59,8 @@ namespace Bicep.Core.Registry
         public override Task PublishModule(TemplateSpecModuleReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
             => throw new NotSupportedException("Template Spec modules cannot be published.");
 
-        public override Task PublishProvider(TemplateSpecModuleReference reference, ProviderPackage provider)
-            => throw new NotSupportedException("Template Spec providers cannot be published.");
+        public override Task PublishExtension(TemplateSpecModuleReference reference, ExtensionPackage package)
+            => throw new NotSupportedException("Template Spec extensions cannot be published.");
 
         public override Task<bool> CheckArtifactExists(ArtifactType artifactType, TemplateSpecModuleReference reference)
             => throw new NotSupportedException("Template Spec modules cannot be published.");
@@ -147,7 +147,7 @@ namespace Bicep.Core.Registry
             return new(new SourceNotAvailableException());
         }
 
-        public override Uri? TryGetProviderBinary(TemplateSpecModuleReference reference)
+        public override Uri? TryGetExtensionBinary(TemplateSpecModuleReference reference)
             => null;
     }
 }

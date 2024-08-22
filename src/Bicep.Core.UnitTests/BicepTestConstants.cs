@@ -140,20 +140,20 @@ namespace Bicep.Core.UnitTests
             return telemetryProvider;
         }
 
-        public static BinaryData GetBicepProviderManifest(UploadRegistryBlobResult layer, UploadRegistryBlobResult config) =>
+        public static BinaryData GetBicepExtensionManifest(UploadRegistryBlobResult layer, UploadRegistryBlobResult config) =>
             BinaryData.FromString($$"""
         {
             "schemaVersion": 2,
             "mediaType": "application/vnd.oci.image.manifest.v1+json",
-            "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
+            "artifactType": "{{BicepMediaTypes.BicepExtensionArtifactType}}",
             "config": {
-            "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
+            "mediaType": "{{BicepMediaTypes.BicepExtensionConfigV1}}",
             "digest": "{{config.Digest}}",
             "size": {{config.SizeInBytes}}
             },
             "layers": [
             {
-                "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
+                "mediaType": "{{BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip}}",
                 "digest": "{{layer.Digest}}",
                 "size": {{layer.SizeInBytes}}
             }
@@ -165,6 +165,6 @@ namespace Bicep.Core.UnitTests
         }
         """);
 
-        public static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.ArmTemplateProviderVersion;
+        public static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.TemplateExtensionVersion;
     }
 }

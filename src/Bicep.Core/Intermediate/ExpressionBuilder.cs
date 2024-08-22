@@ -169,13 +169,13 @@ public class ExpressionBuilder
                     metadata.Name.IdentifierName,
                     ConvertWithoutLowering(metadata.Value)));
 
-            case ProviderDeclarationSyntax provider:
-                var symbol = GetDeclaredSymbol<ProviderNamespaceSymbol>(provider);
-                return EvaluateDecorators(provider, new DeclaredProviderExpression(
-                    provider,
+            case ExtensionDeclarationSyntax extension:
+                var symbol = GetDeclaredSymbol<ExtensionNamespaceSymbol>(extension);
+                return EvaluateDecorators(extension, new DeclaredExtensionExpression(
+                    extension,
                     symbol.Name,
-                    GetTypeInfo<NamespaceType>(provider).Settings,
-                    provider.Config is not null ? ConvertWithoutLowering(provider.Config) : null));
+                    GetTypeInfo<NamespaceType>(extension).Settings,
+                    extension.Config is not null ? ConvertWithoutLowering(extension.Config) : null));
 
             case ParameterDeclarationSyntax parameter:
                 return EvaluateDecorators(parameter, new DeclaredParameterExpression(
@@ -319,7 +319,7 @@ public class ExpressionBuilder
         {
             BuiltInNamespaceSymbol builtIn => TryGetPropertyType(builtIn, propertyName) switch
             {
-                TypeType typeType when builtIn is { Type: NamespaceType nsType } => new FullyQualifiedAmbientTypeReferenceExpression(syntax, nsType.ProviderName, propertyName, typeType.Unwrapped),
+                TypeType typeType when builtIn is { Type: NamespaceType nsType } => new FullyQualifiedAmbientTypeReferenceExpression(syntax, nsType.ExtensionName, propertyName, typeType.Unwrapped),
                 _ => throw new ArgumentException($"Property '{propertyName}' of symbol '{builtIn.Name}' was not found or was not valid."),
             },
             WildcardImportSymbol wildcardImport => TryGetPropertyType(wildcardImport, propertyName) switch
@@ -450,9 +450,9 @@ public class ExpressionBuilder
             .OfType<DeclaredMetadataExpression>()
             .ToImmutableArray();
 
-        var providers = Context.SemanticModel.Root.ProviderDeclarations
+        var extensions = Context.SemanticModel.Root.ExtensionDeclarations
             .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
-            .OfType<DeclaredProviderExpression>()
+            .OfType<DeclaredExtensionExpression>()
             .ToImmutableArray();
 
         var typeDefinitions = Context.SemanticModel.Root.TypeDeclarations
@@ -504,7 +504,7 @@ public class ExpressionBuilder
         return new ProgramExpression(
             syntax,
             metadataArray,
-            providers,
+            extensions,
             typeDefinitions,
             parameters,
             functionVariables.AddRange(variables),

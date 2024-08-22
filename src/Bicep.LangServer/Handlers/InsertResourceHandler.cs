@@ -82,7 +82,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 var nsResolver = model.Binder.NamespaceResolver;
                 var namespaces = nsResolver.GetNamespaceNames().Select(nsResolver.TryGetNamespace).WhereNotNull();
-                var azResourceTypeProvider = namespaces.First(ns => ns?.ProviderName == AzNamespaceType.BuiltInName).ResourceTypeProvider;
+                var azResourceTypeProvider = namespaces.First(ns => ns?.ExtensionName == AzNamespaceType.BuiltInName).ResourceTypeProvider;
                 var matchedType = azResourceTypeProvider.GetAvailableTypes()
                     .Where(x => StringComparer.OrdinalIgnoreCase.Equals(resourceId.FullyQualifiedType, x.FormatType()))
                     .OrderByDescending(x => x.ApiVersion ?? "", ApiVersionComparer.Instance)

@@ -88,12 +88,12 @@ namespace Bicep.Core.Registry
 
         public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactReferenceSyntax, Uri parentModuleUri)
         {
-            if (artifactReferenceSyntax is ProviderDeclarationSyntax providerDeclarationSyntax)
+            if (artifactReferenceSyntax is ExtensionDeclarationSyntax extensionSyntax)
             {
-                var artifactAddressResult = TryGetArtifactAddress(providerDeclarationSyntax, parentModuleUri);
-                if (!artifactAddressResult.IsSuccess(out var result, out var providerDeclarationPathFailureBuilder))
+                var artifactAddressResult = TryGetArtifactAddress(extensionSyntax, parentModuleUri);
+                if (!artifactAddressResult.IsSuccess(out var result, out var pathFailureBuilder))
                 {
-                    return new(providerDeclarationPathFailureBuilder);
+                    return new(pathFailureBuilder);
                 }
 
                 var sourceUri = result.ConfigSource?.ConfigFileUri ?? parentModuleUri;
@@ -122,23 +122,23 @@ namespace Bicep.Core.Registry
             string PathValue,
             RootConfiguration? ConfigSource);
 
-        private ResultWithDiagnostic<ArtifactAddressResult> TryGetArtifactAddress(ProviderDeclarationSyntax providerDeclarationSyntax, Uri parentModuleUri)
+        private ResultWithDiagnostic<ArtifactAddressResult> TryGetArtifactAddress(ExtensionDeclarationSyntax extensionSyntax, Uri parentModuleUri)
         {
-            switch (providerDeclarationSyntax.SpecificationString)
+            switch (extensionSyntax.SpecificationString)
             {
                 case StringSyntax inlinedSpec:
                     if (inlinedSpec.TryGetLiteralValue() is not string pathValue)
                     {
-                        return new(x => x.ProviderSpecificationInterpolationUnsupported());
+                        return new(x => x.ExtensionSpecificationInterpolationUnsupported());
                     }
 
                     return new(new ArtifactAddressResult(pathValue, null));
                 case IdentifierSyntax configSpec:
                     var config = configurationManager.GetConfiguration(parentModuleUri);
 
-                    return config.Extensions.TryGetProviderSource(configSpec.IdentifierName).Transform(x => new ArtifactAddressResult(x.Value, config));
+                    return config.Extensions.TryGetExtensionSource(configSpec.IdentifierName).Transform(x => new ArtifactAddressResult(x.Value, config));
                 default:
-                    return new(x => x.ExpectedProviderSpecification());
+                    return new(x => x.ExpectedExtensionSpecification());
             }
         }
 
@@ -262,11 +262,11 @@ namespace Bicep.Core.Registry
             await registry.PublishModule(reference, compiledArmTemplate, bicepSources, documentationUri, description);
         }
 
-        public async Task PublishProvider(ArtifactReference reference, ProviderPackage provider)
+        public async Task PublishExtension(ArtifactReference reference, ExtensionPackage package)
         {
             var registry = this.GetRegistry(reference);
 
-            await registry.PublishProvider(reference, provider);
+            await registry.PublishExtension(reference, package);
         }
 
         public async Task<bool> CheckModuleExists(ArtifactReference reference)
@@ -275,10 +275,10 @@ namespace Bicep.Core.Registry
             return await registry.CheckArtifactExists(ArtifactType.Module, reference);
         }
 
-        public async Task<bool> CheckProviderExists(ArtifactReference reference)
+        public async Task<bool> CheckExtensionExists(ArtifactReference reference)
         {
             var registry = this.GetRegistry(reference);
-            return await registry.CheckArtifactExists(ArtifactType.Provider, reference);
+            return await registry.CheckArtifactExists(ArtifactType.Extension, reference);
         }
 
         public void PruneRestoreStatuses()
@@ -305,10 +305,10 @@ namespace Bicep.Core.Registry
             return registry.TryGetSource(reference);
         }
 
-        public Uri? TryGetProviderBinary(ArtifactReference reference)
+        public Uri? TryGetExtensionBinary(ArtifactReference reference)
         {
             var registry = this.GetRegistry(reference);
-            return registry.TryGetProviderBinary(reference);
+            return registry.TryGetExtensionBinary(reference);
         }
 
         private bool HasRestoreFailed(ArtifactReference reference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)

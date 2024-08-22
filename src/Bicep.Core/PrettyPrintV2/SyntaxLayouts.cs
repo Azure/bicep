@@ -113,7 +113,7 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Keyword,
                 syntax.Alias);
 
-        private IEnumerable<Document> LayoutProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) =>
+        private IEnumerable<Document> LayoutExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
                 .Concat(this.Spread(
                     syntax.Keyword,
@@ -121,7 +121,7 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.WithClause,
                     syntax.AsClause));
 
-        private IEnumerable<Document> LayoutProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) =>
+        private IEnumerable<Document> LayoutExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax) =>
             this.Spread(
                 syntax.Keyword,
                 syntax.Config);

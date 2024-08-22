@@ -1216,7 +1216,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedProviderSpecification()
+            public ErrorDiagnostic ExpectedExtensionSpecification()
             {
                 var message = """
                 Expected an extension specification string with a valid format at this location. Valid formats:
@@ -1226,27 +1226,27 @@ namespace Bicep.Core.Diagnostics
                 return new(TextSpan, "BCP201", message);
             }
 
-            public ErrorDiagnostic ExpectedProviderAliasName() => new(
+            public ErrorDiagnostic ExpectedExtensionAliasName() => new(
                 TextSpan,
                 "BCP202",
                 "Expected an extension alias name at this location.");
 
-            public ErrorDiagnostic ProvidersAreDisabled() => new(
+            public ErrorDiagnostic ExtensionsAreDisabled() => new(
                 TextSpan,
                 "BCP203",
                 $@"Using extension declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Extensibility)}"".");
 
-            public ErrorDiagnostic UnrecognizedProvider(string identifier) => new(
+            public ErrorDiagnostic UnrecognizedExtension(string identifier) => new(
                 TextSpan,
                 "BCP204",
                 $"Extension \"{identifier}\" is not recognized.");
 
-            public ErrorDiagnostic ProviderDoesNotSupportConfiguration(string identifier) => new(
+            public ErrorDiagnostic ExtensionDoesNotSupportConfiguration(string identifier) => new(
                 TextSpan,
                 "BCP205",
                 $"Extension \"{identifier}\" does not support configuration.");
 
-            public ErrorDiagnostic ProviderRequiresConfiguration(string identifier) => new(
+            public ErrorDiagnostic ExtensionRequiresConfiguration(string identifier) => new(
                 TextSpan,
                 "BCP206",
                 $"Extension \"{identifier}\" requires configuration, but none was provided.");
@@ -1696,15 +1696,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP302",
                 $@"The name ""{name}"" is not a valid type. Please specify one of the following types: {ToQuotedString(validTypes)}.");
 
-            public ErrorDiagnostic ProviderSpecificationInterpolationUnsupported() => new(
+            public ErrorDiagnostic ExtensionSpecificationInterpolationUnsupported() => new(
                 TextSpan,
                 "BCP303",
-                "String interpolation is unsupported for specifying the provider.");
-
-            public ErrorDiagnostic InvalidProviderSpecification() => new(
-                TextSpan,
-                "BCP304",
-                "Invalid provider specifier string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
+                "String interpolation is unsupported for specifying the extension.");
 
             public ErrorDiagnostic ExpectedWithOrAsKeywordOrNewLine() => new(
                 TextSpan,
@@ -2055,17 +2050,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP376",
                 $"The \"{name}\" symbol cannot be imported because imports of kind {exportMetadataKind} are not supported in files of kind {sourceFileKind}.");
 
-            public ErrorDiagnostic InvalidProviderAliasName(string aliasName) => new(
+            public ErrorDiagnostic InvalidExtensionAliasName(string aliasName) => new(
                 TextSpan,
                 "BCP377",
                 $"The extension alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public ErrorDiagnostic InvalidOciArtifactProviderAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => new(
+            public ErrorDiagnostic InvalidOciArtifactExtensionAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => new(
                 TextSpan,
                 "BCP378",
                 $"The OCI artifact extension alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic OciArtifactProviderAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => new(
+            public ErrorDiagnostic OciArtifactExtensionAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => new(
                 TextSpan,
                 "BCP379",
                 $"The OCI artifact extension alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
@@ -2076,7 +2071,7 @@ namespace Bicep.Core.Diagnostics
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
 
-            public FixableDiagnostic ExtensionDeclarationKeywordIsDeprecated(ProviderDeclarationSyntax syntax)
+            public FixableDiagnostic ExtensionDeclarationKeywordIsDeprecated(ExtensionDeclarationSyntax syntax)
             {
                 var codeFix = new CodeFix(
                     $"Replace the {syntax.Keyword.Text} keyword with the extension keyword",
@@ -2159,17 +2154,17 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidTypesTgzPackage_DeserializationFailed() => new(
                 TextSpan,
                 "BCP396",
-                "The referenced provider types artifact has been published with malformed content.");
+                "The referenced extension types artifact has been published with malformed content.");
 
-            public ErrorDiagnostic InvalidProvider_ImplicitProviderMissingConfig(Uri? configFileUri, string name) => new(
+            public ErrorDiagnostic InvalidExtension_ImplicitExtensionMissingConfig(Uri? configFileUri, string name) => new(
                 TextSpan,
                 "BCP397",
                 $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{RootConfiguration.ImplicitExtensionsKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ExtensionsKey}" section.""");
 
-            public ErrorDiagnostic InvalidProvider_NotABuiltInProvider(Uri? configFileUri, string name) => new(
+            public ErrorDiagnostic InvalidExtension_NotABuiltInExtension(Uri? configFileUri, string name) => new(
                 TextSpan,
                 "BCP398",
-                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in provider exists.""");
+                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
 
             public ErrorDiagnostic FetchingAzTypesRequiresExperimentalFeature() => new(
                 TextSpan,

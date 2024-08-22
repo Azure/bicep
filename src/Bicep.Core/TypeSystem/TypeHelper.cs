@@ -536,7 +536,7 @@ namespace Bicep.Core.TypeSystem
                     return new(defaultResource);
                 }
 
-                return new(span => span.FailedToFindResourceTypeInNamespace(namespaceType.ProviderName, typeReference.FormatName()));
+                return new(span => span.FailedToFindResourceTypeInNamespace(namespaceType.ExtensionName, typeReference.FormatName()));
             }
 
             if (!GetCombinedTypeReference(typeGenerationFlags, parentResourceType, stringContent).IsSuccess(out var typeRef, out var errorBuilder))

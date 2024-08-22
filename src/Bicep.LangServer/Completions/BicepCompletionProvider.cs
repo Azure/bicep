@@ -149,7 +149,7 @@ namespace Bicep.LanguageServer.Completions
 
                         if (model.Features.ExtensibilityEnabled)
                         {
-                            yield return CreateKeywordCompletion(LanguageConstants.ProviderKeyword, "Provider keyword", context.ReplacementRange);
+                            yield return CreateKeywordCompletion(LanguageConstants.ExtensionKeyword, "Extension keyword", context.ReplacementRange);
                         }
 
                         if (model.Features.TestFrameworkEnabled)
@@ -2001,13 +2001,13 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionSpecification))
             {
-                var providerNames = model.Configuration.Extensions.Data.Keys
+                var extensionNames = model.Configuration.Extensions.Data.Keys
                     .Concat(SystemNamespaceType.BuiltInName)
                     .ToHashSet();
 
-                foreach (var providerName in providerNames.OrderBy(x => x, LanguageConstants.IdentifierComparer))
+                foreach (var extensionName in extensionNames.OrderBy(x => x, LanguageConstants.IdentifierComparer))
                 {
-                    var completionText = providerName;
+                    var completionText = extensionName;
                     yield return CompletionItemBuilder.Create(CompletionItemKind.Folder, completionText)
                         .WithSortText(GetSortText(completionText, CompletionPriority.High))
                         .WithDetail(completionText)
@@ -2024,9 +2024,9 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionConfig))
             {
-                if (context.EnclosingDeclaration is ProviderDeclarationSyntax importSyntax &&
-                    model.GetSymbolInfo(importSyntax) is ProviderNamespaceSymbol providerSymbol &&
-                    providerSymbol.TryGetNamespaceType() is { } namespaceType)
+                if (context.EnclosingDeclaration is ExtensionDeclarationSyntax importSyntax &&
+                    model.GetSymbolInfo(importSyntax) is ExtensionNamespaceSymbol extensionSymbol &&
+                    extensionSymbol.TryGetNamespaceType() is { } namespaceType)
                 {
                     foreach (var completion in GetValueCompletionsForType(model, context, namespaceType.ConfigurationType, importSyntax.Config, loopsAllowed: false))
                     {

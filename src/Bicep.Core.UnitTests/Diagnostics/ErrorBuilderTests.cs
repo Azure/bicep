@@ -183,9 +183,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return TestSyntaxFactory.CreatePropertyAccess(TestSyntaxFactory.CreateVariableAccess("identifier"), "propertyName");
             }
 
-            if (parameter.ParameterType == typeof(ProviderDeclarationSyntax))
+            if (parameter.ParameterType == typeof(ExtensionDeclarationSyntax))
             {
-                return new ProviderDeclarationSyntax(
+                return new ExtensionDeclarationSyntax(
                     [],
                     SyntaxFactory.ImportKeywordToken,
                     SyntaxFactory.CreateStringLiteralWithTextSpan("kubernetes@1.0.0"),

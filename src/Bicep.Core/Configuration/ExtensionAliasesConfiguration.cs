@@ -12,13 +12,13 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Configuration
 {
-    public record ProviderAliases
+    public record ExtensionAliases
     {
         [JsonPropertyName("br")]
-        public ImmutableSortedDictionary<string, OciArtifactProviderAlias> OciArtifactExtensionAliases { get; init; } = ImmutableSortedDictionary<string, OciArtifactProviderAlias>.Empty;
+        public ImmutableSortedDictionary<string, OciArtifactExtensionAlias> OciArtifactExtensionAliases { get; init; } = ImmutableSortedDictionary<string, OciArtifactExtensionAlias>.Empty;
     }
 
-    public record OciArtifactProviderAlias
+    public record OciArtifactExtensionAlias
     {
         public string? Registry { get; init; }
 
@@ -29,20 +29,20 @@ namespace Bicep.Core.Configuration
             : $"{Registry}";
     }
 
-    public partial class ProviderAliasesConfiguration : ConfigurationSection<ProviderAliases>
+    public partial class ExtensionAliasesConfiguration : ConfigurationSection<ExtensionAliases>
     {
         private readonly Uri? configFileUri;
 
-        private ProviderAliasesConfiguration(ProviderAliases data, Uri? configFileUri)
+        private ExtensionAliasesConfiguration(ExtensionAliases data, Uri? configFileUri)
             : base(data)
         {
             this.configFileUri = configFileUri;
         }
-        public static ProviderAliasesConfiguration Bind(JsonElement element, Uri? configFileUri) => new(element.ToNonNullObject<ProviderAliases>(), configFileUri);
+        public static ExtensionAliasesConfiguration Bind(JsonElement element, Uri? configFileUri) => new(element.ToNonNullObject<ExtensionAliases>(), configFileUri);
 
-        public ImmutableSortedDictionary<string, OciArtifactProviderAlias> OciArtifactExtensionAliases => this.Data.OciArtifactExtensionAliases;
+        public ImmutableSortedDictionary<string, OciArtifactExtensionAlias> OciArtifactExtensionAliases => this.Data.OciArtifactExtensionAliases;
 
-        public ResultWithDiagnostic<OciArtifactProviderAlias> TryGetOciArtifactExtensionAlias(string aliasName)
+        public ResultWithDiagnostic<OciArtifactExtensionAlias> TryGetOciArtifactExtensionAlias(string aliasName)
         {
             if (!ValidateAliasName(aliasName, out var errorBuilder))
             {
@@ -51,12 +51,12 @@ namespace Bicep.Core.Configuration
 
             if (!this.Data.OciArtifactExtensionAliases.TryGetValue(aliasName, out var alias))
             {
-                return new(x => x.OciArtifactProviderAliasNameDoesNotExistInConfiguration(aliasName, configFileUri));
+                return new(x => x.OciArtifactExtensionAliasNameDoesNotExistInConfiguration(aliasName, configFileUri));
             }
 
             if (alias.Registry is null)
             {
-                return new(x => x.InvalidOciArtifactProviderAliasRegistryNullOrUndefined(aliasName, configFileUri));
+                return new(x => x.InvalidOciArtifactExtensionAliasRegistryNullOrUndefined(aliasName, configFileUri));
             }
 
             return new(alias);
@@ -64,9 +64,9 @@ namespace Bicep.Core.Configuration
 
         private static bool ValidateAliasName(string aliasName, [NotNullWhen(false)] out ErrorBuilderDelegate? errorBuilder)
         {
-            if (!ProviderAliasNameRegex().IsMatch(aliasName))
+            if (!ExtensionAliasNameRegex().IsMatch(aliasName))
             {
-                errorBuilder = x => x.InvalidProviderAliasName(aliasName);
+                errorBuilder = x => x.InvalidExtensionAliasName(aliasName);
                 return false;
             }
 
@@ -75,7 +75,7 @@ namespace Bicep.Core.Configuration
         }
 
         [GeneratedRegex("^[a-zA-Z0-9-_]+$", RegexOptions.CultureInvariant)]
-        private static partial Regex ProviderAliasNameRegex();
+        private static partial Regex ExtensionAliasNameRegex();
 
 
     }

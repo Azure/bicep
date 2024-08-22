@@ -8,39 +8,39 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics
 {
-    public class ProviderNamespaceSymbol : DeclaredSymbol, INamespaceSymbol
+    public class ExtensionNamespaceSymbol : DeclaredSymbol, INamespaceSymbol
     {
-        private class ProviderNameSource : ISymbolNameSource
+        private class ExtensionNameSource : ISymbolNameSource
         {
-            private readonly ProviderDeclarationSyntax provider;
+            private readonly ExtensionDeclarationSyntax extension;
 
-            public ProviderNameSource(ProviderDeclarationSyntax provider)
+            public ExtensionNameSource(ExtensionDeclarationSyntax extension)
             {
-                this.provider = provider;
+                this.extension = extension;
             }
 
             public bool IsValid => true;
 
-            public TextSpan Span => provider.Alias?.Span ?? provider.SpecificationString.Span;
+            public TextSpan Span => extension.Alias?.Span ?? extension.SpecificationString.Span;
         }
 
-        public ProviderNamespaceSymbol(ISymbolContext context, ProviderDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
+        public ExtensionNamespaceSymbol(ISymbolContext context, ExtensionDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
             : base(
                 context,
                 declaringSyntax.Alias?.IdentifierName ?? declaredType.Name,
                 declaringSyntax,
-                new ProviderNameSource(declaringSyntax))
+                new ExtensionNameSource(declaringSyntax))
         {
             this.DeclaredType = declaredType;
         }
 
         public TypeSymbol DeclaredType { get; }
 
-        public ProviderDeclarationSyntax DeclaringProvider => (ProviderDeclarationSyntax)this.DeclaringSyntax;
+        public ExtensionDeclarationSyntax DeclaringExtension => (ExtensionDeclarationSyntax)this.DeclaringSyntax;
 
         public override void Accept(SymbolVisitor visitor)
         {
-            visitor.VisitProviderNamespaceSymbol(this);
+            visitor.VisitExtensionNamespaceSymbol(this);
         }
 
         public override SymbolKind Kind => SymbolKind.ImportedNamespace;

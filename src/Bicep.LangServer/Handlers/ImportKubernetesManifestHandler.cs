@@ -60,11 +60,11 @@ namespace Bicep.LanguageServer.Handlers
                     new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken("string"))),
                     null),
 
-                new ProviderDeclarationSyntax(
+                new ExtensionDeclarationSyntax(
                     [],
-                    SyntaxFactory.ProviderKeywordToken,
+                    SyntaxFactory.ExtensionKeywordToken,
                     SyntaxFactory.CreateIdentifierWithTrailingSpace(K8sNamespaceType.BuiltInName),
-                    new ProviderWithClauseSyntax(
+                    new ExtensionWithClauseSyntax(
                         SyntaxFactory.CreateIdentifierToken(LanguageConstants.WithKeyword),
                         SyntaxFactory.CreateObject(
                         [
