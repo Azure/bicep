@@ -61,7 +61,7 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static ResultWithDiagnostic<TemplateSpecModuleReference> TryParse(string? aliasName, string referenceValue, RootConfiguration configuration, Uri parentModuleUri)
+        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(string? aliasName, string referenceValue, RootConfiguration configuration, Uri parentModuleUri)
         {
             if (aliasName is not null)
             {

@@ -28,7 +28,7 @@ namespace Bicep.Core.TypeSystem
         // processed nodes found not to have a declared type will have a null value
         private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
         private readonly ConcurrentDictionary<TypeAliasSymbol, TypeSymbol> userDefinedTypeReferences = new();
-        private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntaxBase, Result<TypeExpression, Diagnostic>> reifiedTypes = new();
+        private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntaxBase, ResultWithDiagnostic<TypeExpression>> reifiedTypes = new();
         private readonly Lazy<ImmutableDictionary<TypeAliasSymbol, ImmutableArray<TypeAliasSymbol>>> typeCycles;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
@@ -568,17 +568,17 @@ namespace Bicep.Core.TypeSystem
             .Concat(binder.FileSymbol.ImportedTypes.Select(i => i.Name))
             .Distinct();
 
-        private Result<TypeExpression, Diagnostic> GetReifiedTypeResult(ParameterizedTypeInstantiationSyntaxBase syntax)
+        private ResultWithDiagnostic<TypeExpression> GetReifiedTypeResult(ParameterizedTypeInstantiationSyntaxBase syntax)
             => reifiedTypes.GetOrAdd(syntax, InstantiateType);
 
-        private Result<TypeExpression, Diagnostic> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax) => syntax switch
+        private ResultWithDiagnostic<TypeExpression> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax) => syntax switch
         {
             ParameterizedTypeInstantiationSyntax unqualified => InstantiateType(unqualified),
             InstanceParameterizedTypeInstantiationSyntax qualified => InstantiateType(qualified),
             _ => throw new UnreachableException($"Unrecognized subtype of {nameof(ParameterizedTypeInstantiationSyntaxBase)}: {syntax.GetType().FullName}"),
         };
 
-        private Result<TypeExpression, Diagnostic> InstantiateType(ParameterizedTypeInstantiationSyntax syntax) => binder.GetSymbolInfo(syntax) switch
+        private ResultWithDiagnostic<TypeExpression> InstantiateType(ParameterizedTypeInstantiationSyntax syntax) => binder.GetSymbolInfo(syntax) switch
         {
             AmbientTypeSymbol ambientType => InstantiateType(syntax, ambientType.Name, ambientType.Type),
             ImportedTypeSymbol importedType => InstantiateType(syntax, importedType.Name, importedType.Type),
@@ -587,7 +587,7 @@ namespace Bicep.Core.TypeSystem
             _ => new(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
         };
 
-        private Result<TypeExpression, Diagnostic> InstantiateType(InstanceParameterizedTypeInstantiationSyntax syntax)
+        private ResultWithDiagnostic<TypeExpression> InstantiateType(InstanceParameterizedTypeInstantiationSyntax syntax)
         {
             var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression).Type;
             var propertyType = FinalizeTypePropertyType(baseType, syntax.PropertyName.IdentifierName, syntax.PropertyName);
@@ -595,7 +595,7 @@ namespace Bicep.Core.TypeSystem
             return InstantiateType(syntax, $"{baseType.Name}.{syntax.PropertyName.IdentifierName}", propertyType);
         }
 
-        private Result<TypeExpression, Diagnostic> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax, string typeName, TypeSymbol symbolType)
+        private ResultWithDiagnostic<TypeExpression> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax, string typeName, TypeSymbol symbolType)
             => symbolType switch
             {
                 TypeTemplate tt => tt.Instantiate(binder, syntax, syntax.Arguments.Select(arg => DisallowNamespaceTypes(GetTypeFromTypeSyntax(arg.Expression).Type, arg.Expression))),

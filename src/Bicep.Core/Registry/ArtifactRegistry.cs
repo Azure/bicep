@@ -33,9 +33,9 @@ namespace Bicep.Core.Registry
 
         public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<T> references);
 
-        public abstract ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(T reference);
+        public abstract ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(T reference);
 
-        public abstract ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
+        public abstract ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
 
         public abstract string? TryGetDocumentationUri(T reference);
 
@@ -60,7 +60,7 @@ namespace Bicep.Core.Registry
         public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> references) =>
              this.InvalidateArtifactsCache(references.Select(ConvertReference));
 
-        public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference) =>
+        public ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference) =>
             this.TryGetLocalArtifactEntryPointUri(ConvertReference(reference));
 
         public string? GetDocumentationUri(ArtifactReference reference) => this.TryGetDocumentationUri(ConvertReference(reference));

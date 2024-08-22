@@ -234,7 +234,7 @@ namespace Bicep.Core.Semantics
         /// Tries to get the semantic module of the Bicep File referenced via a using declaration from the current file.
         /// If current file is not a parameter file, the method will return false.
         /// </summary>
-        public Result<ISemanticModel, Diagnostic> TryGetBicepFileSemanticModelViaUsing()
+        public ResultWithDiagnostic<ISemanticModel> TryGetBicepFileSemanticModelViaUsing()
         {
             if (this.FileKind == BicepSourceFileKind.BicepFile)
             {

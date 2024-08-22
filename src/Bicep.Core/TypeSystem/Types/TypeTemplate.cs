@@ -16,7 +16,7 @@ namespace Bicep.Core.TypeSystem.Types;
 /// </summary>
 public class TypeTemplate : TypeSymbol
 {
-    public delegate Result<TypeExpression, Diagnostic> InstantiatorDelegate(
+    public delegate ResultWithDiagnostic<TypeExpression> InstantiatorDelegate(
         IBinder binder,
         ParameterizedTypeInstantiationSyntaxBase instantiationSyntax,
         ImmutableArray<TypeSymbol> argumentTypes);
@@ -53,7 +53,7 @@ public class TypeTemplate : TypeSymbol
         ? Parameters[index]
         : null;
 
-    public Result<TypeExpression, Diagnostic> Instantiate(IBinder binder, ParameterizedTypeInstantiationSyntaxBase syntax, IEnumerable<TypeSymbol> arguments)
+    public ResultWithDiagnostic<TypeExpression> Instantiate(IBinder binder, ParameterizedTypeInstantiationSyntaxBase syntax, IEnumerable<TypeSymbol> arguments)
     {
         var argTypesArray = arguments.ToImmutableArray();
 

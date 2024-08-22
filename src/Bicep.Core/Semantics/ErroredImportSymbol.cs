@@ -8,9 +8,9 @@ namespace Bicep.Core.Semantics;
 
 public class ErroredImportSymbol : DeclaredSymbol
 {
-    private readonly ImmutableArray<Diagnostic> errors;
+    private readonly ImmutableArray<IDiagnostic> errors;
 
-    public ErroredImportSymbol(ISymbolContext context, string name, SyntaxBase declaringSyntax, ISymbolNameSource nameSource, ImmutableArray<Diagnostic> errors)
+    public ErroredImportSymbol(ISymbolContext context, string name, SyntaxBase declaringSyntax, ISymbolNameSource nameSource, ImmutableArray<IDiagnostic> errors)
         : base(context, name, declaringSyntax, nameSource)
     {
         this.errors = errors;
@@ -18,7 +18,7 @@ public class ErroredImportSymbol : DeclaredSymbol
 
     public override SymbolKind Kind => SymbolKind.Error;
 
-    public override IEnumerable<Diagnostic> GetDiagnostics() => errors;
+    public override IEnumerable<IDiagnostic> GetDiagnostics() => errors;
 
     public override void Accept(SymbolVisitor visitor) => visitor.VisitErroredImportSymbol(this);
 }

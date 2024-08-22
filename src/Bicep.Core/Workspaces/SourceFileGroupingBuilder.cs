@@ -23,7 +23,7 @@ namespace Bicep.Core.Workspaces
         private readonly IModuleDispatcher dispatcher;
         private readonly IReadOnlyWorkspace workspace;
 
-        private readonly Dictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri;
+        private readonly Dictionary<Uri, ResultWithDiagnosticBuilder<ISourceFile>> fileResultByUri;
         private readonly Dictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> artifactLookup;
         private readonly Dictionary<ISourceFile, HashSet<ImplicitExtension>> implicitExtensions;
         private readonly bool forceRestore;
@@ -121,7 +121,7 @@ namespace Bicep.Core.Workspaces
                 fileResultByUri.ToImmutableDictionary());
         }
 
-        private ResultWithDiagnostic<ISourceFile> GetFileResolutionResult(Uri fileUri, ArtifactReference? moduleReference)
+        private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResult(Uri fileUri, ArtifactReference? moduleReference)
         {
             if (workspace.TryGetSourceFile(fileUri, out var sourceFile))
             {
@@ -138,7 +138,7 @@ namespace Bicep.Core.Workspaces
             return new(sourceFile);
         }
 
-        private ResultWithDiagnostic<ISourceFile> GetFileResolutionResultWithCaching(Uri fileUri, ArtifactReference? reference)
+        private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResultWithCaching(Uri fileUri, ArtifactReference? reference)
         {
             if (!fileResultByUri.TryGetValue(fileUri, out var resolutionResult))
             {
@@ -149,7 +149,7 @@ namespace Bicep.Core.Workspaces
             return resolutionResult;
         }
 
-        private ResultWithDiagnostic<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild, IFeatureProviderFactory featuresFactory, IConfigurationManager configurationManager)
+        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild, IFeatureProviderFactory featuresFactory, IConfigurationManager configurationManager)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, reference);
             if (fileResult.TryUnwrap() is BicepSourceFile bicepSource)
@@ -254,7 +254,7 @@ namespace Bicep.Core.Workspaces
             return new(sourceFile, referenceSyntax, artifactReference, result, RequiresRestore: requiresRestore);
         }
 
-        private (ResultWithDiagnostic<Uri> result, bool requiresRestore) GetArtifactRestoreResult(ArtifactReference artifactReference)
+        private (ResultWithDiagnosticBuilder<Uri> result, bool requiresRestore) GetArtifactRestoreResult(ArtifactReference artifactReference)
         {
             if (!dispatcher.TryGetLocalArtifactEntryPointUri(artifactReference).IsSuccess(out var artifactFileUri, out var artifactGetPathFailureBuilder))
             {
@@ -308,7 +308,7 @@ namespace Bicep.Core.Workspaces
                     fileResultByUri[fileUri].IsSuccess(out var sourceFile) &&
                     cycles.TryGetValue(sourceFile, out var cycle))
                 {
-                    ResultWithDiagnostic<Uri> result = cycle switch
+                    ResultWithDiagnosticBuilder<Uri> result = cycle switch
                     {
                         { Length: 1 } when cycle[0] is BicepParamFile paramFile => new(x => x.CyclicParametersSelfReference()),
                         { Length: 1 } => new(x => x.CyclicModuleSelfReference()),

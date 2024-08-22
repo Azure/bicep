@@ -42,7 +42,7 @@ namespace Bicep.Core.Configuration
 
         public ImmutableSortedDictionary<string, OciArtifactExtensionAlias> OciArtifactExtensionAliases => this.Data.OciArtifactExtensionAliases;
 
-        public ResultWithDiagnostic<OciArtifactExtensionAlias> TryGetOciArtifactExtensionAlias(string aliasName)
+        public ResultWithDiagnosticBuilder<OciArtifactExtensionAlias> TryGetOciArtifactExtensionAlias(string aliasName)
         {
             if (!ValidateAliasName(aliasName, out var errorBuilder))
             {

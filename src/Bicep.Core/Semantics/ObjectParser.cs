@@ -10,7 +10,7 @@ namespace Bicep.Core.Semantics
 {
     public abstract class ObjectParser : IObjectParser
     {
-        public bool TryExtractFromObject(string fileContent, string? tokenSelectorPath, IPositionable[] positionable, [NotNullWhen(false)] out Diagnostic? errorDiagnostic, [NotNullWhen(true)] out JToken? newToken)
+        public bool TryExtractFromObject(string fileContent, string? tokenSelectorPath, IPositionable[] positionable, [NotNullWhen(false)] out IDiagnostic? errorDiagnostic, [NotNullWhen(true)] out JToken? newToken)
         {
             errorDiagnostic = null;
             newToken = this.ExtractTokenFromObject(fileContent);
@@ -31,7 +31,7 @@ namespace Bicep.Core.Semantics
 
         protected abstract Diagnostic GetExtractTokenErrorType(IPositionable positionable);
 
-        private bool TryExtractFromTokenByPath(JToken token, string tokenSelectorPath, IPositionable positionable, [NotNullWhen(false)] out Diagnostic? errorDiagnostic, out JToken newToken)
+        private bool TryExtractFromTokenByPath(JToken token, string tokenSelectorPath, IPositionable positionable, [NotNullWhen(false)] out IDiagnostic? errorDiagnostic, out JToken newToken)
         {
             newToken = token;
             errorDiagnostic = null;

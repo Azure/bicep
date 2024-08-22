@@ -188,7 +188,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
                 return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
             }
 
-            public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference _)
+            public ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference _)
             {
                 throw new NotImplementedException();
             }
@@ -197,7 +197,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference _) => Task.FromResult<string?>(null);
 
-            public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType _, string? __, string reference)
+            public ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType _, string? __, string reference)
             {
                 return new(new MockArtifactRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
             }

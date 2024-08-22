@@ -24,7 +24,7 @@ namespace Bicep.Core.Registry
 
         ArtifactRestoreStatus GetArtifactRestoreStatus(ArtifactReference reference, out DiagnosticBuilder.DiagnosticBuilderDelegate? errorDetailBuilder);
 
-        ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
+        ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
 
         Task<bool> RestoreArtifacts(IEnumerable<ArtifactReference> references, bool forceRestore);
 

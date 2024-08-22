@@ -40,7 +40,7 @@ namespace Bicep.Core.Registry
                 _ => throw new UnreachableException(),
             };
 
-        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? alias, string reference)
+        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? alias, string reference)
         {
             if (artifactType != ArtifactType.Module && artifactType != ArtifactType.Extension)
             {
@@ -56,7 +56,7 @@ namespace Bicep.Core.Registry
         }
 
 
-        public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(LocalModuleReference reference)
+        public override ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(LocalModuleReference reference)
         {
             var localUri = FileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path);
             if (localUri is null)

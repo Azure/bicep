@@ -63,7 +63,7 @@ namespace Bicep.Core.Configuration
             return this.Data.TemplateSpecModuleAliases;
         }
 
-        public ResultWithDiagnostic<TemplateSpecModuleAlias> TryGetTemplateSpecModuleAlias(string aliasName)
+        public ResultWithDiagnosticBuilder<TemplateSpecModuleAlias> TryGetTemplateSpecModuleAlias(string aliasName)
         {
             if (!ValidateAliasName(aliasName, out var errorBuilder))
             {
@@ -88,7 +88,7 @@ namespace Bicep.Core.Configuration
             return new(alias);
         }
 
-        public ResultWithDiagnostic<OciArtifactModuleAlias> TryGetOciArtifactModuleAlias(string aliasName)
+        public ResultWithDiagnosticBuilder<OciArtifactModuleAlias> TryGetOciArtifactModuleAlias(string aliasName)
         {
             if (!ValidateAliasName(aliasName, out var errorBuilder))
             {

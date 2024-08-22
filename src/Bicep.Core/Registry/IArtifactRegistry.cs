@@ -30,7 +30,7 @@ namespace Bicep.Core.Registry
         /// <param name="aliasName">The alias name</param>
         /// <param name="reference">The unqualified artifact reference</param>
         /// <param name="artifactType">The artifact type.</param>
-        ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
+        ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
 
         /// <summary>
         /// Returns true if the specified artifact is already cached in the local cache.
@@ -43,7 +43,7 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="reference">The module reference</param>
         /// <returns></returns>
-        ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
+        ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
 
         /// <summary>
         /// Returns true if the specified module exists in the registry.

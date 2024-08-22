@@ -64,7 +64,7 @@ namespace Bicep.Core.Registry
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
         }
 
-        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference)
+        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference)
         {
             if (!OciArtifactReference.TryParse(artifactType, aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
@@ -137,7 +137,7 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(OciArtifactReference reference)
+        public override ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(OciArtifactReference reference)
         {
             var artifactFileType = reference.Type switch
             {

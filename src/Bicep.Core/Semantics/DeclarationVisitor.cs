@@ -342,7 +342,7 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        private Result<ISemanticModel, Diagnostic> GetImportSourceModel(CompileTimeImportDeclarationSyntax syntax)
+        private ResultWithDiagnostic<ISemanticModel> GetImportSourceModel(CompileTimeImportDeclarationSyntax syntax)
         {
             if (!SemanticModelHelper.TryGetModelForArtifactReference(artifactFileLookup, syntax, modelLookup).IsSuccess(out var model, out var modelLoadError))
             {

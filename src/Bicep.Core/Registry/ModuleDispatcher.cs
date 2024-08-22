@@ -42,7 +42,7 @@ namespace Bicep.Core.Registry
         public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
             => [.. Registries(parentModuleUri).Keys.OrderBy(s => s)];
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri)
+        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri)
         {
             var registries = Registries(parentModuleUri);
             var parts = reference.Split(':', 2, StringSplitOptions.None);
@@ -86,7 +86,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactReferenceSyntax, Uri parentModuleUri)
+        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactReferenceSyntax, Uri parentModuleUri)
         {
             if (artifactReferenceSyntax is ExtensionDeclarationSyntax extensionSyntax)
             {
@@ -122,7 +122,7 @@ namespace Bicep.Core.Registry
             string PathValue,
             RootConfiguration? ConfigSource);
 
-        private ResultWithDiagnostic<ArtifactAddressResult> TryGetArtifactAddress(ExtensionDeclarationSyntax extensionSyntax, Uri parentModuleUri)
+        private ResultWithDiagnosticBuilder<ArtifactAddressResult> TryGetArtifactAddress(ExtensionDeclarationSyntax extensionSyntax, Uri parentModuleUri)
         {
             switch (extensionSyntax.SpecificationString)
             {
@@ -173,7 +173,7 @@ namespace Bicep.Core.Registry
             return ArtifactRestoreStatus.Succeeded;
         }
 
-        public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference artifactReference)
+        public ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference artifactReference)
         {
             var configuration = configurationManager.GetConfiguration(artifactReference.ParentModuleUri);
             // has restore already failed for this artifact?
