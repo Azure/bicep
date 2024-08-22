@@ -226,7 +226,7 @@ namespace Bicep.Core.Semantics
             visitor.VisitFileSymbol(this);
         }
 
-        public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
+        public override IEnumerable<Diagnostic> GetDiagnostics() => DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.declarationsByName[name];
 
@@ -234,7 +234,7 @@ namespace Bicep.Core.Semantics
         /// Tries to get the semantic module of the Bicep File referenced via a using declaration from the current file.
         /// If current file is not a parameter file, the method will return false.
         /// </summary>
-        public Result<ISemanticModel, ErrorDiagnostic> TryGetBicepFileSemanticModelViaUsing()
+        public Result<ISemanticModel, Diagnostic> TryGetBicepFileSemanticModelViaUsing()
         {
             if (this.FileKind == BicepSourceFileKind.BicepFile)
             {
@@ -269,7 +269,7 @@ namespace Bicep.Core.Semantics
                 this.builtInNamespaces = builtInNamespaces;
             }
 
-            public static IEnumerable<ErrorDiagnostic> GetDiagnostics(FileSymbol file)
+            public static IEnumerable<Diagnostic> GetDiagnostics(FileSymbol file)
             {
                 var visitor = new DuplicateIdentifierValidatorVisitor(file.NamespaceResolver.ImplicitNamespaces);
                 visitor.Visit(file);
@@ -277,7 +277,7 @@ namespace Bicep.Core.Semantics
                 return visitor.Diagnostics;
             }
 
-            private IList<ErrorDiagnostic> Diagnostics { get; } = new List<ErrorDiagnostic>();
+            private IList<Diagnostic> Diagnostics { get; } = new List<Diagnostic>();
 
             protected override void VisitInternal(Symbol node)
             {

@@ -20,7 +20,7 @@ public static class ResultHelper
             _ => throw new InvalidOperationException($"{nameof(success)} and {nameof(error)} cannot both be non-null"),
         };
 
-    public static ResultWithDiagnostic<TSuccess> Create<TSuccess>(TSuccess? success, DiagnosticBuilder.ErrorBuilderDelegate? error)
+    public static ResultWithDiagnostic<TSuccess> Create<TSuccess>(TSuccess? success, DiagnosticBuilder.DiagnosticBuilderDelegate? error)
         where TSuccess : class
         => (success, error) switch
         {

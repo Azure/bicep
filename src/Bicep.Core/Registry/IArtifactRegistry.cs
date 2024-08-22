@@ -56,7 +56,7 @@ namespace Bicep.Core.Registry
         /// Returns a mapping of module references to error builders for modules that failed to be downloaded.
         /// </summary>
         /// <param name="references">module references</param>
-        Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references);
+        Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references);
 
         /// <summary>
         /// Called when time to restore artifacts, even if all artifacts are already restored.  Allows the registry provider
@@ -69,7 +69,7 @@ namespace Bicep.Core.Registry
         /// Returns a mapping of module references to error builders for modules that failed to be invalidated.
         /// </summary>
         /// <param name="references">module references</param>
-        Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> references);
+        Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> references);
 
         /// <summary>
         /// Publishes the module at the specified path to the registry.

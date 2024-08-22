@@ -22,7 +22,7 @@ namespace Bicep.Core.Registry
     {
         RegistryCapabilities GetRegistryCapabilities(ArtifactType artifactType, ArtifactReference reference);
 
-        ArtifactRestoreStatus GetArtifactRestoreStatus(ArtifactReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
+        ArtifactRestoreStatus GetArtifactRestoreStatus(ArtifactReference reference, out DiagnosticBuilder.DiagnosticBuilderDelegate? errorDetailBuilder);
 
         ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
 

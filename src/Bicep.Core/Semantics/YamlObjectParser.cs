@@ -25,7 +25,7 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        override protected ErrorDiagnostic GetExtractTokenErrorType(IPositionable positionable)
+        override protected Diagnostic GetExtractTokenErrorType(IPositionable positionable)
             => DiagnosticBuilder.ForPosition(positionable).UnparsableYamlType();
 
     }

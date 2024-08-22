@@ -62,7 +62,7 @@ namespace Bicep.Core.Configuration
             return new(alias);
         }
 
-        private static bool ValidateAliasName(string aliasName, [NotNullWhen(false)] out ErrorBuilderDelegate? errorBuilder)
+        private static bool ValidateAliasName(string aliasName, [NotNullWhen(false)] out DiagnosticBuilderDelegate? errorBuilder)
         {
             if (!ExtensionAliasNameRegex().IsMatch(aliasName))
             {

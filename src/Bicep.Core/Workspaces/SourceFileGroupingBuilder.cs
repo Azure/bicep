@@ -102,7 +102,7 @@ namespace Bicep.Core.Workspaces
             {
                 var diagnostic = errorBuilder(ForDocumentStart());
 
-                throw new ErrorDiagnosticException(diagnostic);
+                throw new DiagnosticException(diagnostic);
             }
 
             if (entryFile is not BicepSourceFile bicepSourceFile)

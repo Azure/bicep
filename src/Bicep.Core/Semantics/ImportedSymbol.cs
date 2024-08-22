@@ -43,7 +43,7 @@ public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadat
 
     public override string? Description => ExportMetadata.Description;
 
-    public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
+    public override IEnumerable<Diagnostic> GetDiagnostics()
     {
         if (!IsSupportedImportKind())
         {

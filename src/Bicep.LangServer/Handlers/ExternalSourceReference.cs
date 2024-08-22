@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
         /// <exception cref="ArgumentException"></exception>
         public ExternalSourceReference(string? fullTitle, string fullyQualifiedModuleReference, string? requestedFile)
         {
-            ErrorBuilderDelegate? error = null;
+            DiagnosticBuilderDelegate? error = null;
             if (!fullyQualifiedModuleReference.StartsWith($"{OciArtifactReferenceFacts.Scheme}:", StringComparison.Ordinal) ||
                 !OciArtifactReference.TryParseFullyQualifiedComponents(fullyQualifiedModuleReference.Substring(OciArtifactReferenceFacts.Scheme.Length + 1)).IsSuccess(out var components, out error))
             {

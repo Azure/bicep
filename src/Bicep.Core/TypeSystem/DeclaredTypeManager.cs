@@ -28,7 +28,7 @@ namespace Bicep.Core.TypeSystem
         // processed nodes found not to have a declared type will have a null value
         private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
         private readonly ConcurrentDictionary<TypeAliasSymbol, TypeSymbol> userDefinedTypeReferences = new();
-        private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntaxBase, Result<TypeExpression, ErrorDiagnostic>> reifiedTypes = new();
+        private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntaxBase, Result<TypeExpression, Diagnostic>> reifiedTypes = new();
         private readonly Lazy<ImmutableDictionary<TypeAliasSymbol, ImmutableArray<TypeAliasSymbol>>> typeCycles;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
@@ -228,8 +228,8 @@ namespace Bicep.Core.TypeSystem
             if (!binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel, out var failureDiagnostic))
             {
                 // failed to resolve using
-                return failureDiagnostic is ErrorDiagnostic error
-                    ? ErrorType.Create(error)
+                return failureDiagnostic.Level == DiagnosticLevel.Error
+                    ? ErrorType.Create(failureDiagnostic)
                     : null;
             }
 
@@ -568,17 +568,17 @@ namespace Bicep.Core.TypeSystem
             .Concat(binder.FileSymbol.ImportedTypes.Select(i => i.Name))
             .Distinct();
 
-        private Result<TypeExpression, ErrorDiagnostic> GetReifiedTypeResult(ParameterizedTypeInstantiationSyntaxBase syntax)
+        private Result<TypeExpression, Diagnostic> GetReifiedTypeResult(ParameterizedTypeInstantiationSyntaxBase syntax)
             => reifiedTypes.GetOrAdd(syntax, InstantiateType);
 
-        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax) => syntax switch
+        private Result<TypeExpression, Diagnostic> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax) => syntax switch
         {
             ParameterizedTypeInstantiationSyntax unqualified => InstantiateType(unqualified),
             InstanceParameterizedTypeInstantiationSyntax qualified => InstantiateType(qualified),
             _ => throw new UnreachableException($"Unrecognized subtype of {nameof(ParameterizedTypeInstantiationSyntaxBase)}: {syntax.GetType().FullName}"),
         };
 
-        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntax syntax) => binder.GetSymbolInfo(syntax) switch
+        private Result<TypeExpression, Diagnostic> InstantiateType(ParameterizedTypeInstantiationSyntax syntax) => binder.GetSymbolInfo(syntax) switch
         {
             AmbientTypeSymbol ambientType => InstantiateType(syntax, ambientType.Name, ambientType.Type),
             ImportedTypeSymbol importedType => InstantiateType(syntax, importedType.Name, importedType.Type),
@@ -587,7 +587,7 @@ namespace Bicep.Core.TypeSystem
             _ => new(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
         };
 
-        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(InstanceParameterizedTypeInstantiationSyntax syntax)
+        private Result<TypeExpression, Diagnostic> InstantiateType(InstanceParameterizedTypeInstantiationSyntax syntax)
         {
             var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression).Type;
             var propertyType = FinalizeTypePropertyType(baseType, syntax.PropertyName.IdentifierName, syntax.PropertyName);
@@ -595,7 +595,7 @@ namespace Bicep.Core.TypeSystem
             return InstantiateType(syntax, $"{baseType.Name}.{syntax.PropertyName.IdentifierName}", propertyType);
         }
 
-        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax, string typeName, TypeSymbol symbolType)
+        private Result<TypeExpression, Diagnostic> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax, string typeName, TypeSymbol symbolType)
             => symbolType switch
             {
                 TypeTemplate tt => tt.Instantiate(binder, syntax, syntax.Arguments.Select(arg => DisallowNamespaceTypes(GetTypeFromTypeSyntax(arg.Expression).Type, arg.Expression))),
@@ -627,7 +627,7 @@ namespace Bicep.Core.TypeSystem
         {
             HashSet<string> propertyNamesEncountered = new();
             List<TypeProperty> properties = new();
-            List<ErrorDiagnostic> diagnostics = new();
+            List<IDiagnostic> diagnostics = new();
             ObjectTypeNameBuilder nameBuilder = new();
 
             foreach (var prop in syntax.Properties)
@@ -789,9 +789,9 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var evaluated = OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax.Operator, baseExpressionType, diagnosticWriter);
-            if (diagnosticWriter.GetDiagnostics().OfType<ErrorDiagnostic>().Any())
+            if (diagnosticWriter.GetDiagnostics().Any(x => x.Level == DiagnosticLevel.Error))
             {
-                return ErrorType.Create(diagnosticWriter.GetDiagnostics().OfType<ErrorDiagnostic>());
+                return ErrorType.Create(diagnosticWriter.GetDiagnostics());
             }
 
             if (evaluated is { } result && TypeHelper.IsLiteralType(result))
@@ -994,9 +994,7 @@ namespace Bicep.Core.TypeSystem
             {
                 return ErrorType.Create(
                     TypeHelper.GetUnknownPropertyDiagnostic(objectType, propertyName, shouldWarn: false)
-                        .Invoke(DiagnosticBuilder.ForPosition(propertyNameSyntax))
-                        .AsErrorDiagnostic()
-                        ?? throw new UnreachableException("Should only return errors when shouldWarn: false"));
+                        .Invoke(DiagnosticBuilder.ForPosition(propertyNameSyntax)));
             }
 
             return UnwrapType(propertyNameSyntax, typeProperty.TypeReference.Type);

@@ -33,7 +33,7 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
     public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference()
         => Context.Compilation.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 
-    public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
+    public override IEnumerable<Diagnostic> GetDiagnostics()
     {
         if (SourceModel.Exports.Values.OfType<DuplicatedExportMetadata>().Any())
         {
