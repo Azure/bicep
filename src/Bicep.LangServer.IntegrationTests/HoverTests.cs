@@ -24,6 +24,7 @@ using Bicep.LanguageServer.CompilationManager;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -1066,6 +1067,61 @@ There might also be a link to something [link](www.google.com)
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n  \n"));
         }
 
+        [TestMethod]
+        public async Task Compiled_json_contains_trimmed_descriptions_in_hovers()
+        {
+            // https://github.com/Azure/bicep/issues/14864
+            var jsonContents = CompilationHelper.Compile("""
+type fooType = {
+  @description('''Description
+
+    ```sql
+    AzureMetrics
+    | where ResourceProvider == 'MICROSOFT.ANALYSISSERVICES'
+    ```
+    ''')
+  foo2: string?
+}
+
+param foo fooType = {}
+""");
+
+            var (bicepparamText, cursor) = ParserHelper.GetFileWithSingleCursor("""
+using 'main.json'
+param foo = {
+  fo|o2: 
+}
+""");
+
+            var jsonUri = new Uri("file:///path/to/main.json");
+            var paramsUri = new Uri("file:///path/to/params.bicepparam");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [jsonUri] = jsonContents.Template.ToJson(),
+                [paramsUri] = bicepparamText,
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, paramsUri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
+            var client = helper.Client;
+
+            var hover = await RequestHover(client, SourceFileFactory.CreateBicepFile(paramsUri, bicepparamText), cursor);
+            hover!.Contents!.MarkupContent!.Value
+                .Should().BeEquivalentToIgnoringTrailingWhitespace("""
+```bicep
+foo2: null | string
+```
+Description
+
+```sql
+AzureMetrics
+| where ResourceProvider == 'MICROSOFT.ANALYSISSERVICES'
+```
+
+
+""");
+        }
+
         private string GetManifestFileContents(string? documentationUri, string? description)
         {
             string annotations =
@@ -1310,6 +1366,13 @@ There might also be a link to something [link](www.google.com)
         private static IEnumerable<object[]> GetData()
         {
             return DataSets.NonStressDataSets.ToDynamicTestData();
+        }
+
+        private static async Task<Hover?> RequestHover(ILanguageClient client, BicepFile bicepFile, int cursor)
+        {
+            var hovers = await RequestHovers(client, bicepFile, [cursor]);
+
+            return hovers.Single();
         }
 
         private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
