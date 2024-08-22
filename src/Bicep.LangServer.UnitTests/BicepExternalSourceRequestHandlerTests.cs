@@ -488,6 +488,26 @@ namespace Bicep.LangServer.UnitTests.Handlers
             (decoded.RequestedFile ?? "main.json").Should().MatchRegex(".+\\.(bicep|json)$", "requested source file should end with .json or .bicep");
         }
 
+        [TestMethod]
+        public void GetTemplateSpecSourceLinkUri_WithTemplateSpecModuleReference_ReturnsEncodedUri()
+        {
+            var subscriptionId = Guid.NewGuid();
+            var resourceGroupName = "myRG";
+            var templateSpecName = "myTemplateSpec";
+            var version = "v1";
+            var referenceValue = $"{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}";
+
+            TemplateSpecModuleReference
+                .TryParse(null, referenceValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, new Uri("file:///no-parent-file-is-available.bicep"))
+                .IsSuccess(out var reference, out var errorBuilder)
+                .Should()
+                .BeTrue();
+
+            var result = BicepExternalSourceRequestHandler.GetTemplateSpeckSourceLinkUri(reference!);
+
+            result.Should().Be($"bicep-extsrc:ts%3A{subscriptionId}%2FmyRG%2FmyTemplateSpec%3Av1?ts%3A{subscriptionId}%2FmyRG%2FmyTemplateSpec%3Av1");
+        }
+
         private Uri GetExternalSourceLinkUri(ExternalSourceLinkTestData testData)
         {
             Uri? entrypointUri = testData.sourceEntrypoint is { } ? PathHelper.FilePathToFileUrl(testData.sourceEntrypoint) : null;
@@ -503,7 +523,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new SourceArchiveBuilder().WithBicepFile(entrypointUri, "metadata description = 'bicep module'").Build()
                 : null;
 
-            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(reference, sourceArchive);
+            return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(reference, sourceArchive);
         }
 
         private string TrimFirstCharacter(string s)

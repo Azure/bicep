@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Diagnostics;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Templates.Extensions;
@@ -7,6 +8,7 @@ using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
@@ -186,14 +188,24 @@ namespace Bicep.LanguageServer.Handlers
 
         private Uri GetModuleSourceLinkUri(ISourceFile sourceFile, ArtifactReference reference)
         {
-            if (!this.CanClientAcceptRegistryContent() || !reference.IsExternal || reference is not OciArtifactReference ociReference)
+            if (!this.CanClientAcceptRegistryContent() || !reference.IsExternal)
             {
                 // the client doesn't support the bicep-extsrc scheme or we're dealing with a local module
                 // just use the file URI
                 return sourceFile.FileUri;
             }
 
-            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(ociReference, moduleDispatcher?.TryGetModuleSources(reference).TryUnwrap());
+            if (reference is OciArtifactReference ociArtifactReference)
+            {
+                return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, moduleDispatcher?.TryGetModuleSources(reference).TryUnwrap());
+            }
+
+            if (reference is TemplateSpecModuleReference templateSpecModuleReference)
+            {
+                return BicepExternalSourceRequestHandler.GetTemplateSpeckSourceLinkUri(templateSpecModuleReference);
+            }
+
+            throw new UnreachableException();
         }
 
         private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, DefinitionParams request, SymbolResolutionResult result, WildcardImportSymbol wildcardImport)
