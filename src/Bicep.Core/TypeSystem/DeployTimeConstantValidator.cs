@@ -31,7 +31,7 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        private static void CheckDeployTimeConstantViolations(SyntaxBase container, SyntaxBase childContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ResourceTypeResolver resourceTypeResolver)
+        public static void CheckDeployTimeConstantViolations(SyntaxBase container, SyntaxBase childContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ResourceTypeResolver resourceTypeResolver)
         {
             // Validate property accesses, array accesses, resource accesses and function calls.
             new DeployTimeConstantDirectViolationVisitor(container, semanticModel, diagnosticWriter, resourceTypeResolver)

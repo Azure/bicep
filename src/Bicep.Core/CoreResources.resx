@@ -526,4 +526,11 @@
   <data name="UseSafeAccessRule_MessageFormat" xml:space="preserve">
     <value>The syntax can be simplified by using the safe access (.?) operator.</value>
   </data>
+  <data name="WhatIfShortCircuitingRuleDescription" xml:space="preserve">
+    <value>Runtime values cannot be used to determine resource IDs</value>
+  </data>
+  <data name="WhatIfShortCircuitingRuleMessageFormat" xml:space="preserve">
+    <value>Parameter '{0}' will disable what-if analysis for module '{1}'</value>
+    <comment>{0} Parameter name</comment>
+  </data>
 </root>
