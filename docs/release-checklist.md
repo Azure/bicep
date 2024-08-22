@@ -15,7 +15,7 @@
         1. You need to be part of the armdeployments org on nuget.org. (Ask one of the admins to be added) You must generate an API key and then use that as the password for when the popup window appears after running the above command. (Username can be anything)
     1. Bump the Bicep.Types.Az NuGet package version in this project in this [file](https://github.com/Azure/bicep/blob/main/src/Bicep.Core/Bicep.Core.csproj) by creating and merging a PR
         1. Might need to run a `dotnet restore` to update the packages.lock.json files
-        1. Might also need to update baseline tests (run `bicep/scripts/SetBaseline.ps1`)
+        1. Might also need to update baseline tests (run `bicep/scripts/UpdateBaselines.ps1`)
 1. Verify the latest build on the `main` branch is green: [Build on main](https://github.com/Azure/bicep/actions/workflows/build.yml).
 1. Review history for changes to [bicepconfig.schema.json](https://github.com/Azure/bicep/commits/main/src/vscode-bicep/schemas/bicepconfig.schema.json). Create a GitHub issue for it if none already exists and notify the team for any recently-added linter rules which do not have public documentation. This is non-blocking for the release process (continue to the next step).
 1. (**end-of-month releases only**) Bump the version number by incrementing the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))

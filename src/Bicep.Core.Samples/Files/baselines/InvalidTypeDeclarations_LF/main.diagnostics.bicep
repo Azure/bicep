@@ -104,6 +104,7 @@ param disallowedUnionParam 'foo'|-99
 
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[06:037) [no-unused-params (Warning)] Parameter "objectWithInvalidRecursionParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |objectWithInvalidRecursionParam|
+//@[38:064) [BCP062 (Error)] The referenced declaration with name "objectWithInvalidRecursion" is not valid. (CodeDescription: none) |objectWithInvalidRecursion|
 
 type typeA = {
   type: 'a'

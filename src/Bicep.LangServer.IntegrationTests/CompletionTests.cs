@@ -4294,6 +4294,82 @@ var foo = {
         }
 
         [TestMethod]
+        public async Task Required_properties_completion_is_not_offered_for_invalid_recursive_types()
+        {
+            // https://github.com/Azure/bicep/issues/14867
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+type invalidRecursiveObjectType = {
+  level1: {
+    level2: {
+      level3: {
+        level4: {
+          level5: invalidRecursiveObjectType
+        }
+      }
+    }
+  }
+}
+
+param p invalidRecursiveObjectType = |
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().NotContain(c => c.Label == "required-properties");
+        }
+
+        [TestMethod]
+        public async Task Required_properties_completion_works_for_valid_recursive_types()
+        {
+            // https://github.com/Azure/bicep/issues/14867
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+type validRecursiveObjectType = {
+  level1: {
+    level2: {
+      level3: {
+        level4: {
+          level5: validRecursiveObjectType?
+        }
+      }
+    }
+  }
+}
+
+param p validRecursiveObjectType = |
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            var updatedFile = file.ApplyCompletion(completions, "required-properties");
+
+            updatedFile.Should().HaveSourceText("""
+type validRecursiveObjectType = {
+  level1: {
+    level2: {
+      level3: {
+        level4: {
+          level5: validRecursiveObjectType?
+        }
+      }
+    }
+  }
+}
+
+param p validRecursiveObjectType = {
+  level1: {
+    level2: {
+      level3: {
+        level4: {}
+      }
+    }
+  }
+}|
+""");
+        }
+
+        [TestMethod]
         public async Task Compile_time_imports_offer_target_path_completions()
         {
             var mainContent = """

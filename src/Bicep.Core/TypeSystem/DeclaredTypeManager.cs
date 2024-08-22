@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -15,6 +16,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 
@@ -27,6 +29,7 @@ namespace Bicep.Core.TypeSystem
         private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
         private readonly ConcurrentDictionary<TypeAliasSymbol, TypeSymbol> userDefinedTypeReferences = new();
         private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntaxBase, Result<TypeExpression, ErrorDiagnostic>> reifiedTypes = new();
+        private readonly Lazy<ImmutableDictionary<TypeAliasSymbol, ImmutableArray<TypeAliasSymbol>>> typeCycles;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IFeatureProvider features;
@@ -38,6 +41,9 @@ namespace Bicep.Core.TypeSystem
             this.binder = binder;
             this.features = features;
             this.resourceDerivedTypeResolver = new(binder);
+            this.typeCycles = new(() => CyclicTypeCheckVisitor.FindCycles(
+                binder,
+                syntax => TryGetTypeFromTypeSyntax(syntax)?.Type));
         }
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) =>
@@ -49,6 +55,37 @@ namespace Bicep.Core.TypeSystem
             => GetReifiedTypeResult(syntax).TryUnwrap();
 
         private DeclaredTypeAssignment? GetTypeAssignment(SyntaxBase syntax)
+        {
+            if (binder.GetSymbolInfo(syntax) is TypeAliasSymbol typeAlias)
+            {
+                if (typeCycles.Value.TryGetValue(typeAlias, out var cycle))
+                {
+                    var builder = DiagnosticBuilder.ForPosition(typeAlias.DeclaringType.Name);
+                    var diagnostic = cycle.Length == 1
+                        ? builder.CyclicTypeSelfReference()
+                        : builder.CyclicType(cycle.Select(s => s.Name));
+
+                    return new(ErrorType.Create(diagnostic), syntax);
+                }
+            }
+            else
+            {
+                foreach (var typeAccessSyntax in SyntaxAggregator.AggregateByType<TypeVariableAccessSyntax>(syntax))
+                {
+                    if (binder.GetSymbolInfo(typeAccessSyntax) is TypeAliasSymbol accessedTypeAlias &&
+                        typeCycles.Value.TryGetValue(accessedTypeAlias, out var cycle))
+                    {
+                        var builder = DiagnosticBuilder.ForPosition(typeAccessSyntax);
+                        var diagnostic = builder.ReferencedSymbolHasErrors(accessedTypeAlias.Name);
+                        return new(ErrorType.Create(diagnostic), syntax);
+                    }
+                }
+            }
+
+            return GetTypeAssignmentWithoutCycleCheck(syntax);
+        }
+
+        private DeclaredTypeAssignment? GetTypeAssignmentWithoutCycleCheck(SyntaxBase syntax)
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 

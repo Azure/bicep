@@ -6232,4 +6232,30 @@ output foo string[] = [for item in items: item.foo]
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Recursive_types_generate_diagnostics_where_referenced()
+    {
+        // https://github.com/Azure/bicep/issues/14867
+        var result = CompilationHelper.Compile("""
+type invalidRecursiveObjectType = {
+  level1: {
+    level2: {
+      level3: {
+        level4: {
+          level5: invalidRecursiveObjectType
+        }
+      }
+    }
+  }
+}
+
+param p invalidRecursiveObjectType = {}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP298", DiagnosticLevel.Error, """This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."""),
+            ("BCP062", DiagnosticLevel.Error, """The referenced declaration with name "invalidRecursiveObjectType" is not valid."""),
+        ]);
+    }
 }
