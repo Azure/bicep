@@ -40,6 +40,5 @@ namespace Bicep.Core.Diagnostics
         public string Message { get; }
 
         public Uri? Uri { get; }
-
     }
 }

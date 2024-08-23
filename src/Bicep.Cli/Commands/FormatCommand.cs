@@ -44,7 +44,7 @@ public class FormatCommand : ICommand
         if (!this.fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
         {
             var diagnostic = failureBuilder(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)));
-            throw new ErrorDiagnosticException(diagnostic);
+            throw new DiagnosticException(diagnostic);
         }
 
         BaseParser parser = PathHelper.HasBicepExtension(inputUri) ? new Parser(fileContents) : new ParamsParser(fileContents);

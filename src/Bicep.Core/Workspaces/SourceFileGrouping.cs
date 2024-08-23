@@ -20,7 +20,7 @@ public record ArtifactResolutionInfo(
     BicepSourceFile Origin,
     IArtifactReferenceSyntax? Syntax,
     ArtifactReference? Reference,
-    ResultWithDiagnostic<Uri> Result,
+    ResultWithDiagnosticBuilder<Uri> Result,
     bool RequiresRestore);
 
 public record SourceFileGrouping(
@@ -29,7 +29,7 @@ public record SourceFileGrouping(
     ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup,
     ImmutableDictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> ArtifactLookup,
     ImmutableDictionary<ISourceFile, ImmutableHashSet<ImplicitExtension>> ImplicitExtensions,
-    ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> SourceFileLookup) : IArtifactFileLookup
+    ImmutableDictionary<Uri, ResultWithDiagnosticBuilder<ISourceFile>> SourceFileLookup) : IArtifactFileLookup
 {
     public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore(bool force = false)
     {
@@ -52,7 +52,7 @@ public record SourceFileGrouping(
     public static bool ShouldRestore(ArtifactResolutionInfo artifact, bool force = false)
         => force || (!artifact.Result.IsSuccess() && artifact.RequiresRestore);
 
-    public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax reference)
+    public ResultWithDiagnosticBuilder<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax reference)
     {
         if (!ArtifactLookup[reference].Result.IsSuccess(out var fileUri, out var errorBuilder))
         {

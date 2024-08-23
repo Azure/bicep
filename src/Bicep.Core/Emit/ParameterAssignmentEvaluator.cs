@@ -135,7 +135,7 @@ public class ParameterAssignmentEvaluator
     private readonly ConcurrentDictionary<ImportedVariableSymbol, Result> importResults = new();
     private readonly ConcurrentDictionary<WildcardImportPropertyReference, Result> wildcardImportVariableResults = new();
     private readonly ConcurrentDictionary<Expression, Result> synthesizedVariableResults = new();
-    private readonly ConcurrentDictionary<SemanticModel, ResultWithDiagnostic<Template>> templateResults = new();
+    private readonly ConcurrentDictionary<SemanticModel, ResultWithDiagnosticBuilder<Template>> templateResults = new();
     private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> armEvaluators = new();
     private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
     private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
@@ -226,7 +226,7 @@ public class ParameterAssignmentEvaluator
                 }
             });
 
-    private ResultWithDiagnostic<Template> GetTemplateWithCaching(ISemanticModel model)
+    private ResultWithDiagnosticBuilder<Template> GetTemplateWithCaching(ISemanticModel model)
         => model switch
         {
             SemanticModel bicepModel => templateResults.GetOrAdd(bicepModel, GetTemplate),
@@ -380,7 +380,7 @@ public class ParameterAssignmentEvaluator
         return new(helper, this);
     }
 
-    private static ResultWithDiagnostic<Template> GetTemplate(SemanticModel model)
+    private static ResultWithDiagnosticBuilder<Template> GetTemplate(SemanticModel model)
     {
         if (model.HasErrors())
         {

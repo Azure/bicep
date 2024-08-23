@@ -22,7 +22,7 @@ public class AuxiliaryFileCacheTests
 
         var fileResolverMock = StrictMock.Of<IFileResolver>();
         fileResolverMock.Setup(x => x.TryReadAsBinaryData(fileUri, null))
-            .Returns(new ResultWithDiagnostic<BinaryData>(binaryData));
+            .Returns(new ResultWithDiagnosticBuilder<BinaryData>(binaryData));
 
         var sut = new AuxiliaryFileCache(fileResolverMock.Object);
 
@@ -47,7 +47,7 @@ public class AuxiliaryFileCacheTests
 
         var fileResolverMock = StrictMock.Of<IFileResolver>();
         fileResolverMock.Setup(x => x.TryReadAsBinaryData(fileUri, null))
-            .Returns(new ResultWithDiagnostic<BinaryData>(x => x.FilePathInterpolationUnsupported()));
+            .Returns(new ResultWithDiagnosticBuilder<BinaryData>(x => x.FilePathInterpolationUnsupported()));
 
         var sut = new AuxiliaryFileCache(fileResolverMock.Object);
 
@@ -71,7 +71,7 @@ public class AuxiliaryFileCacheTests
 
         var fileResolverMock = StrictMock.Of<IFileResolver>();
         fileResolverMock.Setup(x => x.TryReadAsBinaryData(fileUri, null))
-            .Returns(new ResultWithDiagnostic<BinaryData>(binaryData));
+            .Returns(new ResultWithDiagnosticBuilder<BinaryData>(binaryData));
 
         var sut = new AuxiliaryFileCache(fileResolverMock.Object);
 
@@ -94,7 +94,7 @@ public class AuxiliaryFileCacheTests
 
         var fileResolverMock = StrictMock.Of<IFileResolver>();
         fileResolverMock.Setup(x => x.TryReadAsBinaryData(fileUri, null))
-            .Returns(new ResultWithDiagnostic<BinaryData>(binaryData));
+            .Returns(new ResultWithDiagnosticBuilder<BinaryData>(binaryData));
 
         var sut = new AuxiliaryFileCache(fileResolverMock.Object);
 

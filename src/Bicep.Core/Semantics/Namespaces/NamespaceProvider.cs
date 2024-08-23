@@ -181,7 +181,7 @@ public class NamespaceProvider : INamespaceProvider
         return ErrorType.Create(diagBuilder.InvalidExtension_NotABuiltInExtension(rootConfig.ConfigFileUri, extensionName));
     }
 
-    private ResultWithDiagnostic<NamespaceType> GetNamespaceTypeForArtifact(IFeatureProvider features, ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)
+    private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(IFeatureProvider features, ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)
     {
         if (!artifact.Result.IsSuccess(out var typesTgzUri, out var errorBuilder))
         {

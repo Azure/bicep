@@ -502,7 +502,7 @@ namespace Bicep.Core.TypeSystem
             _ => (0, null),
         };
 
-        public static ResultWithDiagnostic<ResourceType> GetResourceTypeFromString(IBinder binder, string stringContent, ResourceTypeGenerationFlags typeGenerationFlags, ResourceType? parentResourceType)
+        public static ResultWithDiagnosticBuilder<ResourceType> GetResourceTypeFromString(IBinder binder, string stringContent, ResourceTypeGenerationFlags typeGenerationFlags, ResourceType? parentResourceType)
         {
             var colonIndex = stringContent.IndexOf(':');
             if (colonIndex > 0)
@@ -620,7 +620,7 @@ namespace Bicep.Core.TypeSystem
         private static string FormatName(IEnumerable<ITypeReference> unionMembers) =>
             unionMembers.Select(m => m.Type.FormatNameForCompoundTypes()).ConcatString(" | ");
 
-        private static ResultWithDiagnostic<ResourceTypeReference> GetCombinedTypeReference(ResourceTypeGenerationFlags flags, ResourceType? parentResourceType, string typeString)
+        private static ResultWithDiagnosticBuilder<ResourceTypeReference> GetCombinedTypeReference(ResourceTypeGenerationFlags flags, ResourceType? parentResourceType, string typeString)
         {
             if (ResourceTypeReference.TryParse(typeString) is not { } typeReference)
             {

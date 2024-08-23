@@ -22,7 +22,7 @@ namespace Bicep.Core.FileSystem
             return FileLock.TryAcquire(fileSystem, fileUri.LocalPath);
         }
 
-        public ResultWithDiagnostic<string> TryRead(Uri fileUri)
+        public ResultWithDiagnosticBuilder<string> TryRead(Uri fileUri)
             => TryReadInternal<string>(fileUri, 0, stream =>
             {
                 using var reader = new StreamReader(stream);
@@ -30,7 +30,7 @@ namespace Bicep.Core.FileSystem
                 return new(reader.ReadToEnd());
             });
 
-        public static ResultWithDiagnostic<FileWithEncoding> ReadWithEncoding(BinaryData data, Encoding fileEncoding, int maxCharacters, Uri fileUri)
+        public static ResultWithDiagnosticBuilder<FileWithEncoding> ReadWithEncoding(BinaryData data, Encoding fileEncoding, int maxCharacters, Uri fileUri)
         {
             using var sr = new StreamReader(data.ToStream(), fileEncoding, true);
 
@@ -49,10 +49,10 @@ namespace Bicep.Core.FileSystem
             return new(new FileWithEncoding(sb.ToString(), sr.CurrentEncoding));
         }
 
-        public ResultWithDiagnostic<BinaryData> TryReadAsBinaryData(Uri fileUri, int? maxFileSize)
+        public ResultWithDiagnosticBuilder<BinaryData> TryReadAsBinaryData(Uri fileUri, int? maxFileSize)
             => TryReadInternal<BinaryData>(fileUri, maxFileSize ?? 0, stream => new(BinaryData.FromStream(stream)));
 
-        public ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
+        public ResultWithDiagnosticBuilder<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
             => TryReadInternal<string>(fileUri, 0, stream =>
             {
                 if (n <= 0)
@@ -68,7 +68,7 @@ namespace Bicep.Core.FileSystem
                 return new(new string(buffer.Take(n).ToArray()));
             });
 
-        private ResultWithDiagnostic<T> TryReadInternal<T>(Uri fileUri, int maxFileSize, Func<Stream, ResultWithDiagnostic<T>> readFunc)
+        private ResultWithDiagnosticBuilder<T> TryReadInternal<T>(Uri fileUri, int maxFileSize, Func<Stream, ResultWithDiagnosticBuilder<T>> readFunc)
         {
             if (!fileUri.IsFile)
             {

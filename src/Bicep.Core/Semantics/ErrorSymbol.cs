@@ -9,14 +9,14 @@ namespace Bicep.Core.Semantics
     /// </summary>
     public class ErrorSymbol : Symbol
     {
-        private readonly ErrorDiagnostic? error;
+        private readonly Diagnostic? error;
 
         public ErrorSymbol() : base(LanguageConstants.ErrorName)
         {
             this.error = null;
         }
 
-        public ErrorSymbol(ErrorDiagnostic error) : base(error.Code)
+        public ErrorSymbol(Diagnostic error) : base(error.Code)
         {
             this.error = error;
         }
@@ -25,7 +25,7 @@ namespace Bicep.Core.Semantics
 
         public override SymbolKind Kind => SymbolKind.Error;
 
-        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
+        public override IEnumerable<Diagnostic> GetDiagnostics()
         {
             if (this.error != null)
             {

@@ -1090,7 +1090,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }, null);
         }
 
-        private static ResultWithDiagnostic<Uri> TryGetFileUriWithDiagnostics(IBinder binder, string filePath)
+        private static ResultWithDiagnosticBuilder<Uri> TryGetFileUriWithDiagnostics(IBinder binder, string filePath)
         {
             if (!LocalModuleReference.Validate(filePath).IsSuccess(out _, out var validateFilePathFailureBuilder))
             {
@@ -1249,7 +1249,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private record LoadTextContentResult(Uri FileUri, string Content);
 
-        private static Result<LoadTextContentResult, ErrorDiagnostic> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int maxCharacters = -1)
+        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int maxCharacters = -1)
         {
             if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
             {
@@ -1289,7 +1289,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new(new LoadTextContentResult(fileUri, result.Contents));
         }
 
-        private static Result<LoadTextContentResult, ErrorDiagnostic> TryLoadTextContentAsBase64(SemanticModel model, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument)
+        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentAsBase64(SemanticModel model, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument)
         {
             if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
             {

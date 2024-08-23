@@ -18,7 +18,7 @@ namespace Bicep.Core.TypeSystem.Providers
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
         private record ResourceTypeLoaderKey(Uri TypesTgzUri, bool UseAzLoader);
-        private readonly ConcurrentDictionary<ResourceTypeLoaderKey, ResultWithDiagnostic<IResourceTypeProvider>> cachedResourceTypeLoaders = new();
+        private readonly ConcurrentDictionary<ResourceTypeLoaderKey, ResultWithDiagnosticBuilder<IResourceTypeProvider>> cachedResourceTypeLoaders = new();
         private readonly IFileSystem fileSystem;
 
         public ResourceTypeProviderFactory(IFileSystem fileSystem)
@@ -26,7 +26,7 @@ namespace Bicep.Core.TypeSystem.Providers
             this.fileSystem = fileSystem;
         }
 
-        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ArtifactReference? artifactReference, Uri typesTgzUri, bool useAzLoader)
+        public ResultWithDiagnosticBuilder<IResourceTypeProvider> GetResourceTypeProvider(ArtifactReference? artifactReference, Uri typesTgzUri, bool useAzLoader)
         {
             var key = new ResourceTypeLoaderKey(typesTgzUri, useAzLoader);
             // TODO invalidate this cache on module force restore

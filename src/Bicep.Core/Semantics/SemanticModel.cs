@@ -43,7 +43,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
-        private readonly ConcurrentDictionary<Uri, ResultWithDiagnostic<AuxiliaryFile>> auxiliaryFileCache = new();
+        private readonly ConcurrentDictionary<Uri, ResultWithDiagnosticBuilder<AuxiliaryFile>> auxiliaryFileCache = new();
 
         public SemanticModel(Compilation compilation, BicepSourceFile sourceFile)
         {
@@ -157,7 +157,7 @@ namespace Bicep.Core.Semantics
             });
         }
 
-        public ResultWithDiagnostic<AuxiliaryFile> ReadAuxiliaryFile(Uri uri)
+        public ResultWithDiagnosticBuilder<AuxiliaryFile> ReadAuxiliaryFile(Uri uri)
             => auxiliaryFileCache.GetOrAdd(uri, Compilation.FileCache.Read);
 
         public IEnumerable<Uri> GetAuxiliaryFileReferences()

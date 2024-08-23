@@ -27,7 +27,7 @@ public abstract class ImportedSymbol : DeclaredSymbol
 
     public abstract string? Description { get; }
 
-    public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference()
+    public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference()
         => Context.Compilation.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 }
 
@@ -43,7 +43,7 @@ public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadat
 
     public override string? Description => ExportMetadata.Description;
 
-    public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
+    public override IEnumerable<Diagnostic> GetDiagnostics()
     {
         if (!IsSupportedImportKind())
         {

@@ -70,13 +70,13 @@ namespace Bicep.Core.Registry.Oci
 
         // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
         // The configuration and parentModuleUri are needed to resolve aliases and experimental features
-        public static ResultWithDiagnostic<OciArtifactReference> TryParseModuleAndAlias(string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseModuleAndAlias(string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
             => TryParse(ArtifactType.Module, aliasName, unqualifiedReference, configuration, parentModuleUri);
 
-        public static ResultWithDiagnostic<OciArtifactReference> TryParseModule(string unqualifiedReference)
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseModule(string unqualifiedReference)
             => TryParse(ArtifactType.Module, null, unqualifiedReference, null, null);
 
-        public static ResultWithDiagnostic<OciArtifactReference> TryParse(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration, Uri? parentModuleUri)
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration, Uri? parentModuleUri)
         {
             if (TryParseParts(type, aliasName, unqualifiedReference, configuration).IsSuccess(out var parts, out var errorBuilder))
             {
@@ -89,13 +89,13 @@ namespace Bicep.Core.Registry.Oci
         }
 
         // Doesn't handle aliases
-        public static ResultWithDiagnostic<IArtifactAddressComponents> TryParseFullyQualifiedComponents(string rawValue)
+        public static ResultWithDiagnosticBuilder<IArtifactAddressComponents> TryParseFullyQualifiedComponents(string rawValue)
         {
             return TryParseParts(ArtifactType.Module, aliasName: null, rawValue, configuration: null);
         }
 
         // TODO: Completely remove aliasName and configuration dependencies and move the non-dependent portion to a static method on ArtifactAddressComponents
-        private static ResultWithDiagnostic<IArtifactAddressComponents> TryParseParts(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration)
+        private static ResultWithDiagnosticBuilder<IArtifactAddressComponents> TryParseParts(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration)
         {
             static string GetBadReference(string referenceValue) => $"{OciArtifactReferenceFacts.Scheme}:{referenceValue}";
 

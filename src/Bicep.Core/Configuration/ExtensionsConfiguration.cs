@@ -36,7 +36,7 @@ public partial class ExtensionsConfiguration : ConfigurationSection<ImmutableDic
                 pair => new ExtensionConfigEntry(pair.Value))
         );
 
-    public ResultWithDiagnostic<ExtensionConfigEntry> TryGetExtensionSource(string extensionName)
+    public ResultWithDiagnosticBuilder<ExtensionConfigEntry> TryGetExtensionSource(string extensionName)
     {
         if (!this.Data.TryGetValue(extensionName, out var extensionConfigEntry))
         {

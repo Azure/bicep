@@ -14,7 +14,7 @@ namespace Bicep.Core.Semantics
         /// </summary>
         override protected JToken ExtractTokenFromObject(string fileContent)
             => fileContent.TryFromJson<JToken>();
-        override protected ErrorDiagnostic GetExtractTokenErrorType(IPositionable positionable)
+        override protected Diagnostic GetExtractTokenErrorType(IPositionable positionable)
             => DiagnosticBuilder.ForPosition(positionable).UnparsableJsonType();
     }
 }
