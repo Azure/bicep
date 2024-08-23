@@ -1582,6 +1582,11 @@ namespace Bicep.Core.Semantics.Namespaces
                         if (decorated is DescribableExpression describable &&
                             functionCall.Parameters.FirstOrDefault() is { } description)
                         {
+                            if (description is StringLiteralExpression stringLiteral)
+                            {
+                                description = stringLiteral with { Value = StringUtils.NormalizeIndent(stringLiteral.Value) };
+                            }
+
                             return describable with { Description = description };
                         }
 
