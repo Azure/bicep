@@ -17,7 +17,7 @@ resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
   location: location
   properties: {
     encryptionConfig: {
-//@[4:20) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "type". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |encryptionConfig|
+//@[4:20) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "type". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP035)) |encryptionConfig|
       keyVaultMetaInfo: {
         keyVaultResourceId: resourceId_parameters_keyVaultResourceGroupName_Microsoft_KeyVault_vaults_parameters_keyVaultName
         encryptionKeyName: keyName

@@ -37,9 +37,9 @@ param storageAccountType string = 'Standard_LRS'
 var foo = 'foo'
 var armBaseUrl = baseUrl
 var module1Url = '${armBaseUrl}/nested/module1.json'
-//@[04:14) [no-unused-vars (Warning)] Variable "module1Url" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |module1Url|
+//@[04:14) [no-unused-vars (Warning)] Variable "module1Url" is declared but never used. (CodeDescription: Linter(https://aka.ms/bicep/linter/no-unused-vars)) |module1Url|
 var module2Url = '${armBaseUrl}/nested/module2.json'
-//@[04:14) [no-unused-vars (Warning)] Variable "module2Url" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |module2Url|
+//@[04:14) [no-unused-vars (Warning)] Variable "module2Url" is declared but never used. (CodeDescription: Linter(https://aka.ms/bicep/linter/no-unused-vars)) |module2Url|
 var objectVar = {
   val1: 'a${location}b'
 }
@@ -48,10 +48,10 @@ var arrayVar = [
   location
 ]
 var storageAccountName_var = 'flowlogs${uniqueString(resourceGroup().id)}'
-//@[04:26) [decompiler-cleanup (Warning)] The name of variable 'storageAccountName_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |storageAccountName_var|
+//@[04:26) [decompiler-cleanup (Warning)] The name of variable 'storageAccountName_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (CodeDescription: Linter(https://aka.ms/bicep/linter/decompiler-cleanup)) |storageAccountName_var|
 
 resource foo_bar 'Foo.Rp/bar@2019-06-01' = if (false) {
-//@[17:40) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
+//@[17:40) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP081)) |'Foo.Rp/bar@2019-06-01'|
   name: '${foo}bar'
   location: 'westus'
   properties: {
@@ -60,7 +60,7 @@ resource foo_bar 'Foo.Rp/bar@2019-06-01' = if (false) {
 }
 
 resource baz 'Foo.Rp/bar@2019-06-01' = if (something == foo) {
-//@[13:36) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
+//@[13:36) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP081)) |'Foo.Rp/bar@2019-06-01'|
   name: 'baz'
   location: 'westus'
   dependsOn: [
@@ -71,22 +71,22 @@ resource baz 'Foo.Rp/bar@2019-06-01' = if (something == foo) {
 module module1Deploy 'nested/module1.json' = if ((1 + 2) == 3) {
   name: 'module1Deploy'
   params: {
-//@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". (CodeDescription: none) |params|
+//@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP035)) |params|
     location: location
-//@[04:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |location|
+//@[04:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP037)) |location|
     objectParam: objectVar
-//@[04:15) [BCP037 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |objectParam|
+//@[04:15) [BCP037 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP037)) |objectParam|
     arrayParam: arrayVar
-//@[04:14) [BCP037 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |arrayParam|
+//@[04:14) [BCP037 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP037)) |arrayParam|
   }
 }
 
 module module2Deploy 'nested/module2.json' = if ((1 + 2) == 3) {
   name: 'module2Deploy'
   params: {
-//@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". (CodeDescription: none) |params|
+//@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP035)) |params|
     location: location
-//@[04:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". (CodeDescription: none) |location|
+//@[04:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP037)) |location|
     objectParam: objectVar
     arrayParam: arrayVar
   }

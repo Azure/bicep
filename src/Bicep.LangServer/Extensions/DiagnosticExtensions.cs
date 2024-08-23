@@ -18,7 +18,7 @@ namespace Bicep.LanguageServer.Extensions
                 Severity = ToDiagnosticSeverity(diagnostic.Level),
                 Code = diagnostic.Code,
                 Message = diagnostic.Message,
-                Source = diagnostic.Source,
+                Source = ToDiagnosticSource(diagnostic.Source),
                 Range = diagnostic.ToRange(lineStarts),
                 Tags = ToDiagnosticTags(diagnostic.Styling),
                 CodeDescription = GetDiagnosticDocumentation(diagnostic),
@@ -43,6 +43,13 @@ namespace Bicep.LanguageServer.Extensions
             DiagnosticStyling.ShowCodeDeprecated => new Container<DiagnosticTag>(DiagnosticTag.Deprecated),
             _ => throw new ArgumentException($"Unrecognized {nameof(DiagnosticStyling)} {styling}"),
         };
+
+        private static string ToDiagnosticSource(DiagnosticSource source)
+            => source switch
+            {
+                DiagnosticSource.Core => "core",
+                DiagnosticSource.Linter => "linter",
+                _ => throw new ArgumentException($"Unrecognized source {source}"),
+            };
     }
 }
-

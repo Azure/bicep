@@ -26,9 +26,9 @@ public class PreferUnquotedPropertyNamesRuleTests : LinterRuleTestsBase
         {
             diags.Should().HaveCount(1, $"expected one fix per testcase");
 
-            diags.First().As<IBicepAnalyzerFixableDiagnostic>().Fixes.Should().HaveCount(1);
-            diags.First().As<IBicepAnalyzerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
-            diags.First().As<IBicepAnalyzerFixableDiagnostic>().Fixes.First().Replacements.First().Text.Should().Be(expectedFix);
+            diags.First().Fixes.Should().HaveCount(1);
+            diags.First().Fixes.First().Replacements.Should().HaveCount(1);
+            diags.First().Fixes.First().Replacements.First().Text.Should().Be(expectedFix);
         });
     }
 

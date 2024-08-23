@@ -6,14 +6,14 @@ import {
 } from 'modules/mod.json'
 
 var aliasedFoo = foo
-//@[4:14) [no-unused-vars (Warning)] Variable "aliasedFoo" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |aliasedFoo|
+//@[4:14) [no-unused-vars (Warning)] Variable "aliasedFoo" is declared but never used. (CodeDescription: Linter(https://aka.ms/bicep/linter/no-unused-vars)) |aliasedFoo|
 var aliasedBar = mod2.foo
-//@[4:14) [no-unused-vars (Warning)] Variable "aliasedBar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |aliasedBar|
+//@[4:14) [no-unused-vars (Warning)] Variable "aliasedBar" is declared but never used. (CodeDescription: Linter(https://aka.ms/bicep/linter/no-unused-vars)) |aliasedBar|
 
 type fizzes = fizz[]
 
 param fizzParam mod2.fizz
-//@[6:15) [no-unused-params (Warning)] Parameter "fizzParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |fizzParam|
+//@[6:15) [no-unused-params (Warning)] Parameter "fizzParam" is declared but never used. (CodeDescription: Linter(https://aka.ms/bicep/linter/no-unused-params)) |fizzParam|
 output magicWord pop = refersToCopyVariable[3].value
 
 output greeting string = greet('friend')

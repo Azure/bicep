@@ -74,10 +74,10 @@ namespace Bicep.Core.Analyzers.Linter
             {
                 if (this.LinterVerbose(semanticModel))
                 {
-                    diagnostics.Add(new AnalyzerDiagnostic(
-                        AnalyzerName,
+                    diagnostics.Add(new Diagnostic(
                         TextSpan.TextDocumentStart,
                         DiagnosticLevel.Info,
+                        DiagnosticSource.Linter,
                         "Linter Disabled",
                         string.Format(CoreResources.LinterDisabledFormatMessage, semanticModel.Configuration.ConfigFileUri?.LocalPath ?? IConfigurationManager.BuiltInConfigurationResourceName)));
                 }
@@ -92,10 +92,10 @@ namespace Bicep.Core.Analyzers.Linter
                 ? CoreResources.BicepConfigNoCustomSettingsMessage
                 : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, model.Configuration.ConfigFileUri?.LocalPath);
 
-            return new AnalyzerDiagnostic(
-                AnalyzerName,
+            return new Diagnostic(
                 TextSpan.TextDocumentStart,
                 DiagnosticLevel.Info,
+                DiagnosticSource.Linter,
                 "Bicep Linter Configuration",
                 configMessage);
         }

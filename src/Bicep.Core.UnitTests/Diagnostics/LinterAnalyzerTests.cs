@@ -131,12 +131,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
             public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
             {
                 // Have a yield return to force this method to return an iterator like the real rules
-                yield return new AnalyzerDiagnostic(this.AnalyzerName,
-                                                    TextSpan.TextDocumentStart,
-                                                    diagnosticLevel,
-                                                    "fakeRule",
-                                                    "Fake Rule",
-                                                    null);
+                yield return new Diagnostic(
+                    TextSpan.TextDocumentStart,
+                    diagnosticLevel,
+                    DiagnosticSource.Linter,
+                    "fakeRule",
+                    "Fake Rule");
                 // Now throw an exception
                 throw new System.ArgumentOutOfRangeException();
             }

@@ -100,7 +100,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             var badRefUri = RandomFileUri();
             ArtifactReference? nullRef = null;
-            DiagnosticBuilderDelegate? badRefError = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, "BCPMock", "Bad ref error");
+            DiagnosticBuilderDelegate? badRefError = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Core, "BCPMock", "Bad ref error");
             mock.Setup(m => m.TryParseArtifactReference(ArtifactType.Module, null, "badRef")).Returns(ResultHelper.Create(nullRef, badRefError));
 
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef)).Returns(true);
@@ -115,7 +115,7 @@ namespace Bicep.Core.UnitTests.Registry
             mock.Setup(m => m.RestoreArtifacts(It.IsAny<IEnumerable<ArtifactReference>>()))
                 .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>
                 {
-                    [validRef3] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, "RegFail", "Failed to restore module")
+                    [validRef3] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Core, "RegFail", "Failed to restore module")
                 });
 
             var dispatcher = CreateDispatcher(BicepTestConstants.ConfigurationManager, fail.Object, mock.Object);
@@ -174,7 +174,7 @@ namespace Bicep.Core.UnitTests.Registry
             registryMock.Setup(x => x.RestoreArtifacts(It.IsAny<IEnumerable<ArtifactReference>>()))
                 .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilderDelegate>
                 {
-                    [badReference] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, "RestoreFailure", "Failed to restore module.")
+                    [badReference] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Core, "RestoreFailure", "Failed to restore module.")
                 });
             registryMock.Setup(x => x.IsArtifactRestoreRequired(badReference))
                 .Returns(true);

@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.Assertions
     {
         public static IEnumerable<IDiagnostic> ExcludingLinterDiagnostics(this IEnumerable<IDiagnostic> diagnostics)
         {
-            return diagnostics.Where(d => d is not AnalyzerDiagnostic);
+            return diagnostics.Where(d => d.Source != DiagnosticSource.Linter);
         }
 
         public static IEnumerable<IDiagnostic> ExcludingCode(this IEnumerable<IDiagnostic> diagnostics, params string[] codes)

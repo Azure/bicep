@@ -223,7 +223,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             var result = CompilationHelper.Compile(text);
             result.Diagnostics.Should().HaveCount(1);
 
-            FixableDiagnostic diagnostic = (FixableDiagnostic)result.Diagnostics.Single();
+            var diagnostic = result.Diagnostics.Single();
             diagnostic.Code.Should().Be("BCP035");
             diagnostic.Fixes.Should().HaveCount(1);
 

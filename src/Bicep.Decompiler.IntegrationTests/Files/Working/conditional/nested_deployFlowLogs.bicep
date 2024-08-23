@@ -20,7 +20,7 @@ resource NetworkWatcherName_FlowLog 'Microsoft.Network/networkWatchers/flowLogs@
     format: {
       type: 'JSON'
       version: FlowLogsversion
-//@[15:30) [BCP036 (Warning)] The property "version" expected a value of type "int | null" but the provided value is of type "string". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |FlowLogsversion|
+//@[15:30) [BCP036 (Warning)] The property "version" expected a value of type "int | null" but the provided value is of type "string". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP036)) |FlowLogsversion|
     }
   }
 }

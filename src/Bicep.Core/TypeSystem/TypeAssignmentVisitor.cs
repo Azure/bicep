@@ -1731,7 +1731,7 @@ namespace Bicep.Core.TypeSystem
         {
             if (safeAccess)
             {
-                diagnostics.Write(new Diagnostic(error.Span, DiagnosticLevel.Warning, error.Code, error.Message, error.Uri, error.Styling, error.Source));
+                diagnostics.Write(error with { Level = DiagnosticLevel.Warning });
                 return LanguageConstants.Null;
             }
             return ErrorType.Create(error);
