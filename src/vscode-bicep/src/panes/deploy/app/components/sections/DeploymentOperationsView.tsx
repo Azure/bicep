@@ -99,7 +99,7 @@ function getPortalLinkButton(scope: DeploymentScope, operation: DeploymentOperat
   switch (targetResource.resourceType.toLowerCase()) {
     case 'microsoft.resources/deployments':
       // Deployments have a dedicated Portal blade to track progress
-      portalResourceUrl = `${scope.portalUrl}/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/${encodeURIComponent(targetResource.id)}`;
+      portalResourceUrl = `${scope.portalUrl}/#@${scope.tenantId}/blade/HubsExtension/DeploymentDetailsBlade/overview/id/${encodeURIComponent(targetResource.id)}`;
       break;
     default:
       portalResourceUrl = `${scope.portalUrl}/#@${scope.tenantId}/resource${targetResource.id}`;
