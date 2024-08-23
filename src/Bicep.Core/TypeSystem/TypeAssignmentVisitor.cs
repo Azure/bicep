@@ -1558,7 +1558,7 @@ namespace Bicep.Core.TypeSystem
 
         private static bool PropagateErrorType(IEnumerable<IDiagnostic> diagnostics, IEnumerable<TypeSymbol> types)
         {
-            if (diagnostics.Any(x => x.Level == DiagnosticLevel.Error))
+            if (diagnostics.Any(x => x.IsError()))
             {
                 return true;
             }

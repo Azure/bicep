@@ -352,10 +352,10 @@ namespace Bicep.Core.Semantics
         /// </summary>
         /// <returns>True if analysis finds errors</returns>
         public bool HasErrors()
-            => allDiagnostics.Value.Any(x => x.Level == DiagnosticLevel.Error);
+            => allDiagnostics.Value.Any(x => x.IsError());
 
         public bool HasParsingErrors()
-            => this.ParsingErrorLookup.Any(x => x.Level == DiagnosticLevel.Error);
+            => this.ParsingErrorLookup.Any(x => x.IsError());
 
         public bool HasParsingError(SyntaxBase syntax) => this.ParsingErrorLookup.Contains(syntax);
 

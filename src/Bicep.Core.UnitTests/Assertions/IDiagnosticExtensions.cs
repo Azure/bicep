@@ -24,6 +24,6 @@ namespace Bicep.Core.UnitTests.Assertions
         }
 
         public static IEnumerable<IDiagnostic> OnlyIncludingErrorDiagnostics(this IEnumerable<IDiagnostic> diagnostics)
-            => diagnostics.Where(d => d.Level == DiagnosticLevel.Error);
+            => diagnostics.Where(d => d.IsError());
     }
 }

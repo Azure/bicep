@@ -75,7 +75,7 @@ param inputb string
 
             var compilation = Services.BuildCompilation(files, mainUri);
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
-            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
+            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
 
             using (new AssertionScope())
             {
@@ -216,7 +216,7 @@ param inputb string
 
             var compilation = Services.BuildCompilation(files, mainUri);
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
-            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
+            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
 
             using (new AssertionScope())
             {

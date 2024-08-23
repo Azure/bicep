@@ -209,7 +209,7 @@ var okVarForBody10 = [for i in range(0, 2): indirect.prop]
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
 
-            var filteredDiagnostics = result.WithFilteredDiagnostics(d => d.Level == DiagnosticLevel.Error);
+            var filteredDiagnostics = result.WithFilteredDiagnostics(d => d.IsError());
             filteredDiagnostics.Should().NotHaveAnyDiagnostics();
         }
 
@@ -279,7 +279,7 @@ var indirect = {
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
 
-            var filteredDiagnostics = result.WithFilteredDiagnostics(d => d.Level == DiagnosticLevel.Error);
+            var filteredDiagnostics = result.WithFilteredDiagnostics(d => d.IsError());
             filteredDiagnostics.Should().HaveDiagnostics(expectedDiagnostics);
         }
 

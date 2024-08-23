@@ -7,9 +7,13 @@ namespace Bicep.Core.Diagnostics
     public static class IDiagnosticExtensions
     {
         public static bool CanBeSuppressed(this IDiagnostic diagnostic)
-        {
-            return diagnostic.Source == DiagnosticSource.Linter || diagnostic.Level != DiagnosticLevel.Error;
-        }
+            => IsLinterRaised(diagnostic) || !IsError(diagnostic);
+
+        public static bool IsLinterRaised(this IDiagnostic diagnostic)
+            => diagnostic.Source == DiagnosticSource.Linter;
+
+        public static bool IsError(this IDiagnostic diagnostic)
+            => diagnostic.Level == DiagnosticLevel.Error;
 
         public static Diagnostic WithMaximumDiagnosticLevel(this Diagnostic diagnostic, DiagnosticLevel maximumDiagnosticLevel)
         {

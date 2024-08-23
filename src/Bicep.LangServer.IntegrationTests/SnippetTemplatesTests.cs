@@ -61,7 +61,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             if (semanticModel.HasErrors())
             {
-                var errors = semanticModel.GetAllDiagnostics().Where(x => x.Level == DiagnosticLevel.Error);
+                var errors = semanticModel.GetAllDiagnostics().Where(x => x.IsError());
                 var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContents, "\n", errors, diag => OutputHelper.GetDiagLoggingString(bicepContents, outputDirectory, diag));
                 Assert.Fail("Template with prefix {0} contains errors. Please fix following errors:\n {1}", completionData.Prefix, sourceTextWithDiags);
             }
