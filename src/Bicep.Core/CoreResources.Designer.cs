@@ -232,7 +232,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Secure outputs.
         /// </summary>
         internal static string ExperimentalFeatureNames_SecureOutputs {
             get {
@@ -1155,6 +1155,24 @@ namespace Bicep.Core {
         internal static string UseStableVMImageRuleFixMessageFormat {
             get {
                 return ResourceManager.GetString("UseStableVMImageRuleFixMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Runtime values cannot be used to determine resource IDs.
+        /// </summary>
+        internal static string WhatIfShortCircuitingRuleDescription {
+            get {
+                return ResourceManager.GetString("WhatIfShortCircuitingRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Runtime value &apos;{0}&apos; will disable what-if analysis for module &apos;{1}&apos;.
+        /// </summary>
+        internal static string WhatIfShortCircuitingRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("WhatIfShortCircuitingRuleMessageFormat", resourceCulture);
             }
         }
     }
