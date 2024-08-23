@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17593581540296161693"
+      "templateHash": "3208032528583566429"
     },
     "name": "Sample module",
     "description": "Sample description",
@@ -61,7 +61,7 @@
       "minValue": 0,
       "maxValue": 1023,
       "metadata": {
-        "description": "The OS disk size (in GB)\r\n- Minimum value is 0\r\n- Maximum value is 1023\r\n"
+        "description": "The OS disk size (in GB)\n- Minimum value is 0\n- Maximum value is 1023\n"
       }
     },
     "agentCount": {
