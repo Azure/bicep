@@ -107,7 +107,7 @@ function getPortalLinkButton(scope: DeploymentScope, operation: DeploymentOperat
   }
 
   return (
-    <VSCodeLink title="Open in Portal" href={`${portalResourceUrl}`}>
+    <VSCodeLink style={{verticalAlign: 'middle'}} title="Open in Portal" href={`${portalResourceUrl}`}>
       <Codicon name="globe" size={12} />
     </VSCodeLink>
   );
