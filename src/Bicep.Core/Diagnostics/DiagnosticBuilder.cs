@@ -40,7 +40,7 @@ namespace Bicep.Core.Diagnostics
             private Diagnostic CoreDiagnostic(DiagnosticLevel level, string code, string message) => new(
                 TextSpan,
                 level,
-                DiagnosticSource.Core,
+                DiagnosticSource.Compiler,
                 code,
                 message) { Uri = new($"https://aka.ms/bicep/core-diagnostics#{code}") };
 

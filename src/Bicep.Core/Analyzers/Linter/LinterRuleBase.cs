@@ -129,7 +129,7 @@ namespace Bicep.Core.Analyzers.Linter
         protected virtual Diagnostic CreateDiagnosticForSpan(DiagnosticLevel level, TextSpan span, params object[] values) => new(
             span,
             level,
-            DiagnosticSource.Linter,
+            DiagnosticSource.CoreLinter,
             Code,
             GetMessage(values)) {
                 Uri = Uri,

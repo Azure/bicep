@@ -232,7 +232,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
   name: 'hello'
   params: {
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
-//@[13:137) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: Linter(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
+//@[13:137) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
   }
   dependsOn: [
     storageAccounts2[index - 10]
@@ -265,14 +265,14 @@ output existingIndexedResourceLocation string = existingStorageAccounts[index/2]
 output existingIndexedResourceAccessTier string = existingStorageAccounts[index%3].properties.accessTier
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
-//@[09:024) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP179)) |duplicatedNames|
+//@[09:024) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" must be referenced in at least one of the value expressions of the following properties: "name" (bicep https://aka.ms/bicep/core-diagnostics#BCP179) |duplicatedNames|
   name: 'no loop variable'
   location: 'eastus'
 }]
 
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
-//@[09:034) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP179)) |referenceToDuplicateNames|
+//@[09:034) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" must be referenced in at least one of the value expressions of the following properties: "name" (bicep https://aka.ms/bicep/core-diagnostics#BCP179) |referenceToDuplicateNames|
   name: 'no loop variable 2'
   location: 'eastus'
   dependsOn: [
@@ -319,7 +319,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
 
 resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(regions)): {
   name: '${name}-${index}'
-//@[08:026) [BCP334 (Warning)] The provided value can have a length as small as 2 and may be too short to assign to a target with a configured minimum length of 5. (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP334)) |'${name}-${index}'|
+//@[08:026) [BCP334 (Warning)] The provided value can have a length as small as 2 and may be too short to assign to a target with a configured minimum length of 5. (bicep https://aka.ms/bicep/core-diagnostics#BCP334) |'${name}-${index}'|
   location: 'Global'
   properties: {
     backendPools: [
@@ -371,7 +371,7 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
 
 resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(accounts)): {
   name: '${name}-${index}'
-//@[08:026) [BCP334 (Warning)] The provided value can have a length as small as 2 and may be too short to assign to a target with a configured minimum length of 5. (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP334)) |'${name}-${index}'|
+//@[08:026) [BCP334 (Warning)] The provided value can have a length as small as 2 and may be too short to assign to a target with a configured minimum length of 5. (bicep https://aka.ms/bicep/core-diagnostics#BCP334) |'${name}-${index}'|
   location: 'Global'
   properties: {
     backendPools: [

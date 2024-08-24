@@ -80,7 +80,7 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 }
 
 resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
-//@[29:62) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP081)) |'Mock.Rp/mockResource@2020-01-01'|
+//@[29:62) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Mock.Rp/mockResource@2020-01-01'|
   name: 'harry'
   properties: {
     modADep: modATest.outputs.stringOutputA
@@ -107,7 +107,7 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
   name: 'optionalWithImplicitDependency'
   params: {
     optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
-//@[20:97) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: Linter(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)|
+//@[20:97) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)|
     optionalInt: 42
     optionalObj: { }
     optionalArray: [ ]
@@ -118,7 +118,7 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
   params: {
     optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
-//@[20:97) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: Linter(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)|
+//@[20:97) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)|
     optionalInt: 42
     optionalObj: { }
     optionalArray: [ ]
@@ -126,9 +126,9 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 }
 
 resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
-//@[43:76) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP081)) |'Mock.Rp/mockResource@2020-01-01'|
+//@[43:76) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Mock.Rp/mockResource@2020-01-01'|
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
-//@[08:77) [use-stable-resource-identifiers (Warning)] Resource identifiers should be reproducible outside of their initial deployment context. Resource resWithCalculatedNameDependencies's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (resWithCalculatedNameDependencies.name -> deployTimeSuffix (default value) -> newGuid()). (CodeDescription: Linter(https://aka.ms/bicep/linter/use-stable-resource-identifiers)) |'${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'|
+//@[08:77) [use-stable-resource-identifiers (Warning)] Resource identifiers should be reproducible outside of their initial deployment context. Resource resWithCalculatedNameDependencies's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (resWithCalculatedNameDependencies.name -> deployTimeSuffix (default value) -> newGuid()). (bicep core linter https://aka.ms/bicep/linter/use-stable-resource-identifiers) |'${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'|
   properties: {
     modADep: moduleWithCalculatedName.outputs.outputObj
   }
@@ -178,7 +178,7 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
     objParam: module
     stringParamB: module.location
     stringParamA: concat('a', i)
-//@[18:32) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: Linter(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('a', i)|
+//@[18:32) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat('a', i)|
   }
 }]
 
@@ -187,7 +187,7 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
   name: module.name
   params: {
     arrayParam: [for i in range(0,3): concat('test-', i, '-', module.name)]
-//@[38:74) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: Linter(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('test-', i, '-', module.name)|
+//@[38:74) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat('test-', i, '-', module.name)|
     objParam: module
     stringParamB: module.location
   }
@@ -206,7 +206,7 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 
 // duplicate identifiers across scopes are allowed (inner hides the outer)
 var duplicateAcrossScopes = 'hello'
-//@[04:25) [no-unused-vars (Warning)] Variable "duplicateAcrossScopes" is declared but never used. (CodeDescription: Linter(https://aka.ms/bicep/linter/no-unused-vars)) |duplicateAcrossScopes|
+//@[04:25) [no-unused-vars (Warning)] Variable "duplicateAcrossScopes" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |duplicateAcrossScopes|
 module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
   name: 'hello-${duplicateAcrossScopes}'
   params: {
@@ -218,9 +218,9 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
 }]
 
 var someDuplicate = true
-//@[04:17) [no-unused-vars (Warning)] Variable "someDuplicate" is declared but never used. (CodeDescription: Linter(https://aka.ms/bicep/linter/no-unused-vars)) |someDuplicate|
+//@[04:17) [no-unused-vars (Warning)] Variable "someDuplicate" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |someDuplicate|
 var otherDuplicate = false
-//@[04:18) [no-unused-vars (Warning)] Variable "otherDuplicate" is declared but never used. (CodeDescription: Linter(https://aka.ms/bicep/linter/no-unused-vars)) |otherDuplicate|
+//@[04:18) [no-unused-vars (Warning)] Variable "otherDuplicate" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |otherDuplicate|
 module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
   name: 'hello-${someDuplicate}'
   params: {
@@ -276,7 +276,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 }
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
-//@[07:55) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP179)) |propertyLoopInsideParameterValueInsideModuleLoop|
+//@[07:55) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (bicep https://aka.ms/bicep/core-diagnostics#BCP179) |propertyLoopInsideParameterValueInsideModuleLoop|
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
   params: {
     objParam: {

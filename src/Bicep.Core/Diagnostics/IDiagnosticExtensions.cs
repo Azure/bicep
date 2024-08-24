@@ -10,7 +10,7 @@ namespace Bicep.Core.Diagnostics
             => IsLinterRaised(diagnostic) || !IsError(diagnostic);
 
         public static bool IsLinterRaised(this IDiagnostic diagnostic)
-            => diagnostic.Source == DiagnosticSource.Linter;
+            => diagnostic.Source == DiagnosticSource.CoreLinter;
 
         public static bool IsError(this IDiagnostic diagnostic)
             => diagnostic.Level == DiagnosticLevel.Error;

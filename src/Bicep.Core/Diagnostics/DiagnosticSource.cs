@@ -5,6 +5,6 @@ namespace Bicep.Core.Diagnostics;
 
 public enum DiagnosticSource
 {
-    Core,
-    Linter,
+    Compiler,
+    CoreLinter,
 }

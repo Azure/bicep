@@ -107,7 +107,7 @@ namespace Bicep.LanguageServer.Handlers
                         analyzerDiagnostic.Span.ContainsInclusive(requestStartOffset) ||
                         analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
                         (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
-                    .Where(x => x.Source == DiagnosticSource.Linter)
+                    .Where(x => x.Source == DiagnosticSource.CoreLinter)
                     .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, semanticModel.Configuration.ConfigFileUri?.LocalPath));
                 commandOrCodeActions.AddRange(editLinterRuleActions);
             }

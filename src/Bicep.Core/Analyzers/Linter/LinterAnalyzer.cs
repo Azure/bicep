@@ -77,7 +77,7 @@ namespace Bicep.Core.Analyzers.Linter
                     diagnostics.Add(new Diagnostic(
                         TextSpan.TextDocumentStart,
                         DiagnosticLevel.Info,
-                        DiagnosticSource.Linter,
+                        DiagnosticSource.CoreLinter,
                         "Linter Disabled",
                         string.Format(CoreResources.LinterDisabledFormatMessage, semanticModel.Configuration.ConfigFileUri?.LocalPath ?? IConfigurationManager.BuiltInConfigurationResourceName)));
                 }
@@ -95,7 +95,7 @@ namespace Bicep.Core.Analyzers.Linter
             return new Diagnostic(
                 TextSpan.TextDocumentStart,
                 DiagnosticLevel.Info,
-                DiagnosticSource.Linter,
+                DiagnosticSource.CoreLinter,
                 "Bicep Linter Configuration",
                 configMessage);
         }

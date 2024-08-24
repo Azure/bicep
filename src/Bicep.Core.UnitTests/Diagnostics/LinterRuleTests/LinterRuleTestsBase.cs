@@ -136,7 +136,7 @@ public class LinterRuleTestsBase
         using (new AssertionScope().WithVisualCursor(result.Compilation.GetEntrypointSemanticModel().SourceFile, cursor))
         {
             var matchingDiagnostics = result.Diagnostics
-                .Where(x => x.Source == DiagnosticSource.Linter)
+                .Where(x => x.Source == DiagnosticSource.CoreLinter)
                 .Where(x => x.Span.IsOverlapping(cursor));
 
             matchingDiagnostics.Should().ContainSingle(x => x.Code == expectedCode);

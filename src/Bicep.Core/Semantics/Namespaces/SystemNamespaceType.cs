@@ -1228,7 +1228,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             new Diagnostic(
                                 arguments[0].Span,
                                 DiagnosticLevel.Info,
-                                DiagnosticSource.Linter,
+                                DiagnosticSource.CoreLinter,
                                 "Bicepparam ReadEnvironmentVariable function",
                                 $"Available environment variables are: {string.Join(", ", envVariableNames)}")
                         );

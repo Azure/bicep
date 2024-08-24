@@ -20,7 +20,7 @@ param subscriptionDisplayName string
 param subscriptionWorkload string = 'Production'
 
 resource subscriptionAlias_resource 'Microsoft.Subscription/aliases@2020-09-01' = {
-//@[82:357) [BCP135 (Error)] Scope "managementGroup" is not valid for this resource type. Permitted scopes: "tenant". (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP135)) |{\n  name: subscriptionAlias\n  properties: {\n    workload: subscriptionWorkload\n    displayName: subscriptionDisplayName\n    billingScope: tenantResourceId(\n      'Microsoft.Billing/billingAccounts/enrollmentAccounts',\n      billingAccount,\n      enrollmentAccount\n    )\n  }\n}|
+//@[82:357) [BCP135 (Error)] Scope "managementGroup" is not valid for this resource type. Permitted scopes: "tenant". (bicep https://aka.ms/bicep/core-diagnostics#BCP135) |{\n  name: subscriptionAlias\n  properties: {\n    workload: subscriptionWorkload\n    displayName: subscriptionDisplayName\n    billingScope: tenantResourceId(\n      'Microsoft.Billing/billingAccounts/enrollmentAccounts',\n      billingAccount,\n      enrollmentAccount\n    )\n  }\n}|
   name: subscriptionAlias
   properties: {
     workload: subscriptionWorkload

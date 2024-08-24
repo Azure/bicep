@@ -23,8 +23,8 @@ namespace Bicep.LangServer.UnitTests
 
             IEnumerable<IDiagnostic> diags = new[]
             {
-                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Warning, DiagnosticSource.Linter, "Analyzer Msg Code", "Analyzer message string") with { Uri = sampleUri },
-                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Error, DiagnosticSource.Core,"TestCode", "Bicep language message for diagnostic") with { Uri = sampleUri },
+                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Warning, DiagnosticSource.CoreLinter, "Analyzer Msg Code", "Analyzer message string") with { Uri = sampleUri },
+                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Error, DiagnosticSource.Compiler,"TestCode", "Bicep language message for diagnostic") with { Uri = sampleUri },
             };
 
             var lineStarts = new[] { 0 }.ToImmutableArray<int>();
@@ -34,12 +34,12 @@ namespace Bicep.LangServer.UnitTests
                 analyzerDiagnostic =>
                 {
                     analyzerDiagnostic.CodeDescription!.Href!.Should().Be(sampleUri.AbsoluteUri);
-                    analyzerDiagnostic.Source!.Should().Be("linter");
+                    analyzerDiagnostic.Source!.Should().Be("bicep core linter");
                 },
                 diagnostic => // base class Diagnostic
                 {
                     diagnostic.CodeDescription!.Href!.Should().Be(sampleUri.AbsoluteUri);
-                    diagnostic.Source!.Should().Be("core");
+                    diagnostic.Source!.Should().Be("bicep");
                 }
             );
         }
@@ -49,8 +49,8 @@ namespace Bicep.LangServer.UnitTests
         {
             IEnumerable<IDiagnostic> diags = new[]
             {
-                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Warning, DiagnosticSource.Linter, "Analyzer Msg Code", "Analyzer message string"),
-                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Error, DiagnosticSource.Core, "TestCode", "No docs for this error message"),
+                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Warning, DiagnosticSource.CoreLinter, "Analyzer Msg Code", "Analyzer message string"),
+                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Error, DiagnosticSource.Compiler, "TestCode", "No docs for this error message"),
             };
 
             var lineStarts = new[] { 0 }.ToImmutableArray<int>();
@@ -60,12 +60,12 @@ namespace Bicep.LangServer.UnitTests
                 analyzerDiagnostic =>
                 {
                     analyzerDiagnostic.CodeDescription.Should().BeNull();
-                    analyzerDiagnostic.Source!.Should().Be("linter");
+                    analyzerDiagnostic.Source!.Should().Be("bicep core linter");
                 },
                 diagnostic => // base Diagnostic class
                 {
                     diagnostic.CodeDescription.Should().BeNull();
-                    diagnostic.Source!.Should().Be("core");
+                    diagnostic.Source!.Should().Be("bicep");
                 }
             );
 

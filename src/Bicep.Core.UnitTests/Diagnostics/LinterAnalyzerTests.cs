@@ -134,7 +134,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 yield return new Diagnostic(
                     TextSpan.TextDocumentStart,
                     diagnosticLevel,
-                    DiagnosticSource.Linter,
+                    DiagnosticSource.CoreLinter,
                     "fakeRule",
                     "Fake Rule");
                 // Now throw an exception

@@ -30,7 +30,7 @@ param storageRoleUniqueId string = newGuid()
 param isNewStorageAccount bool = false
 param isNewFileSystemOnly bool = false
 param adlaResourceId string = ''
-//@[06:020) [no-unused-params (Warning)] Parameter "adlaResourceId" is declared but never used. (CodeDescription: Linter(https://aka.ms/bicep/linter/no-unused-params)) |adlaResourceId|
+//@[06:020) [no-unused-params (Warning)] Parameter "adlaResourceId" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |adlaResourceId|
 param managedResourceGroupName string = ''
 param storageAccessTier string
 param storageAccountType string
@@ -46,7 +46,7 @@ param managedVirtualNetworkSettings object
 
 var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var defaultDataLakeStorageAccountUrl = 'https://${defaultDataLakeStorageAccountName}.dfs.core.windows.net'
-//@[89:105) [no-hardcoded-env-urls (Warning)] Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. Found this disallowed host: "core.windows.net" (CodeDescription: Linter(https://aka.ms/bicep/linter/no-hardcoded-env-urls)) |core.windows.net|
+//@[89:105) [no-hardcoded-env-urls (Warning)] Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. Found this disallowed host: "core.windows.net" (bicep core linter https://aka.ms/bicep/linter/no-hardcoded-env-urls) |core.windows.net|
 
 resource name_resource 'Microsoft.Synapse/workspaces@2021-06-01' = {
   name: name
@@ -78,7 +78,7 @@ resource name_resource 'Microsoft.Synapse/workspaces@2021-06-01' = {
 resource name_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' = if (allowAllConnections) {
   parent: name_resource
   location: location
-//@[02:010) [BCP187 (Warning)] The property "location" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP187)) |location|
+//@[02:010) [BCP187 (Warning)] The property "location" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP187) |location|
   name: 'allowAll'
   properties: {
     startIpAddress: '0.0.0.0'
@@ -87,7 +87,7 @@ resource name_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' =
 }
 
 module StorageRoleDeploymentResource './nested_StorageRoleDeploymentResource.bicep' = if (setWorkspaceIdentityRbacOnStorageAccount) {
-//@[37:083) [BCP104 (Error)] The referenced module has errors. (CodeDescription: Core(https://aka.ms/bicep/core-diagnostics#BCP104)) |'./nested_StorageRoleDeploymentResource.bicep'|
+//@[37:083) [BCP104 (Error)] The referenced module has errors. (bicep https://aka.ms/bicep/core-diagnostics#BCP104) |'./nested_StorageRoleDeploymentResource.bicep'|
   name: 'StorageRoleDeploymentResource'
   scope: resourceGroup(storageSubscriptionID, storageResourceGroupName)
   params: {
