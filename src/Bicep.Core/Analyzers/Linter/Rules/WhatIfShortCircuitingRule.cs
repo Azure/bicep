@@ -30,6 +30,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "what-if-short-circuiting";
 
+        // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
+        public const string NestedDeploymentResourceApiVersion = "2022-09-01";
+
         public WhatIfShortCircuitingRule() : base(
             code: Code,
             description: CoreResources.WhatIfShortCircuitingRuleDescription,
@@ -74,7 +77,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             subscriptionId: null,
                             resourceGroupName: null,
                             template: template,
-                            apiVersion: new StringExpression("2022-09-01", null, null, null),
+                            apiVersion: new StringExpression(NestedDeploymentResourceApiVersion, null, null, null),
                             suppliedParameterValues: moduleParamsInput,
                             parameterValuesPositionalMetadata: null,
                             metadata: ImmutableDictionary<string, ITemplateLanguageExpression>.Empty,
@@ -100,7 +103,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         var paramSyntax = moduleParamsHolder[param];
                         if (!IsDeployTimeConstant(paramSyntax, model, resourceTypeResolver))
                         {
-                            yield return CreateDiagnosticForSpan(diagnosticLevel, module.NameSource.Span, paramSyntax.Value, module.Name);
+                            yield return CreateDiagnosticForSpan(diagnosticLevel, paramSyntax.Value.Span, paramSyntax.Value, module.Name);
                         }
                     }
                 }

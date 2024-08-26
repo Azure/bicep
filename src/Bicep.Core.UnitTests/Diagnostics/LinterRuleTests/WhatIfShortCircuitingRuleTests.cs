@@ -68,7 +68,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                      ")]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'sa.properties.allowBlobPublicAccess' will disable what-if analysis for module 'mod'");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'sa.properties.allowBlobPublicAccess' will disable what-if analysis for module 'mod'");
         }
 
         [TestMethod]
@@ -123,7 +123,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                     ")]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'storageAccount.properties.dnsEndpointType' will disable what-if analysis for module 'mod'");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'storageAccount.properties.dnsEndpointType' will disable what-if analysis for module 'mod'");
         }
 
         [TestMethod]
@@ -152,7 +152,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                     ")]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'createOutput.outputs.nameParam' will disable what-if analysis for module 'createSA'");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'createOutput.outputs.nameParam' will disable what-if analysis for module 'createSA'");
         }
     }
 }

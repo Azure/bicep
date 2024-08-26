@@ -57,6 +57,9 @@ namespace Bicep.Core.UnitTests
         // Linter rules added to this list will be automatically disabled for most tests.
         public static readonly string[] NonStableAnalyzerRules = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code];
 
+        // Rules that are currently skipped due to configuration for ProgramsShouldProduceExpectedDiagnostics
+        public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code];
+
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
         public static readonly RootConfiguration BuiltInConfigurationWithStableAnalyzers = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzers().WithAnalyzersDisabled(NonStableAnalyzerRules);
 
