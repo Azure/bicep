@@ -15,7 +15,7 @@ public record AuxiliaryFile(
 
 public interface IReadableFileCache
 {
-    ResultWithDiagnostic<AuxiliaryFile> Read(Uri uri);
+    ResultWithDiagnosticBuilder<AuxiliaryFile> Read(Uri uri);
 }
 
 public class AuxiliaryFileCache : IReadableFileCache
@@ -25,13 +25,13 @@ public class AuxiliaryFileCache : IReadableFileCache
         this.fileResolver = fileResolver;
     }
 
-    private readonly ConcurrentDictionary<Uri, ResultWithDiagnostic<AuxiliaryFile>> fileCache = new();
+    private readonly ConcurrentDictionary<Uri, ResultWithDiagnosticBuilder<AuxiliaryFile>> fileCache = new();
     private readonly IFileResolver fileResolver;
 
     /// <summary>
     /// Reads a given file from the file system, utilizing the cache where possible.
     /// </summary>
-    public ResultWithDiagnostic<AuxiliaryFile> Read(Uri uri)
+    public ResultWithDiagnosticBuilder<AuxiliaryFile> Read(Uri uri)
         => fileCache.GetOrAdd(
             uri,
             uri =>

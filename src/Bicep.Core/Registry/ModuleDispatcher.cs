@@ -42,7 +42,7 @@ namespace Bicep.Core.Registry
         public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
             => [.. Registries(parentModuleUri).Keys.OrderBy(s => s)];
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri)
+        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri)
         {
             var registries = Registries(parentModuleUri);
             var parts = reference.Split(':', 2, StringSplitOptions.None);
@@ -86,7 +86,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactReferenceSyntax, Uri parentModuleUri)
+        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactReferenceSyntax, Uri parentModuleUri)
         {
             if (artifactReferenceSyntax is ExtensionDeclarationSyntax extensionSyntax)
             {
@@ -108,7 +108,7 @@ namespace Bicep.Core.Registry
             return this.TryGetArtifactReference(artifactReferenceSyntax.GetArtifactType(), artifactPath, parentModuleUri);
         }
 
-        private static DiagnosticBuilder.ErrorBuilderDelegate GetErrorBuilderDelegate(IArtifactReferenceSyntax artifactReferenceSyntax) => artifactReferenceSyntax switch
+        private static DiagnosticBuilder.DiagnosticBuilderDelegate GetErrorBuilderDelegate(IArtifactReferenceSyntax artifactReferenceSyntax) => artifactReferenceSyntax switch
         {
             UsingDeclarationSyntax => x => x.UsingPathHasNotBeenSpecified(),
             ExtendsDeclarationSyntax => x => x.ExtendsPathHasNotBeenSpecified(),
@@ -122,7 +122,7 @@ namespace Bicep.Core.Registry
             string PathValue,
             RootConfiguration? ConfigSource);
 
-        private ResultWithDiagnostic<ArtifactAddressResult> TryGetArtifactAddress(ExtensionDeclarationSyntax extensionSyntax, Uri parentModuleUri)
+        private ResultWithDiagnosticBuilder<ArtifactAddressResult> TryGetArtifactAddress(ExtensionDeclarationSyntax extensionSyntax, Uri parentModuleUri)
         {
             switch (extensionSyntax.SpecificationString)
             {
@@ -150,7 +150,7 @@ namespace Bicep.Core.Registry
 
         public ArtifactRestoreStatus GetArtifactRestoreStatus(
             ArtifactReference artifactReference,
-            out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
         {
             var registry = this.GetRegistry(artifactReference);
             var configuration = configurationManager.GetConfiguration(artifactReference.ParentModuleUri);
@@ -173,7 +173,7 @@ namespace Bicep.Core.Registry
             return ArtifactRestoreStatus.Succeeded;
         }
 
-        public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference artifactReference)
+        public ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference artifactReference)
         {
             var configuration = configurationManager.GetConfiguration(artifactReference.ParentModuleUri);
             // has restore already failed for this artifact?
@@ -311,7 +311,7 @@ namespace Bicep.Core.Registry
             return registry.TryGetExtensionBinary(reference);
         }
 
-        private bool HasRestoreFailed(ArtifactReference reference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private bool HasRestoreFailed(ArtifactReference reference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
         {
             if (this.restoreFailures.TryGetValue(new(configuration.Cloud, reference), out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))
             {
@@ -327,7 +327,7 @@ namespace Bicep.Core.Registry
 
         private static bool IsFailureInfoExpired(RestoreFailureInfo failureInfo, DateTime dateTime) => dateTime >= failureInfo.Expiration;
 
-        private void SetRestoreFailure(ArtifactReference reference, RootConfiguration configuration, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder)
+        private void SetRestoreFailure(ArtifactReference reference, RootConfiguration configuration, DiagnosticBuilder.DiagnosticBuilderDelegate failureBuilder)
         {
             // as the user is typing, the modules will keep getting recompiled
             // we can't keep retrying syntactically correct references to non-existent modules on every key press
@@ -360,7 +360,7 @@ namespace Bicep.Core.Registry
 
         private class RestoreFailureInfo
         {
-            public RestoreFailureInfo(ArtifactReference reference, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder, DateTime expiration)
+            public RestoreFailureInfo(ArtifactReference reference, DiagnosticBuilder.DiagnosticBuilderDelegate failureBuilder, DateTime expiration)
             {
                 this.Reference = reference;
                 this.FailureBuilder = failureBuilder;
@@ -369,7 +369,7 @@ namespace Bicep.Core.Registry
 
             public ArtifactReference Reference { get; }
 
-            public DiagnosticBuilder.ErrorBuilderDelegate FailureBuilder { get; }
+            public DiagnosticBuilder.DiagnosticBuilderDelegate FailureBuilder { get; }
 
             public DateTime Expiration { get; }
         }

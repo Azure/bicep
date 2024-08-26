@@ -22,5 +22,5 @@ public class TypeType : TypeSymbol
 
     public override TypeKind TypeKind => TypeKind.TypeReference;
 
-    public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => wrappedType.GetDiagnostics();
+    public override IEnumerable<IDiagnostic> GetDiagnostics() => wrappedType.GetDiagnostics();
 }

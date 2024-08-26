@@ -9,11 +9,11 @@ namespace Bicep.Core.Syntax
     public class SkippedTriviaSyntax : SyntaxBase
     {
         public SkippedTriviaSyntax(TextSpan span, IEnumerable<SyntaxBase> elements)
-            : this(span, elements, ImmutableArray<ErrorDiagnostic>.Empty)
+            : this(span, elements, ImmutableArray<Diagnostic>.Empty)
         {
         }
 
-        public SkippedTriviaSyntax(TextSpan span, IEnumerable<SyntaxBase> elements, IEnumerable<ErrorDiagnostic> diagnostics)
+        public SkippedTriviaSyntax(TextSpan span, IEnumerable<SyntaxBase> elements, IEnumerable<Diagnostic> diagnostics)
         {
             this.Span = span;
             this.Elements = elements.ToImmutableArray();
@@ -30,7 +30,7 @@ namespace Bicep.Core.Syntax
         /// <summary>
         /// Diagnostics to raise.
         /// </summary>
-        public ImmutableArray<ErrorDiagnostic> Diagnostics { get; }
+        public ImmutableArray<Diagnostic> Diagnostics { get; }
 
         public string TriviaName => this.Elements.Any() ? LanguageConstants.ErrorName : LanguageConstants.MissingName;
 

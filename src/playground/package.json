@@ -14,9 +14,9 @@
   },
   "private": true,
   "devDependencies": {
-    "@types/node": "^22.4.0",
+    "@types/node": "^22.5.0",
     "@types/pako": "^2.0.3",
-    "@types/react": "^18.3.3",
+    "@types/react": "^18.3.4",
     "@types/react-dom": "^18.3.0",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
@@ -33,7 +33,7 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
-    "webpack": "^5.93.0",
+    "webpack": "^5.94.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4"
   },

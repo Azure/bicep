@@ -64,7 +64,7 @@ namespace Bicep.Core.Registry
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
         }
 
-        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference)
+        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference)
         {
             if (!OciArtifactReference.TryParse(artifactType, aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
@@ -137,7 +137,7 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(OciArtifactReference reference)
+        public override ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(OciArtifactReference reference)
         {
             var artifactFileType = reference.Type switch
             {
@@ -220,9 +220,9 @@ namespace Bicep.Core.Registry
             await publicRegistryModuleMetadataProvider.TryAwaitCache(forceRestore);
         }
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
         {
-            var failures = new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+            var failures = new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
 
             var referencesEvaluated = references.ToArray();
 
@@ -250,7 +250,7 @@ namespace Bicep.Core.Registry
             return failures;
         }
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<OciArtifactReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<OciArtifactReference> references)
         {
             return await base.InvalidateArtifactsCacheInternal(references);
         }

@@ -282,7 +282,7 @@ namespace Bicep.Core.Parsing
 
         private bool CheckKeyword(string keyword) => !this.IsAtEnd() && CheckKeyword(this.reader.Peek(), keyword);
 
-        protected Token Expect(TokenType type, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected Token Expect(TokenType type, DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
         {
             if (this.Check(type))
             {
@@ -294,7 +294,7 @@ namespace Bicep.Core.Parsing
             throw new ExpectedTokenException(this.reader.Peek(), errorFunc);
         }
 
-        protected Token ExpectKeyword(string expectedKeyword, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc = null)
+        protected Token ExpectKeyword(string expectedKeyword, DiagnosticBuilder.DiagnosticBuilderDelegate? errorFunc = null)
         {
             errorFunc ??= b => b.ExpectedKeyword(expectedKeyword);
             return GetOptionalKeyword(expectedKeyword) ??
@@ -609,14 +609,14 @@ namespace Bicep.Core.Parsing
             return itemsOrTokens;
         }
 
-        protected IdentifierSyntax Identifier(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected IdentifierSyntax Identifier(DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
         {
             var identifier = Expect(TokenType.Identifier, errorFunc);
 
             return new IdentifierSyntax(identifier);
         }
 
-        protected IdentifierSyntax IdentifierOrSkip(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected IdentifierSyntax IdentifierOrSkip(DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
         {
             if (this.Check(TokenType.Identifier))
             {
@@ -628,7 +628,7 @@ namespace Bicep.Core.Parsing
             return new IdentifierSyntax(skipped);
         }
 
-        protected IdentifierSyntax IdentifierWithRecovery(DiagnosticBuilder.ErrorBuilderDelegate errorFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)
+        protected IdentifierSyntax IdentifierWithRecovery(DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)
         {
             var identifierOrSkipped = this.WithRecovery(
                 () => Identifier(errorFunc),
@@ -1320,10 +1320,10 @@ namespace Bicep.Core.Parsing
             _ => syntax,
         };
 
-        protected SkippedTriviaSyntax Skip(SyntaxBase syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected SkippedTriviaSyntax Skip(SyntaxBase syntax, DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
             => Skip(syntax.AsEnumerable(), errorFunc);
 
-        private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax, DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
         {
             var syntaxArray = syntax.ToImmutableArray();
             var span = TextSpan.Between(syntaxArray.First(), syntaxArray.Last());
@@ -1341,10 +1341,10 @@ namespace Bicep.Core.Parsing
         protected SkippedTriviaSyntax SkipEmpty()
             => SkipEmpty(this.reader.Peek().Span.Position, null);
 
-        protected SkippedTriviaSyntax SkipEmpty(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected SkippedTriviaSyntax SkipEmpty(DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
             => SkipEmpty(this.reader.Peek().Span.Position, errorFunc);
 
-        private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc)
+        private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.DiagnosticBuilderDelegate? errorFunc)
         {
             var span = new TextSpan(position, 0);
             var errors = errorFunc is null ? [] : errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable();
@@ -1364,7 +1364,7 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private SkippedTriviaSyntax SynchronizeAndReturnTrivia(int startReaderPosition, RecoveryFlags flags, DiagnosticBuilder.ErrorBuilderDelegate errorFunc, params TokenType[] expectedTypes)
+        private SkippedTriviaSyntax SynchronizeAndReturnTrivia(int startReaderPosition, RecoveryFlags flags, DiagnosticBuilder.DiagnosticBuilderDelegate diagnosticBuilder, params TokenType[] expectedTypes)
         {
             var startToken = reader.AtPosition(startReaderPosition);
 
@@ -1384,13 +1384,13 @@ namespace Bicep.Core.Parsing
             }
 
             var errors = flags.HasFlag(RecoveryFlags.SuppressDiagnostics)
-                ? ImmutableArray<ErrorDiagnostic>.Empty
-                : [errorFunc(DiagnosticBuilder.ForPosition(errorSpan))];
+                ? ImmutableArray<Diagnostic>.Empty
+                : [diagnosticBuilder(DiagnosticBuilder.ForPosition(errorSpan))];
 
             return new SkippedTriviaSyntax(skippedSpan, skippedTokens, errors);
         }
 
-        protected SyntaxBase ThrowIfSkipped(Func<SyntaxBase> syntaxFunc, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected SyntaxBase ThrowIfSkipped(Func<SyntaxBase> syntaxFunc, DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
         {
             var startToken = reader.Peek();
             var syntax = syntaxFunc();

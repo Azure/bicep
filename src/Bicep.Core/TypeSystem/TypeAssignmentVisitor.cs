@@ -232,7 +232,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitForSyntax(ForSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 if (syntax.ItemVariable is null)
                 {
@@ -493,7 +493,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 var valueType = this.typeManager.GetTypeInfo(syntax.Value);
                 CollectErrors(errors, valueType);
@@ -518,7 +518,7 @@ namespace Bicep.Core.TypeSystem
 
                 base.VisitTypeDeclarationSyntax(syntax);
 
-                diagnostics.WriteMultiple(declaredType?.GetDiagnostics() ?? Enumerable.Empty<IDiagnostic>());
+                diagnostics.WriteMultiple(declaredType?.GetDiagnostics() ?? []);
 
                 if (declaredType is not null)
                 {
@@ -700,7 +700,7 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        private static ErrorDiagnostic? GetNonLiteralUnionMemberDiagnostic(TypeSymbol memberType, UnionTypeMemberSyntax memberSyntax)
+        private static Diagnostic? GetNonLiteralUnionMemberDiagnostic(TypeSymbol memberType, UnionTypeMemberSyntax memberSyntax)
             => TypeHelper.IsLiteralType(memberType) ? null : DiagnosticBuilder.ForPosition(memberSyntax).NonLiteralUnionMember();
 
         public override void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax)
@@ -984,7 +984,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 var valueType = typeManager.GetTypeInfo(syntax.Value);
                 CollectErrors(errors, valueType);
@@ -1008,7 +1008,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 var valueType = typeManager.GetTypeInfo(syntax.Value);
                 CollectErrors(errors, valueType);
@@ -1031,7 +1031,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 var lambdaType = typeManager.GetTypeInfo(syntax.Lambda);
                 CollectErrors(errors, lambdaType);
@@ -1060,7 +1060,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 var valueType = typeManager.GetTypeInfo(syntax.Value);
                 CollectErrors(errors, valueType);
@@ -1175,7 +1175,7 @@ namespace Bicep.Core.TypeSystem
                     return TypeFactory.CreateStringLiteralType(literalValue);
                 }
 
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
                 var expressionTypes = new List<TypeSymbol>();
                 long minLength = syntax.SegmentValues.Sum(s => s.Length);
                 long? maxLength = minLength;
@@ -1243,7 +1243,7 @@ namespace Bicep.Core.TypeSystem
                     VisitMissingDeclarationSyntax(missingDeclarationSyntax);
                 }
 
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 var duplicatedProperties = syntax.Properties
                     .GroupByExcludingNull(prop => prop.TryGetKeyText(), LanguageConstants.IdentifierComparer)
@@ -1351,7 +1351,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
             => AssignType(syntax, () =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
                 var types = new List<TypeSymbol>();
 
                 if (syntax.Key is StringSyntax stringSyntax && stringSyntax.IsInterpolated())
@@ -1385,7 +1385,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitArraySyntax(ArraySyntax syntax)
             => AssignType(syntax, () =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 var childTypes = new List<TypeSymbol>(syntax.Children.Length);
 
@@ -1457,7 +1457,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 // ternary operator requires the condition to be of bool type
                 var conditionType = typeManager.GetTypeInfo(syntax.ConditionExpression);
@@ -1497,7 +1497,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 var operandType1 = typeManager.GetTypeInfo(syntax.LeftExpression);
                 CollectErrors(errors, operandType1);
@@ -1533,7 +1533,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 var operandType = typeManager.GetTypeInfo(syntax.Expression);
                 CollectErrors(errors, operandType);
@@ -1553,12 +1553,12 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType));
             });
 
-        private static bool PropagateErrorType(IEnumerable<ErrorDiagnostic> errors, params TypeSymbol[] types)
-            => PropagateErrorType(errors, types as IEnumerable<TypeSymbol>);
+        private static bool PropagateErrorType(IEnumerable<IDiagnostic> diagnostics, params TypeSymbol[] types)
+            => PropagateErrorType(diagnostics, types as IEnumerable<TypeSymbol>);
 
-        private static bool PropagateErrorType(IEnumerable<ErrorDiagnostic> errors, IEnumerable<TypeSymbol> types)
+        private static bool PropagateErrorType(IEnumerable<IDiagnostic> diagnostics, IEnumerable<TypeSymbol> types)
         {
-            if (errors.Any())
+            if (diagnostics.Any(x => x.Level == DiagnosticLevel.Error))
             {
                 return true;
             }
@@ -1571,7 +1571,7 @@ namespace Bicep.Core.TypeSystem
 
         private static TypeSymbol GetArrayItemType(ArrayAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType, TypeSymbol indexType)
         {
-            var errors = new List<ErrorDiagnostic>();
+            var errors = new List<IDiagnostic>();
             CollectErrors(errors, baseType);
             CollectErrors(errors, indexType);
 
@@ -1727,7 +1727,7 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        private static TypeSymbol InvalidAccessExpression(ErrorDiagnostic error, IDiagnosticWriter diagnostics, bool safeAccess)
+        private static TypeSymbol InvalidAccessExpression(Diagnostic error, IDiagnosticWriter diagnostics, bool safeAccess)
         {
             if (safeAccess)
             {
@@ -1825,7 +1825,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
                 CollectErrors(errors, baseType);
@@ -1871,7 +1871,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 foreach (TypeSymbol argumentType in GetArgumentTypes(syntax.Arguments).ToArray())
                 {
@@ -1923,7 +1923,7 @@ namespace Bicep.Core.TypeSystem
                     return declaredType ?? ErrorType.Empty();
                 }
 
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
                 foreach (var argumentType in declaredLambdaType.ArgumentTypes.Concat(declaredLambdaType.OptionalArgumentTypes))
                 {
                     CollectErrors(errors, argumentType.Type);
@@ -1980,7 +1980,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var errors = new List<ErrorDiagnostic>();
+                var errors = new List<IDiagnostic>();
 
                 var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
                 CollectErrors(errors, baseType);
@@ -2063,14 +2063,14 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            List<ErrorDiagnostic> errors = new();
+            var errors = new List<IDiagnostic>();
 
             foreach (var decoratorSyntax in syntax.Decorators)
             {
                 var expressionType = this.typeManager.GetTypeInfo(decoratorSyntax.Expression);
                 CollectErrors(errors, expressionType);
             }
-
+            
             diagnostics.WriteMultiple(errors);
 
             // There must exist at least one decorator for MissingDeclarationSyntax.
@@ -2176,7 +2176,7 @@ namespace Bicep.Core.TypeSystem
                 return TypeHelper.TryRemoveNullability(baseType) ?? baseType;
             });
 
-        private static void CollectErrors(List<ErrorDiagnostic> errors, ITypeReference reference)
+        private static void CollectErrors(List<IDiagnostic> errors, ITypeReference reference)
         {
             errors.AddRange(reference.Type.GetDiagnostics());
         }
@@ -2184,19 +2184,19 @@ namespace Bicep.Core.TypeSystem
         private TypeSymbol GetFunctionSymbolType(
             IFunctionSymbol function,
             FunctionCallSyntaxBase syntax,
-            IList<ErrorDiagnostic> errors,
+            IList<IDiagnostic> diagnostics,
             IDiagnosticWriter diagnosticWriter) => GetFunctionSymbolType(function,
                 syntax,
                 // Recover argument type errors so we can continue type checking for the parent function call.
                 GetRecoveredArgumentTypes(syntax.Arguments).ToImmutableArray(),
-                errors,
+                diagnostics,
                 diagnosticWriter);
 
         private TypeSymbol GetFunctionSymbolType(
             IFunctionSymbol function,
             FunctionCallSyntaxBase syntax,
             ImmutableArray<TypeSymbol> argumentTypes,
-            IList<ErrorDiagnostic> errors,
+            IList<IDiagnostic> diagnostics,
             IDiagnosticWriter diagnosticWriter)
         {
             var matches = FunctionResolver.GetMatches(
@@ -2220,7 +2220,7 @@ namespace Bicep.Core.TypeSystem
                             var resultSansNullability = GetFunctionSymbolType(function,
                                 syntax,
                                 Enumerable.Range(0, argumentTypes.Length).Select(i => tm.ArgumentIndex == i ? nonNullableArgType : argumentTypes[i]).ToImmutableArray(),
-                                errors,
+                                diagnostics,
                                 diagnosticWriter);
 
                             // if we couldn't find a match even after tweaking argument nullability, don't add any nullability warnings
@@ -2241,14 +2241,14 @@ namespace Bicep.Core.TypeSystem
                         var signatures = typeMismatches.Select(tm => tm.Source.TypeSignature).ToList();
                         var argumentSyntax = syntax.GetArgumentByPosition(typeMismatches[0].ArgumentIndex);
 
-                        errors.Add(DiagnosticBuilder.ForPosition(argumentSyntax).CannotResolveFunctionOverload(signatures, argumentType, parameterTypes));
+                        diagnostics.Add(DiagnosticBuilder.ForPosition(argumentSyntax).CannotResolveFunctionOverload(signatures, argumentType, parameterTypes));
                     }
                     else
                     {
                         // Choose the type mismatch that has the largest index as the best one.
                         var (_, argumentIndex, argumentType, parameterType) = typeMismatches.OrderBy(tm => tm.ArgumentIndex).Last();
 
-                        errors.Add(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(argumentIndex)).ArgumentTypeMismatch(argumentType, parameterType));
+                        diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(argumentIndex)).ArgumentTypeMismatch(argumentType, parameterType));
                     }
                 }
                 else if (countMismatches.Any())
@@ -2257,13 +2257,13 @@ namespace Bicep.Core.TypeSystem
                     var (actualCount, minimumArgumentCount, maximumArgumentCount) = countMismatches.Aggregate(ArgumentCountMismatch.Reduce);
                     var argumentsSpan = TextSpan.Between(syntax.OpenParen, syntax.CloseParen);
 
-                    errors.Add(DiagnosticBuilder.ForPosition(argumentsSpan).ArgumentCountMismatch(actualCount, minimumArgumentCount, maximumArgumentCount));
+                    diagnostics.Add(DiagnosticBuilder.ForPosition(argumentsSpan).ArgumentCountMismatch(actualCount, minimumArgumentCount, maximumArgumentCount));
                 }
             }
 
-            if (PropagateErrorType(errors))
+            if (PropagateErrorType(diagnostics))
             {
-                return ErrorType.Create(errors);
+                return ErrorType.Create(diagnostics);
             }
 
             if (matches.Count == 1)

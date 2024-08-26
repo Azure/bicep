@@ -142,8 +142,7 @@
       }
     },
     "extensionConfig": {
-      "type": "string",
-      "pattern": "^(builtin:|br:.*)$"
+      "type": "string"
     },
     "builtInConfig": {
       "type": "object",

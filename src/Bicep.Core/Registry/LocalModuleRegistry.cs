@@ -40,7 +40,7 @@ namespace Bicep.Core.Registry
                 _ => throw new UnreachableException(),
             };
 
-        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? alias, string reference)
+        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? alias, string reference)
         {
             if (artifactType != ArtifactType.Module && artifactType != ArtifactType.Extension)
             {
@@ -56,7 +56,7 @@ namespace Bicep.Core.Registry
         }
 
 
-        public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(LocalModuleReference reference)
+        public override ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(LocalModuleReference reference)
         {
             var localUri = FileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path);
             if (localUri is null)
@@ -77,9 +77,9 @@ namespace Bicep.Core.Registry
             return new(localUri);
         }
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<LocalModuleReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<LocalModuleReference> references)
         {
-            var statuses = new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+            var statuses = new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
 
             foreach (var reference in references)
             {
@@ -99,7 +99,7 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<LocalModuleReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<LocalModuleReference> references)
         {
             return await base.InvalidateArtifactsCacheInternal(references);
         }
