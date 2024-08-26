@@ -16,7 +16,7 @@ Requires `extensibility` to be enabled. If enabled, users are able to fetch the 
 The extension definitions also support aliasing via `bicepconfig.json` similar to [`moduleAliases`](https://learn.microsoft.com/azure/azure-resource-manager/bicep/bicep-config-modules#aliases-for-modules). For example `extension 'br/public:az@1.0.0' as az`.
 
 ### `extendableParamFiles`
-Enables the ability to extend bicepparam files from other bicepparam files.
+Enables the ability to extend bicepparam files from other bicepparam files. For more information, see [Extendable Bicep Params Files](./experimental/extendable-param-files.md).
 
 ### `extensibility`
 Allows Bicep to use an extensibility model to deploy non-ARM resources. Currently, we support Kubernetes extension ([Bicep Kubernetes extension](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-extensibility-kubernetes-provider)) and Microsoft Graph extension ([Bicep templates for Microsoft Graph](https://aka.ms/graphbicep)).
