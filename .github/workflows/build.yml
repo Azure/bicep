@@ -306,13 +306,10 @@ jobs:
           if-no-files-found: error
 
       - name: Run bicep in visual studio unit tests
-        if: false # Temporarily disable: https://github.com/Azure/bicep/issues/14251
-        uses: microsoft/vstest-action@v1.0.0
-        with:
-          testAssembly: Bicep.VSLanguageServerClient.UnitTests.dll
-          runInParallel: true
-          searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/
-          ifNoFilesFound: error
+        run: |
+          $vswhere = (Invoke-WebRequest -Uri "https://github.com/microsoft/vswhere/releases/latest/download/vswhere.exe" -OutFile "vswhere.exe")
+          $vstest = & .\vswhere.exe -latest -products * -requires Microsoft.VisualStudio.PackageGroup.TestTools.Core -find **\TestPlatform\vstest.console.exe
+          . $vstest .\src\vs-bicep\Bicep.VSLanguageServerClient.UnitTests\bin\release\net472\Bicep.VSLanguageServerClient.UnitTests.dll
 
       # Temporarily disable VS Bicep integration tests, they're flaky
       # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
