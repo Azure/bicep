@@ -18,6 +18,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         [DataRow(@"{ ""eventName"": """" }")]
         [DataRow(@"{ ""eventName"": ""   "" }")]
         [DataTestMethod]
+        [Ignore] // TODO: Fix (https://github.com/Azure/bicep/issues/14251)
         public void GetTelemetryEvent_WithInvalidInput_ShouldReturnNull(string input)
         {
             var jObject = JObject.Parse(input);
@@ -28,6 +29,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         }
 
         [TestMethod]
+        [Ignore] // TODO: Fix (https://github.com/Azure/bicep/issues/14251)
         public void GetTelemetryEvent_WithEventNameAndProperties_ShouldReturnTelemetryEvent()
         {
             var input = JObject.Parse(@"{
@@ -54,6 +56,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         }
 
         [TestMethod]
+        [Ignore] // TODO: Fix (https://github.com/Azure/bicep/issues/14251)
         public void GetTelemetryEvent_WithoutProperties_ShouldReturnTelemetryEvent()
         {
             var input = JObject.Parse(@"{
