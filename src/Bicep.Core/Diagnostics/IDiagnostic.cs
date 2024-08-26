@@ -1,16 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.CodeAction;
 using Bicep.Core.Parsing;
 
-namespace Bicep.Core.Diagnostics
+namespace Bicep.Core.Diagnostics;
+
+public interface IDiagnostic : IFixable, IPositionable
 {
-    public interface IDiagnostic : IPositionable
-    {
-        string Code { get; }
-        string Source { get; }
-        DiagnosticStyling Styling { get; }
-        DiagnosticLevel Level { get; }
-        string Message { get; }
-        Uri? Uri { get; }
-    }
+    string Code { get; }
+
+    DiagnosticSource Source { get; }
+
+    DiagnosticStyling Styling { get; }
+
+    DiagnosticLevel Level { get; }
+
+    string Message { get; }
+
+    Uri? Uri { get; }
 }

@@ -770,7 +770,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
         private static (bool success, IDictionary<Uri, ImmutableArray<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
         {
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
-            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
+            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
 
             return (success, diagnosticsByFile);
         }

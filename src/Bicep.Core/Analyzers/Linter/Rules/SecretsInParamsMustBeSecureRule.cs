@@ -59,7 +59,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private AnalyzerFixableDiagnostic? AnalyzeUnsecuredParameter(SemanticModel model, DiagnosticLevel diagnosticLevel, ParameterSymbol parameterSymbol)
+        private Diagnostic? AnalyzeUnsecuredParameter(SemanticModel model, DiagnosticLevel diagnosticLevel, ParameterSymbol parameterSymbol)
         {
             string name = parameterSymbol.Name;
             TypeSymbol type = parameterSymbol.Type;

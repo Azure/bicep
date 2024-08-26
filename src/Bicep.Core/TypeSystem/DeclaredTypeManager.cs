@@ -228,9 +228,7 @@ namespace Bicep.Core.TypeSystem
             if (!binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel, out var failureDiagnostic))
             {
                 // failed to resolve using
-                return failureDiagnostic.Level == DiagnosticLevel.Error
-                    ? ErrorType.Create(failureDiagnostic)
-                    : null;
+                return failureDiagnostic.IsError() ? ErrorType.Create(failureDiagnostic) : null;
             }
 
             if (semanticModel.Parameters.TryGetValue(syntax.Name.IdentifierName, out var parameterMetadata))
@@ -789,7 +787,7 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var evaluated = OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax.Operator, baseExpressionType, diagnosticWriter);
-            if (diagnosticWriter.GetDiagnostics().Any(x => x.Level == DiagnosticLevel.Error))
+            if (diagnosticWriter.GetDiagnostics().Any(x => x.IsError()))
             {
                 return ErrorType.Create(diagnosticWriter.GetDiagnostics());
             }

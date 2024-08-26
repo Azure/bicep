@@ -1493,7 +1493,7 @@ resource vmNotWorking 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP037", DiagnosticLevel.Warning, "The property \"valThatDoesNotExist\" from source declaration \"vmNotWorkingProps\" is not allowed on objects of type \"VirtualMachineProperties\". Permissible properties include \"additionalCapabilities\", \"availabilitySet\", \"billingProfile\", \"diagnosticsProfile\", \"evictionPolicy\", \"extensionsTimeBudget\", \"hardwareProfile\", \"host\", \"hostGroup\", \"licenseType\", \"networkProfile\", \"osProfile\", \"priority\", \"proximityPlacementGroup\", \"securityProfile\", \"storageProfile\", \"virtualMachineScaleSet\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+            ("BCP037", DiagnosticLevel.Warning, "The property \"valThatDoesNotExist\" from source declaration \"vmNotWorkingProps\" is not allowed on objects of type \"VirtualMachineProperties\". Permissible properties include \"additionalCapabilities\", \"availabilitySet\", \"billingProfile\", \"diagnosticsProfile\", \"evictionPolicy\", \"extensionsTimeBudget\", \"hardwareProfile\", \"host\", \"hostGroup\", \"licenseType\", \"networkProfile\", \"osProfile\", \"priority\", \"proximityPlacementGroup\", \"securityProfile\", \"storageProfile\", \"virtualMachineScaleSet\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
         });
     }
 
@@ -2822,8 +2822,8 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
 "));
         result.Should().GenerateATemplate().And.HaveDiagnostics(new[]
         {
-            ("BCP073", DiagnosticLevel.Warning, "The property \"tags\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            ("BCP073", DiagnosticLevel.Warning, "The property \"properties\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+            ("BCP073", DiagnosticLevel.Warning, "The property \"tags\" is read-only. Expressions cannot be assigned to read-only properties. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+            ("BCP073", DiagnosticLevel.Warning, "The property \"properties\" is read-only. Expressions cannot be assigned to read-only properties. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
         });
     }
 
@@ -3210,7 +3210,7 @@ resource auth 'Microsoft.Web/sites/config@2021-03-01' = [for (c, i) in configs: 
         // verify we have diagnostics for 'properties'
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP037", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"SiteAuthSettingsV2Properties\". Permissible properties include \"globalValidation\", \"httpSettings\", \"identityProviders\", \"login\", \"platform\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+            ("BCP037", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"SiteAuthSettingsV2Properties\". Permissible properties include \"globalValidation\", \"httpSettings\", \"identityProviders\", \"login\", \"platform\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
         });
 
         result.Template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', variables('configs')[copyIndex()].name, 'authsettingsV2')]");
@@ -3306,13 +3306,13 @@ output fooBadIdProps object = {
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2021-09-00\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
-            ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"123\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'1'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            ("BCP036", DiagnosticLevel.Warning, "The property \"type\" expected a value of type \"string\" but the provided value is of type \"1\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'2'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            ("BCP036", DiagnosticLevel.Warning, "The property \"tenantId\" expected a value of type \"string\" but the provided value is of type \"3\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            ("BCP036", DiagnosticLevel.Warning, "The property \"clientId\" expected a value of type \"string\" but the provided value is of type \"1\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            ("BCP036", DiagnosticLevel.Warning, "The property \"principalId\" expected a value of type \"string\" but the provided value is of type \"2\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+            ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"123\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+            ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'1'\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+            ("BCP036", DiagnosticLevel.Warning, "The property \"type\" expected a value of type \"string\" but the provided value is of type \"1\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+            ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'2'\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+            ("BCP036", DiagnosticLevel.Warning, "The property \"tenantId\" expected a value of type \"string\" but the provided value is of type \"3\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+            ("BCP036", DiagnosticLevel.Warning, "The property \"clientId\" expected a value of type \"string\" but the provided value is of type \"1\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+            ("BCP036", DiagnosticLevel.Warning, "The property \"principalId\" expected a value of type \"string\" but the provided value is of type \"2\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
             ("BCP053", DiagnosticLevel.Error, "The type \"userAssignedIdentityProperties\" does not contain property \"hello\". Available properties include \"clientId\", \"principalId\"."),
         });
     }
@@ -4478,7 +4478,7 @@ resource config 'Microsoft.Web/sites/config@2022-03-01' = {
 }
 ");
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
-        result.Should().ContainDiagnostic("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'appsettings' | 'authsettings' | 'authsettingsV2' | 'azurestorageaccounts' | 'backup' | 'connectionstrings' | 'logs' | 'metadata' | 'pushsettings' | 'slotConfigNames' | 'web'\" but the provided value is of type \"'virtualNetwork'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.");
+        result.Should().ContainDiagnostic("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'appsettings' | 'authsettings' | 'authsettingsV2' | 'azurestorageaccounts' | 'backup' | 'connectionstrings' | 'logs' | 'metadata' | 'pushsettings' | 'slotConfigNames' | 'web'\" but the provided value is of type \"'virtualNetwork'\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.");
     }
 
     // https://github.com/Azure/bicep/issues/9978
@@ -5966,7 +5966,7 @@ var startAndEndBracketInString = 'x[]y'
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-             ("BCP187", DiagnosticLevel.Warning, """The property "kind" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."""),
+             ("BCP187", DiagnosticLevel.Warning, """The property "kind" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
              ("BCP036", DiagnosticLevel.Warning, """The property "gateway" expected a value of type "string" but the provided value is of type "object"."""),
         });
     }

@@ -95,8 +95,8 @@ public class LinterRuleTestsBase
             files.ToArray(),
             diag =>
                 diag.Code == ruleCode
-                || (IsCompilerDiagnostic(diag) && options.OnCompileErrors == OnCompileErrors.IncludeErrors && diag.Level == DiagnosticLevel.Error)
-                || (IsCompilerDiagnostic(diag) && options.OnCompileErrors == OnCompileErrors.IncludeErrorsAndWarnings && (diag.Level == DiagnosticLevel.Error || diag.Level == DiagnosticLevel.Warning)),
+                || (IsCompilerDiagnostic(diag) && options.OnCompileErrors == OnCompileErrors.IncludeErrors && diag.IsError())
+                || (IsCompilerDiagnostic(diag) && options.OnCompileErrors == OnCompileErrors.IncludeErrorsAndWarnings && (diag.IsError() || diag.Level == DiagnosticLevel.Warning)),
             assertAction,
             options);
     }
@@ -136,7 +136,7 @@ public class LinterRuleTestsBase
         using (new AssertionScope().WithVisualCursor(result.Compilation.GetEntrypointSemanticModel().SourceFile, cursor))
         {
             var matchingDiagnostics = result.Diagnostics
-                .OfType<IBicepAnalyzerFixableDiagnostic>()
+                .Where(x => x.Source == DiagnosticSource.CoreLinter)
                 .Where(x => x.Span.IsOverlapping(cursor));
 
             matchingDiagnostics.Should().ContainSingle(x => x.Code == expectedCode);

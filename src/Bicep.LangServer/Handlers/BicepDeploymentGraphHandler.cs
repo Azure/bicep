@@ -74,7 +74,7 @@ namespace Bicep.LanguageServer.Handlers
                     .Where(x => x.Key.Name != LanguageConstants.MissingName && x.Key.Name != LanguageConstants.ErrorName)
                     .ToImmutableDictionary(x => x.Key, x => x.Value);
 
-                var errors = semanticModel.GetAllDiagnostics().Where(x => x.Level == DiagnosticLevel.Error).ToList();
+                var errors = semanticModel.GetAllDiagnostics().Where(x => x.IsError()).ToList();
 
                 // Create nodes.
                 foreach (var symbol in dependenciesBySymbol.Keys)
@@ -145,7 +145,7 @@ namespace Bicep.LanguageServer.Handlers
             var graph = new BicepDeploymentGraph(
                 nodes.OrderBy(node => node.Id),
                 edges.OrderBy(edge => $"{edge.SourceId}>{edge.TargetId}"),
-                entrySemanticModel.GetAllDiagnostics().Count(x => x.Level == DiagnosticLevel.Error));
+                entrySemanticModel.GetAllDiagnostics().Count(x => x.IsError()));
 
             return graph;
         }

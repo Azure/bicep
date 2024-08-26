@@ -81,7 +81,7 @@ namespace Bicep.LanguageServer.Handlers
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == fileUri);
 
-            if (diagnosticsByFile.Value.Any(x => x.Level == DiagnosticLevel.Error))
+            if (diagnosticsByFile.Value.Any(x => x.IsError()))
             {
                 throw new Exception(DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile));
             }

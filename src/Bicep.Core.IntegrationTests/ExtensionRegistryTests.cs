@@ -234,7 +234,7 @@ resource fooRes 'fooType@v1' existing = {
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP035", DiagnosticLevel.Warning, """The specified "resource" declaration is missing the following required properties: "identifier". If this is an inaccuracy in the documentation, please report it to the Bicep Team."""),
+            ("BCP035", DiagnosticLevel.Warning, """The specified "resource" declaration is missing the following required properties: "identifier". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
         });
 
         result = await CompilationHelper.RestoreAndCompile(services, """

@@ -32,9 +32,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var diag = diagnostics.First();
             diag.Message.Should().Be("Parameter 'password' may represent a secret (according to its name) and must be declared with the '@secure()' attribute.");
             diag.Code.Should().Be(SecretsInParamsMustBeSecureRule.Code);
-            var fixable = diag.Should().BeAssignableTo<IBicepAnalyzerFixableDiagnostic>().Which;
-            fixable.Fixes.Should().HaveCount(1);
-            var fix = fixable.Fixes.First();
+            diag.Fixes.Should().HaveCount(1);
+            var fix = diag.Fixes.First();
             fix.Title.Should().Be("Mark parameter as secure");
             fix.Kind.Should().Be(CodeFixKind.QuickFix);
             fix.Replacements.Should().HaveCount(1);

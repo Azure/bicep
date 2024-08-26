@@ -874,7 +874,7 @@ namespace Bicep.Core.TypeSystem
 
                 foreach (var diagnostic in diagnostics)
                 {
-                    if (diagnostic.Level == DiagnosticLevel.Error)
+                    if (diagnostic.IsError())
                     {
                         errorDiagnostics.Add(diagnostic);
                     }
