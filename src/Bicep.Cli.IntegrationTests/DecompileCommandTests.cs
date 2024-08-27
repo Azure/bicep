@@ -152,7 +152,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 output.Should().BeEmpty();
                 error.AsLines().Should().Contain(DecompilationDisclaimer);
-                error.AsLines().Should().Contain($"{bicepPath}(4,23) : Error BCP079: This expression is referencing its own declaration, which is not allowed.");
+                error.AsLines().Should().Contain($"{bicepPath}(4,23) : Error BCP079: This expression is referencing its own declaration, which is not allowed. [https://aka.ms/bicep/core-diagnostics#BCP079]");
                 result.Should().Be(1);
                 File.ReadAllText(bicepPath).Should().BeEquivalentToIgnoringNewlines(InvalidTemplateExpectedDecompilation);
             }
@@ -191,7 +191,7 @@ namespace Bicep.Cli.IntegrationTests
                     "  }",
                     "}");
                 error.AsLines().Should().Contain(DecompilationDisclaimer);
-                error.AsLines().Should().Contain($"{bicepPath}(4,23) : Error BCP079: This expression is referencing its own declaration, which is not allowed.");
+                error.AsLines().Should().Contain($"{bicepPath}(4,23) : Error BCP079: This expression is referencing its own declaration, which is not allowed. [https://aka.ms/bicep/core-diagnostics#BCP079]");
                 result.Should().Be(1);
             }
         }

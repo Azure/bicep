@@ -268,7 +268,7 @@ namespace Bicep.Core.TypeSystem
                     var writeOnlyDiagnostic = DiagnosticBuilder.ForPosition(propertyExpressionPositionable).WriteOnlyProperty(shouldWarn, baseType, propertyName);
                     diagnostics.Write(writeOnlyDiagnostic);
 
-                    if (writeOnlyDiagnostic.Level == DiagnosticLevel.Error)
+                    if (writeOnlyDiagnostic.IsError())
                     {
                         return ErrorType.Empty();
                     }
@@ -308,7 +308,7 @@ namespace Bicep.Core.TypeSystem
 
             diagnostics.Write(unknownPropertyDiagnostic);
 
-            return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? ErrorType.Empty() : LanguageConstants.Any;
+            return (unknownPropertyDiagnostic.IsError()) ? ErrorType.Empty() : LanguageConstants.Any;
         }
 
         public static DiagnosticBuilder.DiagnosticBuilderDelegate GetUnknownPropertyDiagnostic(ObjectType baseType, string propertyName, bool shouldWarn)

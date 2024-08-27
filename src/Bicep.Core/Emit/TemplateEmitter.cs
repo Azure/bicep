@@ -130,7 +130,7 @@ public class TemplateEmitter
             _ => [],
         };
 
-        if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
+        if (diagnostics.Any(d => d.IsError()))
         {
             return new EmitResult(EmitStatus.Failed, diagnostics);
         }

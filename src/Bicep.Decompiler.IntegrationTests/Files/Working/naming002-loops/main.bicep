@@ -22,7 +22,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = [
     location: location
     zones: [
       (i + 1)
-//@[6:13) [BCP034 (Warning)] The enclosing array expected an item of type "string", but the provided item was of type "int". (CodeDescription: none) |(i + 1)|
+//@[6:13) [BCP034 (Warning)] The enclosing array expected an item of type "string", but the provided item was of type "int". (bicep https://aka.ms/bicep/core-diagnostics#BCP034) |(i + 1)|
     ]
     dependsOn: [
       nic

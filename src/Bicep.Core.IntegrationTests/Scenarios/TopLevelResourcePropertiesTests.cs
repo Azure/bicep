@@ -54,7 +54,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP187", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP187", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
             });
         }
 
@@ -74,7 +74,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP037", DiagnosticLevel.Warning, $"The property \"{property}\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP037", DiagnosticLevel.Warning, $"The property \"{property}\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
             });
         }
 
@@ -96,7 +96,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP037", DiagnosticLevel.Warning, $"The property \"{property}\" from source declaration \"props\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP037", DiagnosticLevel.Warning, $"The property \"{property}\" from source declaration \"props\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
             });
         }
 
@@ -117,7 +117,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 var value = fallbackProperty." + property + @"
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP187", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP187", DiagnosticLevel.Warning, $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
             });
         }
 
@@ -326,7 +326,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
 "));
             result.Should().GenerateATemplate().And.HaveDiagnostics(new[]
             {
-                ("BCP035", DiagnosticLevel.Warning, "The specified \"resource\" declaration is missing the following required properties: \"required\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+                ("BCP035", DiagnosticLevel.Warning, "The specified \"resource\" declaration is missing the following required properties: \"required\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
             });
         }
 
@@ -381,7 +381,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
 "));
             result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
             {
-                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"required\", \"systemRequired\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"required\", \"systemRequired\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
             });
         }
 
@@ -452,7 +452,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
 "));
             result.Should().GenerateATemplate().And.HaveDiagnostics(new[]
             {
-                ("BCP036", DiagnosticLevel.Warning, "The property \"required\" expected a value of type \"object\" but the provided value is of type \"string\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+                ("BCP036", DiagnosticLevel.Warning, "The property \"required\" expected a value of type \"object\" but the provided value is of type \"string\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
             });
         }
         /// <summary>
@@ -509,7 +509,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
             result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
             {
                 ("BCP036", DiagnosticLevel.Error, "The property \"systemRequired\" expected a value of type \"object\" but the provided value is of type \"string\"."),
-                ("BCP036", DiagnosticLevel.Warning, "The property \"required\" expected a value of type \"object\" but the provided value is of type \"string\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+                ("BCP036", DiagnosticLevel.Warning, "The property \"required\" expected a value of type \"object\" but the provided value is of type \"string\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
             });
         }
 
@@ -555,7 +555,7 @@ resource res 'My.Rp/myResource@2020-01-01' = {
 "));
             result.Should().GenerateATemplate().And.HaveDiagnostics(new[]
             {
-                ("BCP036", DiagnosticLevel.Warning, "The property \"kind\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'otherValue'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+                ("BCP036", DiagnosticLevel.Warning, "The property \"kind\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'otherValue'\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
             });
         }
     }

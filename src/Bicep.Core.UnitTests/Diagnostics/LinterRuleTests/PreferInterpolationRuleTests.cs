@@ -35,9 +35,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 {
                     diags.Should().HaveCount(expectedFixes.Length, $"expecting one fix per testcase");
 
-                    diags.First().As<IBicepAnalyzerFixableDiagnostic>().Fixes.Should().HaveCount(1);
-                    diags.First().As<IBicepAnalyzerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
-                    var a = diags.First().As<IBicepAnalyzerFixableDiagnostic>().Fixes.SelectMany(f => f.Replacements.SelectMany(r => r.Text));
+                    diags.First().Fixes.Should().HaveCount(1);
+                    diags.First().Fixes.First().Replacements.Should().HaveCount(1);
+                    var a = diags.First().Fixes.SelectMany(f => f.Replacements.SelectMany(r => r.Text));
                 },
                 options);
         }

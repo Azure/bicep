@@ -17,8 +17,6 @@ namespace Bicep.Core.Analyzers.Interfaces
     /// We are using a source generator that requires the fully qualified type name of this interface to not change.</remarks>
     public interface IBicepAnalyzerRule
     {
-        string AnalyzerName { get; }
-
         string Code { get; }
 
         string Description { get; }

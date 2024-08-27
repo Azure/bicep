@@ -18,7 +18,7 @@ namespace Bicep.LanguageServer.Extensions
                 Severity = ToDiagnosticSeverity(diagnostic.Level),
                 Code = diagnostic.Code,
                 Message = diagnostic.Message,
-                Source = diagnostic.Source,
+                Source = diagnostic.Source.ToSourceString(),
                 Range = diagnostic.ToRange(lineStarts),
                 Tags = ToDiagnosticTags(diagnostic.Styling),
                 CodeDescription = GetDiagnosticDocumentation(diagnostic),
@@ -45,4 +45,3 @@ namespace Bicep.LanguageServer.Extensions
         };
     }
 }
-

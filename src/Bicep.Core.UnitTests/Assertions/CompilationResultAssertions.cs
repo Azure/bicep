@@ -101,7 +101,7 @@ namespace Bicep.Core.UnitTests.Assertions
         public AndConstraint<CompilationResultAssertions> NotHaveAnyCompilationBlockingDiagnostics(string because = "", params object[] becauseArgs)
             => DoWithDiagnosticAnnotations(diags =>
             {
-                diags.Where(x => x.Level == DiagnosticLevel.Error).Should().BeEmpty(because, becauseArgs);
+                diags.Where(x => x.IsError()).Should().BeEmpty(because, becauseArgs);
             });
 
         public AndConstraint<CompilationResultAssertions> NotGenerateATemplate(string because = "", params object[] becauseArgs)

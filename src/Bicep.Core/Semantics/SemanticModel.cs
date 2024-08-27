@@ -293,10 +293,10 @@ namespace Bicep.Core.Semantics
         }
 
         /// <summary>
-        /// Gets all the analyzer diagnostics unsorted.
+        /// Gets all the linter diagnostics, unsorted.
         /// </summary>
         /// <returns></returns>
-        private IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics()
+        private IReadOnlyList<IDiagnostic> GetLinterDiagnostics()
         {
             var diagnostics = LinterAnalyzer.Analyze(this);
 
@@ -317,7 +317,7 @@ namespace Bicep.Core.Semantics
                 .Concat(this.LexingErrorLookup)
                 .Concat(this.ParsingErrorLookup)
                 .Concat(GetSemanticDiagnostics())
-                .Concat(GetAnalyzerDiagnostics())
+                .Concat(GetLinterDiagnostics())
                 // TODO: This could be eliminated if we change the params type checking code to operate more on symbols
                 .Concat(GetAdditionalParamsSemanticDiagnostics())
                 .Distinct()
@@ -352,10 +352,10 @@ namespace Bicep.Core.Semantics
         /// </summary>
         /// <returns>True if analysis finds errors</returns>
         public bool HasErrors()
-            => allDiagnostics.Value.Any(x => x.Level == DiagnosticLevel.Error);
+            => allDiagnostics.Value.Any(x => x.IsError());
 
         public bool HasParsingErrors()
-            => this.ParsingErrorLookup.Any(x => x.Level == DiagnosticLevel.Error);
+            => this.ParsingErrorLookup.Any(x => x.IsError());
 
         public bool HasParsingError(SyntaxBase syntax) => this.ParsingErrorLookup.Contains(syntax);
 

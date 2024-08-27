@@ -18,12 +18,12 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
     {
     }
 
-    protected AnalyzerFixableDiagnostic CreateRemoveUnusedDiagnosticForSpan(DiagnosticLevel diagnosticLevel, string name, TextSpan nameSpan, SyntaxBase declaringSyntax, ProgramSyntax programSyntax)
+    protected Diagnostic CreateRemoveUnusedDiagnosticForSpan(DiagnosticLevel diagnosticLevel, string name, TextSpan nameSpan, SyntaxBase declaringSyntax, ProgramSyntax programSyntax)
     {
         var span = GetSpanForRow(programSyntax, declaringSyntax);
         var codeFix = new CodeFix(GetCodeFixDescription(name), true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
-        var fixableDiagnosticForSpan = CreateFixableDiagnosticForSpan(diagnosticLevel, nameSpan, codeFix, name);
-        return fixableDiagnosticForSpan;
+        
+        return CreateFixableDiagnosticForSpan(diagnosticLevel, nameSpan, codeFix, name);
     }
 
     protected static bool IsExported(SemanticModel model, StatementSyntax declaringSyntax)
