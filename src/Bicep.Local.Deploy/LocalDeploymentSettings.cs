@@ -254,8 +254,6 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public TimeSpan ResourceValidationRequestSynchronousWaitDuration => throw new NotImplementedException();
 
-    public TimeSpan DeploymentSecureOutputsExpirationTime => throw new NotImplementedException();
-
     IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledTenantDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
 
     IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledSubscriptionDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
