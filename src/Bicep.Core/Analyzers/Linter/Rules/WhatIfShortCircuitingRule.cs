@@ -132,6 +132,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             sentinelVisitor.Visit(resource.ResourceGroup);
             sentinelVisitor.Visit(resource.Condition);
             sentinelVisitor.Visit(resource.Scope);
+            sentinelVisitor.Visit(resource.ApiVersion);
         }
 
 
