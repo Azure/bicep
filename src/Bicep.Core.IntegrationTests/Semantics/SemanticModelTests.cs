@@ -130,7 +130,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is OutputSymbol ||
                         s is FunctionSymbol ||
                         s is DeclaredFunctionSymbol ||
-                        s is ProviderNamespaceSymbol ||
+                        s is ExtensionNamespaceSymbol ||
                         s is BuiltInNamespaceSymbol ||
                         s is LocalVariableSymbol ||
                         s is TestSymbol ||
@@ -154,7 +154,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is OutputSymbol ||
                         s is FunctionSymbol ||
                         s is DeclaredFunctionSymbol ||
-                        s is ProviderNamespaceSymbol ||
+                        s is ExtensionNamespaceSymbol ||
                         s is BuiltInNamespaceSymbol ||
                         s is LocalVariableSymbol ||
                         s is TestSymbol ||

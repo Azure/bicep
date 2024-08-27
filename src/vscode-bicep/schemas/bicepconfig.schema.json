@@ -142,8 +142,7 @@
       }
     },
     "extensionConfig": {
-      "type": "string",
-      "pattern": "^(builtin:|br:.*)$"
+      "type": "string"
     },
     "builtInConfig": {
       "type": "object",
@@ -842,6 +841,7 @@
           "type": "boolean"
         },
         "extensionRegistry": {
+          "description": "Enables dynamic type loading for third party extensions. See https://aka.ms/bicep/experimental-features#extensionregistry",
           "type": "boolean"
         },
         "localDeploy": {
@@ -855,6 +855,10 @@
         "resourceDerivedTypes": {
           "type": "boolean",
           "description": "If enabled, templates can reuse resource types wherever a type is expected. See https://aka.ms/bicep/experimental-features#resourcederivedtypes"
+        },
+        "secureOutputs": {
+            "type": "boolean",
+            "description": "If enabled, users can use the secure decorator for outputs. See https://aka.ms/bicep/experimental-features#secureoutputs"
         }
       },
       "additionalProperties": false

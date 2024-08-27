@@ -111,15 +111,15 @@ output incorrectTypeOutput2 int = myRes.properties.nestedObj.readOnlyProp
                 x => x.Should().HaveCodeAndSeverity("BCP073", expectedDiagnosticLevel).And.HaveMessage("The property \"id\" is read-only. Expressions cannot be assigned to read-only properties."),
                 x => x.Should().HaveCodeAndSeverity("BCP073", expectedDiagnosticLevel).And.HaveMessage("The property \"type\" is read-only. Expressions cannot be assigned to read-only properties."),
                 x => x.Should().HaveCodeAndSeverity("BCP073", expectedDiagnosticLevel).And.HaveMessage("The property \"apiVersion\" is read-only. Expressions cannot be assigned to read-only properties."),
-                x => x.Should().HaveCodeAndSeverity("BCP073", DiagnosticLevel.Warning).And.HaveMessage("The property \"readOnlyTopLevelProp\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                x => x.Should().HaveCodeAndSeverity("BCP035", DiagnosticLevel.Warning).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"requiredProp\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                x => x.Should().HaveCodeAndSeverity("BCP073", DiagnosticLevel.Warning).And.HaveMessage("The property \"readOnlyProp\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                x => x.Should().HaveCodeAndSeverity("BCP036", DiagnosticLevel.Warning).And.HaveMessage("The property \"writeOnlyProp\" expected a value of type \"null | string\" but the provided value is of type \"456\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                x => x.Should().HaveCodeAndSeverity("BCP035", DiagnosticLevel.Warning).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"propA\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                x => x.Should().HaveCodeAndSeverity("BCP036", DiagnosticLevel.Warning).And.HaveMessage("The property \"propB\" expected a value of type \"null | string\" but the provided value is of type \"123\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                x => x.Should().HaveCodeAndSeverity("BCP035", DiagnosticLevel.Warning).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"requiredNestedProp\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                x => x.Should().HaveCodeAndSeverity("BCP073", DiagnosticLevel.Warning).And.HaveMessage("The property \"readOnlyNestedProp\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                x => x.Should().HaveCodeAndSeverity("BCP036", DiagnosticLevel.Warning).And.HaveMessage("The property \"writeOnlyNestedProp\" expected a value of type \"null | string\" but the provided value is of type \"456\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                x => x.Should().HaveCodeAndSeverity("BCP073", DiagnosticLevel.Warning).And.HaveMessage("The property \"readOnlyTopLevelProp\" is read-only. Expressions cannot be assigned to read-only properties. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+                x => x.Should().HaveCodeAndSeverity("BCP035", DiagnosticLevel.Warning).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"requiredProp\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+                x => x.Should().HaveCodeAndSeverity("BCP073", DiagnosticLevel.Warning).And.HaveMessage("The property \"readOnlyProp\" is read-only. Expressions cannot be assigned to read-only properties. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+                x => x.Should().HaveCodeAndSeverity("BCP036", DiagnosticLevel.Warning).And.HaveMessage("The property \"writeOnlyProp\" expected a value of type \"null | string\" but the provided value is of type \"456\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+                x => x.Should().HaveCodeAndSeverity("BCP035", DiagnosticLevel.Warning).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"propA\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+                x => x.Should().HaveCodeAndSeverity("BCP036", DiagnosticLevel.Warning).And.HaveMessage("The property \"propB\" expected a value of type \"null | string\" but the provided value is of type \"123\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+                x => x.Should().HaveCodeAndSeverity("BCP035", DiagnosticLevel.Warning).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"requiredNestedProp\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+                x => x.Should().HaveCodeAndSeverity("BCP073", DiagnosticLevel.Warning).And.HaveMessage("The property \"readOnlyNestedProp\" is read-only. Expressions cannot be assigned to read-only properties. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+                x => x.Should().HaveCodeAndSeverity("BCP036", DiagnosticLevel.Warning).And.HaveMessage("The property \"writeOnlyNestedProp\" expected a value of type \"null | string\" but the provided value is of type \"456\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
                 x => x.Should().HaveCodeAndSeverity("BCP077", expectedDiagnosticLevel).And.HaveMessage("The property \"writeOnlyProp\" on type \"properties\" is write-only. Write-only properties cannot be accessed."),
                 x => x.Should().HaveCodeAndSeverity("BCP053", expectedDiagnosticLevel).And.HaveMessage("The type \"nestedObj\" does not contain property \"writeOnlyProp\". Available properties include \"readOnlyNestedProp\", \"requiredNestedProp\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP053", expectedDiagnosticLevel).And.HaveMessage("The type \"properties\" does not contain property \"missingOutput\". Available properties include \"additionalProps\", \"nestedObj\", \"readOnlyProp\", \"requiredProp\"."),
@@ -170,7 +170,7 @@ resource myDependentRes 'My.Rp/myDependentType@2020-01-01' = {
 
             var model = GetSemanticModelForTest(program, customTypes);
             model.GetAllDiagnostics().Should().SatisfyRespectively(
-                x => x.Should().HaveCodeAndSeverity("BCP036", DiagnosticLevel.Warning).And.HaveMessage("The property \"abcOnlyUnNarrowed\" expected a value of type \"'abc' | null\" but the provided value is of type \"'abc' | 'def'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+                x => x.Should().HaveCodeAndSeverity("BCP036", DiagnosticLevel.Warning).And.HaveMessage("The property \"abcOnlyUnNarrowed\" expected a value of type \"'abc' | null\" but the provided value is of type \"'abc' | 'def'\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
             );
         }
 
@@ -248,7 +248,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
 
                 var model = GetSemanticModelForTest(program, customTypes);
                 model.GetAllDiagnostics().Should().SatisfyRespectively(
-                    x => x.Should().HaveCodeAndSeverity("BCP036", DiagnosticLevel.Warning).And.HaveMessage("The property \"discKey\" expected a value of type \"'choiceA' | 'choiceB'\" but the provided value is of type \"'foo'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+                    x => x.Should().HaveCodeAndSeverity("BCP036", DiagnosticLevel.Warning).And.HaveMessage("The property \"discKey\" expected a value of type \"'choiceA' | 'choiceB'\" but the provided value is of type \"'foo'\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
                 );
             }
 
@@ -286,7 +286,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
 
                 var model = GetSemanticModelForTest(program, customTypes);
                 model.GetAllDiagnostics().Should().SatisfyRespectively(
-                    x => x.Should().HaveCodeAndSeverity("BCP035", DiagnosticLevel.Warning).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"valueA\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+                    x => x.Should().HaveCodeAndSeverity("BCP035", DiagnosticLevel.Warning).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"valueA\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
                 );
             }
 
@@ -306,7 +306,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
 
                 var model = GetSemanticModelForTest(program, customTypes);
                 model.GetAllDiagnostics().Should().SatisfyRespectively(
-                    x => x.Should().HaveCodeAndSeverity("BCP035", DiagnosticLevel.Warning).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"valueA\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                    x => x.Should().HaveCodeAndSeverity("BCP035", DiagnosticLevel.Warning).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"valueA\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
                     x => x.Should().HaveCodeAndSeverity("BCP089", expectedDiagnosticLevel).And.HaveMessage("The property \"ValueA\" is not allowed on objects of type \"choiceA\". Did you mean \"valueA\"?")
                 );
             }
@@ -399,7 +399,7 @@ var invalidPropAccess = objectJson.invalidProp
         }
 
         [TestMethod]
-        public void Json_function_returns_error_for_unparseable_json()
+        public void Json_function_returns_error_for_unparsable_json()
         {
             var program = @"
 var invalidJson = json('{""prop"": ""value')

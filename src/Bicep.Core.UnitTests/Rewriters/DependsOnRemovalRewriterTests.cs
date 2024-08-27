@@ -81,7 +81,7 @@ namespace Bicep.Core.UnitTests.Rewriters
         }
 
         [TestMethod]
-        public void Unneccessary_dependsOn_statements_are_removed_for_modules()
+        public void Unnecessary_dependsOn_statements_are_removed_for_modules()
         {
             var bicepFile = """
                 resource resA 'My.Rp/resA@2020-01-01' = {

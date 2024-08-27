@@ -35,7 +35,7 @@ namespace Bicep.Core.TypeSystem.Providers
 
             if (resolved is (ResourceSymbol resourceSymbol, { } bodyType) &&
                 resourceSymbol.TryGetResourceType() is { } resourceType &&
-                // this validation only applies to resources under the "az" provider
+                // this validation only applies to resources under the "az" extension
                 resourceType.IsAzResource() &&
                 resourceSymbol.DeclaringResource.IsExistingResource())
             {

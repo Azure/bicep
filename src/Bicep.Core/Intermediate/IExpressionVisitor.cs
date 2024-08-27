@@ -61,7 +61,7 @@ public interface IExpressionVisitor
 
     void VisitDeclaredMetadataExpression(DeclaredMetadataExpression expression);
 
-    void VisitDeclaredProviderExpression(DeclaredProviderExpression expression);
+    void VisitDeclaredExtensionExpression(DeclaredExtensionExpression expression);
 
     void VisitDeclaredParameterExpression(DeclaredParameterExpression expression);
 

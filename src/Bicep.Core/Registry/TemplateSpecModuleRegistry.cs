@@ -39,7 +39,7 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, TemplateSpecModuleReference reference) => RegistryCapabilities.Default;
 
-        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference)
+        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference)
         {
             if (artifactType != ArtifactType.Module)
             {
@@ -59,21 +59,21 @@ namespace Bicep.Core.Registry
         public override Task PublishModule(TemplateSpecModuleReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
             => throw new NotSupportedException("Template Spec modules cannot be published.");
 
-        public override Task PublishProvider(TemplateSpecModuleReference reference, ProviderPackage provider)
-            => throw new NotSupportedException("Template Spec providers cannot be published.");
+        public override Task PublishExtension(TemplateSpecModuleReference reference, ExtensionPackage package)
+            => throw new NotSupportedException("Template Spec extensions cannot be published.");
 
         public override Task<bool> CheckArtifactExists(ArtifactType artifactType, TemplateSpecModuleReference reference)
             => throw new NotSupportedException("Template Spec modules cannot be published.");
 
-        public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(TemplateSpecModuleReference reference)
+        public override ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(TemplateSpecModuleReference reference)
         {
             var localUri = this.GetModuleEntryPointUri(reference);
             return new(localUri);
         }
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<TemplateSpecModuleReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<TemplateSpecModuleReference> references)
         {
-            var statuses = new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+            var statuses = new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
 
             foreach (var reference in references)
             {
@@ -125,7 +125,7 @@ namespace Bicep.Core.Registry
 
         private Uri GetModuleEntryPointUri(TemplateSpecModuleReference reference) => new(this.GetModuleEntryPointPath(reference), UriKind.Absolute);
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<TemplateSpecModuleReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<TemplateSpecModuleReference> references)
         {
             return await base.InvalidateArtifactsCacheInternal(references);
         }
@@ -147,7 +147,7 @@ namespace Bicep.Core.Registry
             return new(new SourceNotAvailableException());
         }
 
-        public override Uri? TryGetProviderBinary(TemplateSpecModuleReference reference)
+        public override Uri? TryGetExtensionBinary(TemplateSpecModuleReference reference)
             => null;
     }
 }

@@ -39,19 +39,13 @@ export function getTextAfterFormattingChanges(
 
     if (textChar === "") {
       // Matched successfully to the end of textToMatchNoWhitespace
-      const formattedText = editorText.substring(
-        editorOffsetStart,
-        editorOffset,
-      );
+      const formattedText = editorText.substring(editorOffsetStart, editorOffset);
 
       // Trim all whitespace at the end except for the number of newlines that were
       // in the original string
       const [, textToMatchEnding] = splitWhitespaceFromEnd(textToMatch);
       const newLinesAtEndOfOriginalText = countNewlines(textToMatchEnding);
-      const trimmedFormattedText = trimWhitespaceAtEnd(
-        formattedText,
-        newLinesAtEndOfOriginalText,
-      );
+      const trimmedFormattedText = trimWhitespaceAtEnd(formattedText, newLinesAtEndOfOriginalText);
 
       assert(areEqualIgnoringWhitespace(trimmedFormattedText, textToMatch));
 
@@ -69,17 +63,12 @@ export function getTextAfterFormattingChanges(
   function trimWhitespaceAtEnd(s: string, maxAllowedNewlines: number): string {
     assert(maxAllowedNewlines >= 0);
 
-    const [firstPartOfString, endingWhitespace]: [string, string] =
-      splitWhitespaceFromEnd(s);
+    const [firstPartOfString, endingWhitespace]: [string, string] = splitWhitespaceFromEnd(s);
 
     const endingWhitespaceWithAllowedNewlines: string =
-      new RegExp(`^([ \t]*(\\r\\n|\\n)){0,${maxAllowedNewlines}}`).exec(
-        endingWhitespace,
-      )?.[0] ?? "";
+      new RegExp(`^([ \t]*(\\r\\n|\\n)){0,${maxAllowedNewlines}}`).exec(endingWhitespace)?.[0] ?? "";
 
-    assert(
-      countNewlines(endingWhitespaceWithAllowedNewlines) <= maxAllowedNewlines,
-    );
+    assert(countNewlines(endingWhitespaceWithAllowedNewlines) <= maxAllowedNewlines);
     return firstPartOfString + endingWhitespaceWithAllowedNewlines;
   }
 

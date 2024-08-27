@@ -8,7 +8,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Providers;
+using Bicep.Core.Registry.Extensions;
 using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
@@ -126,33 +126,33 @@ public static class RegistryHelper
         return clientFactory;
     }
 
-    public static async Task PublishProviderToRegistryAsync(IDependencyHelper services, string pathToIndexJson, string target)
+    public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string pathToIndexJson, string target)
     {
         var fileSystem = services.Construct<IFileSystem>();
 
-        var tgzData = await TypesV1Archive.GenerateProviderTarStream(fileSystem, pathToIndexJson);
+        var tgzData = await TypesV1Archive.GenerateExtensionTarStream(fileSystem, pathToIndexJson);
 
-        await PublishProviderToRegistryAsync(services, target, tgzData);
+        await PublishExtensionToRegistryAsync(services, target, tgzData);
     }
 
-    public static async Task PublishProviderToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData)
+    public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData)
     {
         var dispatcher = services.Construct<IModuleDispatcher>();
 
-        var targetProviderUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath("dummy"));
+        var targetUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath("dummy"));
         if (!target.StartsWith("br:"))
         {
             // convert to a relative path, as this is the only format supported for the local filesystem
-            targetProviderUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(target));
-            target = Path.GetFileName(targetProviderUri.LocalPath);
+            targetUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(target));
+            target = Path.GetFileName(targetUri.LocalPath);
         }
 
-        if (!dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, targetProviderUri).IsSuccess(out var targetReference, out var errorBuilder))
+        if (!dispatcher.TryGetArtifactReference(ArtifactType.Extension, target, targetUri).IsSuccess(out var targetReference, out var errorBuilder))
         {
             throw new InvalidOperationException($"Failed to get reference '{errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}'.");
         }
 
-        await dispatcher.PublishProvider(targetReference, new(tgzData, false, []));
+        await dispatcher.PublishExtension(targetReference, new(tgzData, false, []));
     }
 
     private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
@@ -161,7 +161,7 @@ public static class RegistryHelper
     {
         var version = BicepTestConstants.BuiltinAzExtensionVersion;
         var repository = "bicep/extensions/az";
-        await PublishProviderToRegistryAsync(services, pathToIndexJson, $"br:{LanguageConstants.BicepPublicMcrRegistry}/{repository}:{version}");
+        await PublishExtensionToRegistryAsync(services, pathToIndexJson, $"br:{LanguageConstants.BicepPublicMcrRegistry}/{repository}:{version}");
     }
 
     public static IContainerRegistryClientFactory CreateOciClientForAzExtension()

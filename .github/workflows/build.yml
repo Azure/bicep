@@ -101,7 +101,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -111,14 +111,22 @@ jobs:
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
           cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
 
-      - name: npm ci
+      - name: npm ci (vscode-bicep-ui)
         run: npm ci
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: Build vscode-bicep-ui
+        run: npm run build
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: npm ci (vscode-bicep)
+        run: npm ci --install-links
         working-directory: ./src/vscode-bicep
 
       - name: Generate VSIX notice
         run: |
           mkdir -p ./src/vscode-bicep-notice/inputs
-          npm --prefix ./src/vscode-bicep list -a --json > ./src/vscode-bicep-notice/inputs/npm-list.json
+          npm --prefix ./src/vscode-bicep list -a --install-links --json > ./src/vscode-bicep-notice/inputs/npm-list.json
           cp ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/project.assets.json
           dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
 
@@ -132,6 +140,41 @@ jobs:
           name: vscode-bicep.vsix
           path: ./src/vscode-bicep/vscode-bicep.vsix
           if-no-files-found: error
+
+  test-vscode-bicep-ui:
+    name: "Test: VSCode Bicep UI"
+    runs-on: ${{ matrix.os }}
+    needs: build-vscode-ext
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: Run lint
+        run: npm run lint
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: Run tests
+        run: npm run test
+        working-directory: ./src/vscode-bicep-ui
 
   test-vscode-ext:
     name: "Test: VSCode Extension"
@@ -161,7 +204,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -171,16 +214,17 @@ jobs:
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
           cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
 
-      - name: npm ci
+      - name: npm ci (vscode-bicep-ui)
         run: npm ci
-        working-directory: ./src/vscode-bicep
+        working-directory: ./src/vscode-bicep-ui
 
-      - name: Generate VSIX notice
-        run: |
-          mkdir -p ./src/vscode-bicep-notice/inputs
-          npm --prefix ./src/vscode-bicep list -a --json > ./src/vscode-bicep-notice/inputs/npm-list.json
-          cp ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/project.assets.json
-          dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
+      - name: Build vscode-bicep-ui)
+        run: npm run build
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: npm ci (vscode-bicep)
+        run: npm ci --install-links
+        working-directory: ./src/vscode-bicep
 
       - name: Run lint
         run: npm run lint
@@ -262,13 +306,10 @@ jobs:
           if-no-files-found: error
 
       - name: Run bicep in visual studio unit tests
-        if: false # Temporarily disable: https://github.com/Azure/bicep/issues/14251
-        uses: microsoft/vstest-action@v1.0.0
-        with:
-          testAssembly: Bicep.VSLanguageServerClient.UnitTests.dll
-          runInParallel: true
-          searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/
-          ifNoFilesFound: error
+        run: |
+          $vswhere = (Invoke-WebRequest -Uri "https://github.com/microsoft/vswhere/releases/latest/download/vswhere.exe" -OutFile "vswhere.exe")
+          $vstest = & .\vswhere.exe -latest -products * -requires Microsoft.VisualStudio.PackageGroup.TestTools.Core -find **\TestPlatform\vstest.console.exe
+          . $vstest .\src\vs-bicep\Bicep.VSLanguageServerClient.UnitTests\bin\release\net472\Bicep.VSLanguageServerClient.UnitTests.dll
 
       # Temporarily disable VS Bicep integration tests, they're flaky
       # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
@@ -364,7 +405,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: npm ci
         if: matrix.runTests
@@ -437,7 +478,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: npm ci
         run: npm ci
@@ -474,7 +515,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: TextMate Grammar
         run: |
@@ -527,7 +568,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@v4
@@ -630,13 +671,13 @@ jobs:
           pattern: TestResults
           path: TestResults
           merge-multiple: true
-                    
+
       - name: Publish Dotnet Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           check_name: Dotnet Test Results
           files: "TestResults/**/*.trx"
-  
+
   comment-preview-links:
     name: "PR Comment: Preview Links"
     needs: [build-vscode-ext, build-cli]
@@ -664,7 +705,7 @@ jobs:
             </details>
             <details>
               <summary>Azure CLI</summary>
-              
+
               - Mac/Linux
                   ```sh
                   bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --run-id ${{ github.run_id }}
@@ -680,7 +721,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       access_verified: ${{ steps.check-access.outputs.verified && !(github.event_name == 'workflow_dispatch' && github.ref != 'refs/head/main') }}
-      
+
     steps:
       - id: check-access
         env:
@@ -710,11 +751,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -786,6 +830,6 @@ jobs:
       - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
         run: npm ci && npm run test:live:${{ matrix.environment }}
         env:
-          BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
+          BICEP_CLI_DOTNET_RID: linux-musl-x64
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests

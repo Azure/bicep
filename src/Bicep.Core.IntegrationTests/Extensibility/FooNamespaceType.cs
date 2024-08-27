@@ -21,10 +21,10 @@ public static class FooNamespaceType
 
     public static NamespaceSettings Settings { get; } = new(
         IsSingleton: true,
-        BicepProviderName: BuiltInName,
+        BicepExtensionName: BuiltInName,
         ConfigurationType: null,
-        ArmTemplateProviderName: "Foo",
-        ArmTemplateProviderVersion: "1.2.3");
+        TemplateExtensionName: "Foo",
+        TemplateExtensionVersion: "1.2.3");
 
     private class FooTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {

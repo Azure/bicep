@@ -1,15 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable jest/max-expects */
-
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { MessageItem, window } from "vscode";
-import {
-  IPersistedSurveyState,
-  ISurveyInfo,
-  Survey,
-} from "../../feedback/surveys";
+import { IPersistedSurveyState, ISurveyInfo, Survey } from "../../feedback/surveys";
 import { bicepConfigurationKeys } from "../../language/constants";
 import { daysToMs, monthsToDays, weeksToDays } from "../../utils/time";
 import { GlobalStateFake } from "../fakes/globalStateFake";
@@ -20,13 +14,9 @@ describe("surveys-unittests", () => {
   function createMocks(options: {
     surveyInfo?: ISurveyInfo;
     isSurveyAvailable: boolean;
-    showInformationMessageMock?: jest.Mock<
-      typeof window.showInformationMessage
-    >;
+    showInformationMessageMock?: jest.Mock<typeof window.showInformationMessage>;
     getIsSurveyAvailableMock?: jest.Mock<() => Promise<boolean>>;
-    launchSurveyMock?: jest.Mock<
-      (context: IActionContext, surveyInfo: ISurveyInfo) => Promise<void>
-    >;
+    launchSurveyMock?: jest.Mock<(context: IActionContext, surveyInfo: ISurveyInfo) => Promise<void>>;
   }) {
     const globalStorageFake = new GlobalStateFake();
     const surveyInfo =
@@ -38,18 +28,14 @@ describe("surveys-unittests", () => {
         surveyPrompt: "prompt",
         surveyStateKey: "testSurvey",
       };
-    const showInformationMessageMock =
-      options.showInformationMessageMock ?? jest.fn();
-    const getIsSurveyAvailableMock =
-      options.getIsSurveyAvailableMock ?? jest.fn();
+    const showInformationMessageMock = options.showInformationMessageMock ?? jest.fn();
+    const getIsSurveyAvailableMock = options.getIsSurveyAvailableMock ?? jest.fn();
     const launchSurveyMock = options.launchSurveyMock ?? jest.fn();
     const workspaceConfigurationFake = new WorkspaceConfigurationFake();
 
     const survey = new Survey(globalStorageFake, surveyInfo, {
       showInformationMessage: showInformationMessageMock,
-      getIsSurveyAvailable: jest
-        .fn()
-        .mockImplementation(async () => options.isSurveyAvailable),
+      getIsSurveyAvailable: jest.fn().mockImplementation(async () => options.isSurveyAvailable),
       launchSurvey: launchSurveyMock,
       provideBicepConfiguration: () => workspaceConfigurationFake,
     });
@@ -66,11 +52,7 @@ describe("surveys-unittests", () => {
   it("doesn't prompt again if user responds never", async () => {
     const mocks = createMocks({ isSurveyAvailable: true });
 
-    expect(
-      mocks.workspaceConfigurationFake.get<boolean>(
-        bicepConfigurationKeys.enableSurveys,
-      ),
-    ).toBeUndefined();
+    expect(mocks.workspaceConfigurationFake.get<boolean>(bicepConfigurationKeys.enableSurveys)).toBeUndefined();
 
     // Show and respond with "Never"
     mocks.showInformationMessageMock.mockResolvedValueOnce(<MessageItem>{
@@ -80,11 +62,7 @@ describe("surveys-unittests", () => {
     await mocks.survey.checkShowSurvey(createActionContextMock(), new Date());
 
     expect(mocks.showInformationMessageMock).toHaveBeenCalledTimes(1);
-    expect(
-      mocks.workspaceConfigurationFake.get<boolean>(
-        bicepConfigurationKeys.enableSurveys,
-      ),
-    ).toBe(false);
+    expect(mocks.workspaceConfigurationFake.get<boolean>(bicepConfigurationKeys.enableSurveys)).toBe(false);
 
     // Try again, should not show
     mocks.showInformationMessageMock.mockClear();
@@ -138,14 +116,8 @@ describe("surveys-unittests", () => {
     await mocks.survey.checkShowSurvey(context, now);
 
     expect(mocks.showInformationMessageMock).toHaveBeenCalledTimes(1);
-    expect(
-      mocks.globalStorageFake.get<IPersistedSurveyState>("testSurvey")
-        ?.postponedUntilMs,
-    ).toBeFalsy();
-    expect(
-      mocks.globalStorageFake.get<IPersistedSurveyState>("testSurvey")
-        ?.lastTakenMs,
-    ).toBe(now.valueOf());
+    expect(mocks.globalStorageFake.get<IPersistedSurveyState>("testSurvey")?.postponedUntilMs).toBeFalsy();
+    expect(mocks.globalStorageFake.get<IPersistedSurveyState>("testSurvey")?.lastTakenMs).toBe(now.valueOf());
 
     // Try again, right before the postponement date
     now = new Date(start.valueOf() + daysToMs(postponeAfterYes) - 1);
@@ -197,10 +169,9 @@ describe("surveys-unittests", () => {
     await mocks.survey.checkShowSurvey(context, now);
 
     expect(mocks.showInformationMessageMock).toHaveBeenCalledTimes(1);
-    expect(
-      mocks.globalStorageFake.get<IPersistedSurveyState>("testSurvey")
-        ?.postponedUntilMs,
-    ).toBe(now.valueOf() + daysToMs(postponeLaterDays));
+    expect(mocks.globalStorageFake.get<IPersistedSurveyState>("testSurvey")?.postponedUntilMs).toBe(
+      now.valueOf() + daysToMs(postponeLaterDays),
+    );
 
     // Try again, a day before the postponement date
     now = new Date(start.valueOf() + daysToMs(postponeLaterDays - 1));

@@ -9,10 +9,10 @@ namespace Bicep.Core.TypeSystem.Types
 {
     public record NamespaceSettings(
         bool IsSingleton,
-        string BicepProviderName,
+        string BicepExtensionName,
         ObjectType? ConfigurationType,
-        string ArmTemplateProviderName,
-        string ArmTemplateProviderVersion);
+        string TemplateExtensionName,
+        string TemplateExtensionVersion);
 
     public sealed class NamespaceType : ObjectType
     {
@@ -43,7 +43,7 @@ namespace Bicep.Core.TypeSystem.Types
 
         public ArtifactReference? Artifact { get; }
 
-        public string ProviderName => Settings.BicepProviderName;
+        public string ExtensionName => Settings.BicepExtensionName;
 
         public ObjectType? ConfigurationType => Settings.ConfigurationType;
     }

@@ -1,5 +1,5 @@
 
-//@[000:52706) ProgramSyntax
+//@[000:52708) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 // wrong declaration
 //@[020:00022) ├─Token(NewLine) |\r\n|
@@ -4801,14 +4801,14 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetT
 
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[000:00132) ├─ResourceDeclarationSyntax
+//@[000:00133) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00031) | ├─IdentifierSyntax
 //@[009:00031) | | └─Token(Identifier) |incorrectPropertiesKey|
 //@[032:00082) | ├─StringSyntax
 //@[032:00082) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
 //@[083:00084) | ├─Token(Assignment) |=|
-//@[085:00132) | └─ObjectSyntax
+//@[085:00133) | └─ObjectSyntax
 //@[085:00086) |   ├─Token(LeftBrace) |{|
 //@[086:00088) |   ├─Token(NewLine) |\r\n|
   kind: 'AzureCLI'
@@ -4820,14 +4820,14 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[008:00018) |   |   └─Token(StringComplete) |'AzureCLI'|
 //@[018:00022) |   ├─Token(NewLine) |\r\n\r\n|
 
-  propertes: {
-//@[002:00019) |   ├─ObjectPropertySyntax
-//@[002:00011) |   | ├─IdentifierSyntax
-//@[002:00011) |   | | └─Token(Identifier) |propertes|
-//@[011:00012) |   | ├─Token(Colon) |:|
-//@[013:00019) |   | └─ObjectSyntax
-//@[013:00014) |   |   ├─Token(LeftBrace) |{|
-//@[014:00016) |   |   ├─Token(NewLine) |\r\n|
+  properties: {
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00020) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:00003) |   |   └─Token(RightBrace) |}|
 //@[003:00005) |   ├─Token(NewLine) |\r\n|
@@ -12233,14 +12233,14 @@ resource sqlServer2 'Microsoft.Sql/servers@2021-11-01' = {
 //@[000:00001) | └─Token(RightBrace) |}|
 //@[001:00003) ├─Token(NewLine) |\r\n|
 resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
-//@[000:00159) ├─ResourceDeclarationSyntax
+//@[000:00160) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00019) | ├─IdentifierSyntax
 //@[009:00019) | | └─Token(Identifier) |sqlServer3|
 //@[020:00054) | ├─StringSyntax
 //@[020:00054) | | └─Token(StringComplete) |'Microsoft.Sql/servers@2021-11-01'|
 //@[055:00056) | ├─Token(Assignment) |=|
-//@[057:00159) | └─ObjectSyntax
+//@[057:00160) | └─ObjectSyntax
 //@[057:00058) |   ├─Token(LeftBrace) |{|
 //@[058:00060) |   ├─Token(NewLine) |\r\n|
   name: 'sqlServer3'
@@ -12260,19 +12260,19 @@ resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
 //@[012:00027) |   |   └─Token(StringComplete) |'polandcentral'|
 //@[027:00031) |   ├─Token(NewLine) |\r\n\r\n|
 
-  @description('mising resource keyword')
-//@[002:00045) |   ├─MissingDeclarationSyntax
-//@[002:00041) |   | ├─DecoratorSyntax
+  @description('missing resource keyword')
+//@[002:00046) |   ├─MissingDeclarationSyntax
+//@[002:00042) |   | ├─DecoratorSyntax
 //@[002:00003) |   | | ├─Token(At) |@|
-//@[003:00041) |   | | └─FunctionCallSyntax
+//@[003:00042) |   | | └─FunctionCallSyntax
 //@[003:00014) |   | |   ├─IdentifierSyntax
 //@[003:00014) |   | |   | └─Token(Identifier) |description|
 //@[014:00015) |   | |   ├─Token(LeftParen) |(|
-//@[015:00040) |   | |   ├─FunctionArgumentSyntax
-//@[015:00040) |   | |   | └─StringSyntax
-//@[015:00040) |   | |   |   └─Token(StringComplete) |'mising resource keyword'|
-//@[040:00041) |   | |   └─Token(RightParen) |)|
-//@[041:00045) |   | └─Token(NewLine) |\r\n\r\n|
+//@[015:00041) |   | |   ├─FunctionArgumentSyntax
+//@[015:00041) |   | |   | └─StringSyntax
+//@[015:00041) |   | |   |   └─Token(StringComplete) |'missing resource keyword'|
+//@[041:00042) |   | |   └─Token(RightParen) |)|
+//@[042:00046) |   | └─Token(NewLine) |\r\n\r\n|
 
 }
 //@[000:00001) |   └─Token(RightBrace) |}|

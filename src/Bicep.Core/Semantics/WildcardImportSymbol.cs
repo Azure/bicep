@@ -30,10 +30,10 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
 
     public NamespaceType? TryGetNamespaceType() => this.Type as NamespaceType;
 
-    public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference()
+    public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference()
         => Context.Compilation.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 
-    public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
+    public override IEnumerable<Diagnostic> GetDiagnostics()
     {
         if (SourceModel.Exports.Values.OfType<DuplicatedExportMetadata>().Any())
         {

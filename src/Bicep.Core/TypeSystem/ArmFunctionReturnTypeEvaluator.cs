@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Templates.Expressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem.Types;
@@ -119,7 +120,7 @@ public static class ArmFunctionReturnTypeEvaluator
     {
         try
         {
-            result = ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, arguments, new());
+            result = ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, arguments, new TemplateExpressionEvaluationHelper().EvaluationContext);
             builderFunc = default;
             return true;
         }
@@ -129,7 +130,7 @@ public static class ArmFunctionReturnTypeEvaluator
             // deployed to ARM since this version of Bicep was released. Given that context, this failure will only
             // be reported as a warning, and the fallback type will be used.
             builderFunc = b => b.ArmFunctionLiteralTypeConversionFailedWithMessage(
-                string.Join(", ", arguments.Select(a => a.Token.ToString())),
+                string.Join(", ", arguments.Select(a => a.TryGetToken()?.ToString())),
                 armFunctionName,
                 e.Message);
             result = default;

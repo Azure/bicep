@@ -54,7 +54,7 @@ public class DiagnosticLogger
                 throw new NotImplementedException();
         }
 
-        var hasErrors = diagnosticsByBicepFile.Values.SelectMany(x => x).Any(x => x.Level == DiagnosticLevel.Error);
+        var hasErrors = diagnosticsByBicepFile.Values.SelectMany(x => x).Any(x => x.IsError());
 
         return new DiagnosticSummary(
             HasErrors: hasErrors);

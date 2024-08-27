@@ -8,7 +8,6 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Registry.Oci
 {
-    // Currently this can be a module or a provider.
     public class OciArtifactReference : ArtifactReference, IOciArtifactReference
     {
         public OciArtifactReference(ArtifactType type, IArtifactAddressComponents artifactIdParts, Uri parentModuleUri) :
@@ -36,7 +35,7 @@ namespace Bicep.Core.Registry.Oci
         public IArtifactAddressComponents AddressComponents { get; }
 
         /// <summary>
-        /// Gets the type of artifact reference. Either module or provider.
+        /// Gets the type of artifact reference.
         /// </summary>
         public ArtifactType Type { get; }
 
@@ -71,13 +70,13 @@ namespace Bicep.Core.Registry.Oci
 
         // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
         // The configuration and parentModuleUri are needed to resolve aliases and experimental features
-        public static ResultWithDiagnostic<OciArtifactReference> TryParseModuleAndAlias(string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseModuleAndAlias(string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
             => TryParse(ArtifactType.Module, aliasName, unqualifiedReference, configuration, parentModuleUri);
 
-        public static ResultWithDiagnostic<OciArtifactReference> TryParseModule(string unqualifiedReference)
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseModule(string unqualifiedReference)
             => TryParse(ArtifactType.Module, null, unqualifiedReference, null, null);
 
-        public static ResultWithDiagnostic<OciArtifactReference> TryParse(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration, Uri? parentModuleUri)
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration, Uri? parentModuleUri)
         {
             if (TryParseParts(type, aliasName, unqualifiedReference, configuration).IsSuccess(out var parts, out var errorBuilder))
             {
@@ -90,13 +89,13 @@ namespace Bicep.Core.Registry.Oci
         }
 
         // Doesn't handle aliases
-        public static ResultWithDiagnostic<IArtifactAddressComponents> TryParseFullyQualifiedComponents(string rawValue)
+        public static ResultWithDiagnosticBuilder<IArtifactAddressComponents> TryParseFullyQualifiedComponents(string rawValue)
         {
             return TryParseParts(ArtifactType.Module, aliasName: null, rawValue, configuration: null);
         }
 
         // TODO: Completely remove aliasName and configuration dependencies and move the non-dependent portion to a static method on ArtifactAddressComponents
-        private static ResultWithDiagnostic<IArtifactAddressComponents> TryParseParts(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration)
+        private static ResultWithDiagnosticBuilder<IArtifactAddressComponents> TryParseParts(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration)
         {
             static string GetBadReference(string referenceValue) => $"{OciArtifactReferenceFacts.Scheme}:{referenceValue}";
 
@@ -113,12 +112,12 @@ namespace Bicep.Core.Registry.Oci
                         }
                         unqualifiedReference = $"{moduleAlias}/{unqualifiedReference}";
                         break;
-                    case ArtifactType.Provider:
-                        if (!configuration.ExtensionAliases.TryGetOciArtifactExtensionAlias(aliasName).IsSuccess(out var providerAlias, out var providerFailureBuilder))
+                    case ArtifactType.Extension:
+                        if (!configuration.ExtensionAliases.TryGetOciArtifactExtensionAlias(aliasName).IsSuccess(out var extensionAlias, out var extensionFailureBuilder))
                         {
-                            return new(providerFailureBuilder);
+                            return new(extensionFailureBuilder);
                         }
-                        unqualifiedReference = $"{providerAlias}/{unqualifiedReference}";
+                        unqualifiedReference = $"{extensionAlias}/{unqualifiedReference}";
                         break;
                     default:
                         return new(x => x.UnsupportedArtifactType(type));

@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
@@ -113,9 +114,19 @@ namespace Bicep.LanguageServer.Handlers
         /// <param name="reference">The module reference</param>
         /// <param name="sourceArchive">The source archive for the module, if sources are available</param>
         /// <returns>A bicep-extsrc: URI</returns>
-        public static Uri GetExternalSourceLinkUri(OciArtifactReference reference, SourceArchive? sourceArchive)
+        public static Uri GetRegistryModuleSourceLinkUri(OciArtifactReference reference, SourceArchive? sourceArchive)
         {
             return new ExternalSourceReference(reference, sourceArchive).ToUri();
+        }
+
+        public static Uri GetTemplateSpeckSourceLinkUri(TemplateSpecModuleReference reference)
+        {
+            var uriBuilder = new UriBuilder($"{LangServerConstants.ExternalSourceFileScheme}:{Uri.EscapeDataString(reference.FullyQualifiedReference)}")
+            {
+                Query = Uri.EscapeDataString(reference.FullyQualifiedReference),
+            };
+
+            return uriBuilder.Uri;
         }
 
         private BicepTelemetryEvent CreateSuccessTelemetry(SourceArchive? sourceArchive, string? requestedSourceFile)

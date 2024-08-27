@@ -26,7 +26,7 @@
       "type": "string",
       "defaultValue": "cicd",
       "metadata": {
-        "description": "Three letter environment abreviation to denote environment that will appear in all resource names"
+        "description": "Three letter environment abbreviation to denote environment that will appear in all resource names"
       }
     },
     "appServicePlanSKU": {
@@ -144,7 +144,7 @@
               "type": "string",
               "value": "[toLower(format('ui-{0}', parameters('userIdentityName')))]"
             },
-            "userIdentityResrouceId": {
+            "userIdentityResourceId": {
               "type": "string",
               "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', toLower(format('ui-{0}', parameters('userIdentityName'))))]"
             }
@@ -299,7 +299,7 @@
             "value": "[variables('nameSuffix')]"
           },
           "principalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'userAssignedIdentityModule'), '2022-09-01').outputs.userIdentityResrouceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'userAssignedIdentityModule'), '2022-09-01').outputs.userIdentityResourceId.value]"
           },
           "appSettingsArray": {
             "value": [

@@ -43,13 +43,13 @@ namespace Bicep.Core.Parsing
             this.diagnosticWriter = diagnosticWriter;
         }
 
-        private void AddDiagnostic(TextSpan span, DiagnosticBuilder.ErrorBuilderDelegate diagnosticFunc)
+        private void AddDiagnostic(TextSpan span, DiagnosticBuilder.DiagnosticBuilderDelegate diagnosticFunc)
         {
             var diagnostic = diagnosticFunc(DiagnosticBuilder.ForPosition(span));
             this.diagnosticWriter.Write(diagnostic);
         }
 
-        private void AddDiagnostic(DiagnosticBuilder.ErrorBuilderDelegate diagnosticFunc)
+        private void AddDiagnostic(DiagnosticBuilder.DiagnosticBuilderDelegate diagnosticFunc)
             => AddDiagnostic(textWindow.GetSpan(), diagnosticFunc);
 
         public void Lex()

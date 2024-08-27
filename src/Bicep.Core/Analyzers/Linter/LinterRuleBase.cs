@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
@@ -22,7 +23,6 @@ namespace Bicep.Core.Analyzers.Linter
             //   if it needs to default to something other than the category's default diagnostic level.
             DiagnosticLevel? overrideCategoryDefaultDiagnosticLevel = default)
         {
-            this.AnalyzerName = LinterAnalyzer.AnalyzerName;
             this.Code = code;
             this.Description = description;
             this.Uri = docUri;
@@ -30,8 +30,6 @@ namespace Bicep.Core.Analyzers.Linter
             this.DiagnosticStyling = diagnosticStyling;
             this.OverrideCategoryDefaultDiagnosticLevel = overrideCategoryDefaultDiagnosticLevel;
         }
-
-        public string AnalyzerName { get; }
 
         public string Code { get; }
 
@@ -121,22 +119,6 @@ namespace Bicep.Core.Analyzers.Linter
             configuration.GetValue($"{RuleConfigSection}.{Code}.{key}", defaultValue);
 
         /// <summary>
-        ///  Create a simple diagnostic that displays the defined Description
-        ///  of the derived rule.
-        /// </summary>
-        /// <param name="level"></param>
-        /// <param name="span"></param>
-        /// <returns></returns>
-        protected virtual AnalyzerDiagnostic CreateDiagnosticForSpan(DiagnosticLevel level, TextSpan span) =>
-            new(analyzerName: this.AnalyzerName,
-                span: span,
-                level: level,
-                code: this.Code,
-                message: this.GetMessage(),
-                documentationUri: this.Uri,
-                styling: this.DiagnosticStyling);
-
-        /// <summary>
         /// Create a diagnostic message for a span that has a customized string
         /// formatter defined in the deriving class.
         /// </summary>
@@ -144,27 +126,21 @@ namespace Bicep.Core.Analyzers.Linter
         /// <param name="span"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        protected virtual AnalyzerDiagnostic CreateDiagnosticForSpan(DiagnosticLevel level, TextSpan span, params object[] values) =>
-            new(analyzerName: this.AnalyzerName,
-                span: span,
-                level: level,
-                code: this.Code,
-                message: this.GetMessage(values),
-                documentationUri: this.Uri,
-                styling: this.DiagnosticStyling);
+        protected virtual Diagnostic CreateDiagnosticForSpan(DiagnosticLevel level, TextSpan span, params object[] values) => new(
+            span,
+            level,
+            DiagnosticSource.CoreLinter,
+            Code,
+            GetMessage(values)) {
+                Uri = Uri,
+                Styling = DiagnosticStyling
+            };
 
-        protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix fix, params object[] values) =>
+        protected virtual Diagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix fix, params object[] values) =>
             CreateFixableDiagnosticForSpan(level, span, [fix], values);
 
-        protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix[] fixes, params object[] values) =>
-            new(analyzerName: this.AnalyzerName,
-                span: span,
-                level: level,
-                code: this.Code,
-                message: this.GetMessage(values),
-                documentationUri: this.Uri,
-                codeFixes: fixes,
-                styling: this.DiagnosticStyling);
+        protected virtual Diagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix[] fixes, params object[] values) => 
+            CreateDiagnosticForSpan(level, span, values) with { Fixes = [.. fixes] };
 
         public static DiagnosticLevel GetDefaultDiagosticLevelForCategory(LinterRuleCategory category) =>
             category switch

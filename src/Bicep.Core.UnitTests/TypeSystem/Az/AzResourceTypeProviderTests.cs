@@ -189,7 +189,7 @@ resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP035", DiagnosticLevel.Warning, "The specified \"resource\" declaration is missing the following required properties: \"properties\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+                ("BCP035", DiagnosticLevel.Warning, "The specified \"resource\" declaration is missing the following required properties: \"properties\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
             });
 
             // Top-level properties that aren't part of the type definition - should be an error
@@ -203,7 +203,7 @@ resource unexpectedTopLevel 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Test.Rp/readWriteTests@2020-01-01\". Permissible properties include \"dependsOn\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Test.Rp/readWriteTests@2020-01-01\". Permissible properties include \"dependsOn\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
             });
 
             // Missing non top-level properties - should be a warning
@@ -215,7 +215,7 @@ resource missingRequiredProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP035", DiagnosticLevel.Warning, "The specified \"object\" declaration is missing the following required properties: \"required\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP035", DiagnosticLevel.Warning, "The specified \"object\" declaration is missing the following required properties: \"required\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
             });
 
             // Non top-level properties that aren't part of the type definition - should be a warning
@@ -229,7 +229,7 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP037", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP037", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
             });
         }
 

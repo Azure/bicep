@@ -202,10 +202,9 @@ export interface InsertResourceParams {
   resourceId: string;
 }
 
-export const insertResourceRequestType = new ProtocolNotificationType<
-  InsertResourceParams,
-  void
->("textDocument/insertResource");
+export const insertResourceRequestType = new ProtocolNotificationType<InsertResourceParams, void>(
+  "textDocument/insertResource",
+);
 
 export interface ImportKubernetesManifestRequest {
   manifestFilePath: string;
@@ -259,13 +258,7 @@ export interface BicepDecompileForPasteCommandResult {
   errorMessage?: string;
   pasteContext?: "none" | "string";
   // undefined if can't be pasted
-  pasteType:
-    | undefined
-    | "fullTemplate"
-    | "resource"
-    | "resourceList"
-    | "jsonValue"
-    | "bicepValue";
+  pasteType: undefined | "fullTemplate" | "resource" | "resourceList" | "jsonValue" | "bicepValue";
   bicep?: string;
   disclaimer?: string;
 }

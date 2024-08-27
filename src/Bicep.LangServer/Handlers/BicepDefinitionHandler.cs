@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Diagnostics;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Templates.Extensions;
@@ -7,6 +8,7 @@ using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
@@ -40,6 +42,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ILanguageServerFacade languageServer;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly DocumentSelectorFactory documentSelectorFactory;
 
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
@@ -47,7 +50,8 @@ namespace Bicep.LanguageServer.Handlers
             IFileResolver fileResolver,
             ILanguageServerFacade languageServer,
             IModuleDispatcher moduleDispatcher,
-            IFeatureProviderFactory featureProviderFactory) : base()
+            IFeatureProviderFactory featureProviderFactory,
+            DocumentSelectorFactory documentSelectorFactory) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
@@ -55,6 +59,7 @@ namespace Bicep.LanguageServer.Handlers
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
             this.featureProviderFactory = featureProviderFactory;
+            this.documentSelectorFactory = documentSelectorFactory;
         }
 
         public override async Task<LocationOrLocationLinks?> Handle(DefinitionParams request, CancellationToken cancellationToken)
@@ -98,7 +103,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams()
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };
 
         private LocationOrLocationLinks HandleUnboundSymbolLocation(DefinitionParams request, CompilationContext context)
@@ -183,14 +188,24 @@ namespace Bicep.LanguageServer.Handlers
 
         private Uri GetModuleSourceLinkUri(ISourceFile sourceFile, ArtifactReference reference)
         {
-            if (!this.CanClientAcceptRegistryContent() || !reference.IsExternal || reference is not OciArtifactReference ociReference)
+            if (!this.CanClientAcceptRegistryContent() || !reference.IsExternal)
             {
                 // the client doesn't support the bicep-extsrc scheme or we're dealing with a local module
                 // just use the file URI
                 return sourceFile.FileUri;
             }
 
-            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(ociReference, moduleDispatcher?.TryGetModuleSources(reference).TryUnwrap());
+            if (reference is OciArtifactReference ociArtifactReference)
+            {
+                return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, moduleDispatcher?.TryGetModuleSources(reference).TryUnwrap());
+            }
+
+            if (reference is TemplateSpecModuleReference templateSpecModuleReference)
+            {
+                return BicepExternalSourceRequestHandler.GetTemplateSpeckSourceLinkUri(templateSpecModuleReference);
+            }
+
+            throw new UnreachableException();
         }
 
         private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, DefinitionParams request, SymbolResolutionResult result, WildcardImportSymbol wildcardImport)
@@ -390,15 +405,15 @@ namespace Bicep.LanguageServer.Handlers
             if (armTemplateUri is not null && originalSymbolName is string nonNullName && sourceModel.Exports.TryGetValue(nonNullName, out var exportMetadata))
             {
                 if (exportMetadata.Kind == ExportMetadataKind.Type &&
-                    armTemplate?.Definitions?.TryGetValue(nonNullName, out var originalTypeDefintion) is true &&
-                    ToRange(originalTypeDefintion) is Range typeDefintionRange)
+                    armTemplate?.Definitions?.TryGetValue(nonNullName, out var originalTypeDefinition) is true &&
+                    ToRange(originalTypeDefinition) is Range typeDefinitionRange)
                 {
                     return new(new LocationOrLocationLink(new LocationLink
                     {
                         OriginSelectionRange = originSelectionRange,
                         TargetUri = armTemplateUri,
-                        TargetRange = typeDefintionRange,
-                        TargetSelectionRange = typeDefintionRange,
+                        TargetRange = typeDefinitionRange,
+                        TargetSelectionRange = typeDefinitionRange,
                     }));
                 }
 

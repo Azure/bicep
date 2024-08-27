@@ -114,10 +114,10 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
                 var replacementText = regexForSlash.Replace(value, ":", 1);
                 replacementText = regexForSlash.Replace(replacementText, string.Empty);
 
-                var firstOccurenceOfComma = replacementText.IndexOf(',');
-                var lastOccurenceOfCloseCurlyBrace = replacementText.LastIndexOf('}');
+                var firstOccurrenceOfComma = replacementText.IndexOf(',');
+                var lastOccurrenceOfCloseCurlyBrace = replacementText.LastIndexOf('}');
 
-                var remainingChoices = replacementText.Substring(firstOccurenceOfComma, lastOccurenceOfCloseCurlyBrace - firstOccurenceOfComma);
+                var remainingChoices = replacementText.Substring(firstOccurrenceOfComma, lastOccurrenceOfCloseCurlyBrace - firstOccurrenceOfComma);
                 replacementText = replacementText.Replace(remainingChoices, string.Empty);
 
                 text = text.Replace(value, replacementText);

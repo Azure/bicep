@@ -29,8 +29,8 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="aliasName">The alias name</param>
         /// <param name="reference">The unqualified artifact reference</param>
-        /// <param name="artifactType">The artifact type. Either "module" or "provider"</param>
-        ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
+        /// <param name="artifactType">The artifact type.</param>
+        ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
 
         /// <summary>
         /// Returns true if the specified artifact is already cached in the local cache.
@@ -43,7 +43,7 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="reference">The module reference</param>
         /// <returns></returns>
-        ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
+        ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
 
         /// <summary>
         /// Returns true if the specified module exists in the registry.
@@ -56,7 +56,7 @@ namespace Bicep.Core.Registry
         /// Returns a mapping of module references to error builders for modules that failed to be downloaded.
         /// </summary>
         /// <param name="references">module references</param>
-        Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references);
+        Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references);
 
         /// <summary>
         /// Called when time to restore artifacts, even if all artifacts are already restored.  Allows the registry provider
@@ -69,7 +69,7 @@ namespace Bicep.Core.Registry
         /// Returns a mapping of module references to error builders for modules that failed to be invalidated.
         /// </summary>
         /// <param name="references">module references</param>
-        Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> references);
+        Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> references);
 
         /// <summary>
         /// Publishes the module at the specified path to the registry.
@@ -80,10 +80,10 @@ namespace Bicep.Core.Registry
         Task PublishModule(ArtifactReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description);
 
         /// <summary>
-        /// Publishes a provider types package to the registry.
+        /// Publishes an extension types package to the registry.
         /// </summary>
-        /// <param name="reference">The provider reference</param>
-        Task PublishProvider(ArtifactReference reference, ProviderPackage provider);
+        /// <param name="reference">The extension reference</param>
+        Task PublishExtension(ArtifactReference reference, ExtensionPackage package);
 
         /// <summary>
         /// Returns documentationUri for the module.
@@ -103,6 +103,6 @@ namespace Bicep.Core.Registry
         /// <returns>A source archive</returns>
         ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference);
 
-        Uri? TryGetProviderBinary(ArtifactReference reference);
+        Uri? TryGetExtensionBinary(ArtifactReference reference);
     }
 }

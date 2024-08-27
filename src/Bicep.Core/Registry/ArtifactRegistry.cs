@@ -22,20 +22,20 @@ namespace Bicep.Core.Registry
 
         public abstract Task PublishModule(T reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description);
 
-        public abstract Task PublishProvider(T reference, ProviderPackage provider);
+        public abstract Task PublishExtension(T reference, ExtensionPackage package);
 
         public virtual Task OnRestoreArtifacts(bool forceRestore)
         {
             return Task.CompletedTask;
         }
 
-        public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<T> references);
+        public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<T> references);
 
-        public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<T> references);
+        public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<T> references);
 
-        public abstract ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(T reference);
+        public abstract ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(T reference);
 
-        public abstract ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
+        public abstract ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
 
         public abstract string? TryGetDocumentationUri(T reference);
 
@@ -51,16 +51,16 @@ namespace Bicep.Core.Registry
         public Task PublishModule(ArtifactReference artifactReference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
             => this.PublishModule(ConvertReference(artifactReference), compiled, bicepSources, documentationUri, description);
 
-        public Task PublishProvider(ArtifactReference reference, ProviderPackage provider)
-            => this.PublishProvider(ConvertReference(reference), provider);
+        public Task PublishExtension(ArtifactReference reference, ExtensionPackage package)
+            => this.PublishExtension(ConvertReference(reference), package);
 
-        public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references) =>
+        public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references) =>
             this.RestoreArtifacts(references.Select(ConvertReference));
 
-        public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> references) =>
+        public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> references) =>
              this.InvalidateArtifactsCache(references.Select(ConvertReference));
 
-        public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference) =>
+        public ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference) =>
             this.TryGetLocalArtifactEntryPointUri(ConvertReference(reference));
 
         public string? GetDocumentationUri(ArtifactReference reference) => this.TryGetDocumentationUri(ConvertReference(reference));
@@ -70,9 +70,9 @@ namespace Bicep.Core.Registry
 
         public ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
 
-        public abstract Uri? TryGetProviderBinary(T reference);
+        public abstract Uri? TryGetExtensionBinary(T reference);
 
-        public Uri? TryGetProviderBinary(ArtifactReference reference) => this.TryGetProviderBinary(ConvertReference(reference));
+        public Uri? TryGetExtensionBinary(ArtifactReference reference) => this.TryGetExtensionBinary(ConvertReference(reference));
 
         public abstract RegistryCapabilities GetCapabilities(ArtifactType artifactType, T reference);
 

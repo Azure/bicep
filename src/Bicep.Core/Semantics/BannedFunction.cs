@@ -7,9 +7,9 @@ namespace Bicep.Core.Semantics
 {
     public class BannedFunction
     {
-        private readonly DiagnosticBuilder.ErrorBuilderDelegate errorFunc;
+        private readonly DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc;
 
-        public BannedFunction(string name, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        public BannedFunction(string name, DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
         {
             this.Name = name;
             this.errorFunc = errorFunc;

@@ -50,7 +50,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<FormatCommand>()
             .AddSingleton<GenerateParametersFileCommand>()
             .AddSingleton<PublishCommand>()
-            .AddSingleton<PublishProviderCommand>()
+            .AddSingleton<PublishExtensionCommand>()
             .AddSingleton<RestoreCommand>()
             .AddSingleton<LintCommand>()
             .AddSingleton<JsonRpcCommand>()

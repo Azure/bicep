@@ -73,7 +73,7 @@ namespace Bicep.VSLanguageServerClient
             string languageServerExePath = Path.Combine(vsixInstallPath, BicepLanguageServerClientConstants.BicepLanguageServerInstallationSubPath, "Bicep.LangServer.exe");
 
             var launchServerArguments = $" --contentType {BicepLanguageServerClientConstants.BicepContentType}" +
-                $" --lcid {Thread.CurrentThread.CurrentUICulture.LCID}";
+                $" --lcid {Thread.CurrentThread.CurrentUICulture.LCID} --vs-compatibility-mode";
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 

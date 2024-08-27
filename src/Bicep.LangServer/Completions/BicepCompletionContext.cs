@@ -21,26 +21,26 @@ namespace Bicep.LanguageServer.Completions
     {
         public record IndexedSyntaxContext<T>(T Syntax, int ArgumentIndex) where T : SyntaxBase?;
 
-        private static readonly CompositeSyntaxPattern ExpectingImportSpecification = CompositeSyntaxPattern.Create(
+        private static readonly CompositeSyntaxPattern ExpectingExtensionSpecification = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "provider |",
-            "provider |kuber",
-            "provider kuber|");
+            "extension |",
+            "extension |kuber",
+            "extension kuber|");
 
-        private static readonly CompositeSyntaxPattern ExpectingImportWithOrAsKeyword = CompositeSyntaxPattern.Create(
+        private static readonly CompositeSyntaxPattern ExpectingExtensionWithOrAsKeyword = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "provider kubernetes |",
-            "provider kubernetes a|",
-            "provider kubernetes |b");
+            "extension kubernetes |",
+            "extension kubernetes a|",
+            "extension kubernetes |b");
 
-        private static readonly CompositeSyntaxPattern ExpectingImportConfig = CompositeSyntaxPattern.Create(
+        private static readonly CompositeSyntaxPattern ExpectingExtensionConfig = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "provider kubernetes with |",
-            "provider kubernetes with | as foo");
+            "extension kubernetes with |",
+            "extension kubernetes with | as foo");
 
-        private static readonly SyntaxPattern ExpectingImportAsKeyword = SyntaxPattern.Create(
+        private static readonly SyntaxPattern ExpectingExtensionAsKeyword = SyntaxPattern.Create(
             cursor: '|',
-            "provider kubernetes with { foo: true } |");
+            "extension kubernetes with { foo: true } |");
 
         // completions will replace only these token types
         // all others will result in an insertion upon completion commit
@@ -208,7 +208,10 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
                        ConvertFlag(functionArgumentContext is not null, BicepCompletionContextKind.FunctionArgument | BicepCompletionContextKind.Expression) |
-                       ConvertFlag(IsUsingDeclarationContext(matchingNodes, offset), BicepCompletionContextKind.UsingFilePath) |
+                       ConvertFlag(IsUsingPathContext(matchingNodes, offset), BicepCompletionContextKind.UsingFilePath) |
+                       ConvertFlag(IsTestPathContext(matchingNodes, offset), BicepCompletionContextKind.TestPath) |
+                       ConvertFlag(IsModulePathContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath) |
+                       ConvertFlag(IsImportPathContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath) |
                        ConvertFlag(IsParameterIdentifierContext(matchingNodes, offset), BicepCompletionContextKind.ParamIdentifier) |
                        ConvertFlag(IsParameterValueContext(matchingNodes, offset), BicepCompletionContextKind.ParamValue) |
                        ConvertFlag(IsObjectTypePropertyValueContext(matchingNodes, offset), BicepCompletionContextKind.ObjectTypePropertyValue) |
@@ -219,19 +222,18 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsTypeMemberAccessContext(matchingNodes, typePropertyAccessInfo, offset), BicepCompletionContextKind.TypeMemberAccess) |
                        ConvertFlag(IsImportIdentifierContext(matchingNodes, offset), BicepCompletionContextKind.ImportIdentifier) |
                        ConvertFlag(IsImportedSymbolListItemContext(matchingNodes, offset), BicepCompletionContextKind.ImportedSymbolIdentifier) |
-                       ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportAsKeyword) |
+                       ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingExtensionAsKeyword) |
                        ConvertFlag(ExpectingContextualFromKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportFromKeyword) |
-                       ConvertFlag(IsImportTargetContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath) |
                        ConvertFlag(IsAfterSpreadTokenContext(matchingNodes, offset), BicepCompletionContextKind.Expression);
 
             if (featureProvider.ExtensibilityEnabled)
             {
                 var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
 
-                kind |= ConvertFlag(ExpectingImportSpecification.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportSpecification) |
-                    ConvertFlag(ExpectingImportWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportWithOrAsKeyword) |
-                    ConvertFlag(ExpectingImportConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportConfig) |
-                    ConvertFlag(ExpectingImportAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportAsKeyword);
+                kind |= ConvertFlag(ExpectingExtensionSpecification.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionSpecification) |
+                    ConvertFlag(ExpectingExtensionWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionWithOrAsKeyword) |
+                    ConvertFlag(ExpectingExtensionConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionConfig) |
+                    ConvertFlag(ExpectingExtensionAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionAsKeyword);
             }
 
             if (featureProvider.AssertsEnabled)
@@ -402,9 +404,7 @@ namespace Bicep.LanguageServer.Completions
                 return BicepCompletionContextKind.ResourceType;
             }
 
-            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => CheckTypeIsExpected(resource.Name, resource.Type)) ||
-                SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
-                SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (resource, skipped, token) => resource.Type == skipped))
+            if (IsResourceTypeContext(matchingNodes, offset))
             {
                 // the most specific matching node is a resource declaration
                 // the declaration syntax is "resource <identifier> '<type>' ..."
@@ -414,30 +414,6 @@ namespace Bicep.LanguageServer.Completions
                 // OR
                 // we have an identifier in the place of a type in a resoure (this allows us to show completions when user just types virtualMachines instead of 'virtualMachines')
                 return BicepCompletionContextKind.ResourceType;
-            }
-
-            if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module => CheckTypeIsExpected(module.Name, module.Path)) ||
-                SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
-                SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (module, skipped, _) => module.Path == skipped))
-            {
-                // the most specific matching node is a module declaration
-                // the declaration syntax is "module <identifier> '<path>' ..."
-                // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the path position
-                // OR
-                // we are in a token that is inside a StringSyntax node, which is inside a module declaration
-                return BicepCompletionContextKind.ModulePath;
-            }
-
-            if (SyntaxMatcher.IsTailMatch<TestDeclarationSyntax>(matchingNodes, test => CheckTypeIsExpected(test.Name, test.Path)) ||
-                SyntaxMatcher.IsTailMatch<TestDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
-                SyntaxMatcher.IsTailMatch<TestDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (test, skipped, _) => test.Path == skipped))
-            {
-                // the most specific matching node is a test declaration
-                // the declaration syntax is "test <identifier> '<path>' ..."
-                // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the path position
-                // OR
-                // we are in a token that is inside a StringSyntax node, which is inside a module declaration
-                return BicepCompletionContextKind.TestPath;
             }
 
             return BicepCompletionContextKind.None;
@@ -845,10 +821,48 @@ namespace Bicep.LanguageServer.Completions
                 statement.FromClause is SkippedTriviaSyntax &&
                 statement.FromClause.Span.ContainsInclusive(offset));
 
-        private static bool IsImportTargetContext(List<SyntaxBase> matchingNodes, int offset) =>
-            // import {} | or import * as foo |
-            SyntaxMatcher.IsTailMatch<CompileTimeImportFromClauseSyntax>(matchingNodes, (fromClause) => offset > fromClause.Keyword.GetEndPosition()) ||
-            SyntaxMatcher.IsTailMatch<CompileTimeImportFromClauseSyntax, StringSyntax>(matchingNodes);
+        private static bool IsBetweenNodes(int offset, IPositionable first, IPositionable second)
+            => first.Span.Length > 0 && first.IsBefore(offset) && second.IsOnOrAfter(offset);
+
+        private static bool IsImportPathContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // import {} from |
+            SyntaxMatcher.IsTailMatch<CompileTimeImportFromClauseSyntax>(matchingNodes, (fromClause) => IsBetweenNodes(offset, fromClause.Keyword, fromClause.Path)) ||
+            // import {} from 'f|oo'
+            SyntaxMatcher.IsTailMatch<CompileTimeImportFromClauseSyntax, StringSyntax, Token>(matchingNodes, (fromClause, @string, _) => fromClause.Path == @string) ||
+            // import {} from fo|o
+            SyntaxMatcher.IsTailMatch<CompileTimeImportFromClauseSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (fromClause, skipped, _) => fromClause.Path == skipped);
+
+        private static bool IsModulePathContext(IList<SyntaxBase> matchingNodes, int offset) =>
+            // module foo | =
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module => IsBetweenNodes(offset, module.Name, module.Path)) ||
+            // module foo 'f|oo'
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(matchingNodes, (module, @string, _) => module.Path == @string) ||
+            // module foo fo|o
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (module, skipped, _) => module.Path == skipped);
+
+        private static bool IsResourceTypeContext(IList<SyntaxBase> matchingNodes, int offset) =>
+            // resource foo | =
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => IsBetweenNodes(offset, resource.Name, resource.Type)) ||
+            // resource foo 'f|oo'
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, StringSyntax, Token>(matchingNodes, (resource, @string, _) => resource.Type == @string) ||
+            // resource foo fo|o
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (resource, skipped, _) => resource.Type == skipped);
+
+        private static bool IsTestPathContext(IList<SyntaxBase> matchingNodes, int offset) =>
+            // test foo | =
+            SyntaxMatcher.IsTailMatch<TestDeclarationSyntax>(matchingNodes, test => IsBetweenNodes(offset, test.Name, test.Path)) ||
+            // test foo 'f|oo'
+            SyntaxMatcher.IsTailMatch<TestDeclarationSyntax, StringSyntax, Token>(matchingNodes, (test, @string, _) => test.Path == @string) ||
+            // test foo fo|o
+            SyntaxMatcher.IsTailMatch<TestDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (test, skipped, _) => test.Path == skipped);
+
+        private static bool IsUsingPathContext(IList<SyntaxBase> matchingNodes, int offset) =>
+            // using |
+            SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax>(matchingNodes, usingClause => usingClause.Keyword.IsBefore(offset)) ||
+            // using 'f|oo'
+            SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax, StringSyntax, Token>(matchingNodes, (@using, @string, _) => @using.Path == @string) ||
+            // using fo|o
+            SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (@using, skipped, _) => @using.Path == skipped);
 
         private static bool IsResourceBodyContext(List<SyntaxBase> matchingNodes, int offset) =>
             // resources only allow {} as the body so we don't need to worry about
@@ -1225,15 +1239,6 @@ namespace Bicep.LanguageServer.Completions
                         (operatorToken.Type == TokenType.Colon && operatorToken.GetPosition() == offset && ternaryOperation.TrueExpression is not SkippedTriviaSyntax) ||
                         (operatorToken.Type == TokenType.Colon && operatorToken.GetEndPosition() == offset && ternaryOperation.FalseExpression is not SkippedTriviaSyntax)));
         }
-
-        private static bool IsUsingDeclarationContext(List<SyntaxBase> matchingNodes, int offset) =>
-           // using |
-           SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax>(matchingNodes) ||
-           // using '|'
-           // using 'f|oo'
-           SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
-           // using fo|o
-           SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier);
 
         private static bool IsParameterIdentifierContext(List<SyntaxBase> matchingNodes, int offset) =>
             // param |

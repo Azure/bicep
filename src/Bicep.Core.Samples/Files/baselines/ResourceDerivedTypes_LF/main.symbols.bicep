@@ -9,8 +9,8 @@ type test = {
   resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
 }
 
-type strangeFormattings = {
-//@[5:23) TypeAlias strangeFormattings. Type: Type<{ test: string, test2: string, test3: string }>. Declaration start char: 0, length: 273
+type strangeFormatting = {
+//@[5:22) TypeAlias strangeFormatting. Type: Type<{ test: string, test2: string, test3: string }>. Declaration start char: 0, length: 272
   test: resource<
 
   'Astronomer.Astro/organizations@2023-08-01-preview'

@@ -26,9 +26,7 @@ export function decodeExternalSourceUri(uri: vscode.Uri): ExternalSource {
   //   bicep-extsrc:{title}?{module-reference}[#{source-file-relative-path}]
   const title = decodeURIComponent(uri.path);
   const moduleReference = decodeURIComponent(uri.query);
-  let requestedSourceFile: string | undefined = decodeURIComponent(
-    uri.fragment,
-  );
+  let requestedSourceFile: string | undefined = decodeURIComponent(uri.fragment);
 
   if (requestedSourceFile === "") {
     requestedSourceFile = undefined;

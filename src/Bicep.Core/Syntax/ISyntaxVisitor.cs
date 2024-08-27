@@ -114,9 +114,9 @@ namespace Bicep.Core.Syntax
 
         void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax);
 
-        void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax);
+        void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax);
 
-        void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax);
+        void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax);
 
         void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax);
 

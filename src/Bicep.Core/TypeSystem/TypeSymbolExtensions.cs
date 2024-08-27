@@ -17,8 +17,8 @@ namespace Bicep.Core.TypeSystem
         public static bool IsIntegerOrIntegerLiteral(this TypeSymbol type) =>
              type is IntegerType or IntegerLiteralType;
 
-        public static bool ProviderNameEquals(this NamespaceType namespaceType, string providerName)
-            => StringComparer.Ordinal.Equals(namespaceType.ProviderName, providerName);
+        public static bool ExtensionNameEquals(this NamespaceType namespaceType, string extensionName)
+            => StringComparer.Ordinal.Equals(namespaceType.ExtensionName, extensionName);
 
         public static bool AliasNameEquals(this NamespaceType namespaceType, string aliasName)
             => LanguageConstants.IdentifierComparer.Equals(namespaceType.Name, aliasName);

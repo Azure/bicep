@@ -44,10 +44,19 @@ public sealed class UseSafeAccessRule : LinterRuleBase
                 continue;
             }
 
+            // See https://github.com/Azure/bicep/issues/14705 for context on why this is necessary
+            var rhsNeedsParentheses = ternary.FalseExpression switch
+            {
+                TernaryOperationSyntax => true,
+                BinaryOperationSyntax binaryOperation =>
+                    TokenTypeHelper.GetOperatorPrecedence(binaryOperation.OperatorToken.Type) < TokenTypeHelper.GetOperatorPrecedence(TokenType.DoubleQuestion),
+                _ => false,
+            };
+
             var replacement = SyntaxFactory.CreateBinaryOperationSyntax(
                 SyntaxFactory.CreateSafeAccess(truePropertyAccess.BaseExpression, functionCall.Arguments[1].Expression),
                 TokenType.DoubleQuestion,
-                ternary.FalseExpression);
+                rhsNeedsParentheses ? SyntaxFactory.CreateParenthesized(ternary.FalseExpression) : ternary.FalseExpression);
 
             yield return CreateFixableDiagnosticForSpan(
                 diagnosticLevel,

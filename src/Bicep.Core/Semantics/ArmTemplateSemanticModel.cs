@@ -8,6 +8,7 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
+using Azure.Deployments.Templates.Export;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -156,10 +157,16 @@ namespace Bicep.Core.Semantics
         };
 
         private ITypeReference GetType(ITemplateSchemaNode schemaNode, bool allowLooseAssignment = false)
-            // This method cannot be invoked if SourceFile.Template is null, so the null-conditional operator is safe here.
-            => ArmTemplateTypeLoader.ToTypeReference(SchemaValidationContext.ForTemplate(SourceFile.Template!),
+        {
+            if (SourceFile.Template is null)
+            {
+                return ErrorType.Empty();
+            }
+
+            return ArmTemplateTypeLoader.ToTypeReference(SchemaValidationContext.ForTemplate(SourceFile.Template),
                 schemaNode,
                 allowLooseAssignment ? TypeSymbolValidationFlags.AllowLooseAssignment : TypeSymbolValidationFlags.Default);
+        }
 
         /// <summary>
         /// Metadata may be attached to $ref nodes, and the appropriate description for a given parameter or property will be the first one (if any) encountered while following $ref pointers to a concrete type.

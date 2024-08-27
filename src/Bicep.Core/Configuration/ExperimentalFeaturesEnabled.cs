@@ -20,7 +20,8 @@ public record ExperimentalFeaturesEnabled(
     bool ExtensionRegistry,
     bool OptionalModuleNames,
     bool LocalDeploy,
-    bool ResourceDerivedTypes)
+    bool ResourceDerivedTypes,
+    bool SecureOutputs)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();

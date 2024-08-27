@@ -308,6 +308,7 @@ output foo string = foo
                 AssertNoErrors(error);
             }
 
+            data.Compiled!.ReadFromOutputFolder().Should().OnlyContainLFNewline();
             data.Compiled!.ShouldHaveExpectedJsonValue();
         }
 
@@ -328,6 +329,8 @@ output foo string = foo
             }
 
             var parametersStdout = output.FromJson<BuildParamsStdout>();
+            parametersStdout.parametersJson.Should().OnlyContainLFNewline();
+
             data.Compiled!.WriteToOutputFolder(parametersStdout.parametersJson);
             data.Compiled.ShouldHaveExpectedJsonValue();
         }

@@ -84,3 +84,22 @@ export function writeTempFile(
 export function ensureParentDirExists(filePath: string): void {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
 }
+
+export function copyToTempFile(
+  baseFolder: string,
+  relativePath: string,
+  testArea: string,
+  replace?: {
+    values: Record<string, string>;
+    relativePath: string
+  }
+) {
+  const fileContents = readFileSync(path.join(baseFolder, relativePath));
+
+  const replacedContents = Object.entries(replace?.values ?? {}).reduce(
+    (contents, [from, to]) => contents.replace(from, to),
+    fileContents,
+  );
+
+  return writeTempFile(testArea, replace?.relativePath ?? relativePath, replacedContents);
+}

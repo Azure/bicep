@@ -22,7 +22,7 @@ namespace Bicep.RegistryModuleTool.Extensions
             {
                 foreach (var diagnostic in diagnostics)
                 {
-                    if (diagnostic.Level == DiagnosticLevel.Error)
+                    if (diagnostic.IsError())
                     {
                         hasError = true;
                     }

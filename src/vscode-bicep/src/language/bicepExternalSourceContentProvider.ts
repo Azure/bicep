@@ -1,24 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import * as path from "path";
 import * as vscode from "vscode";
+import { Uri } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Disposable } from "../utils/disposable";
-import {
-  BicepExternalSourceParams,
-  bicepExternalSourceRequestType,
-} from "./protocol";
-import * as path from "path";
-import { Uri } from "vscode";
-import {
-  BicepExternalSourceScheme,
-  decodeExternalSourceUri,
-} from "./decodeExternalSourceUri";
+import { BicepExternalSourceScheme, decodeExternalSourceUri } from "./decodeExternalSourceUri";
+import { BicepExternalSourceParams, bicepExternalSourceRequestType } from "./protocol";
 
-export class BicepExternalSourceContentProvider
-  extends Disposable
-  implements vscode.TextDocumentContentProvider
-{
+export class BicepExternalSourceContentProvider extends Disposable implements vscode.TextDocumentContentProvider {
   constructor(private readonly languageClient: LanguageClient) {
     super();
     this.register(
@@ -37,10 +28,7 @@ export class BicepExternalSourceContentProvider
 
   onDidChange?: vscode.Event<vscode.Uri> | undefined;
 
-  async provideTextDocumentContent(
-    uri: vscode.Uri,
-    token: vscode.CancellationToken,
-  ): Promise<string> {
+  async provideTextDocumentContent(uri: vscode.Uri, token: vscode.CancellationToken): Promise<string> {
     // Ask the language server for the sources for the cached module
     const response = await this.languageClient.sendRequest(
       bicepExternalSourceRequestType,
@@ -48,14 +36,11 @@ export class BicepExternalSourceContentProvider
       token,
     );
 
-    return response.error ? `// ${response.error}` : response.content ?? "";
+    return response.error ? `// ${response.error}` : (response.content ?? "");
   }
 
-  private bicepExternalSourceRequest(
-    uri: vscode.Uri,
-  ): BicepExternalSourceParams {
-    const { moduleReference, requestedSourceFile } =
-      decodeExternalSourceUri(uri);
+  private bicepExternalSourceRequest(uri: vscode.Uri): BicepExternalSourceParams {
+    const { moduleReference, requestedSourceFile } = decodeExternalSourceUri(uri);
     return {
       target: moduleReference,
       requestedSourceFile,
@@ -74,16 +59,11 @@ export class BicepExternalSourceContentProvider
       }
     }
 
-    throw new Error(
-      `The document URI '${uri.toString()}' is in an unexpected format.`,
-    );
+    throw new Error(`The document URI '${uri.toString()}' is in an unexpected format.`);
   }
 
   private trySetExternalSourceLanguage(document: vscode.TextDocument): void {
-    if (
-      document.uri.scheme === BicepExternalSourceScheme &&
-      document.languageId === "plaintext"
-    ) {
+    if (document.uri.scheme === BicepExternalSourceScheme && document.languageId === "plaintext") {
       // The file is showing content from the bicep cache and the language is still set to plain text, so
       // we should try to correct it
 
@@ -108,15 +88,11 @@ export class BicepExternalSourceContentProvider
           return "bicep";
         }
 
-        const armToolsExtension = vscode.extensions.getExtension(
-          "msazurermtools.azurerm-vscode-tools",
-        );
+        const armToolsExtension = vscode.extensions.getExtension("msazurermtools.azurerm-vscode-tools");
 
         // if ARM Tools extension is installed and active, use a more specific language ID
         // otherwise, fall back to JSON
-        return armToolsExtension && armToolsExtension.isActive
-          ? "arm-template"
-          : "jsonc";
+        return armToolsExtension && armToolsExtension.isActive ? "arm-template" : "jsonc";
       }
       default:
         return "plaintext";

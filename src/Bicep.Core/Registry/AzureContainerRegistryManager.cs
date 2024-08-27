@@ -162,7 +162,7 @@ namespace Bicep.Core.Registry
             return deserializedManifest.ArtifactType switch
             {
                 BicepMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
-                BicepMediaTypes.BicepProviderArtifactType => new OciProviderArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers, config),
+                BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers, config),
                 _ => throw new InvalidArtifactException($"artifacts of type: \'{deserializedManifest.ArtifactType}\' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}")
             };
         }

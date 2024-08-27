@@ -104,7 +104,7 @@
     {
       "label": "build:e2e:dev",
       "type": "typescript",
-      "tsconfig": "tsconfig.e2e.dev.json",
+      "tsconfig": "tsconfig.e2e.json",
       "problemMatcher": "$tsc",
       "group": "build",
       "presentation": {

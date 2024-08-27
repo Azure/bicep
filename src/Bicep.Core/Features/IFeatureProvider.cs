@@ -35,6 +35,8 @@ public interface IFeatureProvider
 
     bool ExtendableParamFilesEnabled { get; }
 
+    bool SecureOutputsEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get
@@ -54,6 +56,7 @@ public interface IFeatureProvider
                 (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),
                 (LocalDeployEnabled, "Enable local deploy", false, false),
                 (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
+                (SecureOutputsEnabled, CoreResources.ExperimentalFeatureNames_SecureOutputs, true, false),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
             })
             {

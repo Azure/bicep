@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -15,6 +16,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 
@@ -26,7 +28,8 @@ namespace Bicep.Core.TypeSystem
         // processed nodes found not to have a declared type will have a null value
         private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
         private readonly ConcurrentDictionary<TypeAliasSymbol, TypeSymbol> userDefinedTypeReferences = new();
-        private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntaxBase, Result<TypeExpression, ErrorDiagnostic>> reifiedTypes = new();
+        private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntaxBase, ResultWithDiagnostic<TypeExpression>> reifiedTypes = new();
+        private readonly Lazy<ImmutableDictionary<TypeAliasSymbol, ImmutableArray<TypeAliasSymbol>>> typeCycles;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IFeatureProvider features;
@@ -38,6 +41,9 @@ namespace Bicep.Core.TypeSystem
             this.binder = binder;
             this.features = features;
             this.resourceDerivedTypeResolver = new(binder);
+            this.typeCycles = new(() => CyclicTypeCheckVisitor.FindCycles(
+                binder,
+                syntax => TryGetTypeFromTypeSyntax(syntax)?.Type));
         }
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) =>
@@ -50,6 +56,37 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetTypeAssignment(SyntaxBase syntax)
         {
+            if (binder.GetSymbolInfo(syntax) is TypeAliasSymbol typeAlias)
+            {
+                if (typeCycles.Value.TryGetValue(typeAlias, out var cycle))
+                {
+                    var builder = DiagnosticBuilder.ForPosition(typeAlias.DeclaringType.Name);
+                    var diagnostic = cycle.Length == 1
+                        ? builder.CyclicTypeSelfReference()
+                        : builder.CyclicType(cycle.Select(s => s.Name));
+
+                    return new(ErrorType.Create(diagnostic), syntax);
+                }
+            }
+            else
+            {
+                foreach (var typeAccessSyntax in SyntaxAggregator.AggregateByType<TypeVariableAccessSyntax>(syntax))
+                {
+                    if (binder.GetSymbolInfo(typeAccessSyntax) is TypeAliasSymbol accessedTypeAlias &&
+                        typeCycles.Value.TryGetValue(accessedTypeAlias, out var cycle))
+                    {
+                        var builder = DiagnosticBuilder.ForPosition(typeAccessSyntax);
+                        var diagnostic = builder.ReferencedSymbolHasErrors(accessedTypeAlias.Name);
+                        return new(ErrorType.Create(diagnostic), syntax);
+                    }
+                }
+            }
+
+            return GetTypeAssignmentWithoutCycleCheck(syntax);
+        }
+
+        private DeclaredTypeAssignment? GetTypeAssignmentWithoutCycleCheck(SyntaxBase syntax)
+        {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
             if (syntax is TypeSyntax)
@@ -59,8 +96,8 @@ namespace Bicep.Core.TypeSystem
 
             switch (syntax)
             {
-                case ProviderDeclarationSyntax provider:
-                    return GetProviderType(provider);
+                case ExtensionDeclarationSyntax extension:
+                    return GetExtensionType(extension);
 
                 case MetadataDeclarationSyntax metadata:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(metadata.Value), metadata);
@@ -191,9 +228,7 @@ namespace Bicep.Core.TypeSystem
             if (!binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel, out var failureDiagnostic))
             {
                 // failed to resolve using
-                return failureDiagnostic is ErrorDiagnostic error
-                    ? ErrorType.Create(error)
-                    : null;
+                return failureDiagnostic.IsError() ? ErrorType.Create(failureDiagnostic) : null;
             }
 
             if (semanticModel.Parameters.TryGetValue(syntax.Name.IdentifierName, out var parameterMetadata))
@@ -503,7 +538,7 @@ namespace Bicep.Core.TypeSystem
 
         private static bool IsExtensibilityType(ResourceType resourceType)
         {
-            return resourceType.DeclaringNamespace.ProviderName != AzNamespaceType.BuiltInName;
+            return resourceType.DeclaringNamespace.ExtensionName != AzNamespaceType.BuiltInName;
         }
 
         private TypeSymbol? GetOutputValueType(SyntaxBase syntax) => binder.GetParent(syntax) switch
@@ -517,7 +552,7 @@ namespace Bicep.Core.TypeSystem
             => binder.GetSymbolInfo(syntax) switch
             {
                 BuiltInNamespaceSymbol builtInNamespace => builtInNamespace.Type,
-                ProviderNamespaceSymbol providerNamespace => providerNamespace.Type,
+                ExtensionNamespaceSymbol extensionNamespace => extensionNamespace.Type,
                 WildcardImportSymbol wildcardImport => wildcardImport.Type,
                 AmbientTypeSymbol ambientType => UnwrapType(syntax, ambientType.Type),
                 ImportedTypeSymbol importedType => UnwrapType(syntax, importedType.Type),
@@ -531,17 +566,17 @@ namespace Bicep.Core.TypeSystem
             .Concat(binder.FileSymbol.ImportedTypes.Select(i => i.Name))
             .Distinct();
 
-        private Result<TypeExpression, ErrorDiagnostic> GetReifiedTypeResult(ParameterizedTypeInstantiationSyntaxBase syntax)
+        private ResultWithDiagnostic<TypeExpression> GetReifiedTypeResult(ParameterizedTypeInstantiationSyntaxBase syntax)
             => reifiedTypes.GetOrAdd(syntax, InstantiateType);
 
-        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax) => syntax switch
+        private ResultWithDiagnostic<TypeExpression> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax) => syntax switch
         {
             ParameterizedTypeInstantiationSyntax unqualified => InstantiateType(unqualified),
             InstanceParameterizedTypeInstantiationSyntax qualified => InstantiateType(qualified),
             _ => throw new UnreachableException($"Unrecognized subtype of {nameof(ParameterizedTypeInstantiationSyntaxBase)}: {syntax.GetType().FullName}"),
         };
 
-        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntax syntax) => binder.GetSymbolInfo(syntax) switch
+        private ResultWithDiagnostic<TypeExpression> InstantiateType(ParameterizedTypeInstantiationSyntax syntax) => binder.GetSymbolInfo(syntax) switch
         {
             AmbientTypeSymbol ambientType => InstantiateType(syntax, ambientType.Name, ambientType.Type),
             ImportedTypeSymbol importedType => InstantiateType(syntax, importedType.Name, importedType.Type),
@@ -550,7 +585,7 @@ namespace Bicep.Core.TypeSystem
             _ => new(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
         };
 
-        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(InstanceParameterizedTypeInstantiationSyntax syntax)
+        private ResultWithDiagnostic<TypeExpression> InstantiateType(InstanceParameterizedTypeInstantiationSyntax syntax)
         {
             var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression).Type;
             var propertyType = FinalizeTypePropertyType(baseType, syntax.PropertyName.IdentifierName, syntax.PropertyName);
@@ -558,7 +593,7 @@ namespace Bicep.Core.TypeSystem
             return InstantiateType(syntax, $"{baseType.Name}.{syntax.PropertyName.IdentifierName}", propertyType);
         }
 
-        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax, string typeName, TypeSymbol symbolType)
+        private ResultWithDiagnostic<TypeExpression> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax, string typeName, TypeSymbol symbolType)
             => symbolType switch
             {
                 TypeTemplate tt => tt.Instantiate(binder, syntax, syntax.Arguments.Select(arg => DisallowNamespaceTypes(GetTypeFromTypeSyntax(arg.Expression).Type, arg.Expression))),
@@ -590,7 +625,7 @@ namespace Bicep.Core.TypeSystem
         {
             HashSet<string> propertyNamesEncountered = new();
             List<TypeProperty> properties = new();
-            List<ErrorDiagnostic> diagnostics = new();
+            List<IDiagnostic> diagnostics = new();
             ObjectTypeNameBuilder nameBuilder = new();
 
             foreach (var prop in syntax.Properties)
@@ -641,7 +676,7 @@ namespace Bicep.Core.TypeSystem
 
             if (diagnostics.Any())
             {
-                // foward any diagnostics gathered from parsing properties to the return type. normally, these diagnostics would be gathered by the SemanticDiagnosticVisitor (which would visit the properties of an ObjectType looking for errors).
+                // forward any diagnostics gathered from parsing properties to the return type. normally, these diagnostics would be gathered by the SemanticDiagnosticVisitor (which would visit the properties of an ObjectType looking for errors).
                 // Errors hidden behind DeferredTypeReferences will unfortunately be dropped, as we can't resolve their type without risking an infinite loop (in the case that a recursive object type has errors)
                 return ErrorType.Create(diagnostics.Concat(properties.Select(p => p.TypeReference).OfType<TypeSymbol>().SelectMany(e => e.GetDiagnostics())));
             }
@@ -689,7 +724,7 @@ namespace Bicep.Core.TypeSystem
             for (int i = 0; i < syntax.SegmentValues.Length + syntax.Expressions.Length; i++)
             {
                 // String syntax should have alternating blocks of literal values and expressions.
-                // If i is even, process the next literal value. If it's odd, process the next expresssion
+                // If i is even, process the next literal value. If it's odd, process the next expression
                 if (i % 2 == 0)
                 {
                     literalText.Append(syntax.SegmentValues[i / 2]);
@@ -752,9 +787,9 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var evaluated = OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax.Operator, baseExpressionType, diagnosticWriter);
-            if (diagnosticWriter.GetDiagnostics().OfType<ErrorDiagnostic>().Any())
+            if (diagnosticWriter.GetDiagnostics().Any(x => x.IsError()))
             {
-                return ErrorType.Create(diagnosticWriter.GetDiagnostics().OfType<ErrorDiagnostic>());
+                return ErrorType.Create(diagnosticWriter.GetDiagnostics());
             }
 
             if (evaluated is { } result && TypeHelper.IsLiteralType(result))
@@ -925,11 +960,11 @@ namespace Bicep.Core.TypeSystem
             // as is accessing elements of a resource-derived type
             ParameterizedTypeInstantiationSyntax parameterized
                 when binder.GetSymbolInfo(parameterized) is AmbientTypeSymbol ambient &&
-                ambient.DeclaringNamespace.ProviderNameEquals(SystemNamespaceType.BuiltInName) &&
+                ambient.DeclaringNamespace.ExtensionNameEquals(SystemNamespaceType.BuiltInName) &&
                 LanguageConstants.IdentifierComparer.Equals(ambient.Name, LanguageConstants.TypeNameResource) => true,
             InstanceParameterizedTypeInstantiationSyntax parameterized
                 when binder.GetSymbolInfo(parameterized.BaseExpression) is BuiltInNamespaceSymbol ns &&
-                ns.TryGetNamespaceType()?.ProviderNameEquals(SystemNamespaceType.BuiltInName) is true &&
+                ns.TryGetNamespaceType()?.ExtensionNameEquals(SystemNamespaceType.BuiltInName) is true &&
                 LanguageConstants.IdentifierComparer.Equals(parameterized.Name.IdentifierName, LanguageConstants.TypeNameResource) => true,
             _ => false,
         };
@@ -957,9 +992,7 @@ namespace Bicep.Core.TypeSystem
             {
                 return ErrorType.Create(
                     TypeHelper.GetUnknownPropertyDiagnostic(objectType, propertyName, shouldWarn: false)
-                        .Invoke(DiagnosticBuilder.ForPosition(propertyNameSyntax))
-                        .AsErrorDiagnostic()
-                        ?? throw new UnreachableException("Should only return errors when shouldWarn: false"));
+                        .Invoke(DiagnosticBuilder.ForPosition(propertyNameSyntax)));
             }
 
             return UnwrapType(propertyNameSyntax, typeProperty.TypeReference.Type);
@@ -1127,9 +1160,9 @@ namespace Bicep.Core.TypeSystem
             TypeSymbol otherwise => otherwise,
         };
 
-        private DeclaredTypeAssignment? GetProviderType(ProviderDeclarationSyntax syntax)
+        private DeclaredTypeAssignment? GetExtensionType(ExtensionDeclarationSyntax syntax)
         {
-            if (this.binder.GetSymbolInfo(syntax) is ProviderNamespaceSymbol importedNamespace)
+            if (this.binder.GetSymbolInfo(syntax) is ExtensionNamespaceSymbol importedNamespace)
             {
                 return new(importedNamespace.DeclaredType, syntax);
             }
@@ -1686,7 +1719,7 @@ namespace Bicep.Core.TypeSystem
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(arrayParent, syntax), syntax, arrayItemAssignment.Flags);
 
-                case ProviderWithClauseSyntax:
+                case ExtensionWithClauseSyntax:
                     parent = this.binder.GetParent(parent);
 
                     if (parent is null)
@@ -1694,8 +1727,8 @@ namespace Bicep.Core.TypeSystem
                         throw new InvalidOperationException("Expected ImportWithClauseSyntax to have a parent.");
                     }
 
-                    if (GetDeclaredTypeAssignment(parent) is not { } providerAssignment ||
-                        providerAssignment.Reference.Type is not NamespaceType namespaceType)
+                    if (GetDeclaredTypeAssignment(parent) is not { } extensionAssignment ||
+                        extensionAssignment.Reference.Type is not NamespaceType namespaceType)
                     {
                         return null;
                     }
@@ -1709,7 +1742,7 @@ namespace Bicep.Core.TypeSystem
 
                     // the object is an item in an array
                     // use the item's type and propagate flags
-                    return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, providerAssignment.Flags);
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, extensionAssignment.Flags);
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                     if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)
@@ -2069,7 +2102,7 @@ namespace Bicep.Core.TypeSystem
         private TypeSymbol CreateTestType(IEnumerable<TypeProperty> paramsProperties, string typeName)
         {
             var paramsType = new ObjectType(LanguageConstants.TestParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
-            // If none of the params are reqired, we can allow the 'params' declaration to be omitted entirely
+            // If none of the params are required, we can allow the 'params' declaration to be omitted entirely
             var paramsRequiredFlag = paramsProperties.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None;
 
             var testBody = new ObjectType(

@@ -83,15 +83,15 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
         }
 
         var errorData = new ErrorData()
+        {
+            Error = new Error()
             {
-                Error = new Error()
-                {
-                    Code = response.Error.Code,
-                    Message = response.Error.Message,
-                    InnerError = response.Error.InnerError?.ToJsonString(),
-                    Target = response.Error.Target,
-                }
-            };
+                Code = response.Error.Code,
+                Message = response.Error.Message,
+                InnerError = response.Error.InnerError?.ToJsonString(),
+                Target = response.Error.Target,
+            }
+        };
 
         var errorDetails = Convert(response.Error.Details);
         if (errorDetails is not null)

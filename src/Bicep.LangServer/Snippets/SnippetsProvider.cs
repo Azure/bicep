@@ -3,9 +3,13 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.DirectoryServices.Protocols;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
+using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrint;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -25,7 +29,7 @@ public class SnippetsProvider : ISnippetsProvider
     // The common properties should be authored consistently to provide for understandability and consumption of the code.
     // See https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#resources
     // for more information
-    private readonly ImmutableArray<string> propertiesSortPreferenceList = ["scope", "parent", "name", "location", "zones", "sku", "kind", "scale", "plan", "identity", "tags", "properties", "dependsOn"];
+    private static readonly ImmutableArray<string> PropertiesSortPreferenceList = ["scope", "parent", "name", "location", "zones", "sku", "kind", "scale", "plan", "identity", "tags", "properties", "dependsOn"];
 
     private static readonly SnippetCache snippetCache = SnippetCache.FromManifest();
 
@@ -119,96 +123,69 @@ public class SnippetsProvider : ISnippetsProvider
         }
     }
 
+    private static ObjectSyntax GetObjectSnippetSyntax(ObjectType objectType, ref int tabStopIndex, string? discriminatedObjectKey)
+    {
+        var typeProperties = objectType.Properties.Values.OrderBy(x =>
+            PropertiesSortPreferenceList.IndexOf(x.Name) switch
+            {
+                -1 => int.MaxValue,
+                int index => index,
+            })
+            .Where(TypeHelper.IsRequired);
+
+        var objectProperties = new List<ObjectPropertySyntax>();
+        foreach (var typeProperty in typeProperties)
+        {
+            // Here we deliberately want to iterate in the correct order, and use a DFS approach, to ensure that the tab stops are correctly ordered.
+            // For example, we want to ensure we output: {\n  foo: $1\n  nested: {\n    bar: $2\n  }\n  baz: $3\n}
+            // Instead of:                               {\n  foo: $1\n  nested: {\n    bar: $3\n  }\n  baz: $2\n}
+            objectProperties.Add(GetObjectPropertySnippetSyntax(typeProperty, ref tabStopIndex, discriminatedObjectKey));
+        }
+
+        return SyntaxFactory.CreateObject(objectProperties);
+    }
+
+    private static ObjectPropertySyntax GetObjectPropertySnippetSyntax(TypeProperty typeProperty, ref int tabStopIndex, string? discriminatedObjectKey)
+    {
+        var valueType = typeProperty.TypeReference.Type;
+        if (valueType is ObjectType objectType)
+        {
+            return SyntaxFactory.CreateObjectProperty(
+                typeProperty.Name,
+                GetObjectSnippetSyntax(objectType, ref tabStopIndex, null));
+        }
+        else if (discriminatedObjectKey is { } &&
+            valueType is StringLiteralType stringLiteralType &&
+            stringLiteralType.Name == discriminatedObjectKey)
+        {
+            return SyntaxFactory.CreateObjectProperty(
+                typeProperty.Name,
+                SyntaxFactory.CreateStringLiteral(stringLiteralType.RawStringValue));
+        }
+        else
+        {
+            var newTabStopIndex = tabStopIndex++;
+            return SyntaxFactory.CreateObjectProperty(
+                typeProperty.Name,
+                SyntaxFactory.CreateFreeformToken(TokenType.Unrecognized, GetTabStop(newTabStopIndex)));
+        }
+    }
+
+    private static string GetTabStop(int index)
+        => $"${index}";
+
     private Snippet? GetRequiredPropertiesSnippet(ObjectType objectType, string label, string? discriminatedObjectKey = null)
     {
-        int index = 1;
-        StringBuilder sb = new();
-
-        var sortedProperties = objectType.Properties.OrderBy(x =>
+        if (!objectType.Properties.Values.Any(TypeHelper.IsRequired))
         {
-            var index = propertiesSortPreferenceList.IndexOf(x.Key);
-
-            return (index > -1) ? index : (propertiesSortPreferenceList.Length - 1);
-        });
-
-        foreach (var (key, value) in sortedProperties)
-        {
-            string? snippetText = GetSnippetText(value, indentLevel: 1, ref index, discriminatedObjectKey);
-
-            if (snippetText is not null)
-            {
-                sb.Append(snippetText);
-            }
+            return null;
         }
 
-        if (sb.Length > 0)
-        {
-            // Insert open curly at the beginning
-            sb.Insert(0, "{\n");
+        var tabStopIndex = 1;
+        var syntax = GetObjectSnippetSyntax(objectType, ref tabStopIndex, discriminatedObjectKey);
 
-            // Insert final tab stop outside the top level object
-            sb.Append("}$0");
-
-            return new Snippet(sb.ToString(), CompletionPriority.Medium, label, RequiredPropertiesDescription);
-        }
-
-        return null;
-    }
-
-    private string? GetSnippetText(TypeProperty typeProperty, int indentLevel, ref int index, string? discrimatedObjectKey = null)
-    {
-        if (TypeHelper.IsRequired(typeProperty))
-        {
-            StringBuilder sb = new();
-
-            if (typeProperty.TypeReference.Type is ObjectType objectType)
-            {
-                sb.AppendLine(GetIndentString(indentLevel) + typeProperty.Name + ": {");
-
-                indentLevel++;
-
-                foreach (KeyValuePair<string, TypeProperty> kvp in objectType.Properties.OrderBy(x => x.Key))
-                {
-                    string? snippetText = GetSnippetText(kvp.Value, indentLevel, ref index);
-                    if (snippetText is not null)
-                    {
-                        sb.Append(snippetText);
-                    }
-                }
-
-                indentLevel--;
-                sb.AppendLine(GetIndentString(indentLevel) + "}");
-            }
-            else
-            {
-                string value = ": $" + (index).ToString();
-                bool shouldIncrementIndent = true;
-
-                if (discrimatedObjectKey is not null &&
-                    typeProperty.TypeReference.Type is TypeSymbol typeSymbol &&
-                    typeSymbol.Name == discrimatedObjectKey)
-                {
-                    value = ": " + discrimatedObjectKey;
-                    shouldIncrementIndent = false;
-                }
-
-                sb.AppendLine(GetIndentString(indentLevel) + typeProperty.Name + value);
-
-                if (shouldIncrementIndent)
-                {
-                    index++;
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        return null;
-    }
-
-    private string GetIndentString(int indentLevel)
-    {
-        return new string('\t', indentLevel);
+        var output = PrettyPrinterV2.PrintValid(syntax, PrettyPrinterV2Options.Default with { IndentKind = IndentKind.Tab }) + GetTabStop(0);
+        return new Snippet(output, CompletionPriority.Medium, label, RequiredPropertiesDescription);
     }
 
     private Snippet GetEmptySnippet()

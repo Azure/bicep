@@ -31,7 +31,7 @@ const keywords = [
   'extends',
   'func',
   'assert',
-  'provider',
+  'extension',
 ];
 
 const namedLiterals = [

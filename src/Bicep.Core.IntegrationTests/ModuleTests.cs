@@ -179,9 +179,9 @@ module main 'main.bicep' = {
             success.Should().BeFalse();
         }
 
-        private delegate bool TryReadDelegate(Uri fileUri, out string? fileContents, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        private delegate bool TryReadDelegate(Uri fileUri, out string? fileContents, out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder);
 
-        private static void SetupFileReaderMock(Mock<IFileResolver> mockFileResolver, Uri fileUri, string? fileContents, DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private static void SetupFileReaderMock(Mock<IFileResolver> mockFileResolver, Uri fileUri, string? fileContents, DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
         {
             mockFileResolver.Setup(x => x.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, failureBuilder));
         }
@@ -197,7 +197,7 @@ module main 'main.bicep' = {
             SetupFileReaderMock(mockFileResolver, fileUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
 
             Action buildAction = () => SourceFileGroupingBuilder.Build(mockFileResolver.Object, mockDispatcher, mockConfigurationManager, new Workspace(), fileUri, BicepTestConstants.FeatureProviderFactory);
-            buildAction.Should().Throw<ErrorDiagnosticException>()
+            buildAction.Should().Throw<DiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }
 
@@ -770,7 +770,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
         private static (bool success, IDictionary<Uri, ImmutableArray<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
         {
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
-            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
+            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
 
             return (success, diagnosticsByFile);
         }

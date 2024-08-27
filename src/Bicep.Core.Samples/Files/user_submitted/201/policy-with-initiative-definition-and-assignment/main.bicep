@@ -21,7 +21,7 @@ resource initiativeDefinition 'Microsoft.Authorization/policySetDefinitions@2019
   properties: {
     policyType: 'Custom'
     displayName: initiativeDefinitionName
-    description: 'Initiative Definition for Resource Locatoin and VM SKUs'
+    description: 'Initiative Definition for Resource Location and VM SKUs'
     metadata: {
       category: 'BICEP Example Initiative'
     }

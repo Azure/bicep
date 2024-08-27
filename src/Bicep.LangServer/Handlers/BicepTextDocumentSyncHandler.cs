@@ -18,11 +18,13 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ICompilationManager compilationManager;
         private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
+        private readonly DocumentSelectorFactory documentSelectorFactory;
 
-        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler)
+        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler, DocumentSelectorFactory documentSelectorFactory)
         {
             this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
+            this.documentSelectorFactory = documentSelectorFactory;
         }
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
@@ -66,7 +68,7 @@ namespace Bicep.LanguageServer.Handlers
             var documentUri = request.TextDocument.Uri;
 
             // If the documentUri corresponds to bicepconfig.json, we'll add an entry to activeBicepConfigCache.
-            if (ConfigurationHelper.IsBicepConfigFile(documentUri)) //potentialy copy this for bicep params
+            if (ConfigurationHelper.IsBicepConfigFile(documentUri)) //potentially copy this for bicep params
             {
                 bicepConfigChangeHandler.HandleBicepConfigOpenEvent(documentUri);
             }
@@ -110,7 +112,7 @@ namespace Bicep.LanguageServer.Handlers
         protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(TextSynchronizationCapability capability, ClientCapabilities clientCapabilities) => new()
         {
             Change = TextDocumentSyncKind.Full,
-            DocumentSelector = DocumentSelectorFactory.CreateForAllSupportedLangIds()
+            DocumentSelector = documentSelectorFactory.CreateForAllSupportedLangIds()
         };
     }
 }

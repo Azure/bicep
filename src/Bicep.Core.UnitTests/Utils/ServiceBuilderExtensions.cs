@@ -74,6 +74,13 @@ public static class ServiceBuilderExtensions
         => serviceBuilder.WithFileSystem(new MockFileSystem(
             fileLookup?.ToDictionary(x => x.Key.LocalPath, x => new MockFileData(x.Value)) ?? new()));
 
+    public static ServiceBuilder WithMockFileSystem(this ServiceBuilder serviceBuilder, IReadOnlyDictionary<string, BinaryData> fileLookup)
+        => WithMockFileSystem(serviceBuilder, fileLookup.ToDictionary(x => PathHelper.FilePathToFileUrl(x.Key), x => x.Value));
+
+    public static ServiceBuilder WithMockFileSystem(this ServiceBuilder serviceBuilder, IReadOnlyDictionary<Uri, BinaryData> fileLookup)
+        => serviceBuilder.WithFileSystem(new MockFileSystem(
+            fileLookup.ToDictionary(x => x.Key.LocalPath, x => new MockFileData(x.Value.ToArray()))));
+
     public static Compilation BuildCompilation(this ServiceBuilder services, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri)
     {
         var compiler = services.Build().GetCompiler();

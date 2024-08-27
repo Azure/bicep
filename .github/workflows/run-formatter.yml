@@ -30,11 +30,27 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
 
-      - name: Format
-        run: dotnet format
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - name: Remove unnecessary using directives (IDE0005)
-        run: dotnet format style --diagnostics IDE0005 --severity info
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/vscode-bicep
+
+      - name: Format .NET code
+        run: |
+          dotnet format
+          dotnet format style --diagnostics IDE0005 --severity info
+
+      - name: Format vscode-bicep-ui
+        run: npm run format
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: Format vscode-bicep
+        run: npm run format
+        working-directory: ./src/vscode-bicep
 
       - name: Commit and push formatting updates
         if: (!github.ref_protected)
