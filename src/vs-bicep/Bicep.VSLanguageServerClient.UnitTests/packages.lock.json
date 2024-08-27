@@ -25,9 +25,9 @@
       },
       "Microsoft.Net.Compilers.Toolset": {
         "type": "Direct",
-        "requested": "[4.10.0, )",
-        "resolved": "4.10.0",
-        "contentHash": "iSAp2JvdPoB+3kjjKoPjBLECjkOHg5mnid89+lGMsPCv47ganhAZPrjyGLpust6I9nV9AyEC2VwZE9/H5u3krg=="
+        "requested": "[4.11.0, )",
+        "resolved": "4.11.0",
+        "contentHash": "arJ0+L3uOu8spoRsKt5clvvxa7kHko80pXb/J4V92VJJZ7NMn8fC27N80W6Ro5CtcdzTDQtLXfBLfISSr6I3Zw=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
