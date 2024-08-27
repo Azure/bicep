@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import path from "path";
-import webpack from "webpack";
 import CopyPlugin from "copy-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import TerserPlugin from "terser-webpack-plugin";
+import webpack from "webpack";
 
 const outputPath = path.resolve(__dirname, "out");
 
@@ -22,8 +22,7 @@ const extensionConfig: webpack.Configuration = {
     // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
     vscode: "commonjs vscode",
     // The following are optional dependencies of microsoft/vscode-azext-utils that cannot be resolved.
-    "applicationinsights-native-metrics":
-      "commonjs applicationinsights-native-metrics",
+    "applicationinsights-native-metrics": "commonjs applicationinsights-native-metrics",
     "@opentelemetry/tracing": "commonjs @opentelemetry/tracing",
   },
   optimization: {
@@ -57,7 +56,7 @@ const extensionConfig: webpack.Configuration = {
           to: path.join(__dirname, "syntaxes/bicep.tmlanguage"),
         },
       ],
-    }) as { apply(...args: unknown[]): void },
+    }),
     new CopyPlugin({
       patterns: [
         {
@@ -65,11 +64,12 @@ const extensionConfig: webpack.Configuration = {
           to: path.join(__dirname, "syntaxes/language-configuration.json"),
         },
       ],
-    }) as { apply(...args: unknown[]): void },
+    }),
     new ForkTsCheckerWebpackPlugin(),
   ],
   resolve: {
     extensions: [".ts", ".js"],
+    conditionNames: ["import", "require"],
   },
 };
 
@@ -145,9 +145,9 @@ const deployPaneConfig: webpack.Configuration = {
       {
         test: /\.js$/,
         resolve: {
-          fullySpecified: false
-        }
-      }
+          fullySpecified: false,
+        },
+      },
     ],
   },
   resolve: {
@@ -159,16 +159,10 @@ const deployPaneConfig: webpack.Configuration = {
     new webpack.ProvidePlugin({
       React: "react",
     }),
-    new CopyPlugin({
-      patterns: [
-        { from: 'node_modules/@vscode/codicons/dist/codicon.css', to: outputPath },
-        { from: 'node_modules/@vscode/codicons/dist/codicon.ttf', to: outputPath },
-      ]
-    }),
   ],
 };
 
-module.exports = (env: unknown, argv: { mode: string }) => {
+module.exports = (_env: unknown, argv: { mode: string }) => {
   if (argv.mode === "development") {
     // "cheap-module-source-map" is almost 2x faster than "source-map",
     // while it provides decent source map quality.

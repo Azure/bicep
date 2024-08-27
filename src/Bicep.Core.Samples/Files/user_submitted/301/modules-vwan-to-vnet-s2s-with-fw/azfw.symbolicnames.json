@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17023504318749958424"
+      "templateHash": "2080381249260881723"
     }
   },
   "parameters": {
@@ -30,7 +30,7 @@
     "fwpolicyid": {
       "type": "string",
       "metadata": {
-        "description": "Resoruce ID to the Firewall Policy to associate with the Azure Firewall"
+        "description": "Resource ID to the Firewall Policy to associate with the Azure Firewall"
       }
     },
     "hubid": {

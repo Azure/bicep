@@ -38,9 +38,9 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax);
 
-        public abstract void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax);
+        public abstract void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax);
 
-        public abstract void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax);
+        public abstract void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax);
 
         public abstract void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax);
 

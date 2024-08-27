@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using System.DirectoryServices.AccountManagement;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
@@ -18,11 +19,13 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ILogger<BicepDocumentSymbolHandler> logger;
         private readonly ICompilationManager compilationManager;
+        private readonly DocumentSelectorFactory documentSelectorFactory;
 
-        public BicepDocumentSymbolHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager)
+        public BicepDocumentSymbolHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager, DocumentSelectorFactory documentSelectorFactory)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
+            this.documentSelectorFactory = documentSelectorFactory;
         }
 
         public override async Task<SymbolInformationOrDocumentSymbolContainer?> Handle(DocumentSymbolParams request, CancellationToken cancellationToken)
@@ -75,7 +78,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private static SymbolKind SelectSymbolKind(DeclaredSymbol symbol) => symbol switch
         {
-            ProviderNamespaceSymbol => SymbolKind.Namespace,
+            ExtensionNamespaceSymbol => SymbolKind.Namespace,
             ParameterSymbol => SymbolKind.Field,
             TypeAliasSymbol => SymbolKind.Field,
             VariableSymbol => SymbolKind.Variable,
@@ -104,7 +107,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override DocumentSymbolRegistrationOptions CreateRegistrationOptions(DocumentSymbolCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams()
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };
     }
 }

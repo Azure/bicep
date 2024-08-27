@@ -83,7 +83,7 @@ namespace Bicep.Core.UnitTests.Registry
             mock.Setup(x => x.OnRestoreArtifacts(It.IsAny<bool>()))
                 .Returns(Task.CompletedTask);
 
-            ErrorBuilderDelegate? @null = null;
+            DiagnosticBuilderDelegate? @null = null;
             var configuration = BicepTestConstants.BuiltInConfiguration;
 
             var validRefUri = RandomFileUri();
@@ -100,7 +100,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             var badRefUri = RandomFileUri();
             ArtifactReference? nullRef = null;
-            ErrorBuilderDelegate? badRefError = x => new ErrorDiagnostic(x.TextSpan, "BCPMock", "Bad ref error");
+            DiagnosticBuilderDelegate? badRefError = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Compiler, "BCPMock", "Bad ref error");
             mock.Setup(m => m.TryParseArtifactReference(ArtifactType.Module, null, "badRef")).Returns(ResultHelper.Create(nullRef, badRefError));
 
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef)).Returns(true);
@@ -113,9 +113,9 @@ namespace Bicep.Core.UnitTests.Registry
             mock.Setup(m => m.TryGetLocalArtifactEntryPointUri(validRef3)).Returns(ResultHelper.Create(validRef3LocalUri, @null));
 
             mock.Setup(m => m.RestoreArtifacts(It.IsAny<IEnumerable<ArtifactReference>>()))
-                .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>
+                .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>
                 {
-                    [validRef3] = x => new ErrorDiagnostic(x.TextSpan, "RegFail", "Failed to restore module")
+                    [validRef3] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Compiler, "RegFail", "Failed to restore module")
                 });
 
             var dispatcher = CreateDispatcher(BicepTestConstants.ConfigurationManager, fail.Object, mock.Object);
@@ -172,9 +172,9 @@ namespace Bicep.Core.UnitTests.Registry
             var registryMock = StrictMock.Of<IArtifactRegistry>();
             registryMock.SetupGet(x => x.Scheme).Returns("mock");
             registryMock.Setup(x => x.RestoreArtifacts(It.IsAny<IEnumerable<ArtifactReference>>()))
-                .ReturnsAsync(new Dictionary<ArtifactReference, ErrorBuilderDelegate>
+                .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilderDelegate>
                 {
-                    [badReference] = x => new ErrorDiagnostic(x.TextSpan, "RestoreFailure", "Failed to restore module.")
+                    [badReference] = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Compiler, "RestoreFailure", "Failed to restore module.")
                 });
             registryMock.Setup(x => x.IsArtifactRestoreRequired(badReference))
                 .Returns(true);

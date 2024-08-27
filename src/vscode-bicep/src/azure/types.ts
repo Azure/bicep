@@ -10,11 +10,7 @@ export interface AzureAccount {
   readonly onStatusChanged: Event<AzureLoginStatus>;
 }
 
-export type AzureLoginStatus =
-  | "Initializing"
-  | "LoggingIn"
-  | "LoggedIn"
-  | "LoggedOut";
+export type AzureLoginStatus = "Initializing" | "LoggingIn" | "LoggedIn" | "LoggedOut";
 
 type DeploymentScopeBase<T> = {
   portalUrl: string;
@@ -45,11 +41,7 @@ export type DeploymentScope = DeploymentScopeBase<
     }
 >;
 
-export type DeploymentScopeType =
-  | "resourceGroup"
-  | "subscription"
-  | "managementGroup"
-  | "tenant";
+export type DeploymentScopeType = "resourceGroup" | "subscription" | "managementGroup" | "tenant";
 
 export interface IAzureUiManager {
   getAccessToken(scope: DeploymentScope): Promise<AccessToken>;

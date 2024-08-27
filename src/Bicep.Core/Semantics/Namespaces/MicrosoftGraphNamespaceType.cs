@@ -16,10 +16,10 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
-            BicepProviderName: BuiltInName,
+            BicepExtensionName: BuiltInName,
             ConfigurationType: null,
-            ArmTemplateProviderName: "MicrosoftGraph",
-            ArmTemplateProviderVersion: "1.0.0");
+            TemplateExtensionName: "MicrosoftGraph",
+            TemplateExtensionVersion: "1.0.0");
 
         public static NamespaceType Create(string aliasName)
         {

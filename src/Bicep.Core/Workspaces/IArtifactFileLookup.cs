@@ -11,9 +11,9 @@ namespace Bicep.Core.Workspaces;
 
 public interface IArtifactFileLookup
 {
-    ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference);
+    ResultWithDiagnosticBuilder<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference);
 
     ImmutableDictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> ArtifactLookup { get; }
 
-    ImmutableDictionary<ISourceFile, ImmutableHashSet<ImplicitProvider>> ImplicitProviders { get; }
+    ImmutableDictionary<ISourceFile, ImmutableHashSet<ImplicitExtension>> ImplicitExtensions { get; }
 }

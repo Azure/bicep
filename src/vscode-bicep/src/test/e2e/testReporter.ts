@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { TestContext, Reporter, Test } from "@jest/reporters";
+import { Reporter, Test, TestContext } from "@jest/reporters";
 import { AggregatedResult, TestResult } from "@jest/test-result";
 
-export default class TestReporter
-  implements Pick<Reporter, "onTestResult" | "onRunComplete">
-{
-  onTestResult(test: Test, { testResults }: TestResult): void {
+export default class TestReporter implements Pick<Reporter, "onTestResult" | "onRunComplete"> {
+  onTestResult(_test: Test, { testResults }: TestResult): void {
     for (const testResult of testResults) {
       switch (testResult.status) {
         case "passed":
@@ -30,13 +28,9 @@ export default class TestReporter
     }
   }
 
-  onRunComplete(contexts: Set<TestContext>, results: AggregatedResult): void {
+  onRunComplete(_contexts: Set<TestContext>, results: AggregatedResult): void {
     console.log("");
-    console.log(
-      `Test Suites: ${results.numPassedTestSuites} passed, ${results.numTotalTestSuites} total`,
-    );
-    console.log(
-      `Tests:       ${results.numPassedTestSuites} passed, ${results.numTotalTestSuites} total`,
-    );
+    console.log(`Test Suites: ${results.numPassedTestSuites} passed, ${results.numTotalTestSuites} total`);
+    console.log(`Tests:       ${results.numPassedTestSuites} passed, ${results.numTotalTestSuites} total`);
   }
 }

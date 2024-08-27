@@ -164,12 +164,12 @@
       },
       "Microsoft.VSSDK.BuildTools": {
         "type": "Direct",
-        "requested": "[17.10.2185, )",
-        "resolved": "17.10.2185",
-        "contentHash": "54mdlCl9HcvTs7JcCGvR142yutOtOTFex5HXJQa2qKn9frQjn+fwWfsw+qeETgaOs6NRzArw1F8nptLbtNlblg==",
+        "requested": "[17.11.414, )",
+        "resolved": "17.11.414",
+        "contentHash": "RrC/3qH42/etd7pF8V8qBTvLe9Sjwubd4u5Va0fH18gBk0z07BZVm7rKtO/9M9MRM+lz/ZX3P82K3bOn034vvw==",
         "dependencies": {
-          "Microsoft.VisualStudio.SDK.Analyzers": "17.7.20",
-          "Microsoft.VsSDK.CompatibilityAnalyzer": "17.10.2185"
+          "Microsoft.VisualStudio.SDK.Analyzers": "17.7.41",
+          "Microsoft.VsSDK.CompatibilityAnalyzer": "17.11.414"
         }
       },
       "Nerdbank.GitVersioning": {
@@ -893,8 +893,8 @@
       },
       "Microsoft.VisualStudio.SDK.Analyzers": {
         "type": "Transitive",
-        "resolved": "17.7.22",
-        "contentHash": "00dfqASF8HUgQ/ZVw5iCKKMj4Pi2OSnaHuX6JWkV/TgwvIIUwJNURKuAquzq9yOMbHArkZJ7VanvslYIugDGqg=="
+        "resolved": "17.7.41",
+        "contentHash": "m+z9Li+FThM9BtsvsAEcZP4563DnmfxyCGItaMJHFmfSKMjuZ0t8g8yNdySGB69oKfS3vcA2vOReDHixdSSclQ=="
       },
       "Microsoft.VisualStudio.Setup.Configuration.Interop": {
         "type": "Transitive",
@@ -1412,8 +1412,8 @@
       },
       "Microsoft.VsSDK.CompatibilityAnalyzer": {
         "type": "Transitive",
-        "resolved": "17.10.2185",
-        "contentHash": "39JOhDbpreMbQFQRObN0hTMszHmCiS6w3u+N+bb0Fz0iFimYxSjW+AcoC5zZvOECpw2FqqwfT4XXpzIYOvM88A=="
+        "resolved": "17.11.414",
+        "contentHash": "4V0IkVrvJ5LHBlrL5JNXXwAeD16xK80zSxrERF7+djCebrvxi4nfTYN5ZpwAUYDlOFxbGONSeoRjqHHQ21CJLg=="
       },
       "Microsoft.Win32.Primitives": {
         "type": "Transitive",

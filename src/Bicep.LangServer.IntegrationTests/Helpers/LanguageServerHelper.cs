@@ -7,6 +7,7 @@ using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -39,6 +40,7 @@ namespace Bicep.LangServer.IntegrationTests
             var serverPipe = new Pipe();
 
             var server = new Server(
+                BicepLangServerOptions.Default,
                 options => options
                     .WithInput(serverPipe.Reader)
                     .WithOutput(clientPipe.Writer)

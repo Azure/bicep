@@ -4,8 +4,6 @@
 import { ConfigurationScope, workspace, WorkspaceConfiguration } from "vscode";
 import { bicepConfigurationPrefix } from "./constants";
 
-export function getBicepConfiguration(
-  scope?: ConfigurationScope,
-): WorkspaceConfiguration {
+export function getBicepConfiguration(scope?: ConfigurationScope): WorkspaceConfiguration {
   return workspace.getConfiguration(bicepConfigurationPrefix, scope);
 }

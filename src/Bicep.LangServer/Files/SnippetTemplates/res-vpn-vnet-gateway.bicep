@@ -12,7 +12,7 @@ resource /*${1:virtualNetworkGateway}*/virtualNetworkGateway 'Microsoft.Network/
             id: /*${5:'subnet.id'}*/'subnet.id'
           }
           publicIPAddress: {
-            id: /*${6:'publicIPAdresses.id'}*/'publicIPAdresses.id'
+            id: /*${6:'publicIPAddresses.id'}*/'publicIPAddresses.id'
           }
         }
       }

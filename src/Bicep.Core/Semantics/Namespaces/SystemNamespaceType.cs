@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -46,18 +48,16 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
-            BicepProviderName: BuiltInName,
+            BicepExtensionName: BuiltInName,
             ConfigurationType: null,
-            ArmTemplateProviderName: "System",
-            ArmTemplateProviderVersion: "1.0.0");
+            TemplateExtensionName: "System",
+            TemplateExtensionVersion: "1.0.0");
 
         private delegate bool VisibilityDelegate(IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind);
 
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
         private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetSystemOverloads().ToImmutableArray();
-
-        private static readonly ImmutableArray<NamespaceValue<Decorator>> Decorators = GetSystemDecorators().ToImmutableArray();
 
         private static readonly ImmutableArray<NamespaceValue<TypeProperty>> AmbientSymbols = GetSystemAmbientSymbols().ToImmutableArray();
 
@@ -1090,7 +1090,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }, null);
         }
 
-        private static ResultWithDiagnostic<Uri> TryGetFileUriWithDiagnostics(IBinder binder, string filePath)
+        private static ResultWithDiagnosticBuilder<Uri> TryGetFileUriWithDiagnostics(IBinder binder, string filePath)
         {
             if (!LocalModuleReference.Validate(filePath).IsSuccess(out _, out var validateFilePathFailureBuilder))
             {
@@ -1228,9 +1228,9 @@ namespace Bicep.Core.Semantics.Namespaces
                             new Diagnostic(
                                 arguments[0].Span,
                                 DiagnosticLevel.Info,
+                                DiagnosticSource.CoreLinter,
                                 "Bicepparam ReadEnvironmentVariable function",
-                                $"Available environment variables are: {string.Join(", ", envVariableNames)}",
-                                null)
+                                $"Available environment variables are: {string.Join(", ", envVariableNames)}")
                         );
                     }
 
@@ -1249,7 +1249,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private record LoadTextContentResult(Uri FileUri, string Content);
 
-        private static Result<LoadTextContentResult, ErrorDiagnostic> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int maxCharacters = -1)
+        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int maxCharacters = -1)
         {
             if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
             {
@@ -1289,7 +1289,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new(new LoadTextContentResult(fileUri, result.Contents));
         }
 
-        private static Result<LoadTextContentResult, ErrorDiagnostic> TryLoadTextContentAsBase64(SemanticModel model, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument)
+        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentAsBase64(SemanticModel model, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument)
         {
             if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
             {
@@ -1458,7 +1458,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
                 // If the in-line JSON is so complex that troubleshooting is difficult, then that's a sign that the user should
                 // instead break it out into a separate file and use loadTextContent().
-                var error = DiagnosticBuilder.ForPosition(arguments[0].Expression).UnparseableJsonType();
+                var error = DiagnosticBuilder.ForPosition(arguments[0].Expression).UnparsableJsonType();
 
                 return new(ErrorType.Create(error));
             }
@@ -1496,7 +1496,7 @@ namespace Bicep.Core.Semantics.Namespaces
             BannedFunction.CreateForOperator("coalesce", "??")
         ];
 
-        private static IEnumerable<NamespaceValue<Decorator>> GetSystemDecorators()
+        private static IEnumerable<NamespaceValue<Decorator>> GetSystemDecorators(IFeatureProvider featureProvider)
         {
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
@@ -1582,6 +1582,11 @@ namespace Bicep.Core.Semantics.Namespaces
                         if (decorated is DescribableExpression describable &&
                             functionCall.Parameters.FirstOrDefault() is { } description)
                         {
+                            if (description is StringLiteralExpression stringLiteral)
+                            {
+                                description = stringLiteral with { Value = StringUtils.NormalizeIndent(stringLiteral.Value) };
+                            }
+
                             return describable with { Description = description };
                         }
 
@@ -1590,11 +1595,11 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
-            static IEnumerable<Decorator> GetBicepTemplateDecorators()
+            static IEnumerable<Decorator> GetBicepTemplateDecorators(IFeatureProvider featureProvider)
             {
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
-                    .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
+                    .WithFlags(featureProvider.SecureOutputsEnabled ? FunctionFlags.ParameterOutputOrTypeDecorator : FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                     .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((functionCall, decorated) =>
@@ -1853,7 +1858,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(decorator, (_, _) => true);
             }
 
-            foreach (var decorator in GetBicepTemplateDecorators())
+            foreach (var decorator in GetBicepTemplateDecorators(featureProvider))
             {
                 yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
             }
@@ -1958,7 +1963,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 AmbientSymbols.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 Overloads.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 BannedFunctions,
-                Decorators.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
+                GetSystemDecorators(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 new EmptyResourceTypeProvider());
         }
     }

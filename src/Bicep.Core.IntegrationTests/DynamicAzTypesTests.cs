@@ -38,15 +38,15 @@ namespace Bicep.Core.IntegrationTests
             return services;
         }
 
-        private async Task<ServiceBuilder> ServicesWithTestProviderArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
+        private async Task<ServiceBuilder> ServicesWithTestExtensionArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
         {
             (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
 
             (_, var client) = blobClients.First();
             var configResult = await client.UploadBlobAsync(BinaryData.FromString("{}"));
             var blobResult = await client.UploadBlobAsync(artifactPayload);
-            var manifest = BicepTestConstants.GetBicepProviderManifest(blobResult.Value, configResult.Value);
-            await client.SetManifestAsync(manifest, artifactRegistryAddress.ProviderVersion);
+            var manifest = BicepTestConstants.GetBicepExtensionManifest(blobResult.Value, configResult.Value);
+            await client.SetManifestAsync(manifest, artifactRegistryAddress.ExtensionVersion);
 
             var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(cacheRoot);
@@ -94,7 +94,7 @@ namespace Bicep.Core.IntegrationTests
             ");
 
             result.Should().GenerateATemplate();
-            result.Compilation.GetEntrypointSemanticModel().Root.ProviderDeclarations.Should().Contain(x => x.Name.Equals("testAlias"));
+            result.Compilation.GetEntrypointSemanticModel().Root.ExtensionDeclarations.Should().Contain(x => x.Name.Equals("testAlias"));
         }
 
         [TestMethod]
@@ -118,7 +118,7 @@ namespace Bicep.Core.IntegrationTests
             ");
 
             result.Should().GenerateATemplate();
-            result.Compilation.GetEntrypointSemanticModel().Root.ProviderDeclarations.Should().Contain(x => x.Name.Equals("az"));
+            result.Compilation.GetEntrypointSemanticModel().Root.ExtensionDeclarations.Should().Contain(x => x.Name.Equals("az"));
         }
 
         [TestMethod]
@@ -138,11 +138,11 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Bicep_module_artifact_specified_in_provider_declaration_syntax_yields_diagnostic()
+        public async Task Bicep_module_artifact_specified_in_extension_declaration_syntax_yields_diagnostic()
         {
             // ARRANGE
             var fsMock = new MockFileSystem();
-            var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/providers/az", "0.2.661");
+            var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/extensions/az", "0.2.661");
             var clientFactory = RegistryHelper.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
             var services = new ServiceBuilder()
                 .WithFileSystem(fsMock)
@@ -167,20 +167,20 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(
                 new[] {
-                ("BCP192", DiagnosticLevel.Error, """Unable to restore the artifact with reference "br:mcr.microsoft.com/bicep/providers/az:0.2.661": The OCI artifact is not a valid Bicep artifact. Expected a provider, but retrieved a module."""),
+                ("BCP192", DiagnosticLevel.Error, """Unable to restore the artifact with reference "br:mcr.microsoft.com/bicep/extensions/az:0.2.661": The OCI artifact is not a valid Bicep artifact. Expected an extension, but retrieved a module."""),
             });
         }
 
         [TestMethod]
         [DynamicData(nameof(ArtifactRegistryCorruptedPackageNegativeTestScenarios), DynamicDataSourceType.Method)]
-        public async Task Bicep_compiler_handles_corrupted_provider_package_gracefully(
+        public async Task Bicep_compiler_handles_corrupted_extension_package_gracefully(
             BinaryData payload,
             string innerErrorMessage)
         {
             // ARRANGE
-            var testArtifactAddress = new ArtifactRegistryAddress("biceptestdf.azurecr.io", "bicep/providers/az", "0.0.0-corruptpng");
+            var testArtifactAddress = new ArtifactRegistryAddress("biceptestdf.azurecr.io", "bicep/extensions/az", "0.0.0-corruptpng");
 
-            var services = await ServicesWithTestProviderArtifact(testArtifactAddress, payload);
+            var services = await ServicesWithTestExtensionArtifact(testArtifactAddress, payload);
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
@@ -190,13 +190,13 @@ namespace Bicep.Core.IntegrationTests
             // ASSERT
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics([
-                ("BCP396", DiagnosticLevel.Error, """The referenced provider types artifact has been published with malformed content.""")
+                ("BCP396", DiagnosticLevel.Error, """The referenced extension types artifact has been published with malformed content.""")
             ]);
         }
 
-        public record ArtifactRegistryAddress(string RegistryAddress, string RepositoryPath, string ProviderVersion)
+        public record ArtifactRegistryAddress(string RegistryAddress, string RepositoryPath, string ExtensionVersion)
         {
-            public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ProviderVersion}";
+            public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ExtensionVersion}";
 
             public (string, string) ClientDescriptor() => (RegistryAddress, RepositoryPath);
         }
@@ -237,24 +237,24 @@ namespace Bicep.Core.IntegrationTests
         public static IEnumerable<object[]> ArtifactRegistryAddressNegativeTestScenarios()
         {
             // constants
-            const string placeholderProviderVersion = "0.0.0-placeholder";
+            const string placeholderExtensionVersion = "0.0.0-placeholder";
 
             // unresolvable host registry. For example if DNS is down or unresponsive
             const string unreachableRegistryAddress = "unknown.registry.azurecr.io";
             const string NoSuchHostMessage = $" (No such host is known. ({unreachableRegistryAddress}:443))";
             var AggregateExceptionMessage = $"Retry failed after 4 tries. Retry settings can be adjusted in ClientOptions.Retry or by configuring a custom retry policy in ClientOptions.RetryPolicy.{string.Concat(Enumerable.Repeat(NoSuchHostMessage, 4))}";
-            var unreacheable = new ArtifactRegistryAddress(unreachableRegistryAddress, "bicep/providers/az", placeholderProviderVersion);
+            var unreachable = new ArtifactRegistryAddress(unreachableRegistryAddress, "bicep/extensions/az", placeholderExtensionVersion);
             yield return new object[] {
-                unreacheable,
+                unreachable,
                 new AggregateException(AggregateExceptionMessage),
                 new (string, DiagnosticLevel, string)[]{
-                    ("BCP192", DiagnosticLevel.Error, @$"Unable to restore the artifact with reference ""{unreacheable.ToSpecificationString(':')}"": {AggregateExceptionMessage}")
+                    ("BCP192", DiagnosticLevel.Error, @$"Unable to restore the artifact with reference ""{unreachable.ToSpecificationString(':')}"": {AggregateExceptionMessage}")
                 },
             };
 
             // manifest not found is thrown when the repository address is not registered and/or the version doesn't exist in the registry
             const string NotFoundMessage = "The artifact does not exist in the registry.";
-            var withoutRepo = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "unknown/path/az", placeholderProviderVersion);
+            var withoutRepo = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "unknown/path/az", placeholderExtensionVersion);
             yield return new object[] {
                 withoutRepo,
                 new RequestFailedException(404, NotFoundMessage),
@@ -307,7 +307,7 @@ namespace Bicep.Core.IntegrationTests
             var services = await GetServices();
             // Built-In Config contains the following entry:
             // {
-            //   "implicitProviders": ["az"]
+            //   "implicitExtensions": ["az"]
             // }
             services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
             {
@@ -327,10 +327,10 @@ namespace Bicep.Core.IntegrationTests
             var services = await GetServices();
             // Built-In Config contains the following entries:
             // {
-            //   "providers": {
+            //   "extensions": {
             //     "az": "builtin:"
             //   },
-            //   "implicitProviders": ["az"]
+            //   "implicitExtensions": ["az"]
             // }
             var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
             extension az
@@ -340,14 +340,14 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Az_namespace_can_be_loaded_dynamically_using_provider_configuration()
+        public async Task Az_namespace_can_be_loaded_dynamically_using_extension_configuration()
         {
             //ARRANGE
             var artifactRegistryAddress = new ArtifactRegistryAddress(
                 "fake.azurecr.io",
                 "fake/path/az",
                 "1.0.0-fake");
-            var services = await ServicesWithTestProviderArtifact(
+            var services = await ServicesWithTestExtensionArtifact(
                 artifactRegistryAddress,
                 ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", """{"resources": {}, "resourceFunctions": {}}""")));
             services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
@@ -362,7 +362,7 @@ namespace Bicep.Core.IntegrationTests
             //ASSERT
             result.Should().GenerateATemplate();
             result.Template.Should().NotBeNull();
-            result.Template.Should().HaveValueAtPath("$.imports.az.version", AzNamespaceType.EmbeddedAzProviderVersion);
+            result.Template.Should().HaveValueAtPath("$.imports.az.version", AzNamespaceType.EmbeddedAzExtensionVersion);
         }
     }
 }

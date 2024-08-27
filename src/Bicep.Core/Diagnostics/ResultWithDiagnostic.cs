@@ -5,9 +5,9 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.Diagnostics;
 
-public class ResultWithDiagnostic<TSuccess> : Result<TSuccess, DiagnosticBuilder.ErrorBuilderDelegate>
+public class ResultWithDiagnostic<TSuccess> : Result<TSuccess, IDiagnostic>
 {
     public ResultWithDiagnostic(TSuccess success) : base(success) { }
 
-    public ResultWithDiagnostic(DiagnosticBuilder.ErrorBuilderDelegate error) : base(error) { }
+    public ResultWithDiagnostic(IDiagnostic diagnostic) : base(diagnostic) { }
 }

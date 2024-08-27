@@ -7,7 +7,7 @@ type test = {
   resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
 }
 
-type strangeFormattings = {
+type strangeFormatting = {
   test: resource<
 
   'Astronomer.Astro/organizations@2023-08-01-preview'
@@ -25,7 +25,7 @@ type test2 = resource<
 >.name
 
 param bar resource<'Microsoft.Resources/tags@2022-09-01'>.properties = {
-//@[6:9) [no-unused-params (Warning)] Parameter "bar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |bar|
+//@[6:9) [no-unused-params (Warning)] Parameter "bar" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |bar|
   tags: {
     fizz: 'buzz'
     snap: 'crackle'

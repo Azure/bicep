@@ -130,14 +130,14 @@ namespace Bicep.LanguageServer.Completions
         ObjectPropertyColonExists = 1UL << 22,
 
         /// <summary>
-        /// We're at this place in an import statement: 'import foo |'
+        /// We're at this place in an extension statement: 'extension foo |'
         /// </summary>
-        ExpectingImportWithOrAsKeyword = 1UL << 23,
+        ExpectingExtensionWithOrAsKeyword = 1UL << 23,
 
         /// <summary>
-        /// We're at this place in an import statement: 'import | as foo'
+        /// We're at this place in an extension statement: 'extension | as foo'
         /// </summary>
-        ExpectingImportSpecification = 1UL << 24,
+        ExpectingExtensionSpecification = 1UL << 24,
 
         /// <summary>
         /// We're inside a function parentheses: 'someFunc(|)'
@@ -155,9 +155,9 @@ namespace Bicep.LanguageServer.Completions
         DisableNextLineDiagnosticsCodes = 1UL << 27,
 
         /// <summary>
-        /// We're at this place in an import statement: 'import foo as bar |'
+        /// We're at this place in an extension statement: 'extension foo as bar |'
         /// </summary>
-        ExpectingImportConfig = 1UL << 28,
+        ExpectingExtensionConfig = 1UL << 28,
 
         /// <summary>
         /// The current location needs a bicep file path completion for using declaration
@@ -190,9 +190,9 @@ namespace Bicep.LanguageServer.Completions
         UnionTypeMember = 1UL << 34,
 
         /// <summary>
-        /// We're at this place in an import statement: 'import 'foo@1.0.0' with { foo: true } as |'
+        /// We're at this place in an extension statement: 'extension 'foo@1.0.0' with { foo: true } as |'
         /// </summary>
-        ExpectingImportAsKeyword = 1L << 35,
+        ExpectingExtensionAsKeyword = 1L << 35,
 
         /// <summary>
         /// The current location is after the output type.

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 import renderer from "react-test-renderer";
 import { ThemeProvider } from "styled-components";
+
 import "jest-styled-components";
 
 import { Graph } from "../../visualizer/app/components/Graph";
@@ -12,7 +13,7 @@ describe("component Graph", () => {
     const graph = renderer.create(
       <ThemeProvider theme={darkTheme}>
         <Graph elements={[]} />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(graph.toJSON()).toMatchSnapshot();

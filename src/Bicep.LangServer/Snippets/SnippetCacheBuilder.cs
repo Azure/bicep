@@ -128,7 +128,7 @@ public class SnippetCacheBuilder
             bodyText = RemoveSnippetPlaceholderComments(bodyText);
 
             // snippet placeholders are authored using a multi-line comment syntax. To include this when fetching the identifier,
-            // we have to fetch everything from the end of the preceeding syntax (as multi-line comments are stored in trailing trivia on the previous token).
+            // we have to fetch everything from the end of the preceding syntax (as multi-line comments are stored in trailing trivia on the previous token).
             var nameStart = resourceDeclaration.Keyword.Span.Position + resourceDeclaration.Keyword.Span.Length;
             var nameEnd = resourceDeclaration.Name.Span.Position + resourceDeclaration.Name.Span.Length;
             var identifier = template.Substring(nameStart, nameEnd - nameStart).Trim();

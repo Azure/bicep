@@ -148,7 +148,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
         SyntaxBase newSyntax = SyntaxFactory.CreateIdentifier(resource.Symbol.Name);
         if (!isFull)
         {
-            newSyntax = SyntaxFactory.CreatePropertyAccess(newSyntax, "properties");
+            newSyntax = SyntaxFactory.CreateAccessSyntax(newSyntax, "properties");
         }
 
         var codeReplacement = new CodeReplacement(functionCall.Span, newSyntax.ToString());

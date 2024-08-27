@@ -9,7 +9,9 @@ using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Options;
 using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -195,7 +197,8 @@ public class BicepTextDocumentSyncHandlerTests
                                                                     telemetryProvider.Object,
                                                                     new Workspace());
 
-        var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, bicepConfigChangeHandler);
+
+        var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, bicepConfigChangeHandler, new DocumentSelectorFactory(BicepLangServerOptions.Default));
 
         await bicepTextDocumentSyncHandler.Handle(TextDocumentParamHelper.CreateDidOpenDocumentParams(bicepConfigUri, prevBicepConfigFileContents, 1), CancellationToken.None);
 

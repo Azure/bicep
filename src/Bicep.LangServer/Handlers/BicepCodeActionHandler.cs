@@ -32,11 +32,13 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
         private readonly ICompilationManager compilationManager;
+        private readonly DocumentSelectorFactory documentSelectorFactory;
 
-        public BicepCodeActionHandler(ICompilationManager compilationManager, IClientCapabilitiesProvider clientCapabilitiesProvider)
+        public BicepCodeActionHandler(ICompilationManager compilationManager, IClientCapabilitiesProvider clientCapabilitiesProvider, DocumentSelectorFactory documentSelectorFactory)
         {
             this.clientCapabilitiesProvider = clientCapabilitiesProvider;
             this.compilationManager = compilationManager;
+            this.documentSelectorFactory = documentSelectorFactory;
         }
 
         public override async Task<CommandOrCodeActionContainer?> Handle(CodeActionParams request, CancellationToken cancellationToken)
@@ -105,7 +107,7 @@ namespace Bicep.LanguageServer.Handlers
                         analyzerDiagnostic.Span.ContainsInclusive(requestStartOffset) ||
                         analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
                         (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
-                    .OfType<AnalyzerDiagnostic>()
+                    .Where(x => x.Source == DiagnosticSource.CoreLinter)
                     .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, semanticModel.Configuration.ConfigFileUri?.LocalPath));
                 commandOrCodeActions.AddRange(editLinterRuleActions);
             }
@@ -237,7 +239,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override CodeActionRegistrationOptions CreateRegistrationOptions(CodeActionCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams(),
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             CodeActionKinds = new Container<CodeActionKind>(CodeActionKind.QuickFix),
             ResolveProvider = false
         };

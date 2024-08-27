@@ -63,34 +63,6 @@ namespace Bicep.Core.Parsing
 
         private static bool CheckKeyword(Token? token, string keyword) => token?.Type == TokenType.Identifier && token.Text == keyword;
 
-        private static int GetOperatorPrecedence(TokenType tokenType) => tokenType switch
-        {
-            // the absolute values are not important here
-            TokenType.Modulo or
-            TokenType.Asterisk or
-            TokenType.Slash => 100,
-
-            TokenType.Plus or
-            TokenType.Minus => 90,
-
-            TokenType.RightChevron or
-            TokenType.GreaterThanOrEqual or
-            TokenType.LeftChevron or
-            TokenType.LessThanOrEqual => 80,
-
-            TokenType.Equals or
-            TokenType.NotEquals or
-            TokenType.EqualsInsensitive or
-            TokenType.NotEqualsInsensitive => 70,
-
-            // if we add bitwise operators in the future, they should go here
-            TokenType.LogicalAnd => 50,
-            TokenType.LogicalOr => 40,
-            TokenType.DoubleQuestion => 30,
-
-            _ => -1,
-        };
-
         protected static RecoveryFlags GetSuppressionFlag(SyntaxBase precedingNode)
         {
             // local function
@@ -246,7 +218,7 @@ namespace Bicep.Core.Parsing
                 // it could also be the end of file or some other token that is actually valid in this place
                 Token candidateOperatorToken = this.reader.Peek();
 
-                int operatorPrecedence = GetOperatorPrecedence(candidateOperatorToken.Type);
+                int operatorPrecedence = TokenTypeHelper.GetOperatorPrecedence(candidateOperatorToken.Type);
 
                 if (operatorPrecedence <= precedence)
                 {
@@ -290,9 +262,27 @@ namespace Bicep.Core.Parsing
             return types.Contains(reader.Peek().Type);
         }
 
+        protected bool CheckTrivia(ImmutableArray<SyntaxTrivia>? trivia, params SyntaxTriviaType[] types)
+        {
+            if (trivia is null || trivia?.IsEmpty is true)
+            {
+                return false;
+            }
+            var isTypes = false;
+            foreach (var trivium in trivia.GetValueOrDefault())
+            {
+                if (types.Contains(trivium.Type))
+                {
+                    isTypes = true;
+                    break;
+                }
+            }
+            return isTypes;
+        }
+
         private bool CheckKeyword(string keyword) => !this.IsAtEnd() && CheckKeyword(this.reader.Peek(), keyword);
 
-        protected Token Expect(TokenType type, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected Token Expect(TokenType type, DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
         {
             if (this.Check(type))
             {
@@ -304,7 +294,7 @@ namespace Bicep.Core.Parsing
             throw new ExpectedTokenException(this.reader.Peek(), errorFunc);
         }
 
-        protected Token ExpectKeyword(string expectedKeyword, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc = null)
+        protected Token ExpectKeyword(string expectedKeyword, DiagnosticBuilder.DiagnosticBuilderDelegate? errorFunc = null)
         {
             errorFunc ??= b => b.ExpectedKeyword(expectedKeyword);
             return GetOptionalKeyword(expectedKeyword) ??
@@ -573,7 +563,13 @@ namespace Bicep.Core.Parsing
                     // we don't want to allow mixing and matching, and we want to insert dummy elements between commas
                     if (Check(TokenType.NewLine))
                     {
-                        if (!Check(this.reader.PeekAhead(), closingTokenType))
+                        var peekPosition = 1;
+                        while (Check(this.reader.PeekAhead(peekPosition), TokenType.NewLine) && CheckTrivia(this.reader.PeekAhead(peekPosition)?.LeadingTrivia, [SyntaxTriviaType.SingleLineComment, SyntaxTriviaType.MultiLineComment]))
+                        {
+                            // Check End of comments for closingTokenType
+                            peekPosition++;
+                        }
+                        if (!Check(this.reader.PeekAhead(peekPosition), closingTokenType))
                         {
                             itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCommaSeparator()));
                         }
@@ -613,14 +609,14 @@ namespace Bicep.Core.Parsing
             return itemsOrTokens;
         }
 
-        protected IdentifierSyntax Identifier(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected IdentifierSyntax Identifier(DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
         {
             var identifier = Expect(TokenType.Identifier, errorFunc);
 
             return new IdentifierSyntax(identifier);
         }
 
-        protected IdentifierSyntax IdentifierOrSkip(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected IdentifierSyntax IdentifierOrSkip(DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
         {
             if (this.Check(TokenType.Identifier))
             {
@@ -632,7 +628,7 @@ namespace Bicep.Core.Parsing
             return new IdentifierSyntax(skipped);
         }
 
-        protected IdentifierSyntax IdentifierWithRecovery(DiagnosticBuilder.ErrorBuilderDelegate errorFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)
+        protected IdentifierSyntax IdentifierWithRecovery(DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)
         {
             var identifierOrSkipped = this.WithRecovery(
                 () => Identifier(errorFunc),
@@ -1324,10 +1320,10 @@ namespace Bicep.Core.Parsing
             _ => syntax,
         };
 
-        protected SkippedTriviaSyntax Skip(SyntaxBase syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected SkippedTriviaSyntax Skip(SyntaxBase syntax, DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
             => Skip(syntax.AsEnumerable(), errorFunc);
 
-        private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax, DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
         {
             var syntaxArray = syntax.ToImmutableArray();
             var span = TextSpan.Between(syntaxArray.First(), syntaxArray.Last());
@@ -1345,10 +1341,10 @@ namespace Bicep.Core.Parsing
         protected SkippedTriviaSyntax SkipEmpty()
             => SkipEmpty(this.reader.Peek().Span.Position, null);
 
-        protected SkippedTriviaSyntax SkipEmpty(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected SkippedTriviaSyntax SkipEmpty(DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
             => SkipEmpty(this.reader.Peek().Span.Position, errorFunc);
 
-        private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc)
+        private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.DiagnosticBuilderDelegate? errorFunc)
         {
             var span = new TextSpan(position, 0);
             var errors = errorFunc is null ? [] : errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable();
@@ -1368,7 +1364,7 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private SkippedTriviaSyntax SynchronizeAndReturnTrivia(int startReaderPosition, RecoveryFlags flags, DiagnosticBuilder.ErrorBuilderDelegate errorFunc, params TokenType[] expectedTypes)
+        private SkippedTriviaSyntax SynchronizeAndReturnTrivia(int startReaderPosition, RecoveryFlags flags, DiagnosticBuilder.DiagnosticBuilderDelegate diagnosticBuilder, params TokenType[] expectedTypes)
         {
             var startToken = reader.AtPosition(startReaderPosition);
 
@@ -1388,13 +1384,13 @@ namespace Bicep.Core.Parsing
             }
 
             var errors = flags.HasFlag(RecoveryFlags.SuppressDiagnostics)
-                ? ImmutableArray<ErrorDiagnostic>.Empty
-                : [errorFunc(DiagnosticBuilder.ForPosition(errorSpan))];
+                ? ImmutableArray<Diagnostic>.Empty
+                : [diagnosticBuilder(DiagnosticBuilder.ForPosition(errorSpan))];
 
             return new SkippedTriviaSyntax(skippedSpan, skippedTokens, errors);
         }
 
-        protected SyntaxBase ThrowIfSkipped(Func<SyntaxBase> syntaxFunc, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected SyntaxBase ThrowIfSkipped(Func<SyntaxBase> syntaxFunc, DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)
         {
             var startToken = reader.Peek();
             var syntax = syntaxFunc();

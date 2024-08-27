@@ -172,23 +172,23 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public Task PublishModule(ArtifactReference _, BinaryData __, BinaryData? ___, string? ____, string? _____)
                 => throw new NotImplementedException();
 
-            public Task PublishProvider(ArtifactReference _, ProviderPackage __)
+            public Task PublishExtension(ArtifactReference _, ExtensionPackage __)
                 => throw new NotImplementedException();
 
             public Task<bool> CheckArtifactExists(ArtifactType artifactType, ArtifactReference reference) => throw new NotImplementedException();
 
-            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> _)
+            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> _)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references)
+            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references)
             {
                 this.ModuleRestores.Push(references);
-                return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>());
+                return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
             }
 
-            public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference _)
+            public ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference _)
             {
                 throw new NotImplementedException();
             }
@@ -197,14 +197,14 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference _) => Task.FromResult<string?>(null);
 
-            public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType _, string? __, string reference)
+            public ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType _, string? __, string reference)
             {
                 return new(new MockArtifactRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
             }
 
             public ResultWithException<SourceArchive> TryGetSource(ArtifactReference artifactReference) => new(new SourceNotAvailableException());
 
-            public Uri? TryGetProviderBinary(ArtifactReference reference) => null;
+            public Uri? TryGetExtensionBinary(ArtifactReference reference) => null;
             public Task OnRestoreArtifacts(bool forceRestore) => Task.CompletedTask;
         }
 

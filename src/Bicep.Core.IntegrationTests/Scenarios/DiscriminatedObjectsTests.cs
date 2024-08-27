@@ -115,8 +115,8 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
 "));
 
             failedResult.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
             });
         }
 
@@ -240,9 +240,7 @@ resource service 'Microsoft.ServiceFabric/clusters/applications/services@2020-12
                 ("BCP089", DiagnosticLevel.Warning, "The property \"PartitionScheme\" is not allowed on objects of type \"'Named' | 'Singleton' | 'UniformInt64Range'\". Did you mean \"partitionScheme\"?"),
             });
 
-            var diagnosticWithCodeFix = result.Diagnostics.OfType<FixableDiagnostic>().Single();
-            var codeFix = diagnosticWithCodeFix.Fixes.Single();
-            var codeReplacement = codeFix.Replacements.Single();
+            var codeReplacement = result.Diagnostics.SelectMany(x => x.Fixes).SelectMany(x => x.Replacements).Single();
 
             codeReplacement.Span.Should().Be(new TextSpan(212, 15));
             codeReplacement.Text.Should().Be("partitionScheme");

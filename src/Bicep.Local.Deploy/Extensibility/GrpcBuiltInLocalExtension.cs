@@ -72,7 +72,7 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
         catch (Exception ex)
         {
             await TerminateProcess(process);
-            throw new InvalidOperationException($"Failed to connect to provider {pathToBinary.LocalPath}", ex);
+            throw new InvalidOperationException($"Failed to connect to extension {pathToBinary.LocalPath}", ex);
         }
     }
 
@@ -96,15 +96,15 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
             Identifiers = request.Identifiers.ToJsonString(),
         };
 
-        if (request.ApiVersion is {})
+        if (request.ApiVersion is { })
         {
             output.ApiVersion = request.ApiVersion;
         }
-        if (request.Config is {})
+        if (request.Config is { })
         {
             output.Config = request.Config.ToJsonString();
         }
-        
+
         return output;
     }
 
@@ -116,15 +116,15 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
             Properties = request.Properties.ToJsonString(),
         };
 
-        if (request.ApiVersion is {})
+        if (request.ApiVersion is { })
         {
             output.ApiVersion = request.ApiVersion;
         }
-        if (request.Config is {})
+        if (request.Config is { })
         {
             output.Config = request.Config.ToJsonString();
         }
-        
+
         return output;
     }
 
@@ -139,8 +139,8 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
 
     private static LocalExtensibilityOperationResponse Convert(Rpc.LocalExtensibilityOperationResponse response)
         => new(
-            response.Resource is {} ? new(response.Resource.Type, response.Resource.ApiVersion, ToJsonObject(response.Resource.Identifiers, "Parsing response identifiers failed. Please ensure is non-null or empty and is a valid JSON object."), ToJsonObject(response.Resource.Properties, "Parsing response properties failed. Please ensure is non-null or empty and is ensure is a valid JSON object."), response.Resource.Status) : null,
-            response.ErrorData is {} ? Convert(response.ErrorData) : null);
+            response.Resource is { } ? new(response.Resource.Type, response.Resource.ApiVersion, ToJsonObject(response.Resource.Identifiers, "Parsing response identifiers failed. Please ensure is non-null or empty and is a valid JSON object."), ToJsonObject(response.Resource.Properties, "Parsing response properties failed. Please ensure is non-null or empty and is ensure is a valid JSON object."), response.Resource.Status) : null,
+            response.ErrorData is { } ? Convert(response.ErrorData) : null);
 
     private static JsonObject? ConvertInnerError(string innerError)
         => string.IsNullOrEmpty(innerError) ? null : ToJsonObject(innerError, "Parsing innerError failed. Please ensure is non-null or empty and is a valid JSON object.");

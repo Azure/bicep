@@ -1,16 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { useState } from "react";
-import { RestError } from "@azure/core-rest-pipeline";
-import {
-  DeployResult,
-  DeploymentScope,
-  ParamData,
-  ParametersMetadata,
-  TemplateMetadata,
-  UntypedError,
-} from "../../../models";
-import { AccessToken, TokenCredential } from "@azure/identity";
 import {
   CloudError,
   Deployment,
@@ -18,6 +7,17 @@ import {
   ResourceManagementClient,
   WhatIfChange,
 } from "@azure/arm-resources";
+import { RestError } from "@azure/core-rest-pipeline";
+import { AccessToken, TokenCredential } from "@azure/identity";
+import { useState } from "react";
+import {
+  DeploymentScope,
+  DeployResult,
+  ParamData,
+  ParametersMetadata,
+  TemplateMetadata,
+  UntypedError,
+} from "../../../models";
 
 export interface UseAzureProps {
   scope?: DeploymentScope;
@@ -28,13 +28,7 @@ export interface UseAzureProps {
 }
 
 export function useAzure(props: UseAzureProps) {
-  const {
-    scope,
-    templateMetadata,
-    parametersMetadata,
-    acquireAccessToken,
-    setErrorMessage,
-  } = props;
+  const { scope, templateMetadata, parametersMetadata, acquireAccessToken, setErrorMessage } = props;
   const deploymentName = "bicep-deploy";
   const [operations, setOperations] = useState<DeploymentOperation[]>();
   const [whatIfChanges, setWhatIfChanges] = useState<WhatIfChange[]>();
@@ -52,23 +46,16 @@ export function useAzure(props: UseAzureProps) {
         ? scope.associatedSubscriptionId
         : scope.subscriptionId;
 
-    return new ResourceManagementClient(
-      tokenProvider,
-      authenticatedSubscriptionId,
-      {
-        userAgentOptions: {
-          userAgentPrefix: "bicepdeploypane",
-        },
+    return new ResourceManagementClient(tokenProvider, authenticatedSubscriptionId, {
+      userAgentOptions: {
+        userAgentPrefix: "bicepdeploypane",
       },
-    );
+    });
   }
 
   async function doDeploymentOperation(
     scope: DeploymentScope,
-    operation: (
-      armClient: ResourceManagementClient,
-      deployment: Deployment,
-    ) => Promise<void>,
+    operation: (armClient: ResourceManagementClient, deployment: Deployment) => Promise<void>,
   ) {
     if (!templateMetadata) {
       return;
@@ -79,11 +66,7 @@ export function useAzure(props: UseAzureProps) {
       clearState();
       setRunning(true);
 
-      const deployment = getDeploymentProperties(
-        scope,
-        templateMetadata,
-        parametersMetadata.parameters,
-      );
+      const deployment = getDeploymentProperties(scope, templateMetadata, parametersMetadata.parameters);
       const accessToken = await acquireAccessToken();
       const armClient = getArmClient(scope, accessToken);
       await operation(armClient, deployment);
@@ -102,10 +85,7 @@ export function useAzure(props: UseAzureProps) {
     await doDeploymentOperation(scope, async (client, deployment) => {
       const updateOperations = async () => {
         const operations = [];
-        const result = client.deploymentOperations.listAtScope(
-          getScopeId(scope),
-          deploymentName,
-        );
+        const result = client.deploymentOperations.listAtScope(getScopeId(scope), deploymentName);
         for await (const page of result.byPage()) {
           operations.push(...page);
         }
@@ -114,11 +94,7 @@ export function useAzure(props: UseAzureProps) {
 
       let poller;
       try {
-        poller = await client.deployments.beginCreateOrUpdateAtScope(
-          getScopeId(scope),
-          deploymentName,
-          deployment,
-        );
+        poller = await client.deployments.beginCreateOrUpdateAtScope(getScopeId(scope), deploymentName, deployment);
 
         while (!poller.isDone()) {
           await updateOperations();
@@ -176,12 +152,7 @@ export function useAzure(props: UseAzureProps) {
 
     await doDeploymentOperation(scope, async (client, deployment) => {
       try {
-        const response = await beginWhatIfAndWait(
-          client,
-          scope,
-          deploymentName,
-          deployment,
-        );
+        const response = await beginWhatIfAndWait(client, scope, deploymentName, deployment);
 
         setResult({
           success: !response.error,
@@ -239,8 +210,7 @@ function getDeploymentProperties(
     }
   }
 
-  const location =
-    scope.scopeType !== "resourceGroup" ? scope.location : undefined;
+  const location = scope.scopeType !== "resourceGroup" ? scope.location : undefined;
 
   return {
     location,
@@ -273,26 +243,21 @@ async function beginWhatIfAndWait(
 ) {
   switch (scope.scopeType) {
     case "resourceGroup":
-      return await client.deployments.beginWhatIfAndWait(
-        scope.resourceGroup,
-        deploymentName,
-        deployment,
-      );
+      return await client.deployments.beginWhatIfAndWait(scope.resourceGroup, deploymentName, deployment);
     case "subscription":
-      return await client.deployments.beginWhatIfAtSubscriptionScopeAndWait(
-        deploymentName,
-        { ...deployment, location: scope.location },
-      );
+      return await client.deployments.beginWhatIfAtSubscriptionScopeAndWait(deploymentName, {
+        ...deployment,
+        location: scope.location,
+      });
     case "managementGroup":
-      return await client.deployments.beginWhatIfAtManagementGroupScopeAndWait(
-        scope.managementGroup,
-        deploymentName,
-        { ...deployment, location: scope.location },
-      );
+      return await client.deployments.beginWhatIfAtManagementGroupScopeAndWait(scope.managementGroup, deploymentName, {
+        ...deployment,
+        location: scope.location,
+      });
     case "tenant":
-      return await client.deployments.beginWhatIfAtTenantScopeAndWait(
-        deploymentName,
-        { ...deployment, location: scope.location },
-      );
+      return await client.deployments.beginWhatIfAtTenantScopeAndWait(deploymentName, {
+        ...deployment,
+        location: scope.location,
+      });
   }
 }

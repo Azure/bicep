@@ -49,7 +49,7 @@ namespace Bicep.Core.Semantics
 
             foreach (var extendsDeclaration in extendsDeclarations)
             {
-                if (sourceFileLookup.TryGetSourceFile(extendsDeclaration).TryUnwrap() is {} extendedFile &&
+                if (sourceFileLookup.TryGetSourceFile(extendsDeclaration).TryUnwrap() is { } extendedFile &&
                     modelLookup.GetSemanticModel(extendedFile) is SemanticModel extendedModel)
                 {
                     var parameterAssignments = ImmutableArray<ParameterAssignmentSymbol>.Empty;

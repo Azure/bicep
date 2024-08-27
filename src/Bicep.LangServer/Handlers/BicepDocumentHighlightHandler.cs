@@ -10,18 +10,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDocumentHighlightHandler : DocumentHighlightHandlerBase
+    public class BicepDocumentHighlightHandler(ISymbolResolver symbolResolver, DocumentSelectorFactory documentSelectorFactory) : DocumentHighlightHandlerBase
     {
-        private readonly ISymbolResolver symbolResolver;
-
-        public BicepDocumentHighlightHandler(ISymbolResolver symbolResolver) : base()
-        {
-            this.symbolResolver = symbolResolver;
-        }
-
         public override Task<DocumentHighlightContainer?> Handle(DocumentHighlightParams request, CancellationToken cancellationToken)
         {
-            var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
+            var result = symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
             if (result == null)
             {
                 return Task.FromResult<DocumentHighlightContainer?>(null);
@@ -45,7 +38,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override DocumentHighlightRegistrationOptions CreateRegistrationOptions(DocumentHighlightCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams()
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };
     }
 }

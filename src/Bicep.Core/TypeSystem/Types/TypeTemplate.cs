@@ -16,7 +16,7 @@ namespace Bicep.Core.TypeSystem.Types;
 /// </summary>
 public class TypeTemplate : TypeSymbol
 {
-    public delegate Result<TypeExpression, ErrorDiagnostic> InstantiatorDelegate(
+    public delegate ResultWithDiagnostic<TypeExpression> InstantiatorDelegate(
         IBinder binder,
         ParameterizedTypeInstantiationSyntaxBase instantiationSyntax,
         ImmutableArray<TypeSymbol> argumentTypes);
@@ -47,13 +47,13 @@ public class TypeTemplate : TypeSymbol
 
     public override TypeKind TypeKind => TypeKind.TypeReference;
 
-    public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => ImmutableArray<ErrorDiagnostic>.Empty;
+    public override IEnumerable<Diagnostic> GetDiagnostics() => ImmutableArray<Diagnostic>.Empty;
 
     public TypeParameter? TryGetParameterByIndex(int index) => index < Parameters.Length
         ? Parameters[index]
         : null;
 
-    public Result<TypeExpression, ErrorDiagnostic> Instantiate(IBinder binder, ParameterizedTypeInstantiationSyntaxBase syntax, IEnumerable<TypeSymbol> arguments)
+    public ResultWithDiagnostic<TypeExpression> Instantiate(IBinder binder, ParameterizedTypeInstantiationSyntaxBase syntax, IEnumerable<TypeSymbol> arguments)
     {
         var argTypesArray = arguments.ToImmutableArray();
 

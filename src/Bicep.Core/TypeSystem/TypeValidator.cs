@@ -870,13 +870,13 @@ namespace Bicep.Core.TypeSystem
                 NarrowedType = narrowedType;
 
                 List<IDiagnostic> nonErrorDiagnostics = new();
-                List<ErrorDiagnostic> errorDiagnostics = new();
+                List<IDiagnostic> errorDiagnostics = new();
 
                 foreach (var diagnostic in diagnostics)
                 {
-                    if (diagnostic.Level == DiagnosticLevel.Error)
+                    if (diagnostic.IsError())
                     {
-                        errorDiagnostics.Add(AsErrorDiagnostic(diagnostic));
+                        errorDiagnostics.Add(diagnostic);
                     }
                     else
                     {
@@ -906,13 +906,7 @@ namespace Bicep.Core.TypeSystem
             /// <summary>
             /// Any error-level diagnostics raised during type narrowing
             /// </summary>
-            public IReadOnlyList<ErrorDiagnostic> Errors { get; }
-
-            private static ErrorDiagnostic AsErrorDiagnostic(IDiagnostic diagnostic) => diagnostic switch
-            {
-                ErrorDiagnostic errorDiagnostic => errorDiagnostic,
-                _ => new(diagnostic.Span, diagnostic.Code, diagnostic.Message, diagnostic.Uri, diagnostic.Styling),
-            };
+            public IReadOnlyList<IDiagnostic> Errors { get; }
         }
 
         private record ViableTypeCandidate(TypeSymbol Type, IEnumerable<IDiagnostic> Diagnostics);
@@ -1252,8 +1246,8 @@ namespace Bicep.Core.TypeSystem
                 // for properties, put it on the property name in the parent object
                 ObjectPropertySyntax objectPropertyParent => (objectPropertyParent.Key, "object"),
 
-                // for provider declarations, mark the entire configuration object
-                ProviderWithClauseSyntax providerParent => (expression, "object"),
+                // for extension declarations, mark the entire configuration object
+                ExtensionWithClauseSyntax _ => (expression, "object"),
 
                 // for declaration bodies, put it on the declaration identifier
                 ITopLevelNamedDeclarationSyntax declarationParent => (declarationParent.Name, declarationParent.Keyword.Text),

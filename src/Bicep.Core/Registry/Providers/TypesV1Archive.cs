@@ -13,11 +13,11 @@ using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 
-namespace Bicep.Core.Registry.Providers;
+namespace Bicep.Core.Registry.Extensions;
 
 public static class TypesV1Archive
 {
-    public static async Task<BinaryData> GenerateProviderTarStream(IFileSystem fileSystem, string indexJsonPath)
+    public static async Task<BinaryData> GenerateExtensionTarStream(IFileSystem fileSystem, string indexJsonPath)
     {
         using var stream = new MemoryStream();
 

@@ -125,7 +125,7 @@ namespace Bicep.Core.UnitTests.Assertions
             return new(this);
         }
 
-        public AndConstraint<MockRegistryAssertions> HaveProvider(string tag, out Stream tgzStream)
+        public AndConstraint<MockRegistryAssertions> HaveExtension(string tag, out Stream tgzStream)
         {
             this.Subject.ManifestTags.Should().ContainKey(tag, $"tag '{tag}' should exist");
             string digest = this.Subject.ManifestTags[tag];
@@ -134,10 +134,10 @@ namespace Bicep.Core.UnitTests.Assertions
             var manifest = this.Subject.ManifestObjects[digest];
             manifest.Should().NotBeNull();
             manifest.MediaType.Should().Be("application/vnd.oci.image.manifest.v1+json", "media type should be explicit for new versions of Bicep, and not null");
-            manifest.ArtifactType.Should().Be(BicepMediaTypes.BicepProviderArtifactType, "artifact type should be correct");
+            manifest.ArtifactType.Should().Be(BicepMediaTypes.BicepExtensionArtifactType, "artifact type should be correct");
 
             var config = manifest.Config;
-            config.MediaType.Should().Be(BicepMediaTypes.BicepProviderConfigV1, "config media type should be correct");
+            config.MediaType.Should().Be(BicepMediaTypes.BicepExtensionConfigV1, "config media type should be correct");
 
             this.Subject.Blobs.Should().ContainKey(config.Digest, "config digest should exist");
             var configBytes = this.Subject.Blobs[config.Digest];
@@ -152,7 +152,7 @@ namespace Bicep.Core.UnitTests.Assertions
             // types.tgz
             var tgzLayer = manifest.Layers.First();
 
-            tgzLayer.MediaType.Should().Be(BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, "layer media type should be correct");
+            tgzLayer.MediaType.Should().Be(BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip, "layer media type should be correct");
             this.Subject.Blobs.Should().ContainKey(tgzLayer.Digest, "layer blob should exist");
 
             var layerBytes = this.Subject.Blobs[tgzLayer.Digest];

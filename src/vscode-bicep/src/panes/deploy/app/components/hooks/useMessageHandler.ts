@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import { AccessToken } from "@azure/identity";
+import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
 import { useEffect, useState } from "react";
-import { vscode } from "../../vscode";
+import { LocalDeployResponse } from "../../../../../language";
 import {
-  VscodeMessage,
   createGetAccessTokenMessage,
   createGetDeploymentScopeMessage,
   createGetStateMessage,
@@ -12,18 +13,11 @@ import {
   createPublishTelemetryMessage,
   createReadyMessage,
   createSaveStateMessage,
+  VscodeMessage,
 } from "../../../messages";
+import { DeploymentScope, DeployPaneState, ParametersMetadata, TemplateMetadata, UntypedError } from "../../../models";
+import { vscode } from "../../vscode";
 import { parseParametersJson, parseTemplateJson } from "../utils";
-import {
-  DeployPaneState,
-  DeploymentScope,
-  ParametersMetadata,
-  TemplateMetadata,
-  UntypedError,
-} from "../../../models";
-import { AccessToken } from "@azure/identity";
-import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
-import { LocalDeployResponse } from "../../../../../language";
 
 // TODO see if there's a way to use react hooks instead of this hackery
 let accessTokenResolver: {
@@ -53,8 +47,7 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     localDeployEnabled: false,
   });
   const [scope, setScope] = useState<DeploymentScope>();
-  const [localDeployResult, setLocalDeployResult] =
-    useState<LocalDeployResponse>();
+  const [localDeployResult, setLocalDeployResult] = useState<LocalDeployResponse>();
 
   const handleMessageEvent = (e: MessageEvent<VscodeMessage>) => {
     const message = e.data;
@@ -64,12 +57,10 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
           initialized: true,
           localDeployEnabled: message.localDeployEnabled,
         });
-        if (!message.templateJson) {
+
+        if (message.errorMessage || !message.templateJson) {
           setTemplateMetadata(undefined);
-          setErrorMessage(
-            message.errorMessage ??
-              "An error occurred building the deployment object.",
-          );
+          setErrorMessage(message.errorMessage ?? "An error occurred compiling the Bicep file.");
           return;
         }
 
@@ -77,18 +68,14 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
 
         if (!templateMetadata.scopeType) {
           setTemplateMetadata(undefined);
-          setErrorMessage(
-            "Failed to obtain the deployment scope from compiled Bicep file.",
-          );
+          setErrorMessage("Failed to obtain the deployment scope from compiled Bicep file.");
           return;
         }
 
         setTemplateMetadata(templateMetadata);
         if (message.parametersJson) {
           setParamsMetadata({
-            sourceFilePath: message.documentPath.endsWith(".bicep")
-              ? undefined
-              : message.documentPath,
+            sourceFilePath: message.documentPath.endsWith(".bicep") ? undefined : message.documentPath,
             parameters: parseParametersJson(message.parametersJson),
           });
         }
@@ -116,9 +103,7 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
         if (message.accessToken) {
           accessTokenResolver.resolve(message.accessToken);
         } else {
-          accessTokenResolver.reject(
-            message.error ?? "Failed to authenticate with Azure",
-          );
+          accessTokenResolver.reject(message.error ?? "Failed to authenticate with Azure");
         }
         return;
       }
@@ -156,22 +141,15 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
       throw `ScopeType not set`;
     }
 
-    vscode.postMessage(
-      createGetDeploymentScopeMessage(templateMetadata.scopeType),
-    );
+    vscode.postMessage(createGetDeploymentScopeMessage(templateMetadata.scopeType));
   }
 
-  function publishTelemetry(
-    eventName: string,
-    properties: TelemetryProperties,
-  ) {
+  function publishTelemetry(eventName: string, properties: TelemetryProperties) {
     vscode.postMessage(createPublishTelemetryMessage(eventName, properties));
   }
 
   function acquireAccessToken() {
-    const promise = new Promise<AccessToken>(
-      (resolve, reject) => (accessTokenResolver = { resolve, reject }),
-    );
+    const promise = new Promise<AccessToken>((resolve, reject) => (accessTokenResolver = { resolve, reject }));
 
     vscode.postMessage(createGetAccessTokenMessage(scope!));
     return promise;

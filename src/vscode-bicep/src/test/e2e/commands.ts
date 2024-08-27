@@ -14,11 +14,7 @@ export async function executeHoverProvider(
   documentUri: vscode.Uri,
   position: vscode.Position,
 ): Promise<vscode.Hover[] | undefined> {
-  return await vscode.commands.executeCommand<vscode.Hover[]>(
-    "vscode.executeHoverProvider",
-    documentUri,
-    position,
-  );
+  return await vscode.commands.executeCommand<vscode.Hover[]>("vscode.executeHoverProvider", documentUri, position);
 }
 
 export async function executeCompletionItemProvider(
@@ -44,71 +40,43 @@ export async function executeTypeText(text: string): Promise<void> {
   return await vscode.commands.executeCommand("type", { text });
 }
 
-export async function executeShowVisualizerCommand(
-  documentUri: vscode.Uri,
-): Promise<vscode.ViewColumn | undefined> {
-  return await vscode.commands.executeCommand(
-    "bicep.showVisualizer",
-    documentUri,
-  );
+export async function executeShowVisualizerCommand(documentUri: vscode.Uri): Promise<vscode.ViewColumn | undefined> {
+  return await vscode.commands.executeCommand("bicep.showVisualizer", documentUri);
 }
 
 export async function executeShowVisualizerToSideCommand(
   documentUri: vscode.Uri,
 ): Promise<vscode.ViewColumn | undefined> {
-  return await vscode.commands.executeCommand(
-    "bicep.showVisualizerToSide",
-    documentUri,
-  );
+  return await vscode.commands.executeCommand("bicep.showVisualizerToSide", documentUri);
 }
 
-export async function executeShowDeployPaneCommand(
-  documentUri: vscode.Uri,
-): Promise<vscode.ViewColumn | undefined> {
-  return await vscode.commands.executeCommand(
-    "bicep.showDeployPane",
-    documentUri,
-  );
+export async function executeShowDeployPaneCommand(documentUri: vscode.Uri): Promise<vscode.ViewColumn | undefined> {
+  return await vscode.commands.executeCommand("bicep.showDeployPane", documentUri);
 }
 
 export async function executeShowDeployPaneToSideCommand(
   documentUri: vscode.Uri,
 ): Promise<vscode.ViewColumn | undefined> {
-  return await vscode.commands.executeCommand(
-    "bicep.showDeployPaneToSide",
-    documentUri,
-  );
+  return await vscode.commands.executeCommand("bicep.showDeployPaneToSide", documentUri);
 }
 
-export async function executeShowSourceCommand(): Promise<
-  vscode.TextEditor | undefined
-> {
-  return await vscode.commands.executeCommand(
-    ShowSourceFromVisualizerCommand.CommandId,
-  );
+export async function executeShowSourceCommand(): Promise<vscode.TextEditor | undefined> {
+  return await vscode.commands.executeCommand(ShowSourceFromVisualizerCommand.CommandId);
 }
 
-export async function executeBuildCommand(
-  documentUri: vscode.Uri,
-): Promise<void> {
+export async function executeBuildCommand(documentUri: vscode.Uri): Promise<void> {
   return await vscode.commands.executeCommand("bicep.build", documentUri);
 }
 
-export async function executeBuildParamsCommand(
-  documentUri: vscode.Uri,
-): Promise<void> {
+export async function executeBuildParamsCommand(documentUri: vscode.Uri): Promise<void> {
   return await vscode.commands.executeCommand("bicep.buildParams", documentUri);
 }
 
-export async function executeDecompileCommand(
-  documentUri: vscode.Uri,
-): Promise<void> {
+export async function executeDecompileCommand(documentUri: vscode.Uri): Promise<void> {
   return await vscode.commands.executeCommand("bicep.decompile", documentUri);
 }
 
-export async function executeCreateConfigFileCommand(
-  documentUri?: vscode.Uri,
-): Promise<string | undefined> {
+export async function executeCreateConfigFileCommand(documentUri?: vscode.Uri): Promise<string | undefined> {
   return await vscode.commands.executeCommand<string>(
     "bicep.createConfigFile",
     documentUri,
@@ -117,26 +85,14 @@ export async function executeCreateConfigFileCommand(
   );
 }
 
-export async function executeForceModulesRestoreCommand(
-  documentUri: vscode.Uri,
-): Promise<void> {
-  return await vscode.commands.executeCommand(
-    "bicep.forceModulesRestore",
-    documentUri,
-  );
+export async function executeForceModulesRestoreCommand(documentUri: vscode.Uri): Promise<void> {
+  return await vscode.commands.executeCommand("bicep.forceModulesRestore", documentUri);
 }
 
-export async function executePasteAsBicepCommand(
-  documentUri: vscode.Uri,
-): Promise<void> {
-  return await vscode.commands.executeCommand(
-    "bicep.pasteAsBicep",
-    documentUri,
-  );
+export async function executePasteAsBicepCommand(documentUri: vscode.Uri): Promise<void> {
+  return await vscode.commands.executeCommand("bicep.pasteAsBicep", documentUri);
 }
 
 export async function executeEditorPasteCommand(): Promise<void> {
-  return await vscode.commands.executeCommand(
-    "editor.action.clipboardPasteAction",
-  );
+  return await vscode.commands.executeCommand("editor.action.clipboardPasteAction");
 }

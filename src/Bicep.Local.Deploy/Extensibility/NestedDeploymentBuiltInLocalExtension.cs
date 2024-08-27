@@ -28,7 +28,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
         this.extensibilityHostManager = extensibilityHandler;
     }
 
-    private record DeploymentIdentifiers (string DeploymentName);
+    private record DeploymentIdentifiers(string DeploymentName);
 
     private JsonObject CreateDeploymentIdentifiers(DeploymentContent deployment)
         => JsonObject.Parse(new DeploymentIdentifiers(deployment.Name).ToJsonStream())?.AsObject() ?? throw new UnreachableException("Serialization is not expected to fail.");

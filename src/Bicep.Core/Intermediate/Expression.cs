@@ -387,7 +387,7 @@ public record DeclaredMetadataExpression(
     protected override object? GetDebugAttributes() => new { Name };
 }
 
-public record DeclaredProviderExpression(
+public record DeclaredExtensionExpression(
     SyntaxBase? SourceSyntax,
     string Name,
     NamespaceSettings Settings,
@@ -396,7 +396,7 @@ public record DeclaredProviderExpression(
 ) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
-        => visitor.VisitDeclaredProviderExpression(this);
+        => visitor.VisitDeclaredExtensionExpression(this);
 
     protected override object? GetDebugAttributes() => new { Name };
 }
@@ -525,7 +525,7 @@ public record ResourceDependencyExpression(
 public record ProgramExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<DeclaredMetadataExpression> Metadata,
-    ImmutableArray<DeclaredProviderExpression> Providers,
+    ImmutableArray<DeclaredExtensionExpression> Extensions,
     ImmutableArray<DeclaredTypeExpression> Types,
     ImmutableArray<DeclaredParameterExpression> Parameters,
     ImmutableArray<DeclaredVariableExpression> Variables,

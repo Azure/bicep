@@ -34,13 +34,13 @@ public class EndToEndDeploymentTests : TestBase
     [TestMethod]
     public async Task End_to_end_deployment_basic()
     {
-        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
 {
   "extensions": {
-    "http": "br:example.azurecr.io/providers/foo:1.2.3"
+    "http": "br:example.azurecr.io/extensions/foo:1.2.3"
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
@@ -53,12 +53,12 @@ public class EndToEndDeploymentTests : TestBase
 extension http
 
 param coords {
-  lattitude: string
+  latitude: string
   longitude: string
 }
 
 resource gridpointsReq 'request@v1' = {
-  uri: 'https://api.weather.gov/points/${coords.lattitude},${coords.longitude}'
+  uri: 'https://api.weather.gov/points/${coords.latitude},${coords.longitude}'
   format: 'raw'
 }
 
@@ -91,7 +91,7 @@ output forecastString string = getForecast()
 using 'main.bicep'
 
 param coords = {
-  lattitude: '47.6363726'
+  latitude: '47.6363726'
   longitude: '-122.1357068'
 }
 """));
@@ -107,8 +107,8 @@ param coords = {
                     { "namespace", "someNamespace" }
                 };
 
-        var providerMock = StrictMock.Of<LocalExtensibilityHost>();
-        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
+        var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
+        extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
                 req.Properties["body"] = """
@@ -123,7 +123,7 @@ param coords = {
                 return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
             });
 
-        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
+        extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
                 req.Properties["body"] = """
@@ -148,7 +148,7 @@ param coords = {
             });
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
-        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
+        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
         var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
@@ -170,15 +170,15 @@ param coords = {
     }
 
     [TestMethod]
-    public async Task Provider_returning_resource_and_error_data_should_fail()
+    public async Task Extension_returning_resource_and_error_data_should_fail()
     {
-        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
 {
   "extensions": {
-    "http": "br:example.azurecr.io/providers/foo:1.2.3"
+    "http": "br:example.azurecr.io/extensions/foo:1.2.3"
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
@@ -191,12 +191,12 @@ param coords = {
 extension http
 
 param coords {
-  lattitude: string
+  latitude: string
   longitude: string
 }
 
 resource gridpointsReq 'request@v1' = {
-  uri: 'https://api.weather.gov/points/${coords.lattitude},${coords.longitude}'
+  uri: 'https://api.weather.gov/points/${coords.latitude},${coords.longitude}'
   format: 'raw'
 }
 
@@ -223,7 +223,7 @@ output forecast forecastType[] = map(forecast.periods, p => {
 using 'main.bicep'
 
 param coords = {
-  lattitude: '47.6363726'
+  latitude: '47.6363726'
   longitude: '-122.1357068'
 }
 """));
@@ -239,8 +239,8 @@ param coords = {
                     { "namespace", "someNamespace" }
                 };
 
-        var providerMock = StrictMock.Of<LocalExtensibilityHost>();
-        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
+        var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
+        extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
                 req.Properties["body"] = """
@@ -256,12 +256,12 @@ param coords = {
             });
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
-        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
+        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
         var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
-        localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Provider returned '{nameof(Resource)}' and '{nameof(ErrorData)}' as part of its response and it is not allowed. Providers should return one or the other to indicate success or failure respectively.");
+        localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Extension returned '{nameof(Resource)}' and '{nameof(ErrorData)}' as part of its response and it is not allowed. Extensions should return one or the other to indicate success or failure respectively.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
 
         localDeployResult.Deployment.Properties.Error.Code.Should().Be("DeploymentFailed");
@@ -271,15 +271,15 @@ param coords = {
     }
 
     [TestMethod]
-    public async Task Provider_not_returning_resource_or_error_data_should_fail()
+    public async Task Extension_not_returning_resource_or_error_data_should_fail()
     {
-        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
 {
   "extensions": {
-    "http": "br:example.azurecr.io/providers/foo:1.2.3"
+    "http": "br:example.azurecr.io/extensions/foo:1.2.3"
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
@@ -292,12 +292,12 @@ param coords = {
 extension http
 
 param coords {
-  lattitude: string
+  latitude: string
   longitude: string
 }
 
 resource gridpointsReq 'request@v1' = {
-  uri: 'https://api.weather.gov/points/${coords.lattitude},${coords.longitude}'
+  uri: 'https://api.weather.gov/points/${coords.latitude},${coords.longitude}'
   format: 'raw'
 }
 
@@ -324,7 +324,7 @@ output forecast forecastType[] = map(forecast.periods, p => {
 using 'main.bicep'
 
 param coords = {
-  lattitude: '47.6363726'
+  latitude: '47.6363726'
   longitude: '-122.1357068'
 }
 """));
@@ -340,8 +340,8 @@ param coords = {
                     { "namespace", "someNamespace" }
                 };
 
-        var providerMock = StrictMock.Of<LocalExtensibilityHost>();
-        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
+        var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
+        extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
                 req.Properties["body"] = """
@@ -357,30 +357,30 @@ param coords = {
             });
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
-        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
+        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
         var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
-        localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Provider did not return '{nameof(Resource)}' or '{nameof(ErrorData)}' as part of its response. Providers should return one or the other to indicate success or failure respectively.");
+        localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Extension did not return '{nameof(Resource)}' or '{nameof(ErrorData)}' as part of its response. Extensions should return one or the other to indicate success or failure respectively.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
 
         localDeployResult.Deployment.Properties.Error.Code.Should().Be("DeploymentFailed");
         localDeployResult.Deployment.Properties.Error.Details.Should().NotBeNullOrEmpty();
         localDeployResult.Deployment.Properties.Error.Details[0].Code.Should().Be("ResourceDeploymentFailure");
-        localDeployResult.Deployment.Properties.Error.Details[0].Target.Should().Be("/resources/gridpointsReq", because: $"Expect a failure when mocking a response for \"/resources/gridpointsReq\" because provider it is not returning '{nameof(Resource)}' or '{nameof(ErrorData)}' and one must be returned to indicate success or failure.");
+        localDeployResult.Deployment.Properties.Error.Details[0].Target.Should().Be("/resources/gridpointsReq", because: $"Expect a failure when mocking a response for \"/resources/gridpointsReq\" because extension it is not returning '{nameof(Resource)}' or '{nameof(ErrorData)}' and one must be returned to indicate success or failure.");
     }
 
     [TestMethod]
-    public async Task Provider_returning_error_data_should_fail()
+    public async Task Extension_returning_error_data_should_fail()
     {
-        var services = await ProviderTestHelper.GetServiceBuilderWithPublishedProvider(ThirdPartyTypeHelper.GetHttpProviderTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
 {
   "extensions": {
-    "http": "br:example.azurecr.io/providers/foo:1.2.3"
+    "http": "br:example.azurecr.io/extensions/foo:1.2.3"
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
@@ -393,12 +393,12 @@ param coords = {
 extension http
 
 param coords {
-  lattitude: string
+  latitude: string
   longitude: string
 }
 
 resource gridpointsReq 'request@v1' = {
-  uri: 'https://api.weather.gov/points/${coords.lattitude},${coords.longitude}'
+  uri: 'https://api.weather.gov/points/${coords.latitude},${coords.longitude}'
   format: 'raw'
 }
 
@@ -425,7 +425,7 @@ output forecast forecastType[] = map(forecast.periods, p => {
 using 'main.bicep'
 
 param coords = {
-  lattitude: '47.6363726'
+  latitude: '47.6363726'
   longitude: '-122.1357068'
 }
 """));
@@ -441,8 +441,8 @@ param coords = {
                     { "namespace", "someNamespace" }
                 };
 
-        var providerMock = StrictMock.Of<LocalExtensibilityHost>();
-        providerMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
+        var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
+        extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
                 req.Properties["body"] = """
@@ -458,17 +458,17 @@ param coords = {
             });
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
-        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(providerMock.Object));
+        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
         var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
-        localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: "Provider returned a failure when attempting to create a resource.");
+        localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: "Extension returned a failure when attempting to create a resource.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
 
         localDeployResult.Deployment.Properties.Error.Code.Should().Be("DeploymentFailed");
         localDeployResult.Deployment.Properties.Error.Details.Should().NotBeNullOrEmpty();
         localDeployResult.Deployment.Properties.Error.Details[0].Code.Should().Be("ResourceDeploymentFailure");
-        localDeployResult.Deployment.Properties.Error.Details[0].Target.Should().Be("/resources/gridpointsReq", because: $"Expect a failure when mocking a response for \"/resources/gridpointsReq\" because provider returned '{nameof(ErrorData)}' to indicate a failure.");
+        localDeployResult.Deployment.Properties.Error.Details[0].Target.Should().Be("/resources/gridpointsReq", because: $"Expect a failure when mocking a response for \"/resources/gridpointsReq\" because extension returned '{nameof(ErrorData)}' to indicate a failure.");
     }
 }

@@ -223,9 +223,9 @@ namespace Bicep.Core.Semantics
             allowedFlags = FunctionFlags.Default;
         }
 
-        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
+        public override void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax)
         {
-            allowedFlags = FunctionFlags.ProviderDecorator;
+            allowedFlags = FunctionFlags.ExtensionDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.SpecificationString);

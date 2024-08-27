@@ -91,7 +91,7 @@ public static class ArmTemplateTypeLoader
         return TypeFactory.CreateStringType(schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value, flags);
     }
 
-    private static TypeSymbol TryGetLiteralUnionType(JArray allowedValues, Func<JToken, bool> validator, DiagnosticBuilder.ErrorBuilderDelegate diagnosticOnMismatch)
+    private static TypeSymbol TryGetLiteralUnionType(JArray allowedValues, Func<JToken, bool> validator, DiagnosticBuilder.DiagnosticBuilderDelegate diagnosticOnMismatch)
     {
         List<TypeSymbol> literalTypeTargets = new();
         foreach (var element in allowedValues)

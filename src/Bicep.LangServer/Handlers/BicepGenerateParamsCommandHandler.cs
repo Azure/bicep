@@ -24,7 +24,7 @@ namespace Bicep.LanguageServer.Handlers
     );
 
     // This handler is used to generate compiled parameters.json file for given a bicep file path.
-    // It returns generate-params succeeded/failed message, which can be displayed approriately in IDE output window
+    // It returns generate-params succeeded/failed message, which can be displayed appropriately in IDE output window
     public class BicepGenerateParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepGenerateParamsCommandParams, string>
     {
         private readonly ICompilationManager compilationManager;
@@ -68,7 +68,7 @@ namespace Bicep.LanguageServer.Handlers
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == fileUri);
 
-            if (diagnosticsByFile.Value.Any(x => x.Level == DiagnosticLevel.Error))
+            if (diagnosticsByFile.Value.Any(x => x.IsError()))
             {
                 return "Generating parameters file failed. Please fix below errors:\n" + DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile);
             }

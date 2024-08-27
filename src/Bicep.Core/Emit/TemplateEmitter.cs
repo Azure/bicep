@@ -88,7 +88,10 @@ public class TemplateEmitter
     /// <param name="stream">The stream to write the template</param>
     public EmitResult Emit(Stream stream)
     {
-        using var sw = new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true);
+        using var sw = new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true)
+        {
+            NewLine = "\n",
+        };
 
         return Emit(sw);
     }
@@ -127,7 +130,7 @@ public class TemplateEmitter
             _ => [],
         };
 
-        if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
+        if (diagnostics.Any(d => d.IsError()))
         {
             return new EmitResult(EmitStatus.Failed, diagnostics);
         }

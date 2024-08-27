@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
@@ -16,6 +18,8 @@ namespace Bicep.Core.Emit
 {
     public class ExpressionConverter
     {
+        private const string secureOutputsApi = "listOutputsWithSecureValues";
+
         private readonly EmitterContext context;
         private readonly ExpressionBuilder expressionBuilder;
 
@@ -234,17 +238,19 @@ namespace Bicep.Core.Emit
 
             if (expression is ModuleOutputPropertyAccessExpression)
             {
+                var isSecureOutput = @base is FunctionExpression functionExpression && functionExpression.Function == secureOutputsApi;
+
                 if (safeAccess)
                 {
                     // there are two scenarios we want to handle in this case:
                     //   - conditional outputs (where the accessed property will be omitted from the `outputs` object)
                     //   - outputs with a null value (where the accessed property will be present in the `outputs` object, but its `value` property will be omitted)
                     @base = CreateFunction("tryGet", @base.AsEnumerable().Concat(properties));
-                    properties = new[] { new JTokenExpression("value") };
+                    properties = isSecureOutput ? Enumerable.Empty<LanguageExpression>() : new[] { new JTokenExpression("value") };
                 }
                 else
                 {
-                    properties = properties.Append(new JTokenExpression("value"));
+                    properties = isSecureOutput ? properties : properties.Append(new JTokenExpression("value"));
                 }
             }
 
@@ -296,7 +302,8 @@ namespace Bicep.Core.Emit
                     case "type":
                         return (new JTokenExpression(resource.TypeReference.FormatType()), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "apiVersion":
-                        return (new JTokenExpression(resource.TypeReference.ApiVersion), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        var apiVersion = resource.TypeReference.ApiVersion ?? throw new UnreachableException();
+                        return (new JTokenExpression(apiVersion), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "name":
                         return (NameFromIdExpression(GetFullyQualifiedResourceId(parameter)), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "properties" when !safeAccess:
@@ -334,7 +341,8 @@ namespace Bicep.Core.Emit
                     case "type":
                         return (new JTokenExpression(resource.TypeReference.FormatType()), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "apiVersion":
-                        return (new JTokenExpression(resource.TypeReference.ApiVersion), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        var apiVersion = resource.TypeReference.ApiVersion ?? throw new UnreachableException();
+                        return (new JTokenExpression(apiVersion), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "name" when shortCircuitableResourceRef:
                         // this expression will execute a `reference` expression against the module twice (once to make sure the named output exists, then again to
                         // retrieve the value of that output), but this inefficiency is unavoidable since passing `null` to `split` will cause the deployment to fail
@@ -397,15 +405,36 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private (LanguageExpression @base, IEnumerable<LanguageExpression> properties, bool safeAccess) ConvertModulePropertyAccess(ModuleReferenceExpression reference, PropertyAccessExpression expression) => expression.PropertyName switch
+        private (LanguageExpression @base, IEnumerable<LanguageExpression> properties, bool safeAccess) ConvertModulePropertyAccess(ModuleReferenceExpression reference, PropertyAccessExpression expression)
         {
-            // the name is dependent on the name expression which could involve locals in case of a resource collection
-            "name" => (GetModuleNameExpression(reference.Module), Enumerable.Empty<LanguageExpression>(), false),
-            "outputs" => (GetModuleReferenceExpression(reference.Module, reference.IndexContext, false),
+            switch (expression.PropertyName)
+            {
+
+                case "name":
+                    // the name is dependent on the name expression which could involve locals in case of a resource collection
+
+                    return (GetModuleNameExpression(reference.Module), Enumerable.Empty<LanguageExpression>(), false);
+
+                case "outputs":
+                    var moduleSymbol = reference.Module;
+
+                    if (context.SemanticModel.Features.SecureOutputsEnabled &&
+                        FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(context.SemanticModel, moduleSymbol.DeclaringModule).Any())
+                    {
+                        var deploymentResourceId = GetFullyQualifiedResourceId(moduleSymbol);
+                        var apiVersion = new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion);
+                        return (CreateFunction(secureOutputsApi, deploymentResourceId, apiVersion),
+                            Enumerable.Empty<LanguageExpression>(), expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess));
+                    }
+
+                    return (GetModuleReferenceExpression(reference.Module, reference.IndexContext, false),
                 new[] { new JTokenExpression("outputs") },
-                expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess)),
-            string otherwise => throw new InvalidOperationException($"Unsupported module property: {otherwise}"),
-        };
+                expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess));
+
+                default:
+                    throw new InvalidOperationException($"Unsupported module property: {expression.PropertyName}");
+            }
+        }
 
         public IEnumerable<LanguageExpression> GetResourceNameSegments(DeclaredResourceMetadata resource)
             => GetResourceNameSegments(resource, expressionBuilder.GetResourceNameSyntaxSegments(resource).ToImmutableArray());

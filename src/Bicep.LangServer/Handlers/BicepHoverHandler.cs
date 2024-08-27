@@ -25,15 +25,18 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IArtifactRegistryProvider moduleRegistryProvider;
         private readonly ISymbolResolver symbolResolver;
+        private readonly DocumentSelectorFactory documentSelectorFactory;
 
         public BicepHoverHandler(
             IModuleDispatcher moduleDispatcher,
             IArtifactRegistryProvider moduleRegistryProvider,
-            ISymbolResolver symbolResolver)
+            ISymbolResolver symbolResolver,
+            DocumentSelectorFactory documentSelectorFactory)
         {
             this.moduleDispatcher = moduleDispatcher;
             this.moduleRegistryProvider = moduleRegistryProvider;
             this.symbolResolver = symbolResolver;
+            this.documentSelectorFactory = documentSelectorFactory;
         }
 
         public override async Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
@@ -80,9 +83,9 @@ namespace Bicep.LanguageServer.Handlers
             // with multiple borders
             switch (result.Symbol)
             {
-                case ProviderNamespaceSymbol provider:
+                case ExtensionNamespaceSymbol extension:
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
-                        $"{LanguageConstants.ProviderKeyword} {provider.Name}", TryGetDescription(result, provider)));
+                        $"{LanguageConstants.ExtensionKeyword} {extension.Name}", TryGetDescription(result, extension)));
 
                 case MetadataSymbol metadata:
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
@@ -318,7 +321,7 @@ namespace Bicep.LanguageServer.Handlers
         private static string? TryGetTypeDocumentationLink(ResourceSymbol resource)
         {
             if (resource.TryGetResourceType() is { } resourceType &&
-                resourceType.DeclaringNamespace.ProviderNameEquals(AzNamespaceType.BuiltInName) &&
+                resourceType.DeclaringNamespace.ExtensionNameEquals(AzNamespaceType.BuiltInName) &&
                 resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
             {
                 var provider = resourceType.TypeReference.TypeSegments.First().ToLowerInvariant();
@@ -341,7 +344,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams()
+            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };
     }
 }
