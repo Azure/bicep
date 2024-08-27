@@ -32,6 +32,15 @@
           "JsonSchema.Net": "7.0.4"
         }
       },
+      "JsonPatch.Net": {
+        "type": "Direct",
+        "requested": "[3.1.1, )",
+        "resolved": "3.1.1",
+        "contentHash": "dLAUhmL7RgezL8lkBpzf+O4U4sEtbGE9DDF858MiQdNmGK8LYBfLqO73n5N288e5H8jVvwypQG/DUJunWvaJyQ==",
+        "dependencies": {
+          "JsonPointer.Net": "5.0.2"
+        }
+      },
       "Microsoft.AspNet.WebApi.Client": {
         "type": "Direct",
         "requested": "[6.0.0, )",
@@ -289,14 +298,6 @@
         "contentHash": "SvJLeTGc01OUkMo87ExRBLv593dYZ4TtdsbPBB5ukmOcHIc+jT+epCzqwokxgVoeIdFGeAczOnCD51es7LEnuQ==",
         "dependencies": {
           "Newtonsoft.Json": "10.0.3"
-        }
-      },
-      "JsonPatch.Net": {
-        "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "dLAUhmL7RgezL8lkBpzf+O4U4sEtbGE9DDF858MiQdNmGK8LYBfLqO73n5N288e5H8jVvwypQG/DUJunWvaJyQ==",
-        "dependencies": {
-          "JsonPointer.Net": "5.0.2"
         }
       },
       "JsonPath.Net": {
