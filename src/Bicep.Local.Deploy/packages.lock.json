@@ -2,6 +2,15 @@
   "version": 1,
   "dependencies": {
     "net8.0": {
+      "Azure.Bicep.Types": {
+        "type": "Direct",
+        "requested": "[0.5.81, )",
+        "resolved": "0.5.81",
+        "contentHash": "A/7KLe6jwmS1Dc04tGPc5ABkQfxfgb1dtjvji772s9ji/5tG9nkb/n0aSdd45jJzga0eUvbA9uwjzDIXreW6Lg==",
+        "dependencies": {
+          "System.Text.Json": "8.0.4"
+        }
+      },
       "Azure.Deployments.Engine": {
         "type": "Direct",
         "requested": "[1.95.0, )",
@@ -77,14 +86,6 @@
         "requested": "[3.6.139, )",
         "resolved": "3.6.139",
         "contentHash": "rq0Ub/Jik7PtMtZtLn0tHuJ01Yt36RQ+eeBe+S7qnJ/EFOX6D4T9zuYD3vQPYKGI6Ro4t2iWgFm3fGDgjBrMfg=="
-      },
-      "Azure.Bicep.Types": {
-        "type": "Transitive",
-        "resolved": "0.5.81",
-        "contentHash": "A/7KLe6jwmS1Dc04tGPc5ABkQfxfgb1dtjvji772s9ji/5tG9nkb/n0aSdd45jJzga0eUvbA9uwjzDIXreW6Lg==",
-        "dependencies": {
-          "System.Text.Json": "8.0.4"
-        }
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",

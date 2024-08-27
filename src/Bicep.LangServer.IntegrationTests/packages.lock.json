@@ -1570,6 +1570,7 @@
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Local.Extension": "[1.0.0, )",
+          "Azure.Bicep.Types": "[0.5.81, )",
           "Azure.Deployments.Engine": "[1.95.0, )",
           "Azure.Deployments.Extensibility.Core": "[0.1.55, )",
           "Microsoft.AspNet.WebApi.Client": "[6.0.0, )"
