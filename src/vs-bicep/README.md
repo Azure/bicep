@@ -1,4 +1,6 @@
-## This extension requires Visual Studio 17.3 or above.
+## This extension requires Visual Studio 17.10 or above.
+
+Previous versions (before v0.29) of the Bicep for Visual Studio extension supported VS 17.3 through 17.9 and can be downloaded here: https://github.com/Azure/bicep/releases/tag/v0.28.1.  Under Assets, download and double-click on vs-bicep.vsix to install. It's safe to install a different version of the Bicep extension in VS than the version of Bicep you have otherwise installed on the machine, but the extension inside VS will not understand more recent additions to the Bicep language, so upgrading to VS 17.10 or above is recommended.
 
 ## Key features of the Bicep Visual Studio extension
 The Bicep Visual Studio extension is capable of many of the features you would expect out of other language tooling. Here is a comprehensive list of the features that are currently implemented.
