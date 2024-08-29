@@ -291,7 +291,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
   {
     name: 'one'
@@ -332,7 +332,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
   properties: {
     subnets: [for j in range(0, 4): {
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]
@@ -510,15 +510,19 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   resource primaryDb 'databases' = {
     name: 'primary-db'
     location: 'polandcentral'
+
+    resource threatProtection 'advancedThreatProtectionSettings' existing = {
+      name: 'default'
+    }
   }
 }
 
 //nameof
-var nameof1 = nameof(sqlServer)
-var nameof2 = nameof(sqlServer.location)
-var nameof3 = nameof(sqlServer::primaryDb.properties.minCapacity)
-var nameof4 = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
-var nameof5 = nameof(sqlServer::sqlDatabases[0].id)
+output nameof_sqlServer string = nameof(sqlServer)
+output nameof_location string = nameof(sqlServer.location)
+output nameof_minCapacity string = nameof(sqlServer::primaryDb.properties.minCapacity)
+output nameof_creationTime string = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+output nameof_id string = nameof(sqlServer::sqlDatabases[0].id)
 
 var sqlConfig = {
   westus: {}

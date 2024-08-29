@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10571611031141977059"
+      "templateHash": "8747088478515878781"
     }
   },
   "parameters": {
@@ -2096,6 +2096,98 @@
             "loc": {
               "type": "string",
               "value": "[parameters('location')]"
+            }
+          }
+        }
+      }
+    },
+    "moduleWithNameof": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "nameofModule",
+      "resourceGroup": "nameofModuleParam",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "stringParamA": {
+            "value": "withSpace"
+          },
+          "stringParamB": {
+            "value": "folderWithSpace"
+          },
+          "objParam": {
+            "value": {
+              "a": "exposedSecureString"
+            }
+          },
+          "arrayParam": {
+            "value": [
+              "vaults"
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "17198946721055526437"
+            }
+          },
+          "parameters": {
+            "stringParamA": {
+              "type": "string",
+              "defaultValue": "test"
+            },
+            "stringParamB": {
+              "type": "string"
+            },
+            "objParam": {
+              "type": "object"
+            },
+            "arrayParam": {
+              "type": "array"
+            }
+          },
+          "resources": {
+            "basicStorage": {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "basicblobs",
+              "location": "[parameters('stringParamA')]"
+            },
+            "dnsZone": {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "myZone",
+              "location": "[parameters('stringParamB')]"
+            }
+          },
+          "outputs": {
+            "stringOutputA": {
+              "type": "string",
+              "value": "[parameters('stringParamA')]"
+            },
+            "stringOutputB": {
+              "type": "string",
+              "value": "[parameters('stringParamB')]"
+            },
+            "objOutput": {
+              "type": "object",
+              "value": "[reference('basicStorage')]"
+            },
+            "arrayOutput": {
+              "type": "array",
+              "value": [
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+              ]
             }
           }
         }

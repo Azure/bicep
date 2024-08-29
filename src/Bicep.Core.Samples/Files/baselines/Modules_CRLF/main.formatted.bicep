@@ -398,4 +398,14 @@ var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString
 module moduleWithNameof 'modulea.bicep' = {
   name: 'nameofModule'
   scope: resourceGroup(nameof(nameofModuleParam))
+  params: {
+    stringParamA: nameof(withSpace)
+    stringParamB: nameof(folderWithSpace)
+    objParam: {
+      a: nameof(secureModuleCondition.outputs.exposedSecureString)
+    }
+    arrayParam: [
+      nameof(vaults)
+    ]
+  }
 }

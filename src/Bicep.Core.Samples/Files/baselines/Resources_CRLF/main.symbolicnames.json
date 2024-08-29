@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5796807527518784233"
+      "templateHash": "12953345672979673276"
     }
   },
   "parameters": {
@@ -58,9 +58,22 @@
       "db1",
       "db2",
       "db3"
-    ]
+    ],
+    "sqlConfig": {
+      "westus": {},
+      "server-name": {}
+    }
   },
   "resources": {
+    "sqlServer::primaryDb::threatProtection": {
+      "existing": true,
+      "type": "Microsoft.Sql/servers/databases/advancedThreatProtectionSettings",
+      "apiVersion": "2021-11-01",
+      "name": "[format('{0}/{1}/{2}', 'sql-server-name', 'primary-db', 'default')]",
+      "dependsOn": [
+        "sqlServer::primaryDb"
+      ]
+    },
     "sqlServer::sqlDatabases": {
       "copy": {
         "name": "sqlDatabases",
@@ -679,6 +692,12 @@
       "apiVersion": "2021-11-01",
       "name": "sql-server-name",
       "location": "polandcentral"
+    },
+    "sqlServerWithNameof": {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-11-01",
+      "name": "[format('sql-server-nameof-{0}', 'server-name')]",
+      "location": "westus"
     }
   },
   "outputs": {
@@ -753,6 +772,26 @@
     "p4_res1childid": {
       "type": "string",
       "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
+    },
+    "nameof_sqlServer": {
+      "type": "string",
+      "value": "sqlServer"
+    },
+    "nameof_location": {
+      "type": "string",
+      "value": "location"
+    },
+    "nameof_minCapacity": {
+      "type": "string",
+      "value": "minCapacity"
+    },
+    "nameof_creationTime": {
+      "type": "string",
+      "value": "creationTime"
+    },
+    "nameof_id": {
+      "type": "string",
+      "value": "id"
     }
   }
 }
