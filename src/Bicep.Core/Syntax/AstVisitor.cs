@@ -293,7 +293,6 @@ namespace Bicep.Core.Syntax
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-
             this.Visit(syntax.Name);
             this.VisitNodes(syntax.Children);
         }

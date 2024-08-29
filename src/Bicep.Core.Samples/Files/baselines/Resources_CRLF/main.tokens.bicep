@@ -2574,5 +2574,23 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[002:003) RightBrace |}|
 //@[003:005) NewLine |\r\n|
 }
+
+//nameof
+var nameof1 = nameof(sqlServer)
+var nameof2 = nameof(sqlServer.location)
+var nameof3 = nameof(sqlServer::primaryDb.properties.minCapacity)
+var nameof4 = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+var nameof5 = nameof(sqlServer::sqlDatabases[0].id)
+
+var sqlConfig = {
+  westus: {}
+  'server-name': {}
+}
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+  location: nameof(sqlConfig.westus)
+}
+
 //@[000:001) RightBrace |}|
-//@[001:001) EndOfFile ||
+//@[001:003) NewLine |\n\n|

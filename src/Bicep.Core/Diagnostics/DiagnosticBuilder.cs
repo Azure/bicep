@@ -1813,7 +1813,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ExpressionDoesNotHaveAName() => CoreError(
                 "BCP407",
-                $"Expression does not have a name");
+                "Expression does not have a name.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

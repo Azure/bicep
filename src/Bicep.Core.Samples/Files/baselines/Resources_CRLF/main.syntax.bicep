@@ -1,5 +1,5 @@
 
-//@[000:13327) ProgramSyntax
+//@[000:13840) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 @sys.description('this is basicStorage')
 //@[000:00225) ├─ResourceDeclarationSyntax
@@ -4064,5 +4064,23 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[002:00003) |   |   └─Token(RightBrace) |}|
 //@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
+
+//nameof
+var nameof1 = nameof(sqlServer)
+var nameof2 = nameof(sqlServer.location)
+var nameof3 = nameof(sqlServer::primaryDb.properties.minCapacity)
+var nameof4 = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+var nameof5 = nameof(sqlServer::sqlDatabases[0].id)
+
+var sqlConfig = {
+  westus: {}
+  'server-name': {}
+}
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+  location: nameof(sqlConfig.westus)
+}
+
 //@[000:00001) |   └─Token(RightBrace) |}|
-//@[001:00001) └─Token(EndOfFile) ||
+//@[001:00003) ├─Token(NewLine) |\n\n|

@@ -1065,7 +1065,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
                             ResourceAccessSyntax resourceAccess => resourceAccess.ResourceName.IdentifierName,
                             ModuleDeclarationSyntax moduleDeclaration => moduleDeclaration.Name.IdentifierName,
-                            ArrayAccessSyntax {IndexExpression: StringSyntax} arrayAccess => ((StringSyntax)arrayAccess.IndexExpression).TryGetLiteralValue(),
+                            ArrayAccessSyntax { IndexExpression: StringSyntax } arrayAccess => ((StringSyntax)arrayAccess.IndexExpression).TryGetLiteralValue()?.Trim('\''),
                             _ => null,
                         };
                         if (x is null)
@@ -1082,7 +1082,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
                             ResourceAccessSyntax resourceAccess => resourceAccess.ResourceName.IdentifierName,
                             ModuleDeclarationSyntax moduleDeclaration => moduleDeclaration.Name.IdentifierName,
-                            ArrayAccessSyntax {IndexExpression: StringSyntax} arrayAccess => ((StringSyntax)arrayAccess.IndexExpression).TryGetLiteralValue() ?? string.Empty,
+                            ArrayAccessSyntax { IndexExpression: StringSyntax } arrayAccess => ((StringSyntax)arrayAccess.IndexExpression).TryGetLiteralValue()?.Trim('\'') ?? string.Empty,
                             _ => string.Empty,
                         };
                         return new StringLiteralExpression(expression.Parameters[0].SourceSyntax, x);

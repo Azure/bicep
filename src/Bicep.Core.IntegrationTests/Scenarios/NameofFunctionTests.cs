@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests.Scenarios
 {
     [TestClass]
     public class NameofFunctionTests
     {
-        [DataRow("prop",".prop", "prop")]
-        [DataRow("'complex-prop'","['complex-prop']","complex-prop")]
+        [DataRow("prop", ".prop", "prop")]
+        [DataRow("'complex-prop'", "['complex-prop']", "complex-prop")]
         [DataTestMethod]
         public void NameofFunction_OnObjectProperty_ReturnsPropertyName(string propertyName, string propertyAccess, string expectedResult)
         {
@@ -45,6 +45,58 @@ output name string = nameof(obj)
             {
                 result.Should().NotHaveAnyCompilationBlockingDiagnostics();
                 result.Template.Should().HaveValueAtPath("$.outputs['name'].value", "obj");
+            }
+        }
+
+        [TestMethod]
+        public void NameofFunction_OnVariablePropertyWithArrayAccessSyntax_ReturnsPropertyName()
+        {
+            var result = CompilationHelper.Compile("""
+var obj = {
+  '1prop-x': 'value'
+}
+output name string = nameof(obj['1prop-x'])
+""");
+
+            using (new AssertionScope())
+            {
+                result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+                result.Template.Should().HaveValueAtPath("$.outputs['name'].value", "1prop-x");
+            }
+        }
+
+        [TestMethod]
+        public void NameofFunction_OnArrayAccessSyntaxThatIsNotLiteral_ReturnsError()
+        {
+            var result = CompilationHelper.Compile("""
+var obj = {
+ '1prop-x': 'value'
+}
+var prop = '1prop-x'
+output name string = nameof(obj[prop])
+""");
+
+            using (new AssertionScope())
+            {
+                result.Should()
+                    .NotGenerateATemplate().And
+                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "Expression does not have a name.")]);
+            }
+        }
+
+        [TestMethod]
+        public void NameofFunction_OnArrayAccessSyntaxThatIsIndex_ReturnsError()
+        {
+            var result = CompilationHelper.Compile("""
+var arr = ['1prop-x', '2prop-y']
+output name string = nameof(arr[0])
+""");
+
+            using (new AssertionScope())
+            {
+                result.Should()
+                    .NotGenerateATemplate().And
+                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "Expression does not have a name.")]);
             }
         }
 
@@ -209,6 +261,24 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
             }
         }
 
-        //TODO: Add some negative tests when nameof is used in invalid context
+        [DataTestMethod]
+        [DataRow("'abc'")]
+        [DataRow("123")]
+        [DataRow("1+2-3")]
+        [DataRow("true ? 'ok' : 'notOk'")]
+        [DataRow("any('abc')")]
+        [DataRow("true")]
+        [DataRow("{ x: 'y'}")]
+        public void UsingNameofFunction_InInvalidWay_ThrowsError(string expression)
+        {
+            var result = CompilationHelper.Compile($"output name string = nameof({expression})");
+
+            using (new AssertionScope())
+            {
+                result.Should()
+                    .NotGenerateATemplate().And
+                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "Expression does not have a name.")]);
+            }
+        }
     }
 }
