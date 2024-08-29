@@ -21,17 +21,17 @@ public interface IFileResolver
     /// Tries to read a file contents to string. If an exception is encountered, returns null and sets a non-null failureMessage.
     /// </summary>
     /// <param name="fileUri">The file URI to read.</param>
-    ResultWithDiagnostic<string> TryRead(Uri fileUri);
+    ResultWithDiagnosticBuilder<string> TryRead(Uri fileUri);
 
     /// <summary>
     /// Reads a file contents up to a certain number of characters.
     /// </summary>
-    ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n);
+    ResultWithDiagnosticBuilder<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n);
 
     /// <summary>
     /// Tries to read a file as binary data.
     /// </summary>
-    ResultWithDiagnostic<BinaryData> TryReadAsBinaryData(Uri fileUri, int? maxFileSize = null);
+    ResultWithDiagnosticBuilder<BinaryData> TryReadAsBinaryData(Uri fileUri, int? maxFileSize = null);
 
     void Write(Uri fileUri, Stream contents);
 

@@ -31,12 +31,12 @@ namespace Bicep.Core.Semantics
 
         public abstract SymbolKind Kind { get; }
 
-        public virtual IEnumerable<ErrorDiagnostic> GetDiagnostics()
+        public virtual IEnumerable<IDiagnostic> GetDiagnostics()
         {
             yield break;
         }
 
-        protected ErrorDiagnostic CreateError(IPositionable positionable, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
-            => errorFunc(DiagnosticBuilder.ForPosition(positionable));
+        protected Diagnostic CreateDiagnostic(IPositionable positionable, DiagnosticBuilder.DiagnosticBuilderDelegate diagnosticBuilder)
+            => diagnosticBuilder(DiagnosticBuilder.ForPosition(positionable));
     }
 }

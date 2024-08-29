@@ -2190,31 +2190,31 @@
     }
   },
   {
-    "label": "moduleWithUnsupprtedScope1",
+    "label": "moduleWithUnsupportedScope1",
     "kind": "module",
-    "detail": "moduleWithUnsupprtedScope1",
+    "detail": "moduleWithUnsupportedScope1",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_moduleWithUnsupprtedScope1",
+    "sortText": "2_moduleWithUnsupportedScope1",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "moduleWithUnsupprtedScope1"
+      "newText": "moduleWithUnsupportedScope1"
     }
   },
   {
-    "label": "moduleWithUnsupprtedScope2",
+    "label": "moduleWithUnsupportedScope2",
     "kind": "module",
-    "detail": "moduleWithUnsupprtedScope2",
+    "detail": "moduleWithUnsupportedScope2",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_moduleWithUnsupprtedScope2",
+    "sortText": "2_moduleWithUnsupportedScope2",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "moduleWithUnsupprtedScope2"
+      "newText": "moduleWithUnsupportedScope2"
     }
   },
   {

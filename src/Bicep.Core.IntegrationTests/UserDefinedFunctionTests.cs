@@ -41,7 +41,49 @@ func testFunc(baz string) string => '${foo}-${bar}-${baz}-${getBaz()}'
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
             ("BCP057", DiagnosticLevel.Error, """The name "foo" does not exist in the current context."""),
-            ("BCP057", DiagnosticLevel.Error, """The name "bar" does not exist in the current context."""),
+        });
+    }
+
+    [TestMethod]
+    public void Outer_scope_symbolic_variables_are_allowed()
+    {
+        var result = CompilationHelper.Compile(@"
+var bar = 'abc'
+func getBaz() string => 'baz'
+
+func testFunc(baz string) string => '${bar}-${baz}-${getBaz()}'
+
+func isStringEqual(input string) bool => input == testFunc(bar)
+
+output outputBool bool = isStringEqual('abc-abc-baz')
+output outputFoo string = testFunc('def')
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+
+        evaluated.Should().HaveValueAtPath("$.outputs['outputBool'].value", true);
+        evaluated.Should().HaveValueAtPath("$.outputs['outputFoo'].value", "abc-def-baz");
+    }
+
+    [TestMethod]
+    public void Inlined_variables_in_user_defined_functions_are_not_allowed()
+    {
+        var result = CompilationHelper.Compile(@"
+
+resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+  name: 'myaccount'
+}
+
+var saAccessTier = sa.properties.accessTier
+
+func testFunc() string => '${saAccessTier}'
+
+output outputFoo string = testFunc()
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            ("BCP341", DiagnosticLevel.Error, """This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("saAccessTier" -> "sa"). Properties of sa which can be calculated at the start include "apiVersion", "id", "name", "type".""")
         });
     }
 

@@ -64,7 +64,7 @@ namespace Bicep.Core.Registry
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
         }
 
-        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference)
+        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference)
         {
             if (!OciArtifactReference.TryParse(artifactType, aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
@@ -91,7 +91,7 @@ namespace Bicep.Core.Registry
             var artifactFilesNotFound = reference.Type switch
             {
                 ArtifactType.Module => !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.ModuleMain)),
-                ArtifactType.Provider => !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Provider)),
+                ArtifactType.Extension => !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Extension)),
                 _ => throw new UnreachableException()
             };
 
@@ -137,12 +137,12 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(OciArtifactReference reference)
+        public override ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(OciArtifactReference reference)
         {
             var artifactFileType = reference.Type switch
             {
                 ArtifactType.Module => ArtifactFileType.ModuleMain,
-                ArtifactType.Provider => ArtifactFileType.Provider,
+                ArtifactType.Extension => ArtifactFileType.Extension,
                 _ => throw new UnreachableException()
             };
 
@@ -220,9 +220,9 @@ namespace Bicep.Core.Registry
             await publicRegistryModuleMetadataProvider.TryAwaitCache(forceRestore);
         }
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
         {
-            var failures = new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+            var failures = new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>();
 
             var referencesEvaluated = references.ToArray();
 
@@ -250,7 +250,7 @@ namespace Bicep.Core.Registry
             return failures;
         }
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<OciArtifactReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<OciArtifactReference> references)
         {
             return await base.InvalidateArtifactsCacheInternal(references);
         }
@@ -304,30 +304,30 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public override async Task PublishProvider(OciArtifactReference reference, ProviderPackage provider)
+        public override async Task PublishExtension(OciArtifactReference reference, ExtensionPackage package)
         {
-            OciProvidersV1Config configData = provider.LocalDeployEnabled ? new(
+            OciExtensionV1Config configData = package.LocalDeployEnabled ? new(
                 localDeployEnabled: true,
-                supportedArchitectures: provider.Binaries.Select(x => x.Architecture.Name).ToImmutableArray()) :
+                supportedArchitectures: package.Binaries.Select(x => x.Architecture.Name).ToImmutableArray()) :
                 // avoid writing properties to the config - localDeploy is a preview feature, so
                 // there should be no detectable impact to 'mainline' functionality when disabled.
                 new(null, null);
 
             var config = new Oci.OciDescriptor(
-                JsonSerializer.Serialize(configData, OciProvidersV1ConfigSerializationContext.Default.OciProvidersV1Config),
-                BicepMediaTypes.BicepProviderConfigV1);
+                JsonSerializer.Serialize(configData, OciExtensionV1ConfigSerializationContext.Default.OciExtensionV1Config),
+                BicepMediaTypes.BicepExtensionConfigV1);
 
             List<Oci.OciDescriptor> layers = new()
             {
-                new(provider.Types, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
+                new(package.Types, BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
             };
 
             if (configData.LocalDeployEnabled == true)
             {
-                foreach (var binary in provider.Binaries)
+                foreach (var binary in package.Binaries)
                 {
-                    var layerName = BicepMediaTypes.GetProviderArtifactLayerV1Binary(binary.Architecture);
-                    layers.Add(new(binary.Data, layerName, new OciManifestAnnotationsBuilder().WithTitle($"provider.bin").Build()));
+                    var layerName = BicepMediaTypes.GetExtensionArtifactLayerV1Binary(binary.Architecture);
+                    layers.Add(new(binary.Data, layerName, new OciManifestAnnotationsBuilder().WithTitle($"extension.bin").Build()));
                 }
             }
 
@@ -342,7 +342,7 @@ namespace Bicep.Core.Registry
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
-                    BicepMediaTypes.BicepProviderArtifactType,
+                    BicepMediaTypes.BicepExtensionArtifactType,
                     config,
                     layers,
                     annotations);
@@ -380,17 +380,15 @@ namespace Bicep.Core.Registry
             // write data file
             var mainLayer = result.GetMainLayer();
 
-            // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
-            // but this may change in the future if we chose to publish providers in multiple layers.
-            // TODO: IsArtifactRestoreRequired assumes there must be a ModuleMain file, which isn't true for provider artifacts
+            // TODO: IsArtifactRestoreRequired assumes there must be a ModuleMain file, which isn't true for extension artifacts
             // NOTE(stephenWeatherford): That can be solved by only writing layer data files only (see below CONSIDER)
             //   and not main.json directly (https://github.com/Azure/bicep/issues/11900)
             var moduleFileType = (reference.Type, result) switch
             {
                 (ArtifactType.Module, OciModuleArtifactResult) => ArtifactFileType.ModuleMain,
-                (ArtifactType.Module, OciProviderArtifactResult) => throw new InvalidArtifactException($"Expected a module, but retrieved a provider."),
-                (ArtifactType.Provider, OciProviderArtifactResult) => ArtifactFileType.Provider,
-                (ArtifactType.Provider, OciModuleArtifactResult) => throw new InvalidArtifactException($"Expected a provider, but retrieved a module."),
+                (ArtifactType.Module, OciExtensionArtifactResult) => throw new InvalidArtifactException($"Expected a module, but retrieved an extension."),
+                (ArtifactType.Extension, OciExtensionArtifactResult) => ArtifactFileType.Extension,
+                (ArtifactType.Extension, OciModuleArtifactResult) => throw new InvalidArtifactException($"Expected an extension, but retrieved a module."),
                 _ => throw new InvalidOperationException($"Unexpected artifact type \"{result.GetType().Name}\"."),
             };
 
@@ -402,7 +400,7 @@ namespace Bicep.Core.Registry
                 // write source archive file
                 if (result.TryGetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
                 {
-                    // CONSIDER: Write all layers as separate binary files instead of separate files for source.tgz and provider files.
+                    // CONSIDER: Write all layers as separate binary files instead of separate files for source.tgz and extension files.
                     // We should do this rather than writing individual files we know about,
                     //   (e.g. "source.tgz") because this way we can restore all layers even if we don't know what they're for.
                     //   If an optional layer is added, we don't need to version the cache because all versions have the same complete
@@ -413,29 +411,29 @@ namespace Bicep.Core.Registry
                 }
             }
 
-            if (result is OciProviderArtifactResult providerArtifact)
+            if (result is OciExtensionArtifactResult extension)
             {
-                var config = providerArtifact.Config is { } ?
-                    JsonSerializer.Deserialize(providerArtifact.Config.Data, OciProvidersV1ConfigSerializationContext.Default.OciProvidersV1Config) :
+                var config = extension.Config is { } ?
+                    JsonSerializer.Deserialize(extension.Config.Data, OciExtensionV1ConfigSerializationContext.Default.OciExtensionV1Config) :
                     null;
 
-                // if the artifact supports local deployment, fetch the provider binary
+                // if the artifact supports local deployment, fetch the extension binary
                 if (config?.LocalDeployEnabled == true &&
                     config?.SupportedArchitectures is { } binaryArchitectures)
                 {
                     if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
                     {
-                        throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute provider extension \"{reference}\".");
+                        throw new InvalidOperationException($"Failed to determine the system OS or architecture to execute extension \"{reference}\".");
                     }
 
                     if (!binaryArchitectures.Contains(architecture.Name) ||
-                        result.TryGetSingleLayerByMediaType(BicepMediaTypes.GetProviderArtifactLayerV1Binary(architecture)) is not { } sourceData)
+                        result.TryGetSingleLayerByMediaType(BicepMediaTypes.GetExtensionArtifactLayerV1Binary(architecture)) is not { } sourceData)
                     {
-                        throw new InvalidOperationException($"The provider extension \"{reference}\" does not support architecture {architecture.Name}.");
+                        throw new InvalidOperationException($"The extension \"{reference}\" does not support architecture {architecture.Name}.");
                     }
 
                     using var binaryStream = sourceData.ToStream();
-                    var binaryUri = this.GetArtifactFileUri(reference, ArtifactFileType.ProviderBinary);
+                    var binaryUri = this.GetArtifactFileUri(reference, ArtifactFileType.ExtensionBinary);
                     this.FileResolver.Write(binaryUri, binaryStream);
                     if (!OperatingSystem.IsWindows())
                     {
@@ -548,9 +546,9 @@ namespace Bicep.Core.Registry
                 ArtifactFileType.Lock => "lock",
                 ArtifactFileType.Manifest => "manifest",
                 ArtifactFileType.Metadata => "metadata",
-                ArtifactFileType.Provider => "types.tgz",
+                ArtifactFileType.Extension => "types.tgz",
                 ArtifactFileType.Source => "source.tgz",
-                ArtifactFileType.ProviderBinary => "provider.bin",
+                ArtifactFileType.ExtensionBinary => "extension.bin",
                 _ => throw new NotImplementedException($"Unexpected artifact file type '{fileType}'.")
             };
 
@@ -569,8 +567,8 @@ namespace Bicep.Core.Registry
             return new(new SourceNotAvailableException());
         }
 
-        public override Uri? TryGetProviderBinary(OciArtifactReference reference)
-            => GetArtifactFileUri(reference, ArtifactFileType.ProviderBinary);
+        public override Uri? TryGetExtensionBinary(OciArtifactReference reference)
+            => GetArtifactFileUri(reference, ArtifactFileType.ExtensionBinary);
 
         private enum ArtifactFileType
         {
@@ -578,9 +576,9 @@ namespace Bicep.Core.Registry
             Manifest,
             Lock,
             Metadata,
-            Provider,
+            Extension,
             Source,
-            ProviderBinary,
+            ExtensionBinary,
         };
     }
 }

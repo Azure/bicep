@@ -1872,20 +1872,20 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         }
 
         [TestMethod]
-        public async Task Provider_completions_work_if_feature_enabled()
+        public async Task Extension_completions_work_if_feature_enabled()
         {
 
             var fileWithCursors = @"
             |
-            provider ns1 |
-            provider ns2 a|
-            provider ns3 as|
-            provider |
-            provider a|
+            extension ns1 |
+            extension ns2 a|
+            extension ns3 as|
+            extension |
+            extension a|
             ";
             await RunCompletionScenarioTest(this.TestContext, ServerWithExtensibilityEnabled, fileWithCursors,
                 completions => completions.Should().SatisfyRespectively(
-                    c => c!.Select(x => x.Label).Should().Contain("provider"),
+                    c => c!.Select(x => x.Label).Should().Contain("extension"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
@@ -1896,7 +1896,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
 
             await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors,
                 completions => completions.Should().SatisfyRespectively(
-                    c => c!.Select(x => x.Label).Should().NotContain("provider"),
+                    c => c!.Select(x => x.Label).Should().NotContain("extension"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
@@ -1911,7 +1911,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             {
                 var fileWithCursors = @"
-provider kubernetes with | as k8s
+extension kubernetes with | as k8s
 ";
 
                 var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
@@ -1923,7 +1923,7 @@ provider kubernetes with | as k8s
 
                 var updatedFile = file.ApplyCompletion(completions, "required-properties");
                 updatedFile.Should().HaveSourceText(@"
-provider kubernetes with {
+extension kubernetes with {
   kubeConfig: $1
   namespace: $2
 }| as k8s
@@ -1932,7 +1932,7 @@ provider kubernetes with {
 
             {
                 var fileWithCursors = @"
-provider kubernetes with {
+extension kubernetes with {
   |
 }
 ";
@@ -1946,7 +1946,7 @@ provider kubernetes with {
 
                 var updatedFile = file.ApplyCompletion(completions, "kubeConfig");
                 updatedFile.Should().HaveSourceText(@"
-provider kubernetes with {
+extension kubernetes with {
   kubeConfig:|
 }
 ");
@@ -4294,6 +4294,82 @@ var foo = {
         }
 
         [TestMethod]
+        public async Task Required_properties_completion_is_not_offered_for_invalid_recursive_types()
+        {
+            // https://github.com/Azure/bicep/issues/14867
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+type invalidRecursiveObjectType = {
+  level1: {
+    level2: {
+      level3: {
+        level4: {
+          level5: invalidRecursiveObjectType
+        }
+      }
+    }
+  }
+}
+
+param p invalidRecursiveObjectType = |
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().NotContain(c => c.Label == "required-properties");
+        }
+
+        [TestMethod]
+        public async Task Required_properties_completion_works_for_valid_recursive_types()
+        {
+            // https://github.com/Azure/bicep/issues/14867
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+type validRecursiveObjectType = {
+  level1: {
+    level2: {
+      level3: {
+        level4: {
+          level5: validRecursiveObjectType?
+        }
+      }
+    }
+  }
+}
+
+param p validRecursiveObjectType = |
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            var updatedFile = file.ApplyCompletion(completions, "required-properties");
+
+            updatedFile.Should().HaveSourceText("""
+type validRecursiveObjectType = {
+  level1: {
+    level2: {
+      level3: {
+        level4: {
+          level5: validRecursiveObjectType?
+        }
+      }
+    }
+  }
+}
+
+param p validRecursiveObjectType = {
+  level1: {
+    level2: {
+      level3: {
+        level4: {}
+      }
+    }
+  }
+}|
+""");
+        }
+
+        [TestMethod]
         public async Task Compile_time_imports_offer_target_path_completions()
         {
             var mainContent = """
@@ -4997,6 +5073,65 @@ param test nestedType = {
   baz: $2
   foo: $3
 }|
+""");
+        }
+
+        [TestMethod]
+        public async Task Unions_of_object_types_support_completions()
+        {
+            // https://github.com/azure/bicep/issues/14839
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+var items = [
+  { bar: 'abc' }
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.|]
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+
+            var updatedFile = file.ApplyCompletion(completions, "bar");
+            updatedFile.Should().HaveSourceText("""
+var items = [
+  { bar: 'abc' }
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.bar|]
+""");
+        }
+
+        [TestMethod]
+        public async Task Unions_of_object_types_support_completions_with_additional_properties()
+        {
+            // https://github.com/azure/bicep/issues/14839
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+param firstItem object
+
+var items = [
+  firstItem
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.|]
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+
+            // bar is still offered as a completion, even though there may be other properties supported
+            var updatedFile = file.ApplyCompletion(completions, "bar");
+            updatedFile.Should().HaveSourceText("""
+param firstItem object
+
+var items = [
+  firstItem
+  { bar: 'def' }
+]
+
+output foo string[] = [for item in items: item.bar|]
 """);
         }
     }

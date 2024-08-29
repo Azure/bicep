@@ -79,7 +79,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetOutputValueCompletions(model, context))
                 .Concat(GetOutputTypeFollowerCompletions(context))
                 .Concat(GetTargetScopeCompletions(model, context))
-                .Concat(GetProviderImportCompletions(model, context))
+                .Concat(GetExtensionCompletions(model, context))
                 .Concat(GetCompileTimeImportCompletions(model, context))
                 .Concat(GetFunctionParamCompletions(model, context))
                 .Concat(GetExpressionCompletions(model, context))
@@ -149,7 +149,7 @@ namespace Bicep.LanguageServer.Completions
 
                         if (model.Features.ExtensibilityEnabled)
                         {
-                            yield return CreateKeywordCompletion(LanguageConstants.ProviderKeyword, "Provider keyword", context.ReplacementRange);
+                            yield return CreateKeywordCompletion(LanguageConstants.ExtensionKeyword, "Extension keyword", context.ReplacementRange);
                         }
 
                         if (model.Features.TestFrameworkEnabled)
@@ -443,7 +443,7 @@ namespace Bicep.LanguageServer.Completions
                     // Doesn't matter which one of the group we take, we're leaving out the version.
                     items.Add(CreateResourceTypeSegmentCompletion(group.First(), index++, context.ReplacementRange, includeApiVersion: false, displayApiVersion: parentResourceType.TypeReference.ApiVersion));
 
-                    foreach (var resourceType in group.Where(rt => rt.ApiVersion is not null).OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance))
+                    foreach (var resourceType in group.Where(rt => rt.ApiVersion is not null).OrderByDescending(rt => rt.ApiVersion ?? "", ApiVersionComparer.Instance))
                     {
                         items.Add(CreateResourceTypeSegmentCompletion(resourceType, index++, context.ReplacementRange, includeApiVersion: true, displayApiVersion: resourceType.ApiVersion));
                     }
@@ -479,7 +479,7 @@ namespace Bicep.LanguageServer.Completions
                 // strict filtering on type so that we show api versions for only the selected type
                 return model.Binder.NamespaceResolver.GetGroupedResourceTypes()[resourceType]
                     .SelectMany(x => x)
-                    .OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
+                    .OrderByDescending(rt => rt.ApiVersion ?? "", ApiVersionComparer.Instance)
                     .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true));
             }
 
@@ -487,7 +487,7 @@ namespace Bicep.LanguageServer.Completions
             // we need to ensure that Microsoft.Compute/virtualMachines comes before Microsoft.Compute/virtualMachines/extensions
             // we still order by apiVersion first to have consistent indexes
             return model.Binder.NamespaceResolver.GetGroupedResourceTypes()
-                .Select(rt => rt.SelectMany(x => x).OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance).First())
+                .Select(rt => rt.SelectMany(x => x).OrderByDescending(rt => rt.ApiVersion ?? "", ApiVersionComparer.Instance).First())
                 .OrderBy(rt => rt.Type, StringComparer.OrdinalIgnoreCase)
                 .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false));
         }
@@ -690,11 +690,11 @@ namespace Bicep.LanguageServer.Completions
                 (ModuleRegistryWithoutAliasPattern.IsMatch(text) || ModuleRegistryWithAliasPattern.IsMatch(text));
         }
 
-        private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Compilation compitation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Compilation computation, BicepCompletionContext context)
         {
             if (context.EnclosingDeclaration is ParameterDeclarationSyntax parameterDeclarationSyntax)
             {
-                var bicepFile = compitation.SourceFileGrouping.EntryPoint;
+                var bicepFile = computation.SourceFileGrouping.EntryPoint;
                 Range enclosingDeclarationRange = parameterDeclarationSyntax.Keyword.ToRange(bicepFile.LineStarts);
                 TextEdit textEdit = new()
                 {
@@ -1018,7 +1018,7 @@ namespace Bicep.LanguageServer.Completions
                 // reverse loop iteration
                 foreach (var scope in context.ActiveScopes.Reverse())
                 {
-                    // add referencable declarations with valid identifiers at current scope
+                    // add referenceable declarations with valid identifiers at current scope
                     AddSymbolCompletions(completions, scope.Declarations
                         .Where(symbolFilter)
                         .Where(decl => decl.NameSource.IsValid && decl.CanBeReferenced()));
@@ -1041,7 +1041,7 @@ namespace Bicep.LanguageServer.Completions
                 AddSymbolCompletions(completions, nsTypeDict.Keys.Where(
                     ns => GetAccessibleDecoratorFunctionsWithCache(nsTypeDict[ns]).Any()));
 
-                // Record the names of referencable declarations which will be used to check name clashes later.
+                // Record the names of referenceable declarations which will be used to check name clashes later.
                 declaredNames.UnionWith(model.Root.Declarations.Where(decl => decl.NameSource.IsValid && decl.CanBeReferenced()).Select(decl => decl.Name));
             }
 
@@ -1257,6 +1257,8 @@ namespace Bicep.LanguageServer.Completions
                 TestType testType => GetProperties(testType.Body.Type),
                 ObjectType objectType => objectType.Properties.Values,
                 DiscriminatedObjectType discriminated => discriminated.DiscriminatorProperty.AsEnumerable(),
+                UnionType unionType when unionType.Members.All(x => x.Type is ObjectType)
+                    => GetProperties(TypeHelper.CreateObjectTypeFromObjectUnion(unionType.Members.OfType<ObjectType>().ToList())),
                 _ => [],
             }).Where(p => !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty));
         }
@@ -1995,17 +1997,17 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private IEnumerable<CompletionItem> GetProviderImportCompletions(SemanticModel model, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetExtensionCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportSpecification))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionSpecification))
             {
-                var providerNames = model.Configuration.Extensions.Data.Keys
+                var extensionNames = model.Configuration.Extensions.Data.Keys
                     .Concat(SystemNamespaceType.BuiltInName)
                     .ToHashSet();
 
-                foreach (var providerName in providerNames.OrderBy(x => x, LanguageConstants.IdentifierComparer))
+                foreach (var extensionName in extensionNames.OrderBy(x => x, LanguageConstants.IdentifierComparer))
                 {
-                    var completionText = providerName;
+                    var completionText = extensionName;
                     yield return CompletionItemBuilder.Create(CompletionItemKind.Folder, completionText)
                         .WithSortText(GetSortText(completionText, CompletionPriority.High))
                         .WithDetail(completionText)
@@ -2014,17 +2016,17 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportWithOrAsKeyword))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionWithOrAsKeyword))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.WithKeyword, "With keyword", context.ReplacementRange);
                 yield return CreateKeywordCompletion(LanguageConstants.AsKeyword, "As keyword", context.ReplacementRange);
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportConfig))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionConfig))
             {
-                if (context.EnclosingDeclaration is ProviderDeclarationSyntax importSyntax &&
-                    model.GetSymbolInfo(importSyntax) is ProviderNamespaceSymbol providerSymbol &&
-                    providerSymbol.TryGetNamespaceType() is { } namespaceType)
+                if (context.EnclosingDeclaration is ExtensionDeclarationSyntax importSyntax &&
+                    model.GetSymbolInfo(importSyntax) is ExtensionNamespaceSymbol extensionSymbol &&
+                    extensionSymbol.TryGetNamespaceType() is { } namespaceType)
                 {
                     foreach (var completion in GetValueCompletionsForType(model, context, namespaceType.ConfigurationType, importSyntax.Config, loopsAllowed: false))
                     {
@@ -2033,7 +2035,7 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportAsKeyword))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionAsKeyword))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.AsKeyword, "As keyword", context.ReplacementRange);
             }

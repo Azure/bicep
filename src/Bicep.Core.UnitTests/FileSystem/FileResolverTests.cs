@@ -170,7 +170,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [DataRow("a", 2, true, "a")]
         [DataRow("aa", 2, true, "aa")]
         [DataRow("aaaa\nbbbbb", 2, true, "aa")]
-        public void TryReadAtMostNCharacters_RegardlessFileContentLength_ReturnsAtMostNCharaters(string fileContents, int n, bool expectedResult, string expectedContents)
+        public void TryReadAtMostNCharacters_RegardlessFileContentLength_ReturnsAtMostNCharacters(string fileContents, int n, bool expectedResult, string expectedContents)
         {
             var fileResolver = GetFileResolver();
             var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");

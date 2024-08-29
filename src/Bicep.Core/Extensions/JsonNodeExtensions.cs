@@ -13,11 +13,6 @@ namespace Bicep.Core.Extensions
             var jsonPath = JsonPath.Parse(jsonPathQuery);
             var result = jsonPath.Evaluate(node);
 
-            if (result.Error is string error)
-            {
-                throw new InvalidOperationException(error);
-            }
-
             if (result.Matches is not null)
             {
                 return result.Matches.Select(x => x.Value).OfType<JsonNode>();

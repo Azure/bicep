@@ -24,7 +24,7 @@ namespace Bicep.Core.TypeSystem.Providers
         bool HasDefinedType(ResourceTypeReference typeReference);
 
         /// <summary>
-        /// Returns the full list of available types defined by this provider.
+        /// Returns the full list of available types defined by this extension.
         /// </summary>
         IEnumerable<ResourceTypeReference> GetAvailableTypes();
 

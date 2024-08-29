@@ -89,6 +89,16 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<StringAssertions>(instance);
         }
 
+        public static AndConstraint<StringAssertions> BeEquivalentToIgnoringTrailingWhitespace(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
+        {
+            var normalizedActual = string.Join("\n", StringUtils.SplitOnNewLine(instance.Subject).Select(x => x.TrimEnd()));
+            var normalizedExpected = string.Join("\n", StringUtils.SplitOnNewLine(expected).Select(x => x.TrimEnd()));
+
+            normalizedActual.Should().BeEquivalentTo(normalizedExpected, because, becauseArgs);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
         public static AndConstraint<StringAssertions> EqualIgnoringNewlines(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
         {
             var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");

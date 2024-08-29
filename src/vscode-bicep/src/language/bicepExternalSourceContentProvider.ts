@@ -36,7 +36,7 @@ export class BicepExternalSourceContentProvider extends Disposable implements vs
       token,
     );
 
-    return response.error ? `// ${response.error}` : response.content ?? "";
+    return response.error ? `// ${response.error}` : (response.content ?? "");
   }
 
   private bicepExternalSourceRequest(uri: vscode.Uri): BicepExternalSourceParams {

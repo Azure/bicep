@@ -10,10 +10,10 @@ namespace Bicep.Core.Semantics;
 
 public abstract class ImportedSymbol : DeclaredSymbol
 {
-    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel)
+    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclaration, ISemanticModel sourceModel)
         : base(context, declaringSyntax.Name.IdentifierName, declaringSyntax, declaringSyntax.Name)
     {
-        EnclosingDeclaration = enclosingDeclartion;
+        EnclosingDeclaration = enclosingDeclaration;
         SourceModel = sourceModel;
     }
 
@@ -27,14 +27,14 @@ public abstract class ImportedSymbol : DeclaredSymbol
 
     public abstract string? Description { get; }
 
-    public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference()
+    public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference()
         => Context.Compilation.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 }
 
 public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadata
 {
-    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, T exportMetadata)
-        : base(context, declaringSyntax, enclosingDeclartion, sourceModel)
+    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclaration, ISemanticModel sourceModel, T exportMetadata)
+        : base(context, declaringSyntax, enclosingDeclaration, sourceModel)
     {
         ExportMetadata = exportMetadata;
     }
@@ -43,7 +43,7 @@ public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadat
 
     public override string? Description => ExportMetadata.Description;
 
-    public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
+    public override IEnumerable<Diagnostic> GetDiagnostics()
     {
         if (!IsSupportedImportKind())
         {

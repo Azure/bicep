@@ -72,7 +72,7 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
         catch (Exception ex)
         {
             await TerminateProcess(process);
-            throw new InvalidOperationException($"Failed to connect to provider {pathToBinary.LocalPath}", ex);
+            throw new InvalidOperationException($"Failed to connect to extension {pathToBinary.LocalPath}", ex);
         }
     }
 

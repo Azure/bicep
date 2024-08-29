@@ -48,7 +48,7 @@ public class ParametersEmitter
         // collect all the diagnostics
         var diagnostics = model.GetAllDiagnostics();
 
-        if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
+        if (diagnostics.Any(d => d.IsError()))
         {
             return new EmitResult(EmitStatus.Failed, diagnostics);
         }

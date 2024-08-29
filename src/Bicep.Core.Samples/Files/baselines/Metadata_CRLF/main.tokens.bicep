@@ -156,7 +156,7 @@ metadata myArrayMetadata = [
 //@[00:001) RightSquare |]|
 //@[01:005) NewLine |\r\n\r\n|
 
-// emtpy object and array
+// empty object and array
 //@[25:027) NewLine |\r\n|
 metadata myEmptyObj = { }
 //@[00:008) Identifier |metadata|

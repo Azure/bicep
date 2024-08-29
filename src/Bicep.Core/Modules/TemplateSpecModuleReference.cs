@@ -61,7 +61,7 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static ResultWithDiagnostic<TemplateSpecModuleReference> TryParse(string? aliasName, string referenceValue, RootConfiguration configuration, Uri parentModuleUri)
+        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(string? aliasName, string referenceValue, RootConfiguration configuration, Uri parentModuleUri)
         {
             if (aliasName is not null)
             {
@@ -86,7 +86,7 @@ namespace Bicep.Core.Modules
             // Validate subscription ID.
             if (!Guid.TryParse(subscriptionId, out _))
             {
-                return new(x => x.InvalidTemplateSpecReferenceInvalidSubscirptionId(aliasName, subscriptionId, FullyQualify(referenceValue)));
+                return new(x => x.InvalidTemplateSpecReferenceInvalidSubscriptionId(aliasName, subscriptionId, FullyQualify(referenceValue)));
             }
 
             // Validate resource group name.

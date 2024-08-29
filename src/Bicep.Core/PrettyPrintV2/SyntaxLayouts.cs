@@ -113,7 +113,7 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Keyword,
                 syntax.Alias);
 
-        private IEnumerable<Document> LayoutProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) =>
+        private IEnumerable<Document> LayoutExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
                 .Concat(this.Spread(
                     syntax.Keyword,
@@ -121,12 +121,12 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.WithClause,
                     syntax.AsClause));
 
-        private IEnumerable<Document> LayoutProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) =>
+        private IEnumerable<Document> LayoutExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax) =>
             this.Spread(
                 syntax.Keyword,
                 syntax.Config);
 
-        private IEnumerable<Document> LayoutIntanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        private IEnumerable<Document> LayoutInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
             var lastArgumentDocument = this.LayoutFunctionTailObjectOrArrayArgumentSyntax(syntax.Arguments);
 
@@ -680,7 +680,7 @@ namespace Bicep.Core.PrettyPrintV2
 
             var lastArgumentDocument = this.LayoutSingle(lastArgumentSyntax);
 
-            // If the last function argument is an object or a lamda with an object body, we would like
+            // If the last function argument is an object or a lambda with an object body, we would like
             // to make sure it doesn't force break the function argument list into multiple lines when there
             // is enough space. This is done by replacing the GlueDocument (returned by the Bracket operator and forces line breaks)
             // with a FunctionTailObjectOrArrayDocument, which is handled as a special case in PrettyPrinterV2.

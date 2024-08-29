@@ -95,7 +95,7 @@ namespace Bicep.Core.Syntax
 
         public static Token TargetScopeKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.TargetScopeKeyword);
         public static Token ImportKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ImportKeyword);
-        public static Token ProviderKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ProviderKeyword);
+        public static Token ExtensionKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ExtensionKeyword);
         public static Token UsingKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.UsingKeyword);
         public static Token MetadataKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.MetadataKeyword);
         public static Token ParameterKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ParameterKeyword);
@@ -386,5 +386,8 @@ namespace Bicep.Core.Syntax
                 left,
                 CreateToken(operatorType, SingleSpaceTrivia, SingleSpaceTrivia),
                 right);
+
+        public static ParenthesizedExpressionSyntax CreateParenthesized(SyntaxBase inner)
+            => new(LeftParenToken, inner, RightParenToken);
     }
 }

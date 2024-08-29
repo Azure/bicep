@@ -430,7 +430,7 @@ output prop string = anObject.prop
 ");
 
         result.Should().HaveDiagnostics(new[] {
-            ("BCP187", DiagnosticLevel.Warning, "The property \"prop\" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+            ("BCP187", DiagnosticLevel.Warning, "The property \"prop\" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
         });
     }
 
@@ -455,7 +455,7 @@ param anotherObject object = {prop: 'someVal'}
     {
         var result = CompilationHelper.Compile("""
             type emptyObject = {}
-            type untypedObect = object
+            type untypedObject = object
             """);
 
         result.Template.Should().HaveValueAtPath("definitions.emptyObject.properties", new JObject());
@@ -862,7 +862,7 @@ param myParam string
     }
 
     [TestMethod]
-    [Timeout(5_000)]
+    [Timeout(5_0000)]
     public void Parsing_incomplete_tuple_type_expressions_halts()
     {
         var result = CompilationHelper.Compile("""
@@ -1559,7 +1559,7 @@ param myParam string
         result.Template.Should().BeNull();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP394", DiagnosticLevel.Error, "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted."),
+            ("BCP394", DiagnosticLevel.Error, "Resource-derived type expressions must dereference a property within the resource body. Using the entire resource body type is not permitted."),
         });
     }
 

@@ -17,7 +17,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.MicrosoftGraph
         [TestMethod]
         public void MicrosoftGraphResourceTypeProvider_can_list_all_types_without_throwing()
         {
-            var availableTypes = MicrosoftGraphNamespaceType.Create(MicrosoftGraphNamespaceType.Settings.BicepProviderName).ResourceTypeProvider.GetAvailableTypes();
+            var availableTypes = MicrosoftGraphNamespaceType.Create(MicrosoftGraphNamespaceType.Settings.BicepExtensionName).ResourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
             var minExpectedTypes = 5;

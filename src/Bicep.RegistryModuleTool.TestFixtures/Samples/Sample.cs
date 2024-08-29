@@ -43,7 +43,7 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
 
             if (!sampleResourceNames.Any())
             {
-                throw new InvalidOperationException("Could not find any embeded sample files.");
+                throw new InvalidOperationException("Could not find any embedded sample files.");
             }
 
             var testPrefix = $"{prefix}test.";

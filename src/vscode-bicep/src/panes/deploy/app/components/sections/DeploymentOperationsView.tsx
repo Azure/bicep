@@ -12,6 +12,7 @@ import { FC } from "react";
 import { DeploymentScope } from "../../../models";
 import { getPreformattedJson, isFailed, isInProgress } from "../utils";
 import { FormSection } from "./FormSection";
+import { Codicon } from "@vscode-bicep-ui/components";
 
 interface DeploymentOperationsViewProps {
   scope: DeploymentScope;
@@ -73,20 +74,41 @@ export const DeploymentOperationsView: FC<DeploymentOperationsViewProps> = ({ sc
 };
 
 function getResourceNameContents(scope: DeploymentScope, operation: DeploymentOperation) {
-  const resourceId = operation.properties?.targetResource?.id;
   const resourceName = operation.properties?.targetResource?.resourceName;
-  const isPutOrGet =
-    operation.properties?.provisioningOperation === "Create" || operation.properties?.provisioningOperation === "Read";
 
   return (
     <>
       {resourceName}
-      {resourceId && isPutOrGet && (
-        // It only makes sense to share a link to the portal if we're doing a PUT / GET on a resource (as opposed to a POST action)
-        <VSCodeLink title="Open in Portal" href={`${scope.portalUrl}/#@${scope.tenantId}/resource${resourceId}`}>
-          <span className="codicon codicon-globe" />
-        </VSCodeLink>
-      )}
+      {getPortalLinkButton(scope, operation)}
     </>
+  );
+}
+
+function getPortalLinkButton(scope: DeploymentScope, operation: DeploymentOperation) {
+  const { targetResource, provisioningOperation } = operation.properties ?? {};
+  if (!targetResource || !targetResource.id || !targetResource.resourceType) {
+    return;
+  }
+
+  if (provisioningOperation !== 'Create' && provisioningOperation !== 'Read') {
+    // It only makes sense to share a link to the portal if we're doing a PUT / GET on a resource (as opposed to a POST action)
+    return;
+  }
+
+  let portalResourceUrl;
+  switch (targetResource.resourceType.toLowerCase()) {
+    case 'microsoft.resources/deployments':
+      // Deployments have a dedicated Portal blade to track progress
+      portalResourceUrl = `${scope.portalUrl}/#@${scope.tenantId}/blade/HubsExtension/DeploymentDetailsBlade/overview/id/${encodeURIComponent(targetResource.id)}`;
+      break;
+    default:
+      portalResourceUrl = `${scope.portalUrl}/#@${scope.tenantId}/resource${targetResource.id}`;
+      break;
+  }
+
+  return (
+    <VSCodeLink style={{verticalAlign: 'middle'}} title="Open in Portal" href={`${portalResourceUrl}`}>
+      <Codicon name="globe" size={12} />
+    </VSCodeLink>
   );
 }

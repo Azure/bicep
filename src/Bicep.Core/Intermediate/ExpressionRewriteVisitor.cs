@@ -246,8 +246,8 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { Value = value, Description = description } : expression;
     }
 
-    void IExpressionVisitor.VisitDeclaredProviderExpression(DeclaredProviderExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredProviderExpression);
-    public virtual Expression ReplaceDeclaredProviderExpression(DeclaredProviderExpression expression)
+    void IExpressionVisitor.VisitDeclaredExtensionExpression(DeclaredExtensionExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredExtensionExpression);
+    public virtual Expression ReplaceDeclaredExtensionExpression(DeclaredExtensionExpression expression)
     {
         var hasChanges =
             TryRewrite(expression.Config, out var config) |
@@ -697,7 +697,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewriteStrict(expression.Metadata, out var metadata) |
-            TryRewriteStrict(expression.Providers, out var providers) |
+            TryRewriteStrict(expression.Extensions, out var extensions) |
             TryRewriteStrict(expression.Parameters, out var parameters) |
             TryRewriteStrict(expression.Types, out var types) |
             TryRewriteStrict(expression.Variables, out var variables) |
@@ -706,7 +706,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
             TryRewriteStrict(expression.Modules, out var modules) |
             TryRewriteStrict(expression.Outputs, out var outputs);
 
-        return hasChanges ? expression with { Metadata = metadata, Providers = providers, Parameters = parameters, Types = types, Variables = variables, Functions = functions, Resources = resources, Modules = modules, Outputs = outputs } : expression;
+        return hasChanges ? expression with { Metadata = metadata, Extensions = extensions, Parameters = parameters, Types = types, Variables = variables, Functions = functions, Resources = resources, Modules = modules, Outputs = outputs } : expression;
     }
 
     protected virtual Expression Replace(Expression expression) => ReplaceInternal(expression);

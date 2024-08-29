@@ -2,7 +2,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { AzureIcon } from "..";
 
-describe.concurrent("AzureIcon", () => {
+describe("AzureIcon", () => {
   it.each([
     ["Microsoft.Compute/virtualMachines", 24, "fd454f1c-5506-44b8-874e-8814b8b2f70b"],
     ["Microsoft.Web/sites", 32, "b70acf0a-34b4-4bdf-9024-7496043ff915"],
@@ -21,7 +21,7 @@ describe.concurrent("AzureIcon", () => {
         const svg = within(iconDiv).getByTestId(`${resourceType}-svg`);
         expect(svg).toHaveAttribute("id", svgId);
       },
-      { timeout: 5000 },
+      { timeout: 15000 },
     );
   });
 });

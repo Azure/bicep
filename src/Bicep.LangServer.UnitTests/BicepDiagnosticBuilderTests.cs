@@ -17,16 +17,14 @@ namespace Bicep.LangServer.UnitTests
     {
 
         [TestMethod]
-        public void CreateOmnisharpDiagnosticWithCodeDesription()
+        public void CreateOmnisharpDiagnosticWithCodeDescription()
         {
             var sampleUri = new Uri("https://aka.ms/this/is/a/test");
-            var analyzerName = "unit test";
 
             IEnumerable<IDiagnostic> diags = new[]
             {
-                new AnalyzerDiagnostic(analyzerName, new TextSpan(0,0), DiagnosticLevel.Warning,
-                                                  "Analyzer Msg Code", "Analyzer message string", sampleUri),
-                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Error, "TestCode", "Bicep language message for diagnostic", sampleUri)
+                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Warning, DiagnosticSource.CoreLinter, "Analyzer Msg Code", "Analyzer message string") with { Uri = sampleUri },
+                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Error, DiagnosticSource.Compiler,"TestCode", "Bicep language message for diagnostic") with { Uri = sampleUri },
             };
 
             var lineStarts = new[] { 0 }.ToImmutableArray<int>();
@@ -36,25 +34,23 @@ namespace Bicep.LangServer.UnitTests
                 analyzerDiagnostic =>
                 {
                     analyzerDiagnostic.CodeDescription!.Href!.Should().Be(sampleUri.AbsoluteUri);
-                    analyzerDiagnostic.Source!.Should().Be($"{LanguageConstants.LanguageId} {analyzerName}");
+                    analyzerDiagnostic.Source!.Should().Be("bicep core linter");
                 },
                 diagnostic => // base class Diagnostic
                 {
                     diagnostic.CodeDescription!.Href!.Should().Be(sampleUri.AbsoluteUri);
-                    diagnostic.Source!.Should().Be($"{LanguageConstants.LanguageId}");
+                    diagnostic.Source!.Should().Be("bicep");
                 }
             );
         }
 
         [TestMethod]
-        public void CreateOmnisharpDiagnosticWithoutCodeDesription()
+        public void CreateOmnisharpDiagnosticWithoutCodeDescription()
         {
-            var analyzerName = "unit test";
             IEnumerable<IDiagnostic> diags = new[]
             {
-                new AnalyzerDiagnostic(analyzerName, new TextSpan(0,0), DiagnosticLevel.Warning,
-                                                  "Analyzer Msg Code", "Analyzer message string", null /* no doc Uri */),
-                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Error, "TestCode", "No docs for this error message")
+                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Warning, DiagnosticSource.CoreLinter, "Analyzer Msg Code", "Analyzer message string"),
+                new Diagnostic(new TextSpan(0,0), DiagnosticLevel.Error, DiagnosticSource.Compiler, "TestCode", "No docs for this error message"),
             };
 
             var lineStarts = new[] { 0 }.ToImmutableArray<int>();
@@ -64,12 +60,12 @@ namespace Bicep.LangServer.UnitTests
                 analyzerDiagnostic =>
                 {
                     analyzerDiagnostic.CodeDescription.Should().BeNull();
-                    analyzerDiagnostic.Source!.Should().Be($"{LanguageConstants.LanguageId} {analyzerName}");
+                    analyzerDiagnostic.Source!.Should().Be("bicep core linter");
                 },
                 diagnostic => // base Diagnostic class
                 {
                     diagnostic.CodeDescription.Should().BeNull();
-                    diagnostic.Source!.Should().Be(LanguageConstants.LanguageId);
+                    diagnostic.Source!.Should().Be("bicep");
                 }
             );
 

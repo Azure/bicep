@@ -20,9 +20,9 @@ param location string = resourceGroup().location
 
 var virtualMachineName = 'VM-MultiNic'
 var nic1_var = 'nic-1'
-//@[04:12) [decompiler-cleanup (Warning)] The name of variable 'nic1_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |nic1_var|
+//@[04:12) [decompiler-cleanup (Warning)] The name of variable 'nic1_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (bicep core linter https://aka.ms/bicep/linter/decompiler-cleanup) |nic1_var|
 var nic2_var = 'nic-2'
-//@[04:12) [decompiler-cleanup (Warning)] The name of variable 'nic2_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |nic2_var|
+//@[04:12) [decompiler-cleanup (Warning)] The name of variable 'nic2_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (bicep core linter https://aka.ms/bicep/linter/decompiler-cleanup) |nic2_var|
 var virtualNetworkName = 'virtualNetwork'
 var subnet1Name = 'subnet-1'
 var subnet2Name = 'subnet-2'
@@ -43,7 +43,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2019-12-01' = {
       adminPassword: adminPassword
       windowsConfiguration: {
         provisionVMAgent: 'true'
-//@[26:32) [BCP036 (Warning)] The property "provisionVMAgent" expected a value of type "bool | null" but the provided value is of type "'true'". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |'true'|
+//@[26:32) [BCP036 (Warning)] The property "provisionVMAgent" expected a value of type "bool | null" but the provided value is of type "'true'". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |'true'|
       }
     }
     hardwareProfile: {
@@ -80,7 +80,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2019-12-01' = {
       bootDiagnostics: {
         enabled: true
         storageUri: reference(diagStorageAccount.id, '2019-06-01').primaryEndpoints.blob
-//@[20:66) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-resource-symbol-reference)) |reference(diagStorageAccount.id, '2019-06-01')|
+//@[20:66) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (bicep core linter https://aka.ms/bicep/linter/use-resource-symbol-reference) |reference(diagStorageAccount.id, '2019-06-01')|
       }
     }
   }

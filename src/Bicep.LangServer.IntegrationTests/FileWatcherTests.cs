@@ -246,7 +246,7 @@ param requiredIpnut string
         param foo 'abc' = loadTextContent('path/to/bar.txt')
         """;
         var txtFileUri = new Uri("file:///path/to/bar.txt");
-        ResultWithDiagnostic<BinaryData> result = new(BinaryData.FromBytes(Encoding.UTF8.GetBytes("abc")));
+        ResultWithDiagnosticBuilder<BinaryData> result = new(BinaryData.FromBytes(Encoding.UTF8.GetBytes("abc")));
 
         var fileResolverMock = StrictMock.Of<IFileResolver>();
         fileResolverMock.Setup(x => x.TryReadAsBinaryData(txtFileUri, It.IsAny<int?>()))

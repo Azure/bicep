@@ -112,7 +112,7 @@ namespace Bicep.Cli.IntegrationTests
         //[DataRow("br:invalid.azureacr.io/bicep/extensions/az", false)]
         //[DataRow("br/unknown:az", false)]
         public async Task Build_Valid_SingleFile_WithExtensionDeclarationStatement(
-            string providerDeclarationSyntax,
+            string extensionDeclarationSyntax,
             bool shouldSucceed,
             string containingFolder = "")
         {
@@ -132,12 +132,12 @@ namespace Bicep.Cli.IntegrationTests
                 if (uri.Host.Contains("invalid")) { continue; }
                 var layer = await client.UploadBlobAsync(BinaryData.FromString(""));
                 var config = await client.UploadBlobAsync(BinaryData.FromString("{}"));
-                await client.SetManifestAsync(BicepTestConstants.GetBicepProviderManifest(layer, config), "2.0.0");
+                await client.SetManifestAsync(BicepTestConstants.GetBicepExtensionManifest(layer, config), "2.0.0");
             }
 
             // 3. create a main.bicep and save it to a output directory
             var bicepFile = $"""
-                extension '{providerDeclarationSyntax}:2.0.0'
+                extension '{extensionDeclarationSyntax}:2.0.0'
                 """;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -198,10 +198,10 @@ namespace Bicep.Cli.IntegrationTests
             }
             if (shouldSucceed)
             {
-                // 7. assert the provider files were restored to the cache directory
+                // 7. assert the extension files were restored to the cache directory
                 Directory.Exists(settings.FeatureOverrides!.CacheRootDirectory).Should().BeTrue();
-                var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ArtifactReferenceSchemes.Oci, containingFolder, "bicep$extensions$az", "2.0.0$");
-                Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });
+                var extensionDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ArtifactReferenceSchemes.Oci, containingFolder, "bicep$extensions$az", "2.0.0$");
+                Directory.EnumerateFiles(extensionDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });
             }
         }
 

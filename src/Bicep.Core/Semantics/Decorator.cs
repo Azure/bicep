@@ -46,7 +46,7 @@ namespace Bicep.Core.Semantics
         {
             // The following line makes the simplifying assumption that nullability does not impact decorator validity. This assumption is true at the moment
             // because aside from @metadata and @description (which are attachable to targets of any type), all decorators represent validation constraints
-            // (which are no-ops on null values within the ARM runtime). This assumption may or may not hold when 3P extensibility providers define their own
+            // (which are no-ops on null values within the ARM runtime). This assumption may or may not hold when 3P extensions define their own
             // decorators, at which point we'll probably want a .AllowsNullableTargets property on decorators or the like.
             targetType = RemoveImplicitNull(targetType);
 

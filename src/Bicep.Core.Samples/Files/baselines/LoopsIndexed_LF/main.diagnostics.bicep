@@ -207,7 +207,7 @@ var moduleSetup = [
 @sys.batchSize(3)
 module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for (moduleName, moduleIndex) in moduleSetup: {
   name: concat(moduleName, moduleIndex)
-//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(moduleName, moduleIndex)|
+//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(moduleName, moduleIndex)|
   params: {
     myInput: 'in-${moduleName}-${moduleIndex}'
   }
@@ -220,7 +220,7 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for (moduleNa
 // another module collection with dependency on another module collection
 module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for (moduleName, moduleIndex) in moduleSetup: {
   name: concat(moduleName, moduleIndex)
-//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(moduleName, moduleIndex)|
+//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(moduleName, moduleIndex)|
   params: {
     myInput: 'in-${moduleName}-${moduleIndex}'
   }
@@ -234,7 +234,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
   name: 'hello'
   params: {
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
-//@[13:137) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
+//@[13:137) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
   }
   dependsOn: [
     storageAccounts2[index - 10]
@@ -243,7 +243,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 
 module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for (moduleName, moduleIndex) in moduleSetup: {
   name: concat(moduleName, moduleIndex)
-//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(moduleName, moduleIndex)|
+//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(moduleName, moduleIndex)|
   params: {
     myInput: '${moduleCollectionWithCollectionDependencies[index].outputs.myOutput} - ${storageAccounts[index * 3].properties.accessTier} - ${moduleName} - ${moduleIndex}'
   }
@@ -268,14 +268,14 @@ output existingIndexedResourceLocation string = existingStorageAccounts[index/2]
 output existingIndexedResourceAccessTier string = existingStorageAccounts[index%3].properties.accessTier
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
-//@[09:024) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" or the index variable "i" must be referenced in at least one of the value expressions of the following properties in the loop body: "name" (CodeDescription: none) |duplicatedNames|
+//@[09:024) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" or the index variable "i" must be referenced in at least one of the value expressions of the following properties in the loop body: "name" (bicep https://aka.ms/bicep/core-diagnostics#BCP179) |duplicatedNames|
   name: 'no loop variable'
   location: 'eastus'
 }]
 
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
-//@[09:034) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" or the index variable "i" must be referenced in at least one of the value expressions of the following properties in the loop body: "name" (CodeDescription: none) |referenceToDuplicateNames|
+//@[09:034) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" or the index variable "i" must be referenced in at least one of the value expressions of the following properties in the loop body: "name" (bicep https://aka.ms/bicep/core-diagnostics#BCP179) |referenceToDuplicateNames|
   name: 'no loop variable 2'
   location: 'eastus'
   dependsOn: [
@@ -322,7 +322,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
 
 resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for (index, i) in range(0, length(regions)): {
   name: '${name}-${index}-${i}'
-//@[08:031) [BCP334 (Warning)] The provided value can have a length as small as 4 and may be too short to assign to a target with a configured minimum length of 5. (CodeDescription: none) |'${name}-${index}-${i}'|
+//@[08:031) [BCP334 (Warning)] The provided value can have a length as small as 4 and may be too short to assign to a target with a configured minimum length of 5. (bicep https://aka.ms/bicep/core-diagnostics#BCP334) |'${name}-${index}-${i}'|
   location: 'Global'
   properties: {
     backendPools: [
@@ -374,7 +374,7 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
 
 resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for (index,i) in range(0, length(accounts)): {
   name: '${name}-${index}-${i}'
-//@[08:031) [BCP334 (Warning)] The provided value can have a length as small as 4 and may be too short to assign to a target with a configured minimum length of 5. (CodeDescription: none) |'${name}-${index}-${i}'|
+//@[08:031) [BCP334 (Warning)] The provided value can have a length as small as 4 and may be too short to assign to a target with a configured minimum length of 5. (bicep https://aka.ms/bicep/core-diagnostics#BCP334) |'${name}-${index}-${i}'|
   location: 'Global'
   properties: {
     backendPools: [
