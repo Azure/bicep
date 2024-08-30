@@ -1774,10 +1774,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP398",
                 $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
 
-            public Diagnostic FetchingAzTypesRequiresExperimentalFeature() => CoreError(
-                "BCP399",
-                $"Fetching az types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.azTypesViaRegistry)}\".");
-
             public Diagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => CoreError(
                 "BCP401",
                 $"The spread operator \"{spread.Ellipsis.Text}\" is not permitted in this location.");

@@ -797,10 +797,6 @@
           "type": "boolean",
           "description": "Allows you to author boolean assertions using the assert keyword. Should be enabled in tandem with 'testFramework'. See https://aka.ms/bicep/experimental-features#assertions"
         },
-        "azTypesViaRegistry": {
-          "description": "Enables dynamic type loading for resource type providers. See https://aka.ms/bicep/experimental-features#aztypesviaregistry",
-          "type": "boolean"
-        },
         "localDeploy": {
           "type": "boolean",
           "description": "Enabling this feature turns on support for local Bicep deployments. See https://aka.ms/bicep/experimental-features#localdeploy"

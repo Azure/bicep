@@ -484,9 +484,6 @@
   <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
     <value>Asserts</value>
   </data>
-  <data name="ExperimentalFeatureNames_AzTypesViaRegistry" xml:space="preserve">
-    <value>Dynamic type loading</value>
-  </data>
   <data name="ExperimentalFeatureNames_Extensibility" xml:space="preserve">
     <value>Extensibility</value>
   </data>

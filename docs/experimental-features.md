@@ -11,9 +11,6 @@ The following features can be optionally enabled through your `bicepconfig.json`
 ### `assertions`
 Should be enabled in tandem with `testFramework` experimental feature flag for expected functionality. Allows you to author boolean assertions using the `assert` keyword comparing the actual value of a parameter, variable, or resource name to an expected value. Assert statements can only be written directly within the Bicep file whose resources they reference. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
 
-### `azTypesViaRegistry`
-Requires `extensibility` to be enabled. If enabled, users are able to fetch the azure resource type definitions from an OCI Registry as a runtime dependency. To fetch the type definitions the following syntax can be used. For example `extension 'br:mcr.microsoft.com/bicep/extensions/az@1.0.0' as az`.
-
 ### `extendableParamFiles`
 Enables the ability to extend bicepparam files from other bicepparam files. For more information, see [Extendable Bicep Params Files](./experimental/extendable-param-files.md).
 

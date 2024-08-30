@@ -21,8 +21,8 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class ExtensionRegistryTests : TestBase
 {
-    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true, AzTypesViaRegistryEnabled: true);
-    private static readonly FeatureProviderOverrides AllFeaturesEnabledForLocalDeploy = new(ExtensibilityEnabled: true, LocalDeployEnabled: true, AzTypesViaRegistryEnabled: true);
+    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true);
+    private static readonly FeatureProviderOverrides AllFeaturesEnabledForLocalDeploy = new(ExtensibilityEnabled: true, LocalDeployEnabled: true);
 
     [TestMethod]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
@@ -384,21 +384,6 @@ extension 'br:${registryHost}/test/extension/http:1.2.3'
 """);
         result.Should().NotGenerateATemplate();
         result.Should().ContainDiagnostic("BCP303", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the extension.");
-    }
-
-    [TestMethod]
-    public async Task Cannot_import_az_without_dynamic_type_loading_enabled()
-    {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetTestTypesTgz(), "mcr.microsoft.com/bicep/extension/az:1.2.3", AllFeaturesEnabled);
-        services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, AzTypesViaRegistryEnabled: false));
-
-        var result = await CompilationHelper.RestoreAndCompile(services, @"
-extension 'br:mcr.microsoft.com/bicep/extension/az:1.2.3'
-");
-        result.Should().NotGenerateATemplate();
-        result.Should().HaveDiagnostics([
-            ("BCP399", DiagnosticLevel.Error, """Fetching az types from the registry requires enabling EXPERIMENTAL feature "azTypesViaRegistry".""")
-        ]);
     }
 
     [TestMethod]

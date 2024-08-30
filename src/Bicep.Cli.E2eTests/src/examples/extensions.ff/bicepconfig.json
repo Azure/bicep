@@ -8,7 +8,6 @@
     ]
   },
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "azTypesViaRegistry": true
+    "extensibility": true
   }
 }

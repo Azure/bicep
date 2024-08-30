@@ -38,8 +38,6 @@ namespace Bicep.Core.Features
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvVar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
 
-        public bool AzTypesViaRegistryEnabled => configuration.ExperimentalFeaturesEnabled.azTypesViaRegistry;
-
         public bool OptionalModuleNamesEnabled => configuration.ExperimentalFeaturesEnabled.OptionalModuleNames;
 
         public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;

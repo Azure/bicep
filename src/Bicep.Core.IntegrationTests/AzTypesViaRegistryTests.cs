@@ -6,6 +6,7 @@ using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -22,15 +23,28 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class AzTypesViaRegistryTests : TestBase
     {
+        private static readonly string EmptyIndexJson = """
+{
+  "resources": {},
+  "resourceFunctions": {},
+  "settings": {
+    "name": "AzureResourceManager",
+    "version": "1.2.3",
+    "isSingleton": true
+  }
+}
+""";
+
+
         private async Task<ServiceBuilder> GetServices()
         {
-            var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"resources": {}, "resourceFunctions": {}}""");
+            var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", EmptyIndexJson);
 
             var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(cacheRoot);
 
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, AzTypesViaRegistryEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
                 .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzExtension());
 
             await RegistryHelper.PublishAzExtension(services.Build(), indexJson);
@@ -52,11 +66,8 @@ namespace Bicep.Core.IntegrationTests
             Directory.CreateDirectory(cacheRoot);
 
             return new ServiceBuilder()
-                .WithFeatureOverrides(new(
-                    ExtensibilityEnabled: true,
-                    AzTypesViaRegistryEnabled: true,
-                    CacheRootDirectory: cacheRoot))
-           .WithContainerRegistryClientFactory(clientFactory);
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithContainerRegistryClientFactory(clientFactory);
         }
 
         [TestMethod]
@@ -68,7 +79,7 @@ namespace Bicep.Core.IntegrationTests
             var clientFactory = RegistryHelper.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
             var services = new ServiceBuilder()
                 .WithFileSystem(fsMock)
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, AzTypesViaRegistryEnabled: true))
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
             await RegistryHelper.PublishModuleToRegistryAsync(
@@ -143,7 +154,7 @@ namespace Bicep.Core.IntegrationTests
                 mockBlobClient.Object);
 
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, AzTypesViaRegistryEnabled: true))
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(containerRegistryFactoryBuilder.Build().clientFactory);
 
             // ACT
@@ -271,7 +282,7 @@ namespace Bicep.Core.IntegrationTests
                 "1.0.0-fake");
             var services = await ServicesWithTestExtensionArtifact(
                 artifactRegistryAddress,
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", """{"resources": {}, "resourceFunctions": {}}""")));
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", EmptyIndexJson)));
             services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
             {
                 "az": "{{artifactRegistryAddress.ToSpecificationString(':')}}"
@@ -284,7 +295,7 @@ namespace Bicep.Core.IntegrationTests
             //ASSERT
             result.Should().GenerateATemplate();
             result.Template.Should().NotBeNull();
-            result.Template.Should().HaveValueAtPath("$.imports.az.version", AzNamespaceType.EmbeddedAzExtensionVersion);
+            result.Template.Should().HaveValueAtPath("$.imports.az.version", AzNamespaceType.Settings.TemplateExtensionVersion);
         }
     }
 }

@@ -34,8 +34,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool AssertsEnabled => overrides.AssertsEnabled ?? features.AssertsEnabled;
 
-    public bool AzTypesViaRegistryEnabled => overrides.AzTypesViaRegistryEnabled ?? features.AzTypesViaRegistryEnabled;
-
     public bool OptionalModuleNamesEnabled => overrides.OptionalModuleNamesEnabled ?? features.OptionalModuleNamesEnabled;
 
     public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;

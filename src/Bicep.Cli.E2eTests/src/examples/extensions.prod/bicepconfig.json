@@ -4,7 +4,6 @@
     "credentialPrecedence": ["AzureCLI"]
   },
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "azTypesViaRegistry": true
+    "extensibility": true
   }
 }
