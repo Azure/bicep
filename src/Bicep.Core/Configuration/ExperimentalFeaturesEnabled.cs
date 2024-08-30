@@ -16,8 +16,6 @@ public record ExperimentalFeaturesEnabled(
     bool LegacyFormatter,
     bool TestFramework,
     bool Assertions,
-    bool DynamicTypeLoading,
-    bool ExtensionRegistry,
     bool OptionalModuleNames,
     bool LocalDeploy,
     bool ResourceDerivedTypes,

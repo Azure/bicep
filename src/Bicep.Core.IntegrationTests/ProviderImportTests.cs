@@ -68,11 +68,7 @@ namespace Bicep.Core.IntegrationTests
 extension
 ");
             result.Should().HaveDiagnostics([
-                ("BCP201", DiagnosticLevel.Error, """
-                Expected an extension specification string with a valid format at this location. Valid formats:
-                * "br:<extensionRegistryHost>/<extensionRepositoryPath>:<extensionVersion>"
-                * "br/<extensionAlias>:<extensionName>:<extensionVersion>"
-                """)
+                ("BCP201", DiagnosticLevel.Error, """Expected an extension specification string. This should either be a relative path, or a valid OCI artifact specification."""),
             ]);
         }
 

@@ -34,7 +34,7 @@ public class EndToEndDeploymentTests : TestBase
     [TestMethod]
     public async Task End_to_end_deployment_basic()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -44,7 +44,6 @@ public class EndToEndDeploymentTests : TestBase
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "extensionRegistry": true,
     "localDeploy": true
   }
 }
@@ -172,7 +171,7 @@ param coords = {
     [TestMethod]
     public async Task Extension_returning_resource_and_error_data_should_fail()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -182,7 +181,6 @@ param coords = {
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "extensionRegistry": true,
     "localDeploy": true
   }
 }
@@ -273,7 +271,7 @@ param coords = {
     [TestMethod]
     public async Task Extension_not_returning_resource_or_error_data_should_fail()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -283,7 +281,6 @@ param coords = {
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "extensionRegistry": true,
     "localDeploy": true
   }
 }
@@ -374,7 +371,7 @@ param coords = {
     [TestMethod]
     public async Task Extension_returning_error_data_should_fail()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, ExtensionRegistry: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -384,7 +381,6 @@ param coords = {
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "extensionRegistry": true,
     "localDeploy": true
   }
 }

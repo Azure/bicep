@@ -13,10 +13,7 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class CentralizedExtensionVersionManagementTests : TestBase
     {
-        private ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(
-                ExtensibilityEnabled: true,
-                DynamicTypeLoadingEnabled: true));
+        private ServiceBuilder Services => new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true));
 
         [TestMethod]
         [DynamicData(nameof(ExtensionsConfig_SupportForConfigManagedExtensionDeclarationSyntax_When_ExtensionIsBuiltIn_TestCases))]

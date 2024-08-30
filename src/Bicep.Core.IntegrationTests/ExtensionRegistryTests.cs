@@ -21,8 +21,8 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class ExtensionRegistryTests : TestBase
 {
-    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true, ExtensionRegistry: true, DynamicTypeLoadingEnabled: true);
-    private static readonly FeatureProviderOverrides AllFeaturesEnabledForLocalDeploy = new(ExtensibilityEnabled: true, LocalDeployEnabled: true, ExtensionRegistry: true, DynamicTypeLoadingEnabled: true);
+    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true);
+    private static readonly FeatureProviderOverrides AllFeaturesEnabledForLocalDeploy = new(ExtensibilityEnabled: true, LocalDeployEnabled: true);
 
     [TestMethod]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
@@ -80,7 +80,7 @@ output joke string = dadJoke.body.joke
     {
         var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
         Directory.CreateDirectory(cacheDirectory);
-        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory, ExtensibilityEnabled: true, ExtensionRegistry: true));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory, ExtensibilityEnabled: true));
 
         var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();
         var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
@@ -132,8 +132,7 @@ resource fooRes 'fooType@v1' = {
 """)), ("../bicepconfig.json", new("""
 {
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "extensionRegistry": true
+    "extensibility": true
   }
 }
 """)), ("../extension.tgz", extensionTgz));
@@ -164,8 +163,7 @@ resource fooRes 'fooType@v1' = {
     "myExtension": "./extension.tgz"
   },
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "extensionRegistry": true
+    "extensibility": true
   }
 }
 """)), ("../extension.tgz", extensionTgz));
@@ -183,8 +181,7 @@ extension './non_existent.tgz'
 """)), ("bicepconfig.json", new("""
 {
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "extensionRegistry": true
+    "extensibility": true
   }
 }
 """)));
@@ -208,8 +205,7 @@ extension nonExistent
     "nonExistent": "./non_existent.tgz"
   },
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "extensionRegistry": true
+    "extensibility": true
   }
 }
 """)));
@@ -313,8 +309,7 @@ output baz string = fooRes.convertBarToBaz('bar')
    },
   "implicitExtensions": ["foo"],
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "extensionRegistry": true
+    "extensibility": true
   }
 }
 """);
@@ -378,38 +373,6 @@ extension 'br:example.azurecr.io/test/extension/http:1.2.3'
     }
 
     [TestMethod]
-    public async Task Third_party_imports_are_disabled_unless_feature_is_enabled()
-    {
-        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
-             typeof(ExtensionRegistryTests).Assembly,
-             "Files/ExtensionRegistryTests/http");
-
-        var registry = "example.azurecr.io";
-        var repository = $"test/extension/http";
-
-        var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new());
-
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
-
-        var result = await CompilationHelper.RestoreAndCompile(services, @$"
-extension 'br:example.azurecr.io/test/extension/http:1.2.3'
-");
-        result.Should().HaveDiagnostics([
-            ("BCP203", DiagnosticLevel.Error, "Using extension declaration requires enabling EXPERIMENTAL feature \"Extensibility\"."),
-        ]);
-
-        services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new(ExtensibilityEnabled: true));
-
-
-        var result2 = await CompilationHelper.RestoreAndCompile(services, @$"
-extension 'br:example.azurecr.io/test/extension/http:1.2.3'
-");
-        result2.Should().HaveDiagnostics([
-            ("BCP400", DiagnosticLevel.Error, """Fetching types from the registry requires enabling EXPERIMENTAL feature "ExtensionRegistry"."""),
-        ]);
-    }
-
-    [TestMethod]
     public async Task Using_interpolated_strings_in_extension_declaration_syntax_results_in_diagnostic()
     {
         var services = new ServiceBuilder()
@@ -421,21 +384,6 @@ extension 'br:${registryHost}/test/extension/http:1.2.3'
 """);
         result.Should().NotGenerateATemplate();
         result.Should().ContainDiagnostic("BCP303", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the extension.");
-    }
-
-    [TestMethod]
-    public async Task Cannot_import_az_without_dynamic_type_loading_enabled()
-    {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetTestTypesTgz(), "mcr.microsoft.com/bicep/extension/az:1.2.3", AllFeaturesEnabled);
-        services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: false));
-
-        var result = await CompilationHelper.RestoreAndCompile(services, @"
-extension 'br:mcr.microsoft.com/bicep/extension/az:1.2.3'
-");
-        result.Should().NotGenerateATemplate();
-        result.Should().HaveDiagnostics([
-            ("BCP399", DiagnosticLevel.Error, """Fetching az types from the registry requires enabling EXPERIMENTAL feature "DynamicTypeLoading".""")
-        ]);
     }
 
     [TestMethod]
@@ -715,8 +663,7 @@ resource test 'test@v1' = {
                 "foo": "br:example.azurecr.io/extensions/foo:1.2.4"
               },
               "experimentalFeaturesEnabled": {
-                "extensibility": true,
-                "extensionRegistry": true
+                "extensibility": true
               }
             }
             """);
@@ -736,8 +683,7 @@ resource test 'test@v1' = {
                 "foo": "br:example.azurecr.io/extensions/foo:1.2.3"
               },
               "experimentalFeaturesEnabled": {
-                "extensibility": true,
-                "extensionRegistry": true
+                "extensibility": true
               }
             }
             """);
@@ -762,8 +708,7 @@ resource test 'test@v1' = {
               },
               "implicitExtensions": ["foo"],
               "experimentalFeaturesEnabled": {
-                "extensibility": true,
-                "extensionRegistry": true
+                "extensibility": true
               }
             }
             """);
