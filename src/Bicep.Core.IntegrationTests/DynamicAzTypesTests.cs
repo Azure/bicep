@@ -98,30 +98,6 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Az_namespace_can_be_used_with_bicepconfig_extension_alias()
-        {
-            var services = await GetServices();
-
-            services = services.WithConfigurationPatch(c => c.WithExtensionAliases("""
-            {
-                "br": {
-                    "customAlias": {
-                        "registry": "mcr.microsoft.com",
-                        "extensionPath": "bicep/extensions"
-                    }
-                }
-            }
-            """));
-
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            extension 'br/customAlias:az:{BicepTestConstants.BuiltinAzExtensionVersion}'
-            ");
-
-            result.Should().GenerateATemplate();
-            result.Compilation.GetEntrypointSemanticModel().Root.ExtensionDeclarations.Should().Contain(x => x.Name.Equals("az"));
-        }
-
-        [TestMethod]
         public async Task Inlined_Az_namespace_alias_is_not_specified_in_config_yields_diagnostic()
         {
             var services = new ServiceBuilder()

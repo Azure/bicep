@@ -196,15 +196,6 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Extension registry.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_ExtensionRegistry {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_ExtensionRegistry", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Enable optional module names.
         /// </summary>
         internal static string ExperimentalFeatureNames_OptionalModuleNames {

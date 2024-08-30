@@ -21,10 +21,6 @@ Enables the ability to extend bicepparam files from other bicepparam files. For 
 ### `extensibility`
 Allows Bicep to use an extensibility model to deploy non-ARM resources. Currently, we support Kubernetes extension ([Bicep Kubernetes extension](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-extensibility-kubernetes-provider)) and Microsoft Graph extension ([Bicep templates for Microsoft Graph](https://aka.ms/graphbicep)).
 
-### `extensionRegistry`
-Requires `dynamicTypeLoading` and `extensibility` to be enabled. If enabled, users are able to fetch the third party resource type definitions from an OCI Registry as a runtime dependency. To fetch the type definitions the following syntax can be used. For example `extension 'br:thirdpartyregistry.azurecr.io/bicep/extension/thirdparty@1.0.0' as thirdparty`.
-The extension definitions also support aliasing via `bicepconfig.json` similar to [`moduleAliases`](https://learn.microsoft.com/azure/azure-resource-manager/bicep/bicep-config-modules#aliases-for-modules). For example `extension 'br/public:thirdparty@1.0.0' as thirdparty`.
-
 ### `legacyFormatter`
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
 

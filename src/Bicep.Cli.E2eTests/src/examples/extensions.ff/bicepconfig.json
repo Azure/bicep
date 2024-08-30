@@ -9,7 +9,6 @@
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "dynamicTypeLoading": true,
-    "extensionRegistry": true
+    "dynamicTypeLoading": true
   }
 }

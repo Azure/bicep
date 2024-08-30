@@ -21,8 +21,8 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class ExtensionRegistryTests : TestBase
 {
-    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true, ExtensionRegistry: true, DynamicTypeLoadingEnabled: true);
-    private static readonly FeatureProviderOverrides AllFeaturesEnabledForLocalDeploy = new(ExtensibilityEnabled: true, LocalDeployEnabled: true, ExtensionRegistry: true, DynamicTypeLoadingEnabled: true);
+    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true);
+    private static readonly FeatureProviderOverrides AllFeaturesEnabledForLocalDeploy = new(ExtensibilityEnabled: true, LocalDeployEnabled: true, DynamicTypeLoadingEnabled: true);
 
     [TestMethod]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
@@ -80,7 +80,7 @@ output joke string = dadJoke.body.joke
     {
         var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
         Directory.CreateDirectory(cacheDirectory);
-        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory, ExtensibilityEnabled: true, ExtensionRegistry: true));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory, ExtensibilityEnabled: true));
 
         var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();
         var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
@@ -132,8 +132,7 @@ resource fooRes 'fooType@v1' = {
 """)), ("../bicepconfig.json", new("""
 {
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "extensionRegistry": true
+    "extensibility": true
   }
 }
 """)), ("../extension.tgz", extensionTgz));
@@ -164,8 +163,7 @@ resource fooRes 'fooType@v1' = {
     "myExtension": "./extension.tgz"
   },
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "extensionRegistry": true
+    "extensibility": true
   }
 }
 """)), ("../extension.tgz", extensionTgz));
@@ -183,8 +181,7 @@ extension './non_existent.tgz'
 """)), ("bicepconfig.json", new("""
 {
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "extensionRegistry": true
+    "extensibility": true
   }
 }
 """)));
@@ -208,8 +205,7 @@ extension nonExistent
     "nonExistent": "./non_existent.tgz"
   },
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "extensionRegistry": true
+    "extensibility": true
   }
 }
 """)));
@@ -313,8 +309,7 @@ output baz string = fooRes.convertBarToBaz('bar')
    },
   "implicitExtensions": ["foo"],
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "extensionRegistry": true
+    "extensibility": true
   }
 }
 """);
@@ -715,8 +710,7 @@ resource test 'test@v1' = {
                 "foo": "br:example.azurecr.io/extensions/foo:1.2.4"
               },
               "experimentalFeaturesEnabled": {
-                "extensibility": true,
-                "extensionRegistry": true
+                "extensibility": true
               }
             }
             """);
@@ -736,8 +730,7 @@ resource test 'test@v1' = {
                 "foo": "br:example.azurecr.io/extensions/foo:1.2.3"
               },
               "experimentalFeaturesEnabled": {
-                "extensibility": true,
-                "extensionRegistry": true
+                "extensibility": true
               }
             }
             """);
@@ -762,8 +755,7 @@ resource test 'test@v1' = {
               },
               "implicitExtensions": ["foo"],
               "experimentalFeaturesEnabled": {
-                "extensibility": true,
-                "extensionRegistry": true
+                "extensibility": true
               }
             }
             """);

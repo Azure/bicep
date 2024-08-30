@@ -36,8 +36,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool DynamicTypeLoadingEnabled => overrides.DynamicTypeLoadingEnabled ?? features.DynamicTypeLoadingEnabled;
 
-    public bool ExtensionRegistryEnabled => overrides.ExtensionRegistry ?? features.ExtensionRegistryEnabled;
-
     public bool OptionalModuleNamesEnabled => overrides.OptionalModuleNamesEnabled ?? features.OptionalModuleNamesEnabled;
 
     public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;

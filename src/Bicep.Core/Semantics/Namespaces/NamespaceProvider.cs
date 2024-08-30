@@ -194,11 +194,6 @@ public class NamespaceProvider : INamespaceProvider
             return new(x => x.FetchingAzTypesRequiresExperimentalFeature());
         }
 
-        if (!useAzLoader && !features.ExtensionRegistryEnabled)
-        {
-            return new(x => x.FetchingTypesRequiresExperimentalFeature());
-        }
-
         if (!resourceTypeProviderFactory.GetResourceTypeProvider(artifact.Reference, typesTgzUri, useAzLoader: useAzLoader).IsSuccess(out var typeProvider, out errorBuilder))
         {
             return new(errorBuilder);
