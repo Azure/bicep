@@ -9,6 +9,6 @@
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "dynamicTypeLoading": true
+    "azTypesViaRegistry": true
   }
 }

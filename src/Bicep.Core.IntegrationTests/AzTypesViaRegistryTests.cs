@@ -20,7 +20,7 @@ namespace Bicep.Core.IntegrationTests
 {
 
     [TestClass]
-    public class DynamicAzTypesTests : TestBase
+    public class AzTypesViaRegistryTests : TestBase
     {
         private async Task<ServiceBuilder> GetServices()
         {
@@ -30,7 +30,7 @@ namespace Bicep.Core.IntegrationTests
             Directory.CreateDirectory(cacheRoot);
 
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true, AzTypesViaRegistryEnabled: true, CacheRootDirectory: cacheRoot))
                 .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzExtension());
 
             await RegistryHelper.PublishAzExtension(services.Build(), indexJson);
@@ -54,63 +54,9 @@ namespace Bicep.Core.IntegrationTests
             return new ServiceBuilder()
                 .WithFeatureOverrides(new(
                     ExtensibilityEnabled: true,
-                    DynamicTypeLoadingEnabled: true,
+                    AzTypesViaRegistryEnabled: true,
                     CacheRootDirectory: cacheRoot))
            .WithContainerRegistryClientFactory(clientFactory);
-        }
-
-        [TestMethod]
-        public async Task Az_namespace_can_be_used_without_configuration()
-        {
-            var services = await GetServices();
-            var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
-            extension 'br/public:az:{BicepTestConstants.BuiltinAzExtensionVersion}'
-            "));
-
-            result.Should().GenerateATemplate();
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        }
-
-        [TestMethod]
-        public async Task Az_namespace_errors_with_configuration()
-        {
-            var services = await GetServices();
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            extension 'br/public:az:{BicepTestConstants.BuiltinAzExtensionVersion}' with {{}}
-            ");
-
-            result.Should().NotGenerateATemplate();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP205", DiagnosticLevel.Error, "Extension \"az\" does not support configuration."),
-            });
-        }
-
-        [TestMethod]
-        public async Task Az_namespace_can_be_used_with_alias()
-        {
-            var services = await GetServices();
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            extension 'br/public:az:{BicepTestConstants.BuiltinAzExtensionVersion}' as testAlias
-            ");
-
-            result.Should().GenerateATemplate();
-            result.Compilation.GetEntrypointSemanticModel().Root.ExtensionDeclarations.Should().Contain(x => x.Name.Equals("testAlias"));
-        }
-
-        [TestMethod]
-        public async Task Inlined_Az_namespace_alias_is_not_specified_in_config_yields_diagnostic()
-        {
-            var services = new ServiceBuilder()
-               .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-
-            var result = await CompilationHelper.RestoreAndCompile(services, @"
-            extension 'br/notFound:az:0.2.661'
-            ");
-
-            result.Should().NotGenerateATemplate();
-            result.Should().HaveDiagnostics([
-                ("BCP379", DiagnosticLevel.Error, "The OCI artifact extension alias name \"notFound\" does not exist in the built-in Bicep configuration."),
-            ]);
         }
 
         [TestMethod]
@@ -122,7 +68,7 @@ namespace Bicep.Core.IntegrationTests
             var clientFactory = RegistryHelper.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
             var services = new ServiceBuilder()
                 .WithFileSystem(fsMock)
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true, AzTypesViaRegistryEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
             await RegistryHelper.PublishModuleToRegistryAsync(
@@ -197,7 +143,7 @@ namespace Bicep.Core.IntegrationTests
                 mockBlobClient.Object);
 
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true, AzTypesViaRegistryEnabled: true))
                 .WithContainerRegistryClientFactory(containerRegistryFactoryBuilder.Build().clientFactory);
 
             // ACT

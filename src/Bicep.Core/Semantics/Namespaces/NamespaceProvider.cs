@@ -189,7 +189,7 @@ public class NamespaceProvider : INamespaceProvider
         }
 
         var useAzLoader = artifact.Reference is OciArtifactReference ociArtifact && ociArtifact.Repository.EndsWith("/az");
-        if (useAzLoader && !features.DynamicTypeLoadingEnabled)
+        if (useAzLoader && !features.AzTypesViaRegistryEnabled)
         {
             return new(x => x.FetchingAzTypesRequiresExperimentalFeature());
         }

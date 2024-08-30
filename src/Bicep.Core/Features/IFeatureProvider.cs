@@ -17,7 +17,7 @@ public interface IFeatureProvider
 
     bool SourceMappingEnabled { get; }
 
-    bool DynamicTypeLoadingEnabled { get; }
+    bool AzTypesViaRegistryEnabled { get; }
 
     bool LegacyFormatterEnabled { get; }
 
@@ -47,7 +47,7 @@ public interface IFeatureProvider
                 (ExtensibilityEnabled, CoreResources.ExperimentalFeatureNames_Extensibility, true, true),
                 (ResourceTypedParamsAndOutputsEnabled, CoreResources.ExperimentalFeatureNames_ResourceTypedParamsAndOutputs, true, false),
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),
-                (DynamicTypeLoadingEnabled, CoreResources.ExperimentalFeatureNames_DynamicTypeLoading, true, false),
+                (AzTypesViaRegistryEnabled, CoreResources.ExperimentalFeatureNames_AzTypesViaRegistry, true, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
                 (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),

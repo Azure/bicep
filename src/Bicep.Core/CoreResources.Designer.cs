@@ -180,9 +180,9 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to Dynamic type loading.
         /// </summary>
-        internal static string ExperimentalFeatureNames_DynamicTypeLoading {
+        internal static string ExperimentalFeatureNames_AzTypesViaRegistry {
             get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_DynamicTypeLoading", resourceCulture);
+                return ResourceManager.GetString("ExperimentalFeatureNames_AzTypesViaRegistry", resourceCulture);
             }
         }
         

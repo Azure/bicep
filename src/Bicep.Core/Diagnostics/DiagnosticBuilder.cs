@@ -1776,7 +1776,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic FetchingAzTypesRequiresExperimentalFeature() => CoreError(
                 "BCP399",
-                $"Fetching az types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.DynamicTypeLoading)}\".");
+                $"Fetching az types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.azTypesViaRegistry)}\".");
 
             public Diagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => CoreError(
                 "BCP401",

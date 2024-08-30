@@ -16,7 +16,7 @@ public record ExperimentalFeaturesEnabled(
     bool LegacyFormatter,
     bool TestFramework,
     bool Assertions,
-    bool DynamicTypeLoading,
+    bool azTypesViaRegistry,
     bool OptionalModuleNames,
     bool LocalDeploy,
     bool ResourceDerivedTypes,

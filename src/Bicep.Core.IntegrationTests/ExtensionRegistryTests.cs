@@ -21,8 +21,8 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class ExtensionRegistryTests : TestBase
 {
-    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true);
-    private static readonly FeatureProviderOverrides AllFeaturesEnabledForLocalDeploy = new(ExtensibilityEnabled: true, LocalDeployEnabled: true, DynamicTypeLoadingEnabled: true);
+    private static readonly FeatureProviderOverrides AllFeaturesEnabled = new(ExtensibilityEnabled: true, AzTypesViaRegistryEnabled: true);
+    private static readonly FeatureProviderOverrides AllFeaturesEnabledForLocalDeploy = new(ExtensibilityEnabled: true, LocalDeployEnabled: true, AzTypesViaRegistryEnabled: true);
 
     [TestMethod]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
@@ -373,38 +373,6 @@ extension 'br:example.azurecr.io/test/extension/http:1.2.3'
     }
 
     [TestMethod]
-    public async Task Third_party_imports_are_disabled_unless_feature_is_enabled()
-    {
-        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
-             typeof(ExtensionRegistryTests).Assembly,
-             "Files/ExtensionRegistryTests/http");
-
-        var registry = "example.azurecr.io";
-        var repository = $"test/extension/http";
-
-        var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new());
-
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
-
-        var result = await CompilationHelper.RestoreAndCompile(services, @$"
-extension 'br:example.azurecr.io/test/extension/http:1.2.3'
-");
-        result.Should().HaveDiagnostics([
-            ("BCP203", DiagnosticLevel.Error, "Using extension declaration requires enabling EXPERIMENTAL feature \"Extensibility\"."),
-        ]);
-
-        services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new(ExtensibilityEnabled: true));
-
-
-        var result2 = await CompilationHelper.RestoreAndCompile(services, @$"
-extension 'br:example.azurecr.io/test/extension/http:1.2.3'
-");
-        result2.Should().HaveDiagnostics([
-            ("BCP400", DiagnosticLevel.Error, """Fetching types from the registry requires enabling EXPERIMENTAL feature "ExtensionRegistry"."""),
-        ]);
-    }
-
-    [TestMethod]
     public async Task Using_interpolated_strings_in_extension_declaration_syntax_results_in_diagnostic()
     {
         var services = new ServiceBuilder()
@@ -422,14 +390,14 @@ extension 'br:${registryHost}/test/extension/http:1.2.3'
     public async Task Cannot_import_az_without_dynamic_type_loading_enabled()
     {
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetTestTypesTgz(), "mcr.microsoft.com/bicep/extension/az:1.2.3", AllFeaturesEnabled);
-        services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: false));
+        services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, AzTypesViaRegistryEnabled: false));
 
         var result = await CompilationHelper.RestoreAndCompile(services, @"
 extension 'br:mcr.microsoft.com/bicep/extension/az:1.2.3'
 ");
         result.Should().NotGenerateATemplate();
         result.Should().HaveDiagnostics([
-            ("BCP399", DiagnosticLevel.Error, """Fetching az types from the registry requires enabling EXPERIMENTAL feature "DynamicTypeLoading".""")
+            ("BCP399", DiagnosticLevel.Error, """Fetching az types from the registry requires enabling EXPERIMENTAL feature "azTypesViaRegistry".""")
         ]);
     }
 
