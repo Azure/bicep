@@ -592,7 +592,7 @@ jobs:
         uses: docker://mcr.microsoft.com/azure-cli:latest
         with:
           entrypoint: sh
-          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+          args: -c "tdnf install nodejs -y && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
