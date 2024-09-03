@@ -931,8 +931,8 @@
       },
       "MSTest.TestFramework": {
         "type": "Transitive",
-        "resolved": "3.5.1",
-        "contentHash": "JF3eX7fq24NmL9DuXKQ9jfnrnE+fgqfo3WzMP0MVL7teA1nhAUKrocFr5Sya8pfc5v4+IkiZ+ssazvfEbR2VEw=="
+        "resolved": "3.5.2",
+        "contentHash": "XDPIPvPWcbnyte0Oj0EzxMV38RIE925C0EtZCWXUfsho+QYqIv3LNjIZstG/JpamlhPHOQlfdrzc/FRF9lW5Ag=="
       },
       "Nerdbank.Streams": {
         "type": "Transitive",
@@ -1810,7 +1810,7 @@
           "FluentAssertions": "[6.12.0, )",
           "JsonDiffPatch.Net": "[2.3.0, )",
           "MSTest.TestAdapter": "[3.5.2, )",
-          "MSTest.TestFramework": "[3.5.1, )",
+          "MSTest.TestFramework": "[3.5.2, )",
           "Microsoft.NET.Test.Sdk": "[17.10.0, )",
           "Moq": "[4.20.70, )",
           "Newtonsoft.Json.Schema": "[4.0.1, )",
