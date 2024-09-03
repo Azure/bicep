@@ -589,7 +589,7 @@ jobs:
 
       - name: Run Bicep E2E Tests (linux-musl-x64)
         if: matrix.runtime.rid == 'linux-musl-x64'
-        uses: docker://mcr.microsoft.com/azure-cli:latest
+        uses: docker://mcr.microsoft.com/azure-cli:2.63.0
         with:
           entrypoint: sh
           args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
@@ -797,7 +797,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       # The azure-cli image is based on Alpine linux which uses musl libc.
-      image: mcr.microsoft.com/azure-cli:latest
+      image: mcr.microsoft.com/azure-cli:2.63.0
     needs:
       - build-cli
       - can-run-live-tests
