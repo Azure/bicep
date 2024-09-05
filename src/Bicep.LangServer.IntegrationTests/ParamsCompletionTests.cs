@@ -217,6 +217,52 @@ using |
         }
 
         [TestMethod]
+        public async Task Request_for_extends_declaration_path_completions_should_return_correct_paths_for_file_directories()
+        {
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri("/path/to/main.bicepparam")] = "using none",
+                [InMemoryFileResolver.GetFileUri("/path/to/base.bicepparam")] = "using none",
+                [InMemoryFileResolver.GetFileUri("/path/to/main2.txt")] = "param bar int",
+                [InMemoryFileResolver.GetFileUri("/path/to/nested1/main3.bicep")] = "param foo int",
+                [InMemoryFileResolver.GetFileUri("/path/to/module1.bicep")] = "param foo string",
+                [InMemoryFileResolver.GetFileUri("/path/to/nested1/module2.bicep")] = "param bar bool",
+                [InMemoryFileResolver.GetFileUri("/path/to/nested2/module3.bicep")] = "param bar string"
+            };
+
+            var completions = await RunCompletionScenario(@"
+extends |
+", fileTextsByUri.ToImmutableDictionary(), '|');
+
+            completions.Take(5).Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("base.bicepparam");
+                    x.Kind.Should().Be(CompletionItemKind.File);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("main.bicepparam");
+                    x.Kind.Should().Be(CompletionItemKind.File);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("../");
+                    x.Kind.Should().Be(CompletionItemKind.Folder);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("nested1/");
+                    x.Kind.Should().Be(CompletionItemKind.Folder);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("nested2/");
+                    x.Kind.Should().Be(CompletionItemKind.Folder);
+                });
+        }
+
+        [TestMethod]
         public async Task Request_for_using_declaration_path_completions_should_return_correct_partial_paths()
         {
             var fileTextsByUri = new Dictionary<Uri, string>
