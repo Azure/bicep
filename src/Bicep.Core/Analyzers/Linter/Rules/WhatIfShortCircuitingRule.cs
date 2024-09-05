@@ -30,8 +30,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "what-if-short-circuiting";
 
-        // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
-        public const string NestedDeploymentResourceApiVersion = "2022-09-01";
+        public const string TemplateEvaluatorCode = "expression-evaluation-failed";
 
         public WhatIfShortCircuitingRule() : base(
             code: Code,
@@ -77,7 +76,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             subscriptionId: null,
                             resourceGroupName: null,
                             template: template,
-                            apiVersion: new StringExpression(NestedDeploymentResourceApiVersion, null, null, null),
+                            apiVersion: new StringExpression(EmitConstants.NestedDeploymentResourceApiVersion, null, null, null),
                             suppliedParameterValues: moduleParamsInput,
                             parameterValuesPositionalMetadata: null,
                             metadata: ImmutableDictionary<string, ITemplateLanguageExpression>.Empty,
@@ -86,6 +85,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     }
                     catch (Exception ex)
                     {
+                        // TODO: Raise diagnostic when the template evaluation fails
+                        // Adding a diagnostic here without checking for other errors would currently result in duplicate errors for any error in module params
                         Trace.WriteLine($"Exception occurred while reducing template language expressions: {ex}");
                         continue;
                     }
@@ -155,6 +156,27 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 Trace.WriteLine($"Failed to generate template for {model.Root.FileUri}: {ex}");
                 return new Template();
+            }
+        }
+
+        private class CrossModuleSentinelVisitor : TemplateLanguageExpressionVisitor
+        {
+            public HashSet<string> parametersEncountered = new();
+
+            override public void VisitFunctionExpression(FunctionExpression func)
+            {
+                if (func.Name == "sentinel-placeholder")
+                {
+                    if (func.Arguments.Length != 1 ||
+                        func.Arguments.Single() is not StringExpression { Value: string parameterName })
+                    {
+                        throw new InvalidOperationException("Something's not right here...");
+                    }
+
+                    parametersEncountered.Add(parameterName);
+                }
+
+                base.VisitFunctionExpression(func);
             }
         }
     }

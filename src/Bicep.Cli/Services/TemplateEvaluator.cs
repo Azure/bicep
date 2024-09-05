@@ -200,21 +200,21 @@ namespace Bicep.Cli.Services
                 var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
                 var parameters = ParseParametersFile(parametersJToken);
 
-                TemplateEngine.ValidateTemplate(template, TemplateWriter.NestedDeploymentResourceApiVersion, deploymentScope);
+                TemplateEngine.ValidateTemplate(template, EmitConstants.NestedDeploymentResourceApiVersion, deploymentScope);
 
                 TemplateEngine.ProcessTemplateLanguageExpressions(
                     managementGroupName: config.ManagementGroup,
                     subscriptionId: config.SubscriptionId,
                     resourceGroupName: config.ResourceGroup,
                     template: template,
-                    apiVersion: TemplateWriter.NestedDeploymentResourceApiVersion,
+                    apiVersion: EmitConstants.NestedDeploymentResourceApiVersion,
                     inputParameters: new(parameters),
                     metadata: metadata,
                     metricsRecorder: new TemplateMetricsRecorder());
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
 
-                TemplateEngine.ValidateProcessedTemplate(template, TemplateWriter.NestedDeploymentResourceApiVersion, deploymentScope);
+                TemplateEngine.ValidateProcessedTemplate(template, EmitConstants.NestedDeploymentResourceApiVersion, deploymentScope);
 
                 var allAssertions = template.Asserts?.Select(p => new AssertionResult(p.Key, (bool)p.Value.Value)).ToImmutableArray() ?? [];
                 var failedAssertions = allAssertions.Where(a => !a.Result).Select(a => a).ToImmutableArray();

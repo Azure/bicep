@@ -422,7 +422,7 @@ namespace Bicep.Core.Emit
                         FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(context.SemanticModel, moduleSymbol.DeclaringModule).Any())
                     {
                         var deploymentResourceId = GetFullyQualifiedResourceId(moduleSymbol);
-                        var apiVersion = new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion);
+                        var apiVersion = new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion);
                         return (CreateFunction(secureOutputsApi, deploymentResourceId, apiVersion),
                             Enumerable.Empty<LanguageExpression>(), expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess));
                     }
@@ -593,7 +593,7 @@ namespace Bicep.Core.Emit
             return CreateFunction(
                 referenceFunctionName,
                 GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol),
-                new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion));
+                new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion));
         }
 
         public FunctionExpression GetReferenceExpression(ResourceMetadata resource, IndexReplacementContext? indexContext, bool full)

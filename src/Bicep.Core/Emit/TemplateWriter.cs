@@ -29,8 +29,6 @@ namespace Bicep.Core.Emit
         public const string TemplateHashPropertyName = "templateHash";
         public const string LanguageVersionPropertyName = "languageVersion";
 
-        // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
-        public const string NestedDeploymentResourceApiVersion = "2022-09-01";
         private const string TypePropertyName = "type";
         private const string InternalTypeRefStart = "#";
         private const string TypeDefinitionsProperty = "definitions";
@@ -1409,7 +1407,7 @@ namespace Bicep.Core.Emit
                 }
 
                 emitter.EmitProperty("type", NestedDeploymentResourceType);
-                emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
+                emitter.EmitProperty("apiVersion", EmitConstants.NestedDeploymentResourceApiVersion);
 
                 // emit all properties apart from 'params'. In practice, this currently only allows 'name', but we may choose to allow other top-level resource properties in future.
                 // params requires special handling (see below).

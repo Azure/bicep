@@ -530,7 +530,7 @@
     <value>Runtime values cannot be used to determine resource IDs</value>
   </data>
   <data name="WhatIfShortCircuitingRuleMessageFormat" xml:space="preserve">
-    <value>Runtime value '{0}' will disable what-if analysis for module '{1}'</value>
+    <value>Runtime value '{0}' will reduce the precision of what-if analysis for module '{1}'</value>
     <comment>{0} Parameter name</comment>
   </data>
   <data name="ExperimentalFeatureNames_SecureOutputs" xml:space="preserve">

@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     IConfigurationManager.GetBuiltInConfiguration()
                     .WithAllAnalyzers())));
 
-        private readonly string SAModuleContent = @"
+        private readonly string SAModuleContent = """
                         param test string
 
                         resource storageAccountModule 'Microsoft.Storage/storageAccounts@2022-09-01' = {
@@ -35,14 +35,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                 accessTier: 'Hot'
                             }
                         }
-                    ";
+                    """;
 
         [TestMethod]
         public void WhatIfShortCircuiting_Condition()
         {
             var result = CompilationHelper.Compile(Services,
                 [
-                    ("mod.bicep", @"
+                    ("mod.bicep", """
                         param condition bool
                         param a string
 
@@ -54,8 +54,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             }
                             kind: 'StorageV2'
                         }
-                     "),
-                    ("main.bicep", @"
+                     """),
+                    ("main.bicep", """
                         resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
                             name: 'storageAccount'
                         }
@@ -66,9 +66,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                 a: 'abc'
                             }
                         }
-                     ")]);
+                     """)]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'sa.properties.allowBlobPublicAccess' will disable what-if analysis for module 'mod'");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'sa.properties.allowBlobPublicAccess' will reduce the precision of what-if analysis for module 'mod'");
         }
 
         [TestMethod]
@@ -77,7 +77,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var result = CompilationHelper.Compile(Services,
                 [
                     ("createSA.bicep", SAModuleContent),
-                    ("main.bicep", @"
+                    ("main.bicep", """
                         param input string
                         module creatingSA 'createSA.bicep' = {
                           name: 'creatingSA'
@@ -91,7 +91,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             test: 'value'
                           }
                         }
-                    ")]);
+                    """)]);
 
             result.Diagnostics.Should().NotHaveAnyDiagnostics();
         }
@@ -102,7 +102,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var result = CompilationHelper.Compile(Services,
                 [
                     ("module.bicep", SAModuleContent),
-                    ("main.bicep", @"
+                    ("main.bicep", """
                         resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
                             name: 'storageAccountName'
                             location: 'eastus'
@@ -121,9 +121,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             test: storageAccount.properties.dnsEndpointType
                           }
                         }
-                    ")]);
+                    """)]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'storageAccount.properties.dnsEndpointType' will disable what-if analysis for module 'mod'");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'storageAccount.properties.dnsEndpointType' will reduce the precision of what-if analysis for module 'mod'");
         }
 
         [TestMethod]
@@ -132,11 +132,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var result = CompilationHelper.Compile(Services,
                 [
                     ("createSA.bicep", SAModuleContent),
-                    ("createModule.bicep", @"
+                    ("createModule.bicep", """
                         param nameParam string
                         output nameParam string = nameParam
-                    "),
-                    ("main.bicep", @"
+                    """),
+                    ("main.bicep", """
                         module createOutput 'createModule.bicep' = {
                           name: 'createOutput'
                           params: {
@@ -150,9 +150,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             test: createOutput.outputs.nameParam
                           }
                         }
-                    ")]);
+                    """)]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'createOutput.outputs.nameParam' will disable what-if analysis for module 'createSA'");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'createOutput.outputs.nameParam' will reduce the precision of what-if analysis for module 'createSA'");
         }
     }
 }
