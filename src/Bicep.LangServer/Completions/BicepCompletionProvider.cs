@@ -642,6 +642,17 @@ namespace Bicep.LanguageServer.Completions
                 var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
                 var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
 
+                if (model.Configuration.ExperimentalFeaturesEnabled.ExtendableParamFiles && context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
+                {
+                    var item = CompletionItemBuilder.Create(CompletionItemKind.Enum, LanguageConstants.NoneKeyword)
+                                                    .WithFilterText(LanguageConstants.NoneKeyword)
+                                                    .WithSortText(GetSortText(LanguageConstants.NoneKeyword, CompletionPriority.Medium))
+                                                    .WithPlainTextEdit(replacementRange, LanguageConstants.NoneKeyword)
+                                                    .Build();
+
+                    bicepFileItems = bicepFileItems.Prepend(item);
+                }
+
                 return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
             }
             catch (DirectoryNotFoundException)
