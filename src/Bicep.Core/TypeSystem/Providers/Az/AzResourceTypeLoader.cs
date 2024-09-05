@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Azure.Bicep.Types;
+using Azure.Bicep.Types.Index;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
@@ -15,11 +16,11 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         private readonly ImmutableDictionary<ResourceTypeReference, CrossFileTypeReference> availableTypes;
         private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<CrossFileTypeReference>>> availableFunctions;
 
-        public AzResourceTypeLoader(ITypeLoader typeLoader)
+        public AzResourceTypeLoader(ITypeLoader typeLoader, TypeIndex? typeIndex = null)
         {
             this.typeLoader = typeLoader;
             resourceTypeFactory = new AzResourceTypeFactory();
-            var indexedTypes = typeLoader.LoadTypeIndex();
+            var indexedTypes = typeIndex ?? typeLoader.LoadTypeIndex();
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);

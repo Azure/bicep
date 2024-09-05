@@ -11,17 +11,10 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public static class ThirdPartyNamespaceType
     {
-        public static NamespaceSettings Settings { get; } = new(
-            IsSingleton: true,
-            BicepExtensionName: string.Empty,
-            ConfigurationType: null,
-            TemplateExtensionName: string.Empty,
-            TemplateExtensionVersion: string.Empty);
-
         public static NamespaceType Create(string? aliasName, IResourceTypeProvider resourceTypeProvider, ArtifactReference? artifact)
         {
-            // NamespaceConfig is not null
-            if (resourceTypeProvider is ThirdPartyResourceTypeProvider thirdPartyProvider && thirdPartyProvider.GetNamespaceConfiguration() is NamespaceConfiguration namespaceConfig && namespaceConfig != null)
+            if (resourceTypeProvider is ThirdPartyResourceTypeProvider thirdPartyProvider && 
+                thirdPartyProvider.GetNamespaceConfiguration() is NamespaceConfiguration namespaceConfig)
             {
                 return new NamespaceType(
                     aliasName ?? namespaceConfig.Name,
@@ -39,9 +32,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     artifact);
             }
 
-            // NamespaceConfig is required to be set for 3PProviders
             throw new ArgumentException($"Please provide the following required Settings properties: Name, Version, & IsSingleton.");
-
         }
     }
 }

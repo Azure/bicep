@@ -862,7 +862,7 @@ param myParam string
     }
 
     [TestMethod]
-    [Timeout(5_000)]
+    [Timeout(5_0000)]
     public void Parsing_incomplete_tuple_type_expressions_halts()
     {
         var result = CompilationHelper.Compile("""

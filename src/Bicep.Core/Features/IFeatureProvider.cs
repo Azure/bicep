@@ -17,10 +17,6 @@ public interface IFeatureProvider
 
     bool SourceMappingEnabled { get; }
 
-    bool DynamicTypeLoadingEnabled { get; }
-
-    bool ExtensionRegistryEnabled { get; }
-
     bool LegacyFormatterEnabled { get; }
 
     bool TestFrameworkEnabled { get; }
@@ -37,6 +33,8 @@ public interface IFeatureProvider
 
     bool SecureOutputsEnabled { get; }
 
+    bool ExtensibilityV2EmittingEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get
@@ -49,8 +47,6 @@ public interface IFeatureProvider
                 (ExtensibilityEnabled, CoreResources.ExperimentalFeatureNames_Extensibility, true, true),
                 (ResourceTypedParamsAndOutputsEnabled, CoreResources.ExperimentalFeatureNames_ResourceTypedParamsAndOutputs, true, false),
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),
-                (DynamicTypeLoadingEnabled, CoreResources.ExperimentalFeatureNames_DynamicTypeLoading, true, false),
-                (ExtensionRegistryEnabled, CoreResources.ExperimentalFeatureNames_ExtensionRegistry, true, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
                 (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),

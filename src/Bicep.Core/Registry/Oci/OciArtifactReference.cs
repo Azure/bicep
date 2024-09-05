@@ -112,13 +112,6 @@ namespace Bicep.Core.Registry.Oci
                         }
                         unqualifiedReference = $"{moduleAlias}/{unqualifiedReference}";
                         break;
-                    case ArtifactType.Extension:
-                        if (!configuration.ExtensionAliases.TryGetOciArtifactExtensionAlias(aliasName).IsSuccess(out var extensionAlias, out var extensionFailureBuilder))
-                        {
-                            return new(extensionFailureBuilder);
-                        }
-                        unqualifiedReference = $"{extensionAlias}/{unqualifiedReference}";
-                        break;
                     default:
                         return new(x => x.UnsupportedArtifactType(type));
                 }

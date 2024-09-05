@@ -98,7 +98,6 @@ namespace Bicep.Core.UnitTests
                 ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid",
                 ["cloud.credentialPrecedence"] = new[] { "AzureCLI", "AzurePowerShell" },
                 ["moduleAliases"] = new Dictionary<string, object>(),
-                ["extensionAliases"] = new Dictionary<string, object>(),
                 ["extensions"] = new Dictionary<string, object>(),
                 ["implicitExtensions"] = new[] { "az" },
                 ["analyzers"] = new Dictionary<string, object>(),

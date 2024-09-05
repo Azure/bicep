@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
+using Bicep.Core.Intermediate;
 
 namespace Bicep.Core.Features
 {
@@ -38,10 +39,6 @@ namespace Bicep.Core.Features
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvVar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
 
-        public bool DynamicTypeLoadingEnabled => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoading;
-
-        public bool ExtensionRegistryEnabled => configuration.ExperimentalFeaturesEnabled.ExtensionRegistry;
-
         public bool OptionalModuleNamesEnabled => configuration.ExperimentalFeaturesEnabled.OptionalModuleNames;
 
         public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
@@ -49,6 +46,8 @@ namespace Bicep.Core.Features
         public bool ResourceDerivedTypesEnabled => configuration.ExperimentalFeaturesEnabled.ResourceDerivedTypes;
 
         public bool SecureOutputsEnabled => configuration.ExperimentalFeaturesEnabled.SecureOutputs;
+
+        public bool ExtensibilityV2EmittingEnabled => ReadBooleanEnvVar("BICEP_EXTENSIBILITY_V2_EMITTING_ENABLED", defaultValue: false);
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;

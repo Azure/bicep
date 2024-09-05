@@ -9,7 +9,6 @@ namespace Bicep.Core.Configuration
             new(
                 current.Cloud,
                 current.ModuleAliases,
-                current.ExtensionAliases,
                 current.Extensions,
                 current.ImplicitExtensions,
                 current.Analyzers,
