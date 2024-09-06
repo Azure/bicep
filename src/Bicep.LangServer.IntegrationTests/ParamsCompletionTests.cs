@@ -4,11 +4,13 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
@@ -214,6 +216,32 @@ using |
                     x.Label.Should().Be("nested2/");
                     x.Kind.Should().Be(CompletionItemKind.Folder);
                 });
+        }
+
+        [TestMethod]
+        public async Task Request_for_using_declaration_path_completions_should_return_correct_items_with_extendableparamsfeature_enabled()
+        {
+            var mainContent = """
+                using |
+                """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicepparam");
+
+            var bicepFile = SourceFileFactory.CreateBicepParamFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                text,
+                mainUri,
+                services => services.WithFeatureOverrides(new(ExtendableParamFilesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletion(cursors[0]);
+
+            var updated = file.ApplyCompletion(completions, "none");
+            updated.Should().HaveSourceText("""
+                using none|
+                """);
         }
 
         [TestMethod]
