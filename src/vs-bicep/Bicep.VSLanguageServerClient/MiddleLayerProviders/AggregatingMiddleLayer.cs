@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
 {
     /// <summary>
-    /// Composite middle layer that aggregates all instances of <see cref="ILanguageClientMiddleLayer2"/>
+    /// Composite middle layer that aggregates all instances of ILanguageClientMiddleLayer2
     /// and delegates the interception to appropriate middle layer.
     /// </summary>
     public class AggregatingMiddleLayer : ILanguageClientMiddleLayer2<JToken>
