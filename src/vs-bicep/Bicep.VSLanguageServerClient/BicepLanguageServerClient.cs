@@ -20,6 +20,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Telemetry;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
+using Newtonsoft.Json;
 using StreamJsonRpc;
 
 namespace Bicep.VSLanguageServerClient
@@ -31,8 +32,7 @@ namespace Bicep.VSLanguageServerClient
     {
         private IClientProcess? process;
         private readonly IBicepSettings bicepSettings;
-        [Obsolete] // TODO: Fix obsolete errors properly
-        private readonly ILanguageClientMiddleLayer middleLayer;
+        private readonly ILanguageClientMiddleLayer2<JsonToken> middleLayer;
         private readonly IProcessTracker processTracker;
         private readonly TelemetrySession TelemetrySession;
 

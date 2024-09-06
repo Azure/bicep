@@ -10,15 +10,14 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
 {
     /// <summary>
-    /// Composite middle layer that aggregates all instances of <see cref="ILanguageClientMiddleLayer"/>
+    /// Composite middle layer that aggregates all instances of <see cref="ILanguageClientMiddleLayer2"/>
     /// and delegates the interception to appropriate middle layer.
     /// </summary>
-    [Obsolete] // TODO: Fix obsolete errors properly
-    public class AggregatingMiddleLayer : ILanguageClientMiddleLayer
+    public class AggregatingMiddleLayer : ILanguageClientMiddleLayer2<JToken>
     {
-        private readonly ILanguageClientMiddleLayer[] languageClientMiddleLayers;
+        private readonly ILanguageClientMiddleLayer2<JToken>[] languageClientMiddleLayers;
 
-        public AggregatingMiddleLayer(params ILanguageClientMiddleLayer[] languageClientMiddleLayers)
+        public AggregatingMiddleLayer(params ILanguageClientMiddleLayer2<JToken>[] languageClientMiddleLayers)
         {
             this.languageClientMiddleLayers = languageClientMiddleLayers;
         }
@@ -37,7 +36,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
         {
             bool handled = false;
 
-            foreach (ILanguageClientMiddleLayer languageClientMiddleLayer in languageClientMiddleLayers)
+            foreach (ILanguageClientMiddleLayer2<JToken> languageClientMiddleLayer in languageClientMiddleLayers)
             {
                 if (languageClientMiddleLayer.CanHandle(methodName))
                 {
@@ -59,7 +58,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
             JToken? result = null;
             bool handled = false;
 
-            foreach (ILanguageClientMiddleLayer languageClientMiddleLayer in languageClientMiddleLayers)
+            foreach (ILanguageClientMiddleLayer2<JToken> languageClientMiddleLayer in languageClientMiddleLayers)
             {
                 if (languageClientMiddleLayer.CanHandle(methodName))
                 {
