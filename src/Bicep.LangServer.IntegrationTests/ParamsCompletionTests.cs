@@ -242,7 +242,9 @@ using |
             updated.Should().HaveSourceText("""
                 using none|
                 """);
+        }
 
+        [TestMethod]
         public async Task Request_for_extends_declaration_path_completions_should_return_correct_paths_for_file_directories()
         {
             var fileTextsByUri = new Dictionary<Uri, string>
