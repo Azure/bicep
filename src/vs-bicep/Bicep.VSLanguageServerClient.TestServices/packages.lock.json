@@ -10,9 +10,9 @@
       },
       "Microsoft.CodeAnalysis.CSharp.CodeStyle": {
         "type": "Direct",
-        "requested": "[4.10.0, )",
-        "resolved": "4.10.0",
-        "contentHash": "FT2cd56bvaxX9umrBq04zImhlVemFBirkMj5w6lkmpGvjNBHItgfwF9sATQqCIZjtpSG3bGAsbAtm1WDTHJKVA=="
+        "requested": "[4.11.0, )",
+        "resolved": "4.11.0",
+        "contentHash": "lcKLcYWr0vtRcGcmLs9WMilKT1DwoOaDIGvkuIX5t2exqVluHGCEBoE/R5zsoealJUDJb8BTu6ODPwpDb/JZug=="
       },
       "Microsoft.Net.Compilers.Toolset": {
         "type": "Direct",
@@ -22,11 +22,11 @@
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
-        "requested": "[17.10.0, )",
-        "resolved": "17.10.0",
-        "contentHash": "0/2HeACkaHEYU3wc83YlcD2Fi4LMtECJjqrtvw0lPi9DCEa35zSPt1j4fuvM8NagjDqJuh1Ja35WcRtn1Um6/A==",
+        "requested": "[17.11.0, )",
+        "resolved": "17.11.0",
+        "contentHash": "fH7P0LihMXgnlNLtrXGetHd30aQcD+YrSbWXbCPBnrypdRApPgNqd/TgncTlSVY1bbLYdnvpBgts2dcnK37GzA==",
         "dependencies": {
-          "Microsoft.CodeCoverage": "17.10.0"
+          "Microsoft.CodeCoverage": "17.11.0"
         }
       },
       "Microsoft.SourceLink.GitHub": {
@@ -167,9 +167,9 @@
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Direct",
-        "requested": "[17.10.48, )",
-        "resolved": "17.10.48",
-        "contentHash": "xwvwT91oqFjLgQykUp6y/JPYxz8LchbfJKrLVatfczWddXKng8DAo8RiiIodt+pRdsVXP9Ud02GtJoY7ifdXPQ=="
+        "requested": "[17.11.20, )",
+        "resolved": "17.11.20",
+        "contentHash": "yI80R8Ja4ipU7/fyVAMCu0oGTN/u97OgL99gd/8ycGnCF58Kn93iBU3T7rkxGMnlsHf5vEgRu95dujtYcgwf9Q=="
       },
       "Microsoft.VisualStudio.Utilities": {
         "type": "Direct",
@@ -313,8 +313,8 @@
       },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
-        "resolved": "17.10.0",
-        "contentHash": "yC7oSlnR54XO5kOuHlVOKtxomNNN1BWXX8lK1G2jaPXT9sUok7kCOoA4Pgs0qyFaCtMrNsprztYMeoEGqCm4uA=="
+        "resolved": "17.11.0",
+        "contentHash": "QKcOSuw7MZG4XiQ+pCj+Ib6amOwoRDEO7e3DbxqXeOPXSnfyGXYoZQI8I140s1mKQVn1Vh+c5WlKvCvlgMovpg=="
       },
       "Microsoft.CSharp": {
         "type": "Transitive",

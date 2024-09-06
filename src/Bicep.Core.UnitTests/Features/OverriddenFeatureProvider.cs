@@ -43,4 +43,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool SecureOutputsEnabled => overrides.SecureOutputsEnabled ?? features.SecureOutputsEnabled;
 
     public bool ExtendableParamFilesEnabled => overrides.ExtendableParamFilesEnabled ?? features.ExtendableParamFilesEnabled;
+
+    public bool ExtensibilityV2EmittingEnabled => overrides.ExtensibilityV2EmittingEnabled ?? features.ExtensibilityV2EmittingEnabled;
 }

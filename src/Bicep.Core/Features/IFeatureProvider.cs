@@ -33,6 +33,8 @@ public interface IFeatureProvider
 
     bool SecureOutputsEnabled { get; }
 
+    bool ExtensibilityV2EmittingEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get

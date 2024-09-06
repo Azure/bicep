@@ -608,7 +608,8 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.TestPath) &&
-                !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
+                !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath) &&
+                !context.Kind.HasFlag(BicepCompletionContextKind.ExtendsFilePath))
             {
                 return [];
             }
@@ -637,10 +638,18 @@ namespace Bicep.LanguageServer.Completions
                 var replacementSyntax = (context.EnclosingDeclaration as IArtifactReferenceSyntax)?.Path;
                 var replacementRange = replacementSyntax?.ToRange(model.SourceFile.LineStarts) ?? context.ReplacementRange;
 
+                var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
+
+                if (context.Kind.HasFlag(BicepCompletionContextKind.ExtendsFilePath))
+                {
+                    var bicepParamFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepParamFile, CompletionPriority.High);
+
+                    return bicepParamFileItems.Concat(dirItems);
+                }
+
                 // Prioritize .bicep files higher than other files.
                 var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
                 var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
-                var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
 
                 if (model.Features.ExtendableParamFilesEnabled && context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
                 {
@@ -663,6 +672,8 @@ namespace Bicep.LanguageServer.Completions
             // Local functions.
 
             bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
+
+            bool IsBicepParamFile(Uri fileUri) => PathHelper.HasBicepparamsExtension(fileUri);
 
             bool IsArmTemplateFileLike(Uri fileUri)
             {

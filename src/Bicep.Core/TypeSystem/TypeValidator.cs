@@ -299,6 +299,11 @@ namespace Bicep.Core.TypeSystem
                 return targetType;
             }
 
+            if (targetType is ResourceParameterType)
+            {
+                return targetType;
+            }
+
             // integer assignability check
             if (targetType is IntegerType targetInteger)
             {
@@ -341,9 +346,10 @@ namespace Bicep.Core.TypeSystem
                 return narrowedArray;
             }
 
-            if (expression is VariableAccessSyntax variableAccess)
+            if (expression is VariableAccessSyntax variableAccess &&
+                NarrowVariableAccessType(config, variableAccess, targetType) is TypeSymbol narrowedVariableAccess)
             {
-                return NarrowVariableAccessType(config, variableAccess, targetType);
+                return narrowedVariableAccess;
             }
 
             if (targetType is UnionType targetUnionType)
@@ -744,7 +750,7 @@ namespace Bicep.Core.TypeSystem
             return new LambdaType([.. narrowedVariables], [], returnType);
         }
 
-        private TypeSymbol NarrowVariableAccessType(TypeValidatorConfig config, VariableAccessSyntax variableAccess, TypeSymbol targetType)
+        private TypeSymbol? NarrowVariableAccessType(TypeValidatorConfig config, VariableAccessSyntax variableAccess, TypeSymbol targetType)
         {
             if (DeclaringSyntax(variableAccess) is SyntaxBase declaringSyntax)
             {
@@ -752,7 +758,7 @@ namespace Bicep.Core.TypeSystem
                 return NarrowType(newConfig, declaringSyntax, targetType);
             }
 
-            return targetType;
+            return null;
         }
 
         // TODO: Implement for non-variable variable access (resource, module, param)

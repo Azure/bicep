@@ -209,6 +209,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
                        ConvertFlag(functionArgumentContext is not null, BicepCompletionContextKind.FunctionArgument | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsUsingPathContext(matchingNodes, offset), BicepCompletionContextKind.UsingFilePath) |
+                       ConvertFlag(IsExtendsPathContext(matchingNodes, offset), BicepCompletionContextKind.ExtendsFilePath) |
                        ConvertFlag(IsTestPathContext(matchingNodes, offset), BicepCompletionContextKind.TestPath) |
                        ConvertFlag(IsModulePathContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath) |
                        ConvertFlag(IsImportPathContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath) |
@@ -863,6 +864,14 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax, StringSyntax, Token>(matchingNodes, (@using, @string, _) => @using.Path == @string) ||
             // using fo|o
             SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (@using, skipped, _) => @using.Path == skipped);
+
+        private static bool IsExtendsPathContext(IList<SyntaxBase> matchingNodes, int offset) =>
+            // extends |
+            SyntaxMatcher.IsTailMatch<ExtendsDeclarationSyntax>(matchingNodes, extendsClause => extendsClause.Keyword.IsBefore(offset)) ||
+            // extends 'f|oo'
+            SyntaxMatcher.IsTailMatch<ExtendsDeclarationSyntax, StringSyntax, Token>(matchingNodes, (@extends, @string, _) => @extends.Path == @string) ||
+            // extends fo|o
+            SyntaxMatcher.IsTailMatch<ExtendsDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (@extends, skipped, _) => @extends.Path == skipped);
 
         private static bool IsResourceBodyContext(List<SyntaxBase> matchingNodes, int offset) =>
             // resources only allow {} as the body so we don't need to worry about
