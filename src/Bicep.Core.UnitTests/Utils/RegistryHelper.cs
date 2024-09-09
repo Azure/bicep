@@ -164,6 +164,18 @@ public static class RegistryHelper
         await PublishExtensionToRegistryAsync(services, pathToIndexJson, $"br:{LanguageConstants.BicepPublicMcrRegistry}/{repository}:{version}");
     }
 
+    public static async Task PublishMsGraphExtension(IDependencyHelper services, string pathToIndexJson, string repoVersion, string extensionVersion)
+    {
+        var repository = "bicep/extensions/microsoftgraph/" + repoVersion;
+        await PublishExtensionToRegistryAsync(services, pathToIndexJson, $"br:{LanguageConstants.BicepPublicMcrRegistry}/{repository}:{extensionVersion}");
+    }
+
     public static IContainerRegistryClientFactory CreateOciClientForAzExtension()
         => CreateMockRegistryClients((LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/az")).factoryMock;
+
+    public static IContainerRegistryClientFactory CreateOciClientForMsGraphExtension()
+        => CreateMockRegistryClients(
+            (LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/beta"),
+            (LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/v1")
+            ).factoryMock;
 }
