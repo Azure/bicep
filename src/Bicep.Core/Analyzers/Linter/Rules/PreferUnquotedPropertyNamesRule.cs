@@ -70,12 +70,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private static bool TryGetValidIdentifierToken(SyntaxBase syntax, [NotNullWhen(true)] out string? validToken)
             {
-                if (syntax is StringSyntax stringSyntax &&
-                    stringSyntax.TryGetLiteralValue() is { } literalValue)
+                if (syntax is StringSyntax stringSyntax && stringSyntax.TryGetLiteralValue() is { } literalValue)
                 {
-                    if (Lexer.IsValidIdentifier(literalValue) &&
-                        // exclude non-contextual keywords like 'nul and 'true' - see https://github.com/Azure/bicep/issues/13347.
-                        !LanguageConstants.NonContextualKeywords.ContainsKey(literalValue))
+                    if (!StringUtils.IsPropertyNameEscapingRequired(literalValue))
                     {
                         validToken = literalValue;
                         return true;
