@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
+using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Expression.Intermediate;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.ParsedEntities;
@@ -69,23 +70,34 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                     var template = GetTemplate(semanticModel);
                     TemplateWithParsedExpressions? templateResult;
+
+                    var metadata = new OrdinalInsensitiveDictionary<ITemplateLanguageExpression>
+                    {
+                        { DeploymentMetadata.TenantKey, new UnevaluableExpression(null, null, null) },
+                        { DeploymentMetadata.ManagementGroupKey, new UnevaluableExpression(null, null, null) },
+                        { DeploymentMetadata.SubscriptionKey, new UnevaluableExpression(null, null, null) },
+                        { DeploymentMetadata.ResourceGroupKey, new UnevaluableExpression(null, null, null) },
+                        { DeploymentMetadata.DeploymentKey, new UnevaluableExpression(null, null, null) },
+                        { DeploymentMetadata.ProvidersKey, new UnevaluableExpression(null, null, null) },
+                        { DeploymentMetadata.EnvironmentKey, new UnevaluableExpression(null, null, null) },
+                    };
                     try
                     {
                         templateResult = TemplateEngine.ReduceTemplateLanguageExpressions(
-                            managementGroupName: null,
-                            subscriptionId: null,
-                            resourceGroupName: null,
+                            managementGroupName: new UnevaluableExpression(null, null, null),
+                            subscriptionId: new UnevaluableExpression(null, null, null),
+                            resourceGroupName: new UnevaluableExpression(null, null, null),
                             template: template,
                             apiVersion: new StringExpression(EmitConstants.NestedDeploymentResourceApiVersion, null, null, null),
                             suppliedParameterValues: moduleParamsInput,
                             parameterValuesPositionalMetadata: null,
-                            metadata: ImmutableDictionary<string, ITemplateLanguageExpression>.Empty,
+                            metadata: metadata,
                             metricsRecorder: null,
                             skipEvaluationOfNonDeterministicFunctionsForWhatIf: false);
                     }
                     catch (Exception ex)
                     {
-                        // TODO: Raise diagnostic when the template evaluation fails
+                        // TODO: Raise diagnostic when the template evaluation fails if the diagnostic will provide extra context to the failure
                         // Adding a diagnostic here without checking for other errors would currently result in duplicate errors for any error in module params
                         Trace.WriteLine($"Exception occurred while reducing template language expressions: {ex}");
                         continue;
@@ -135,7 +147,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             sentinelVisitor.Visit(resource.Scope);
             sentinelVisitor.Visit(resource.ApiVersion);
         }
-
 
         private static Template GetTemplate(SemanticModel model)
         {

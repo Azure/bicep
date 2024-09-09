@@ -154,5 +154,59 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'createOutput.outputs.nameParam' will reduce the precision of what-if analysis for module 'createSA'");
         }
+
+        [TestMethod]
+        public void WhatIfShortCircuiting_Metadata()
+        {
+            var result = CompilationHelper.Compile(Services,
+                [
+                    ("module.bicep", """
+                        param test string
+                        param loc string = resourceGroup().location
+
+                        resource storageAccountModule 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+                            name: test
+                            location: loc
+                            sku: {
+                                name: 'Standard_LRS'
+                            }
+                            kind: 'StorageV2'
+                            properties: {
+                                accessTier: 'Hot'
+                            }
+                        }
+                    """),
+                    ("main.bicep", """
+                        param loc string = resourceGroup().location
+
+                        resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+                            name: 'storageAccountName'
+                            location: loc
+                            sku: {
+                                name: 'Standard_LRS'
+                            }
+                            kind: 'StorageV2'
+                            properties: {
+                                accessTier: 'Hot'
+                            }
+                        }
+
+                        module mod 'module.bicep' = {
+                          name: 'mod'
+                          params: {
+                            test: storageAccount.properties.dnsEndpointType
+                          }
+                        }
+
+                        module mod2 'module.bicep' = {
+                          name: 'mod2'
+                          params: {
+                            test: loc
+                          }
+                        }
+                    """)]);
+
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'storageAccount.properties.dnsEndpointType' will reduce the precision of what-if analysis for module 'mod'");
+        }
     }
 }
