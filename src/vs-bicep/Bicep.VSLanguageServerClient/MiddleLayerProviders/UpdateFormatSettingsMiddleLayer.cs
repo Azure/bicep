@@ -14,8 +14,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
     /// This middle layer sets the default vscode format settings.
     /// This can be removed once settings and .editorconfig support are added in vs layer - https://github.com/Azure/bicep/issues/7550
     /// </summary>
-    [Obsolete] // TODO: Fix obsolete errors properly
-    public class UpdateFormatSettingsMiddleLayer : ILanguageClientMiddleLayer
+    public class UpdateFormatSettingsMiddleLayer : ILanguageClientMiddleLayer2<JToken>
     {
         private readonly IBicepSettings bicepSettings;
 
