@@ -762,7 +762,7 @@
     "@types/vscode": "^1.82.0",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
-    "@typescript-eslint/parser": "^7.17.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^2.31.1",
     "copy-webpack-plugin": "^12.0.2",
