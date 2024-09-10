@@ -35,7 +35,7 @@ export class CreateBicepConfigurationFile implements Command {
       recommendation = await this.client.sendRequest(getRecommendedConfigLocationRequestType, {
         bicepFilePath: documentUri?.fsPath,
       });
-    } catch (err) {
+    } catch {
       throw new Error("Failed determining recommended configuration location");
     }
     if (recommendation.error || !recommendation.recommendedFolder) {

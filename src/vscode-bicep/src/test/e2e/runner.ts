@@ -9,7 +9,7 @@ export type TestRunner = () => Promise<void>;
 export function createTestRunner(configFile: string): TestRunner {
   return async () => {
     const workspaceRoot = path.resolve(__dirname, "../../..");
-    const config = require(path.join(workspaceRoot, configFile)); // eslint-disable-line @typescript-eslint/no-var-requires
+    const config = require(path.join(workspaceRoot, configFile)); // eslint-disable-line @typescript-eslint/no-require-imports
 
     const { results } = await runCLI({ _: [], $0: "", ...config }, [workspaceRoot]);
 
