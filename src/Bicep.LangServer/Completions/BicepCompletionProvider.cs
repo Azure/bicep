@@ -608,7 +608,8 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.TestPath) &&
-                !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
+                !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath) &&
+                !context.Kind.HasFlag(BicepCompletionContextKind.ExtendsFilePath))
             {
                 return [];
             }
@@ -637,10 +638,29 @@ namespace Bicep.LanguageServer.Completions
                 var replacementSyntax = (context.EnclosingDeclaration as IArtifactReferenceSyntax)?.Path;
                 var replacementRange = replacementSyntax?.ToRange(model.SourceFile.LineStarts) ?? context.ReplacementRange;
 
+                var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
+
+                if (context.Kind.HasFlag(BicepCompletionContextKind.ExtendsFilePath))
+                {
+                    var bicepParamFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepParamFile, CompletionPriority.High);
+
+                    return bicepParamFileItems.Concat(dirItems);
+                }
+
                 // Prioritize .bicep files higher than other files.
                 var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
                 var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
-                var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
+
+                if (model.Features.ExtendableParamFilesEnabled && context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
+                {
+                    var item = CompletionItemBuilder.Create(CompletionItemKind.Enum, LanguageConstants.NoneKeyword)
+                                                    .WithFilterText(LanguageConstants.NoneKeyword)
+                                                    .WithSortText(GetSortText(LanguageConstants.NoneKeyword, CompletionPriority.Medium))
+                                                    .WithPlainTextEdit(replacementRange, LanguageConstants.NoneKeyword)
+                                                    .Build();
+
+                    bicepFileItems = bicepFileItems.Prepend(item);
+                }
 
                 return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
             }
@@ -652,6 +672,8 @@ namespace Bicep.LanguageServer.Completions
             // Local functions.
 
             bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
+
+            bool IsBicepParamFile(Uri fileUri) => PathHelper.HasBicepparamsExtension(fileUri);
 
             bool IsArmTemplateFileLike(Uri fileUri)
             {
@@ -1597,20 +1619,7 @@ namespace Bicep.LanguageServer.Completions
             var nextLine = line + 1;
             if (lineStarts.Length > nextLine)
             {
-                var nextLineStart = lineStarts[nextLine];
-
-                int nextLineEnd;
-
-                if (lineStarts.Length > nextLine + 1)
-                {
-                    nextLineEnd = lineStarts[nextLine + 1] - 1;
-                }
-                else
-                {
-                    nextLineEnd = programSyntax.GetEndPosition();
-                }
-
-                return new TextSpan(nextLineStart, nextLineEnd - nextLineStart);
+                return TextCoordinateConverter.GetLineSpan(lineStarts, programSyntax.GetEndPosition(), nextLine);
             }
 
             return TextSpan.Nil;
@@ -1665,7 +1674,7 @@ namespace Bicep.LanguageServer.Completions
         {
             var required = TypeHelper.IsRequired(property);
 
-            var escapedPropertyName = IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name;
+            var escapedPropertyName = StringUtils.EscapeBicepPropertyName(property.Name);
             var suffix = includeColon ? ":" : string.Empty;
             return CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
                 // property names that match Bicep keywords or contain non-identifier chars need to be escaped
@@ -2135,7 +2144,7 @@ namespace Bicep.LanguageServer.Completions
             };
 
         private static bool IsPropertyNameEscapingRequired(TypeProperty property) =>
-            !Lexer.IsValidIdentifier(property.Name) || LanguageConstants.NonContextualKeywords.ContainsKey(property.Name);
+            StringUtils.IsPropertyNameEscapingRequired(property.Name);
 
         private static string FormatPropertyDetail(TypeProperty property) =>
             TypeHelper.IsRequired(property)

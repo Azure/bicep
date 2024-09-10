@@ -157,8 +157,8 @@ namespace Bicep.Core.IntegrationTests.Emit
             sourceTextWithSourceMap.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
                 dataSet.SourceMap!,
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
-                actualLocation: sourceTextWithSourceMapFileName);
+                expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
+                actualPath: sourceTextWithSourceMapFileName);
         }
 
         [TestMethod]

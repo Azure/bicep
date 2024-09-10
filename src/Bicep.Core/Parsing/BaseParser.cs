@@ -1536,7 +1536,7 @@ namespace Bicep.Core.Parsing
             {
                 yield return this.Decorator();
 
-                // All decorators must followed by a newline.
+                // All decorators must be followed by a newline.
                 yield return this.WithRecovery(this.NewLine, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
 
 

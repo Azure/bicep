@@ -253,5 +253,10 @@ namespace Bicep.LanguageServer.Completions
         /// The current location is accessing properties or elements of a type.
         /// </summary>
         TypeMemberAccess = 1UL << 46,
+
+        /// <summary>
+        /// The current location needs a bicepparam file path completion for extends declaration
+        /// </summary>
+        ExtendsFilePath = 1UL << 47,
     }
 }

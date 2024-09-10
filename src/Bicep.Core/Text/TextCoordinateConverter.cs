@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Text
 {
@@ -30,7 +31,7 @@ namespace Bicep.Core.Text
                 }
             }
 
-            return [.. lineStarts];
+            return [..lineStarts];
         }
 
         public static (int line, int character) GetPosition(IReadOnlyList<int> lineStarts, int offset)
@@ -72,6 +73,21 @@ namespace Bicep.Core.Text
             return lineStarts[line] + character;
         }
 
+        public static TextSpan GetLineSpan(IReadOnlyList<int> lineStarts, int programLength, int line) //asdfg test
+        {
+            int lineStart = GetOffset(lineStarts, line, 0);
+            if (line == lineStarts.Count - 1)
+            {
+                return new TextSpan(lineStart, programLength - lineStart);
+            }
+            else
+            {
+                int nextLineStart = GetOffset(lineStarts, line + 1, 0);
+                return new TextSpan(lineStart, nextLineStart - lineStart);
+            }
+        }
+
+        // If the actual line start was not found, returns the 2's-complement of the next line start
         private static int BinarySearch(IReadOnlyList<int> values, int target)
         {
             int start = 0;

@@ -20,7 +20,9 @@ export function AccordionItem({ itemId, children }: AccordionItemProps) {
   const [active, setActive] = useState(activeItemId === itemId);
 
   useEffect(() => {
-    active && setActiveItemId(itemIdRef.current);
+    if (active) {
+      setActiveItemId(itemIdRef.current);
+    }
   }, [active, setActiveItemId]);
 
   useEffect(() => {

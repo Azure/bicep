@@ -54,11 +54,11 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle">
-      <Version>4.10.0</Version>
+      <Version>4.11.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.CoreUtility" Version="17.10.191" />
+    <PackageReference Include="Microsoft.VisualStudio.CoreUtility" Version="17.11.260" />
   </ItemGroup>
   <ItemGroup>
     <None Include="main.bicep" />
