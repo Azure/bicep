@@ -7,7 +7,7 @@ namespace Bicep.Core.Registry
 {
     public static class ModuleDispatcherExtensions
     {
-        public static ResultWithDiagnostic<ArtifactReference> TryGetModuleReference(this IModuleDispatcher moduleDispatcher, string reference, Uri parentModuleUri)
+        public static ResultWithDiagnosticBuilder<ArtifactReference> TryGetModuleReference(this IModuleDispatcher moduleDispatcher, string reference, Uri parentModuleUri)
             => moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, reference, parentModuleUri);
     }
 }

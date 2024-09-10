@@ -126,7 +126,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Decompile_WithNonExistantOutDir_ShouldFail_WithExpectedErrorMessage()
+        public async Task Decompile_WithNonExistentOutDir_ShouldFail_WithExpectedErrorMessage()
         {
             var (jsonPath, outputDir) = Setup(TestContext, ValidTemplate, outputDir: "outputDir");
 
@@ -152,7 +152,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 output.Should().BeEmpty();
                 error.AsLines().Should().Contain(DecompilationDisclaimer);
-                error.AsLines().Should().Contain($"{bicepPath}(4,23) : Error BCP079: This expression is referencing its own declaration, which is not allowed.");
+                error.AsLines().Should().Contain($"{bicepPath}(4,23) : Error BCP079: This expression is referencing its own declaration, which is not allowed. [https://aka.ms/bicep/core-diagnostics#BCP079]");
                 result.Should().Be(1);
                 File.ReadAllText(bicepPath).Should().BeEquivalentToIgnoringNewlines(InvalidTemplateExpectedDecompilation);
             }
@@ -191,7 +191,7 @@ namespace Bicep.Cli.IntegrationTests
                     "  }",
                     "}");
                 error.AsLines().Should().Contain(DecompilationDisclaimer);
-                error.AsLines().Should().Contain($"{bicepPath}(4,23) : Error BCP079: This expression is referencing its own declaration, which is not allowed.");
+                error.AsLines().Should().Contain($"{bicepPath}(4,23) : Error BCP079: This expression is referencing its own declaration, which is not allowed. [https://aka.ms/bicep/core-diagnostics#BCP079]");
                 result.Should().Be(1);
             }
         }
@@ -256,7 +256,7 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow("DoesNotExist.json")]
         [DataRow("WrongDir\\Fake.json")]
         [DataTestMethod]
-        public async Task Decompile_InvalidInputPath_ShouldFail_WtihExpectedErrorMessage(string badPath)
+        public async Task Decompile_InvalidInputPath_ShouldFail_WithExpectedErrorMessage(string badPath)
         {
             var badUri = PathHelper.FilePathToFileUrl(Path.GetFullPath(badPath));
 
@@ -274,7 +274,7 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow("DoesNotExist.json")]
         [DataRow("WrongDir\\Fake.json")]
         [DataTestMethod]
-        public async Task Decompile_InvalidInputPath_ToStdout_ShouldFail_WtihExpectedErrorMessage(string badPath)
+        public async Task Decompile_InvalidInputPath_ToStdout_ShouldFail_WithExpectedErrorMessage(string badPath)
         {
             var badUri = PathHelper.FilePathToFileUrl(Path.GetFullPath(badPath));
 

@@ -28,10 +28,10 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
             return (collector.leftSiblings, collector.overlappingNode);
         }
 
-        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) =>
+        public override void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax) =>
             this.AddLeftSiblings(syntax.Keyword, syntax.SpecificationString, syntax.WithClause);
 
-        public override void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) =>
+        public override void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax) =>
             this.AddLeftSiblings(syntax.Keyword, syntax.Config);
 
         public override void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax) =>

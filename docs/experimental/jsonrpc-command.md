@@ -1,11 +1,13 @@
 # Using the `jsonrpc` command (Experimental!)
 
 ## What is it?
-The `jsonrpc` command allows you to run the Bicep CLI with a JSONRPC interface that you can connect to. This is useful for invoking the CLI programatically to consume structured output, and to avoid cold-start delays when compiling multiple files.
 
-This makes it possible to build libraries which interact with Bicep files programatically in non-.NET languages.
+The `jsonrpc` command allows you to run the Bicep CLI with a JSONRPC interface that you can connect to. This is useful for invoking the CLI programmatically to consume structured output, and to avoid cold-start delays when compiling multiple files.
+
+This makes it possible to build libraries which interact with Bicep files programmatically in non-.NET languages.
 
 ## Format
+
 The wire format used to send/recieve input/output is header-delimited, meaning the following format is expected, where `\r` and `\n` refer to carriage return and line feed characters:
 
 `Content-Length: <length>\r\n\r\n<message>\r\n\r\n`
@@ -14,36 +16,47 @@ The wire format used to send/recieve input/output is header-delimited, meaning t
 * `<message>` is the raw JSON message.
 
 ### Example
+
 `Content-Length: 72\r\n\r\n{"jsonrpc": "2.0", "id": 0, "method": "bicep/version", "params": {}}\r\n\r\n`
 
 ## Usage (named pipe)
+
 `bicep jsonrpc --pipe <named_pipe>`
 
 Connects to an existing named pipe as a JSONRPC client. See here for some examples: [C#](https://github.com/Azure/bicep/blob/096c32f9d5c42bfb85dff550f72f3fe16f8142c7/src/Bicep.Cli.IntegrationTests/JsonRpcCommandTests.cs#L24-L50) and [node.js](https://github.com/anthony-c-martin/bicep-node/blob/4769e402f2d2c1da8d27df86cb3d62677e7a7456/src/utils/jsonrpc.ts#L117-L151).
 
 ### Arguments
+
 `<named_pipe>` An existing named pipe to connect the JSONRPC client to.
 
 ### Examples
+
 #### Connecting to a named pipe (OSX/Linux)
+
 `bicep jsonrpc --pipe /tmp/bicep-81375a8084b474fa2eaedda1702a7aa40e2eaa24b3.sock`
 
 #### Connecting to a named pipe (Windows)
+
 `bicep jsonrpc --pipe \\.\pipe\\bicep-81375a8084b474fa2eaedda1702a7aa40e2eaa24b3.sock`
 
 ## Usage (TCP socket)
+
 `bicep jsonrpc --socket <tcp_socket>`
 
 Connects to an existing TCP socket as a JSONRPC client.
 
 ### Arguments
+
 `<tcp_socket>` A socket number to connect the JSONRPC client to.
 
 ### Examples
+
 #### Connecting to a TCP socket
+
 `bicep jsonrpc --socket 12345`
 
 ## Usage (stdin/stdout)
+
 `bicep jsonrpc --stdio`
 
 Runs the JSONRPC interface using stdin & stdout for messages.
@@ -52,12 +65,14 @@ Runs the JSONRPC interface using stdin & stdout for messages.
 
 See [`ICliJsonRpcProtocol.cs`](../../src/Bicep.Cli/Rpc/ICliJsonRpcProtocol.cs) for the available methods & request/response bodies.
 
-See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an example establinging a JSONRPC connection and interacting with Bicep files programatically using Node.
+See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an example establinging a JSONRPC connection and interacting with Bicep files programmatically using Node.
 
 ## Example JSONRPC messages
 
 ### `bicep/version`
+
 #### Input
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -66,7 +81,9 @@ See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an
   "params": {}
 }
 ```
+
 #### Output
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -78,7 +95,9 @@ See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an
 ```
 
 ### `bicep/compile`
+
 #### Input
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -89,7 +108,9 @@ See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an
   }
 }
 ```
+
 #### Output
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -103,7 +124,9 @@ See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an
 ```
 
 ### `bicep/getDeploymentGraph`
+
 #### Input
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -114,7 +137,9 @@ See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an
   }
 }
 ```
+
 #### Output
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -182,7 +207,9 @@ See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an
 ```
 
 ### `bicep/getFileReferences`
+
 #### Input
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -193,7 +220,9 @@ See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an
   }
 }
 ```
+
 #### Output
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -211,4 +240,5 @@ See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an
 ```
 
 ## Raising bugs or feature requests
+
 Please raise bug reports or feature requests under [Bicep Issues](https://github.com/Azure/bicep/issues) as usual.

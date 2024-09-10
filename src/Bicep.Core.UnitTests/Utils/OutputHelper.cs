@@ -144,19 +144,15 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var spanText = GetSpanText(sourceText, diagnostic);
             var message = NormalizeOutputPath(outputDirectory, diagnostic.Message);
+            var source = diagnostic.Source.ToSourceString();
 
-            var docLink = diagnostic.Uri == null
-                ? "none"
-                : $"{diagnostic.Source}({diagnostic.Uri.AbsoluteUri})";
-
-
-            return $"[{diagnostic.Code} ({diagnostic.Level})] {message} (CodeDescription: {docLink}) |{spanText}|";
+            return $"[{diagnostic.Code} ({diagnostic.Level})] {message} ({source} {diagnostic.Uri}) |{spanText}|";
         }
 
         public static string NormalizeOutputPath(string outputDirectory, string message)
         {
             message = message.Replace($"{outputDirectory}{Path.DirectorySeparatorChar}", "${TEST_OUTPUT_DIR}/");
-            // Normalize file path seperators across OS
+            // Normalize file path separators across OS
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 message = Regex.Replace(message, @"(""|')\${TEST_OUTPUT_DIR}.*?(""|')", new MatchEvaluator((match) => match.Value.Replace('\\', '/')));

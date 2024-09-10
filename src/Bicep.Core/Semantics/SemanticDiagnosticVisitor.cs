@@ -141,9 +141,9 @@ namespace Bicep.Core.Semantics
             this.CollectDiagnostics(symbol);
         }
 
-        public override void VisitProviderNamespaceSymbol(ProviderNamespaceSymbol symbol)
+        public override void VisitExtensionNamespaceSymbol(ExtensionNamespaceSymbol symbol)
         {
-            base.VisitProviderNamespaceSymbol(symbol);
+            base.VisitExtensionNamespaceSymbol(symbol);
             this.CollectDiagnostics(symbol);
         }
 

@@ -1,4 +1,4 @@
-//Define Azure Files parmeters
+//Define Azure Files parameters
 param storageaccountlocation string
 param storageaccountName string
 param storageaccountkind string

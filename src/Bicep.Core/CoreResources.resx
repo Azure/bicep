@@ -186,7 +186,7 @@
     <value>No unnecessary dependsOn.</value>
   </data>
   <data name="NoUnnecessaryDependsOnRuleCodeFix" xml:space="preserve">
-    <value>Remove unneccessary dependsOn</value>
+    <value>Remove unnecessary dependsOn</value>
   </data>
   <data name="NoUnnecessaryDependsOnRuleMessage" xml:space="preserve">
     <value>Remove unnecessary dependsOn entry '{0}'.</value>
@@ -238,7 +238,7 @@
   </data>
   <data name="ParameterMustBeUsedRuleMessageFormat" xml:space="preserve">
     <value>Parameter "{0}" is declared but never used.</value>
-    <comment>{0} is the paramenter name</comment>
+    <comment>{0} is the parameter name</comment>
   </data>
   <data name="PossibleSecretMessageFunction" xml:space="preserve">
     <value>function '{0}'</value>
@@ -483,12 +483,6 @@
   </data>
   <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
     <value>Asserts</value>
-  </data>
-  <data name="ExperimentalFeatureNames_DynamicTypeLoading" xml:space="preserve">
-    <value>Dynamic type loading</value>
-  </data>
-  <data name="ExperimentalFeatureNames_ExtensionRegistry" xml:space="preserve">
-    <value>Extension registry</value>
   </data>
   <data name="ExperimentalFeatureNames_Extensibility" xml:space="preserve">
     <value>Extensibility</value>

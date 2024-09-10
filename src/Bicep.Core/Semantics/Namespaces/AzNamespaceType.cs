@@ -21,7 +21,7 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public const string BuiltInName = "az";
         public const string GetSecretFunctionName = "getSecret";
-        public static readonly string EmbeddedAzProviderVersion = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
+        private static readonly string EmbeddedAzExtensionVersion = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
             ?? throw new UnreachableException("The 'Azure.Bicep.Types.Az' assembly should always have a file version attribute.");
 
         private static readonly Lazy<IResourceTypeProvider> TypeProviderLazy
@@ -31,10 +31,10 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
-            BicepProviderName: BuiltInName,
+            BicepExtensionName: BuiltInName,
             ConfigurationType: null,
-            ArmTemplateProviderName: "AzureResourceManager",
-            ArmTemplateProviderVersion: new Version(EmbeddedAzProviderVersion).ToString(3));
+            TemplateExtensionName: "AzureResourceManager",
+            TemplateExtensionVersion: new Version(EmbeddedAzExtensionVersion).ToString(3));
 
         private delegate bool VisibilityDelegate(ResourceScope scope, BicepSourceFileKind sourceFileKind);
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
@@ -525,12 +525,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new NamespaceType(
                 aliasName ?? BuiltInName,
-                new NamespaceSettings(
-                    IsSingleton: true,
-                    BicepProviderName: BuiltInName,
-                    ConfigurationType: null,
-                    ArmTemplateProviderName: "AzureResourceManager",
-                    ArmTemplateProviderVersion: EmbeddedAzProviderVersion),
+                Settings,
                 ImmutableArray<TypeProperty>.Empty,
                 Overloads.Where(x => x.IsVisible(scope, sourceFileKind)).Select(x => x.Value),
                 ImmutableArray<BannedFunction>.Empty,

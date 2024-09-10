@@ -10,9 +10,9 @@
       },
       "Microsoft.CodeAnalysis.CSharp.CodeStyle": {
         "type": "Direct",
-        "requested": "[4.10.0, )",
-        "resolved": "4.10.0",
-        "contentHash": "FT2cd56bvaxX9umrBq04zImhlVemFBirkMj5w6lkmpGvjNBHItgfwF9sATQqCIZjtpSG3bGAsbAtm1WDTHJKVA=="
+        "requested": "[4.11.0, )",
+        "resolved": "4.11.0",
+        "contentHash": "lcKLcYWr0vtRcGcmLs9WMilKT1DwoOaDIGvkuIX5t2exqVluHGCEBoE/R5zsoealJUDJb8BTu6ODPwpDb/JZug=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
@@ -26,36 +26,38 @@
       },
       "Microsoft.VisualStudio.CoreUtility": {
         "type": "Direct",
-        "requested": "[17.10.191, )",
-        "resolved": "17.10.191",
-        "contentHash": "DOAxttEBeZGjYovhEtcP0zKmiTyFDiOZ9eRyqNeyb3aTiuFTg5m3GqGEo5HU784H1FXiMBY7JR6z83d2Cu4hQA==",
+        "requested": "[17.11.260, )",
+        "resolved": "17.11.260",
+        "contentHash": "8UgN58cLPAVWFWLWoxLUG4ob4GQhkSmBNWjna9QAKaLKegNLs6h8y8pwrN2dzOpepBAI4/WDCgcmj1ZARzDqWw==",
         "dependencies": {
-          "Microsoft.VisualStudio.Threading": "17.10.41",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.10.41",
+          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
+          "Microsoft.VisualStudio.Threading": "17.11.20",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.11.20",
           "Microsoft.VisualStudio.Validation": "17.8.8",
           "Microsoft.Win32.Registry": "5.0.0",
           "System.Collections.Immutable": "8.0.0",
           "System.ComponentModel.Composition": "8.0.0",
           "System.Memory": "4.5.5",
-          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0",
+          "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Direct",
-        "requested": "[17.10.48, )",
-        "resolved": "17.10.48",
-        "contentHash": "xwvwT91oqFjLgQykUp6y/JPYxz8LchbfJKrLVatfczWddXKng8DAo8RiiIodt+pRdsVXP9Ud02GtJoY7ifdXPQ=="
+        "requested": "[17.11.20, )",
+        "resolved": "17.11.20",
+        "contentHash": "yI80R8Ja4ipU7/fyVAMCu0oGTN/u97OgL99gd/8ycGnCF58Kn93iBU3T7rkxGMnlsHf5vEgRu95dujtYcgwf9Q=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.6.139, )",
-        "resolved": "3.6.139",
-        "contentHash": "rq0Ub/Jik7PtMtZtLn0tHuJ01Yt36RQ+eeBe+S7qnJ/EFOX6D4T9zuYD3vQPYKGI6Ro4t2iWgFm3fGDgjBrMfg=="
+        "requested": "[3.6.143, )",
+        "resolved": "3.6.143",
+        "contentHash": "N24MtdLq4PmdJ2woTQd9515q0I1jeO/DlimYCB/GoRd510Fc9dk9H6YaN8MPPrVF8RHrIalCUfWbWvcoarYeoQ=="
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "7.0.0",
-        "contentHash": "3aeMZ1N0lJoSyzqiP03hqemtb1BijhsJADdobn/4nsMJ8V1H+CrpuduUe4hlRdx+ikBQju1VGjMD1GJ3Sk05Eg==",
+        "resolved": "8.0.0",
+        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw==",
         "dependencies": {
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
@@ -72,13 +74,14 @@
       },
       "Microsoft.VisualStudio.Threading": {
         "type": "Transitive",
-        "resolved": "17.10.41",
-        "contentHash": "276vHqqV9KO4mJqj0ojhGPv0RCShGVQ8Xh2IjwA8Xq6cKOXdt3vX4PJSumqJ1hpJD/2PfMujmoQ5ZtRIuaVZjw==",
+        "resolved": "17.11.20",
+        "contentHash": "918NdBNk1ESmoEOgm5OZqUD5z0LkwiwveocriECRlfcB+k9WPZDiyUy7n7tJmDvMKS8tqPczxkuW4HoRXFhV4A==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "7.0.0",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.10.41",
+          "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.11.20",
           "Microsoft.VisualStudio.Validation": "17.8.8",
           "Microsoft.Win32.Registry": "5.0.0",
+          "System.Memory": "4.5.5",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }

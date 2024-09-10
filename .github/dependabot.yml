@@ -45,36 +45,80 @@ updates:
       - dependency-name: "@types/vscode"
         versions:
         - ">1.52.0"
+      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
+      - dependency-name: "eslint"
+        versions:
+        - ">9.0.0"
+  - package-ecosystem: "npm"
+    directory: "/src/vscode-bicep-ui"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    ignore:
+      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
+      - dependency-name: "eslint"
+        versions:
+        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/playground"
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
+      - dependency-name: "eslint"
+        versions:
+        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/Bicep.Cli.E2eTests"
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
+      - dependency-name: "eslint"
+        versions:
+        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/Bicep.MSBuild.E2eTests"
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
+      - dependency-name: "eslint"
+        versions:
+        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/textmate"
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
+      - dependency-name: "eslint"
+        versions:
+        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/highlightjs"
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
+      - dependency-name: "eslint"
+        versions:
+        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/monarch"
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
+      - dependency-name: "eslint"
+        versions:
+        - ">9.0.0"
   - package-ecosystem: "devcontainers"
     directory: "/"
     schedule:

@@ -430,7 +430,7 @@ output prop string = anObject.prop
 ");
 
         result.Should().HaveDiagnostics(new[] {
-            ("BCP187", DiagnosticLevel.Warning, "The property \"prop\" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+            ("BCP187", DiagnosticLevel.Warning, "The property \"prop\" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
         });
     }
 
@@ -455,7 +455,7 @@ param anotherObject object = {prop: 'someVal'}
     {
         var result = CompilationHelper.Compile("""
             type emptyObject = {}
-            type untypedObect = object
+            type untypedObject = object
             """);
 
         result.Template.Should().HaveValueAtPath("definitions.emptyObject.properties", new JObject());
@@ -862,7 +862,7 @@ param myParam string
     }
 
     [TestMethod]
-    [Timeout(5_000)]
+    [Timeout(5_0000)]
     public void Parsing_incomplete_tuple_type_expressions_halts()
     {
         var result = CompilationHelper.Compile("""
@@ -1559,7 +1559,7 @@ param myParam string
         result.Template.Should().BeNull();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP394", DiagnosticLevel.Error, "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted."),
+            ("BCP394", DiagnosticLevel.Error, "Resource-derived type expressions must dereference a property within the resource body. Using the entire resource body type is not permitted."),
         });
     }
 
@@ -1591,5 +1591,37 @@ param myParam string
                 """));
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Issue_14869()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            ("main.bicep", """
+                param container resource<'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15'>.properties.resource.indexingPolicy
+
+                resource sa 'Microsoft.Storage/storageAccounts@2023-05-01'  = {
+                  location: resourceGroup().location
+                  sku: { name: 'Standard_GRS' }
+                  kind: 'StorageV2'
+                  name: 'my-sa'
+                  properties: {
+                    accessTier: 'Hot'
+                    azureFilesIdentityBasedAuthentication: container
+                  }
+                }
+                """));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP035", DiagnosticLevel.Warning, """The specified "object" declaration is missing the following required properties: "directoryServiceOptions". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+            ("BCP037", DiagnosticLevel.Warning, """The property "automatic" is not allowed on objects of type "AzureFilesIdentityBasedAuthentication". Permissible properties include "activeDirectoryProperties", "defaultSharePermission", "directoryServiceOptions". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+            ("BCP037", DiagnosticLevel.Warning, """The property "compositeIndexes" is not allowed on objects of type "AzureFilesIdentityBasedAuthentication". Permissible properties include "activeDirectoryProperties", "defaultSharePermission", "directoryServiceOptions". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+            ("BCP037", DiagnosticLevel.Warning, """The property "excludedPaths" is not allowed on objects of type "AzureFilesIdentityBasedAuthentication". Permissible properties include "activeDirectoryProperties", "defaultSharePermission", "directoryServiceOptions". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+            ("BCP037", DiagnosticLevel.Warning, """The property "includedPaths" is not allowed on objects of type "AzureFilesIdentityBasedAuthentication". Permissible properties include "activeDirectoryProperties", "defaultSharePermission", "directoryServiceOptions". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+            ("BCP037", DiagnosticLevel.Warning, """The property "indexingMode" is not allowed on objects of type "AzureFilesIdentityBasedAuthentication". Permissible properties include "activeDirectoryProperties", "defaultSharePermission", "directoryServiceOptions". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+            ("BCP037", DiagnosticLevel.Warning, """The property "spatialIndexes" is not allowed on objects of type "AzureFilesIdentityBasedAuthentication". Permissible properties include "activeDirectoryProperties", "defaultSharePermission", "directoryServiceOptions". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+        });
     }
 }

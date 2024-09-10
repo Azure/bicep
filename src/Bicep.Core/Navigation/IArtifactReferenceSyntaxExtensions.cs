@@ -13,7 +13,7 @@ public static class IArtifactReferenceSyntaxExtensions
     public static StringSyntax? TryGetPath(this IArtifactReferenceSyntax syntax)
         => syntax.Path as StringSyntax;
 
-    public static Result<ISemanticModel, ErrorDiagnostic> TryGetReferencedModel(
+    public static ResultWithDiagnostic<ISemanticModel> TryGetReferencedModel(
         this IArtifactReferenceSyntax reference,
         IArtifactFileLookup sourceFileLookup,
         ISemanticModelLookup semanticModelLookup)
@@ -21,11 +21,11 @@ public static class IArtifactReferenceSyntaxExtensions
         return TryGetSourceFile(sourceFileLookup, reference).Transform(semanticModelLookup.GetSemanticModel);
     }
 
-    public static Result<ISemanticModel, ErrorDiagnostic> TryGetReferencedModel(
+    public static ResultWithDiagnostic<ISemanticModel> TryGetReferencedModel(
         this IArtifactReferenceSyntax reference,
         IArtifactFileLookup sourceFileLookup,
         ISemanticModelLookup semanticModelLookup,
-        DiagnosticBuilder.ErrorBuilderDelegate onInvalidSourceFileType)
+        DiagnosticBuilder.DiagnosticBuilderDelegate onInvalidSourceFileType)
     {
         if (!TryGetSourceFile(sourceFileLookup, reference).IsSuccess(out var sourceFile, out var error))
         {
@@ -49,7 +49,7 @@ public static class IArtifactReferenceSyntaxExtensions
         return new(semanticModelLookup.GetSemanticModel(sourceFile));
     }
 
-    private static Result<ISourceFile, ErrorDiagnostic> TryGetSourceFile(IArtifactFileLookup sourceFileLookup, IArtifactReferenceSyntax reference)
+    private static ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactFileLookup sourceFileLookup, IArtifactReferenceSyntax reference)
     {
         if (!sourceFileLookup.TryGetSourceFile(reference).IsSuccess(out var sourceFile, out var errorBuilder))
         {

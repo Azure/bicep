@@ -20,6 +20,72 @@ namespace Bicep.Core.IntegrationTests
 {
     public class TemplateEvaluator
     {
+        private class TemplateEvaluationContext : IEvaluationContext
+        {
+            private readonly IEvaluationContext context;
+            private readonly OrdinalInsensitiveDictionary<TemplateResource> resourceLookup;
+            private readonly EvaluationConfiguration config;
+
+            private TemplateEvaluationContext(IEvaluationContext context, ExpressionScope scope, OrdinalInsensitiveDictionary<TemplateResource> resourceLookup, EvaluationConfiguration config)
+            {
+                this.context = context;
+                this.Scope = scope;
+                this.resourceLookup = resourceLookup;
+                this.config = config;
+            }
+
+            public static TemplateEvaluationContext Create(Template template, OrdinalInsensitiveDictionary<TemplateResource> resourceLookup, EvaluationConfiguration config)
+            {
+                var context = TemplateEngine.GetExpressionEvaluationContext(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, null);
+
+                return new TemplateEvaluationContext(context, context.Scope, resourceLookup, config);
+            }
+
+            public bool IsShortCircuitAllowed => this.context.IsShortCircuitAllowed;
+
+            public ExpressionScope Scope { get; }
+
+            public bool AllowInvalidProperty(Exception exception, FunctionExpression functionExpression, FunctionArgument[] functionParametersValues, JToken[] selectedProperties) =>
+                this.context.AllowInvalidProperty(exception, functionExpression, functionParametersValues, selectedProperties);
+
+            public JToken EvaluateFunction(FunctionExpression functionExpression, FunctionArgument[] parameters, IEvaluationContext context, TemplateErrorAdditionalInfo? additionalnfo)
+            {
+                if (functionExpression.Function.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix) && this.config.OnListFunc is not null)
+                {
+                    var resourceId = parameters[0].TryGetToken()?.Value<string>() ?? throw new UnreachableException();
+                    var apiVersion = parameters[1].TryGetToken()?.Value<string>() ?? throw new UnreachableException();
+                    var body = parameters.Length > 2 ? parameters[2].TryGetToken() : null;
+
+                    return this.config.OnListFunc(functionExpression.Function, resourceId, apiVersion, body);
+                }
+
+                if (functionExpression.Function.EqualsOrdinalInsensitively("reference"))
+                {
+                    var resourceId = parameters[0].TryGetToken()?.Value<string>() ?? throw new UnreachableException();
+                    var apiVersion = parameters.Length > 1 ? (parameters[1].TryGetToken()?.Value<string>() ?? throw new UnreachableException()) : null;
+                    var fullBody = parameters.Length > 2 && parameters[2].TryGetToken()?.Value<string>() is { } fullBodyParam && StringComparer.OrdinalIgnoreCase.Equals(fullBodyParam, "Full");
+
+                    if (apiVersion is not null && this.config.OnReferenceFunc is not null)
+                    {
+                        return this.config.OnReferenceFunc(resourceId, apiVersion, fullBody);
+                    }
+
+                    if (this.resourceLookup.TryGetValue(resourceId, out var foundResource) &&
+                        (apiVersion is null || StringComparer.OrdinalIgnoreCase.Equals(apiVersion, foundResource.ApiVersion.Value)))
+                    {
+                        return fullBody ? foundResource.ToJToken() : foundResource.Properties.ToJToken();
+                    }
+                }
+
+                return this.context.EvaluateFunction(functionExpression, parameters, context, additionalnfo);
+            }
+
+            public bool ShouldIgnoreExceptionDuringEvaluation(Exception exception) =>
+                this.context.ShouldIgnoreExceptionDuringEvaluation(exception);
+
+            public IEvaluationContext WithNewScope(ExpressionScope scope) => new TemplateEvaluationContext(this.context, scope, this.resourceLookup, this.config);
+        }
+
         const string TestTenantId = "d4c73686-f7cd-458e-b377-67adcd46b624";
         const string TestManagementGroupName = "3fc9f36e-8699-43af-b038-1c103980942f";
         const string TestSubscriptionId = "f91a30fd-f403-4999-ae9f-ec37a6d81e13";
@@ -76,40 +142,7 @@ namespace Bicep.Core.IntegrationTests
 
             var resourceLookup = template.Resources.ToOrdinalInsensitiveDictionary(x => GetResourceId(scopeString, x));
 
-            var evaluationContext = TemplateEngine.GetExpressionEvaluationContext(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, null);
-            var defaultEvaluateFunction = evaluationContext.EvaluateFunction;
-            evaluationContext.EvaluateFunction = (functionExpression, parameters, additionalInfo) =>
-            {
-                if (functionExpression.Function.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix) && config.OnListFunc is not null)
-                {
-                    var resourceId = parameters[0].TryGetToken()?.Value<string>() ?? throw new UnreachableException();
-                    var apiVersion = parameters[1].TryGetToken()?.Value<string>() ?? throw new UnreachableException();
-                    var body = parameters.Length > 2 ? parameters[2].TryGetToken() : null;
-
-                    return config.OnListFunc(functionExpression.Function, resourceId, apiVersion, body);
-                }
-
-                if (functionExpression.Function.EqualsOrdinalInsensitively("reference"))
-                {
-                    var resourceId = parameters[0].TryGetToken()?.Value<string>() ?? throw new UnreachableException();
-                    var apiVersion = parameters.Length > 1 ? (parameters[1].TryGetToken()?.Value<string>() ?? throw new UnreachableException()) : null;
-                    var fullBody = parameters.Length > 2 && parameters[2].TryGetToken()?.Value<string>() is { } fullBodyParam && StringComparer.OrdinalIgnoreCase.Equals(fullBodyParam, "Full");
-
-                    if (apiVersion is not null && config.OnReferenceFunc is not null)
-                    {
-                        return config.OnReferenceFunc(resourceId, apiVersion, fullBody);
-                    }
-
-                    if (resourceLookup.TryGetValue(resourceId, out var foundResource) &&
-                        (apiVersion is null || StringComparer.OrdinalIgnoreCase.Equals(apiVersion, foundResource.ApiVersion.Value)))
-                    {
-                        return fullBody ? foundResource.ToJToken() : foundResource.Properties.ToJToken();
-                    }
-                }
-
-                var value = defaultEvaluateFunction(functionExpression, parameters, additionalInfo);
-                return value;
-            };
+            var evaluationContext = TemplateEvaluationContext.Create(template, resourceLookup, config);
 
             for (int i = 0; i < template.Resources.Length; i++)
             {

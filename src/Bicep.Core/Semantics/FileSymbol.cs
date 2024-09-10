@@ -31,8 +31,8 @@ namespace Bicep.Core.Semantics
             this.FileKind = sourceFile.FileKind;
             this.LocalScopes = fileScope.ChildScopes;
 
-            var declartionsBySyntax = ImmutableDictionary.CreateBuilder<SyntaxBase, DeclaredSymbol>();
-            var providerDeclarations = ImmutableArray.CreateBuilder<ProviderNamespaceSymbol>();
+            var declarationsBySyntax = ImmutableDictionary.CreateBuilder<SyntaxBase, DeclaredSymbol>();
+            var extensionDeclarations = ImmutableArray.CreateBuilder<ExtensionNamespaceSymbol>();
             var metadataDeclarations = ImmutableArray.CreateBuilder<MetadataSymbol>();
             var parameterDeclarations = ImmutableArray.CreateBuilder<ParameterSymbol>();
             var typeDeclarations = ImmutableArray.CreateBuilder<TypeAliasSymbol>();
@@ -52,12 +52,12 @@ namespace Bicep.Core.Semantics
 
             foreach (var declaration in fileScope.Declarations)
             {
-                declartionsBySyntax.Add(declaration.DeclaringSyntax, declaration);
+                declarationsBySyntax.Add(declaration.DeclaringSyntax, declaration);
 
                 switch (declaration)
                 {
-                    case ProviderNamespaceSymbol providerNamespace:
-                        providerDeclarations.Add(providerNamespace);
+                    case ExtensionNamespaceSymbol extensionNamespace:
+                        extensionDeclarations.Add(extensionNamespace);
                         break;
                     case MetadataSymbol metadata:
                         metadataDeclarations.Add(metadata);
@@ -110,8 +110,8 @@ namespace Bicep.Core.Semantics
                 }
             }
 
-            DeclarationsBySyntax = declartionsBySyntax.ToImmutable();
-            ProviderDeclarations = providerDeclarations.ToImmutable();
+            DeclarationsBySyntax = declarationsBySyntax.ToImmutable();
+            ExtensionDeclarations = extensionDeclarations.ToImmutable();
             MetadataDeclarations = metadataDeclarations.ToImmutable();
             ParameterDeclarations = parameterDeclarations.ToImmutable();
             TypeDeclarations = typeDeclarations.ToImmutable();
@@ -136,7 +136,7 @@ namespace Bicep.Core.Semantics
 
         public override IEnumerable<Symbol> Descendants =>
             this.NamespaceResolver.ImplicitNamespaces.Values
-            .Concat<Symbol>(this.ProviderDeclarations)
+            .Concat<Symbol>(this.ExtensionDeclarations)
             .Concat(this.LocalScopes)
             .Concat(this.MetadataDeclarations)
             .Concat(this.ParameterDeclarations)
@@ -157,7 +157,7 @@ namespace Bicep.Core.Semantics
 
         public IEnumerable<Symbol> Namespaces =>
             this.NamespaceResolver.ImplicitNamespaces.Values
-            .Concat<Symbol>(this.ProviderDeclarations);
+            .Concat<Symbol>(this.ExtensionDeclarations);
 
         public override SymbolKind Kind => SymbolKind.File;
 
@@ -173,7 +173,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableDictionary<SyntaxBase, DeclaredSymbol> DeclarationsBySyntax { get; }
 
-        public ImmutableArray<ProviderNamespaceSymbol> ProviderDeclarations { get; }
+        public ImmutableArray<ExtensionNamespaceSymbol> ExtensionDeclarations { get; }
 
         public ImmutableArray<MetadataSymbol> MetadataDeclarations { get; }
 
@@ -227,7 +227,7 @@ namespace Bicep.Core.Semantics
             visitor.VisitFileSymbol(this);
         }
 
-        public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
+        public override IEnumerable<Diagnostic> GetDiagnostics() => DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.declarationsByName[name];
 
@@ -235,7 +235,7 @@ namespace Bicep.Core.Semantics
         /// Tries to get the semantic module of the Bicep File referenced via a using declaration from the current file.
         /// If current file is not a parameter file, the method will return false.
         /// </summary>
-        public Result<ISemanticModel, ErrorDiagnostic> TryGetBicepFileSemanticModelViaUsing()
+        public ResultWithDiagnostic<ISemanticModel> TryGetBicepFileSemanticModelViaUsing()
         {
             var usingDeclaration = this.UsingDeclarationSyntax;
             if (usingDeclaration is null)
@@ -261,7 +261,7 @@ namespace Bicep.Core.Semantics
                 this.builtInNamespaces = builtInNamespaces;
             }
 
-            public static IEnumerable<ErrorDiagnostic> GetDiagnostics(FileSymbol file)
+            public static IEnumerable<Diagnostic> GetDiagnostics(FileSymbol file)
             {
                 var visitor = new DuplicateIdentifierValidatorVisitor(file.NamespaceResolver.ImplicitNamespaces);
                 visitor.Visit(file);
@@ -269,7 +269,7 @@ namespace Bicep.Core.Semantics
                 return visitor.Diagnostics;
             }
 
-            private IList<ErrorDiagnostic> Diagnostics { get; } = new List<ErrorDiagnostic>();
+            private IList<Diagnostic> Diagnostics { get; } = new List<Diagnostic>();
 
             protected override void VisitInternal(Symbol node)
             {
@@ -288,7 +288,7 @@ namespace Bicep.Core.Semantics
                 // so we don't need to look at other levels
                 var outputDeclarations = scope.Declarations.OfType<OutputSymbol>();
                 var metadataDeclarations = scope.Declarations.OfType<MetadataSymbol>();
-                var namespaceDeclarations = scope.Declarations.OfType<ProviderNamespaceSymbol>();
+                var namespaceDeclarations = scope.Declarations.OfType<ExtensionNamespaceSymbol>();
                 var referenceableDeclarations = scope.Declarations.Where(decl => decl.CanBeReferenced());
 
                 // all symbols apart from outputs are in the same namespace, so check for uniqueness.
@@ -319,7 +319,7 @@ namespace Bicep.Core.Semantics
                 // TODO: validation for alias x name.
                 this.Diagnostics.AddRange(
                     FindDuplicateNamespaceImports(namespaceDeclarations)
-                    .Select(kvp => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringProvider.SpecificationString).NamespaceMultipleDeclarations(kvp.Value.ProviderName)));
+                    .Select(kvp => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringExtension.SpecificationString).NamespaceMultipleDeclarations(kvp.Value.ExtensionName)));
             }
 
             private static IEnumerable<DeclaredSymbol> FindDuplicateNamedSymbols(IEnumerable<DeclaredSymbol> symbols)
@@ -329,9 +329,9 @@ namespace Bicep.Core.Semantics
                 .Where(group => group.Count() > 1)
                 .SelectMany(group => group);
 
-            private static IEnumerable<KeyValuePair<ProviderNamespaceSymbol, NamespaceType>> FindDuplicateNamespaceImports(IEnumerable<ProviderNamespaceSymbol> symbols)
+            private static IEnumerable<KeyValuePair<ExtensionNamespaceSymbol, NamespaceType>> FindDuplicateNamespaceImports(IEnumerable<ExtensionNamespaceSymbol> symbols)
             {
-                var typeBySymbol = new Dictionary<ProviderNamespaceSymbol, NamespaceType>();
+                var typeBySymbol = new Dictionary<ExtensionNamespaceSymbol, NamespaceType>();
 
                 foreach (var symbol in symbols)
                 {
@@ -343,7 +343,7 @@ namespace Bicep.Core.Semantics
 
                 return typeBySymbol
                     .Where(kvp => kvp.Value.Settings.IsSingleton)
-                    .GroupBy(kvp => kvp.Value.ProviderName, LanguageConstants.IdentifierComparer)
+                    .GroupBy(kvp => kvp.Value.ExtensionName, LanguageConstants.IdentifierComparer)
                     .Where(group => group.Count() > 1)
                     .SelectMany(group => group);
             }

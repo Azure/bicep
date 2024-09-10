@@ -93,7 +93,7 @@ namespace Bicep.Core.UnitTests.Assertions
         }
         public AndConstraint<IDiagnosticCollectionAssertions> NotHaveErrors(string because = "", params object[] becauseArgs)
         {
-            AssertionExtensions.Should(Subject.Where(x => x.Level == DiagnosticLevel.Error)).BeEmpty(because, becauseArgs);
+            AssertionExtensions.Should(Subject.Where(x => x.IsError())).BeEmpty(because, becauseArgs);
 
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
         }

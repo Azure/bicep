@@ -3404,7 +3404,7 @@
     "detail": "VPN Virtual Network Gateway",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: 'subnet.id'\n          }\n          publicIPAddress: {\n            id: 'publicIPAdresses.id'\n          }\n        }\n      }\n    ]\n    sku: {\n      name: 'Basic'\n      tier: 'Basic'\n    }\n    gatewayType: 'Vpn'\n    vpnType: 'PolicyBased'\n    enableBgp: true\n  }\n}\n\n```  \n"
+      "value": "```bicep\nresource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: 'subnet.id'\n          }\n          publicIPAddress: {\n            id: 'publicIPAddresses.id'\n          }\n        }\n      }\n    ]\n    sku: {\n      name: 'Basic'\n      tier: 'Basic'\n    }\n    gatewayType: 'Vpn'\n    vpnType: 'PolicyBased'\n    enableBgp: true\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3414,7 +3414,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:virtualNetworkGateway} 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${4:'name'}\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: ${5:'subnet.id'}\n          }\n          publicIPAddress: {\n            id: ${6:'publicIPAdresses.id'}\n          }\n        }\n      }\n    ]\n    sku: {\n      name: '${7|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n      tier: '${8|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n    }\n    gatewayType: '${9|Vpn,ExpressRoute|}'\n    vpnType: '${10|PolicyBased,RouteBased|}'\n    enableBgp: ${11|true,false|}\n  }\n}\n"
+      "newText": "resource ${1:virtualNetworkGateway} 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${4:'name'}\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: ${5:'subnet.id'}\n          }\n          publicIPAddress: {\n            id: ${6:'publicIPAddresses.id'}\n          }\n        }\n      }\n    ]\n    sku: {\n      name: '${7|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n      tier: '${8|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n    }\n    gatewayType: '${9|Vpn,ExpressRoute|}'\n    vpnType: '${10|PolicyBased,RouteBased|}'\n    enableBgp: ${11|true,false|}\n  }\n}\n"
     },
     "command": {
       "title": "top level snippet completion",

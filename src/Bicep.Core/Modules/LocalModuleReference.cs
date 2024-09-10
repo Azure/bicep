@@ -47,13 +47,13 @@ namespace Bicep.Core.Modules
 
         public override bool IsExternal => false;
 
-        public static ResultWithDiagnostic<LocalModuleReference> TryParse(ArtifactType artifactType, string unqualifiedReference, Uri parentModuleUri)
+        public static ResultWithDiagnosticBuilder<LocalModuleReference> TryParse(ArtifactType artifactType, string unqualifiedReference, Uri parentModuleUri)
         {
             return Validate(unqualifiedReference)
                 .Transform(_ => new LocalModuleReference(artifactType, unqualifiedReference, parentModuleUri));
         }
 
-        public static ResultWithDiagnostic<bool> Validate(string pathName)
+        public static ResultWithDiagnosticBuilder<bool> Validate(string pathName)
         {
             if (pathName.Length == 0)
             {

@@ -209,7 +209,7 @@ var okVarForBody10 = [for i in range(0, 2): indirect.prop]
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
 
-            var filteredDiagnostics = result.WithFilteredDiagnostics(d => d.Level == DiagnosticLevel.Error);
+            var filteredDiagnostics = result.WithFilteredDiagnostics(d => d.IsError());
             filteredDiagnostics.Should().NotHaveAnyDiagnostics();
         }
 
@@ -279,7 +279,7 @@ var indirect = {
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
 
-            var filteredDiagnostics = result.WithFilteredDiagnostics(d => d.Level == DiagnosticLevel.Error);
+            var filteredDiagnostics = result.WithFilteredDiagnostics(d => d.IsError());
             filteredDiagnostics.Should().HaveDiagnostics(expectedDiagnostics);
         }
 
@@ -313,7 +313,7 @@ var indirect = {
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP036", DiagnosticLevel.Warning, @"The property ""location"" expected a value of type ""string"" but the provided value is of type ""Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31"". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, @"The property ""location"" expected a value of type ""string"" but the provided value is of type ""Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31"". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
                 ("BCP120", DiagnosticLevel.Error, @"This expression is being used in an assignment to the ""location"" property of the ""Microsoft.Storage/storageAccounts"" type, which requires a value that can be calculated at the start of the deployment. Properties of userAssignedIdentity which can be calculated at the start include ""apiVersion"", ""id"", ""name"", ""type""."),
                 ("BCP120", DiagnosticLevel.Error, @"This expression is being used in an assignment to the ""identity"" property of the ""Microsoft.Storage/storageAccounts"" type, which requires a value that can be calculated at the start of the deployment. Properties of userAssignedIdentity which can be calculated at the start include ""apiVersion"", ""id"", ""name"", ""type""."),
             });

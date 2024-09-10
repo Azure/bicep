@@ -93,7 +93,7 @@ export class DecompileParamsCommand implements Command {
     try {
       const contents = await (await fse.readFile(documentUri.fsPath)).toString();
       return /\$schema.*deploymentParameters\.json/i.test(contents);
-    } catch (err) {
+    } catch {
       // ignore
     }
 

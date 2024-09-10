@@ -72,7 +72,7 @@ namespace Bicep.LanguageServer
                 // we wouldn't have upserted compilation. This is intentional as it's not possible to
                 // compute diagnostics till errors in bicepconfig.json are fixed.
                 // When errors are fixed in bicepconfig.json and file is saved, we'll get called into this
-                // method again. CompilationContext will be null. We'll get the souceFile from workspace and
+                // method again. CompilationContext will be null. We'll get the sourceFile from workspace and
                 // upsert compilation.
                 if (workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out ISourceFile? sourceFile) && sourceFile is BicepFile)
                 {
@@ -463,14 +463,14 @@ namespace Bicep.LanguageServer
             return BicepTelemetryEvent.CreateBicepParamFileOpen(properties);
         }
 
-        private Dictionary<string, string> GetTelemetryPropertiesForMainFile(SemanticModel sematicModel, BicepSourceFile bicepFile, IEnumerable<Diagnostic> diagnostics)
+        private Dictionary<string, string> GetTelemetryPropertiesForMainFile(SemanticModel semanticModel, BicepSourceFile bicepFile, IEnumerable<Diagnostic> diagnostics)
         {
             Dictionary<string, string> properties = new();
 
             var declarationsInMainFile = bicepFile.ProgramSyntax.Declarations;
             properties.Add("Modules", declarationsInMainFile.Count(x => x is ModuleDeclarationSyntax).ToString());
             properties.Add("Parameters", declarationsInMainFile.Count(x => x is ParameterDeclarationSyntax).ToString());
-            properties.Add("Resources", sematicModel.DeclaredResources.Length.ToString());
+            properties.Add("Resources", semanticModel.DeclaredResources.Length.ToString());
             properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
 
             properties.Add("CharCount", bicepFile.GetOriginalSource().Length.ToString());
@@ -483,7 +483,7 @@ namespace Bicep.LanguageServer
             var disableNextLineDirectiveEndPositionAndCodes = bicepFile.DisabledDiagnosticsCache.GetDisableNextLineDiagnosticDirectivesCache().Values;
             properties.Add("DisableNextLineCount", disableNextLineDirectiveEndPositionAndCodes.Count().ToString());
             properties.Add("DisableNextLineCodes", GetDiagnosticCodesWithCount(disableNextLineDirectiveEndPositionAndCodes));
-            properties.Add("ExperimentalFeatures", string.Join(',', sematicModel.Features.EnabledFeatureMetadata.Select(x => x.name)));
+            properties.Add("ExperimentalFeatures", string.Join(',', semanticModel.Features.EnabledFeatureMetadata.Select(x => x.name)));
 
             return properties;
 

@@ -11,19 +11,16 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
-    public class CentralizedProviderVersionManagementTests : TestBase
+    public class CentralizedExtensionVersionManagementTests : TestBase
     {
-        private ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(
-                ExtensibilityEnabled: true,
-                DynamicTypeLoadingEnabled: true));
+        private ServiceBuilder Services => new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true));
 
         [TestMethod]
-        [DynamicData(nameof(ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsBuiltIn_TestCases))]
-        public void ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsBuiltIn(string providerIdentifier, bool shouldSucceed, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
+        [DynamicData(nameof(ExtensionsConfig_SupportForConfigManagedExtensionDeclarationSyntax_When_ExtensionIsBuiltIn_TestCases))]
+        public void ExtensionsConfig_SupportForConfigManagedExtensionDeclarationSyntax_When_ExtensionIsBuiltIn(string identifier, bool shouldSucceed, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
         {
             var result = CompilationHelper.Compile(Services, @$"
-                extension {providerIdentifier}
+                extension {identifier}
             ");
 
             if (shouldSucceed)
@@ -34,7 +31,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().HaveDiagnostics(expectedDiagnostics);
         }
 
-        public static IEnumerable<object[]> ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsBuiltIn_TestCases
+        public static IEnumerable<object[]> ExtensionsConfig_SupportForConfigManagedExtensionDeclarationSyntax_When_ExtensionIsBuiltIn_TestCases
         {
             get
             {

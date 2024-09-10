@@ -27,9 +27,9 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => ValidateName();
+        public override IEnumerable<Diagnostic> GetDiagnostics() => ValidateName();
 
-        private IEnumerable<ErrorDiagnostic> ValidateName()
+        private IEnumerable<Diagnostic> ValidateName()
         {
             if (this.Name.StartsWith('_'))
             {

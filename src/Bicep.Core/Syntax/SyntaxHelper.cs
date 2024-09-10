@@ -31,9 +31,9 @@ namespace Bicep.Core.Syntax
             return null;
         }
 
-        public static ResultWithDiagnostic<string> TryGetForeignTemplatePath(
+        public static ResultWithDiagnosticBuilder<string> TryGetForeignTemplatePath(
             IArtifactReferenceSyntax foreignTemplateReference,
-            DiagnosticBuilder.ErrorBuilderDelegate onUnspecifiedPath)
+            DiagnosticBuilder.DiagnosticBuilderDelegate onUnspecifiedPath)
         {
             if (foreignTemplateReference.Path is not StringSyntax && foreignTemplateReference.Path is not NoneLiteralSyntax)
             {

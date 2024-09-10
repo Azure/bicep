@@ -25,7 +25,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Sarif.Sdk" Version="4.5.4" />
-    <PackageReference Include="StreamJsonRpc" Version="2.18.48" />
+    <PackageReference Include="StreamJsonRpc" Version="2.19.27" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,6 +58,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.139" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.143" />
   </ItemGroup>
 </Project>

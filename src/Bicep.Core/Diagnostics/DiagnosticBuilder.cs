@@ -23,15 +23,12 @@ namespace Bicep.Core.Diagnostics
     {
         public const string UseStringInterpolationInsteadClause = "Use string interpolation instead.";
 
-        public delegate ErrorDiagnostic ErrorBuilderDelegate(DiagnosticBuilderInternal builder);
-
         public delegate Diagnostic DiagnosticBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public class DiagnosticBuilderInternal
         {
 
-            private const string TypeInaccuracyClause = " If this is an inaccuracy in the documentation, please report it to the Bicep Team.";
-            private static readonly Uri TypeInaccuracyLink = new("https://aka.ms/bicep-type-issues");
+            private const string TypeInaccuracyClause = " If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.";
 
             public DiagnosticBuilderInternal(TextSpan textSpan)
             {
@@ -39,6 +36,23 @@ namespace Bicep.Core.Diagnostics
             }
 
             public TextSpan TextSpan { get; }
+
+            private Diagnostic CoreDiagnostic(DiagnosticLevel level, string code, string message) => new(
+                TextSpan,
+                level,
+                DiagnosticSource.Compiler,
+                code,
+                message) { Uri = new($"https://aka.ms/bicep/core-diagnostics#{code}") };
+
+            private Diagnostic CoreError(string code, string message) => CoreDiagnostic(
+                DiagnosticLevel.Error,
+                code,
+                message);
+
+            private Diagnostic CoreWarning(string code, string message) => CoreDiagnostic(
+                DiagnosticLevel.Warning,
+                code,
+                message);
 
             private static string ToQuotedString(IEnumerable<string> elements)
                 => elements.Any() ? $"\"{elements.ConcatString("\", \"")}\"" : "";
@@ -71,164 +85,132 @@ namespace Bicep.Core.Diagnostics
                 ? $"Bicep configuration \"{configFileUri.LocalPath}\""
                 : $"built-in Bicep configuration";
 
-            public ErrorDiagnostic UnrecognizedToken(string token) => new(
-                TextSpan,
+            public Diagnostic UnrecognizedToken(string token) => CoreError(
                 "BCP001",
                 $"The following token is not recognized: \"{token}\".");
 
-            public ErrorDiagnostic UnterminatedMultilineComment() => new(
-                TextSpan,
+            public Diagnostic UnterminatedMultilineComment() => CoreError(
                 "BCP002",
                 "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.");
 
-            public ErrorDiagnostic UnterminatedString() => new(
-                TextSpan,
+            public Diagnostic UnterminatedString() => CoreError(
                 "BCP003",
                 "The string at this location is not terminated. Terminate the string with a single quote character.");
 
-            public ErrorDiagnostic UnterminatedStringWithNewLine() => new(
-                TextSpan,
+            public Diagnostic UnterminatedStringWithNewLine() => CoreError(
                 "BCP004",
                 "The string at this location is not terminated due to an unexpected new line character.");
 
-            public ErrorDiagnostic UnterminatedStringEscapeSequenceAtEof() => new(
-                TextSpan,
+            public Diagnostic UnterminatedStringEscapeSequenceAtEof() => CoreError(
                 "BCP005",
                 "The string at this location is not terminated. Complete the escape sequence and terminate the string with a single unescaped quote character.");
 
-            public ErrorDiagnostic UnterminatedStringEscapeSequenceUnrecognized(IEnumerable<string> escapeSequences) => new(
-                TextSpan,
+            public Diagnostic UnterminatedStringEscapeSequenceUnrecognized(IEnumerable<string> escapeSequences) => CoreError(
                 "BCP006",
                 $"The specified escape sequence is not recognized. Only the following escape sequences are allowed: {ToQuotedString(escapeSequences)}.");
 
-            public ErrorDiagnostic UnrecognizedDeclaration() => new(
-                TextSpan,
+            public Diagnostic UnrecognizedDeclaration() => CoreError(
                 "BCP007",
                 "This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.");
 
-            public ErrorDiagnostic ExpectedParameterContinuation() => new(
-                TextSpan,
+            public Diagnostic ExpectedParameterContinuation() => CoreError(
                 "BCP008",
                 "Expected the \"=\" token, or a newline at this location.");
 
-            public ErrorDiagnostic UnrecognizedExpression() => new(
-                TextSpan,
+            public Diagnostic UnrecognizedExpression() => CoreError(
                 "BCP009",
                 "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
 
-            public ErrorDiagnostic InvalidInteger() => new(
-                TextSpan,
+            public Diagnostic InvalidInteger() => CoreError(
                 "BCP010",
                 "Expected a valid 64-bit signed integer.");
 
-            public ErrorDiagnostic InvalidType() => new(
-                TextSpan,
+            public Diagnostic InvalidType() => CoreError(
                 "BCP011",
                 "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.");
 
-            public ErrorDiagnostic ExpectedKeyword(string keyword) => new(
-                TextSpan,
+            public Diagnostic ExpectedKeyword(string keyword) => CoreError(
                 "BCP012",
                 $"Expected the \"{keyword}\" keyword at this location.");
 
-            public ErrorDiagnostic ExpectedParameterIdentifier() => new(
-                TextSpan,
+            public Diagnostic ExpectedParameterIdentifier() => CoreError(
                 "BCP013",
                 "Expected a parameter identifier at this location.");
 
-            public ErrorDiagnostic ExpectedVariableIdentifier() => new(
-                TextSpan,
+            public Diagnostic ExpectedVariableIdentifier() => CoreError(
                 "BCP015",
                 "Expected a variable identifier at this location.");
 
-            public ErrorDiagnostic ExpectedOutputIdentifier() => new(
-                TextSpan,
+            public Diagnostic ExpectedOutputIdentifier() => CoreError(
                 "BCP016",
                 "Expected an output identifier at this location.");
 
-            public ErrorDiagnostic ExpectedResourceIdentifier() => new(
-                TextSpan,
+            public Diagnostic ExpectedResourceIdentifier() => CoreError(
                 "BCP017",
                 "Expected a resource identifier at this location.");
 
-            public ErrorDiagnostic ExpectedCharacter(string character) => new(
-                TextSpan,
+            public Diagnostic ExpectedCharacter(string character) => CoreError(
                 "BCP018",
                 $"Expected the \"{character}\" character at this location.");
 
-            public ErrorDiagnostic ExpectedNewLine() => new(
-                TextSpan,
+            public Diagnostic ExpectedNewLine() => CoreError(
                 "BCP019",
                 "Expected a new line character at this location.");
 
-            public ErrorDiagnostic ExpectedFunctionOrPropertyName() => new(
-                TextSpan,
+            public Diagnostic ExpectedFunctionOrPropertyName() => CoreError(
                 "BCP020",
                 "Expected a function or property name at this location.");
 
-            public ErrorDiagnostic ExpectedNumericLiteral() => new(
-                TextSpan,
+            public Diagnostic ExpectedNumericLiteral() => CoreError(
                 "BCP021",
                 "Expected a numeric literal at this location.");
 
-            public ErrorDiagnostic ExpectedPropertyName() => new(
-                TextSpan,
+            public Diagnostic ExpectedPropertyName() => CoreError(
                 "BCP022",
                 "Expected a property name at this location.");
 
-            public ErrorDiagnostic ExpectedVariableOrFunctionName() => new(
-                TextSpan,
+            public Diagnostic ExpectedVariableOrFunctionName() => CoreError(
                 "BCP023",
                 "Expected a variable or function name at this location.");
 
-            public ErrorDiagnostic IdentifierNameExceedsLimit() => new(
-                TextSpan,
+            public Diagnostic IdentifierNameExceedsLimit() => CoreError(
                 "BCP024",
                 $"The identifier exceeds the limit of {LanguageConstants.MaxIdentifierLength}. Reduce the length of the identifier.");
 
-            public ErrorDiagnostic PropertyMultipleDeclarations(string property) => new(
-                TextSpan,
+            public Diagnostic PropertyMultipleDeclarations(string property) => CoreError(
                 "BCP025",
                 $"The property \"{property}\" is declared multiple times in this object. Remove or rename the duplicate properties.");
 
-            public ErrorDiagnostic OutputTypeMismatch(TypeSymbol expectedType, TypeSymbol actualType) => new(
-                TextSpan,
+            public Diagnostic OutputTypeMismatch(TypeSymbol expectedType, TypeSymbol actualType) => CoreError(
                 "BCP026",
                 $"The output expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
-            public ErrorDiagnostic IdentifierMultipleDeclarations(string identifier) => new(
-                TextSpan,
+            public Diagnostic IdentifierMultipleDeclarations(string identifier) => CoreError(
                 "BCP028",
                 $"Identifier \"{identifier}\" is declared multiple times. Remove or rename the duplicates.");
 
-            public ErrorDiagnostic InvalidResourceType() => new(
-                TextSpan,
+            public Diagnostic InvalidResourceType() => CoreError(
                 "BCP029",
                 "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\".");
 
-            public ErrorDiagnostic InvalidOutputType(IEnumerable<string> validTypes) => new(
-                TextSpan,
+            public Diagnostic InvalidOutputType(IEnumerable<string> validTypes) => CoreError(
                 "BCP030",
                 $"The output type is not valid. Please specify one of the following types: {ToQuotedString(validTypes)}.");
 
-            public ErrorDiagnostic InvalidParameterType(IEnumerable<string> validTypes) => new(
-                TextSpan,
+            public Diagnostic InvalidParameterType(IEnumerable<string> validTypes) => CoreError(
                 "BCP031",
                 $"The parameter type is not valid. Please specify one of the following types: {ToQuotedString(validTypes)}.");
 
-            public ErrorDiagnostic CompileTimeConstantRequired() => new(
-                TextSpan,
+            public Diagnostic CompileTimeConstantRequired() => CoreError(
                 "BCP032",
                 "The value must be a compile-time constant.");
 
-            public Diagnostic ExpectedValueTypeMismatch(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => new(
-                TextSpan,
+            public Diagnostic ExpectedValueTypeMismatch(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP033",
                 $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
-            public Diagnostic ArrayTypeMismatch(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => new(
-                TextSpan,
+            public Diagnostic ArrayTypeMismatch(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP034",
                 $"The enclosing array expected an item of type \"{expectedType}\", but the provided item was of type \"{actualType}\".");
@@ -246,24 +228,19 @@ namespace Bicep.Core.Diagnostics
                         parsingErrorLookup) is not { } newSyntax)
                 {
                     // We're unable to come up with an automatic code fix - most likely because there are unhandled parse errors
-                    return new Diagnostic(
-                        TextSpan,
+                    return CoreDiagnostic(
                         warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                         "BCP035",
-                        $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}",
-                        showTypeInaccuracy ? TypeInaccuracyLink : null);
+                        $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}");
                 }
 
                 var codeFix = new CodeFix("Add required properties", true, CodeFixKind.QuickFix, new CodeReplacement(objectSyntax.Span, newSyntax.ToString()));
 
-                return new FixableDiagnostic(
-                    TextSpan,
+                return CoreDiagnostic(
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP035",
-                    $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}",
-                    showTypeInaccuracy ? TypeInaccuracyLink : null,
-                    DiagnosticStyling.Default,
-                    codeFix);
+                    $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}")
+                    with { Fixes = [codeFix] };
             }
 
             public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol expectedType, TypeSymbol actualType, bool showTypeInaccuracy = false)
@@ -272,12 +249,10 @@ namespace Bicep.Core.Diagnostics
                     ? $" in source declaration \"{sourceDeclaration.Name}\""
                     : string.Empty;
 
-                return new(
-                    TextSpan,
+                return CoreDiagnostic(
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP036",
-                    $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value{sourceDeclarationClause} is of type \"{actualType}\".{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}",
-                    showTypeInaccuracy ? TypeInaccuracyLink : null);
+                    $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value{sourceDeclarationClause} is of type \"{actualType}\".{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}");
             }
 
             public Diagnostic DisallowedProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol type, ICollection<string> validUnspecifiedProperties, bool showTypeInaccuracy)
@@ -290,11 +265,10 @@ namespace Bicep.Core.Diagnostics
                     ? $" from source declaration \"{sourceDeclaration.Name}\""
                     : string.Empty;
 
-                return new(
-                    TextSpan,
+                return CoreDiagnostic(
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP037",
-                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}", showTypeInaccuracy ? TypeInaccuracyLink : null);
+                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}");
             }
 
             public Diagnostic DisallowedInterpolatedKeyProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, TypeSymbol type, ICollection<string> validUnspecifiedProperties)
@@ -307,44 +281,37 @@ namespace Bicep.Core.Diagnostics
                     ? $" in source declaration \"{sourceDeclaration.Name}\""
                     : string.Empty;
 
-                return new(
-                    TextSpan,
+                return CoreDiagnostic(
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP040",
                     $"String interpolation is not supported for keys on objects of type \"{type}\"{sourceDeclarationClause}.{permissiblePropertiesClause}");
             }
 
-            public ErrorDiagnostic VariableTypeAssignmentDisallowed(TypeSymbol valueType) => new(
-                TextSpan,
+            public Diagnostic VariableTypeAssignmentDisallowed(TypeSymbol valueType) => CoreError(
                 "BCP041",
                 $"Values of type \"{valueType}\" cannot be assigned to a variable.");
 
-            public ErrorDiagnostic InvalidExpression() => new(
-                TextSpan,
+            public Diagnostic InvalidExpression() => CoreError(
                 "BCP043",
                 "This is not a valid expression.");
 
-            public ErrorDiagnostic UnaryOperatorInvalidType(string operatorName, TypeSymbol type) => new(
-                TextSpan,
+            public Diagnostic UnaryOperatorInvalidType(string operatorName, TypeSymbol type) => CoreError(
                 "BCP044",
                 $"Cannot apply operator \"{operatorName}\" to operand of type \"{type}\".");
 
-            public ErrorDiagnostic BinaryOperatorInvalidType(string operatorName, TypeSymbol type1, TypeSymbol type2, string? additionalInfo) => new(
-                TextSpan,
+            public Diagnostic BinaryOperatorInvalidType(string operatorName, TypeSymbol type1, TypeSymbol type2, string? additionalInfo) => CoreError(
                 "BCP045",
                 $"Cannot apply operator \"{operatorName}\" to operands of type \"{type1}\" and \"{type2}\".{(additionalInfo is null ? string.Empty : " " + additionalInfo)}");
 
-            public ErrorDiagnostic ValueTypeMismatch(TypeSymbol type) => new(
-                TextSpan,
+            public Diagnostic ValueTypeMismatch(TypeSymbol type) => CoreError(
                 "BCP046",
                 $"Expected a value of type \"{type}\".");
 
-            public ErrorDiagnostic ResourceTypeInterpolationUnsupported() => new(
-                TextSpan,
+            public Diagnostic ResourceTypeInterpolationUnsupported() => CoreError(
                 "BCP047",
                 "String interpolation is unsupported for specifying the resource type.");
 
-            public ErrorDiagnostic CannotResolveFunctionOverload(IList<string> overloadSignatures, TypeSymbol argumentType, IList<TypeSymbol> parameterTypes)
+            public Diagnostic CannotResolveFunctionOverload(IList<string> overloadSignatures, TypeSymbol argumentType, IList<TypeSymbol> parameterTypes)
             {
                 var messageBuilder = new StringBuilder();
                 var overloadCount = overloadSignatures.Count;
@@ -361,120 +328,98 @@ namespace Bicep.Core.Diagnostics
 
                 var message = messageBuilder.ToString();
 
-                return new ErrorDiagnostic(
-                    TextSpan,
+                return CoreError(
                     "BCP048",
                     message);
             }
 
-            public ErrorDiagnostic StringOrIntegerIndexerRequired(TypeSymbol wrongType) => new(
-                TextSpan,
+            public Diagnostic StringOrIntegerIndexerRequired(TypeSymbol wrongType) => CoreError(
                 "BCP049",
                 $"The array index must be of type \"{LanguageConstants.String}\" or \"{LanguageConstants.Int}\" but the provided index was of type \"{wrongType}\".");
 
-            public ErrorDiagnostic FilePathIsEmpty() => new(
-                TextSpan,
+            public Diagnostic FilePathIsEmpty() => CoreError(
                 "BCP050",
                 "The specified path is empty.");
 
-            public ErrorDiagnostic FilePathBeginsWithForwardSlash() => new(
-                TextSpan,
+            public Diagnostic FilePathBeginsWithForwardSlash() => CoreError(
                 "BCP051",
                 "The specified path begins with \"/\". Files must be referenced using relative paths.");
 
-            public Diagnostic UnknownProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => new(
-                TextSpan,
+            public Diagnostic UnknownProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP052",
                 $"The type \"{type}\" does not contain property \"{badProperty}\".");
 
-            public Diagnostic UnknownPropertyWithAvailableProperties(bool warnInsteadOfError, TypeSymbol type, string badProperty, IEnumerable<string> availableProperties) => new(
-                TextSpan,
+            public Diagnostic UnknownPropertyWithAvailableProperties(bool warnInsteadOfError, TypeSymbol type, string badProperty, IEnumerable<string> availableProperties) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP053",
                 $"The type \"{type}\" does not contain property \"{badProperty}\". Available properties include {ToQuotedString(availableProperties)}.");
 
-            public ErrorDiagnostic NoPropertiesAllowed(TypeSymbol type) => new(
-                TextSpan,
+            public Diagnostic NoPropertiesAllowed(TypeSymbol type) => CoreError(
                 "BCP054",
                 $"The type \"{type}\" does not contain any properties.");
 
-            public ErrorDiagnostic ObjectRequiredForPropertyAccess(TypeSymbol wrongType) => new(
-                TextSpan,
+            public Diagnostic ObjectRequiredForPropertyAccess(TypeSymbol wrongType) => CoreError(
                 "BCP055",
                 $"Cannot access properties of type \"{wrongType}\". An \"{LanguageConstants.Object}\" type is required.");
 
-            public ErrorDiagnostic AmbiguousSymbolReference(string name, IEnumerable<string> namespaces) => new(
-                TextSpan,
+            public Diagnostic AmbiguousSymbolReference(string name, IEnumerable<string> namespaces) => CoreError(
                 "BCP056",
                 $"The reference to name \"{name}\" is ambiguous because it exists in namespaces {ToQuotedString(namespaces)}. The reference must be fully-qualified.");
 
-            public ErrorDiagnostic SymbolicNameDoesNotExist(string name) => new(
-                TextSpan,
+            public Diagnostic SymbolicNameDoesNotExist(string name) => CoreError(
                 "BCP057",
                 $"The name \"{name}\" does not exist in the current context.");
 
-            public ErrorDiagnostic SymbolicNameIsNotAFunction(string name) => new(
-                TextSpan,
+            public Diagnostic SymbolicNameIsNotAFunction(string name) => CoreError(
                 "BCP059",
                 $"The name \"{name}\" is not a function.");
 
-            public ErrorDiagnostic VariablesFunctionNotSupported() => new(
-                TextSpan,
+            public Diagnostic VariablesFunctionNotSupported() => CoreError(
                 "BCP060",
                 $"The \"variables\" function is not supported. Directly reference variables by their symbolic names.");
 
-            public ErrorDiagnostic ParametersFunctionNotSupported() => new(
-                TextSpan,
+            public Diagnostic ParametersFunctionNotSupported() => CoreError(
                 "BCP061",
                 $"The \"parameters\" function is not supported. Directly reference parameters by their symbolic names.");
 
-            public ErrorDiagnostic ReferencedSymbolHasErrors(string name) => new(
-                TextSpan,
+            public Diagnostic ReferencedSymbolHasErrors(string name) => CoreError(
                 "BCP062",
                 $"The referenced declaration with name \"{name}\" is not valid.");
 
-            public ErrorDiagnostic SymbolicNameIsNotAVariableOrParameter(string name) => new(
-                TextSpan,
+            public Diagnostic SymbolicNameIsNotAVariableOrParameter(string name) => CoreError(
                 "BCP063",
                 $"The name \"{name}\" is not a parameter, variable, resource or module.");
 
-            public ErrorDiagnostic UnexpectedTokensInInterpolation() => new(
-                TextSpan,
+            public Diagnostic UnexpectedTokensInInterpolation() => CoreError(
                 "BCP064",
                 "Found unexpected tokens in interpolated expression.");
 
-            public ErrorDiagnostic FunctionOnlyValidInParameterDefaults(string functionName) => new(
-                TextSpan,
+            public Diagnostic FunctionOnlyValidInParameterDefaults(string functionName) => CoreError(
                 "BCP065",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used as a parameter default value.");
 
-            public ErrorDiagnostic FunctionOnlyValidInResourceBody(string functionName) => new(
-                TextSpan,
+            public Diagnostic FunctionOnlyValidInResourceBody(string functionName) => CoreError(
                 "BCP066",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used in resource declarations.");
 
-            public ErrorDiagnostic ObjectRequiredForMethodAccess(TypeSymbol wrongType) => new(
-                TextSpan,
+            public Diagnostic ObjectRequiredForMethodAccess(TypeSymbol wrongType) => CoreError(
                 "BCP067",
                 $"Cannot call functions on type \"{wrongType}\". An \"{LanguageConstants.Object}\" type is required.");
 
-            public ErrorDiagnostic ExpectedResourceTypeString() => new(
-                TextSpan,
+            public Diagnostic ExpectedResourceTypeString() => CoreError(
                 "BCP068",
                 "Expected a resource type string. Specify a valid resource type of format \"<types>@<apiVersion>\".");
 
-            public ErrorDiagnostic FunctionNotSupportedOperatorAvailable(string function, string @operator) => new(
-                TextSpan,
+            public Diagnostic FunctionNotSupportedOperatorAvailable(string function, string @operator) => CoreError(
                 "BCP069",
                 $"The function \"{function}\" is not supported. Use the \"{@operator}\" operator instead.");
 
-            public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new(
-                TextSpan,
+            public Diagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => CoreError(
                 "BCP070",
                 $"Argument of type \"{argumentType}\" is not assignable to parameter of type \"{parameterType}\".");
 
-            public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int minimumArgumentCount, int? maximumArgumentCount)
+            public Diagnostic ArgumentCountMismatch(int argumentCount, int minimumArgumentCount, int? maximumArgumentCount)
             {
                 string expected;
 
@@ -491,284 +436,229 @@ namespace Bicep.Core.Diagnostics
                     expected = $"{minimumArgumentCount} to {maximumArgumentCount} arguments";
                 }
 
-                return new ErrorDiagnostic(
-                    TextSpan,
+                return CoreError(
                     "BCP071",
                     $"Expected {expected}, but got {argumentCount}.");
             }
 
-            public ErrorDiagnostic CannotReferenceSymbolInParamDefaultValue() => new(
-                TextSpan,
+            public Diagnostic CannotReferenceSymbolInParamDefaultValue() => CoreError(
                 "BCP072",
                 "This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values.");
 
-            public Diagnostic CannotAssignToReadOnlyProperty(bool warnInsteadOfError, string property, bool showTypeInaccuracy) => new(
-                TextSpan,
+            public Diagnostic CannotAssignToReadOnlyProperty(bool warnInsteadOfError, string property, bool showTypeInaccuracy) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP073",
-                $"The property \"{property}\" is read-only. Expressions cannot be assigned to read-only properties.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}", showTypeInaccuracy ? TypeInaccuracyLink : null);
+                $"The property \"{property}\" is read-only. Expressions cannot be assigned to read-only properties.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}");
 
-            public ErrorDiagnostic ArraysRequireIntegerIndex(TypeSymbol wrongType) => new(
-                TextSpan,
+            public Diagnostic ArraysRequireIntegerIndex(TypeSymbol wrongType) => CoreError(
                 "BCP074",
                 $"Indexing over arrays requires an index of type \"{LanguageConstants.Int}\" but the provided index was of type \"{wrongType}\".");
 
-            public ErrorDiagnostic ObjectsRequireStringIndex(TypeSymbol wrongType) => new(
-                TextSpan,
+            public Diagnostic ObjectsRequireStringIndex(TypeSymbol wrongType) => CoreError(
                 "BCP075",
                 $"Indexing over objects requires an index of type \"{LanguageConstants.String}\" but the provided index was of type \"{wrongType}\".");
 
-            public ErrorDiagnostic IndexerRequiresObjectOrArray(TypeSymbol wrongType) => new(
-                TextSpan,
+            public Diagnostic IndexerRequiresObjectOrArray(TypeSymbol wrongType) => CoreError(
                 "BCP076",
                 $"Cannot index over expression of type \"{wrongType}\". Arrays or objects are required.");
 
-            public Diagnostic WriteOnlyProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => new(
-                TextSpan,
+            public Diagnostic WriteOnlyProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP077",
                 $"The property \"{badProperty}\" on type \"{type}\" is write-only. Write-only properties cannot be accessed.");
 
-            public Diagnostic MissingRequiredProperty(bool warnInsteadOfError, string propertyName, TypeSymbol expectedType) => new(
-                TextSpan,
+            public Diagnostic MissingRequiredProperty(bool warnInsteadOfError, string propertyName, TypeSymbol expectedType) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP078",
                 $"The property \"{propertyName}\" requires a value of type \"{expectedType}\", but none was supplied.");
 
-            public ErrorDiagnostic CyclicExpressionSelfReference() => new(
-                TextSpan,
+            public Diagnostic CyclicExpressionSelfReference() => CoreError(
                 "BCP079",
                 "This expression is referencing its own declaration, which is not allowed.");
 
-            public ErrorDiagnostic CyclicExpression(IEnumerable<string> cycle) => new(
-                TextSpan,
+            public Diagnostic CyclicExpression(IEnumerable<string> cycle) => CoreError(
                 "BCP080",
                 $"The expression is involved in a cycle (\"{string.Join("\" -> \"", cycle)}\").");
 
-            public Diagnostic ResourceTypesUnavailable(ResourceTypeReference resourceTypeReference) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic ResourceTypesUnavailable(ResourceTypeReference resourceTypeReference) => CoreWarning(
                 "BCP081",
                 $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.");
 
-            public FixableErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new(
-                TextSpan,
+            public Diagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => CoreError(
                 "BCP082",
-                $"The name \"{name}\" does not exist in the current context. Did you mean \"{suggestedName}\"?",
-                null,
-                DiagnosticStyling.Default,
-                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName)));
+                $"The name \"{name}\" does not exist in the current context. Did you mean \"{suggestedName}\"?")
+                with { Fixes = [
+                    new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
+                ]};
 
-            public FixableDiagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => new(
-                TextSpan,
+            public Diagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP083",
-                $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?",
-                null,
-                DiagnosticStyling.Default,
-                new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty)));
+                $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?")
+                with { Fixes = [
+                    new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty))
+                ]};
 
-            public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new(
-                TextSpan,
+            public Diagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => CoreError(
                 "BCP084",
                 $"The symbolic name \"{name}\" is reserved. Please use a different symbolic name. Reserved namespaces are {ToQuotedString(namespaces.OrderBy(ns => ns))}.");
 
-            public ErrorDiagnostic FilePathContainsForbiddenCharacters(IEnumerable<char> forbiddenChars) => new(
-                TextSpan,
+            public Diagnostic FilePathContainsForbiddenCharacters(IEnumerable<char> forbiddenChars) => CoreError(
                 "BCP085",
                 $"The specified file path contains one ore more invalid path characters. The following are not permitted: {ToQuotedString(forbiddenChars.OrderBy(x => x).Select(x => x.ToString()))}.");
 
-            public ErrorDiagnostic FilePathHasForbiddenTerminator(IEnumerable<char> forbiddenPathTerminatorChars) => new(
-                TextSpan,
+            public Diagnostic FilePathHasForbiddenTerminator(IEnumerable<char> forbiddenPathTerminatorChars) => CoreError(
                 "BCP086",
                 $"The specified file path ends with an invalid character. The following are not permitted: {ToQuotedString(forbiddenPathTerminatorChars.OrderBy(x => x).Select(x => x.ToString()))}.");
 
-            public ErrorDiagnostic ComplexLiteralsNotAllowed() => new(
-                TextSpan,
+            public Diagnostic ComplexLiteralsNotAllowed() => CoreError(
                 "BCP087",
                 "Array and object literals are not allowed here.");
 
-            public FixableDiagnostic PropertyStringLiteralMismatchWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol expectedType, string actualStringLiteral, string suggestedStringLiteral) => new(
-                TextSpan,
+            public Diagnostic PropertyStringLiteralMismatchWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol expectedType, string actualStringLiteral, string suggestedStringLiteral) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP088",
-                $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualStringLiteral}\". Did you mean \"{suggestedStringLiteral}\"?",
-                null,
-                DiagnosticStyling.Default,
-                new CodeFix($"Change \"{actualStringLiteral}\" to \"{suggestedStringLiteral}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedStringLiteral)));
+                $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualStringLiteral}\". Did you mean \"{suggestedStringLiteral}\"?")
+                with { Fixes = [
+                    new CodeFix($"Change \"{actualStringLiteral}\" to \"{suggestedStringLiteral}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedStringLiteral))
+                ]};
 
-            public FixableDiagnostic DisallowedPropertyWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol type, string suggestedProperty) => new(
-                TextSpan,
+            public Diagnostic DisallowedPropertyWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol type, string suggestedProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP089",
-                $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?",
-                null,
-                DiagnosticStyling.Default,
-                new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty)));
+                $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?")
+                with { Fixes = [
+                    new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty))
+                ]};
 
-            public ErrorDiagnostic ModulePathHasNotBeenSpecified() => new(
-                TextSpan,
+            public Diagnostic ModulePathHasNotBeenSpecified() => CoreError(
                 "BCP090",
                 "This module declaration is missing a file path reference.");
 
-            public ErrorDiagnostic ErrorOccurredReadingFile(string failureMessage) => new(
-                TextSpan,
+            public Diagnostic ErrorOccurredReadingFile(string failureMessage) => CoreError(
                 "BCP091",
                 $"An error occurred reading file. {failureMessage}");
 
-            public ErrorDiagnostic FilePathInterpolationUnsupported() => new(
-                TextSpan,
+            public Diagnostic FilePathInterpolationUnsupported() => CoreError(
                 "BCP092",
                 "String interpolation is not supported in file paths.");
 
-            public ErrorDiagnostic FilePathCouldNotBeResolved(string filePath, string parentPath) => new(
-                TextSpan,
+            public Diagnostic FilePathCouldNotBeResolved(string filePath, string parentPath) => CoreError(
                 "BCP093",
                 $"File path \"{filePath}\" could not be resolved relative to \"{parentPath}\".");
 
-            public ErrorDiagnostic CyclicModuleSelfReference() => new(
-                TextSpan,
+            public Diagnostic CyclicModuleSelfReference() => CoreError(
                 "BCP094",
                 "This module references itself, which is not allowed.");
 
-            public ErrorDiagnostic CyclicFile(IEnumerable<string> cycle) => new(
-                TextSpan,
+            public Diagnostic CyclicFile(IEnumerable<string> cycle) => CoreError(
                 "BCP095",
                 $"The file is involved in a cycle (\"{string.Join("\" -> \"", cycle)}\").");
 
-            public ErrorDiagnostic ExpectedModuleIdentifier() => new(
-                TextSpan,
+            public Diagnostic ExpectedModuleIdentifier() => CoreError(
                 "BCP096",
                 "Expected a module identifier at this location.");
 
-            public ErrorDiagnostic ExpectedModulePathString() => new(
-                TextSpan,
+            public Diagnostic ExpectedModulePathString() => CoreError(
                 "BCP097",
                 "Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
 
-            public ErrorDiagnostic FilePathContainsBackSlash() => new(
-                TextSpan,
+            public Diagnostic FilePathContainsBackSlash() => CoreError(
                 "BCP098",
                 "The specified file path contains a \"\\\" character. Use \"/\" instead as the directory separator character.");
 
-            public ErrorDiagnostic AllowedMustContainItems() => new(
-                TextSpan,
+            public Diagnostic AllowedMustContainItems() => CoreError(
                 "BCP099",
                 $"The \"{LanguageConstants.ParameterAllowedPropertyName}\" array must contain one or more items.");
 
-            public ErrorDiagnostic IfFunctionNotSupported() => new(
-                TextSpan,
+            public Diagnostic IfFunctionNotSupported() => CoreError(
                 "BCP100",
                 "The function \"if\" is not supported. Use the \"?:\" (ternary conditional) operator instead, e.g. condition ? ValueIfTrue : ValueIfFalse");
 
-            public ErrorDiagnostic CreateArrayFunctionNotSupported() => new(
-                TextSpan,
+            public Diagnostic CreateArrayFunctionNotSupported() => CoreError(
                 "BCP101",
                 "The \"createArray\" function is not supported. Construct an array literal using [].");
 
-            public ErrorDiagnostic CreateObjectFunctionNotSupported() => new(
-                TextSpan,
+            public Diagnostic CreateObjectFunctionNotSupported() => CoreError(
                 "BCP102",
                 "The \"createObject\" function is not supported. Construct an object literal using {}.");
 
-            public ErrorDiagnostic DoubleQuoteToken(string token) => new(
-                TextSpan,
+            public Diagnostic DoubleQuoteToken(string token) => CoreError(
                 "BCP103",
                 $"The following token is not recognized: \"{token}\". Strings are defined using single quotes in bicep.");
 
-            public ErrorDiagnostic ReferencedModuleHasErrors() => new(
-                TextSpan,
+            public Diagnostic ReferencedModuleHasErrors() => CoreError(
                 "BCP104",
                 $"The referenced module has errors.");
 
-            public ErrorDiagnostic UnableToLoadNonFileUri(Uri fileUri) => new(
-                TextSpan,
+            public Diagnostic UnableToLoadNonFileUri(Uri fileUri) => CoreError(
                 "BCP105",
                 $"Unable to load file from URI \"{fileUri}\".");
 
-            public ErrorDiagnostic UnexpectedCommaSeparator() => new(
-                TextSpan,
+            public Diagnostic UnexpectedCommaSeparator() => CoreError(
                 "BCP106",
                 "Expected a new line character at this location. Commas are not used as separator delimiters.");
 
-            public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceType, string name) => new(
-                TextSpan,
+            public Diagnostic FunctionDoesNotExistInNamespace(Symbol namespaceType, string name) => CoreError(
                 "BCP107",
                 $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\".");
 
-            public FixableErrorDiagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceType, string name, string suggestedName) => new(
-                TextSpan,
+            public Diagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceType, string name, string suggestedName) => CoreError(
                 "BCP108",
-                $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\". Did you mean \"{suggestedName}\"?",
-                null,
-                DiagnosticStyling.Default,
-                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName)));
+                $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\". Did you mean \"{suggestedName}\"?")
+                with { Fixes = [
+                    new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
+                ]};                
 
-            public ErrorDiagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => new(
-                TextSpan,
+            public Diagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => CoreError(
                 "BCP109",
                 $"The type \"{type}\" does not contain function \"{name}\".");
 
-            public FixableErrorDiagnostic FunctionDoesNotExistOnObjectWithSuggestion(TypeSymbol type, string name, string suggestedName) => new(
-                TextSpan,
+            public Diagnostic FunctionDoesNotExistOnObjectWithSuggestion(TypeSymbol type, string name, string suggestedName) => CoreError(
                 "BCP110",
-                $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?",
-                null,
-                DiagnosticStyling.Default,
-                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName)));
+                $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?")
+                with { Fixes = [
+                    new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
+                ]};
 
-            public ErrorDiagnostic FilePathContainsControlChars() => new(
-                TextSpan,
+            public Diagnostic FilePathContainsControlChars() => CoreError(
                 "BCP111",
                 $"The specified file path contains invalid control code characters.");
 
-            public ErrorDiagnostic TargetScopeMultipleDeclarations() => new(
-                TextSpan,
+            public Diagnostic TargetScopeMultipleDeclarations() => CoreError(
                 "BCP112",
                 $"The \"{LanguageConstants.TargetScopeKeyword}\" cannot be declared multiple times in one file.");
 
-            public Diagnostic InvalidModuleScopeForTenantScope() => new(
-                TextSpan,
-                DiagnosticLevel.Error,
+            public Diagnostic InvalidModuleScopeForTenantScope() => CoreError(
                 "BCP113",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeTenant}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include tenant: tenant(), named management group: managementGroup(<name>), named subscription: subscription(<subId>), or named resource group in a named subscription: resourceGroup(<subId>, <name>).");
 
-            public Diagnostic InvalidModuleScopeForManagementScope() => new(
-                TextSpan,
-                DiagnosticLevel.Error,
+            public Diagnostic InvalidModuleScopeForManagementScope() => CoreError(
                 "BCP114",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeManagementGroup}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include current management group: managementGroup(), named management group: managementGroup(<name>), named subscription: subscription(<subId>), tenant: tenant(), or named resource group in a named subscription: resourceGroup(<subId>, <name>).");
 
-            public Diagnostic InvalidModuleScopeForSubscriptionScope() => new(
-                TextSpan,
-                DiagnosticLevel.Error,
+            public Diagnostic InvalidModuleScopeForSubscriptionScope() => CoreError(
                 "BCP115",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeSubscription}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include current subscription: subscription(), named subscription: subscription(<subId>), named resource group in same subscription: resourceGroup(<name>), named resource group in different subscription: resourceGroup(<subId>, <name>), or tenant: tenant().");
 
-            public Diagnostic InvalidModuleScopeForResourceGroup() => new(
-                TextSpan,
-                DiagnosticLevel.Error,
+            public Diagnostic InvalidModuleScopeForResourceGroup() => CoreError(
                 "BCP116",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeResourceGroup}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), current subscription: subscription(), named subscription: subscription(<subId>) or tenant: tenant().");
 
-            public ErrorDiagnostic EmptyIndexerNotAllowed() => new(
-                TextSpan,
+            public Diagnostic EmptyIndexerNotAllowed() => CoreError(
                 "BCP117",
                 "An empty indexer is not allowed. Specify a valid expression."
             );
 
-            public ErrorDiagnostic ExpectBodyStartOrIfOrLoopStart() => new(
-                TextSpan,
+            public Diagnostic ExpectBodyStartOrIfOrLoopStart() => CoreError(
                 "BCP118",
                 "Expected the \"{\" character, the \"[\" character, or the \"if\" keyword at this location.");
 
-            public Diagnostic InvalidExtensionResourceScope() => new(
-                TextSpan,
-                DiagnosticLevel.Error,
+            public Diagnostic InvalidExtensionResourceScope() => CoreError(
                 "BCP119",
                 $"Unsupported scope for extension resource deployment. Expected a resource reference.");
 
@@ -777,375 +667,303 @@ namespace Bicep.Core.Diagnostics
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
                 var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
 
-                return new ErrorDiagnostic(
-                    TextSpan,
+                return CoreError(
                     "BCP120",
                     $"This expression is being used in an assignment to the \"{propertyName}\" property of the \"{objectTypeName}\" type, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
-            public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
-                TextSpan,
+            public Diagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => CoreError(
                 "BCP121",
                 $"Resources: {ToQuotedString(resourceNames)} are defined with this same name in a file. Rename them or split into different modules.");
 
-            public ErrorDiagnostic ModuleMultipleDeclarations(IEnumerable<string> moduleNames) => new(
-                TextSpan,
+            public Diagnostic ModuleMultipleDeclarations(IEnumerable<string> moduleNames) => CoreError(
                 "BCP122",
                 $"Modules: {ToQuotedString(moduleNames)} are defined with this same name and this same scope in a file. Rename them or split into different modules.");
 
-            public ErrorDiagnostic ExpectedNamespaceOrDecoratorName() => new(
-                TextSpan,
+            public Diagnostic ExpectedNamespaceOrDecoratorName() => CoreError(
                 "BCP123",
                 "Expected a namespace or decorator name at this location.");
 
-            public ErrorDiagnostic CannotAttachDecoratorToTarget(string decoratorName, TypeSymbol attachableType, TypeSymbol targetType) => new(
-                TextSpan,
+            public Diagnostic CannotAttachDecoratorToTarget(string decoratorName, TypeSymbol attachableType, TypeSymbol targetType) => CoreError(
                 "BCP124",
                 $"The decorator \"{decoratorName}\" can only be attached to targets of type \"{attachableType}\", but the target has type \"{targetType}\".");
 
-            public ErrorDiagnostic CannotUseFunctionAsParameterDecorator(string functionName) => new(
-                TextSpan,
+            public Diagnostic CannotUseFunctionAsParameterDecorator(string functionName) => CoreError(
                 "BCP125",
                 $"Function \"{functionName}\" cannot be used as a parameter decorator.");
 
-            public ErrorDiagnostic CannotUseFunctionAsVariableDecorator(string functionName) => new(
-                TextSpan,
+            public Diagnostic CannotUseFunctionAsVariableDecorator(string functionName) => CoreError(
                 "BCP126",
                 $"Function \"{functionName}\" cannot be used as a variable decorator.");
 
-            public ErrorDiagnostic CannotUseFunctionAsResourceDecorator(string functionName) => new(
-                TextSpan,
+            public Diagnostic CannotUseFunctionAsResourceDecorator(string functionName) => CoreError(
                 "BCP127",
                 $"Function \"{functionName}\" cannot be used as a resource decorator.");
 
-            public ErrorDiagnostic CannotUseFunctionAsModuleDecorator(string functionName) => new(
-                TextSpan,
+            public Diagnostic CannotUseFunctionAsModuleDecorator(string functionName) => CoreError(
                 "BCP128",
                 $"Function \"{functionName}\" cannot be used as a module decorator.");
 
-            public ErrorDiagnostic CannotUseFunctionAsOutputDecorator(string functionName) => new(
-                TextSpan,
+            public Diagnostic CannotUseFunctionAsOutputDecorator(string functionName) => CoreError(
                 "BCP129",
                 $"Function \"{functionName}\" cannot be used as an output decorator.");
 
-            public ErrorDiagnostic DecoratorsNotAllowed() => new(
-                TextSpan,
+            public Diagnostic DecoratorsNotAllowed() => CoreError(
                 "BCP130",
                 "Decorators are not allowed here.");
 
-            public ErrorDiagnostic ExpectedDeclarationAfterDecorator() => new(
-                TextSpan,
+            public Diagnostic ExpectedDeclarationAfterDecorator() => CoreError(
                 "BCP132",
                 "Expected a declaration after the decorator.");
 
-            public ErrorDiagnostic InvalidUnicodeEscape() => new(
-                TextSpan,
+            public Diagnostic InvalidUnicodeEscape() => CoreError(
                 "BCP133",
                 "The unicode escape sequence is not valid. Valid unicode escape sequences range from \\u{0} to \\u{10FFFF}.");
 
-            public Diagnostic UnsupportedModuleScope(ResourceScope suppliedScope, ResourceScope supportedScopes) => new(
-                TextSpan,
-                DiagnosticLevel.Error,
+            public Diagnostic UnsupportedModuleScope(ResourceScope suppliedScope, ResourceScope supportedScopes) => CoreError(
                 "BCP134",
                 $"Scope {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(suppliedScope))} is not valid for this module. Permitted scopes: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(supportedScopes))}.");
 
-            public Diagnostic UnsupportedResourceScope(ResourceScope suppliedScope, ResourceScope supportedScopes) => new(
-                TextSpan,
-                DiagnosticLevel.Error,
+            public Diagnostic UnsupportedResourceScope(ResourceScope suppliedScope, ResourceScope supportedScopes) => CoreError(
                 "BCP135",
                 $"Scope {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(suppliedScope))} is not valid for this resource type. Permitted scopes: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(supportedScopes))}.");
 
-            public ErrorDiagnostic ExpectedLoopVariableIdentifier() => new(
-                TextSpan,
+            public Diagnostic ExpectedLoopVariableIdentifier() => CoreError(
                 "BCP136",
                 "Expected a loop item variable identifier at this location.");
 
-            public ErrorDiagnostic LoopArrayExpressionTypeMismatch(TypeSymbol actualType) => new(
-                TextSpan,
+            public Diagnostic LoopArrayExpressionTypeMismatch(TypeSymbol actualType) => CoreError(
                 "BCP137",
                 $"Loop expected an expression of type \"{LanguageConstants.Array}\" but the provided value is of type \"{actualType}\".");
 
-            public ErrorDiagnostic ForExpressionsNotSupportedHere() => new(
-                TextSpan,
+            public Diagnostic ForExpressionsNotSupportedHere() => CoreError(
                 "BCP138",
                 "For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties.");
 
-            public Diagnostic InvalidCrossResourceScope() => new(
-                TextSpan,
-                DiagnosticLevel.Error,
+            public Diagnostic InvalidCrossResourceScope() => CoreError(
                 "BCP139",
                 $"A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope.");
 
-            public ErrorDiagnostic UnterminatedMultilineString() => new(
-                TextSpan,
+            public Diagnostic UnterminatedMultilineString() => CoreError(
                 "BCP140",
                 $"The multi-line string at this location is not terminated. Terminate it with \"'''\".");
 
-            public ErrorDiagnostic ExpressionNotCallable() => new(
-                TextSpan,
+            public Diagnostic ExpressionNotCallable() => CoreError(
                 "BCP141",
                 "The expression cannot be used as a decorator as it is not callable.");
 
-            public ErrorDiagnostic TooManyPropertyForExpressions() => new(
-                TextSpan,
+            public Diagnostic TooManyPropertyForExpressions() => CoreError(
                 "BCP142",
                 "Property value for-expressions cannot be nested.");
 
-            public ErrorDiagnostic ExpressionedPropertiesNotAllowedWithLoops() => new(
-                TextSpan,
+            public Diagnostic ExpressionedPropertiesNotAllowedWithLoops() => CoreError(
                 "BCP143",
                 "For-expressions cannot be used with properties whose names are also expressions.");
 
-            public ErrorDiagnostic DirectAccessToCollectionNotSupported(IEnumerable<string>? accessChain = null)
+            public Diagnostic DirectAccessToCollectionNotSupported(IEnumerable<string>? accessChain = null)
             {
                 var accessChainClause = accessChain?.Any() ?? false
                     ? $"The collection was accessed by the chain of \"{string.Join("\" -> \"", accessChain)}\". "
                     : "";
 
-                return new(
-                    TextSpan,
+                return CoreError(
                     "BCP144",
                     $"Directly referencing a resource or module collection is not currently supported here. {accessChainClause}Apply an array indexer to the expression.");
             }
 
-            public ErrorDiagnostic OutputMultipleDeclarations(string identifier) => new(
-                TextSpan,
+            public Diagnostic OutputMultipleDeclarations(string identifier) => CoreError(
                 "BCP145",
                 $"Output \"{identifier}\" is declared multiple times. Remove or rename the duplicates.");
 
-            public ErrorDiagnostic ExpectedParameterDeclarationAfterDecorator() => new(
-                TextSpan,
+            public Diagnostic ExpectedParameterDeclarationAfterDecorator() => CoreError(
                 "BCP147",
                 "Expected a parameter declaration after the decorator.");
 
-            public ErrorDiagnostic ExpectedVariableDeclarationAfterDecorator() => new(
-                TextSpan,
+            public Diagnostic ExpectedVariableDeclarationAfterDecorator() => CoreError(
                 "BCP148",
                 "Expected a variable declaration after the decorator.");
 
-            public ErrorDiagnostic ExpectedResourceDeclarationAfterDecorator() => new(
-                TextSpan,
+            public Diagnostic ExpectedResourceDeclarationAfterDecorator() => CoreError(
                 "BCP149",
                 "Expected a resource declaration after the decorator.");
 
-            public ErrorDiagnostic ExpectedModuleDeclarationAfterDecorator() => new(
-                TextSpan,
+            public Diagnostic ExpectedModuleDeclarationAfterDecorator() => CoreError(
                 "BCP150",
                 "Expected a module declaration after the decorator.");
 
-            public ErrorDiagnostic ExpectedOutputDeclarationAfterDecorator() => new(
-                TextSpan,
+            public Diagnostic ExpectedOutputDeclarationAfterDecorator() => CoreError(
                 "BCP151",
                 "Expected an output declaration after the decorator.");
 
-            public ErrorDiagnostic CannotUseFunctionAsDecorator(string functionName) => new(
-                TextSpan,
+            public Diagnostic CannotUseFunctionAsDecorator(string functionName) => CoreError(
                 "BCP152",
                 $"Function \"{functionName}\" cannot be used as a decorator.");
 
-            public ErrorDiagnostic ExpectedResourceOrModuleDeclarationAfterDecorator() => new(
-                TextSpan,
+            public Diagnostic ExpectedResourceOrModuleDeclarationAfterDecorator() => CoreError(
                 "BCP153",
                 "Expected a resource or module declaration after the decorator.");
 
-            public ErrorDiagnostic BatchSizeTooSmall(long value, long limit) => new(
-                TextSpan,
+            public Diagnostic BatchSizeTooSmall(long value, long limit) => CoreError(
                 "BCP154",
                 $"Expected a batch size of at least {limit} but the specified value was \"{value}\".");
 
-            public ErrorDiagnostic BatchSizeNotAllowed(string decoratorName) => new(
-                TextSpan,
+            public Diagnostic BatchSizeNotAllowed(string decoratorName) => CoreError(
                 "BCP155",
                 $"The decorator \"{decoratorName}\" can only be attached to resource or module collections.");
 
-            public ErrorDiagnostic InvalidResourceTypeSegment(string typeSegment) => new(
-                TextSpan,
+            public Diagnostic InvalidResourceTypeSegment(string typeSegment) => CoreError(
                 "BCP156",
                 $"The resource type segment \"{typeSegment}\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\".");
 
-            public ErrorDiagnostic InvalidAncestorResourceType() => new(
-                TextSpan,
+            public Diagnostic InvalidAncestorResourceType() => CoreError(
                 "BCP157",
                 $"The resource type cannot be determined due to an error in the containing resource.");
 
-            public ErrorDiagnostic ResourceRequiredForResourceAccess(string wrongType) => new(
-                TextSpan,
+            public Diagnostic ResourceRequiredForResourceAccess(string wrongType) => CoreError(
                 "BCP158",
                 $"Cannot access nested resources of type \"{wrongType}\". A resource type is required.");
 
-            public ErrorDiagnostic NestedResourceNotFound(string resourceName, string identifierName, IEnumerable<string> nestedResourceNames) => new(
-                TextSpan,
+            public Diagnostic NestedResourceNotFound(string resourceName, string identifierName, IEnumerable<string> nestedResourceNames) => CoreError(
                 "BCP159",
                 $"The resource \"{resourceName}\" does not contain a nested resource named \"{identifierName}\". Known nested resources are: {ToQuotedString(nestedResourceNames)}.");
 
-            public ErrorDiagnostic NestedResourceNotAllowedInLoop() => new(
-                TextSpan,
+            public Diagnostic NestedResourceNotAllowedInLoop() => CoreError(
                 "BCP160",
                 $"A nested resource cannot appear inside of a resource with a for-expression.");
 
-            public ErrorDiagnostic ExpectedLoopItemIdentifierOrVariableBlockStart() => new(
-                TextSpan,
+            public Diagnostic ExpectedLoopItemIdentifierOrVariableBlockStart() => CoreError(
                 "BCP162",
                 "Expected a loop item variable identifier or \"(\" at this location.");
 
-            public ErrorDiagnostic ScopeUnsupportedOnChildResource() => new(
-                TextSpan,
+            public Diagnostic ScopeUnsupportedOnChildResource() => CoreError(
                 "BCP164",
                 $"A child resource's scope is computed based on the scope of its ancestor resource. This means that using the \"{LanguageConstants.ResourceScopePropertyName}\" property on a child resource is unsupported.");
 
-            public ErrorDiagnostic ScopeDisallowedForAncestorResource(string ancestorIdentifier) => new(
-                TextSpan,
+            public Diagnostic ScopeDisallowedForAncestorResource(string ancestorIdentifier) => CoreError(
                 "BCP165",
                 $"A resource's computed scope must match that of the Bicep file for it to be deployable. This resource's scope is computed from the \"{LanguageConstants.ResourceScopePropertyName}\" property value assigned to ancestor resource \"{ancestorIdentifier}\". You must use modules to deploy resources to a different scope.");
 
-            public ErrorDiagnostic DuplicateDecorator(string decoratorName) => new(
-                TextSpan,
+            public Diagnostic DuplicateDecorator(string decoratorName) => CoreError(
                 "BCP166",
                 $"Duplicate \"{decoratorName}\" decorator.");
 
-            public ErrorDiagnostic ExpectBodyStartOrIf() => new(
-                TextSpan,
+            public Diagnostic ExpectBodyStartOrIf() => CoreError(
                 "BCP167",
                 "Expected the \"{\" character or the \"if\" keyword at this location.");
 
-            public ErrorDiagnostic LengthMustNotBeNegative() => new(
-                TextSpan,
+            public Diagnostic LengthMustNotBeNegative() => CoreError(
                 "BCP168",
                 $"Length must not be a negative value.");
 
-            public ErrorDiagnostic TopLevelChildResourceNameIncorrectQualifierCount(int expectedSlashCount) => new(
-                TextSpan,
+            public Diagnostic TopLevelChildResourceNameIncorrectQualifierCount(int expectedSlashCount) => CoreError(
                 "BCP169",
                 $"Expected resource name to contain {expectedSlashCount} \"/\" character(s). The number of name segments must match the number of segments in the resource type.");
 
-            public ErrorDiagnostic ChildResourceNameContainsQualifiers() => new(
-                TextSpan,
+            public Diagnostic ChildResourceNameContainsQualifiers() => CoreError(
                 "BCP170",
                 $"Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name.");
 
-            public ErrorDiagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => new(
-                TextSpan,
+            public Diagnostic ResourceTypeIsNotValidParent(string resourceType, string parentResourceType) => CoreError(
                 "BCP171",
                 $"Resource type \"{resourceType}\" is not a valid child resource of parent \"{parentResourceType}\".");
 
-            public ErrorDiagnostic ParentResourceTypeHasErrors(string resourceName) => new(
-                TextSpan,
+            public Diagnostic ParentResourceTypeHasErrors(string resourceName) => CoreError(
                 "BCP172",
                 $"The resource type cannot be validated due to an error in parent resource \"{resourceName}\".");
 
-            public ErrorDiagnostic CannotUsePropertyInExistingResource(string property) => new(
-                TextSpan,
+            public Diagnostic CannotUsePropertyInExistingResource(string property) => CoreError(
                 "BCP173",
                 $"The property \"{property}\" cannot be used in an existing resource declaration.");
 
-            public Diagnostic ResourceTypeContainsProvidersSegment() => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic ResourceTypeContainsProvidersSegment() => CoreWarning(
                 "BCP174",
-                $"Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property.",
-                new Uri("https://aka.ms/BicepScopes"));
+                $"Type validation is not available for resource types declared containing a \"/providers/\" segment. Please instead use the \"scope\" property.");
 
-            public ErrorDiagnostic AnyTypeIsNotAllowed() => new(
-                TextSpan,
+            public Diagnostic AnyTypeIsNotAllowed() => CoreError(
                 "BCP176",
                 $"Values of the \"any\" type are not allowed here.");
 
-            public ErrorDiagnostic RuntimeValueNotAllowedInIfConditionExpression(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            public Diagnostic RuntimeValueNotAllowedInIfConditionExpression(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
                 var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
 
-                return new ErrorDiagnostic(
-                    TextSpan,
+                return CoreError(
                     "BCP177",
                     $"This expression is being used in the if-condition expression, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
-            public ErrorDiagnostic RuntimeValueNotAllowedInForExpression(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            public Diagnostic RuntimeValueNotAllowedInForExpression(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
                 var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
 
-                return new ErrorDiagnostic(
-                    TextSpan,
+                return CoreError(
                     "BCP178",
                     $"This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
-            public Diagnostic ForExpressionContainsLoopInvariants(string itemVariableName, string? indexVariableName, IEnumerable<string> expectedVariantProperties) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic ForExpressionContainsLoopInvariants(string itemVariableName, string? indexVariableName, IEnumerable<string> expectedVariantProperties) => CoreWarning(
                 "BCP179",
                 indexVariableName is null
                     ? $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
                     : $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
 
-            public ErrorDiagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => new(
-                TextSpan,
+            public Diagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => CoreError(
                 "BCP180",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
 
-            public ErrorDiagnostic RuntimeValueNotAllowedInRunTimeFunctionArguments(string functionName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            public Diagnostic RuntimeValueNotAllowedInRunTimeFunctionArguments(string functionName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
                 var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
 
-                return new ErrorDiagnostic(
-                    TextSpan,
+                return CoreError(
                     "BCP181",
                     $"This expression is being used in an argument of the function \"{functionName}\", which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
-            public ErrorDiagnostic RuntimeValueNotAllowedInVariableForBody(string variableName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain, string? violatingPropertyName)
+            public Diagnostic RuntimeValueNotAllowedInVariableForBody(string variableName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain, string? violatingPropertyName)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
                 var violatingPropertyNameClause = BuildNonDeployTimeConstantPropertyClause(accessedSymbolName, violatingPropertyName);
                 var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
 
-                return new ErrorDiagnostic(
-                    TextSpan,
+                return CoreError(
                     "BCP182",
                     $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{violatingPropertyNameClause}{accessiblePropertiesClause}");
             }
 
-            public ErrorDiagnostic ModuleParametersPropertyRequiresObjectLiteral() => new(
-                TextSpan,
+            public Diagnostic ModuleParametersPropertyRequiresObjectLiteral() => CoreError(
                 "BCP183",
                 $"The value of the module \"{LanguageConstants.ModuleParamsPropertyName}\" property must be an object literal.");
 
-            public ErrorDiagnostic FileExceedsMaximumSize(string filePath, long maxSize, string unit) => new(
-               TextSpan,
-               "BCP184",
-               $"File '{filePath}' exceeded maximum size of {maxSize} {unit}.");
+            public Diagnostic FileExceedsMaximumSize(string filePath, long maxSize, string unit) => CoreError(
+                "BCP184",
+                $"File '{filePath}' exceeded maximum size of {maxSize} {unit}.");
 
-            public Diagnostic FileEncodingMismatch(string detectedEncoding) => new(
-               TextSpan,
-               DiagnosticLevel.Info,
-               "BCP185",
-               $"Encoding mismatch. File was loaded with '{detectedEncoding}' encoding.");
+            public Diagnostic FileEncodingMismatch(string detectedEncoding) => CoreDiagnostic(
+                DiagnosticLevel.Info,
+                "BCP185",
+                $"Encoding mismatch. File was loaded with '{detectedEncoding}' encoding.");
 
-            public ErrorDiagnostic UnparseableJsonType() => new(
-               TextSpan,
-               "BCP186",
-               $"Unable to parse literal JSON value. Please ensure that it is well-formed.");
+            public Diagnostic UnparsableJsonType() => CoreError(
+                "BCP186",
+                $"Unable to parse literal JSON value. Please ensure that it is well-formed.");
 
-            public Diagnostic FallbackPropertyUsed(string property) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic FallbackPropertyUsed(string property) => CoreWarning(
                 "BCP187",
-                $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid.{TypeInaccuracyClause}", TypeInaccuracyLink);
+                $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid.{TypeInaccuracyClause}");
 
-            public ErrorDiagnostic ReferencedArmTemplateHasErrors() => new(
-                TextSpan,
+            public Diagnostic ReferencedArmTemplateHasErrors() => CoreError(
                 "BCP188",
                 $"The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template.");
 
-            public ErrorDiagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes)
+            public Diagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes)
             {
                 string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local)));
 
-                return new(
-                    TextSpan,
+                return CoreError(
                     "BCP189",
                     (allowedSchemes.Contains(ArtifactReferenceSchemes.Local, StringComparer.Ordinal), allowedSchemes.Any(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local, StringComparison.Ordinal))) switch
                     {
@@ -1161,583 +979,454 @@ namespace Bicep.Core.Diagnostics
             // - In VS code, it's transient until the background restore finishes.
             //
             // Should it be split into two separate errors instead?
-            public ErrorDiagnostic ArtifactRequiresRestore(string artifactRef) => new(
-                TextSpan,
+            public Diagnostic ArtifactRequiresRestore(string artifactRef) => CoreError(
                 "BCP190",
                 $"The artifact with reference \"{artifactRef}\" has not been restored.");
 
-            public ErrorDiagnostic ArtifactRestoreFailed(string artifactRef) => new(
-                TextSpan,
+            public Diagnostic ArtifactRestoreFailed(string artifactRef) => CoreError(
                 "BCP191",
                 $"Unable to restore the artifact with reference \"{artifactRef}\".");
 
-            public ErrorDiagnostic ArtifactRestoreFailedWithMessage(string artifactRef, string message) => new(
-                TextSpan,
+            public Diagnostic ArtifactRestoreFailedWithMessage(string artifactRef, string message) => CoreError(
                 "BCP192",
                 $"Unable to restore the artifact with reference \"{artifactRef}\": {message}");
 
-            public ErrorDiagnostic InvalidOciArtifactReference(string? aliasName, string badRef) => new(
-                TextSpan,
+            public Diagnostic InvalidOciArtifactReference(string? aliasName, string badRef) => CoreError(
                 "BCP193",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactReferenceSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ArtifactReferenceSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
 
-            public ErrorDiagnostic InvalidTemplateSpecReference(string? aliasName, string badRef) => new(
-                TextSpan,
+            public Diagnostic InvalidTemplateSpecReference(string? aliasName, string badRef) => CoreError(
                 "BCP194",
                 $"{BuildInvalidTemplateSpecReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactReferenceSchemes.TemplateSpecs}:<subscription-ID>/<resource-group-name>/<template-spec-name>:<version>\", or \"{ArtifactReferenceSchemes.TemplateSpecs}/<module-alias>:<template-spec-name>:<version>\".");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceInvalidPathSegment(string? aliasName, string badRef, string badSegment) => new(
-                TextSpan,
+            public Diagnostic InvalidOciArtifactReferenceInvalidPathSegment(string? aliasName, string badRef, string badSegment) => CoreError(
                 "BCP195",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The artifact path segment \"{badSegment}\" is not valid. Each artifact name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceMissingTagOrDigest(string? aliasName, string badRef) => new(
-                TextSpan,
+            public Diagnostic InvalidOciArtifactReferenceMissingTagOrDigest(string? aliasName, string badRef) => CoreError(
                 "BCP196",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The module tag or digest is missing.");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceTagTooLong(string? aliasName, string badRef, string badTag, int maxLength) => new(
-                TextSpan,
+            public Diagnostic InvalidOciArtifactReferenceTagTooLong(string? aliasName, string badRef, string badTag, int maxLength) => CoreError(
                 "BCP197",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The tag \"{badTag}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceInvalidTag(string? aliasName, string badRef, string badTag) => new(
-                TextSpan,
+            public Diagnostic InvalidOciArtifactReferenceInvalidTag(string? aliasName, string badRef, string badTag) => CoreError(
                 "BCP198",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The tag \"{badTag}\" is not valid. Valid characters are alphanumeric, \".\", \"_\", or \"-\" but the tag cannot begin with \".\", \"_\", or \"-\".");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceRepositoryTooLong(string? aliasName, string badRef, string badRepository, int maxLength) => new(
-                TextSpan,
+            public Diagnostic InvalidOciArtifactReferenceRepositoryTooLong(string? aliasName, string badRef, string badRepository, int maxLength) => CoreError(
                 "BCP199",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Module path \"{badRepository}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceRegistryTooLong(string? aliasName, string badRef, string badRegistry, int maxLength) => new(
-                TextSpan,
+            public Diagnostic InvalidOciArtifactReferenceRegistryTooLong(string? aliasName, string badRef, string badRegistry, int maxLength) => CoreError(
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedProviderSpecification()
-            {
-                var message = """
-                Expected an extension specification string with a valid format at this location. Valid formats:
-                * "br:<extensionRegistryHost>/<extensionRepositoryPath>:<extensionVersion>"
-                * "br/<extensionAlias>:<extensionName>:<extensionVersion>"
-                """;
-                return new(TextSpan, "BCP201", message);
-            }
+            public Diagnostic ExpectedExtensionSpecification() => CoreError(
+                "BCP201",
+                "Expected an extension specification string. This should either be a relative path, or a valid OCI artifact specification.");
 
-            public ErrorDiagnostic ExpectedProviderAliasName() => new(
-                TextSpan,
+            public Diagnostic ExpectedExtensionAliasName() => CoreError(
                 "BCP202",
                 "Expected an extension alias name at this location.");
 
-            public ErrorDiagnostic ProvidersAreDisabled() => new(
-                TextSpan,
+            public Diagnostic ExtensionsAreDisabled() => CoreError(
                 "BCP203",
                 $@"Using extension declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Extensibility)}"".");
 
-            public ErrorDiagnostic UnrecognizedProvider(string identifier) => new(
-                TextSpan,
+            public Diagnostic UnrecognizedExtension(string identifier) => CoreError(
                 "BCP204",
                 $"Extension \"{identifier}\" is not recognized.");
 
-            public ErrorDiagnostic ProviderDoesNotSupportConfiguration(string identifier) => new(
-                TextSpan,
+            public Diagnostic ExtensionDoesNotSupportConfiguration(string identifier) => CoreError(
                 "BCP205",
                 $"Extension \"{identifier}\" does not support configuration.");
 
-            public ErrorDiagnostic ProviderRequiresConfiguration(string identifier) => new(
-                TextSpan,
+            public Diagnostic ExtensionRequiresConfiguration(string identifier) => CoreError(
                 "BCP206",
                 $"Extension \"{identifier}\" requires configuration, but none was provided.");
 
-            public ErrorDiagnostic NamespaceMultipleDeclarations(string identifier) => new(
-                TextSpan,
+            public Diagnostic NamespaceMultipleDeclarations(string identifier) => CoreError(
                 "BCP207",
                 $"Namespace \"{identifier}\" is declared multiple times. Remove the duplicates.");
 
-            public ErrorDiagnostic UnknownResourceReferenceScheme(string badNamespace, IEnumerable<string> allowedNamespaces) => new(
-                TextSpan,
+            public Diagnostic UnknownResourceReferenceScheme(string badNamespace, IEnumerable<string> allowedNamespaces) => CoreError(
                 "BCP208",
                 $"The specified namespace \"{badNamespace}\" is not recognized. Specify a resource reference using one of the following namespaces: {ToQuotedString(allowedNamespaces)}.");
 
-            public ErrorDiagnostic FailedToFindResourceTypeInNamespace(string @namespace, string resourceType) => new(
-                TextSpan,
+            public Diagnostic FailedToFindResourceTypeInNamespace(string @namespace, string resourceType) => CoreError(
                 "BCP209",
                 $"Failed to find resource type \"{resourceType}\" in namespace \"{@namespace}\".");
 
-            public ErrorDiagnostic ParentResourceInDifferentNamespace(string childNamespace, string parentNamespace) => new(
-                TextSpan,
+            public Diagnostic ParentResourceInDifferentNamespace(string childNamespace, string parentNamespace) => CoreError(
                 "BCP210",
                 $"Resource type belonging to namespace \"{childNamespace}\" cannot have a parent resource type belonging to different namespace \"{parentNamespace}\".");
 
-            public ErrorDiagnostic InvalidModuleAliasName(string aliasName) => new(
-                TextSpan,
+            public Diagnostic InvalidModuleAliasName(string aliasName) => CoreError(
                 "BCP211",
                 $"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public ErrorDiagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => new(
-                TextSpan,
+            public Diagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => CoreError(
                 "BCP212",
                 $"The Template Spec module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
-            public ErrorDiagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => new(
-                TextSpan,
+            public Diagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => CoreError(
                 "BCP213",
                 $"The OCI artifact module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
-            public ErrorDiagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, Uri? configFileUri) => new(
-                TextSpan,
+            public Diagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
                 "BCP214",
                 $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is in valid. The \"subscription\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, Uri? configFileUri) => new(
-                TextSpan,
+            public Diagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
                 "BCP215",
                 $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is in valid. The \"resourceGroup\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => new(
-                TextSpan,
+            public Diagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
                 "BCP216",
                 $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidSubscirptionId(string? aliasName, string subscriptionId, string referenceValue) => new(
-                TextSpan,
+            public Diagnostic InvalidTemplateSpecReferenceInvalidSubscriptionId(string? aliasName, string subscriptionId, string referenceValue) => CoreError(
                 "BCP217",
                 $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The subscription ID \"{subscriptionId}\" in is not a GUID.");
 
-            public ErrorDiagnostic InvalidTemplateSpecReferenceResourceGroupNameTooLong(string? aliasName, string resourceGroupName, string referenceValue, int maximumLength) => new(
-                TextSpan,
+            public Diagnostic InvalidTemplateSpecReferenceResourceGroupNameTooLong(string? aliasName, string resourceGroupName, string referenceValue, int maximumLength) => CoreError(
                 "BCP218",
                 $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The resource group name \"{resourceGroupName}\" exceeds the maximum length of {maximumLength} characters.");
 
-            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidResourceGroupName(string? aliasName, string resourceGroupName, string referenceValue) => new(
-                TextSpan,
+            public Diagnostic InvalidTemplateSpecReferenceInvalidResourceGroupName(string? aliasName, string resourceGroupName, string referenceValue) => CoreError(
                 "BCP219",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The resource group name \"{resourceGroupName}\" is invalid. Valid characters are alphanumeric, unicode charaters, \".\", \"_\", \"-\", \"(\", or \")\", but the resource group name cannot end with \".\".");
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The resource group name \"{resourceGroupName}\" is invalid. Valid characters are alphanumeric, unicode characters, \".\", \"_\", \"-\", \"(\", or \")\", but the resource group name cannot end with \".\".");
 
-            public ErrorDiagnostic InvalidTemplateSpecReferenceTemplateSpecNameTooLong(string? aliasName, string templateSpecName, string referenceValue, int maximumLength) => new(
-                TextSpan,
+            public Diagnostic InvalidTemplateSpecReferenceTemplateSpecNameTooLong(string? aliasName, string templateSpecName, string referenceValue, int maximumLength) => CoreError(
                 "BCP220",
                 $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec name \"{templateSpecName}\" exceeds the maximum length of {maximumLength} characters.");
 
-            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecName(string? aliasName, string templateSpecName, string referenceValue) => new(
-                TextSpan,
+            public Diagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecName(string? aliasName, string templateSpecName, string referenceValue) => CoreError(
                 "BCP221",
                 $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec name \"{templateSpecName}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\".");
 
-            public ErrorDiagnostic InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(string? aliasName, string templateSpecVersion, string referenceValue, int maximumLength) => new(
-                TextSpan,
+            public Diagnostic InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(string? aliasName, string templateSpecVersion, string referenceValue, int maximumLength) => CoreError(
                 "BCP222",
                 $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec version \"{templateSpecVersion}\" exceeds the maximum length of {maximumLength} characters.");
 
-            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(string? aliasName, string templateSpecVersion, string referenceValue) => new(
-                TextSpan,
+            public Diagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(string? aliasName, string templateSpecVersion, string referenceValue) => CoreError(
                 "BCP223",
                 $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec version \"{templateSpecVersion}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\".");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceInvalidDigest(string? aliasName, string badRef, string badDigest) => new(
-                TextSpan,
+            public Diagnostic InvalidOciArtifactReferenceInvalidDigest(string? aliasName, string badRef, string badDigest) => CoreError(
                 "BCP224",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The digest \"{badDigest}\" is not valid. The valid format is a string \"sha256:\" followed by exactly 64 lowercase hexadecimal digits.");
 
-            public Diagnostic AmbiguousDiscriminatorPropertyValue(string propertyName) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic AmbiguousDiscriminatorPropertyValue(string propertyName) => CoreWarning(
                 "BCP225",
                 $"The discriminator property \"{propertyName}\" value cannot be determined at compilation time. Type checking for this object is disabled.");
 
-            public ErrorDiagnostic MissingDiagnosticCodes() => new(
-                TextSpan,
+            public Diagnostic MissingDiagnosticCodes() => CoreError(
                 "BCP226",
                 "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
             );
 
-            public ErrorDiagnostic UnsupportedResourceTypeParameterOrOutputType(string resourceType) => new(
-                TextSpan,
+            public Diagnostic UnsupportedResourceTypeParameterOrOutputType(string resourceType) => CoreError(
                 "BCP227",
                 $"The type \"{resourceType}\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs.");
 
-            public ErrorDiagnostic InvalidResourceScopeCannotBeResourceTypeParameter(string parameterName) => new(
-                TextSpan,
+            public Diagnostic InvalidResourceScopeCannotBeResourceTypeParameter(string parameterName) => CoreError(
                 "BCP229",
                 $"The parameter \"{parameterName}\" cannot be used as a resource scope or parent. Resources passed as parameters cannot be used as a scope or parent of a resource.");
 
-            public Diagnostic ModuleParamOrOutputResourceTypeUnavailable(ResourceTypeReference resourceTypeReference) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic ModuleParamOrOutputResourceTypeUnavailable(ResourceTypeReference resourceTypeReference) => CoreWarning(
                 "BCP230",
                 $"The referenced module uses resource type \"{resourceTypeReference.FormatName()}\" which does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.");
 
-            public ErrorDiagnostic ParamOrOutputResourceTypeUnsupported() => new(
-                TextSpan,
+            public Diagnostic ParamOrOutputResourceTypeUnsupported() => CoreError(
                 "BCP231",
                 $@"Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceTypedParamsAndOutputs)}"".");
 
-            public ErrorDiagnostic ArtifactDeleteFailed(string moduleRef) => new(
-                TextSpan,
+            public Diagnostic ArtifactDeleteFailed(string moduleRef) => CoreError(
                 "BCP232",
                 $"Unable to delete the module with reference \"{moduleRef}\" from cache.");
 
-            public ErrorDiagnostic ArtifactDeleteFailedWithMessage(string moduleRef, string message) => new(
-                TextSpan,
+            public Diagnostic ArtifactDeleteFailedWithMessage(string moduleRef, string message) => CoreError(
                 "BCP233",
                 $"Unable to delete the module with reference \"{moduleRef}\" from cache: {message}");
 
-            public Diagnostic ArmFunctionLiteralTypeConversionFailedWithMessage(string literalValue, string armFunctionName, string message) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic ArmFunctionLiteralTypeConversionFailedWithMessage(string literalValue, string armFunctionName, string message) => CoreWarning(
                 "BCP234",
                 $"The ARM function \"{armFunctionName}\" failed when invoked on the value [{literalValue}]: {message}");
 
-            public ErrorDiagnostic NoJsonTokenOnPathOrPathInvalid() => new(
-                TextSpan,
+            public Diagnostic NoJsonTokenOnPathOrPathInvalid() => CoreError(
                 "BCP235",
                 $"Specified JSONPath does not exist in the given file or is invalid.");
 
-            public ErrorDiagnostic ExpectedNewLineOrCommaSeparator() => new(
-                TextSpan,
+            public Diagnostic ExpectedNewLineOrCommaSeparator() => CoreError(
                 "BCP236",
                 "Expected a new line or comma character at this location.");
 
-            public ErrorDiagnostic ExpectedCommaSeparator() => new(
-                TextSpan,
+            public Diagnostic ExpectedCommaSeparator() => CoreError(
                 "BCP237",
                 "Expected a comma character at this location.");
 
-            public ErrorDiagnostic UnexpectedNewLineAfterCommaSeparator() => new(
-                TextSpan,
+            public Diagnostic UnexpectedNewLineAfterCommaSeparator() => CoreError(
                 "BCP238",
                 "Unexpected new line character after a comma.");
 
-            public ErrorDiagnostic ReservedIdentifier(string name) => new(
-                TextSpan,
+            public Diagnostic ReservedIdentifier(string name) => CoreError(
                 "BCP239",
                 $"Identifier \"{name}\" is a reserved Bicep symbol name and cannot be used in this context.");
 
-            public ErrorDiagnostic InvalidValueForParentProperty() => new(
-                TextSpan,
+            public Diagnostic InvalidValueForParentProperty() => CoreError(
                 "BCP240",
                 "The \"parent\" property only permits direct references to resources. Expressions are not supported.");
 
-            public Diagnostic DeprecatedProvidersFunction(string functionName) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic DeprecatedProvidersFunction(string functionName) => CoreWarning(
                 "BCP241",
-                $"The \"{functionName}\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow.",
-                styling: DiagnosticStyling.ShowCodeDeprecated);
+                $"The \"{functionName}\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow.")
+                with { Styling = DiagnosticStyling.ShowCodeDeprecated };
 
-            public ErrorDiagnostic LambdaFunctionsOnlyValidInFunctionArguments() => new(
-                TextSpan,
+            public Diagnostic LambdaFunctionsOnlyValidInFunctionArguments() => CoreError(
                 "BCP242",
                 $"Lambda functions may only be specified directly as function arguments.");
 
-            public ErrorDiagnostic ParenthesesMustHaveExactlyOneItem() => new(
-                TextSpan,
+            public Diagnostic ParenthesesMustHaveExactlyOneItem() => CoreError(
                 "BCP243",
                 "Parentheses must contain exactly one expression.");
 
-            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int minArgCount, int maxArgCount, int actualArgCount) => new(
-                TextSpan,
+            public Diagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int minArgCount, int maxArgCount, int actualArgCount) => CoreError(
                 "BCP244",
                 minArgCount == maxArgCount ?
                     $"Expected lambda expression of type \"{lambdaType}\" with {minArgCount} arguments but received {actualArgCount} arguments." :
                     $"Expected lambda expression of type \"{lambdaType}\" with between {minArgCount} and {maxArgCount} arguments but received {actualArgCount} arguments.");
 
-            public Diagnostic ResourceTypeIsReadonly(ResourceTypeReference resourceTypeReference) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic ResourceTypeIsReadonly(ResourceTypeReference resourceTypeReference) => CoreWarning(
                 "BCP245",
                 $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword.");
 
-            public Diagnostic ResourceTypeIsReadonlyAtScope(ResourceTypeReference resourceTypeReference, ResourceScope writableScopes) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic ResourceTypeIsReadonlyAtScope(ResourceTypeReference resourceTypeReference, ResourceScope writableScopes) => CoreWarning(
                 "BCP246",
                 $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword at the requested scope."
                     + $" Permitted scopes for deployment: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(writableScopes))}.");
 
-            public ErrorDiagnostic LambdaVariablesInResourceOrModuleArrayAccessUnsupported(IEnumerable<string> variableNames) => new(
-                TextSpan,
+            public Diagnostic LambdaVariablesInResourceOrModuleArrayAccessUnsupported(IEnumerable<string> variableNames) => CoreError(
                 "BCP247",
                 $"Using lambda variables inside resource or module array access is not currently supported."
                     + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
 
-            public ErrorDiagnostic LambdaVariablesInInlineFunctionUnsupported(string functionName, IEnumerable<string> variableNames) => new(
-                TextSpan,
+            public Diagnostic LambdaVariablesInInlineFunctionUnsupported(string functionName, IEnumerable<string> variableNames) => CoreError(
                 "BCP248",
                 $"Using lambda variables inside the \"{functionName}\" function is not currently supported."
                     + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
 
-            public ErrorDiagnostic ExpectedLoopVariableBlockWith2Elements(int actualCount) => new(
-                TextSpan,
+            public Diagnostic ExpectedLoopVariableBlockWith2Elements(int actualCount) => CoreError(
                 "BCP249",
                 $"Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found {actualCount}.");
 
-            public ErrorDiagnostic ParameterMultipleAssignments(string identifier) => new(
-                TextSpan,
+            public Diagnostic ParameterMultipleAssignments(string identifier) => CoreError(
                 "BCP250",
                 $"Parameter \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
 
-            public ErrorDiagnostic UsingPathHasNotBeenSpecified() => new(
-                TextSpan,
+            public Diagnostic UsingPathHasNotBeenSpecified() => CoreError(
                 "BCP256",
                 "The using declaration is missing a bicep template file path reference.");
 
-            public ErrorDiagnostic ExpectedFilePathString() => new(
-                TextSpan,
+            public Diagnostic ExpectedFilePathString() => CoreError(
                 "BCP257",
                 "Expected a Bicep file path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
 
-            public IDiagnostic MissingParameterAssignment(IEnumerable<string> identifiers, CodeFix insertMissingCodefix)
-            {
-                return new FixableDiagnostic(
-                    TextSpan,
-                    DiagnosticLevel.Error,
-                    "BCP258",
-                    $"The following parameters are declared in the Bicep file but are missing an assignment in the params file: {ToQuotedString(identifiers)}.",
-                    documentationUri: null,
-                    DiagnosticStyling.Default,
-                    insertMissingCodefix);
-            }
+            public IDiagnostic MissingParameterAssignment(IEnumerable<string> identifiers, CodeFix insertMissingCodefix) => CoreError(
+                "BCP258",
+                $"The following parameters are declared in the Bicep file but are missing an assignment in the params file: {ToQuotedString(identifiers)}.")
+                with { Fixes = [insertMissingCodefix] };
 
-            public ErrorDiagnostic MissingParameterDeclaration(string? identifier) => new(
-                TextSpan,
+            public Diagnostic MissingParameterDeclaration(string? identifier) => CoreError(
                 "BCP259",
                 $"The parameter \"{identifier}\" is assigned in the params file without being declared in the Bicep file.");
 
-            public ErrorDiagnostic ParameterTypeMismatch(string? identifier, TypeSymbol expectedType, TypeSymbol actualType) => new(
-                TextSpan,
+            public Diagnostic ParameterTypeMismatch(string? identifier, TypeSymbol expectedType, TypeSymbol actualType) => CoreError(
                 "BCP260",
                 $"The parameter \"{identifier}\" expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
-            public ErrorDiagnostic UsingDeclarationNotSpecified() => new(
-                TextSpan,
+            public Diagnostic UsingDeclarationNotSpecified() => CoreError(
                 "BCP261",
                 "A using declaration must be present in this parameters file.");
 
-            public ErrorDiagnostic MoreThanOneUsingDeclarationSpecified() => new(
-                TextSpan,
+            public Diagnostic MoreThanOneUsingDeclarationSpecified() => CoreError(
                 "BCP262",
                 "More than one using declaration are present");
 
-            public ErrorDiagnostic UsingDeclarationReferencesInvalidFile() => new(
-                TextSpan,
+            public Diagnostic UsingDeclarationReferencesInvalidFile() => CoreError(
                 "BCP263",
                 "The file specified in the using declaration path does not exist");
 
-            public ErrorDiagnostic AmbiguousResourceTypeBetweenImports(string resourceTypeName, IEnumerable<string> namespaces) => new(
-                TextSpan,
+            public Diagnostic AmbiguousResourceTypeBetweenImports(string resourceTypeName, IEnumerable<string> namespaces) => CoreError(
                 "BCP264",
                 $"Resource type \"{resourceTypeName}\" is declared in multiple imported namespaces ({ToQuotedStringWithCaseInsensitiveOrdering(namespaces)}), and must be fully-qualified.");
 
-            public FixableErrorDiagnostic SymbolicNameShadowsAKnownFunction(string name, string knownFunctionNamespace, string knownFunctionName) => new(
-                TextSpan,
+            public Diagnostic SymbolicNameShadowsAKnownFunction(string name, string knownFunctionNamespace, string knownFunctionName) => CoreError(
                 "BCP265",
-                $"The name \"{name}\" is not a function. Did you mean \"{knownFunctionNamespace}.{knownFunctionName}\"?",
-                null,
-                DiagnosticStyling.Default,
-                new CodeFix($"Change \"{name}\" to \"{knownFunctionNamespace}.{knownFunctionName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, $"{knownFunctionNamespace}.{knownFunctionName}")));
+                $"The name \"{name}\" is not a function. Did you mean \"{knownFunctionNamespace}.{knownFunctionName}\"?")
+                with { Fixes = [
+                    new CodeFix($"Change \"{name}\" to \"{knownFunctionNamespace}.{knownFunctionName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, $"{knownFunctionNamespace}.{knownFunctionName}"))
+                ]};
 
-            public ErrorDiagnostic ExpectedMetadataIdentifier() => new(
-                TextSpan,
+            public Diagnostic ExpectedMetadataIdentifier() => CoreError(
                 "BCP266",
                 "Expected a metadata identifier at this location.");
 
-            public ErrorDiagnostic ExpectedMetadataDeclarationAfterDecorator() => new(
-                TextSpan,
+            public Diagnostic ExpectedMetadataDeclarationAfterDecorator() => CoreError(
                 "BCP267",
                 "Expected an metadata declaration after the decorator.");
 
-            public ErrorDiagnostic ReservedMetadataIdentifier(string name) => new(
-                TextSpan,
+            public Diagnostic ReservedMetadataIdentifier(string name) => CoreError(
                 "BCP268",
                 $"Invalid identifier: \"{name}\". Metadata identifiers starting with '_' are reserved. Please use a different identifier.");
 
-            public ErrorDiagnostic CannotUseFunctionAsMetadataDecorator(string functionName) => new(
-                TextSpan,
+            public Diagnostic CannotUseFunctionAsMetadataDecorator(string functionName) => CoreError(
                 "BCP269",
                 $"Function \"{functionName}\" cannot be used as a metadata decorator.");
 
-            public ErrorDiagnostic UnparsableBicepConfigFile(string configurationPath, string parsingErrorMessage) => new(
-                TextSpan,
+            public Diagnostic UnparsableBicepConfigFile(string configurationPath, string parsingErrorMessage) => CoreError(
                 "BCP271",
                 $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: {parsingErrorMessage.TrimEnd('.')}.");
 
-            public ErrorDiagnostic UnloadableBicepConfigFile(string configurationPath, string loadErrorMessage) => new(
-                TextSpan,
+            public Diagnostic UnloadableBicepConfigFile(string configurationPath, string loadErrorMessage) => CoreError(
                 "BCP272",
                 $"Could not load the Bicep configuration file \"{configurationPath}\": {loadErrorMessage.TrimEnd('.')}.");
 
-            public ErrorDiagnostic InvalidBicepConfigFile(string configurationPath, string parsingErrorMessage) => new(
-                TextSpan,
+            public Diagnostic InvalidBicepConfigFile(string configurationPath, string parsingErrorMessage) => CoreError(
                 "BCP273",
                 $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {parsingErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(string? directoryPath, string scanErrorMessage) => new(
-                TextSpan,
+            public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(string? directoryPath, string scanErrorMessage) => CoreDiagnostic(
                 DiagnosticLevel.Info, // should this be a warning instead?
                 "BCP274",
                 $"Error scanning \"{directoryPath}\" for bicep configuration: {scanErrorMessage.TrimEnd('.')}.");
 
-            public ErrorDiagnostic FoundDirectoryInsteadOfFile(string directoryPath) => new(
-                TextSpan,
+            public Diagnostic FoundDirectoryInsteadOfFile(string directoryPath) => CoreError(
                 "BCP275",
                 $"Unable to open file at path \"{directoryPath}\". Found a directory instead.");
 
-            public ErrorDiagnostic UsingDeclarationMustReferenceBicepFile() => new(
-                TextSpan,
+            public Diagnostic UsingDeclarationMustReferenceBicepFile() => CoreError(
                 "BCP276",
                 "A using declaration can only reference a Bicep file.");
 
-            public ErrorDiagnostic ModuleDeclarationMustReferenceBicepModule() => new(
-                TextSpan,
+            public Diagnostic ModuleDeclarationMustReferenceBicepModule() => CoreError(
                 "BCP277",
                 "A module declaration can only reference a Bicep File, an ARM template, a registry reference or a template spec reference.");
 
-            public ErrorDiagnostic CyclicParametersSelfReference() => new(
-                TextSpan,
+            public Diagnostic CyclicParametersSelfReference() => CoreError(
                 "BCP278",
                 "This parameters file references itself, which is not allowed.");
 
-            public ErrorDiagnostic UnrecognizedTypeExpression() => new(
-                TextSpan,
+            public Diagnostic UnrecognizedTypeExpression() => CoreError(
                 "BCP279",
                 $"Expected a type at this location. Please specify a valid type expression or one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
 
-            public ErrorDiagnostic TypeExpressionLiteralConversionFailed() => new(
-                TextSpan,
+            public Diagnostic TypeExpressionLiteralConversionFailed() => CoreError(
                 "BCP285",
                 "The type expression could not be reduced to a literal value.");
 
-            public ErrorDiagnostic InvalidUnionTypeMember(string keystoneType) => new(
-                TextSpan,
+            public Diagnostic InvalidUnionTypeMember(string keystoneType) => CoreError(
                 "BCP286",
                 $"This union member is invalid because it cannot be assigned to the '{keystoneType}' type.");
 
-            public ErrorDiagnostic ValueSymbolUsedAsType(string symbolName) => new(
-                TextSpan,
+            public Diagnostic ValueSymbolUsedAsType(string symbolName) => CoreError(
                 "BCP287",
                 // TODO: Add "Did you mean 'typeof({symbolName})'?" When support for typeof has been added.
                 $"'{symbolName}' refers to a value but is being used as a type here.");
 
-            public ErrorDiagnostic TypeSymbolUsedAsValue(string symbolName) => new(
-                TextSpan,
+            public Diagnostic TypeSymbolUsedAsValue(string symbolName) => CoreError(
                 "BCP288",
                 $"'{symbolName}' refers to a type but is being used as a value here.");
 
-            public ErrorDiagnostic InvalidTypeDefinition() => new(
-                TextSpan,
+            public Diagnostic InvalidTypeDefinition() => CoreError(
                 "BCP289",
                 $"The type definition is not valid.");
 
-            public ErrorDiagnostic ExpectedParameterOrTypeDeclarationAfterDecorator() => new(
-                TextSpan,
+            public Diagnostic ExpectedParameterOrTypeDeclarationAfterDecorator() => CoreError(
                 "BCP290",
                 "Expected a parameter or type declaration after the decorator.");
 
-            public ErrorDiagnostic ExpectedParameterOrOutputDeclarationAfterDecorator() => new(
-                TextSpan,
+            public Diagnostic ExpectedParameterOrOutputDeclarationAfterDecorator() => CoreError(
                 "BCP291",
                 "Expected a parameter or output declaration after the decorator.");
 
-            public ErrorDiagnostic ExpectedParameterOutputOrTypeDeclarationAfterDecorator() => new(
-                TextSpan,
+            public Diagnostic ExpectedParameterOutputOrTypeDeclarationAfterDecorator() => CoreError(
                 "BCP292",
                 "Expected a parameter, output, or type declaration after the decorator.");
 
-            public ErrorDiagnostic NonLiteralUnionMember() => new(
-                TextSpan,
+            public Diagnostic NonLiteralUnionMember() => CoreError(
                 "BCP293",
                 "All members of a union type declaration must be literal values.");
 
-            public ErrorDiagnostic InvalidTypeUnion() => new(
-                TextSpan,
+            public Diagnostic InvalidTypeUnion() => CoreError(
                 "BCP294",
-                "Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool').");
+                "Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool').");
 
-            public ErrorDiagnostic DecoratorNotPermittedOnLiteralType(string decoratorName) => new(
-                TextSpan,
+            public Diagnostic DecoratorNotPermittedOnLiteralType(string decoratorName) => CoreError(
                 "BCP295",
                 $"The '{decoratorName}' decorator may not be used on targets of a union or literal type. The allowed values for this parameter or type definition will be derived from the union or literal type automatically.");
 
-            public ErrorDiagnostic NonConstantTypeProperty() => new(
-                TextSpan,
+            public Diagnostic NonConstantTypeProperty() => CoreError(
                 "BCP296",
                 "Property names on types must be compile-time constant values.");
 
-            public ErrorDiagnostic CannotUseFunctionAsTypeDecorator(string functionName) => new(
-                TextSpan,
+            public Diagnostic CannotUseFunctionAsTypeDecorator(string functionName) => CoreError(
                 "BCP297",
                 $"Function \"{functionName}\" cannot be used as a type decorator.");
 
-            public ErrorDiagnostic CyclicTypeSelfReference() => new(
-                TextSpan,
+            public Diagnostic CyclicTypeSelfReference() => CoreError(
                 "BCP298",
                 "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
 
-            public ErrorDiagnostic CyclicType(IEnumerable<string> cycle) => new(
-                TextSpan,
+            public Diagnostic CyclicType(IEnumerable<string> cycle) => CoreError(
                 "BCP299",
                 $"This type definition includes itself as a required component via a cycle (\"{string.Join("\" -> \"", cycle)}\").");
 
-            public ErrorDiagnostic ExpectedTypeLiteral() => new(
-                TextSpan,
+            public Diagnostic ExpectedTypeLiteral() => CoreError(
                 "BCP300",
                 $"Expected a type literal at this location. Please specify a concrete value or a reference to a literal type.");
 
-            public ErrorDiagnostic ReservedTypeName(string reservedName) => new(
-                TextSpan,
+            public Diagnostic ReservedTypeName(string reservedName) => CoreError(
                 "BCP301",
                 $@"The type name ""{reservedName}"" is reserved and may not be attached to a user-defined type.");
 
-            public ErrorDiagnostic SymbolicNameIsNotAType(string name, IEnumerable<string> validTypes) => new(
-                TextSpan,
+            public Diagnostic SymbolicNameIsNotAType(string name, IEnumerable<string> validTypes) => CoreError(
                 "BCP302",
                 $@"The name ""{name}"" is not a valid type. Please specify one of the following types: {ToQuotedString(validTypes)}.");
 
-            public ErrorDiagnostic ProviderSpecificationInterpolationUnsupported() => new(
-                TextSpan,
+            public Diagnostic ExtensionSpecificationInterpolationUnsupported() => CoreError(
                 "BCP303",
-                "String interpolation is unsupported for specifying the provider.");
+                "String interpolation is unsupported for specifying the extension.");
 
-            public ErrorDiagnostic InvalidProviderSpecification() => new(
-                TextSpan,
-                "BCP304",
-                "Invalid provider specifier string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
-
-            public ErrorDiagnostic ExpectedWithOrAsKeywordOrNewLine() => new(
-                TextSpan,
+            public Diagnostic ExpectedWithOrAsKeywordOrNewLine() => CoreError(
                 "BCP305",
                 $"Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location.");
 
-            public ErrorDiagnostic NamespaceSymbolUsedAsType(string name) => new(
-                TextSpan,
+            public Diagnostic NamespaceSymbolUsedAsType(string name) => CoreError(
                 "BCP306",
                 $@"The name ""{name}"" refers to a namespace, not to a type.");
 
-            public ErrorDiagnostic NestedRuntimePropertyAccessNotSupported(string? resourceSymbol, IEnumerable<string> runtimePropertyNames, IEnumerable<string> accessiblePropertyNames, IEnumerable<string> accessibleFunctionNames)
+            public Diagnostic NestedRuntimePropertyAccessNotSupported(string? resourceSymbol, IEnumerable<string> runtimePropertyNames, IEnumerable<string> accessiblePropertyNames, IEnumerable<string> accessibleFunctionNames)
             {
                 var accessiblePropertyNamesClause = accessiblePropertyNames.Any() ? @$" the accessible properties of ""{resourceSymbol}"" include {ToQuotedString(accessiblePropertyNames.OrderBy(x => x))}." : "";
                 var accessibleFunctionNamesClause = accessibleFunctionNames.Any() ? @$" The accessible functions of ""{resourceSymbol}"" include {ToQuotedString(accessibleFunctionNames.OrderBy(x => x))}." : "";
 
-                return new(
-                    TextSpan,
+                return CoreError(
                     "BCP307",
                     $"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment. In this situation,{accessiblePropertyNamesClause}{accessibleFunctionNamesClause}");
             }
 
-            public ErrorDiagnostic DecoratorMayNotTargetTypeAlias(string decoratorName) => new(
-                TextSpan,
+            public Diagnostic DecoratorMayNotTargetTypeAlias(string decoratorName) => CoreError(
                 "BCP308",
                 $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a user-defined type.");
 
-            public ErrorDiagnostic ValueCannotBeFlattened(TypeSymbol flattenInputType, TypeSymbol incompatibleType) => new(
-                TextSpan,
+            public Diagnostic ValueCannotBeFlattened(TypeSymbol flattenInputType, TypeSymbol incompatibleType) => CoreError(
                 "BCP309",
                 $@"Values of type ""{flattenInputType.Name}"" cannot be flattened because ""{incompatibleType.Name}"" is not an array type.");
 
-            public ErrorDiagnostic IndexOutOfBounds(string typeName, long tupleLength, long indexSought)
+            public Diagnostic IndexOutOfBounds(string typeName, long tupleLength, long indexSought)
             {
                 var message = new StringBuilder("The provided index value of \"").Append(indexSought).Append("\" is not valid for type \"").Append(typeName).Append("\".");
                 if (tupleLength > 0)
@@ -1745,37 +1434,34 @@ namespace Bicep.Core.Diagnostics
                     message.Append(" Indexes for this type must be between 0 and ").Append(tupleLength - 1).Append('.');
                 }
 
-                return new(TextSpan, "BCP311", message.ToString());
+                return CoreError(
+                    "BCP311",
+                    message.ToString());
             }
 
-            public ErrorDiagnostic MultipleAdditionalPropertiesDeclarations() => new(
-                TextSpan,
+            public Diagnostic MultipleAdditionalPropertiesDeclarations() => CoreError(
                 "BCP315",
                 "An object type may have at most one additional properties declaration.");
 
-            public ErrorDiagnostic SealedIncompatibleWithAdditionalPropertiesDeclaration() => new(
-                TextSpan,
+            public Diagnostic SealedIncompatibleWithAdditionalPropertiesDeclaration() => CoreError(
                 "BCP316",
                 $@"The ""{LanguageConstants.ParameterSealedPropertyName}"" decorator may not be used on object types with an explicit additional properties type declaration.");
 
-            public ErrorDiagnostic ExpectedPropertyNameOrMatcher() => new(
-                TextSpan,
+            public Diagnostic ExpectedPropertyNameOrMatcher() => CoreError(
                 "BCP317",
                 "Expected an identifier, a string, or an asterisk at this location.");
 
-            public FixableDiagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, AccessExpressionSyntax accessExpression) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, AccessExpressionSyntax accessExpression) => CoreWarning(
                 "BCP318",
-                $@"The value of type ""{possiblyNullType}"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.",
-                null,
-                DiagnosticStyling.Default,
-                new(
-                    "If you do not know whether the value will be null and the template would handle a null value for the overall expression, use a `.?` (safe dereference) operator to short-circuit the access expression if the base expression's value is null",
-                    true,
-                    CodeFixKind.QuickFix,
-                    new(accessExpression.Span, accessExpression.AsSafeAccess().ToString())),
-                AsNonNullable(accessExpression.BaseExpression));
+                $@"The value of type ""{possiblyNullType}"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.")
+                with { Fixes = [
+                    new(
+                        "If you do not know whether the value will be null and the template would handle a null value for the overall expression, use a `.?` (safe dereference) operator to short-circuit the access expression if the base expression's value is null",
+                        true,
+                        CodeFixKind.QuickFix,
+                        new(accessExpression.Span, accessExpression.AsSafeAccess().ToString())),
+                    AsNonNullable(accessExpression.BaseExpression),
+                ]};
 
             private static CodeFix AsNonNullable(SyntaxBase expression) => new(
                 "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
@@ -1783,300 +1469,238 @@ namespace Bicep.Core.Diagnostics
                 CodeFixKind.QuickFix,
                 new(expression.Span, SyntaxFactory.AsNonNullable(expression).ToString()));
 
-            public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
-                TextSpan,
+            public Diagnostic UnresolvableArmJsonType(string errorSource, string message) => CoreError(
                 "BCP319",
                 $@"The type at ""{errorSource}"" could not be resolved by the ARM JSON template engine. Original error message: ""{message}""");
 
-            public ErrorDiagnostic ModuleOutputResourcePropertyAccessDetected() => new(
-                TextSpan,
+            public Diagnostic ModuleOutputResourcePropertyAccessDetected() => CoreError(
                 "BCP320",
                 "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein.");
 
-            public FixableDiagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => CoreWarning(
                 "BCP321",
-                $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".",
-                documentationUri: null,
-                styling: DiagnosticStyling.Default,
-                fix: AsNonNullable(expression));
+                $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".")
+                with { Fixes = [AsNonNullable(expression)] };
 
-            public ErrorDiagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => new(
-                TextSpan,
+            public Diagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => CoreError(
                 "BCP322",
                 "The `.?` (safe dereference) operator may not be used on instance function invocations.");
 
-            public ErrorDiagnostic SafeDereferenceNotPermittedOnResourceCollections() => new(
-                TextSpan,
+            public Diagnostic SafeDereferenceNotPermittedOnResourceCollections() => CoreError(
                 "BCP323",
                 "The `[?]` (safe dereference) operator may not be used on resource or module collections.");
 
-            public ErrorDiagnostic ExpectedTypeIdentifier() => new(
-                TextSpan,
+            public Diagnostic ExpectedTypeIdentifier() => CoreError(
                 "BCP325",
                 "Expected a type identifier at this location.");
 
-            public ErrorDiagnostic NullableTypedParamsMayNotHaveDefaultValues() => new(
-                TextSpan,
+            public Diagnostic NullableTypedParamsMayNotHaveDefaultValues() => CoreError(
                 "BCP326",
                 "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden.");
 
-            public Diagnostic SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(bool warnInsteadOfError, long sourceMin, long targetMax) => new(
-                TextSpan,
+            public Diagnostic SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(bool warnInsteadOfError, long sourceMin, long targetMax) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP327",
                 $"The provided value (which will always be greater than or equal to {sourceMin}) is too large to assign to a target for which the maximum allowable value is {targetMax}.");
 
-            public Diagnostic SourceIntDomainDisjointFromTargetIntDomain_SourceLow(bool warnInsteadOfError, long sourceMax, long targetMin) => new(
-                TextSpan,
+            public Diagnostic SourceIntDomainDisjointFromTargetIntDomain_SourceLow(bool warnInsteadOfError, long sourceMax, long targetMin) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP328",
                 $"The provided value (which will always be less than or equal to {sourceMax}) is too small to assign to a target for which the minimum allowable value is {targetMin}.");
 
-            public Diagnostic SourceIntDomainExtendsBelowTargetIntDomain(long sourceMin, long targetMin) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic SourceIntDomainExtendsBelowTargetIntDomain(long sourceMin, long targetMin) => CoreWarning(
                 "BCP329",
                 $"The provided value can be as small as {sourceMin} and may be too small to assign to a target with a configured minimum of {targetMin}.");
 
-            public Diagnostic SourceIntDomainExtendsAboveTargetIntDomain(long sourceMax, long targetMax) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic SourceIntDomainExtendsAboveTargetIntDomain(long sourceMax, long targetMax) => CoreWarning(
                 "BCP330",
                 $"The provided value can be as large as {sourceMax} and may be too large to assign to a target with a configured maximum of {targetMax}.");
 
-            public ErrorDiagnostic MinMayNotExceedMax(string minDecoratorName, long minValue, string maxDecoratorName, long maxValue) => new(
-                TextSpan,
+            public Diagnostic MinMayNotExceedMax(string minDecoratorName, long minValue, string maxDecoratorName, long maxValue) => CoreError(
                 "BCP331",
                 $@"A type's ""{minDecoratorName}"" must be less than or equal to its ""{maxDecoratorName}"", but a minimum of {minValue} and a maximum of {maxValue} were specified.");
 
-            public Diagnostic SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(bool warnInsteadOfError, long sourceMinLength, long targetMaxLength) => new(
-                TextSpan,
+            public Diagnostic SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(bool warnInsteadOfError, long sourceMinLength, long targetMaxLength) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP332",
                 $"The provided value (whose length will always be greater than or equal to {sourceMinLength}) is too long to assign to a target for which the maximum allowable length is {targetMaxLength}.");
 
-            public Diagnostic SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(bool warnInsteadOfError, long sourceMaxLength, long targetMinLength) => new(
-                TextSpan,
+            public Diagnostic SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(bool warnInsteadOfError, long sourceMaxLength, long targetMinLength) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP333",
                 $"The provided value (whose length will always be less than or equal to {sourceMaxLength}) is too short to assign to a target for which the minimum allowable length is {targetMinLength}.");
 
-            public Diagnostic SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(long sourceMinLength, long targetMinLength) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(long sourceMinLength, long targetMinLength) => CoreWarning(
                 "BCP334",
                 $"The provided value can have a length as small as {sourceMinLength} and may be too short to assign to a target with a configured minimum length of {targetMinLength}.");
 
-            public Diagnostic SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(long sourceMaxLength, long targetMaxLength) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(long sourceMaxLength, long targetMaxLength) => CoreWarning(
                 "BCP335",
                 $"The provided value can have a length as large as {sourceMaxLength} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
 
-            public ErrorDiagnostic UnrecognizedParamsFileDeclaration() => new(
-                TextSpan,
+            public Diagnostic UnrecognizedParamsFileDeclaration() => CoreError(
                 "BCP337",
                 $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"", ""{LanguageConstants.ExtendsKeyword}"", ""{LanguageConstants.ParameterKeyword}"" or ""{LanguageConstants.VariableKeyword}"" declaration.");
 
-            public ErrorDiagnostic FailedToEvaluateParameter(string parameterName, string message) => new(
-                TextSpan,
+            public Diagnostic FailedToEvaluateParameter(string parameterName, string message) => CoreError(
                 "BCP338",
                 $"Failed to evaluate parameter \"{parameterName}\": {message}");
 
-            public ErrorDiagnostic ArrayIndexOutOfBounds(long indexSought) => new(
-                TextSpan,
+            public Diagnostic ArrayIndexOutOfBounds(long indexSought) => CoreError(
                 "BCP339",
                 $"""The provided array index value of "{indexSought}" is not valid. Array index should be greater than or equal to 0.""");
 
-            public ErrorDiagnostic UnparseableYamlType() => new(
-               TextSpan,
-               "BCP340",
-               $"Unable to parse literal YAML value. Please ensure that it is well-formed.");
+            public Diagnostic UnparsableYamlType() => CoreError(
+                "BCP340",
+                $"Unable to parse literal YAML value. Please ensure that it is well-formed.");
 
-            public ErrorDiagnostic RuntimeValueNotAllowedInFunctionDeclaration(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            public Diagnostic RuntimeValueNotAllowedInFunctionDeclaration(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
                 var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
 
-                return new ErrorDiagnostic(
-                    TextSpan,
+                return CoreError(
                     "BCP341",
                     $"This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
-            public ErrorDiagnostic UserDefinedTypesNotAllowedInFunctionDeclaration() => new(
-                TextSpan,
+            public Diagnostic UserDefinedTypesNotAllowedInFunctionDeclaration() => CoreError(
                 "BCP342",
                 $"""User-defined types are not supported in user-defined function parameters or outputs.""");
 
-            public ErrorDiagnostic ExpectedAssertIdentifier() => new(
-                TextSpan,
+            public Diagnostic ExpectedAssertIdentifier() => CoreError(
                 "BCP344",
                 "Expected an assert identifier at this location.");
 
-            public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
-                TextSpan,
+            public Diagnostic TestDeclarationMustReferenceBicepTest() => CoreError(
                 "BCP345",
                 "A test declaration can only reference a Bicep File");
 
-            public ErrorDiagnostic ExpectedTestIdentifier() => new(
-                TextSpan,
-                "BCP0346",
+            public Diagnostic ExpectedTestIdentifier() => CoreError(
+                "BCP346",
                 "Expected a test identifier at this location.");
 
-            public ErrorDiagnostic ExpectedTestPathString() => new(
-                TextSpan,
-                "BCP0347",
+            public Diagnostic ExpectedTestPathString() => CoreError(
+                "BCP347",
                 "Expected a test path string at this location.");
-            public ErrorDiagnostic TestDeclarationStatementsUnsupported() => new(
-                TextSpan,
+            public Diagnostic TestDeclarationStatementsUnsupported() => CoreError(
                 "BCP348",
                 $@"Using a test declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.TestFramework)}"".");
 
-            public ErrorDiagnostic AssertsUnsupported() => new(
-                TextSpan,
+            public Diagnostic AssertsUnsupported() => CoreError(
                 "BCP349",
                 $@"Using an assert declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Assertions)}"".");
 
-            public ErrorDiagnostic InvalidAssertAssignment(TypeSymbol valueType) => new(
-                TextSpan,
+            public Diagnostic InvalidAssertAssignment(TypeSymbol valueType) => CoreError(
                 "BCP350",
                 $"Value of type \"{valueType}\" cannot be assigned to an assert. Asserts can take values of type 'bool' only.");
 
-            public ErrorDiagnostic FunctionOnlyValidWithDirectAssignment(string functionName) => new(
-                TextSpan,
+            public Diagnostic FunctionOnlyValidWithDirectAssignment(string functionName) => CoreError(
                 "BCP351",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a parameter.");
 
-            public ErrorDiagnostic FailedToEvaluateVariable(string name, string message) => new(
-                TextSpan,
+            public Diagnostic FailedToEvaluateVariable(string name, string message) => CoreError(
                 "BCP352",
                 $"Failed to evaluate variable \"{name}\": {message}");
 
-            public ErrorDiagnostic ItemsMustBeCaseInsensitivelyUnique(string itemTypePluralName, IEnumerable<string> itemNames) => new(
-                TextSpan,
+            public Diagnostic ItemsMustBeCaseInsensitivelyUnique(string itemTypePluralName, IEnumerable<string> itemNames) => CoreError(
                 "BCP353",
                 $"The {itemTypePluralName} {ToQuotedString(itemNames)} differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them.");
 
-            public ErrorDiagnostic ExpectedSymbolListOrWildcard() => new(
-                TextSpan,
+            public Diagnostic ExpectedSymbolListOrWildcard() => CoreError(
                 "BCP354",
                 "Expected left brace ('{') or asterisk ('*') character at this location.");
 
-            public ErrorDiagnostic ExpectedExportedSymbolName() => new(
-                TextSpan,
+            public Diagnostic ExpectedExportedSymbolName() => CoreError(
                 "BCP355",
                 "Expected the name of an exported symbol at this location.");
 
-            public ErrorDiagnostic ExpectedNamespaceIdentifier() => new(
-                TextSpan,
+            public Diagnostic ExpectedNamespaceIdentifier() => CoreError(
                 "BCP356",
                 "Expected a valid namespace identifier at this location.");
 
-            public ErrorDiagnostic PathHasNotBeenSpecified() => new(
-                TextSpan,
+            public Diagnostic PathHasNotBeenSpecified() => CoreError(
                 "BCP358",
                 "This declaration is missing a template file path reference.");
 
-            public ErrorDiagnostic ImportedSymbolNotFound(string symbolName) => new(
-                TextSpan,
+            public Diagnostic ImportedSymbolNotFound(string symbolName) => CoreError(
                 "BCP360",
                 $"The '{symbolName}' symbol was not found in (or was not exported by) the imported template.");
 
-            public ErrorDiagnostic ExportDecoratorMustTargetStatement() => new(
-                TextSpan,
+            public Diagnostic ExportDecoratorMustTargetStatement() => CoreError(
                 "BCP361",
                 @"The ""@export()"" decorator must target a top-level statement.");
 
-            public ErrorDiagnostic SymbolImportedMultipleTimes(params string[] importedAs) => new(
-                TextSpan,
+            public Diagnostic SymbolImportedMultipleTimes(params string[] importedAs) => CoreError(
                 "BCP362",
                 $"This symbol is imported multiple times under the names {string.Join(", ", importedAs.Select(identifier => $"'{identifier}'"))}.");
 
-            public ErrorDiagnostic DiscriminatorDecoratorOnlySupportedForObjectUnions() => new(
-                TextSpan,
+            public Diagnostic DiscriminatorDecoratorOnlySupportedForObjectUnions() => CoreError(
                 "BCP363",
                 $"The \"{LanguageConstants.TypeDiscriminatorDecoratorName}\" decorator can only be applied to object-only union types with unique member types.");
 
-            public ErrorDiagnostic DiscriminatorPropertyMustBeRequiredStringLiteral(string discriminatorPropertyName) => new(
-                TextSpan,
+            public Diagnostic DiscriminatorPropertyMustBeRequiredStringLiteral(string discriminatorPropertyName) => CoreError(
                 "BCP364",
                 $"The property \"{discriminatorPropertyName}\" must be a required string literal on all union member types.");
 
-            public ErrorDiagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string discriminatorPropertyValue) => new(
-                TextSpan,
+            public Diagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string discriminatorPropertyValue) => CoreError(
                 "BCP365",
                 $"The value \"{discriminatorPropertyValue}\" for discriminator property \"{discriminatorPropertyName}\" is duplicated across multiple union member types. The value must be unique across all union member types.");
 
-            public ErrorDiagnostic DiscriminatorPropertyNameMustMatch(string acceptablePropertyName) => new(
-                TextSpan,
+            public Diagnostic DiscriminatorPropertyNameMustMatch(string acceptablePropertyName) => CoreError(
                 "BCP366",
                 $"The discriminator property name must be \"{acceptablePropertyName}\" on all union member types.");
 
-            public ErrorDiagnostic FeatureIsTemporarilyDisabled(string featureName) => new(
-                TextSpan,
+            public Diagnostic FeatureIsTemporarilyDisabled(string featureName) => CoreError(
                 "BCP367",
                 $"The \"{featureName}\" feature is temporarily disabled.");
 
-            public ErrorDiagnostic ParameterReferencesKeyVaultSuppliedParameter(string targetName) => new(
-                TextSpan,
+            public Diagnostic ParameterReferencesKeyVaultSuppliedParameter(string targetName) => CoreError(
                 "BCP368",
                 $"The value of the \"{targetName}\" parameter cannot be known until the template deployment has started because it uses a reference to a secret value in Azure Key Vault. Expressions that refer to the \"{targetName}\" parameter may be used in {LanguageConstants.LanguageFileExtension} files but not in {LanguageConstants.ParamsFileExtension} files.");
 
-            public ErrorDiagnostic ParameterReferencesDefaultedParameter(string targetName) => new(
-                TextSpan,
+            public Diagnostic ParameterReferencesDefaultedParameter(string targetName) => CoreError(
                 "BCP369",
                 $"The value of the \"{targetName}\" parameter cannot be known until the template deployment has started because it uses the default value defined in the template. Expressions that refer to the \"{targetName}\" parameter may be used in {LanguageConstants.LanguageFileExtension} files but not in {LanguageConstants.ParamsFileExtension} files.");
 
-            public ErrorDiagnostic ClosureContainsNonExportableSymbols(IEnumerable<string> nonExportableSymbols) => new(
-                TextSpan,
+            public Diagnostic ClosureContainsNonExportableSymbols(IEnumerable<string> nonExportableSymbols) => CoreError(
                 "BCP372",
                 @$"The ""@export()"" decorator may not be applied to variables that refer to parameters, modules, or resource, either directly or indirectly. The target of this decorator contains direct or transitive references to the following unexportable symbols: {ToQuotedString(nonExportableSymbols)}.");
 
-            public ErrorDiagnostic ImportedSymbolHasErrors(string name, string message) => new(
-                TextSpan,
+            public Diagnostic ImportedSymbolHasErrors(string name, string message) => CoreError(
                 "BCP373",
                 $"Unable to import the symbol named \"{name}\": {message}");
 
-            public ErrorDiagnostic ImportedModelContainsAmbiguousExports(IEnumerable<string> ambiguousExportNames) => new(
-                TextSpan,
+            public Diagnostic ImportedModelContainsAmbiguousExports(IEnumerable<string> ambiguousExportNames) => CoreError(
                 "BCP374",
                 $"The imported model cannot be loaded with a wildcard because it contains the following duplicated exports: {ToQuotedString(ambiguousExportNames)}.");
 
-            public ErrorDiagnostic ImportListItemDoesNotIncludeDeclaredSymbolName() => new(
-                TextSpan,
+            public Diagnostic ImportListItemDoesNotIncludeDeclaredSymbolName() => CoreError(
                 "BCP375",
                 "An import list item that identifies its target with a quoted string must include an 'as <alias>' clause.");
 
-            public ErrorDiagnostic ImportedSymbolKindNotSupportedInSourceFileKind(string name, ExportMetadataKind exportMetadataKind, BicepSourceFileKind sourceFileKind) => new(
-                TextSpan,
+            public Diagnostic ImportedSymbolKindNotSupportedInSourceFileKind(string name, ExportMetadataKind exportMetadataKind, BicepSourceFileKind sourceFileKind) => CoreError(
                 "BCP376",
                 $"The \"{name}\" symbol cannot be imported because imports of kind {exportMetadataKind} are not supported in files of kind {sourceFileKind}.");
 
-            public ErrorDiagnostic InvalidProviderAliasName(string aliasName) => new(
-                TextSpan,
+            public Diagnostic InvalidExtensionAliasName(string aliasName) => CoreError(
                 "BCP377",
                 $"The extension alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public ErrorDiagnostic InvalidOciArtifactProviderAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => new(
-                TextSpan,
+            public Diagnostic InvalidOciArtifactExtensionAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
                 "BCP378",
                 $"The OCI artifact extension alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic OciArtifactProviderAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => new(
-                TextSpan,
+            public Diagnostic OciArtifactExtensionAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => CoreError(
                 "BCP379",
                 $"The OCI artifact extension alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
-            public ErrorDiagnostic UnsupportedArtifactType(ArtifactType artifactType) => new(
-                TextSpan,
+            public Diagnostic UnsupportedArtifactType(ArtifactType artifactType) => CoreError(
                 "BCP380",
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
 
-            public FixableDiagnostic ExtensionDeclarationKeywordIsDeprecated(ProviderDeclarationSyntax syntax)
+            public Diagnostic ExtensionDeclarationKeywordIsDeprecated(ExtensionDeclarationSyntax syntax)
             {
                 var codeFix = new CodeFix(
                     $"Replace the {syntax.Keyword.Text} keyword with the extension keyword",
@@ -2084,131 +1708,94 @@ namespace Bicep.Core.Diagnostics
                     CodeFixKind.QuickFix,
                     new CodeReplacement(syntax.Keyword.Span, LanguageConstants.ExtensionKeyword));
 
-                return new FixableDiagnostic(
-                    TextSpan,
-                    DiagnosticLevel.Warning,
+                return CoreWarning(
                     "BCP381",
-                    @$"Declaring extension with the ""{syntax.Keyword.Text}"" keyword has been deprecated. Please use the ""extension"" keyword instead. Please see https://github.com/Azure/bicep/issues/14374 for more information.",
-                    documentationUri: null,
-                    DiagnosticStyling.Default,
-                    codeFix);
+                    @$"Declaring extension with the ""{syntax.Keyword.Text}"" keyword has been deprecated. Please use the ""extension"" keyword instead. Please see https://github.com/Azure/bicep/issues/14374 for more information.")
+                    with { Fixes = [codeFix] };
             }
 
-            public ErrorDiagnostic TypeIsNotParameterizable(string typeName) => new(
-                TextSpan,
+            public Diagnostic TypeIsNotParameterizable(string typeName) => CoreError(
                 "BCP383",
                 $"The \"{typeName}\" type is not parameterizable.");
 
-            public ErrorDiagnostic TypeRequiresParameterization(string typeName, int requiredArgumentCount) => new(
-                TextSpan,
+            public Diagnostic TypeRequiresParameterization(string typeName, int requiredArgumentCount) => CoreError(
                 "BCP384",
                 $"The \"{typeName}\" type requires {requiredArgumentCount} argument(s).");
 
-            public ErrorDiagnostic ResourceDerivedTypesUnsupported() => new(
-                TextSpan,
+            public Diagnostic ResourceDerivedTypesUnsupported() => CoreError(
                 "BCP385",
                 $@"Using resource-derived types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceDerivedTypes)}"".");
 
-            public ErrorDiagnostic DecoratorMayNotTargetResourceDerivedType(string decoratorName) => new(
-                TextSpan,
+            public Diagnostic DecoratorMayNotTargetResourceDerivedType(string decoratorName) => CoreError(
                 "BCP386",
                 $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a resource-derived type.");
 
-            public ErrorDiagnostic NegatedTypeIndexSought() => new(
-                TextSpan,
+            public Diagnostic NegatedTypeIndexSought() => CoreError(
                 "BCP387",
                 "Indexing into a type requires an integer greater than or equal to 0.");
 
-            public ErrorDiagnostic TupleRequiredForIndexAccess(TypeSymbol wrongType) => new(
-                TextSpan,
+            public Diagnostic TupleRequiredForIndexAccess(TypeSymbol wrongType) => CoreError(
                 "BCP388",
                 $"Cannot access elements of type \"{wrongType}\" by index. An tuple type is required.");
 
-            public ErrorDiagnostic ExplicitAdditionalPropertiesTypeRequiredForAccessThereto(TypeSymbol wrongType) => new(
-                TextSpan,
+            public Diagnostic ExplicitAdditionalPropertiesTypeRequiredForAccessThereto(TypeSymbol wrongType) => CoreError(
                 "BCP389",
                 $"The type \"{wrongType}\" does not declare an additional properties type.");
 
-            public ErrorDiagnostic ExplicitItemsTypeRequiredForAccessThereto() => new(
-                TextSpan,
+            public Diagnostic ExplicitItemsTypeRequiredForAccessThereto() => CoreError(
                 "BCP390",
                 $"The array item type access operator ('[*]') can only be used with typed arrays.");
 
-            public ErrorDiagnostic AccessExpressionForbiddenBase() => new(
-                TextSpan,
+            public Diagnostic AccessExpressionForbiddenBase() => CoreError(
                 "BCP391",
                 "Type member access is only supported on a reference to a named type.");
 
-            public Diagnostic InvalidResourceTypeIdentifier(string resourceTypeIdentifier) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic InvalidResourceTypeIdentifier(string resourceTypeIdentifier) => CoreWarning(
                 "BCP392",
                 $"""The supplied resource type identifier "{resourceTypeIdentifier}" was not recognized as a valid resource type name.""");
 
-            public Diagnostic UnrecognizedResourceDerivedTypePointerSegment(string unrecognizedSegment) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public Diagnostic UnrecognizedResourceDerivedTypePointerSegment(string unrecognizedSegment) => CoreWarning(
                 "BCP393",
                 $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
 
-            public ErrorDiagnostic CannotUseEntireResourceBodyAsType() => new(
-                TextSpan,
+            public Diagnostic CannotUseEntireResourceBodyAsType() => CoreError(
                 "BCP394",
-                "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted.");
+                "Resource-derived type expressions must dereference a property within the resource body. Using the entire resource body type is not permitted.");
 
-            public ErrorDiagnostic InvalidTypesTgzPackage_DeserializationFailed() => new(
-                TextSpan,
+            public Diagnostic InvalidTypesTgzPackage_DeserializationFailed() => CoreError(
                 "BCP396",
-                "The referenced provider types artifact has been published with malformed content.");
+                "The referenced extension types artifact has been published with malformed content.");
 
-            public ErrorDiagnostic InvalidProvider_ImplicitProviderMissingConfig(Uri? configFileUri, string name) => new(
-                TextSpan,
+            public Diagnostic InvalidExtension_ImplicitExtensionMissingConfig(Uri? configFileUri, string name) => CoreError(
                 "BCP397",
                 $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{RootConfiguration.ImplicitExtensionsKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ExtensionsKey}" section.""");
 
-            public ErrorDiagnostic InvalidProvider_NotABuiltInProvider(Uri? configFileUri, string name) => new(
-                TextSpan,
+            public Diagnostic InvalidExtension_NotABuiltInExtension(Uri? configFileUri, string name) => CoreError(
                 "BCP398",
-                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in provider exists.""");
+                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
 
-            public ErrorDiagnostic FetchingAzTypesRequiresExperimentalFeature() => new(
-                TextSpan,
-                "BCP399",
-                $"Fetching az types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.DynamicTypeLoading)}\".");
-
-            public ErrorDiagnostic FetchingTypesRequiresExperimentalFeature() => new(
-                TextSpan,
-                "BCP400",
-                $"Fetching types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ExtensionRegistry)}\".");
-
-            public ErrorDiagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => new(
-                TextSpan,
+            public Diagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => CoreError(
                 "BCP401",
                 $"The spread operator \"{spread.Ellipsis.Text}\" is not permitted in this location.");
 
-            public ErrorDiagnostic SpreadOperatorRequiresAssignableValue(SpreadExpressionSyntax spread, TypeSymbol requiredType) => new(
-                TextSpan,
+            public Diagnostic SpreadOperatorRequiresAssignableValue(SpreadExpressionSyntax spread, TypeSymbol requiredType) => CoreError(
                 "BCP402",
                 $"The spread operator \"{spread.Ellipsis.Text}\" can only be used in this context for an expression assignable to type \"{requiredType}\".");
 
-            public Diagnostic ArrayTypeMismatchSpread(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => new(
-                TextSpan,
+            public Diagnostic ArrayTypeMismatchSpread(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP403",
                 $"The enclosing array expects elements of type \"{expectedType}\", but the array being spread contains elements of incompatible type \"{actualType}\".");
 
-            public ErrorDiagnostic ExtendsPathHasNotBeenSpecified() => new(
-                TextSpan,
+            public Diagnostic ExtendsPathHasNotBeenSpecified() => CoreError(
                 "BCP404",
                 $"The \"{LanguageConstants.ExtendsKeyword}\" declaration is missing a bicepparam file path reference");
 
-            public ErrorDiagnostic MoreThanOneExtendsDeclarationSpecified() => new(
-                TextSpan,
+            public Diagnostic MoreThanOneExtendsDeclarationSpecified() => CoreError(
                 "BCP405",
                 $"More than one \"{LanguageConstants.ExtendsKeyword}\" declaration are present");
 
-            public ErrorDiagnostic ExtendsNotSupported() => new(
-                TextSpan,
+            public Diagnostic ExtendsNotSupported() => CoreError(
                 "BCP406",
                 $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
         }

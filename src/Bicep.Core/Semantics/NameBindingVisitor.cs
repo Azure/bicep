@@ -223,9 +223,9 @@ namespace Bicep.Core.Semantics
             allowedFlags = FunctionFlags.Default;
         }
 
-        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
+        public override void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax)
         {
-            allowedFlags = FunctionFlags.ProviderDecorator;
+            allowedFlags = FunctionFlags.ExtensionDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.SpecificationString);
@@ -369,7 +369,7 @@ namespace Bicep.Core.Semantics
                 if (scope.ScopeResolution == ScopeResolution.InheritFunctionsOnly)
                 {
                     // FIXME: How can we make sure only wildcard import instance functions are included in the local scope?
-                    symbolFilter = symbol => symbol is DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol;
+                    symbolFilter = symbol => symbol is VariableSymbol or DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol;
                 }
             }
 

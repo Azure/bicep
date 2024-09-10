@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
@@ -52,6 +53,20 @@ namespace Bicep.Core.UnitTests.Utils
             Symbol Symbol,
             TypeSymbol Type);
 
+        public static async Task<CompilationResult> RestoreAndCompile(params (string fileName, BinaryData fileContents)[] files)
+        {
+            return await RestoreAndCompile(new ServiceBuilder(), files);
+        }
+
+        public static async Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, params (string fileName, BinaryData fileContents)[] files)
+        {
+            files.Select(x => x.fileName).Should().Contain("main.bicep");
+
+            var (uriDictionary, entryUri) = CreateFileDictionary(files.Select(file => ("/path/to", file.fileName, file.fileContents)).ToArray(), "main.bicep");
+
+            return await RestoreAndCompile(services.WithMockFileSystem(uriDictionary), ImmutableDictionary<Uri, string>.Empty, entryUri);
+        }
+
         public static Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, string fileContents)
             => RestoreAndCompile(services, ("main.bicep", fileContents));
 
@@ -102,9 +117,6 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static CompilationResult Compile(ServiceBuilder services, params (string fileName, string fileContents)[] files)
         {
-            var a = services.Build().Construct<Core.Configuration.IConfigurationManager>();
-            a.GetConfiguration(new Uri("http://hello"));
-
             files.Select(x => x.fileName).Should().Contain("main.bicep");
             var filesToAppend = files.Select(file => ("/path/to", file.fileName, file.fileContents));
 
@@ -137,7 +149,6 @@ namespace Bicep.Core.UnitTests.Utils
         public static CompilationResult Compile(ServiceBuilder services, string fileContents)
             => Compile(services, ("main.bicep", fileContents));
 
-
         public static ParamsCompilationResult CompileParams(params (string fileName, string fileContents)[] files)
         {
             return CompileParams(new ServiceBuilder(), files);
@@ -160,7 +171,7 @@ namespace Bicep.Core.UnitTests.Utils
             return CompileParams(compilation);
         }
 
-        public static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(IEnumerable<(string filePath, string fileName, string fileContents)> files, string entryFileName)
+        public static (IReadOnlyDictionary<Uri, TContents> files, Uri entryFileUri) CreateFileDictionary<TContents>(IEnumerable<(string filePath, string fileName, TContents fileContents)> files, string entryFileName)
         {
             var filesArray = files.ToArray();
             var (entryFilePath, _, _) = filesArray.Where(x => x.fileName == entryFileName).First();

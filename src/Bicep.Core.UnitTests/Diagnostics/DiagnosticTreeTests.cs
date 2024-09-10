@@ -114,6 +114,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         private static void WriteDummyDiagnostic(int start, int end, string code) =>
-            Sut.Write(new Diagnostic(new(start, end - start), DiagnosticLevel.Off, code, ""));
+            Sut.Write(new Diagnostic(new(start, end - start), DiagnosticLevel.Off, DiagnosticSource.Compiler, code, ""));
     }
 }

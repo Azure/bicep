@@ -16,8 +16,6 @@ namespace Bicep.Core.Configuration
 
         public const string ModuleAliasesKey = "moduleAliases";
 
-        public const string ExtensionAliasesKey = "extensionAliases";
-
         public const string ExtensionsKey = "extensions";
 
         public const string ImplicitExtensionsKey = "implicitExtensions";
@@ -33,9 +31,8 @@ namespace Bicep.Core.Configuration
         public RootConfiguration(
             CloudConfiguration cloud,
             ModuleAliasesConfiguration moduleAliases,
-            ProviderAliasesConfiguration extensionAliases,
-            ProvidersConfiguration extensions,
-            ImplicitProvidersConfiguration implicitExtensions,
+            ExtensionsConfiguration extensions,
+            ImplicitExtensionsConfiguration implicitExtensions,
             AnalyzersConfiguration analyzers,
             string? cacheRootDirectory,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
@@ -45,7 +42,6 @@ namespace Bicep.Core.Configuration
         {
             this.Cloud = cloud;
             this.ModuleAliases = moduleAliases;
-            this.ExtensionAliases = extensionAliases;
             this.Extensions = extensions;
             this.ImplicitExtensions = implicitExtensions;
             this.Analyzers = analyzers;
@@ -65,22 +61,19 @@ namespace Bicep.Core.Configuration
             var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
             var formatting = FormattingConfiguration.Bind(element.GetProperty(FormattingKey));
 
-            var extensionAliases = ProviderAliasesConfiguration.Bind(element.GetProperty(ExtensionAliasesKey), configFileUri);
-            var extensions = ProvidersConfiguration.Bind(element.GetProperty(ExtensionsKey));
-            var implicitExtensions = ImplicitProvidersConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
+            var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
+            var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
 
-            return new(cloud, moduleAliases, extensionAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configFileUri, diagnosticBuilders);
+            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configFileUri, diagnosticBuilders);
         }
 
         public CloudConfiguration Cloud { get; }
 
         public ModuleAliasesConfiguration ModuleAliases { get; }
 
-        public ProviderAliasesConfiguration ExtensionAliases { get; }
+        public ExtensionsConfiguration Extensions { get; }
 
-        public ProvidersConfiguration Extensions { get; }
-
-        public ImplicitProvidersConfiguration ImplicitExtensions { get; }
+        public ImplicitExtensionsConfiguration ImplicitExtensions { get; }
 
         public AnalyzersConfiguration Analyzers { get; }
 
@@ -108,9 +101,6 @@ namespace Bicep.Core.Configuration
 
                 writer.WritePropertyName(ModuleAliasesKey);
                 this.ModuleAliases.WriteTo(writer);
-
-                writer.WritePropertyName(ExtensionAliasesKey);
-                this.ExtensionAliases.WriteTo(writer);
 
                 writer.WritePropertyName(ExtensionsKey);
                 this.Extensions.WriteTo(writer);

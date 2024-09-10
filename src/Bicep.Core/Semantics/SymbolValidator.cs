@@ -15,7 +15,7 @@ namespace Bicep.Core.Semantics
     public static class SymbolValidator
     {
         private delegate IEnumerable<string> GetNameSuggestions();
-        private delegate ErrorDiagnostic GetMissingNameError(DiagnosticBuilder.DiagnosticBuilderInternal builder, string? suggestedName);
+        private delegate Diagnostic GetMissingNameError(DiagnosticBuilder.DiagnosticBuilderInternal builder, string? suggestedName);
 
         public static Symbol ResolveNamespaceQualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, NamespaceType namespaceType)
             => ResolveSymbolInternal(

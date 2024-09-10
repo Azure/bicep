@@ -45,22 +45,21 @@ namespace Bicep.Core.Registry
 
             try
             {
-                // Try authenticated client first.
-                Trace.WriteLine($"Authenticated attempt to pull artifact for module {artifactReference.FullyQualifiedReference}.");
-                return await DownloadManifestInternalAsync(anonymousAccess: false);
-            }
-            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
-            {
-                // Fall back to anonymous client.
-                Trace.WriteLine($"Authenticated attempt to pull artifact for module {artifactReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
+                // Try anonymous auth first.
+                Trace.WriteLine($"Attempt to pull artifact for module {artifactReference.FullyQualifiedReference} with anonymous authentication.");
                 return await DownloadManifestInternalAsync(anonymousAccess: true);
             }
-            catch (CredentialUnavailableException)
+            catch (RequestFailedException requestedFailedException) when (requestedFailedException.Status is 401 or 403)
             {
-                // Fall back to anonymous client.
-                Trace.WriteLine($"Authenticated attempt to pull artifact for module {artifactReference.FullyQualifiedReference} failed due to missing login step. Fallback to anonymous pull.");
-                return await DownloadManifestInternalAsync(anonymousAccess: true);
+                Trace.WriteLine($"Anonymous authetncation failed with status code {requestedFailedException.Status}. Retrying with authenticated client.");
             }
+            catch (Exception exception)
+            {
+                Trace.WriteLine($"Anonymous authentication failed with unexpected exception {exception.Message}. Retrying with authenticated client.");
+            }
+
+            // Fall back to authenticated client.
+            return await DownloadManifestInternalAsync(anonymousAccess: false);
         }
 
         public async Task PushArtifactAsync(
@@ -162,7 +161,7 @@ namespace Bicep.Core.Registry
             return deserializedManifest.ArtifactType switch
             {
                 BicepMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
-                BicepMediaTypes.BicepProviderArtifactType => new OciProviderArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers, config),
+                BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers, config),
                 _ => throw new InvalidArtifactException($"artifacts of type: \'{deserializedManifest.ArtifactType}\' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}")
             };
         }

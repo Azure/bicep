@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18300915462242659286"
+      "templateHash": "16920590476746429823"
     },
     "name": "Sample module",
     "description": "Sample description",
@@ -22,7 +22,7 @@
       "minValue": 0,
       "maxValue": 1023,
       "metadata": {
-        "description": "The OS disk size (in GB)\r\n- Minimum value is 0\r\n- Maximum value is 1023\r\n"
+        "description": "The OS disk size (in GB)\n- Minimum value is 0\n- Maximum value is 1023\n"
       }
     },
     "DiskSizeGB": {
@@ -151,7 +151,7 @@
     "osDiskSizeGB": {
       "$ref": "#/definitions/DiskSizeGB",
       "metadata": {
-        "description": "Override default describtion"
+        "description": "Override default description"
       },
       "value": "[parameters('osDiskSizeGB')]"
     }

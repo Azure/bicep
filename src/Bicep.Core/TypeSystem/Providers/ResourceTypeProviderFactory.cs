@@ -17,8 +17,7 @@ namespace Bicep.Core.TypeSystem.Providers
 {
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
-        private record ResourceTypeLoaderKey(Uri TypesTgzUri, bool UseAzLoader);
-        private readonly ConcurrentDictionary<ResourceTypeLoaderKey, ResultWithDiagnostic<IResourceTypeProvider>> cachedResourceTypeLoaders = new();
+        private readonly ConcurrentDictionary<Uri, ResultWithDiagnosticBuilder<IResourceTypeProvider>> cachedResourceTypeLoaders = new();
         private readonly IFileSystem fileSystem;
 
         public ResourceTypeProviderFactory(IFileSystem fileSystem)
@@ -26,22 +25,25 @@ namespace Bicep.Core.TypeSystem.Providers
             this.fileSystem = fileSystem;
         }
 
-        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ArtifactReference? artifactReference, Uri typesTgzUri, bool useAzLoader)
+        public ResultWithDiagnosticBuilder<IResourceTypeProvider> GetResourceTypeProvider(ArtifactReference? artifactReference, Uri typesTgzUri)
         {
-            var key = new ResourceTypeLoaderKey(typesTgzUri, useAzLoader);
             // TODO invalidate this cache on module force restore
-            return cachedResourceTypeLoaders.GetOrAdd(key, _ =>
+            return cachedResourceTypeLoaders.GetOrAdd(typesTgzUri, _ =>
             {
                 try
                 {
                     using var fileStream = fileSystem.File.OpenRead(typesTgzUri.LocalPath);
                     var typesLoader = OciTypeLoader.FromStream(fileStream);
 
-                    if (key.UseAzLoader)
+                    var typeIndex = typesLoader.LoadTypeIndex();
+                    var useAzLoader = typeIndex.Settings?.Name == AzNamespaceType.Settings.TemplateExtensionName;
+
+                    if (useAzLoader)
                     {
-                        return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typesLoader)));
+                        return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typesLoader, typeIndex)));
                     }
-                    return new(new ThirdPartyResourceTypeProvider(new ThirdPartyResourceTypeLoader(typesLoader)));
+
+                    return new(new ThirdPartyResourceTypeProvider(new ThirdPartyResourceTypeLoader(typesLoader, typeIndex)));
                 }
                 catch (Exception ex)
                 {

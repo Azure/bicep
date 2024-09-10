@@ -178,29 +178,11 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Dynamic type loading.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_DynamicTypeLoading {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_DynamicTypeLoading", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Extensibility.
         /// </summary>
         internal static string ExperimentalFeatureNames_Extensibility {
             get {
                 return ResourceManager.GetString("ExperimentalFeatureNames_Extensibility", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Extension registry.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_ExtensionRegistry {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_ExtensionRegistry", resourceCulture);
             }
         }
         
@@ -228,6 +210,15 @@ namespace Bicep.Core {
         internal static string ExperimentalFeatureNames_ResourceTypedParamsAndOutputs {
             get {
                 return ResourceManager.GetString("ExperimentalFeatureNames_ResourceTypedParamsAndOutputs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string ExperimentalFeatureNames_SecureOutputs {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_SecureOutputs", resourceCulture);
             }
         }
         
@@ -547,7 +538,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remove unneccessary dependsOn.
+        ///   Looks up a localized string similar to Remove unnecessary dependsOn.
         /// </summary>
         internal static string NoUnnecessaryDependsOnRuleCodeFix {
             get {

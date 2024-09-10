@@ -11,6 +11,6 @@ namespace Bicep.Core.Semantics;
 
 public static class SemanticModelExtensions
 {
-    public static Result<ISemanticModel, ErrorDiagnostic> TryGetReferencedModel(this SemanticModel model, IArtifactReferenceSyntax referenceSyntax)
+    public static ResultWithDiagnostic<ISemanticModel> TryGetReferencedModel(this SemanticModel model, IArtifactReferenceSyntax referenceSyntax)
         => referenceSyntax.TryGetReferencedModel(model.SourceFileGrouping, model.ModelLookup);
 }

@@ -189,12 +189,12 @@ public class SourceCodePathHelperTests
                 RootC("users/username/repos/deployment/src/modules/module1.bicep"),
                 RootC("users/username/repos/deployment/src/modules/module2.bicep"),
                 RootC("users/username/repos/deployment/shared/shared1.bicep"),
-                RootD("bicepcacheroot/br/example.azurecr.io/test$provider$http/1.2.3$/main.json"),
+                RootD("bicepcacheroot/br/example.azurecr.io/test$extension$http/1.2.3$/main.json"),
             ],
             [
                 RootC("users/username/repos/deployment/src"),
                 RootC("users/username/repos/deployment/shared"),
-                RootD("bicepcacheroot/br/example.azurecr.io/test$provider$http/1.2.3$"),
+                RootD("bicepcacheroot/br/example.azurecr.io/test$extension$http/1.2.3$"),
             ]);
 
         yield return data(

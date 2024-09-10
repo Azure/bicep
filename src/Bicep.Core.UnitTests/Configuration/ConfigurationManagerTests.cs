@@ -60,14 +60,6 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
-        "extensionAliases": {
-          "br": {
-            "public": {
-              "registry": "mcr.microsoft.com",
-              "extensionPath": "bicep/extensions"
-            }
-          }
-        },
         "extensions": {
           "az": "builtin:",
           "kubernetes": "builtin:",
@@ -114,11 +106,10 @@ namespace Bicep.Core.UnitTests.Configuration
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "dynamicTypeLoading": false,
-          "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false
+          "resourceDerivedTypes": false,
+          "secureOutputs": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -178,14 +169,6 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
-        "extensionAliases": {
-          "br": {
-            "public": {
-              "registry": "mcr.microsoft.com",
-              "extensionPath": "bicep/extensions"
-            }
-          }
-        },
         "extensions": {
             "az": "builtin:",
             "kubernetes": "builtin:",
@@ -204,11 +187,10 @@ namespace Bicep.Core.UnitTests.Configuration
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "dynamicTypeLoading": false,
-          "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false
+          "resourceDerivedTypes": false,
+          "secureOutputs": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -257,14 +239,6 @@ namespace Bicep.Core.UnitTests.Configuration
             "public": {
               "registry": "mcr.microsoft.com",
               "modulePath": "bicep"
-            }
-          }
-        },
-        "extensionAliases": {
-          "br": {
-            "public": {
-              "registry": "mcr.microsoft.com",
-              "extensionPath": "bicep/extensions"
             }
           }
         },
@@ -319,11 +293,10 @@ namespace Bicep.Core.UnitTests.Configuration
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "dynamicTypeLoading": false,
-          "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false
+          "resourceDerivedTypes": false,
+          "secureOutputs": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -354,10 +327,10 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetConfiguration_InvalidCustomConfiguration_PropagatesFailedToParseConfigurationDiagnostic()
         {
             // Arrange.
-            var configurataionPath = CreatePath("path/to/bicepconfig.json");
+            var configurationPath = CreatePath("path/to/bicepconfig.json");
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                [configurataionPath] = "",
+                [configurationPath] = "",
             });
 
             var sut = new ConfigurationManager(fileSystem);
@@ -367,17 +340,17 @@ namespace Bicep.Core.UnitTests.Configuration
             var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
             diagnostics.Count.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurataionPath}\" as valid JSON: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
+            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
         }
 
         [TestMethod]
         public void GetConfiguration_ConfigurationFileNotReadable_PropagatesCouldNotLoadConfigurationDiagnostic()
         {
             // Arrange.
-            var configurataionPath = CreatePath("path/to/bicepconfig.json");
+            var configurationPath = CreatePath("path/to/bicepconfig.json");
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                [configurataionPath] = "",
+                [configurationPath] = "",
             });
 
             var fileSystemMock = StrictMock.Of<IFileSystem>();
@@ -394,7 +367,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
             diagnostics.Count.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Could not load the Bicep configuration file \"{configurataionPath}\": Not allowed.");
+            diagnostics[0].Message.Should().Be($"Could not load the Bicep configuration file \"{configurationPath}\": Not allowed.");
         }
 
         [TestMethod]
@@ -412,11 +385,10 @@ namespace Bicep.Core.UnitTests.Configuration
                 LegacyFormatter: false,
                 TestFramework: false,
                 Assertions: false,
-                DynamicTypeLoading: false,
-                ExtensionRegistry: false,
                 OptionalModuleNames: false,
                 LocalDeploy: false,
-                ResourceDerivedTypes: false);
+                ResourceDerivedTypes: false,
+                SecureOutputs: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -447,14 +419,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 "public": {
                     "registry": "mcr.microsoft.com",
                     "modulePath": "bicep"
-                }
-                }
-            },
-            "extensionAliases": {
-                "br": {
-                "public": {
-                    "registry": "mcr.microsoft.com",
-                    "extensionPath": "bicep/extensions"
                 }
                 }
             },
@@ -506,11 +470,10 @@ namespace Bicep.Core.UnitTests.Configuration
                 "legacyFormatter": false,
                 "testFramework": false,
                 "assertions": false,
-                "dynamicTypeLoading": false,
-                "extensionRegistry": false,
                 "optionalModuleNames": false,
                 "localDeploy": false,
-                "resourceDerivedTypes": false
+                "resourceDerivedTypes": false,
+                "secureOutputs": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -524,7 +487,7 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void GetConfiguration_IOExceptionWhenDiscovringConfiguration_ReturnsDefaultConfigurationWithInfoDiagnostic()
+        public void GetConfiguration_IOExceptionWhenDiscoveringConfiguration_ReturnsDefaultConfigurationWithInfoDiagnostic()
         {
             // Arrange.
             var fileSystemMock = StrictMock.Of<IFileSystem>();
@@ -534,8 +497,8 @@ namespace Bicep.Core.UnitTests.Configuration
             fileSystemMock.Setup(x => x.Directory.GetParent(It.IsAny<string>())).Throws(new IOException("Oops."));
 
             var sut = new ConfigurationManager(fileSystemMock.Object);
-            var configurataionPath = CreatePath("path/to/main.bicep");
-            var sourceFileUri = new Uri(configurataionPath);
+            var configurationPath = CreatePath("path/to/main.bicep");
+            var sourceFileUri = new Uri(configurationPath);
             var configuration = sut.GetConfiguration(sourceFileUri);
 
             // Act & Assert.
@@ -736,14 +699,6 @@ namespace Bicep.Core.UnitTests.Configuration
               }
             }
           },
-          "extensionAliases": {
-            "br": {
-              "public": {
-                "registry": "mcr.microsoft.com",
-                "extensionPath": "bicep/extensions"
-              }
-            }
-          },
         "analyzers": {
         "core": {
             "enabled": false,
@@ -838,14 +793,6 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
-        "extensionAliases": {
-          "br": {
-            "public": {
-              "registry": "mcr.microsoft.com",
-              "extensionPath": "bicep/extensions"
-            }
-          }
-        },
         "extensions": {
             "az": "builtin:",
             "kubernetes": "builtin:",
@@ -888,11 +835,10 @@ namespace Bicep.Core.UnitTests.Configuration
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "dynamicTypeLoading": false,
-          "extensionRegistry": false,
           "optionalModuleNames": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false
+          "resourceDerivedTypes": false,
+          "secureOutputs": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -924,28 +870,12 @@ namespace Bicep.Core.UnitTests.Configuration
                 "modulePath": "bicep"
               }
             }
-          },
-          "extensionAliases": {
-            "br": {
-              "public": {
-                "registry": "main.microsoft.com",
-                "extensionPath": "bicep/extensions"
-              }
-            }
           }
         }
         """,
                 [CreatePath("repo/modules")] = new MockDirectoryData(),
                 [CreatePath("repo/modules/bicepconfig.json")] = """
         {
-          "extensionAliases": {
-            "br": {
-              "public": {
-                "registry": "mod.microsoft.com",
-                "extensionPath": "bicep/extensions"
-              }
-            }
-          }
         }
         """
             });

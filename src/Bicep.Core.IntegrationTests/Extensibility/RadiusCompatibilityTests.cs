@@ -18,7 +18,7 @@ public class RadiusCompatibilityTests
         var clientFactory = RegistryHelper.CreateMockRegistryClient(registryHost, repositoryPath);
 
         return new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true, ExtensionRegistry: true, DynamicTypeLoadingEnabled: true))
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true))
             .WithFileSystem(fileSystem)
             .WithContainerRegistryClientFactory(clientFactory);
     }
@@ -31,7 +31,7 @@ public class RadiusCompatibilityTests
         var services = GetServiceBuilder(new MockFileSystem(), registry, repository);
 
         var tgzData = ThirdPartyTypeHelper.GetMockRadiusTypesTgz();
-        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", tgzData);
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", tgzData);
 
         return services;
     }

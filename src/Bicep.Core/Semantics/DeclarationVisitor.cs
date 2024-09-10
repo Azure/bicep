@@ -21,14 +21,14 @@ namespace Bicep.Core.Semantics
 {
     public sealed class DeclarationVisitor : AstVisitor
     {
-        private readonly ImmutableDictionary<ProviderDeclarationSyntax, NamespaceResult> namespaceResults;
+        private readonly ImmutableDictionary<ExtensionDeclarationSyntax, NamespaceResult> namespaceResults;
         private readonly ISymbolContext context;
         private readonly IList<ScopeInfo> localScopes;
 
         private readonly Stack<ScopeInfo> activeScopes = new();
 
         private DeclarationVisitor(
-            ImmutableDictionary<ProviderDeclarationSyntax, NamespaceResult> namespaceResults,
+            ImmutableDictionary<ExtensionDeclarationSyntax, NamespaceResult> namespaceResults,
             ISymbolContext context,
             IList<ScopeInfo> localScopes)
         {
@@ -166,11 +166,11 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
-        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
+        public override void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax)
         {
-            base.VisitProviderDeclarationSyntax(syntax);
+            base.VisitExtensionDeclarationSyntax(syntax);
 
-            DeclareSymbol(new ProviderNamespaceSymbol(this.context, syntax, namespaceResults[syntax].Type));
+            DeclareSymbol(new ExtensionNamespaceSymbol(this.context, syntax, namespaceResults[syntax].Type));
         }
 
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
@@ -333,7 +333,7 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        private Result<ISemanticModel, ErrorDiagnostic> GetImportSourceModel(CompileTimeImportDeclarationSyntax syntax)
+        private ResultWithDiagnostic<ISemanticModel> GetImportSourceModel(CompileTimeImportDeclarationSyntax syntax)
         {
             if (!syntax.TryGetReferencedModel(context.SourceFileLookup, context.ModelLookup).IsSuccess(out var model, out var modelLoadError))
             {

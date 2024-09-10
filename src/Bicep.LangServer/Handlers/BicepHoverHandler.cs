@@ -83,9 +83,9 @@ namespace Bicep.LanguageServer.Handlers
             // with multiple borders
             switch (result.Symbol)
             {
-                case ProviderNamespaceSymbol provider:
+                case ExtensionNamespaceSymbol extension:
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
-                        $"{LanguageConstants.ProviderKeyword} {provider.Name}", TryGetDescription(result, provider)));
+                        $"{LanguageConstants.ExtensionKeyword} {extension.Name}", TryGetDescription(result, extension)));
 
                 case MetadataSymbol metadata:
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
@@ -321,7 +321,7 @@ namespace Bicep.LanguageServer.Handlers
         private static string? TryGetTypeDocumentationLink(ResourceSymbol resource)
         {
             if (resource.TryGetResourceType() is { } resourceType &&
-                resourceType.DeclaringNamespace.ProviderNameEquals(AzNamespaceType.BuiltInName) &&
+                resourceType.DeclaringNamespace.ExtensionNameEquals(AzNamespaceType.BuiltInName) &&
                 resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
             {
                 var provider = resourceType.TypeReference.TypeSegments.First().ToLowerInvariant();

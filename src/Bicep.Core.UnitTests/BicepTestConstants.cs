@@ -95,7 +95,6 @@ namespace Bicep.Core.UnitTests
                 ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid",
                 ["cloud.credentialPrecedence"] = new[] { "AzureCLI", "AzurePowerShell" },
                 ["moduleAliases"] = new Dictionary<string, object>(),
-                ["extensionAliases"] = new Dictionary<string, object>(),
                 ["extensions"] = new Dictionary<string, object>(),
                 ["implicitExtensions"] = new[] { "az" },
                 ["analyzers"] = new Dictionary<string, object>(),
@@ -140,20 +139,20 @@ namespace Bicep.Core.UnitTests
             return telemetryProvider;
         }
 
-        public static BinaryData GetBicepProviderManifest(UploadRegistryBlobResult layer, UploadRegistryBlobResult config) =>
+        public static BinaryData GetBicepExtensionManifest(UploadRegistryBlobResult layer, UploadRegistryBlobResult config) =>
             BinaryData.FromString($$"""
         {
             "schemaVersion": 2,
             "mediaType": "application/vnd.oci.image.manifest.v1+json",
-            "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
+            "artifactType": "{{BicepMediaTypes.BicepExtensionArtifactType}}",
             "config": {
-            "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
+            "mediaType": "{{BicepMediaTypes.BicepExtensionConfigV1}}",
             "digest": "{{config.Digest}}",
             "size": {{config.SizeInBytes}}
             },
             "layers": [
             {
-                "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
+                "mediaType": "{{BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip}}",
                 "digest": "{{layer.Digest}}",
                 "size": {{layer.SizeInBytes}}
             }
@@ -165,6 +164,6 @@ namespace Bicep.Core.UnitTests
         }
         """);
 
-        public static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.ArmTemplateProviderVersion;
+        public static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.TemplateExtensionVersion;
     }
 }

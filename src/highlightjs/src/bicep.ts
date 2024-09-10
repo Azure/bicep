@@ -39,7 +39,7 @@ const KEYWORDS = {
     'extends',
     'func',
     'assert',
-    'provider',
+    'extension',
   ],
   literal: [
     "true",

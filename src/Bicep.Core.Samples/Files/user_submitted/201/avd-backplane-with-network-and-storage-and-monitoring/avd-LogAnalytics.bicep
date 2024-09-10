@@ -17,7 +17,7 @@ resource avdla 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   }
 }
 
-//Create Diagnotic Setting for AVD components
+//Create Diagnostic Setting for AVD components
 module avdmonitor './avd-monitor-diag.bicep' = {
   name: 'myBicepLADiag'
   scope: resourceGroup(avdBackplaneResourceGroup)

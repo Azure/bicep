@@ -86,7 +86,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public async Task LocalModuleReference_ShouldFail()
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
-            DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
+            DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder = null;
             var telemetryProviderMock = new TelemetryProviderMock();
 
             const string ModuleRefStr = "./hello.bicep";
@@ -117,8 +117,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public async Task ExternalModuleNotInCache_ShouldReturnJsonContents()
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
-            DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
-            DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
+            DiagnosticBuilder.DiagnosticBuilderDelegate? nullBuilder = null;
+            DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder = null;
             var telemetryProviderMock = new TelemetryProviderMock();
             var compiledJsonUri = new Uri("file:///foo/bar/main.json");
             string? compiledJsonContents = "mock main.json contents";
@@ -169,7 +169,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public async Task ExternalModuleFailedEntryPoint_ShouldFail()
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
-            DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
+            DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder = null;
             var telemetryProviderMock = new TelemetryProviderMock();
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
@@ -208,8 +208,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
 
             // needed for mocking out parameters
-            DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
-            DiagnosticBuilder.ErrorBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
+            DiagnosticBuilder.DiagnosticBuilderDelegate? nullBuilder = null;
+            DiagnosticBuilder.DiagnosticBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
             var compiledJsonUri = new Uri("file:///foo/bar/main.json");
 
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
@@ -247,8 +247,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var telemetryProviderMock = new TelemetryProviderMock();
 
             // needed for mocking out parameters
-            DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
-            DiagnosticBuilder.ErrorBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
+            DiagnosticBuilder.DiagnosticBuilderDelegate? nullBuilder = null;
+            DiagnosticBuilder.DiagnosticBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
             string? compiledJsonContents = "mock main.json contents";
             var compiledJsonUri = new Uri("file:///foo/bar/main.json");
 
@@ -296,8 +296,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var telemetryProviderMock = new TelemetryProviderMock();
 
             // needed for mocking out parameters
-            DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
-            DiagnosticBuilder.ErrorBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
+            DiagnosticBuilder.DiagnosticBuilderDelegate? nullBuilder = null;
+            DiagnosticBuilder.DiagnosticBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
             string? compiledJsonContents = "mock main.json contents";
             var compiledJsonUri = new Uri("file:///foo/bar/main.json");
 
@@ -347,8 +347,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var telemetryProviderMock = new TelemetryProviderMock();
 
             // needed for mocking out parameters
-            DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
-            DiagnosticBuilder.ErrorBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
+            DiagnosticBuilder.DiagnosticBuilderDelegate? nullBuilder = null;
+            DiagnosticBuilder.DiagnosticBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
             string? compiledJsonContents = "mock main.json contents";
             var compiledJsonUri = new Uri("file:///foo/bar/main.json");
 
@@ -488,6 +488,26 @@ namespace Bicep.LangServer.UnitTests.Handlers
             (decoded.RequestedFile ?? "main.json").Should().MatchRegex(".+\\.(bicep|json)$", "requested source file should end with .json or .bicep");
         }
 
+        [TestMethod]
+        public void GetTemplateSpecSourceLinkUri_WithTemplateSpecModuleReference_ReturnsEncodedUri()
+        {
+            var subscriptionId = Guid.NewGuid();
+            var resourceGroupName = "myRG";
+            var templateSpecName = "myTemplateSpec";
+            var version = "v1";
+            var referenceValue = $"{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}";
+
+            TemplateSpecModuleReference
+                .TryParse(null, referenceValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, new Uri("file:///no-parent-file-is-available.bicep"))
+                .IsSuccess(out var reference, out var errorBuilder)
+                .Should()
+                .BeTrue();
+
+            var result = BicepExternalSourceRequestHandler.GetTemplateSpeckSourceLinkUri(reference!);
+
+            result.Should().Be($"bicep-extsrc:ts%3A{subscriptionId}%2FmyRG%2FmyTemplateSpec%3Av1?ts%3A{subscriptionId}%2FmyRG%2FmyTemplateSpec%3Av1");
+        }
+
         private Uri GetExternalSourceLinkUri(ExternalSourceLinkTestData testData)
         {
             Uri? entrypointUri = testData.sourceEntrypoint is { } ? PathHelper.FilePathToFileUrl(testData.sourceEntrypoint) : null;
@@ -503,7 +523,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new SourceArchiveBuilder().WithBicepFile(entrypointUri, "metadata description = 'bicep module'").Build()
                 : null;
 
-            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(reference, sourceArchive);
+            return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(reference, sourceArchive);
         }
 
         private string TrimFirstCharacter(string s)

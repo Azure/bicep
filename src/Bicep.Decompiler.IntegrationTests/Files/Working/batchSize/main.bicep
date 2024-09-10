@@ -5,7 +5,7 @@ param storagePrefix string
 resource storagePrefix_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [
   for i in range(0, storageCount): {
     name: toLower(concat(i, storagePrefix, uniqueString(resourceGroup().id)))
-//@[18:76) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(i, storagePrefix, uniqueString(resourceGroup().id))|
+//@[18:76) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(i, storagePrefix, uniqueString(resourceGroup().id))|
     location: resourceGroup().location
     sku: {
       name: 'Standard_LRS'
@@ -19,7 +19,7 @@ resource storagePrefix_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [
 resource one_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [
   for i in range(0, storageCount): {
     name: toLower('${i}one${uniqueString(resourceGroup().id)}')
-//@[10:63) [BCP335 (Warning)] The provided value can have a length as large as 35 and may be too long to assign to a target with a configured maximum length of 24. (CodeDescription: none) |toLower('${i}one${uniqueString(resourceGroup().id)}')|
+//@[10:63) [BCP335 (Warning)] The provided value can have a length as large as 35 and may be too long to assign to a target with a configured maximum length of 24. (bicep https://aka.ms/bicep/core-diagnostics#BCP335) |toLower('${i}one${uniqueString(resourceGroup().id)}')|
     location: resourceGroup().location
     sku: {
       name: 'Standard_LRS'
@@ -32,7 +32,7 @@ resource one_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [
 resource two_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [
   for i in range(0, storageCount): {
     name: toLower('${i}two${uniqueString(resourceGroup().id)}')
-//@[10:63) [BCP335 (Warning)] The provided value can have a length as large as 35 and may be too long to assign to a target with a configured maximum length of 24. (CodeDescription: none) |toLower('${i}two${uniqueString(resourceGroup().id)}')|
+//@[10:63) [BCP335 (Warning)] The provided value can have a length as large as 35 and may be too long to assign to a target with a configured maximum length of 24. (bicep https://aka.ms/bicep/core-diagnostics#BCP335) |toLower('${i}two${uniqueString(resourceGroup().id)}')|
     location: resourceGroup().location
     sku: {
       name: 'Standard_LRS'

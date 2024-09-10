@@ -77,7 +77,7 @@ namespace Bicep.Core.Emit
 
         public void Write(SourceAwareJsonTextWriter writer)
         {
-            // Template is used for calcualting template hash, template jtoken is used for writing to file.
+            // Template is used for calculating template hash, template jtoken is used for writing to file.
             var (template, templateJToken) = GenerateTemplateWithoutHash(writer.TrackingJsonWriter);
             var templateHash = TemplateHelpers.ComputeTemplateHash(template.ToJToken());
             if (templateJToken.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
@@ -109,7 +109,8 @@ namespace Bicep.Core.Emit
 
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
-                if (Context.SemanticModel.Features.LocalDeployEnabled)
+                if (Context.SemanticModel.Features.LocalDeployEnabled ||
+                    Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                 {
                     emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
                 }
@@ -135,7 +136,7 @@ namespace Bicep.Core.Emit
 
             this.EmitVariablesIfPresent(emitter, program.Variables.Concat(Context.ImportClosureInfo.ImportedVariablesInClosure));
 
-            this.EmitExtensionsIfPresent(emitter, program.Providers);
+            this.EmitExtensionsIfPresent(emitter, program.Extensions);
 
             this.EmitResources(jsonWriter, emitter, program.Resources, program.Modules);
 
@@ -994,85 +995,89 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
         {
-            if (!providers.Any())
+            if (!extensions.Any())
             {
                 return;
             }
 
-            // TODO: Remove if statement once all providers got migrated to extensions (extensibility v2 contract).
+            // TODO: Remove the EmitExtensions if conditions once ARM w37 is deployed to all regions.
             if (Context.SemanticModel.Features.LocalDeployEnabled)
             {
-                EmitExtensions(emitter, providers.Add(GetExtensionForLocalDeploy()));
+                EmitExtensions(emitter, extensions.Add(GetExtensionForLocalDeploy()));
+            }
+            else if (Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+            {
+                EmitExtensions(emitter, extensions);
             }
             else
             {
-                EmitProviders(emitter, providers);
+                EmitProviders(emitter, extensions);
             }
         }
 
-        private static void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        private static void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
         {
             emitter.EmitObjectProperty("imports", () =>
             {
-                foreach (var provider in providers)
+                foreach (var extension in extensions)
                 {
-                    var settings = provider.Settings;
+                    var settings = extension.Settings;
 
-                    emitter.EmitObjectProperty(provider.Name, () =>
+                    emitter.EmitObjectProperty(extension.Name, () =>
                     {
-                        emitter.EmitProperty("provider", settings.ArmTemplateProviderName);
-                        emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
-                        if (provider.Config is not null)
+                        emitter.EmitProperty("provider", settings.TemplateExtensionName);
+                        emitter.EmitProperty("version", settings.TemplateExtensionVersion);
+                        if (extension.Config is not null)
                         {
-                            emitter.EmitProperty("config", provider.Config);
+                            emitter.EmitProperty("config", extension.Config);
                         }
-                    }, provider.SourceSyntax);
+                    }, extension.SourceSyntax);
                 }
             });
         }
 
-        private void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
+        private static void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
         {
             emitter.EmitObjectProperty("extensions", () =>
             {
-                foreach (var provider in providers)
+                foreach (var extension in extensions)
                 {
-                    var settings = provider.Settings;
+                    var settings = extension.Settings;
 
-                    emitter.EmitObjectProperty(provider.Name, () =>
+                    emitter.EmitObjectProperty(extension.Name, () =>
                     {
-                        emitter.EmitProperty("name", settings.ArmTemplateProviderName);
-                        emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
+                        emitter.EmitProperty("name", settings.TemplateExtensionName);
+                        emitter.EmitProperty("version", settings.TemplateExtensionVersion);
 
-                        EmitExtensionConfig(provider, emitter);
+                        EmitExtensionConfig(extension, emitter);
                     },
-                    provider.SourceSyntax);
+                    extension.SourceSyntax);
                 }
             });
         }
 
-        private void EmitExtensionConfig(DeclaredProviderExpression provider, ExpressionEmitter emitter)
+        private static void EmitExtensionConfig(DeclaredExtensionExpression extension, ExpressionEmitter emitter)
         {
-            if (provider.Config is null)
+            if (extension.Config is null)
             {
                 return;
             }
 
-            if (provider.Config is not ObjectExpression providerConfig)
+            if (extension.Config is not ObjectExpression config)
             {
-                throw new UnreachableException($"Provider config type expected to be of type: '{nameof(ObjectExpression)}' but received: '{provider.Config.GetType()}'");
+                throw new UnreachableException($"Extension config type expected to be of type: '{nameof(ObjectExpression)}' but received: '{extension.Config.GetType()}'");
             }
 
             emitter.EmitObjectProperty("config", () =>
             {
-                foreach (var providerConfigProperty in providerConfig.Properties)
+                foreach (var configProperty in config.Properties)
                 {
                     // Type checking should have validated that the config name is not an expression (e.g. string interpolation), if we get a null value it means something
                     // was wrong with type checking validation.
-                    var extensionConfigName = providerConfigProperty.TryGetKeyText() ?? throw new UnreachableException("Expressions are not allowed as config names.");
-                    var configType = provider.Settings.ConfigurationType ?? throw new UnreachableException("Config type must be specified.");
+                    var extensionConfigName = configProperty.TryGetKeyText() ?? throw new UnreachableException("Expressions are not allowed as config names.");
+                    var configType = extension.Settings.ConfigurationType ?? throw new UnreachableException("Config type must be specified.");
                     var extensionConfigType = GetExtensionConfigType(extensionConfigName, configType);
 
                     emitter.EmitObjectProperty(extensionConfigName, () =>
@@ -1112,23 +1117,23 @@ namespace Bicep.Core.Emit
                                 throw new ArgumentException($"Config name: '{extensionConfigName}' specified an unsupported type: '{extensionConfigType}'. Supported types are: 'string', 'secureString', 'int', 'bool', 'array', 'secureObject', 'object'.");
                         }
 
-                        emitter.EmitProperty("defaultValue", providerConfigProperty.Value);
+                        emitter.EmitProperty("defaultValue", configProperty.Value);
                     });
                 }
             });
         }
 
-        private TypeSymbol GetExtensionConfigType(string configName, ObjectType configType)
+        private static TypeSymbol GetExtensionConfigType(string configName, ObjectType configType)
         {
             if (configType.Properties.TryGetValue(configName) is { } configItem)
             {
                 return configItem.TypeReference.Type;
             }
 
-            throw new UnreachableException($"Configuration name: '{configName}' does not exist as part of provider configuration.");
+            throw new UnreachableException($"Configuration name: '{configName}' does not exist as part of extension configuration.");
         }
 
-        private DeclaredProviderExpression GetExtensionForLocalDeploy()
+        private DeclaredExtensionExpression GetExtensionForLocalDeploy()
         {
             return new(
                 null,
@@ -1210,16 +1215,17 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("existing", new BooleanLiteralExpression(null, true));
                 }
 
-                var importSymbol = Context.SemanticModel.Root.ProviderDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
-                if (importSymbol is not null)
+                var extensionSymbol = Context.SemanticModel.Root.ExtensionDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
+                if (extensionSymbol is not null)
                 {
-                    if (this.Context.SemanticModel.Features.LocalDeployEnabled)
+                    if (this.Context.SemanticModel.Features.LocalDeployEnabled ||
+                        this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                     {
-                        emitter.EmitProperty("extension", importSymbol.Name);
+                        emitter.EmitProperty("extension", extensionSymbol.Name);
                     }
                     else
                     {
-                        emitter.EmitProperty("import", importSymbol.Name);
+                        emitter.EmitProperty("import", extensionSymbol.Name);
                     }
                 }
 
@@ -1411,7 +1417,7 @@ namespace Bicep.Core.Emit
                 emitter.EmitProperty("type", NestedDeploymentResourceType);
                 emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
 
-                // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
+                // emit all properties apart from 'params'. In practice, this currently only allows 'name', but we may choose to allow other top-level resource properties in future.
                 // params requires special handling (see below).
                 emitter.EmitObjectProperties((ObjectExpression)body);
 
@@ -1480,7 +1486,7 @@ namespace Bicep.Core.Emit
             }, module.SourceSyntax);
         }
 
-        private void EmitSymbolicNameDependsOnEntry(ExpressionEmitter emitter, ResourceDependencyExpression dependency)
+        private static void EmitSymbolicNameDependsOnEntry(ExpressionEmitter emitter, ResourceDependencyExpression dependency)
         {
             switch (dependency.Reference)
             {
@@ -1523,7 +1529,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private void EmitClassicDependsOnEntry(ExpressionEmitter emitter, ResourceDependencyExpression dependency)
+        private static void EmitClassicDependsOnEntry(ExpressionEmitter emitter, ResourceDependencyExpression dependency)
         {
             switch (dependency.Reference)
             {

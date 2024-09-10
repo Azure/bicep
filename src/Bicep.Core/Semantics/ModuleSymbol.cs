@@ -21,7 +21,7 @@ namespace Bicep.Core.Semantics
 
         public override SymbolKind Kind => SymbolKind.Module;
 
-        public Result<ISemanticModel, ErrorDiagnostic> TryGetSemanticModel()
+        public ResultWithDiagnostic<ISemanticModel> TryGetSemanticModel()
             => DeclaringModule.TryGetReferencedModel(Context.SourceFileLookup, Context.ModelLookup, b => b.ModuleDeclarationMustReferenceBicepModule());
 
         public override IEnumerable<Symbol> Descendants

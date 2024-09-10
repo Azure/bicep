@@ -29,14 +29,6 @@
       }
     }
   },
-  "extensionAliases": {
-    "br": {
-      "public": {
-        "registry": "mcr.microsoft.com",
-        "extensionPath": "bicep/extensions"
-      }
-    }
-  },
   "extensions": {
     "az": "builtin:",
     "kubernetes": "builtin:",
