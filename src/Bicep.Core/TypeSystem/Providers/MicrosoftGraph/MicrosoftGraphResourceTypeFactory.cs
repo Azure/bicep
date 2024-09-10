@@ -23,6 +23,13 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
             return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);
         }
 
+        public TypeSymbol GetObjectType(Azure.Bicep.Types.Concrete.ObjectType objectType)
+        {
+            var bodyType = GetTypeSymbol(objectType, false);
+
+            return bodyType;
+        }
+
         private TypeSymbol GetTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase serializedType, bool isResourceBodyType)
             => typeCache.GetOrAdd(serializedType, serializedType => ToTypeSymbol(serializedType, isResourceBodyType));
 

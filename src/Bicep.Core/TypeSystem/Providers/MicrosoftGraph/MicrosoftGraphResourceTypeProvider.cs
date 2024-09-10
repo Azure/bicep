@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using System.Reflection;
 using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem.Providers.ThirdParty;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
@@ -179,6 +181,9 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
 
-        public string Version { get; } = "1.0.0";
+        public ThirdPartyResourceTypeLoader.NamespaceConfiguration? GetNamespaceConfiguration()
+        {
+            return resourceTypeLoader.LoadNamespaceConfiguration();
+        }
     }
 }
