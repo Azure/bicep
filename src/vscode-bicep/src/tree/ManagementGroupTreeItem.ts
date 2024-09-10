@@ -25,7 +25,7 @@ export class ManagementGroupTreeItem extends SubscriptionTreeItemBase {
 
     try {
       managementGroupInfos = await uiUtils.listAllIterator(managementGroupsAPI.managementGroups.list());
-    } catch (error) {
+    } catch {
       throw new Error(
         "You do not have access to any management group. Please create one in the Azure portal and try to deploy again",
       );
