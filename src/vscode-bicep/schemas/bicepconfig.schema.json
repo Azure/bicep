@@ -754,7 +754,7 @@
                 "what-if-short-circuiting": {
                   "allOf": [
                     {
-                      "description": "Runtime values cannot be used to determine resource IDs. Defaults to 'Off'. See https://aka.ms/bicep/linter/what-if-short-circuiting"
+                      "description": "Runtime values should not be used to determine resource IDs. Defaults to 'Off'. See https://aka.ms/bicep/linter/what-if-short-circuiting"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-off"

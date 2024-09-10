@@ -1141,7 +1141,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Runtime values cannot be used to determine resource IDs.
+        ///   Looks up a localized string similar to Runtime values should not be used to determine resource IDs.
         /// </summary>
         internal static string WhatIfShortCircuitingRuleDescription {
             get {

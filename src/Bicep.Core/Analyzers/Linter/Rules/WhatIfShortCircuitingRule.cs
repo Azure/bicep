@@ -81,6 +81,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         { DeploymentMetadata.ProvidersKey, new UnevaluableExpression(null, null, null) },
                         { DeploymentMetadata.EnvironmentKey, new UnevaluableExpression(null, null, null) },
                     };
+
                     try
                     {
                         templateResult = TemplateEngine.ReduceTemplateLanguageExpressions(
@@ -140,12 +141,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     CheckResource(nestedResource, sentinelVisitor);
                 }
             }
-            sentinelVisitor.Visit(resource.Name);
-            sentinelVisitor.Visit(resource.SubscriptionId);
-            sentinelVisitor.Visit(resource.ResourceGroup);
-            sentinelVisitor.Visit(resource.Condition);
-            sentinelVisitor.Visit(resource.Scope);
-            sentinelVisitor.Visit(resource.ApiVersion);
+
+            resource.Name?.Accept(sentinelVisitor);
+            resource.SubscriptionId?.Accept(sentinelVisitor);
+            resource.ResourceGroup?.Accept(sentinelVisitor);
+            resource.Condition?.Accept(sentinelVisitor);
+            resource.Scope?.Accept(sentinelVisitor);
+            resource.ApiVersion?.Accept(sentinelVisitor);
         }
 
         private static Template GetTemplate(SemanticModel model)

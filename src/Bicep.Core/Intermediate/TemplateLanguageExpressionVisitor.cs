@@ -62,11 +62,11 @@ namespace Bicep.Core.Intermediate
         {
         }
 
-        public void Visit(ITemplateLanguageExpression? expression)
+        private void Visit(ITemplateLanguageExpression expression)
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
-            expression?.Accept(this);
+            expression.Accept(this);
         }
     }
 }

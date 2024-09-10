@@ -521,7 +521,7 @@
     <value>The syntax can be simplified by using the safe access (.?) operator.</value>
   </data>
   <data name="WhatIfShortCircuitingRuleDescription" xml:space="preserve">
-    <value>Runtime values cannot be used to determine resource IDs</value>
+    <value>Runtime values should not be used to determine resource IDs</value>
   </data>
   <data name="WhatIfShortCircuitingRuleMessageFormat" xml:space="preserve">
     <value>Runtime value '{0}' will reduce the precision of what-if analysis for module '{1}'</value>
