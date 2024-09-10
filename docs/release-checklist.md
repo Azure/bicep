@@ -9,10 +9,7 @@
           - [https://msazure.visualstudio.com/One/_workitems/edit/25142078](https://msazure.visualstudio.com/One/_workitems/edit/25142078)
           - [https://github.com/Azure/bicep/issues/11155](https://github.com/Azure/bicep/issues/11155)
     1. Publish Bicep.Types.Az NuGet packages to nuget.org. Follow the latter half of the readme [here](https://dev.azure.com/msazure/One/_git/BicepMirror-Types-Az) and the below steps.
-        1. Find your build [here](https://dev.azure.com/msazure/One/_build?definitionId=179851&_a=summary) and wait for it to finish successfully. Then click on it and for the `drop_build_main`, download the artifacts.
-        1. Follow instructions to download the nuget.exe from [here](https://learn.microsoft.com/en-us/nuget/install-nuget-client-tools)
-        1. Run `./scripts/UploadPackages.ps1 -PackageDirectory <downloads>/drop_build_main -NuGetPath <nuget_tool_directory>`
-        1. You need to be part of the armdeployments org on nuget.org. (Ask one of the admins to be added) You must generate an API key and then use that as the password for when the popup window appears after running the above command. (Username can be anything)
+        1. You need to be part of the armdeployments org on nuget.org. (Ask one of the admins to be added)
     1. Bump the Bicep.Types.Az NuGet package version in this project in this [file](https://github.com/Azure/bicep/blob/main/src/Bicep.Core/Bicep.Core.csproj) by creating and merging a PR
         1. Might need to run a `dotnet restore` to update the packages.lock.json files
         1. Might also need to update baseline tests (run `bicep/scripts/UpdateBaselines.ps1`)
