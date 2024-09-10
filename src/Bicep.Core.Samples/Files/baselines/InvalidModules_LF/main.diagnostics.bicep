@@ -23,6 +23,22 @@ module moduleWithoutPath = {
 }
 //@[000:001) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (bicep https://aka.ms/bicep/core-diagnostics#BCP007) |}|
 
+module modDOne 'moduled.bicep' = {
+  name: 'modDOne'
+  params: {
+    input: 'NameOne'
+  }
+}
+
+module modDTwo 'moduled.bicep' = {
+  name: 'modDTwo'
+  params: {
+    input: modDOne.outputs.storageAccountName
+//@[011:045) [what-if-short-circuiting (Warning)] Runtime value 'modDOne.outputs.storageAccountName' will reduce the precision of what-if analysis for module 'modDTwo' (bicep core linter https://aka.ms/bicep/linter/what-if-short-circuiting) |modDOne.outputs.storageAccountName|
+  }
+}
+
+
 // #completionTest(41) -> moduleBodyCompletions
 module moduleWithPath './moduleb.bicep' =
 //@[041:041) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP118) ||
@@ -803,3 +819,4 @@ module assignToOutput 'empty.bicep' = {
   outputs: {}
 //@[002:009) [BCP073 (Error)] The property "outputs" is read-only. Expressions cannot be assigned to read-only properties. (bicep https://aka.ms/bicep/core-diagnostics#BCP073) |outputs|
 }
+

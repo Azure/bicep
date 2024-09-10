@@ -49,6 +49,69 @@ module moduleWithoutPath = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
+module modDOne 'moduled.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:014) Identifier |modDOne|
+//@[015:030) StringComplete |'moduled.bicep'|
+//@[031:032) Assignment |=|
+//@[033:034) LeftBrace |{|
+//@[034:035) NewLine |\n|
+  name: 'modDOne'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:017) StringComplete |'modDOne'|
+//@[017:018) NewLine |\n|
+  params: {
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
+    input: 'NameOne'
+//@[004:009) Identifier |input|
+//@[009:010) Colon |:|
+//@[011:020) StringComplete |'NameOne'|
+//@[020:021) NewLine |\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+module modDTwo 'moduled.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:014) Identifier |modDTwo|
+//@[015:030) StringComplete |'moduled.bicep'|
+//@[031:032) Assignment |=|
+//@[033:034) LeftBrace |{|
+//@[034:035) NewLine |\n|
+  name: 'modDTwo'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:017) StringComplete |'modDTwo'|
+//@[017:018) NewLine |\n|
+  params: {
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
+    input: modDOne.outputs.storageAccountName
+//@[004:009) Identifier |input|
+//@[009:010) Colon |:|
+//@[011:018) Identifier |modDOne|
+//@[018:019) Dot |.|
+//@[019:026) Identifier |outputs|
+//@[026:027) Dot |.|
+//@[027:045) Identifier |storageAccountName|
+//@[045:046) NewLine |\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:004) NewLine |\n\n\n|
+
+
 // #completionTest(41) -> moduleBodyCompletions
 //@[047:048) NewLine |\n|
 module moduleWithPath './moduleb.bicep' =
@@ -2775,4 +2838,6 @@ module assignToOutput 'empty.bicep' = {
 //@[013:014) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:001) EndOfFile ||
+//@[001:002) NewLine |\n|
+
+//@[000:000) EndOfFile ||
