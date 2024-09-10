@@ -42,7 +42,7 @@
     <PackageReference Include="Azure.Deployments.Templates" Version="1.95.0" />
     <PackageReference Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2007" />
     <PackageReference Include="Azure.Bicep.Types" Version="0.5.81" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.698" />
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.706" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.626" />
     <PackageReference Include="System.IO.Abstractions" Version="21.0.29" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.38" PrivateAssets="all" />
