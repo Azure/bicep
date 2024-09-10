@@ -1,8 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Utils;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
@@ -55,7 +59,39 @@ namespace Bicep.Core.UnitTests.Assertions
             return string.Join('\n', lineLogs);
         }
 
-        public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
+        public static AndConstraint<StringAssertions> EqualWithLineByLineDiff(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
+        {
+            var lineDiff = CalculateDiff(expected, instance.Subject);
+            var hasNewlineDiffsOnly = lineDiff is null && !expected.Equals(instance.Subject, System.StringComparison.Ordinal);
+            var testPassed = lineDiff is null && !hasNewlineDiffsOnly;
+
+            var output = new StringBuilder();
+            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(testPassed)
+                .FailWith(
+                    """
+                    Expected strings to be equal{reason}, but they are not.
+                    ===== DIFF (--actual, ++expected) =====
+                    {4}
+                    ===== ACTUAL (length {0}) =====
+                    {1}
+                    ===== EXPECTED (length {2}) =====
+                    {3}
+                    ===== END =====
+                    """,
+                    instance.Subject.Length,
+                    instance.Subject,
+                    expected.Length,
+                    expected,
+                    lineDiff ?? "differences in newlines only");
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedPath, string actualPath, string because = "", params object[] becauseArgs)
         {
             var lineDiff = CalculateDiff(expected, instance.Subject);
             var hasNewlineDiffsOnly = lineDiff is null && !expected.Equals(instance.Subject, System.StringComparison.Ordinal);
@@ -64,7 +100,7 @@ namespace Bicep.Core.UnitTests.Assertions
             var isBaselineUpdate = !testPassed && BaselineHelper.ShouldSetBaseline(testContext);
             if (isBaselineUpdate)
             {
-                BaselineHelper.SetBaseline(actualLocation, expectedLocation);
+                BaselineHelper.SetBaseline(actualPath, expectedPath);
             }
 
             Execute.Assertion
@@ -73,8 +109,8 @@ namespace Bicep.Core.UnitTests.Assertions
                 .FailWith(
                     BaselineHelper.GetAssertionFormatString(isBaselineUpdate),
                     lineDiff ?? "differences in newlines only",
-                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(actualLocation),
-                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(expectedLocation));
+                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(actualPath),
+                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(expectedPath));
 
             return new AndConstraint<StringAssertions>(instance);
         }
@@ -131,6 +167,50 @@ namespace Bicep.Core.UnitTests.Assertions
             normalizedActual.Should().Be(normalizedExpected, because, becauseArgs);
 
             return new AndConstraint<StringAssertions>(instance);
+        }
+
+
+        /// <summary>
+        /// Compares two strings after normalizing by removing all whitespace
+        /// </summary>
+        public static AndConstraint<StringAssertions> EqualIgnoringWhitespace(this StringAssertions instance, string? expected, string because = "", params object[] becauseArgs)
+        {
+            var actualStringWithoutWhitespace = instance.Subject is null ? null : new Regex("\\s*").Replace(instance.Subject, "");
+            var expectedStringWithoutWhitespace = expected is null ? null : new Regex("\\s*").Replace(expected, "");
+
+            using (new AssertionScope()) {
+                Execute.Assertion
+                    .BecauseOf(because, becauseArgs)
+                    .ForCondition(string.Equals(expectedStringWithoutWhitespace, actualStringWithoutWhitespace, StringComparison.Ordinal))
+                    .FailWith("Expected {context:string} to be {0}{reason} when ignoring whitespace, but found {1}.  See next message for details.", expected, instance.Subject);
+
+                actualStringWithoutWhitespace.Should().Be(expectedStringWithoutWhitespace);
+            }
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        /// <summary>
+        /// Compares two strings after normalizing by pretty-printing both strings as Bicep
+        /// </summary>
+        public static AndConstraint<StringAssertions> EqualIgnoringBicepFormatting(this StringAssertions instance, string? expected, string because = "", params object[] becauseArgs)
+        {
+            var actualStringFormatted = instance.Subject is null ? null : PrettyPrintAsBicep(instance.Subject);
+            var expectedStringFormatted = expected is null ? null : PrettyPrintAsBicep(expected);
+
+            using (new AssertionScope())
+            {
+                Execute.Assertion
+                    .BecauseOf(because, becauseArgs)
+                    .ForCondition(string.Equals(expectedStringFormatted, actualStringFormatted, StringComparison.Ordinal))
+                    .FailWith("Expected {context:string} to be {0}{reason} when ignoring Bicep formatting, but found {1}.  See next message for details.", expected, instance.Subject);
+
+                actualStringFormatted.Should().Be(expectedStringFormatted);
+            }
+
+            return new AndConstraint<StringAssertions>(instance);
+
+            static string PrettyPrintAsBicep(string s) => PrettyPrinterV2.PrintValid(CompilationHelper.Compile(s).SourceFile.ProgramSyntax, PrettyPrinterV2Options.Default);
         }
 
         /// <summary>
