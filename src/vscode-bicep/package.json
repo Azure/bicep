@@ -284,6 +284,11 @@
         "category": "Bicep Internal"
       },
       {
+        "command": "bicep.internal.startRename",
+        "title": "(Renme identifier at given location)",
+        "category": "Bicep Internal"
+      },
+      {
         "$section": "================== Walkthrough commands (not visible to users) ==================",
         "command": "bicep.gettingStarted.createBicepFile",
         "title": "Create Empty Bicep File (Walkthrough)",
@@ -626,6 +631,10 @@
         },
         {
           "command": "bicep.internal.showModuleSourceFile",
+          "when": "never"
+        },
+        {
+          "command": "bicep.internal.startRename",
           "when": "never"
         }
       ]
