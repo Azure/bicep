@@ -4,18 +4,10 @@
     1. Run the [Update Types](https://github.com/Azure/bicep-types-az/actions/workflows/update-types.yml) GitHub Action to generate the latest type definitions.
         1. Wait ~3hrs for it to complete. Ensure it runs successfully.
         2. Submit a PR to merge the `autogenerate` branch to `main`. You can use [this link](https://github.com/Azure/bicep-types-az/compare/main...autogenerate) to start the PR.
-    1. Run the Official Build for BicepMirror-Types-Az(see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror-Types-Az) for instructions).
-        Note: There are several (non-blocking) known issues:
-          - [https://msazure.visualstudio.com/One/_workitems/edit/25142078](https://msazure.visualstudio.com/One/_workitems/edit/25142078)
-          - [https://github.com/Azure/bicep/issues/11155](https://github.com/Azure/bicep/issues/11155)
-    1. Publish Bicep.Types.Az NuGet packages to nuget.org. Follow the latter half of the readme [here](https://dev.azure.com/msazure/One/_git/BicepMirror-Types-Az) and the below steps.
-        1. Find your build [here](https://dev.azure.com/msazure/One/_build?definitionId=179851&_a=summary) and wait for it to finish successfully. Then click on it and for the `drop_build_main`, download the artifacts.
-        1. Follow instructions to download the nuget.exe from [here](https://learn.microsoft.com/en-us/nuget/install-nuget-client-tools)
-        1. Run `./scripts/UploadPackages.ps1 -PackageDirectory <downloads>/drop_build_main -NuGetPath <nuget_tool_directory>`
-        1. You need to be part of the armdeployments org on nuget.org. (Ask one of the admins to be added) You must generate an API key and then use that as the password for when the popup window appears after running the above command. (Username can be anything)
-    1. Bump the Bicep.Types.Az NuGet package version in this project in this [file](https://github.com/Azure/bicep/blob/main/src/Bicep.Core/Bicep.Core.csproj) by creating and merging a PR
-        1. Might need to run a `dotnet restore` to update the packages.lock.json files
-        1. Might also need to update baseline tests (run `bicep/scripts/UpdateBaselines.ps1`)
+    1. Follow the "Release Process" instructions [here](https://msazure.visualstudio.com/One/_git/BicepMirror-Types-Az) to build and publish the Bicep.Types.Az NuGet package.
+    1. Submit a Bicep PR to use the new Bicep.Types.Az NuGet package version.
+        1. Update the version [here](https://github.com/Azure/bicep/blob/main/src/Bicep.Core/Bicep.Core.csproj) and run `dotnet restore` to update packages.lock.json files.
+        1. Submit a PR. If CI tests fail, you may need to update baselines (run `bicep/scripts/UpdateBaselines.ps1`) and push the changes.
 1. Verify the latest build on the `main` branch is green: [Build on main](https://github.com/Azure/bicep/actions/workflows/build.yml).
 1. Review history for changes to [bicepconfig.schema.json](https://github.com/Azure/bicep/commits/main/src/vscode-bicep/schemas/bicepconfig.schema.json). Create a GitHub issue for it if none already exists and notify the team for any recently-added linter rules which do not have public documentation. This is non-blocking for the release process (continue to the next step).
 1. (**end-of-month releases only**) Bump the version number by incrementing the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))
