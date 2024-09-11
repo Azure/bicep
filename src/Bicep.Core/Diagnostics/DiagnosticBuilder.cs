@@ -1811,9 +1811,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP406",
                 $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
 
-            public Diagnostic ExpressionDoesNotHaveAName() => CoreError(
+            public Diagnostic NameofInvalidOnUnnamedExpression() => CoreError(
                 "BCP407",
-                "Expression does not have a name.");
+                $"The \"{LanguageConstants.NameofFunctionName}\" function can only be used with an expression which has a name.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

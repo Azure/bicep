@@ -73,15 +73,24 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            this.FlagIfFunctionRequiresInlining(syntax);
-            base.VisitFunctionCallSyntax(syntax);
+            var functionSymbol = this.SemanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
+
+            FlagIfFunctionRequiresInlining(functionSymbol, syntax);
+            if (ShouldVisitFunctionArguments(functionSymbol))
+            {
+                base.VisitFunctionCallSyntax(syntax);
+            }
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            this.FlagIfFunctionRequiresInlining(syntax);
+            var functionSymbol = this.SemanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
 
-            base.VisitInstanceFunctionCallSyntax(syntax);
+            FlagIfFunctionRequiresInlining(functionSymbol, syntax);
+            if (ShouldVisitFunctionArguments(functionSymbol))
+            {
+                base.VisitInstanceFunctionCallSyntax(syntax);
+            }
         }
 
         private void FlagIfAccessingEntireResourceOrModule(SyntaxBase syntax)
@@ -161,10 +170,12 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        protected void FlagIfFunctionRequiresInlining(FunctionCallSyntaxBase syntax)
+        protected bool ShouldVisitFunctionArguments(FunctionSymbol? functionSymbol)
+            => functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent);
+
+        protected void FlagIfFunctionRequiresInlining(FunctionSymbol? functionSymbol, FunctionCallSyntaxBase syntax)
         {
-            if (this.SemanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
-                functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+            if (functionSymbol is {} && functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
                 FlagDeployTimeConstantViolation(syntax);
             }

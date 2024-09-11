@@ -6,6 +6,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests.Scenarios
 {
@@ -80,7 +81,7 @@ output name string = nameof(obj[prop])
             {
                 result.Should()
                     .NotGenerateATemplate().And
-                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "Expression does not have a name.")]);
+                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "The \"nameof\" function can only be used with an expression which has a name.")]);
             }
         }
 
@@ -96,7 +97,7 @@ output name string = nameof(arr[0])
             {
                 result.Should()
                     .NotGenerateATemplate().And
-                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "Expression does not have a name.")]);
+                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "The \"nameof\" function can only be used with an expression which has a name.")]);
             }
         }
 
@@ -229,19 +230,18 @@ output name string = nameof(sqlServer::databases[100].properties.collation)
    name: 'storage123'
  }
 
- var name = nameof(myStorage.{{resourceProperty}})
-
+ output name string = nameof(myStorage.{{resourceProperty}})
  """);
 
             using (new AssertionScope())
             {
                 result.Should().NotHaveAnyCompilationBlockingDiagnostics();
-                result.Template.Should().HaveValueAtPath("$.variables['name']", expectedValue);
+                result.Template.Should().HaveValueAtPath("$.outputs['name'].value", expectedValue);
             }
         }
 
         [TestMethod]
-        public void UsingNameofFunction_ShouldNotGenerateDependsOnEntries()
+        public void UsingNameofFunction_ShouldGenerateDependsOnEntries()
         {
             var result = CompilationHelper.Compile("""
 resource myStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
@@ -257,7 +257,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
             {
                 result.Should().NotHaveAnyCompilationBlockingDiagnostics();
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Sql/servers')].name", "myStorage", "Nameof function should emit static string during compilation");
-                result.Template.Should().NotHaveValueAtPath("$.resources[?(@.type == 'Microsoft.Sql/servers')].dependsOn", "Depends on should not be generated for nameof function usage");
+                result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Sql/servers')].dependsOn[0]", "[resourceId('Microsoft.Storage/storageAccounts', 'storage123')]");
             }
         }
 
@@ -277,7 +277,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
             {
                 result.Should()
                     .NotGenerateATemplate().And
-                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "Expression does not have a name.")]);
+                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "The \"nameof\" function can only be used with an expression which has a name.")]);
             }
         }
     }

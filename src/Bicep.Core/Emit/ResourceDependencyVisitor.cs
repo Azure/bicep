@@ -16,7 +16,6 @@ namespace Bicep.Core.Emit
         private Options? options;
         private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
         private DeclaredSymbol? currentDeclaration;
-        private bool insideNameofFunction;
 
 
         public struct Options
@@ -155,7 +154,7 @@ namespace Bicep.Core.Emit
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            if (currentDeclaration is null || insideNameofFunction)
+            if (currentDeclaration is null)
             {
                 return;
             }
@@ -194,7 +193,7 @@ namespace Bicep.Core.Emit
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {
-            if (currentDeclaration is null || insideNameofFunction)
+            if (currentDeclaration is null)
             {
                 return;
             }
@@ -281,13 +280,6 @@ namespace Bicep.Core.Emit
             }
 
             base.VisitObjectPropertySyntax(propertySyntax);
-        }
-
-        public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
-        {
-            insideNameofFunction = syntax.Name.IdentifierName == LanguageConstants.NameofFunctionName;
-            base.VisitFunctionCallSyntax(syntax);
-            insideNameofFunction = false;
         }
 
         private bool IsTopLevelPropertyOfCurrentDeclaration(ObjectPropertySyntax propertySyntax)

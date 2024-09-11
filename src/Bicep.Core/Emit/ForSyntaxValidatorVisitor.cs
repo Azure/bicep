@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Emit
 {
@@ -61,7 +62,6 @@ namespace Bicep.Core.Emit
         private bool insideTopLevelDependsOn = false;
 
         private bool insideProperties = false;
-        private bool insideNameOfFunction = false;
 
         private ForSyntaxValidatorVisitor(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
@@ -254,9 +254,20 @@ namespace Bicep.Core.Emit
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            insideNameOfFunction = syntax.Name.IdentifierName == LanguageConstants.NameofFunctionName;
-            base.VisitFunctionCallSyntax(syntax);
-            insideNameOfFunction = false;
+            var functionSymbol = semanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
+            if (functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent))
+            {
+                base.VisitFunctionCallSyntax(syntax);
+            }
+        }
+
+        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            var functionSymbol = semanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
+            if (functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent))
+            {
+                base.VisitInstanceFunctionCallSyntax(syntax);
+            }
         }
 
         protected override void VisitInternal(SyntaxBase node)
@@ -293,7 +304,7 @@ namespace Bicep.Core.Emit
             {
                 // we are inside a dependsOn property and the referenced symbol is a resource/module collection
                 var parent = this.semanticModel.Binder.GetParent(variableOrResourceAccessSyntax);
-                if (!insideNameOfFunction && !this.insideTopLevelDependsOn && parent is not ArrayAccessSyntax)
+                if (!this.insideTopLevelDependsOn && parent is not ArrayAccessSyntax)
                 {
                     // the parent is not array access, which means that someone is doing a direct reference to the collection
                     // NOTE(kylealbert): Direct access to resource collections:

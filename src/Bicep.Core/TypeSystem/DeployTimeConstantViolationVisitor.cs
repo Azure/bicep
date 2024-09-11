@@ -95,14 +95,5 @@ namespace Bicep.Core.TypeSystem
 
             return accessiblePropertyNames;
         }
-
-        public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
-        {
-            if (syntax.Name.IdentifierName == LanguageConstants.NameofFunctionName)
-            {
-                return;
-            }
-            base.VisitFunctionCallSyntax(syntax);
-        }
     }
 }

@@ -1,6 +1,7 @@
 
 @sys.description('this is basicStorage')
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[09:021) Resource basicStorage. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 225
   name: 'basicblobs'
   location: 'westus'
   kind: 'BlobStorage'
@@ -11,11 +12,13 @@ resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 @sys.description('this is dnsZone')
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
+//@[09:016) Resource dnsZone. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 140
   name: 'myZone'
   location: 'global'
 }
 
 resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
+//@[09:025) Resource myStorageAccount. Type: Microsoft.Storage/storageAccounts@2017-10-01. Declaration start char: 0, length: 469
   name: 'myencryptedone'
   location: 'eastus2'
   properties: {
@@ -40,6 +43,7 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 }
 
 resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
+//@[09:024) Resource withExpressions. Type: Microsoft.Storage/storageAccounts@2017-10-01. Declaration start char: 0, length: 539
   name: 'myencryptedone2'
   location: 'eastus2'
   properties: {
@@ -67,14 +71,20 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 }
 
 param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
+//@[06:021) Parameter applicationName. Type: string. Declaration start char: 0, length: 77
 var hostingPlanName = applicationName // why not just use the param directly?
+//@[04:019) Variable hostingPlanName. Type: string. Declaration start char: 0, length: 37
 
 param appServicePlanTier string
+//@[06:024) Parameter appServicePlanTier. Type: string. Declaration start char: 0, length: 31
 param appServicePlanInstances int
+//@[06:029) Parameter appServicePlanInstances. Type: int. Declaration start char: 0, length: 33
 
 var location = resourceGroup().location
+//@[04:012) Variable location. Type: string. Declaration start char: 0, length: 39
 
 resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
+//@[09:013) Resource farm. Type: Microsoft.Web/serverfarms@2019-08-01. Declaration start char: 0, length: 371
   // dependsOn: resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosAccountName)
   name: hostingPlanName
   location: location
@@ -88,17 +98,23 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
 }
 
 var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts',
+//@[04:022) Variable cosmosDbResourceId. Type: string. Declaration start char: 0, length: 107
 // comment
 cosmosDb.account)
 var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
+//@[04:015) Variable cosmosDbRef. Type: any. Declaration start char: 0, length: 64
 
 // this variable is not accessed anywhere in this template and depends on a run-time reference
 // it should not be present at all in the template output as there is nowhere logical to put it
 var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
+//@[04:020) Variable cosmosDbEndpoint. Type: any. Declaration start char: 0, length: 51
 
 param webSiteName string
+//@[06:017) Parameter webSiteName. Type: string. Declaration start char: 0, length: 24
 param cosmosDb object
+//@[06:014) Parameter cosmosDb. Type: object. Declaration start char: 0, length: 21
 resource site 'Microsoft.Web/sites@2019-08-01' = {
+//@[09:013) Resource site. Type: Microsoft.Web/sites@2019-08-01. Declaration start char: 0, length: 689
   name: webSiteName
   location: location
   properties: {
@@ -127,12 +143,17 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 }
 
 var _siteApiVersion = site.apiVersion
+//@[04:019) Variable _siteApiVersion. Type: '2019-08-01'. Declaration start char: 0, length: 37
 var _siteType = site.type
+//@[04:013) Variable _siteType. Type: 'Microsoft.Web/sites'. Declaration start char: 0, length: 25
 
 output siteApiVersion string = site.apiVersion
+//@[07:021) Output siteApiVersion. Type: string. Declaration start char: 0, length: 46
 output siteType string = site.type
+//@[07:015) Output siteType. Type: string. Declaration start char: 0, length: 34
 
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
+//@[09:015) Resource nested. Type: Microsoft.Resources/deployments@2019-10-01. Declaration start char: 0, length: 354
   name: 'nestedTemplate1'
   properties: {
     mode: 'Incremental'
@@ -148,6 +169,7 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 
 // should be able to access the read only properties
 resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
+//@[09:036) Resource accessingReadOnlyProperties. Type: Microsoft.Foo/foos@2019-10-01. Declaration start char: 0, length: 284
   name: 'nestedTemplate1'
   properties: {
     otherId: nested.id
@@ -160,14 +182,17 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 }
 
 resource resourceA 'My.Rp/typeA@2020-01-01' = {
+//@[09:018) Resource resourceA. Type: My.Rp/typeA@2020-01-01. Declaration start char: 0, length: 71
   name: 'resourceA'
 }
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
+//@[09:018) Resource resourceB. Type: My.Rp/typeA/typeB@2020-01-01. Declaration start char: 0, length: 92
   name: '${resourceA.name}/myName'
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
+//@[09:018) Resource resourceC. Type: My.Rp/typeA/typeB@2020-01-01. Declaration start char: 0, length: 269
   name: '${resourceA.name}/myName'
   properties: {
     aId: resourceA.id
@@ -179,6 +204,7 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 }
 
 var varARuntime = {
+//@[04:015) Variable varARuntime. Type: object. Declaration start char: 0, length: 155
   bId: resourceB.id
   bType: resourceB.type
   bName: resourceB.name
@@ -187,15 +213,19 @@ var varARuntime = {
 }
 
 var varBRuntime = [
+//@[04:015) Variable varBRuntime. Type: [object]. Declaration start char: 0, length: 37
   varARuntime
 ]
 
 var resourceCRef = {
+//@[04:016) Variable resourceCRef. Type: object. Declaration start char: 0, length: 43
   id: resourceC.id
 }
 var setResourceCRef = true
+//@[04:019) Variable setResourceCRef. Type: true. Declaration start char: 0, length: 26
 
 resource resourceD 'My.Rp/typeD@2020-01-01' = {
+//@[09:018) Resource resourceD. Type: My.Rp/typeD@2020-01-01. Declaration start char: 0, length: 231
   name: 'constant'
   properties: {
     runtime: varBRuntime
@@ -205,7 +235,9 @@ resource resourceD 'My.Rp/typeD@2020-01-01' = {
 }
 
 var myInterpKey = 'abc'
+//@[04:015) Variable myInterpKey. Type: 'abc'. Declaration start char: 0, length: 23
 resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
+//@[09:027) Resource resourceWithInterp. Type: My.Rp/interp@2020-01-01. Declaration start char: 0, length: 202
   name: 'interpTest'
   properties: {
     '${myInterpKey}': 1
@@ -215,6 +247,7 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 }
 
 resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
+//@[09:029) Resource resourceWithEscaping. Type: My.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 234
   name: 'test'
   properties: {
     // both key and value should be escaped in template output
@@ -223,9 +256,11 @@ resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
 }
 
 param shouldDeployVm bool = true
+//@[06:020) Parameter shouldDeployVm. Type: bool. Declaration start char: 0, length: 32
 
 @sys.description('this is vmWithCondition')
 resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
+//@[09:024) Resource vmWithCondition. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 308
   name: 'vmName'
   location: 'westus'
   properties: {
@@ -239,6 +274,7 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
 
 @sys.description('this is another vmWithCondition')
 resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
+//@[09:025) Resource vmWithCondition2. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 339
                     if (shouldDeployVm) {
   name: 'vmName2'
   location: 'westus'
@@ -252,16 +288,19 @@ resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
 }
 
 resource extension1 'My.Rp/extensionResource@2020-12-01' = {
+//@[09:019) Resource extension1. Type: My.Rp/extensionResource@2020-12-01. Declaration start char: 0, length: 110
   name: 'extension'
   scope: vmWithCondition
 }
 
 resource extension2 'My.Rp/extensionResource@2020-12-01' = {
+//@[09:019) Resource extension2. Type: My.Rp/extensionResource@2020-12-01. Declaration start char: 0, length: 105
   name: 'extension'
   scope: extension1
 }
 
 resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
+//@[09:030) Resource extensionDependencies. Type: My.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 359
   name: 'extensionDependencies'
   properties: {
     res1: vmWithCondition.id
@@ -275,16 +314,19 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
 
 @sys.description('this is existing1')
 resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
+//@[09:018) Resource existing1. Type: Mock.Rp/existingExtensionResource@2020-01-01. Declaration start char: 0, length: 162
   name: 'existing1'
   scope: extension1
 }
 
 resource existing2 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
+//@[09:018) Resource existing2. Type: Mock.Rp/existingExtensionResource@2020-01-01. Declaration start char: 0, length: 122
   name: 'existing2'
   scope: existing1
 }
 
 resource extension3 'My.Rp/extensionResource@2020-12-01' = {
+//@[09:019) Resource extension3. Type: My.Rp/extensionResource@2020-12-01. Declaration start char: 0, length: 105
   name: 'extension3'
   scope: existing1
 }
@@ -293,6 +335,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
   valid loop cases
 */
 var storageAccounts = [
+//@[04:019) Variable storageAccounts. Type: [object, object]. Declaration start char: 0, length: 129
   {
     name: 'one'
     location: 'eastus2'
@@ -306,6 +349,8 @@ var storageAccounts = [
 // just a storage account loop
 @sys.description('this is just a storage account loop')
 resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+//@[80:087) Local account. Type: object | object. Declaration start char: 80, length: 7
+//@[09:025) Resource storageResources. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 284
   name: account.name
   location: account.location
   sku: {
@@ -317,6 +362,9 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 // storage account loop with index
 @sys.description('this is just a storage account loop with index')
 resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
+//@[90:097) Local account. Type: object | object. Declaration start char: 90, length: 7
+//@[99:100) Local i. Type: int. Declaration start char: 99, length: 1
+//@[09:034) Resource storageResourcesWithIndex. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 318
   name: '${account.name}${i}'
   location: account.location
   sku: {
@@ -328,9 +376,12 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 // basic nested loop
 @sys.description('this is just a basic nested loop')
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[68:069) Local i. Type: int. Declaration start char: 68, length: 1
+//@[09:013) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 394
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
+//@[18:019) Local j. Type: int. Declaration start char: 18, length: 1
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
 
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
@@ -341,9 +392,12 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 
 // duplicate identifiers within the loop are allowed
 resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[94:095) Local i. Type: int. Declaration start char: 94, length: 1
+//@[09:039) Resource duplicateIdentifiersWithinLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 239
   name: 'vnet-${i}'
   properties: {
     subnets: [for i in range(0, 4): {
+//@[18:019) Local i. Type: int. Declaration start char: 18, length: 1
       name: 'subnet-${i}-${i}'
     }]
   }
@@ -351,10 +405,14 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 
 // duplicate identifiers in global and single loop scope are allowed (inner variable hides the outer)
 var canHaveDuplicatesAcrossScopes = 'hello'
+//@[04:033) Variable canHaveDuplicatesAcrossScopes. Type: 'hello'. Declaration start char: 0, length: 43
 resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
+//@[91:120) Local canHaveDuplicatesAcrossScopes. Type: int. Declaration start char: 91, length: 29
+//@[09:036) Resource duplicateInGlobalAndOneLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 292
   name: 'vnet-${canHaveDuplicatesAcrossScopes}'
   properties: {
     subnets: [for i in range(0, 4): {
+//@[18:019) Local i. Type: int. Declaration start char: 18, length: 1
       name: 'subnet-${i}-${i}'
     }]
   }
@@ -362,10 +420,14 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 
 // duplicate in global and multiple loop scopes are allowed (inner hides the outer)
 var duplicatesEverywhere = 'hello'
+//@[04:024) Variable duplicatesEverywhere. Type: 'hello'. Declaration start char: 0, length: 34
 resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
+//@[92:112) Local duplicatesEverywhere. Type: int. Declaration start char: 92, length: 20
+//@[09:037) Resource duplicateInGlobalAndTwoLoops. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 308
   name: 'vnet-${duplicatesEverywhere}'
   properties: {
     subnets: [for duplicatesEverywhere in range(0, 4): {
+//@[18:038) Local duplicatesEverywhere. Type: int. Declaration start char: 18, length: 20
       name: 'subnet-${duplicatesEverywhere}'
     }]
   }
@@ -375,11 +437,15 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
   Scope values created via array access on a resource collection
 */
 resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0,4): {
+//@[65:069) Local zone. Type: int. Declaration start char: 65, length: 4
+//@[09:017) Resource dnsZones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 135
   name: 'zone${zone}'
   location: 'global'
 }]
 
 resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in range(0,2): {
+//@[72:076) Local lock. Type: int. Declaration start char: 72, length: 4
+//@[09:021) Resource locksOnZones. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 194
   name: 'lock${lock}'
   properties: {
     level: 'CanNotDelete'
@@ -388,6 +454,9 @@ resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in 
 }]
 
 resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (lock, i) in range(0,3): {
+//@[77:081) Local lock. Type: int. Declaration start char: 77, length: 4
+//@[83:084) Local i. Type: int. Declaration start char: 83, length: 1
+//@[09:025) Resource moreLocksOnZones. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 196
   name: 'another${i}'
   properties: {
     level: 'ReadOnly'
@@ -396,6 +465,7 @@ resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (loc
 }]
 
 resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[09:030) Resource singleLockOnFirstZone. Type: Microsoft.Authorization/locks@2016-09-01. Declaration start char: 0, length: 170
   name: 'single-lock'
   properties: {
     level: 'ReadOnly'
@@ -405,6 +475,7 @@ resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
 
 
 resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[09:016) Resource p1_vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 234
   location: resourceGroup().location
   name: 'myVnet'
   properties: {
@@ -417,6 +488,7 @@ resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 }
 
 resource p1_subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+//@[09:019) Resource p1_subnet1. Type: Microsoft.Network/virtualNetworks/subnets@2020-06-01. Declaration start char: 0, length: 175
   parent: p1_vnet
   name: 'subnet1'
   properties: {
@@ -425,6 +497,7 @@ resource p1_subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
 }
 
 resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
+//@[09:019) Resource p1_subnet2. Type: Microsoft.Network/virtualNetworks/subnets@2020-06-01. Declaration start char: 0, length: 175
   parent: p1_vnet
   name: 'subnet2'
   properties: {
@@ -433,85 +506,115 @@ resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
 }
 
 output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
+//@[07:023) Output p1_subnet1prefix. Type: string. Declaration start char: 0, length: 68
 output p1_subnet1name string = p1_subnet1.name
+//@[07:021) Output p1_subnet1name. Type: string. Declaration start char: 0, length: 46
 output p1_subnet1type string = p1_subnet1.type
+//@[07:021) Output p1_subnet1type. Type: string. Declaration start char: 0, length: 46
 output p1_subnet1id string = p1_subnet1.id
+//@[07:019) Output p1_subnet1id. Type: string. Declaration start char: 0, length: 42
 
 // parent property with extension resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[09:016) Resource p2_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
   name: 'res1'
 }
 
 resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[09:021) Resource p2_res1child. Type: Microsoft.Rp1/resource1/child1@2020-06-01. Declaration start char: 0, length: 109
   parent: p2_res1
   name: 'child1'
 }
 
 resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[09:016) Resource p2_res2. Type: Microsoft.Rp2/resource2@2020-06-01. Declaration start char: 0, length: 99
   scope: p2_res1child
   name: 'res2'
 }
 
 resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[09:021) Resource p2_res2child. Type: Microsoft.Rp2/resource2/child2@2020-06-01. Declaration start char: 0, length: 109
   parent: p2_res2
   name: 'child2'
 }
 
 output p2_res2childprop string = p2_res2child.properties.someProp
+//@[07:023) Output p2_res2childprop. Type: string. Declaration start char: 0, length: 65
 output p2_res2childname string = p2_res2child.name
+//@[07:023) Output p2_res2childname. Type: string. Declaration start char: 0, length: 50
 output p2_res2childtype string = p2_res2child.type
+//@[07:023) Output p2_res2childtype. Type: string. Declaration start char: 0, length: 50
 output p2_res2childid string = p2_res2child.id
+//@[07:021) Output p2_res2childid. Type: string. Declaration start char: 0, length: 46
 
 // parent property with 'existing' resource
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[09:016) Resource p3_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 85
   name: 'res1'
 }
 
 resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[09:018) Resource p3_child1. Type: Microsoft.Rp1/resource1/child1@2020-06-01. Declaration start char: 0, length: 106
   parent: p3_res1
   name: 'child1'
 }
 
 output p3_res1childprop string = p3_child1.properties.someProp
+//@[07:023) Output p3_res1childprop. Type: string. Declaration start char: 0, length: 62
 output p3_res1childname string = p3_child1.name
+//@[07:023) Output p3_res1childname. Type: string. Declaration start char: 0, length: 47
 output p3_res1childtype string = p3_child1.type
+//@[07:023) Output p3_res1childtype. Type: string. Declaration start char: 0, length: 47
 output p3_res1childid string = p3_child1.id
+//@[07:021) Output p3_res1childid. Type: string. Declaration start char: 0, length: 43
 
 // parent & child with 'existing'
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+//@[09:016) Resource p4_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 104
   scope: tenant()
   name: 'res1'
 }
 
 resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
+//@[09:018) Resource p4_child1. Type: Microsoft.Rp1/resource1/child1@2020-06-01. Declaration start char: 0, length: 115
   parent: p4_res1
   name: 'child1'
 }
 
 output p4_res1childprop string = p4_child1.properties.someProp
+//@[07:023) Output p4_res1childprop. Type: string. Declaration start char: 0, length: 62
 output p4_res1childname string = p4_child1.name
+//@[07:023) Output p4_res1childname. Type: string. Declaration start char: 0, length: 47
 output p4_res1childtype string = p4_child1.type
+//@[07:023) Output p4_res1childtype. Type: string. Declaration start char: 0, length: 47
 output p4_res1childid string = p4_child1.id
+//@[07:021) Output p4_res1childid. Type: string. Declaration start char: 0, length: 43
 
 // parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
 var dbs = ['db1', 'db2','db3']
+//@[04:007) Variable dbs. Type: ['db1', 'db2', 'db3']. Declaration start char: 0, length: 30
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+//@[09:018) Resource sqlServer. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 527
   name: 'sql-server-name'
   location: 'polandcentral'
 
   @batchSize(1)
   @description('Sql Databases')
   resource sqlDatabases 'databases' = [for db in dbs: {
+//@[43:045) Local db. Type: 'db1' | 'db2' | 'db3'. Declaration start char: 43, length: 2
+//@[11:023) Resource sqlDatabases. Type: Microsoft.Sql/servers/databases@2021-11-01[]. Declaration start char: 2, length: 154
     name: db
     location: 'polandcentral'
   }]
 
   @description('Primary Sql Database')
   resource primaryDb 'databases' = {
+//@[11:020) Resource primaryDb. Type: Microsoft.Sql/servers/databases@2021-11-01. Declaration start char: 2, length: 245
     name: 'primary-db'
     location: 'polandcentral'
 
     resource threatProtection 'advancedThreatProtectionSettings' existing = {
+//@[13:029) Resource threatProtection. Type: Microsoft.Sql/servers/databases/advancedThreatProtectionSettings@2021-11-01. Declaration start char: 4, length: 103
       name: 'default'
     }
   }
@@ -519,17 +622,24 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 
 //nameof
 output nameof_sqlServer string = nameof(sqlServer)
+//@[07:023) Output nameof_sqlServer. Type: string. Declaration start char: 0, length: 50
 output nameof_location string = nameof(sqlServer.location)
+//@[07:022) Output nameof_location. Type: string. Declaration start char: 0, length: 58
 output nameof_minCapacity string = nameof(sqlServer::primaryDb.properties.minCapacity)
+//@[07:025) Output nameof_minCapacity. Type: string. Declaration start char: 0, length: 86
 output nameof_creationTime string = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+//@[07:026) Output nameof_creationTime. Type: string. Declaration start char: 0, length: 106
 output nameof_id string = nameof(sqlServer::sqlDatabases[0].id)
+//@[07:016) Output nameof_id. Type: string. Declaration start char: 0, length: 63
 
 var sqlConfig = {
+//@[04:013) Variable sqlConfig. Type: object. Declaration start char: 0, length: 55
   westus: {}
   'server-name': {}
 }
 
 resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+//@[09:028) Resource sqlServerWithNameof. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 173
   name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
   location: nameof(sqlConfig.westus)
 }

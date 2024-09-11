@@ -1055,38 +1055,21 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
 
                 yield return new FunctionOverloadBuilder(LanguageConstants.NameofFunctionName)
-                    .WithGenericDescription("Returns the name of a variable, resource, module or property as the string constant. Function is evaluated at compile time and has no effect during deployment.")
-                    .WithRequiredParameter("symbol", LanguageConstants.Any, "The variable, resource, module or property to produce the name.")
+                    .WithGenericDescription("Returns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.")
+                    .WithRequiredParameter("symbol", LanguageConstants.Any, "The declared symbol or property to get the name of.")
                     .WithReturnResultBuilder((model, diagnostics, call, argumentTypes) =>
                     {
-                        var x = call.Arguments[0].Expression switch
+                        var argument = call.Arguments[0].Expression;
+                        if (GetNameOfReturnValue(argument) is not {} returnValue)
                         {
-                            VariableAccessSyntax variableAccess => variableAccess.Name.IdentifierName,
-                            PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
-                            ResourceAccessSyntax resourceAccess => resourceAccess.ResourceName.IdentifierName,
-                            ModuleDeclarationSyntax moduleDeclaration => moduleDeclaration.Name.IdentifierName,
-                            ArrayAccessSyntax { IndexExpression: StringSyntax } arrayAccess => ((StringSyntax)arrayAccess.IndexExpression).TryGetLiteralValue()?.Trim('\''),
-                            _ => null,
-                        };
-                        if (x is null)
-                        {
-                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(call.Arguments[0]).ExpressionDoesNotHaveAName()));
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(call.Arguments[0]).NameofInvalidOnUnnamedExpression()));
                         }
-                        return new(new StringLiteralType(x, TypeSymbolValidationFlags.Default));
+
+                        return new(
+                            new StringLiteralType(returnValue, TypeSymbolValidationFlags.Default),
+                            new StringLiteralExpression(argument, returnValue));
                     }, LanguageConstants.String)
-                    .WithEvaluator(expression =>
-                    {
-                        var x = expression.Parameters[0].SourceSyntax switch
-                        {
-                            VariableAccessSyntax variableAccess => variableAccess.Name.IdentifierName,
-                            PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
-                            ResourceAccessSyntax resourceAccess => resourceAccess.ResourceName.IdentifierName,
-                            ModuleDeclarationSyntax moduleDeclaration => moduleDeclaration.Name.IdentifierName,
-                            ArrayAccessSyntax { IndexExpression: StringSyntax } arrayAccess => ((StringSyntax)arrayAccess.IndexExpression).TryGetLiteralValue()?.Trim('\'') ?? string.Empty,
-                            _ => string.Empty,
-                        };
-                        return new StringLiteralExpression(expression.Parameters[0].SourceSyntax, x);
-                    })
+                    .WithFlags(FunctionFlags.IsArgumentValueIndependent)
                     .Build();
             }
 
@@ -1988,6 +1971,19 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new(typeProp, (features, sfk) => features.ResourceDerivedTypesEnabled && sfk == BicepSourceFileKind.BicepFile);
             }
+        }
+
+        private static string? GetNameOfReturnValue(SyntaxBase syntax)
+        {
+            return syntax switch
+            {
+                VariableAccessSyntax variableAccess => variableAccess.Name.IdentifierName,
+                PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
+                ResourceAccessSyntax resourceAccess => resourceAccess.ResourceName.IdentifierName,
+                ModuleDeclarationSyntax moduleDeclaration => moduleDeclaration.Name.IdentifierName,
+                ArrayAccessSyntax { IndexExpression: StringSyntax indexExpression } when indexExpression.TryGetLiteralValue() is {} literalValue => literalValue,
+                _ => null,
+            };
         }
 
         public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)

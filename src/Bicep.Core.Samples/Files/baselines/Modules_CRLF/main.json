@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9428995407122942162"
+      "templateHash": "15268885528473582426"
     }
   },
   "parameters": {
@@ -2126,7 +2126,12 @@
             }
           }
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'childWithSpace')]",
+        "[resourceId('Microsoft.Resources/deployments', 'secureModuleCondition')]",
+        "[resourceId('Microsoft.Resources/deployments', 'withSpace')]"
+      ]
     }
   ],
   "outputs": {

@@ -1054,7 +1054,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nnameof(symbol: any): string\n\n```  \nReturns the name of a variable, resource, module or property as the string constant. Function is evaluated at compile time and has no effect during deployment.  \n"
+      "value": "```bicep\nnameof(symbol: any): string\n\n```  \nReturns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.  \n"
     },
     "deprecated": false,
     "preselect": false,

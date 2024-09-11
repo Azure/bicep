@@ -1130,18 +1130,18 @@
   },
   {
     "name": "nameof",
-    "description": "Returns the name of a variable, resource, module or property as the string constant. Function is evaluated at compile time and has no effect during deployment.",
+    "description": "Returns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.",
     "fixedParameters": [
       {
         "name": "symbol",
-        "description": "The variable, resource, module or property to produce the name.",
+        "description": "The declared symbol or property to get the name of.",
         "type": "any",
         "required": true
       }
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "isArgumentValueIndependent",
     "typeSignature": "(symbol: any): string",
     "parameterTypeSignatures": [
       "symbol: any"

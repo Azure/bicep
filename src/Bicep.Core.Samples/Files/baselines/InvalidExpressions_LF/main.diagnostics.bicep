@@ -588,7 +588,7 @@ var partialObject = {
 //nameof expressions
 var nameOfConstant = nameof('abc')
 //@[04:18) [no-unused-vars (Warning)] Variable "nameOfConstant" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |nameOfConstant|
-//@[28:33) [BCP407 (Error)] Expression does not have a name. (bicep https://aka.ms/bicep/core-diagnostics#BCP407) |'abc'|
+//@[28:33) [BCP407 (Error)] The "nameof" function can only be used with an expression which has a name. (bicep https://aka.ms/bicep/core-diagnostics#BCP407) |'abc'|
 var nameOfKeyword1 = nameof(param)
 //@[04:18) [no-unused-vars (Warning)] Variable "nameOfKeyword1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |nameOfKeyword1|
 //@[28:33) [BCP057 (Error)] The name "param" does not exist in the current context. (bicep https://aka.ms/bicep/core-diagnostics#BCP057) |param|
@@ -606,11 +606,11 @@ var nameOfKeyword5 = nameof(output)
 //@[28:34) [BCP057 (Error)] The name "output" does not exist in the current context. (bicep https://aka.ms/bicep/core-diagnostics#BCP057) |output|
 var nameofExpression1 = nameof(1 + 2)
 //@[04:21) [no-unused-vars (Warning)] Variable "nameofExpression1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |nameofExpression1|
-//@[31:36) [BCP407 (Error)] Expression does not have a name. (bicep https://aka.ms/bicep/core-diagnostics#BCP407) |1 + 2|
+//@[31:36) [BCP407 (Error)] The "nameof" function can only be used with an expression which has a name. (bicep https://aka.ms/bicep/core-diagnostics#BCP407) |1 + 2|
 var nameofVar= 'abc'
 var nameofExpression2 = nameof(true ? nameofVar : nameofVar)
 //@[04:21) [no-unused-vars (Warning)] Variable "nameofExpression2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |nameofExpression2|
-//@[31:59) [BCP407 (Error)] Expression does not have a name. (bicep https://aka.ms/bicep/core-diagnostics#BCP407) |true ? nameofVar : nameofVar|
+//@[31:59) [BCP407 (Error)] The "nameof" function can only be used with an expression which has a name. (bicep https://aka.ms/bicep/core-diagnostics#BCP407) |true ? nameofVar : nameofVar|
 var nameofUnknown = nameof(symbolNotFound)
 //@[04:17) [no-unused-vars (Warning)] Variable "nameofUnknown" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |nameofUnknown|
 //@[27:41) [BCP057 (Error)] The name "symbolNotFound" does not exist in the current context. (bicep https://aka.ms/bicep/core-diagnostics#BCP057) |symbolNotFound|
