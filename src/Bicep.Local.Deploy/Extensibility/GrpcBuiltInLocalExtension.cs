@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Text.Json.Nodes;
 using Azure.Deployments.Extensibility.Core.V2.Json;
 using Bicep.Local.Extension.Rpc;
 using Google.Protobuf.Collections;
+using Grpc.Net.Client;
 using Json.Pointer;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
@@ -27,12 +29,28 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
 
     public static async Task<LocalExtensibilityHost> Start(Uri pathToBinary)
     {
-        var socketName = $"{Guid.NewGuid()}.tmp";
-        var socketPath = Path.Combine(Path.GetTempPath(), socketName);
+        string processArgs;
+        Func<GrpcChannel> channelBuilder;
 
-        if (File.Exists(socketPath))
+        if (Socket.OSSupportsUnixDomainSockets)
         {
-            File.Delete(socketPath);
+            var socketName = $"{Guid.NewGuid()}.tmp";
+            var socketPath = Path.Combine(Path.GetTempPath(), socketName);
+
+            if (File.Exists(socketPath))
+            {
+                File.Delete(socketPath);
+            }
+
+            processArgs = $"--socket {socketPath}";
+            channelBuilder = () => GrpcChannelHelper.CreateDomainSocketChannel(socketPath);
+        }
+        else
+        {
+            var pipeName = $"{Guid.NewGuid()}.tmp";
+
+            processArgs = $"--pipe {pipeName}";
+            channelBuilder = () => GrpcChannelHelper.CreateNamedPipeChannel(pipeName);
         }
 
         var process = new Process
@@ -40,7 +58,7 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
             StartInfo = new ProcessStartInfo
             {
                 FileName = pathToBinary.LocalPath,
-                Arguments = $"--socket {socketPath}",
+                Arguments = processArgs,
                 UseShellExecute = false,
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
@@ -62,8 +80,7 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
             process.BeginErrorReadLine();
             process.BeginOutputReadLine();
 
-            var channel = GrpcChannelHelper.CreateChannel(socketPath);
-            var client = new BicepExtension.BicepExtensionClient(channel);
+            var client = new BicepExtension.BicepExtensionClient(channelBuilder());
 
             await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
