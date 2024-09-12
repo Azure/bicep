@@ -1025,11 +1025,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ExpectedExtensionSpecification() => CoreError(
                 "BCP201",
-                """
-                Expected an extension specification string with a valid format at this location. Valid formats:
-                * "br:<extensionRegistryHost>/<extensionRepositoryPath>:<extensionVersion>"
-                * "br/<extensionAlias>:<extensionName>:<extensionVersion>"
-                """);
+                "Expected an extension specification string. This should either be a relative path, or a valid OCI artifact specification.");
 
             public Diagnostic ExpectedExtensionAliasName() => CoreError(
                 "BCP202",
@@ -1777,14 +1773,6 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic InvalidExtension_NotABuiltInExtension(Uri? configFileUri, string name) => CoreError(
                 "BCP398",
                 $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
-
-            public Diagnostic FetchingAzTypesRequiresExperimentalFeature() => CoreError(
-                "BCP399",
-                $"Fetching az types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.DynamicTypeLoading)}\".");
-
-            public Diagnostic FetchingTypesRequiresExperimentalFeature() => CoreError(
-                "BCP400",
-                $"Fetching types from the registry requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ExtensionRegistry)}\".");
 
             public Diagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => CoreError(
                 "BCP401",

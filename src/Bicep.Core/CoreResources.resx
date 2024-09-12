@@ -484,12 +484,6 @@
   <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
     <value>Asserts</value>
   </data>
-  <data name="ExperimentalFeatureNames_DynamicTypeLoading" xml:space="preserve">
-    <value>Dynamic type loading</value>
-  </data>
-  <data name="ExperimentalFeatureNames_ExtensionRegistry" xml:space="preserve">
-    <value>Extension registry</value>
-  </data>
   <data name="ExperimentalFeatureNames_Extensibility" xml:space="preserve">
     <value>Extensibility</value>
   </data>
@@ -525,5 +519,15 @@
   </data>
   <data name="UseSafeAccessRule_MessageFormat" xml:space="preserve">
     <value>The syntax can be simplified by using the safe access (.?) operator.</value>
+  </data>
+  <data name="WhatIfShortCircuitingRuleDescription" xml:space="preserve">
+    <value>Runtime values should not be used to determine resource IDs</value>
+  </data>
+  <data name="WhatIfShortCircuitingRuleMessageFormat" xml:space="preserve">
+    <value>Runtime value '{0}' will reduce the precision of what-if analysis for module '{1}'</value>
+    <comment>{0} Parameter name</comment>
+  </data>
+  <data name="ExperimentalFeatureNames_SecureOutputs" xml:space="preserve">
+    <value>Secure outputs</value>
   </data>
 </root>

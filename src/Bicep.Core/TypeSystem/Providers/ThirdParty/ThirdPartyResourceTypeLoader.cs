@@ -18,11 +18,11 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         private readonly TypeSettings? typeSettings;
         private readonly CrossFileTypeReference? fallbackResourceType;
 
-        public ThirdPartyResourceTypeLoader(ITypeLoader typeLoader)
+        public ThirdPartyResourceTypeLoader(ITypeLoader typeLoader, TypeIndex? typeIndex = null)
         {
             this.typeLoader = typeLoader;
             resourceTypeFactory = new ExtensibilityResourceTypeFactory();
-            var indexedTypes = typeLoader.LoadTypeIndex();
+            var indexedTypes = typeIndex ?? typeLoader.LoadTypeIndex();
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);
@@ -56,7 +56,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             return null;
         }
 
-        public NamespaceConfiguration? LoadNamespaceConfiguration()
+        public NamespaceConfiguration LoadNamespaceConfiguration()
         {
             if (typeSettings == null)
             {

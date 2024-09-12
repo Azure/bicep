@@ -37,9 +37,9 @@
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Direct",
-        "requested": "[17.10.48, )",
-        "resolved": "17.10.48",
-        "contentHash": "xwvwT91oqFjLgQykUp6y/JPYxz8LchbfJKrLVatfczWddXKng8DAo8RiiIodt+pRdsVXP9Ud02GtJoY7ifdXPQ=="
+        "requested": "[17.11.20, )",
+        "resolved": "17.11.20",
+        "contentHash": "yI80R8Ja4ipU7/fyVAMCu0oGTN/u97OgL99gd/8ycGnCF58Kn93iBU3T7rkxGMnlsHf5vEgRu95dujtYcgwf9Q=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
@@ -57,10 +57,10 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.698",
-        "contentHash": "f2ebMes9GWKEIt6hxeHhTe8BHfpeYbjFvSVfE4k+4wTamLVEYjUpMPqp2czm+16GEurLZZss/X2wYE6Oux9lgA==",
+        "resolved": "0.2.706",
+        "contentHash": "EARENUa1cDptvOIhh+5HOWfgT2H8yHnfzZWKlKowr0nJcZXw50Ko2nAxvT1HF5Ls5lyUqs2pErk62puCJ8Gk8Q==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.5.9"
+          "Azure.Bicep.Types": "0.5.81"
         }
       },
       "Azure.Bicep.Types.K8s": {
@@ -171,8 +171,8 @@
       },
       "Google.Protobuf": {
         "type": "Transitive",
-        "resolved": "3.27.3",
-        "contentHash": "ld+oe1+Mc6no643d8otGm6Zylu7KBpGnAiqOW3nOpV8VxUuqhz70vRNKUU5grLaCeuUQVF8t9dm8TgmkTMr1Tg=="
+        "resolved": "3.28.0",
+        "contentHash": "lVsLcLIHpkOABswgydr0sjkIhSN5XE9C6AgLXxvMsa6pSSJIpmAIPvK/NZpuF+HTB6xp1R8T5nhLausWVOrU/w=="
       },
       "Grpc.AspNetCore.Server": {
         "type": "Transitive",
@@ -1043,7 +1043,7 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "[0.5.81, )",
-          "Azure.Bicep.Types.Az": "[0.2.698, )",
+          "Azure.Bicep.Types.Az": "[0.2.706, )",
           "Azure.Bicep.Types.K8s": "[0.1.626, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
           "Azure.Deployments.Templates": "[1.95.0, )",
@@ -1069,7 +1069,7 @@
         "type": "Project",
         "dependencies": {
           "CommandLineParser": "[2.9.1, )",
-          "Google.Protobuf": "[3.27.3, )",
+          "Google.Protobuf": "[3.28.0, )",
           "Grpc.Net.Client": "[2.65.0, )"
         }
       }

@@ -15,15 +15,22 @@ namespace Bicep.Local.Deploy.IntegrationTests;
 [TestClass]
 public class KestrelProviderExtension : ProviderExtension
 {
-    protected override async Task RunServer(string socketPath, ResourceDispatcher dispatcher, CancellationToken cancellationToken)
+    protected override async Task RunServer(ConnectionOptions connectionOptions, ResourceDispatcher dispatcher, CancellationToken cancellationToken)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.ConfigureKestrel(options =>
         {
-            options.ListenUnixSocket(socketPath, listenOptions =>
+            switch (connectionOptions)
             {
-                listenOptions.Protocols = HttpProtocols.Http2;
-            });
+                case { Socket: {}, Pipe: null }:
+                    options.ListenUnixSocket(connectionOptions.Socket, listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
+                    break;
+                case { Socket: null, Pipe: {} }:
+                    options.ListenNamedPipe(connectionOptions.Pipe, listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
+                    break;
+                default:
+                    throw new InvalidOperationException("Either socketPath or pipeName must be specified.");
+            }
         });
 
         builder.Services.AddGrpc();

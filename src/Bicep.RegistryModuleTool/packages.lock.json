@@ -19,9 +19,9 @@
       },
       "JsonSchema.Net": {
         "type": "Direct",
-        "requested": "[7.2.0, )",
-        "resolved": "7.2.0",
-        "contentHash": "qJ6l/ragYA9wfnm+kdjbOEduxj3+Io4YOguWSEtML6vUIWgi7bvik1a4hRg/MsVV4O+h58jXHcPBo7Xx2C2x/Q==",
+        "requested": "[7.2.2, )",
+        "resolved": "7.2.2",
+        "contentHash": "vDmn5svfDsgXc2bz9LWiTQoCaxb2VPG1XviL0CenohogBIMGuUH9XMGIZE6hA8IK8d6wru0nUlGX+5jpIgCFiQ==",
         "dependencies": {
           "JsonPointer.Net": "5.0.0"
         }
@@ -61,9 +61,9 @@
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Direct",
-        "requested": "[17.10.48, )",
-        "resolved": "17.10.48",
-        "contentHash": "xwvwT91oqFjLgQykUp6y/JPYxz8LchbfJKrLVatfczWddXKng8DAo8RiiIodt+pRdsVXP9Ud02GtJoY7ifdXPQ=="
+        "requested": "[17.11.20, )",
+        "resolved": "17.11.20",
+        "contentHash": "yI80R8Ja4ipU7/fyVAMCu0oGTN/u97OgL99gd/8ycGnCF58Kn93iBU3T7rkxGMnlsHf5vEgRu95dujtYcgwf9Q=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
@@ -158,10 +158,10 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.698",
-        "contentHash": "f2ebMes9GWKEIt6hxeHhTe8BHfpeYbjFvSVfE4k+4wTamLVEYjUpMPqp2czm+16GEurLZZss/X2wYE6Oux9lgA==",
+        "resolved": "0.2.706",
+        "contentHash": "EARENUa1cDptvOIhh+5HOWfgT2H8yHnfzZWKlKowr0nJcZXw50Ko2nAxvT1HF5Ls5lyUqs2pErk62puCJ8Gk8Q==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.5.9"
+          "Azure.Bicep.Types": "0.5.81"
         }
       },
       "Azure.Bicep.Types.K8s": {
@@ -1206,7 +1206,7 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "[0.5.81, )",
-          "Azure.Bicep.Types.Az": "[0.2.698, )",
+          "Azure.Bicep.Types.Az": "[0.2.706, )",
           "Azure.Bicep.Types.K8s": "[0.1.626, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
           "Azure.Deployments.Templates": "[1.95.0, )",

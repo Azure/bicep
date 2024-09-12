@@ -112,7 +112,7 @@ export class DecompileCommand implements Command {
     try {
       const contents = await (await fse.readFile(documentUri.fsPath)).toString();
       return /\$schema.*deploymenttemplate\.json/i.test(contents);
-    } catch (err) {
+    } catch {
       // ignore
     }
 

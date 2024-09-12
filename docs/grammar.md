@@ -159,11 +159,14 @@ multilineString -> "'''" + MULTILINESTRINGCHAR+ + "'''"
 
 literalValue -> NUMBER | "true" | "false" | "null"
 
-object -> "{" ( NL+ ( objectProperty NL+ )* )? "}"
-objectProperty -> ( IDENTIFIER(name) | interpString ) ":" expression
+object -> "{" NL? ( | ( objectProperty ( objectSep objectProperty )* ( | objectSep ) ) ) "}"
+objectSep -> "," | NL
+objectKey -> IDENTIFIER(name) | interpString
+objectProperty -> ( objectKey ":" expression ) | ( "..." expression )
 
-array -> "[" ( NL+ arrayItem* )? "]"
-arrayItem -> expression NL+
+array -> "[" NL? ( | ( arrayItem ( arraySep arrayItem )* ( | arraySep ) ) ) "]"
+arraySep -> "," | NL
+arrayItem -> expression | ( "..." expression )
 
 typeExpression ->
   singularTypeExpression |

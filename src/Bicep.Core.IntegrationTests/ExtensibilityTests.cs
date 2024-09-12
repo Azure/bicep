@@ -17,7 +17,7 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ExtensibilityTests : TestBase
     {
-        private ServiceBuilder Services => new ServiceBuilder()
+        private static ServiceBuilder Services => new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true))
             .WithConfigurationPatch(c => c.WithExtensions("""
             {
@@ -626,6 +626,36 @@ Hello from Bicep!"));
   }
 }
 """));
+        }
+
+        [TestMethod]
+        public void Extensibility_v2_emitting_produces_expected_template()
+        {
+            var services = new ServiceBuilder()
+                .WithFeatureOverrides(new(
+                    ExtensibilityEnabled: true,
+                    ExtensibilityV2EmittingEnabled: true))
+                .WithConfigurationPatch(c => c.WithExtensions("""
+                    {
+                      "az": "builtin:",
+                      "foo": "builtin:"
+                    }
+                    """))
+                .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
+
+            var result = CompilationHelper.Compile(services, """
+                extension foo as foo
+
+                resource myApp 'application' = {
+                    uniqueName: 'foo'
+                }
+                """);
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.languageVersion", "2.2-experimental");
+            result.Template.Should().HaveValueAtPath("$.extensions.foo.name", "Foo");
+            result.Template.Should().HaveValueAtPath("$.resources.myApp.extension", "foo");
         }
     }
 }

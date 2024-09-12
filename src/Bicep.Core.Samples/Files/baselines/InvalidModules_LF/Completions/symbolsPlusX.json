@@ -1770,6 +1770,34 @@
     }
   },
   {
+    "label": "modDOne",
+    "kind": "module",
+    "detail": "modDOne",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_modDOne",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "modDOne"
+    }
+  },
+  {
+    "label": "modDTwo",
+    "kind": "module",
+    "detail": "modDTwo",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_modDTwo",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "modDTwo"
+    }
+  },
+  {
     "label": "modWithListKeysInCondition",
     "kind": "module",
     "detail": "modWithListKeysInCondition",

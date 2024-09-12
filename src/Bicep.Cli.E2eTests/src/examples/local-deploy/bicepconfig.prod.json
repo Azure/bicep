@@ -1,7 +1,6 @@
 {
   "experimentalFeaturesEnabled": {
     "extensibility": true,
-    "extensionRegistry": true,
     "localDeploy": true
   },
   "extensions": {

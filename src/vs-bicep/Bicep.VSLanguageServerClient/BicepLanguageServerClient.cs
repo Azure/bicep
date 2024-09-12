@@ -20,6 +20,8 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Telemetry;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 
 namespace Bicep.VSLanguageServerClient
@@ -31,13 +33,11 @@ namespace Bicep.VSLanguageServerClient
     {
         private IClientProcess? process;
         private readonly IBicepSettings bicepSettings;
-        [Obsolete] // TODO: Fix obsolete errors properly
-        private readonly ILanguageClientMiddleLayer middleLayer;
+        private readonly ILanguageClientMiddleLayer2<JToken> middleLayer;
         private readonly IProcessTracker processTracker;
         private readonly TelemetrySession TelemetrySession;
 
         [ImportingConstructor]
-        [Obsolete] // TODO: Fix obsolete errors properly
         public BicepLanguageServerClient(IProcessTracker processTracker)
         {
             this.processTracker = processTracker;
@@ -117,7 +117,6 @@ namespace Bicep.VSLanguageServerClient
             await bicepSettings.LoadTextManagerAsync();
         }
 
-        [Obsolete] // TODO: Fix obsolete errors properly
         public object MiddleLayer => middleLayer;
 
         public object CustomMessageTarget => new TelemetryCustomMessageTarget(TelemetrySession);

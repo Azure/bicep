@@ -17,8 +17,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
     /// Also choice snippet pattern is not currently supported by vs lsp. To workaround this issue, we will convert choice snippet
     /// pattern to placeholder snippet pattern.
     /// </summary>
-    [Obsolete] // TODO: Fix obsolete errors properly
-    public class HandleSnippetCompletionsMiddleLayer : ILanguageClientMiddleLayer
+    public class HandleSnippetCompletionsMiddleLayer : ILanguageClientMiddleLayer2<JToken>
     {
         private static readonly Regex ChoiceSnippetPlaceholderPattern = new(@"\${\d+\|(.*)\|}", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
         private readonly bool ShouldShowSnippets;

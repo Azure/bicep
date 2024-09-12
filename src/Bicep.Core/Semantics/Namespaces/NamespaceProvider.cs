@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -13,6 +14,9 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
+using Bicep.Core.TypeSystem.Providers.ThirdParty;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
 
@@ -117,7 +121,7 @@ public class NamespaceProvider : INamespaceProvider
         if (artifactFileLookup.ArtifactLookup.TryGetValue(syntax, out var artifact))
         {
             var aliasName = syntax.Alias?.IdentifierName;
-            if (GetNamespaceTypeForArtifact(features, artifact, sourceFile, targetScope, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
+            if (GetNamespaceTypeForArtifact(artifact, sourceFile, targetScope, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
             {
                 return namespaceType;
             }
@@ -149,7 +153,7 @@ public class NamespaceProvider : INamespaceProvider
         if (artifact is { })
         {
             // not a built-in extension
-            if (GetNamespaceTypeForArtifact(features, artifact, sourceFile, targetScope, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
+            if (GetNamespaceTypeForArtifact(artifact, sourceFile, targetScope, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
             {
                 return namespaceType;
             }
@@ -181,32 +185,26 @@ public class NamespaceProvider : INamespaceProvider
         return ErrorType.Create(diagBuilder.InvalidExtension_NotABuiltInExtension(rootConfig.ConfigFileUri, extensionName));
     }
 
-    private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(IFeatureProvider features, ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)
+    private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)
     {
         if (!artifact.Result.IsSuccess(out var typesTgzUri, out var errorBuilder))
         {
             return new(errorBuilder);
         }
 
-        var useAzLoader = artifact.Reference is OciArtifactReference ociArtifact && ociArtifact.Repository.EndsWith("/az");
-        if (useAzLoader && !features.DynamicTypeLoadingEnabled)
-        {
-            return new(x => x.FetchingAzTypesRequiresExperimentalFeature());
-        }
-
-        if (!useAzLoader && !features.ExtensionRegistryEnabled)
-        {
-            return new(x => x.FetchingTypesRequiresExperimentalFeature());
-        }
-
-        if (!resourceTypeProviderFactory.GetResourceTypeProvider(artifact.Reference, typesTgzUri, useAzLoader: useAzLoader).IsSuccess(out var typeProvider, out errorBuilder))
+        if (!resourceTypeProviderFactory.GetResourceTypeProvider(artifact.Reference, typesTgzUri).IsSuccess(out var typeProvider, out errorBuilder))
         {
             return new(errorBuilder);
         }
 
-        if (useAzLoader)
+        if (typeProvider is AzResourceTypeProvider)
         {
             return new(AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind));
+        }
+
+        if (typeProvider is MicrosoftGraphResourceTypeProvider)
+        {
+            return new(MicrosoftGraphNamespaceType.Create(aliasName, typeProvider, artifact.Reference));
         }
 
         return new(ThirdPartyNamespaceType.Create(aliasName, typeProvider, artifact.Reference));

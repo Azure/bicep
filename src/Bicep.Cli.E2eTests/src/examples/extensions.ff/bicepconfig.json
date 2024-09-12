@@ -8,8 +8,6 @@
     ]
   },
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
-    "dynamicTypeLoading": true,
-    "extensionRegistry": true
+    "extensibility": true
   }
 }

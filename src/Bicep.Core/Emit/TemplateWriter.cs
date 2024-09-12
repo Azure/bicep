@@ -29,8 +29,6 @@ namespace Bicep.Core.Emit
         public const string TemplateHashPropertyName = "templateHash";
         public const string LanguageVersionPropertyName = "languageVersion";
 
-        // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
-        public const string NestedDeploymentResourceApiVersion = "2022-09-01";
         private const string TypePropertyName = "type";
         private const string InternalTypeRefStart = "#";
         private const string TypeDefinitionsProperty = "definitions";
@@ -109,7 +107,8 @@ namespace Bicep.Core.Emit
 
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
-                if (Context.SemanticModel.Features.LocalDeployEnabled)
+                if (Context.SemanticModel.Features.LocalDeployEnabled ||
+                    Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                 {
                     emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
                 }
@@ -1001,10 +1000,14 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            // TODO: Remove if statement once all providers got migrated to extensions (extensibility v2 contract).
+            // TODO: Remove the EmitExtensions if conditions once ARM w37 is deployed to all regions.
             if (Context.SemanticModel.Features.LocalDeployEnabled)
             {
                 EmitExtensions(emitter, extensions.Add(GetExtensionForLocalDeploy()));
+            }
+            else if (Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+            {
+                EmitExtensions(emitter, extensions);
             }
             else
             {
@@ -1033,7 +1036,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
+        private static void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
         {
             emitter.EmitObjectProperty("extensions", () =>
             {
@@ -1053,7 +1056,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitExtensionConfig(DeclaredExtensionExpression extension, ExpressionEmitter emitter)
+        private static void EmitExtensionConfig(DeclaredExtensionExpression extension, ExpressionEmitter emitter)
         {
             if (extension.Config is null)
             {
@@ -1118,7 +1121,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private TypeSymbol GetExtensionConfigType(string configName, ObjectType configType)
+        private static TypeSymbol GetExtensionConfigType(string configName, ObjectType configType)
         {
             if (configType.Properties.TryGetValue(configName) is { } configItem)
             {
@@ -1210,16 +1213,17 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("existing", new BooleanLiteralExpression(null, true));
                 }
 
-                var importSymbol = Context.SemanticModel.Root.ExtensionDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
-                if (importSymbol is not null)
+                var extensionSymbol = Context.SemanticModel.Root.ExtensionDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
+                if (extensionSymbol is not null)
                 {
-                    if (this.Context.SemanticModel.Features.LocalDeployEnabled)
+                    if (this.Context.SemanticModel.Features.LocalDeployEnabled ||
+                        this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                     {
-                        emitter.EmitProperty("extension", importSymbol.Name);
+                        emitter.EmitProperty("extension", extensionSymbol.Name);
                     }
                     else
                     {
-                        emitter.EmitProperty("import", importSymbol.Name);
+                        emitter.EmitProperty("import", extensionSymbol.Name);
                     }
                 }
 
@@ -1409,7 +1413,7 @@ namespace Bicep.Core.Emit
                 }
 
                 emitter.EmitProperty("type", NestedDeploymentResourceType);
-                emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
+                emitter.EmitProperty("apiVersion", EmitConstants.NestedDeploymentResourceApiVersion);
 
                 // emit all properties apart from 'params'. In practice, this currently only allows 'name', but we may choose to allow other top-level resource properties in future.
                 // params requires special handling (see below).
@@ -1480,7 +1484,7 @@ namespace Bicep.Core.Emit
             }, module.SourceSyntax);
         }
 
-        private void EmitSymbolicNameDependsOnEntry(ExpressionEmitter emitter, ResourceDependencyExpression dependency)
+        private static void EmitSymbolicNameDependsOnEntry(ExpressionEmitter emitter, ResourceDependencyExpression dependency)
         {
             switch (dependency.Reference)
             {
@@ -1523,7 +1527,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private void EmitClassicDependsOnEntry(ExpressionEmitter emitter, ResourceDependencyExpression dependency)
+        private static void EmitClassicDependsOnEntry(ExpressionEmitter emitter, ResourceDependencyExpression dependency)
         {
             switch (dependency.Reference)
             {

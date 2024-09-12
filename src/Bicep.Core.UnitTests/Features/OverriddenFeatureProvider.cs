@@ -34,10 +34,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool AssertsEnabled => overrides.AssertsEnabled ?? features.AssertsEnabled;
 
-    public bool DynamicTypeLoadingEnabled => overrides.DynamicTypeLoadingEnabled ?? features.DynamicTypeLoadingEnabled;
-
-    public bool ExtensionRegistryEnabled => overrides.ExtensionRegistry ?? features.ExtensionRegistryEnabled;
-
     public bool OptionalModuleNamesEnabled => overrides.OptionalModuleNamesEnabled ?? features.OptionalModuleNamesEnabled;
 
     public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;
@@ -47,4 +43,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool SecureOutputsEnabled => overrides.SecureOutputsEnabled ?? features.SecureOutputsEnabled;
 
     public bool ExtendableParamFilesEnabled => overrides.ExtendableParamFilesEnabled ?? features.ExtendableParamFilesEnabled;
+
+    public bool ExtensibilityV2EmittingEnabled => overrides.ExtensibilityV2EmittingEnabled ?? features.ExtensibilityV2EmittingEnabled;
 }

@@ -155,28 +155,6 @@
         "builtIn"
       ],
       "additionalProperties": false
-    },
-    "bicepRegistryExtensionAlias": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "registry"
-      ],
-      "properties": {
-        "registry": {
-          "title": "Registry",
-          "description": "The OCI registry the alias is assigned to",
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 255
-        },
-        "extensionPath": {
-          "title": "Extension Path",
-          "description": "The OCI repository path to use for the alias",
-          "type": "string",
-          "minLength": 1
-        }
-      }
     }
   },
   "type": "object",
@@ -292,23 +270,6 @@
           "additionalProperties": {
             "$ref": "#/definitions/bicepRegistryModuleAlias",
             "additionalProperties": false
-          }
-        }
-      }
-    },
-    "extensionAliases": {
-      "title": "Bicep Extension Aliases ",
-      "description": "Bicep extension aliases for simplifying extension references",
-      "type": "object",
-      "additionalProperties": false,
-      "default": {
-        "br": {}
-      },
-      "properties": {
-        "br": {
-          "description": "Bicep Registry extension alias definitions",
-          "additionalProperties": {
-            "$ref": "#/definitions/bicepRegistryExtensionAlias"
           }
         }
       }
@@ -789,6 +750,16 @@
                       "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
+                },
+                "what-if-short-circuiting": {
+                  "allOf": [
+                    {
+                      "description": "Runtime values should not be used to determine resource IDs. Defaults to 'Off'. See https://aka.ms/bicep/linter/what-if-short-circuiting"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
                 }
               }
             }
@@ -835,14 +806,6 @@
         "assertions": {
           "type": "boolean",
           "description": "Allows you to author boolean assertions using the assert keyword. Should be enabled in tandem with 'testFramework'. See https://aka.ms/bicep/experimental-features#assertions"
-        },
-        "dynamicTypeLoading": {
-          "description": "Enables dynamic type loading for resource type providers. See https://aka.ms/bicep/experimental-features#dynamictypeloading",
-          "type": "boolean"
-        },
-        "extensionRegistry": {
-          "description": "Enables dynamic type loading for third party extensions. See https://aka.ms/bicep/experimental-features#extensionregistry",
-          "type": "boolean"
         },
         "localDeploy": {
           "type": "boolean",

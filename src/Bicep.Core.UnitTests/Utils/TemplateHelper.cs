@@ -32,7 +32,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Should().NotThrow("template can be parsed successfully");
 
             var templateJtoken = template!.ToJToken();
-            var validationApiVersion = TemplateWriter.NestedDeploymentResourceApiVersion;
+            var validationApiVersion = EmitConstants.NestedDeploymentResourceApiVersion;
             var deploymentScope = GetDeploymentScope(template.Schema.Value);
 
             FluentActions.Invoking(() => TemplateEngine.ValidateTemplate(template, validationApiVersion, deploymentScope))
