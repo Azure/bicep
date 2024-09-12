@@ -30,7 +30,7 @@ jobs:
           echo "Restoring dependencies for Bicep.sln"
           dotnet restore --force-evaluate
           echo "Restoring dependencies for BicepInVisualStudio.sln"
-          dotnet restore src/vs-bicep/BicepInVisualStudio.sln --force-evaluate
+          dotnet restore src/vs-bicep/BicepInVisualStudio.sln --force-evaluate -v diag
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
