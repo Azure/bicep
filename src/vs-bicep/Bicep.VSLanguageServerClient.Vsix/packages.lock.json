@@ -478,17 +478,19 @@
       },
       "Microsoft.VisualStudio.CoreUtility": {
         "type": "Transitive",
-        "resolved": "17.10.191",
-        "contentHash": "DOAxttEBeZGjYovhEtcP0zKmiTyFDiOZ9eRyqNeyb3aTiuFTg5m3GqGEo5HU784H1FXiMBY7JR6z83d2Cu4hQA==",
+        "resolved": "17.11.260",
+        "contentHash": "8UgN58cLPAVWFWLWoxLUG4ob4GQhkSmBNWjna9QAKaLKegNLs6h8y8pwrN2dzOpepBAI4/WDCgcmj1ZARzDqWw==",
         "dependencies": {
-          "Microsoft.VisualStudio.Threading": "17.10.41",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.10.41",
+          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
+          "Microsoft.VisualStudio.Threading": "17.11.20",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.11.20",
           "Microsoft.VisualStudio.Validation": "17.8.8",
           "Microsoft.Win32.Registry": "5.0.0",
           "System.Collections.Immutable": "8.0.0",
           "System.ComponentModel.Composition": "8.0.0",
           "System.Memory": "4.5.5",
-          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0",
+          "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
       "Microsoft.VisualStudio.Debugger.Interop.10.0": {
@@ -1828,6 +1830,12 @@
           "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
           "Microsoft.Visualstudio.Telemetry": "[17.11.20, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.9, )"
+        }
+      },
+      "bicep.vslanguageserverclient.itemtemplate": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.VisualStudio.CoreUtility": "[17.11.260, )"
         }
       }
     },
