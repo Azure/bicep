@@ -1,5 +1,5 @@
 module nonExistentFileRef './nonExistent.bicep' = {
-//@[000:13818) ProgramSyntax
+//@[000:14031) ProgramSyntax
 //@[000:00054) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00025) | ├─IdentifierSyntax
@@ -67,6 +67,100 @@ module moduleWithoutPath = {
 //@[000:00001) ├─SkippedTriviaSyntax
 //@[000:00001) | └─Token(RightBrace) |}|
 //@[001:00003) ├─Token(NewLine) |\n\n|
+
+module modDOne 'moduled.bicep' = {
+//@[000:00091) ├─ModuleDeclarationSyntax
+//@[000:00006) | ├─Token(Identifier) |module|
+//@[007:00014) | ├─IdentifierSyntax
+//@[007:00014) | | └─Token(Identifier) |modDOne|
+//@[015:00030) | ├─StringSyntax
+//@[015:00030) | | └─Token(StringComplete) |'moduled.bicep'|
+//@[031:00032) | ├─Token(Assignment) |=|
+//@[033:00091) | └─ObjectSyntax
+//@[033:00034) |   ├─Token(LeftBrace) |{|
+//@[034:00035) |   ├─Token(NewLine) |\n|
+  name: 'modDOne'
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00017) |   | └─StringSyntax
+//@[008:00017) |   |   └─Token(StringComplete) |'modDOne'|
+//@[017:00018) |   ├─Token(NewLine) |\n|
+  params: {
+//@[002:00036) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |params|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00036) |   | └─ObjectSyntax
+//@[010:00011) |   |   ├─Token(LeftBrace) |{|
+//@[011:00012) |   |   ├─Token(NewLine) |\n|
+    input: 'NameOne'
+//@[004:00020) |   |   ├─ObjectPropertySyntax
+//@[004:00009) |   |   | ├─IdentifierSyntax
+//@[004:00009) |   |   | | └─Token(Identifier) |input|
+//@[009:00010) |   |   | ├─Token(Colon) |:|
+//@[011:00020) |   |   | └─StringSyntax
+//@[011:00020) |   |   |   └─Token(StringComplete) |'NameOne'|
+//@[020:00021) |   |   ├─Token(NewLine) |\n|
+  }
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00004) |   ├─Token(NewLine) |\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\n\n|
+
+module modDTwo 'moduled.bicep' = {
+//@[000:00116) ├─ModuleDeclarationSyntax
+//@[000:00006) | ├─Token(Identifier) |module|
+//@[007:00014) | ├─IdentifierSyntax
+//@[007:00014) | | └─Token(Identifier) |modDTwo|
+//@[015:00030) | ├─StringSyntax
+//@[015:00030) | | └─Token(StringComplete) |'moduled.bicep'|
+//@[031:00032) | ├─Token(Assignment) |=|
+//@[033:00116) | └─ObjectSyntax
+//@[033:00034) |   ├─Token(LeftBrace) |{|
+//@[034:00035) |   ├─Token(NewLine) |\n|
+  name: 'modDTwo'
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00017) |   | └─StringSyntax
+//@[008:00017) |   |   └─Token(StringComplete) |'modDTwo'|
+//@[017:00018) |   ├─Token(NewLine) |\n|
+  params: {
+//@[002:00061) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |params|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00061) |   | └─ObjectSyntax
+//@[010:00011) |   |   ├─Token(LeftBrace) |{|
+//@[011:00012) |   |   ├─Token(NewLine) |\n|
+    input: modDOne.outputs.storageAccountName
+//@[004:00045) |   |   ├─ObjectPropertySyntax
+//@[004:00009) |   |   | ├─IdentifierSyntax
+//@[004:00009) |   |   | | └─Token(Identifier) |input|
+//@[009:00010) |   |   | ├─Token(Colon) |:|
+//@[011:00045) |   |   | └─PropertyAccessSyntax
+//@[011:00026) |   |   |   ├─PropertyAccessSyntax
+//@[011:00018) |   |   |   | ├─VariableAccessSyntax
+//@[011:00018) |   |   |   | | └─IdentifierSyntax
+//@[011:00018) |   |   |   | |   └─Token(Identifier) |modDOne|
+//@[018:00019) |   |   |   | ├─Token(Dot) |.|
+//@[019:00026) |   |   |   | └─IdentifierSyntax
+//@[019:00026) |   |   |   |   └─Token(Identifier) |outputs|
+//@[026:00027) |   |   |   ├─Token(Dot) |.|
+//@[027:00045) |   |   |   └─IdentifierSyntax
+//@[027:00045) |   |   |     └─Token(Identifier) |storageAccountName|
+//@[045:00046) |   |   ├─Token(NewLine) |\n|
+  }
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00004) |   ├─Token(NewLine) |\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00004) ├─Token(NewLine) |\n\n\n|
+
 
 // #completionTest(41) -> moduleBodyCompletions
 //@[047:00048) ├─Token(NewLine) |\n|
@@ -4310,4 +4404,6 @@ module assignToOutput 'empty.bicep' = {
 //@[013:00014) |   ├─Token(NewLine) |\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
-//@[001:00001) └─Token(EndOfFile) ||
+//@[001:00002) ├─Token(NewLine) |\n|
+
+//@[000:00000) └─Token(EndOfFile) ||

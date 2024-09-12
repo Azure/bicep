@@ -9,10 +9,17 @@ namespace Bicep.Local.Extension;
 
 public abstract class ProviderExtension
 {
+    public record ConnectionOptions(
+        string? Socket,
+        string? Pipe);
+
     internal class CommandLineOptions
     {
         [Option("socket", Required = false, HelpText = "The path to the domain socket to connect on")]
         public string? Socket { get; set; }
+
+        [Option("pipe", Required = false, HelpText = "The named pipe to connect on")]
+        public string? Pipe { get; set; }
 
         [Option("wait-for-debugger", Required = false, HelpText = "If set, wait for a dotnet debugger to be attached before starting the server")]
         public bool WaitForDebugger { get; set; }
@@ -41,7 +48,7 @@ public abstract class ProviderExtension
             .WithParsedAsync(async options => await RunServer(registerHandlers, options, cancellationToken));
     }
 
-    protected abstract Task RunServer(string socketPath, ResourceDispatcher dispatcher, CancellationToken cancellationToken);
+    protected abstract Task RunServer(ConnectionOptions options, ResourceDispatcher dispatcher, CancellationToken cancellationToken);
 
     private async Task RunServer(Action<ResourceDispatcherBuilder> registerHandlers, CommandLineOptions options, CancellationToken cancellationToken)
     {
@@ -64,13 +71,8 @@ public abstract class ProviderExtension
         registerHandlers(handlerBuilder);
         var dispatcher = handlerBuilder.Build();
 
-        if (options.Socket is { } socketPath)
-        {
-            await Task.WhenAny(RunServer(socketPath, dispatcher, cancellationToken), WaitForCancellation(cancellationToken));
-            return;
-        }
-
-        throw new NotImplementedException();
+        ConnectionOptions connectionOptions = new(options.Socket, options.Pipe);
+        await Task.WhenAny(RunServer(connectionOptions, dispatcher, cancellationToken), WaitForCancellation(cancellationToken));
     }
 
     private static async Task WaitForCancellation(CancellationToken cancellationToken)

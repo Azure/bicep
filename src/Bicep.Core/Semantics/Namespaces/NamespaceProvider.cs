@@ -15,6 +15,7 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Providers.ThirdParty;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
@@ -199,6 +200,11 @@ public class NamespaceProvider : INamespaceProvider
         if (typeProvider is AzResourceTypeProvider)
         {
             return new(AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind));
+        }
+
+        if (typeProvider is MicrosoftGraphResourceTypeProvider)
+        {
+            return new(MicrosoftGraphNamespaceType.Create(aliasName, typeProvider, artifact.Reference));
         }
 
         return new(ThirdPartyNamespaceType.Create(aliasName, typeProvider, artifact.Reference));

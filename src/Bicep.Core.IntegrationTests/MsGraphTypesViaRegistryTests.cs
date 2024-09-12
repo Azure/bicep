@@ -1,0 +1,280 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.IO.Abstractions.TestingHelpers;
+using Azure;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Registry;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
+
+namespace Bicep.Core.IntegrationTests
+{
+
+    [TestClass]
+    public class MsGraphTypesViaRegistryTests : TestBase
+    {
+        private const string versionV10 = "1.2.3";
+        private const string versionBeta = "1.2.3-beta";
+        private static readonly string EmptyIndexJsonBeta = $$"""
+{
+  "resources": {},
+  "resourceFunctions": {},
+  "settings": {
+    "name": "MicrosoftGraphBeta",
+    "version": "{{versionBeta}}",
+    "isSingleton": false
+  }
+}
+""";
+        private static readonly string EmptyIndexJsonV10 = $$"""
+{
+  "resources": {},
+  "resourceFunctions": {},
+  "settings": {
+    "name": "MicrosoftGraphV1.0",
+    "version": "{{versionV10}}",
+    "isSingleton": false
+  }
+}
+""";
+
+
+        private async Task<ServiceBuilder> GetServices()
+        {
+            var indexJsonBeta = FileHelper.SaveResultFile(TestContext, "types/index-beta.json", EmptyIndexJsonBeta);
+            var indexJsonV10 = FileHelper.SaveResultFile(TestContext, "types/index-v1.0.json", EmptyIndexJsonV10);
+
+            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(cacheRoot);
+
+            var services = new ServiceBuilder()
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForMsGraphExtension());
+
+            await RegistryHelper.PublishMsGraphExtension(services.Build(), indexJsonBeta, "beta", versionBeta);
+            await RegistryHelper.PublishMsGraphExtension(services.Build(), indexJsonV10, "v1", versionV10);
+
+            return services;
+        }
+
+        private async Task<ServiceBuilder> ServicesWithTestExtensionArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
+        {
+            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
+
+            (_, var client) = blobClients.First();
+            var configResult = await client.UploadBlobAsync(BinaryData.FromString("{}"));
+            var blobResult = await client.UploadBlobAsync(artifactPayload);
+            var manifest = BicepTestConstants.GetBicepExtensionManifest(blobResult.Value, configResult.Value);
+            await client.SetManifestAsync(manifest, artifactRegistryAddress.ExtensionVersion);
+
+            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(cacheRoot);
+
+            return new ServiceBuilder()
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithContainerRegistryClientFactory(clientFactory);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(ArtifactRegistryCorruptedPackageNegativeTestScenarios), DynamicDataSourceType.Method)]
+        public async Task Bicep_compiler_handles_corrupted_extension_package_gracefully(
+            BinaryData payload,
+            string innerErrorMessage)
+        {
+            // ARRANGE
+            var testArtifactAddress = new ArtifactRegistryAddress("biceptestdf.azurecr.io", "bicep/extensions/microsoftgraph/beta", "0.0.0-corruptpng");
+
+            var services = await ServicesWithTestExtensionArtifact(testArtifactAddress, payload);
+
+            // ACT
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            extension '{testArtifactAddress.ToSpecificationString(':')}'
+            ");
+
+            // ASSERT
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics([
+                ("BCP396", DiagnosticLevel.Error, """The referenced extension types artifact has been published with malformed content.""")
+            ]);
+        }
+
+        public record ArtifactRegistryAddress(string RegistryAddress, string RepositoryPath, string ExtensionVersion)
+        {
+            public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ExtensionVersion}";
+
+            public (string, string) ClientDescriptor() => (RegistryAddress, RepositoryPath);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(ArtifactRegistryAddressNegativeTestScenarios), DynamicDataSourceType.Method)]
+        public async Task Repository_not_found_in_registry(
+            ArtifactRegistryAddress artifactRegistryAddress,
+            Exception exceptionToThrow,
+            IEnumerable<(string, DiagnosticLevel, string)> expectedDiagnostics)
+        {
+            // ARRANGE
+            // mock the blob client to throw the expected exception
+            var mockBlobClient = StrictMock.Of<MockRegistryBlobClient>();
+            mockBlobClient.Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ThrowsAsync(exceptionToThrow);
+
+            // mock the registry client to return the mock blob client
+            var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
+            containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(
+                artifactRegistryAddress.RegistryAddress,
+                artifactRegistryAddress.RepositoryPath,
+                mockBlobClient.Object);
+
+            var services = new ServiceBuilder()
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true))
+                .WithContainerRegistryClientFactory(containerRegistryFactoryBuilder.Build().clientFactory);
+
+            // ACT
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            extension '{artifactRegistryAddress.ToSpecificationString(':')}'
+            ");
+
+            // ASSERT
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(expectedDiagnostics);
+        }
+
+        public static IEnumerable<object[]> ArtifactRegistryAddressNegativeTestScenarios()
+        {
+            // constants
+            const string placeholderExtensionVersion = "0.0.0-placeholder";
+
+            // unresolvable host registry. For example if DNS is down or unresponsive
+            const string unreachableRegistryAddress = "unknown.registry.azurecr.io";
+            const string NoSuchHostMessage = $" (No such host is known. ({unreachableRegistryAddress}:443))";
+            var AggregateExceptionMessage = $"Retry failed after 4 tries. Retry settings can be adjusted in ClientOptions.Retry or by configuring a custom retry policy in ClientOptions.RetryPolicy.{string.Concat(Enumerable.Repeat(NoSuchHostMessage, 4))}";
+            var unreachable = new ArtifactRegistryAddress(unreachableRegistryAddress, "bicep/extensions/microsoftgraph/beta", placeholderExtensionVersion);
+            yield return new object[] {
+                unreachable,
+                new AggregateException(AggregateExceptionMessage),
+                new (string, DiagnosticLevel, string)[]{
+                    ("BCP192", DiagnosticLevel.Error, @$"Unable to restore the artifact with reference ""{unreachable.ToSpecificationString(':')}"": {AggregateExceptionMessage}")
+                },
+            };
+
+            // manifest not found is thrown when the repository address is not registered and/or the version doesn't exist in the registry
+            const string NotFoundMessage = "The artifact does not exist in the registry.";
+            var withoutRepo = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "unknown/path/microsoftgraph/beta", placeholderExtensionVersion);
+            yield return new object[] {
+                withoutRepo,
+                new RequestFailedException(404, NotFoundMessage),
+                new (string, DiagnosticLevel, string)[]{
+                    ("BCP192", DiagnosticLevel.Error, $@"Unable to restore the artifact with reference ""{withoutRepo.ToSpecificationString(':')}"": {NotFoundMessage}")
+                },
+            };
+        }
+
+        public static IEnumerable<object[]> ArtifactRegistryCorruptedPackageNegativeTestScenarios()
+        {
+            // Scenario: When OciTypeLoader.FromDisk() throws, the exception is exposed as a diagnostic
+            // Some cases covered by this test are:
+            // - Artifact layer payload is not a GZip compressed
+            // - Artifact layer payload is a GZip compressedbut is not composed of Tar entries
+            yield return new object[]
+            {
+                BinaryData.FromString("This is a NOT GZip compressed data"),
+                "The archive entry was compressed using an unsupported compression method.",
+            };
+
+            // Scenario: Artifact layer payload is missing an "index.json"
+            yield return new object[]
+            {
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                    ("unknown.json", "{}")),
+                "The path: index.json was not found in artifact contents"
+            };
+
+            // Scenario: "index.json" is not valid JSON
+            yield return new object[]
+            {
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                    ("index.json", """{"INVALID_JSON": 777""")),
+                "'7' is an invalid end of a number. Expected a delimiter. Path: $.INVALID_JSON | LineNumber: 0 | BytePositionInLine: 20."
+            };
+
+            // Scenario: "index.json" with malformed or missing required data
+            yield return new object[]
+            {
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                    ("index.json", """{ "UnexpectedMember": false}""")),
+                "Value cannot be null. (Parameter 'source')"
+            };
+        }
+
+        [TestMethod]
+        public async Task External_MsGraph_namespace_can_be_loaded_from_configuration()
+        {
+            var services = await GetServices();
+
+            services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
+            {
+                "az": "builtin:",
+                "msGraphBeta": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/extensions/microsoftgraph/beta:{{versionBeta}}",
+                "msGraphV1": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/extensions/microsoftgraph/v1:{{versionV10}}"
+            }
+            """));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
+            extension msGraphBeta
+            extension msGraphV1
+            "));
+
+            result.Should().GenerateATemplate();
+        }
+
+        [TestMethod]
+        public async Task BuiltIn_MsGraph_namespace_can_be_loaded_from_configuration()
+        {
+            var services = await GetServices();
+            var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
+            extension microsoftGraph
+            "));
+
+            result.Should().GenerateATemplate();
+        }
+
+        [TestMethod]
+        public async Task MsGraph_namespace_can_be_loaded_dynamically_using_extension_configuration()
+        {
+            //ARRANGE
+            var artifactRegistryAddress = new ArtifactRegistryAddress(
+                "fake.azurecr.io",
+                "fake/path/microsoftgraph/beta",
+                "1.0.0-fake");
+            var services = await ServicesWithTestExtensionArtifact(
+                artifactRegistryAddress,
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", EmptyIndexJsonBeta)));
+            services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
+            {
+                "az": "builtin:",
+                "msGraphBeta": "{{artifactRegistryAddress.ToSpecificationString(':')}}"
+            }
+            """));
+
+            //ACT
+            var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
+            extension msGraphBeta
+            "));
+
+            //ASSERT
+            result.Should().GenerateATemplate();
+            result.Template.Should().NotBeNull();
+            result.Template.Should().HaveValueAtPath("$.imports.MicrosoftGraphBeta.version", versionBeta);
+        }
+    }
+}
