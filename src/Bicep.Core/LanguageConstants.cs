@@ -78,6 +78,7 @@ namespace Bicep.Core
         public const string WithKeyword = "with";
         public const string AsKeyword = "as";
         public const string FromKeyword = "from";
+        public const string DeployKeyword = "deploy";
 
         public const string IfKeyword = "if";
         public const string ForKeyword = "for";

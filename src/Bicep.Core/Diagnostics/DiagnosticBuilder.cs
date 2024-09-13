@@ -1798,6 +1798,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ExtendsNotSupported() => CoreError(
                 "BCP406",
                 $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
+
+            public Diagnostic UnrecognizedDeployFileDeclaration() => CoreError(
+                "BCP407",
+                $@"This declaration type is not valid for a Bicep Deploy file. Specify a ""{LanguageConstants.DeployKeyword}"" declaration.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
