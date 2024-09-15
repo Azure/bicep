@@ -25,7 +25,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.11",
     "prettier": "^3.3.3",
-    "turbo": "^2.1.1",
+    "turbo": "^2.1.2",
     "typescript": "^5.5.4"
   }
 }
