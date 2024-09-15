@@ -45,7 +45,7 @@
     "eslint-plugin-testing-library": "^6.3.0",
     "happy-dom": "^14.12.3",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "storybook": "^8.2.8",
+    "storybook": "^8.3.0",
     "styled-components": "^6.1.12",
     "vite": "^5.4.2",
     "vite-plugin-dts": "^4.0.2",
