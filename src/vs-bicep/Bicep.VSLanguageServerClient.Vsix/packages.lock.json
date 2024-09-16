@@ -1077,10 +1077,10 @@
       },
       "Microsoft.VisualStudio.Shell.Interop": {
         "type": "Transitive",
-        "resolved": "17.10.40170",
-        "contentHash": "Paqp12+psmGEdYifPdNiE057DbzVYl2DXjSCrgwrjJ2kGzWlURP9N6sFbbmWyLc7A0x3luJHRGM6n/24+hZvMw==",
+        "resolved": "17.11.40262",
+        "contentHash": "qEAAgCORAzqATEfDCPhUxo0RCL3oS/I+yJGGKBwUhX+D6I5mTURsnAeYKJjzRrggUmCSqLehpDKEXyKnygjFdA==",
         "dependencies": {
-          "Microsoft.VisualStudio.Interop": "17.10.40170"
+          "Microsoft.VisualStudio.Interop": "17.11.40262"
         }
       },
       "Microsoft.VisualStudio.Shell.Interop.10.0": {
@@ -1823,7 +1823,7 @@
           "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",
           "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.10.2154, )",
           "Microsoft.VisualStudio.Shell.Framework": "[17.11.40262, )",
-          "Microsoft.VisualStudio.Shell.Interop": "[17.10.40170, )",
+          "Microsoft.VisualStudio.Shell.Interop": "[17.11.40262, )",
           "Microsoft.VisualStudio.Utilities": "[17.11.40262, )",
           "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
           "Microsoft.Visualstudio.Telemetry": "[17.11.20, )",
