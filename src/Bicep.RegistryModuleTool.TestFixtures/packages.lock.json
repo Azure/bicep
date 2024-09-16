@@ -277,8 +277,8 @@
       },
       "Google.Protobuf": {
         "type": "Transitive",
-        "resolved": "3.28.0",
-        "contentHash": "lVsLcLIHpkOABswgydr0sjkIhSN5XE9C6AgLXxvMsa6pSSJIpmAIPvK/NZpuF+HTB6xp1R8T5nhLausWVOrU/w=="
+        "resolved": "3.28.1",
+        "contentHash": "i4EN7Z+OUdoRBNiVMIG6CfMh6UowXiUx+BKgE+GHLbAX5ArSmpUTFUDwgRNwNfYdosl6GXuBlDiHCcXSHw43+A=="
       },
       "Grpc.Core.Api": {
         "type": "Transitive",
@@ -1779,7 +1779,7 @@
         "type": "Project",
         "dependencies": {
           "CommandLineParser": "[2.9.1, )",
-          "Google.Protobuf": "[3.28.0, )",
+          "Google.Protobuf": "[3.28.1, )",
           "Grpc.Net.Client": "[2.65.0, )"
         }
       },
