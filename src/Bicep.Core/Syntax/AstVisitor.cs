@@ -509,5 +509,11 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Expression);
         }
+
+        public override void VisitDeployDeclarationSyntax(DeployDeclarationSyntax syntax)
+        {
+            this.Visit(syntax.Path);
+            this.Visit(syntax.Body);
+        }
     }
 }

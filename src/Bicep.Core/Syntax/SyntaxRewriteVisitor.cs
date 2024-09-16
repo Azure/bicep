@@ -1417,5 +1417,20 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax)
             => ReplaceCurrent(syntax, ReplaceSpreadExpressionSyntax);
+
+        protected virtual SyntaxBase ReplaceDeployDeclarationSyntax(DeployDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Path, out var path);
+            hasChanges |= TryRewriteStrict(syntax.Body, out var body);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new DeployDeclarationSyntax(keyword, path, body);
+        }
+        void ISyntaxVisitor.VisitDeployDeclarationSyntax(DeployDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceDeployDeclarationSyntax);
     }
 }

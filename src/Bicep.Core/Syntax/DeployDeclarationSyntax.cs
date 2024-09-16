@@ -36,10 +36,7 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, this.Body);
 
-        public override void Accept(ISyntaxVisitor visitor)
-        {
-            throw new NotImplementedException();
-        }
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitDeployDeclarationSyntax(this);
 
         public ArtifactType GetArtifactType() => ArtifactType.Module;
     }
