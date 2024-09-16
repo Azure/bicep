@@ -196,6 +196,11 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax) => this.Apply(syntax, LayoutSpreadExpressionSyntax);
 
+        public void VisitDeployDeclarationSyntax(DeployDeclarationSyntax syntax)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {
             syntax.Accept(this);

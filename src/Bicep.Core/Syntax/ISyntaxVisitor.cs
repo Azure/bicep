@@ -177,5 +177,7 @@ namespace Bicep.Core.Syntax
         void VisitParenthesizedTypeSyntax(ParenthesizedTypeSyntax syntax);
 
         void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax);
+
+        void VisitDeployDeclarationSyntax(DeployDeclarationSyntax syntax);
     }
 }

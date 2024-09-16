@@ -14,35 +14,29 @@ namespace Bicep.Core.Syntax
 {
     public class DeployDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
-        public DeployDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase withClause)
+        public DeployDeclarationSyntax(Token keyword, SyntaxBase path, SyntaxBase body)
             : base([])
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.DeployKeyword);
             AssertSyntaxType(path, nameof(path), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
-            AssertSyntaxType(withClause, nameof(withClause), typeof(WithClauseSyntax), typeof(SkippedTriviaSyntax));
+            AssertSyntaxType(body, nameof(body), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
 
             this.Keyword = keyword;
-            this.Name = name;
             this.Path = path;
-            this.WithClause = withClause;
+            this.Body = body;
         }
 
         public Token Keyword { get; }
 
-        public IdentifierSyntax Name { get; }
-
         public SyntaxBase Path { get; }
 
-        public SyntaxBase WithClause { get; }
+        public SyntaxBase Body { get; }
 
         public SyntaxBase SourceSyntax => this.Path;
 
-        public override TextSpan Span => TextSpan.Between(this.Keyword, this.WithClause);
+        public override TextSpan Span => TextSpan.Between(this.Keyword, this.Body);
 
-        public override void Accept(ISyntaxVisitor visitor)
-        {
-            throw new NotImplementedException();
-        }
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitDeployDeclarationSyntax(this);
 
         public ArtifactType GetArtifactType() => ArtifactType.Module;
     }

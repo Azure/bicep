@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Parsing;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
@@ -633,6 +634,13 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Ellipsis);
             this.Visit(syntax.Expression);
+        }
+
+        public override void VisitDeployDeclarationSyntax(DeployDeclarationSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Path);
+            this.Visit(syntax.Body);
         }
     }
 }

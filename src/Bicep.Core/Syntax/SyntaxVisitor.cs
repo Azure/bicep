@@ -182,6 +182,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax);
 
+        public abstract void VisitDeployDeclarationSyntax(DeployDeclarationSyntax syntax);
+
         public void Visit(SyntaxBase? node)
         {
             if (node == null)
