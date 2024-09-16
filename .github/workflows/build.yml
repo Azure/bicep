@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    # TODO: Remove the `bicep-deploy-hackathon` branch before merging to main.
+    branches: [main, bicep-deploy-hackathon]
   workflow_dispatch:
 
 permissions:
