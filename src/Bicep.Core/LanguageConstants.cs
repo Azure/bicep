@@ -22,9 +22,17 @@ namespace Bicep.Core
         public const string ParamsLanguageId = "bicep-params";
         public const string ParamsFileExtension = ".bicepparam";
 
+        public const string DeployLanguageId = "bicep-deploy";
+        public const string DeployFileExtension = ".bicepdeploy";
+
         public static bool IsParamsLanguage(string? languageId) => string.Equals(ParamsLanguageId, languageId, StringComparison.OrdinalIgnoreCase);
 
-        public static bool IsBicepOrParamsLanguage([NotNullWhen(true)] string? languageId) => IsBicepLanguage(languageId) || IsParamsLanguage(languageId);
+        public static bool IsDeployLanguage(string? languageId) => string.Equals(DeployLanguageId, languageId, StringComparison.OrdinalIgnoreCase);
+
+        public static bool IsKnownLanguage([NotNullWhen(true)] string? languageId) =>
+            IsBicepLanguage(languageId) ||
+            IsParamsLanguage(languageId) ||
+            IsDeployLanguage(languageId);
 
         public const string JsonLanguageId = "json";
         public const string JsoncLanguageId = "jsonc";

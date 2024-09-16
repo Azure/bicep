@@ -155,6 +155,21 @@
           "light": "./icons/bicepparam-file.svg",
           "dark": "./icons/bicepparam-file.svg"
         }
+      },
+      {
+        "id": "bicep-deploy",
+        "aliases": [
+          "Bicep Deployment",
+          "Bicep Deploy"
+        ],
+        "extensions": [
+          ".bicepdeploy"
+        ],
+        "configuration": "./syntaxes/language-configuration.json",
+        "icon": {
+          "light": "./icons/bicepparam-file.svg",
+          "dark": "./icons/bicepparam-file.svg"
+        }
       }
     ],
     "grammars": [

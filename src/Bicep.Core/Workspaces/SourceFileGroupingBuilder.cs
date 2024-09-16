@@ -163,6 +163,8 @@ namespace Bicep.Core.Workspaces
         private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild)
         {
             var config = configurationManager.GetConfiguration(file.FileUri);
+
+            // TODO: Should this be skipped for .bicepparams and .bicepdeploy files?
             implicitExtensions[file] = [];
 
             // process "implicit" extensions (extensions defined in bicepconfig.json)
@@ -311,6 +313,7 @@ namespace Bicep.Core.Workspaces
                     ResultWithDiagnosticBuilder<Uri> result = cycle switch
                     {
                         { Length: 1 } when cycle[0] is BicepParamFile paramFile => new(x => x.CyclicParametersSelfReference()),
+                        { Length: 1 } when cycle[0] is BicepDeployFile paramFile => new(x => x.CyclicDeployFileSelfReference()),
                         { Length: 1 } => new(x => x.CyclicModuleSelfReference()),
                         // the error message is generic so it should work for either bicep module or params
                         _ => new(x => x.CyclicFile(cycle.Select(u => u.FileUri.LocalPath))),

@@ -23,10 +23,11 @@ namespace Bicep.Core.Workspaces
             LineInfoHandling = LineInfoHandling.Ignore,
         };
 
-        public static BicepSourceFile? TryCreateSourceFileByBicepLanguageId(Uri fileUri, string fileContents, string languageId) => languageId switch
+        public static BicepSourceFile? TryCreateSourceFileByLanguageId(Uri fileUri, string fileContents, string languageId) => languageId switch
         {
             LanguageConstants.LanguageId => CreateBicepFile(fileUri, fileContents),
             LanguageConstants.ParamsLanguageId => CreateBicepParamFile(fileUri, fileContents),
+            LanguageConstants.DeployLanguageId => CreateBicepDeployFile(fileUri, fileContents),
             _ => null
         };
 
@@ -35,8 +36,8 @@ namespace Bicep.Core.Workspaces
         {
             BicepSourceFileKind.BicepFile => CreateBicepFile(fileUri, fileContents),
             BicepSourceFileKind.ParamsFile => CreateBicepParamFile(fileUri, fileContents),
-            null => null,
-            _ => throw new NotImplementedException($"Unexpected file kind '{fileKind}'.")
+            BicepSourceFileKind.DeployFile => CreateBicepDeployFile(fileUri, fileContents),
+            _ => null,
         };
 
         public static ISourceFile? TryCreateSourceFile(Uri fileUri, string fileContents, ArtifactReference? moduleReference = null)
@@ -58,6 +59,11 @@ namespace Bicep.Core.Workspaces
                 return CreateBicepParamFile(fileUri, fileContents);
             }
 
+            if (PathHelper.HasBicepDeployExtension(fileUri))
+            {
+                return CreateBicepDeployFile(fileUri, fileContents);
+            }
+
             return null;
         }
 
@@ -67,6 +73,14 @@ namespace Bicep.Core.Workspaces
         public static BicepParamFile CreateBicepParamFile(Uri fileUri, string fileContents)
         {
             var parser = new ParamsParser(fileContents);
+            var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
+
+            return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);
+        }
+
+        public static BicepDeployFile CreateBicepDeployFile(Uri fileUri, string fileContents)
+        {
+            var parser = new DeployParser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 
             return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);

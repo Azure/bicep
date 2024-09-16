@@ -195,6 +195,8 @@ namespace Bicep.Core.FileSystem
 
         public static bool HasBicepparamsExtension(Uri uri) => HasExtension(uri, BicepParamsExtension);
 
+        public static bool HasBicepDeployExtension(Uri uri) => HasExtension(uri, LanguageConstants.DeployFileExtension);
+
         public static bool HasArmTemplateLikeExtension(Uri uri) =>
                 HasExtension(uri, LanguageConstants.JsonFileExtension) ||
                 HasExtension(uri, LanguageConstants.JsoncFileExtension) ||

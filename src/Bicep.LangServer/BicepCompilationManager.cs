@@ -127,7 +127,7 @@ namespace Bicep.LanguageServer
         private ISourceFile CreateSourceFile(DocumentUri documentUri, string fileContents, string? languageId)
         {
             if (languageId is not null &&
-                SourceFileFactory.TryCreateSourceFileByBicepLanguageId(documentUri.ToUriEncoded(), fileContents, languageId) is { } sourceFileViaLanguageId)
+                SourceFileFactory.TryCreateSourceFileByLanguageId(documentUri.ToUriEncoded(), fileContents, languageId) is { } sourceFileViaLanguageId)
             {
                 return sourceFileViaLanguageId;
             }
@@ -273,10 +273,10 @@ namespace Bicep.LanguageServer
                 return false;
             }
 
-            // We should only upsert compilation when languageId is bicep or the file is already tracked in workspace.
+            // We should only upsert compilation when languageId is a known bicep language Id or the file is already tracked in workspace.
             // When the file is in workspace but languageId is null, the file can be a bicep file or a JSON template
             // being referenced as a bicep module.
-            return LanguageConstants.IsBicepOrParamsLanguage(languageId) || this.workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out var _);
+            return LanguageConstants.IsKnownLanguage(languageId) || this.workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out var _);
         }
 
         private ImmutableArray<ISourceFile> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)

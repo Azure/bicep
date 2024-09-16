@@ -1802,6 +1802,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic UnrecognizedDeployFileDeclaration() => CoreError(
                 "BCP407",
                 $@"This declaration type is not valid for a Bicep Deploy file. Specify a ""{LanguageConstants.DeployKeyword}"" declaration.");
+
+            public Diagnostic CyclicDeployFileSelfReference() => CoreError(
+                "BCP408",
+                "This deploy file references itself, which is not allowed.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

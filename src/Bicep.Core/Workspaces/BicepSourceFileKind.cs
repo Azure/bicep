@@ -17,5 +17,10 @@ namespace Bicep.Core.Workspaces
         /// also set values of the parameters declared in the referenced Bicep file.
         /// </summary>
         ParamsFile,
+
+        /// <summary>
+        /// A Bicep deploy file containing a deployment statement.
+        /// </summary>
+        DeployFile,
     }
 }

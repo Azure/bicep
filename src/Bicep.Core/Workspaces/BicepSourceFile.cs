@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Workspaces

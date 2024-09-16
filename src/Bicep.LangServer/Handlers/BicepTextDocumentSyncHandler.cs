@@ -34,9 +34,16 @@ namespace Bicep.LanguageServer.Handlers
                 return new TextDocumentAttributes(uri, LanguageConstants.JsoncLanguageId);
             }
 
-            if (PathHelper.HasBicepparamsExtension(uri.ToUriEncoded()))
+            var uriEncoded = uri.ToUriEncoded();
+
+            if (PathHelper.HasBicepparamsExtension(uriEncoded))
             {
                 return new TextDocumentAttributes(uri, LanguageConstants.ParamsLanguageId);
+            }
+
+            if (PathHelper.HasBicepDeployExtension(uriEncoded))
+            {
+                return new TextDocumentAttributes(uri, LanguageConstants.DeployLanguageId);
             }
 
             return new TextDocumentAttributes(uri, LanguageConstants.LanguageId);
