@@ -196,7 +196,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitSpreadExpressionSyntax(SpreadExpressionSyntax syntax) => this.Apply(syntax, LayoutSpreadExpressionSyntax);
 
-        public void VisitDeployDeclarationSyntax(DeployDeclarationSyntax syntax) => this.Apply(syntax, LayoutDeployDeclarationSyntax)
+        public void VisitDeployDeclarationSyntax(DeployDeclarationSyntax syntax) => this.Apply(syntax, LayoutDeployDeclarationSyntax);
 
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {

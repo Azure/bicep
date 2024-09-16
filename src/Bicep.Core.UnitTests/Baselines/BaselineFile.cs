@@ -16,6 +16,8 @@ namespace Bicep.Core.UnitTests.Baselines
         EmbeddedFile EmbeddedFile,
         string OutputFilePath)
     {
+        public string Contents => this.EmbeddedFile.Contents;
+
         public string ReadFromOutputFolder() => File.ReadAllText(OutputFilePath);
 
         public void WriteToOutputFolder(string contents) => File.WriteAllText(OutputFilePath, contents);

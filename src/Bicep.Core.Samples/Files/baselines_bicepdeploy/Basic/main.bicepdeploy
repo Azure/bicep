@@ -1,0 +1,19 @@
+/*
+Some comment.
+*/
+deploy 'main.bicep'    {
+  scope: resourceGroup('myResourceGroup')
+  params: {
+    myString:    'someString'
+    myInt: 1
+    // Some comment.
+    myBool: true
+    myArray: [
+      'arrayValue1'
+      'arrayValue2'
+    ]
+    myObject: {
+     myObjectProperty: 'objectValue'
+    }
+  }
+}
