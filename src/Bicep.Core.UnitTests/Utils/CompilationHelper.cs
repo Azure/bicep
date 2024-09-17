@@ -37,6 +37,17 @@ namespace Bicep.Core.UnitTests.Utils
             public BicepFile BicepFile => (BicepFile)SourceFile;
         }
 
+        public record BicepDeployCompilationResult(
+            JToken? Output,
+            IEnumerable<IDiagnostic> Diagnostics,
+            Compilation Compilation) : ICompilationResult
+        {
+
+            public BicepSourceFile SourceFile => Compilation.SourceFileGrouping.EntryPoint;
+
+            public BicepDeployFile DeployFile => (BicepDeployFile)SourceFile;
+        }
+
         public record ParamsCompilationResult(
             JToken? Parameters,
             IEnumerable<IDiagnostic> Diagnostics,
@@ -149,6 +160,23 @@ namespace Bicep.Core.UnitTests.Utils
         public static CompilationResult Compile(ServiceBuilder services, string fileContents)
             => Compile(services, ("main.bicep", fileContents));
 
+        public static BicepDeployCompilationResult CompileBicepDeploy(ServiceBuilder services, params (string fileName, string fileContents)[] files)
+        {
+            files.Select(x => x.fileName).Should().Contain("main.bicepdeploy");
+
+            var (uriDictionary, entryUri) = CreateFileDictionary(files.Select(file => ("/path/to", file.fileName, file.fileContents)).ToArray(), "main.bicepdeploy");
+
+            var sourceFiles = uriDictionary
+                .Where(x => PathHelper.HasBicepDeployExtension(x.Key) || PathHelper.HasBicepExtension(x.Key) || PathHelper.HasArmTemplateLikeExtension(x.Key))
+                .ToDictionary(x => x.Key, x => x.Value);
+
+            var compilation = services
+                .WithMockFileSystem(uriDictionary)
+                .BuildCompilation(sourceFiles, entryUri);
+
+            return CompileBicepDeploy(compilation);
+        }
+
         public static ParamsCompilationResult CompileParams(params (string fileName, string fileContents)[] files)
         {
             return CompileParams(new ServiceBuilder(), files);
@@ -230,6 +258,17 @@ namespace Bicep.Core.UnitTests.Utils
             }
 
             return new(parameters, diagnostics, compilation);
+        }
+
+        private static BicepDeployCompilationResult CompileBicepDeploy(Compilation compilation)
+        {
+            var semanticModel = compilation.GetEntrypointSemanticModel();
+
+            var diagnostics = semanticModel.GetAllDiagnostics();
+
+            // TODO add emitter logic here
+            JToken? output = null;
+            return new(output, diagnostics, compilation);
         }
     }
 }
