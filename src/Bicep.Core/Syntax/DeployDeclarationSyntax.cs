@@ -14,19 +14,23 @@ namespace Bicep.Core.Syntax
 {
     public class DeployDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
-        public DeployDeclarationSyntax(Token keyword, SyntaxBase path, SyntaxBase body)
-            : base([])
+        public DeployDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase body)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.DeployKeyword);
+            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
             AssertSyntaxType(path, nameof(path), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(body, nameof(body), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
 
             this.Keyword = keyword;
+            this.Name = name;
             this.Path = path;
             this.Body = body;
         }
 
         public Token Keyword { get; }
+
+        public IdentifierSyntax Name { get; }
 
         public SyntaxBase Path { get; }
 

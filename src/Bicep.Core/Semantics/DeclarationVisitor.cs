@@ -151,6 +151,14 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
+        public override void VisitDeployDeclarationSyntax(DeployDeclarationSyntax syntax)
+        {
+            base.VisitDeployDeclarationSyntax(syntax);
+
+            var symbol = new DeploySymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             base.VisitTestDeclarationSyntax(syntax);

@@ -56,6 +56,11 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
+        public virtual void VisitDeploySymbol(DeploySymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
         public virtual void VisitTestSymbol(TestSymbol symbol)
         {
             VisitDescendants(symbol);

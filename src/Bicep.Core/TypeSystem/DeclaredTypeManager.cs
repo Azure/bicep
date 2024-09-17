@@ -117,6 +117,9 @@ namespace Bicep.Core.TypeSystem
                 case ModuleDeclarationSyntax module:
                     return GetModuleType(module);
 
+                case DeployDeclarationSyntax deploy:
+                    return GetDeployBodyTypeAssignment(deploy);
+
                 case TestDeclarationSyntax test:
                     return GetTestType(test);
 
@@ -1190,6 +1193,9 @@ namespace Bicep.Core.TypeSystem
                 syntax);
         }
 
+        private DeclaredTypeAssignment GetDeployBodyTypeAssignment(DeployDeclarationSyntax syntax)
+            => new(GetDeployBodyType(syntax), syntax);
+
         private DeclaredTypeAssignment GetTestType(TestDeclarationSyntax syntax)
         {
             var declaredTestType = GetDeclaredTestType(syntax);
@@ -2069,6 +2075,49 @@ namespace Bicep.Core.TypeSystem
                 moduleSemanticModel.TargetScope,
                 binder.TargetScope,
                 LanguageConstants.TypeNameModule);
+        }
+
+        private TypeSymbol GetDeployBodyType(DeployDeclarationSyntax deploy)
+        {
+            if (binder.GetSymbolInfo(deploy) is not DeploySymbol deploySymbol)
+            {
+                // TODO: Ideally we'd still be able to return a type here, but we'd need access to the compilation to get it.
+                return ErrorType.Empty();
+            }
+
+            if (!deploySymbol.TryGetSemanticModel().IsSuccess(out var deploySemanticModel, out var failureDiagnostic))
+            {
+                return ErrorType.Create(failureDiagnostic);
+            }
+
+            var parameters = new List<TypeProperty>();
+            foreach (var parameter in deploySemanticModel.Parameters.Values)
+            {
+                var type = parameter.TypeReference.Type;
+
+                var flags = parameter.IsRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly;
+                parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
+            }
+
+            var paramsRequired = parameters.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required));
+            var parametersObjectType = new ObjectType("parameters", TypeSymbolValidationFlags.Default, parameters, null);
+            
+            var settingsType = new ObjectType(
+                "settings",
+                TypeSymbolValidationFlags.Default,
+                ImmutableArray<TypeProperty>.Empty, // TODO add settings here
+                null);
+            
+            return new ObjectType(
+                "deploy",
+                TypeSymbolValidationFlags.Default,
+                new[]
+                {
+                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.WriteOnly),
+                    new TypeProperty("params", parametersObjectType, TypePropertyFlags.WriteOnly | (paramsRequired ? TypePropertyFlags.Required : TypePropertyFlags.None)),
+                    new TypeProperty("settings", settingsType, TypePropertyFlags.WriteOnly),
+                },
+                null);
         }
 
         private TypeSymbol GetDeclaredTestType(TestDeclarationSyntax test)
