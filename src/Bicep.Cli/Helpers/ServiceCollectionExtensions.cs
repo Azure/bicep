@@ -57,6 +57,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton<JsonRpcCommand>()
             .AddSingleton<LocalDeployCommand>()
             .AddSingleton<DeployCommand>()
+            .AddSingleton<ValidateCommand>()
+            .AddSingleton<WhatIfCommand>()
             .AddSingleton<RootCommand>();
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
@@ -81,5 +83,5 @@ public static class ServiceCollectionExtensions
         .AddSingleton<BicepDecompiler>();
 
     public static IServiceCollection AddBicepDeploy(this IServiceCollection services) => services
-        .AddSingleton<IDeploymentManager, DeploymentManager>();
+        .AddSingleton<IDeploymentManagerFactory, DeploymentManagerFactory>();
 }

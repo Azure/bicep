@@ -119,5 +119,14 @@ namespace Bicep.Cli {
                 return ResourceManager.GetString("UnrecognizedBicepparamsFileExtensionMessage", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The specified input &quot;{0}&quot; was not recognized as a Bicep Deployment file. Bicep deployment files must use the .bicepdeploy extension..
+        /// </summary>
+        internal static string UnrecognizedBicepdeployFileExtensionMessage {
+            get {
+                return ResourceManager.GetString("UnrecognizedBicepdeployFileExtensionMessage", resourceCulture);
+            }
+        }
     }
 }

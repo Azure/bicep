@@ -12,6 +12,8 @@ namespace Bicep.Cli.Constants
         public const string JsonRpc = "jsonrpc";
         public const string LocalDeploy = "local-deploy";
         public const string Deploy = "deploy";
+        public const string Validate = "validate";
+        public const string WhatIf = "what-if";
         public const string GenerateParamsFile = "generate-params";
         public const string Decompile = "decompile";
         public const string DecompileParams = "decompile-params";

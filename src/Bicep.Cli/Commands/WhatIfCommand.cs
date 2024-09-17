@@ -21,7 +21,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands;
 
-public class DeployCommand : ICommand
+public class WhatIfCommand : ICommand
 {
     private readonly DiagnosticLogger diagnosticLogger;
     private readonly BicepCompiler compiler;
@@ -30,7 +30,7 @@ public class DeployCommand : ICommand
     private readonly IOContext io;
     private readonly ILogger logger;
 
-    public DeployCommand(
+    public WhatIfCommand(
         DiagnosticLogger diagnosticLogger,
         BicepCompiler compiler,
         IOContext io,
@@ -46,7 +46,7 @@ public class DeployCommand : ICommand
         this.logger = logger;
     }
 
-    public async Task<int> RunAsync(DeployArguments args, CancellationToken cancellationToken)
+    public async Task<int> RunAsync(WhatIfArguments args, CancellationToken cancellationToken)
     {
         var deploymentFile = ArgumentHelper.GetFileUri(args.InputFile);
         ArgumentHelper.ValidateBicepDeployFile(deploymentFile);
@@ -76,10 +76,11 @@ public class DeployCommand : ICommand
             "92722693-40f1-44fe-8c39-9cf6b6353750",
             "levi-bicep-deploy",
             args.Name ?? "main",
-            new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
+            new ArmDeploymentWhatIfProperties(ArmDeploymentMode.Incremental)
             {
                 Template = new BinaryData(JsonDocument.Parse(template).RootElement),
-                Parameters = new BinaryData("{}")
+                Parameters = new BinaryData("{}"),
+                WhatIfResultFormat = args.ResultFormat
             });
 
         var rootConfiguration = configurationManager.GetConfiguration(deploymentFile);
@@ -87,57 +88,51 @@ public class DeployCommand : ICommand
 
         try
         {
-            var deployment = await deploymentManager.CreateOrUpdateAsync(
-                deploymentDefinition,
-                WriteDeploymentOperationSummary,
-                cancellationToken);
+            var whatIfResult = await deploymentManager.WhatIfAsync(deploymentDefinition, cancellationToken);
 
-            await WriteDeploymentSummary(deployment.Data);
+            await WriteWhatIfSummary(whatIfResult);
         }
-        catch (DeploymentException ex)
+        catch (WhatIfException ex)
         {
-            await io.Error.WriteLineAsync($"Unable to deploy: {ex.Message}");
+            await io.Error.WriteLineAsync($"Unable to run what-if: {ex.Message}");
             return 1;
         }
         
         return 0;
     }
 
-    private void WriteDeploymentOperationSummary(IEnumerable<ArmDeploymentOperation> operations)
+    private async Task WriteWhatIfSummary(WhatIfOperationResult whatIfResult)
     {
-        foreach (var operation in operations)
+        if (whatIfResult.Error is { } error)
         {
-            var resource = operation.Properties.TargetResource;
-            if (resource is null)
+            await io.Error.WriteLineAsync($"What-if failed: {error.Code} - {error.Message}");
+        }
+
+        // TODO: there's probably a better way to print these out
+        foreach (var change in whatIfResult.Changes)
+        {
+            switch (change.ChangeType)
             {
-                continue;
+                case WhatIfChangeType.Create:
+                    await io.Output.WriteLineAsync($"Create: + {change.ResourceId}");
+                    break;
+                case WhatIfChangeType.Delete:
+                    await io.Output.WriteLineAsync($"Delete: - {change.ResourceId}");
+                    break;
+                case WhatIfChangeType.Modify:
+                    await io.Output.WriteLineAsync($"Modify: ~ {change.ResourceId}");
+                    foreach (var prop in change.Delta)
+                    {
+                        await io.Output.WriteLineAsync($"\t- {prop.Before}{Environment.NewLine}\t+ {prop.After}");
+                    }
+                    break;
+                case WhatIfChangeType.Ignore:
+                    await io.Output.WriteLineAsync($"Ignore: {change.ResourceId}");
+                    break;
+                case WhatIfChangeType.NoChange:
+                    await io.Output.WriteLineAsync($"No change: {change.ResourceId}");
+                    break;
             }
-
-            io.Output.WriteLine($"Resource {resource.ResourceType} '{resource.ResourceName}' provisioning status is {operation.Properties.ProvisioningState}");
         }
-    }
-
-    private async Task WriteDeploymentSummary(ArmDeploymentData deployment)
-    {
-        if (deployment.Properties.Outputs is { } outputs)
-        {
-            var outputsDict = outputs.ToObjectFromJson<Dictionary<string, object>>();
-            foreach (var output in outputsDict)
-            {
-                await io.Output.WriteLineAsync($"Output: {output.Key} = {output.Value}");
-            }
-        }
-
-        if (deployment.Properties.Error is { } error)
-        {
-            await io.Error.WriteLineAsync($"Deployment failed: {error.Code} - {error.Message}");
-        }
-
-        foreach (var resource in deployment.Properties.OutputResources)
-        {
-            await io.Output.WriteLineAsync($"Deployed resource: {resource.Id}");
-        }
-
-        await io.Output.WriteLineAsync($"Result: {deployment.Properties.ProvisioningState}");
     }
 }

@@ -113,6 +113,12 @@ namespace Bicep.Cli
                     case DeployArguments deployArguments when deployArguments.CommandName == Constants.Command.Deploy: // bicep deploy [options]
                         return await services.GetRequiredService<DeployCommand>().RunAsync(deployArguments, cancellationToken);
 
+                    case ValidateArguments validateArguments when validateArguments.CommandName == Constants.Command.Validate: // bicep validate [options]
+                        return await services.GetRequiredService<ValidateCommand>().RunAsync(validateArguments, cancellationToken);
+
+                    case WhatIfArguments whatIfArguments when whatIfArguments.CommandName == Constants.Command.WhatIf: // bicep what-if [options]
+                        return await services.GetRequiredService<WhatIfCommand>().RunAsync(whatIfArguments, cancellationToken);
+
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 

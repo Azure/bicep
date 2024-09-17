@@ -11,6 +11,9 @@ The following features can be optionally enabled through your `bicepconfig.json`
 ### `assertions`
 Should be enabled in tandem with `testFramework` experimental feature flag for expected functionality. Allows you to author boolean assertions using the `assert` keyword comparing the actual value of a parameter, variable, or resource name to an expected value. Assert statements can only be written directly within the Bicep file whose resources they reference. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
 
+### `deploymentFile`
+Enables support for Bicep deployment file. See [Bicep deployment file proposal](https://gist.github.com/shenglol/bd7bd24343b24edd965ba411048c1eb2#file-bicep-deployment-file-md).
+
 ### `extendableParamFiles`
 Enables the ability to extend bicepparam files from other bicepparam files. For more information, see [Extendable Bicep Params Files](./experimental/extendable-param-files.md).
 

@@ -52,4 +52,12 @@ public class ArgumentHelper
             throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepOrBicepparamsFileExtensionMessage, fileUri.LocalPath));
         }
     }
+
+    public static void ValidateBicepDeployFile(Uri fileUri)
+    {
+        if (!PathHelper.HasBicepDeployExtension(fileUri))
+        {
+            throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepdeployFileExtensionMessage, fileUri.LocalPath));
+        }
+    }
 }

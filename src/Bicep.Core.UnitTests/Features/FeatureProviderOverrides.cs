@@ -23,7 +23,8 @@ public record FeatureProviderOverrides(
     bool? SecureOutputsEnabled = default,
     bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
-    bool? ExtensibilityV2EmittingEnabled = default)
+    bool? ExtensibilityV2EmittingEnabled = default,
+    bool? DeploymentFileEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -42,7 +43,8 @@ public record FeatureProviderOverrides(
         bool? SecureOutputsEnabled = default,
         bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
-        bool? ExtensibilityV2EmittingEnabled = default
+        bool? ExtensibilityV2EmittingEnabled = default,
+        bool? DeploymentFileEnabled = default
     ) : this(
         FileHelper.GetCacheRootPath(testContext),
         RegistryEnabled,
@@ -60,6 +62,7 @@ public record FeatureProviderOverrides(
         SecureOutputsEnabled,
         ExtendableParamFilesEnabled,
         AssemblyVersion,
-        ExtensibilityV2EmittingEnabled)
+        ExtensibilityV2EmittingEnabled,
+        DeploymentFileEnabled)
     { }
 }

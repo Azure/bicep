@@ -822,6 +822,10 @@
         "secureOutputs": {
             "type": "boolean",
             "description": "If enabled, users can use the secure decorator for outputs. See https://aka.ms/bicep/experimental-features#secureoutputs"
+        },
+        "deploymentFile": {
+          "type": "boolean",
+          "description": "If enabled, users can use the deploymentFile decorator to reference a file containing a deployment template. See https://aka.ms/bicep/experimental-features#deploymentfile"
         }
       },
       "additionalProperties": false

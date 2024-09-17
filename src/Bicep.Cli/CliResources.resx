@@ -141,6 +141,10 @@
     <value>The specified input "{0}" was not recognized as a Bicep or Bicep Parameters file. Valid files must either the .bicep or .bicepparam extension.</value>
     <comment>{0} input file path</comment>
   </data>
+  <data name="UnrecognizedBicepdeployFileExtensionMessage" xml:space="preserve">
+    <value>The specified input "{0}" was not recognized as a Bicep deployment file. Bicep deployment files must use the .bicepdeploy extension.</value>
+    <comment>{0} input file path</comment>
+  </data>
   <data name="ExperimentalFeaturesDisclaimerMessage" xml:space="preserve">
     <value>WARNING: The following experimental Bicep features have been enabled: {0}. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.</value>
     <comment>{0} comma-separated list of enabled experimental features</comment>

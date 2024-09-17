@@ -2,138 +2,159 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
 using Azure;
 using Azure.Core;
 using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Core.Definitions.Identifiers;
 using Azure.Identity;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Models;
+using Bicep.Core.Registry.Auth;
+using Bicep.Core.Tracing;
+using Bicep.Deploy.Exceptions;
+using ValidationException = Bicep.Deploy.Exceptions.ValidationException;
 
-namespace Bicep.Deploy
+namespace Bicep.Deploy;
+
+public class DeploymentManager : IDeploymentManager
 {
-    public class DeploymentManager : IDeploymentManager
+    private readonly ArmClient armClient;
+
+    public DeploymentManager(ArmClient armClient)
     {
-        public async Task<ArmDeploymentResource> CreateOrUpdateAsync(ArmDeploymentDefinition deploymentDefinition, CancellationToken cancellationToken)
-        {
-            var armClient = new ArmClient(new DefaultAzureCredential());
+        this.armClient = armClient;
+    }
 
-            try
+    public async Task<ArmDeploymentResource> CreateOrUpdateAsync(ArmDeploymentDefinition deploymentDefinition, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (deploymentDefinition.SubscriptionId is { } subscriptionId &&
+            subscriptionId.Equals(Guid.Empty.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                if (deploymentDefinition.SubscriptionId is { } subscriptionId &&
+                var subscription = await this.armClient.GetDefaultSubscriptionAsync(cancellationToken);
+                deploymentDefinition = deploymentDefinition with { SubscriptionId = subscription.Id };
+            }
+
+            var deploymentResource = this.armClient.GetArmDeploymentResource(deploymentDefinition.Id);
+            var deploymentContent = new ArmDeploymentContent(deploymentDefinition.Properties);
+
+            var operation = await deploymentResource.UpdateAsync(WaitUntil.Completed, deploymentContent, cancellationToken);
+
+            return operation.Value;
+        }
+        catch (RequestFailedException ex)
+        {
+            throw new DeploymentException(ex.Message, ex);
+        }
+    }
+
+    public async Task<ArmDeploymentResource> CreateOrUpdateAsync(ArmDeploymentDefinition deploymentDefinition, Action<ImmutableSortedSet<ArmDeploymentOperation>>? onOperationsUpdated, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (deploymentDefinition.SubscriptionId is { } subscriptionId &&
                 subscriptionId.Equals(Guid.Empty.ToString(), StringComparison.OrdinalIgnoreCase))
-                {
-                    var subscription = await armClient.GetDefaultSubscriptionAsync(cancellationToken);
-                    deploymentDefinition = deploymentDefinition with { SubscriptionId = subscription.Id };
-                }
-
-                var deploymentResource = armClient.GetArmDeploymentResource(deploymentDefinition.Id);
-                var deploymentContent = new ArmDeploymentContent(deploymentDefinition.Properties);
-
-                var operation = await deploymentResource.UpdateAsync(WaitUntil.Completed, deploymentContent, cancellationToken);
-
-                return operation.Value;
-            }
-            catch (RequestFailedException ex)
             {
-                throw new DeploymentException(ex.Message, ex);
-            }
-        }
-
-        public async Task<ArmDeploymentResource> CreateOrUpdateAsync(ArmDeploymentDefinition deploymentDefinition, Action<ImmutableSortedSet<ArmDeploymentOperation>>? onOperationsUpdated, CancellationToken cancellationToken)
-        {
-            // TODO: Custom polling logic. Take a look at:
-            // - https://github.com/Azure/azure-powershell/blob/b819adaeec70e735e3b46d51c72bc2fc17c4fef6/src/Resources/ResourceManager/SdkClient/NewResourceManagerSdkClient.cs#L201
-            // - Azure.Core.OperationPoller
-            //throw new NotImplementedException();
-            var armClient = new ArmClient(new DefaultAzureCredential());
-
-            try
-            {
-                if (deploymentDefinition.SubscriptionId is { } subscriptionId &&
-                    subscriptionId.Equals(Guid.Empty.ToString(), StringComparison.OrdinalIgnoreCase))
-                {
-                    var subscription = await armClient.GetDefaultSubscriptionAsync(cancellationToken);
-                    deploymentDefinition = deploymentDefinition with { SubscriptionId = subscription.Id };
-                }
-
-                var deploymentResource = armClient.GetArmDeploymentResource(deploymentDefinition.Id);
-                var deploymentContent = new ArmDeploymentContent(deploymentDefinition.Properties);
-
-                var operation = await deploymentResource.UpdateAsync(WaitUntil.Started, deploymentContent, cancellationToken);
-
-                var currentOperations = new List<ArmDeploymentOperation>();
-                while (!operation.HasCompleted)
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken);
-                    await operation.UpdateStatusAsync(cancellationToken);
-
-                    var nextOperations = await GetDeploymentOperationsAsync(deploymentResource, cancellationToken);
-                    var newOperations = GetNewOperations(currentOperations, nextOperations);
-                    currentOperations.AddRange(newOperations);
-
-                    onOperationsUpdated?.Invoke(newOperations.ToImmutableSortedSet(new ArmDeploymentOperationComparer()));
-                }
-                
-                return operation.Value;
-            }
-            catch (RequestFailedException ex)
-            {
-                throw new DeploymentException(ex.Message, ex);
-            }
-        }
-
-        public Task<ArmDeploymentValidateResult> ValidateAsync(ArmDeploymentDefinition deploymentDefinition, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<WhatIfOperationResult> WhatIfAsync(ArmDeploymentDefinition deploymentDefinition, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }   
-
-        private async Task<List<ArmDeploymentOperation>> GetDeploymentOperationsAsync(ArmDeploymentResource deploymentResource, CancellationToken cancellationToken)
-        {
-            var results = new List<ArmDeploymentOperation>();
-            await foreach (var operation in deploymentResource.GetDeploymentOperationsAsync().WithCancellation(cancellationToken))
-            {
-                results.Add(operation);
+                var subscription = await this.armClient.GetDefaultSubscriptionAsync(cancellationToken);
+                deploymentDefinition = deploymentDefinition with { SubscriptionId = subscription.Id };
             }
 
-            return results;
-        }
+            var deploymentResource = this.armClient.GetArmDeploymentResource(deploymentDefinition.Id);
+            var deploymentContent = new ArmDeploymentContent(deploymentDefinition.Properties);
 
-        private List<ArmDeploymentOperation> GetNewOperations(List<ArmDeploymentOperation> currentOperations, List<ArmDeploymentOperation> nextOperations)
-        {
-            var newOperations = new List<ArmDeploymentOperation>();
-            foreach (var operation in nextOperations)
+            var deploymentOperation = await deploymentResource.UpdateAsync(WaitUntil.Started, deploymentContent, cancellationToken);
+
+            var currentOperations = ImmutableSortedSet.Create<ArmDeploymentOperation>(new ArmDeploymentOperationComparer());
+            while (!deploymentOperation.HasCompleted)
             {
-                var operationWithSameIdAndStatus = currentOperations.Find(o => o.OperationId.Equals(operation.OperationId) && o.Properties.ProvisioningState.Equals(operation.Properties.ProvisioningState));
-                if (operationWithSameIdAndStatus is null)
-                {
-                    newOperations.Add(operation);
-                }
-
                 // TODO: Handle nested deployments
-            }
-
-            return newOperations;
-        }
-
-        private class ArmDeploymentOperationComparer : IComparer<ArmDeploymentOperation>
-        {
-            public int Compare(ArmDeploymentOperation? x, ArmDeploymentOperation? y)
-            {
-                if (x is null || y is null)
+                await deploymentOperation.UpdateStatusAsync(cancellationToken);
+                await foreach (var operation in deploymentResource.GetDeploymentOperationsAsync().WithCancellation(cancellationToken))
                 {
-                    return x is null ? (y is null ? 0 : -1) : 1;
+                    currentOperations = currentOperations.Add(operation);
+                    onOperationsUpdated?.Invoke(currentOperations);
                 }
 
-                return string.Compare(x.OperationId, y.OperationId, StringComparison.Ordinal);
+                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
             }
+
+            return deploymentOperation.Value;
+        }
+        catch (RequestFailedException ex)
+        {
+            throw new DeploymentException(ex.Message, ex);
+        }
+    }
+
+    public async Task<ArmDeploymentValidateResult> ValidateAsync(ArmDeploymentDefinition deploymentDefinition, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (deploymentDefinition.SubscriptionId is { } subscriptionId &&
+                subscriptionId.Equals(Guid.Empty.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                var subscription = await armClient.GetDefaultSubscriptionAsync(cancellationToken);
+                deploymentDefinition = deploymentDefinition with { SubscriptionId = subscription.Id };
+            }
+
+            var deploymentResource = this.armClient.GetArmDeploymentResource(deploymentDefinition.Id);
+            var deploymentContent = new ArmDeploymentContent(deploymentDefinition.Properties);
+
+            var validationResult = await deploymentResource.ValidateAsync(WaitUntil.Completed, deploymentContent, cancellationToken);
+
+            return validationResult.Value;
+        }
+        catch (RequestFailedException ex)
+        {
+            throw new ValidationException(ex.Message, ex);
+        }
+    }
+
+    public async Task<WhatIfOperationResult> WhatIfAsync(ArmDeploymentDefinition deploymentDefinition, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (deploymentDefinition.SubscriptionId is { } subscriptionId &&
+                subscriptionId.Equals(Guid.Empty.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                var subscription = await this.armClient.GetDefaultSubscriptionAsync(cancellationToken);
+                deploymentDefinition = deploymentDefinition with { SubscriptionId = subscription.Id };
+            }
+
+            var deploymentResource = this.armClient.GetArmDeploymentResource(deploymentDefinition.Id);
+            if (deploymentDefinition.Properties is not ArmDeploymentWhatIfProperties whatIfProperties)
+            {
+                throw new WhatIfException("What-if properties are required for a what-if operation.");
+            }
+
+            var deploymentContent = new ArmDeploymentWhatIfContent(whatIfProperties);
+
+            var whatIfResult = await deploymentResource.WhatIfAsync(WaitUntil.Completed, deploymentContent, cancellationToken);
+
+            return whatIfResult.Value;
+        }
+        catch (RequestFailedException ex)
+        {
+            throw new WhatIfException(ex.Message, ex);
+        }
+    }
+
+    private class ArmDeploymentOperationComparer : IComparer<ArmDeploymentOperation>
+    {
+        public int Compare(ArmDeploymentOperation? x, ArmDeploymentOperation? y)
+        {
+            if (x is null || y is null)
+            {
+                return x is null ? (y is null ? 0 : -1) : 1;
+            }
+
+            return string.Compare(x.Properties.TargetResource?.Id, y.Properties.TargetResource?.Id, StringComparison.Ordinal);
         }
     }
 }
