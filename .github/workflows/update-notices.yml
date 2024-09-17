@@ -65,7 +65,7 @@ jobs:
         run:  mkdir ./src/vscode-bicep-notice/inputs && copy ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/
 
       - name: npm ci
-        run: npm ci
+        run: npm ci --install-links
         working-directory: ./src/vscode-bicep
 
       - name: npm list -a -json
