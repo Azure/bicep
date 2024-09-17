@@ -110,6 +110,9 @@ namespace Bicep.Cli
                     case LocalDeployArguments localDeployArguments when localDeployArguments.CommandName == Constants.Command.LocalDeploy: // bicep local-deploy [options]
                         return await services.GetRequiredService<LocalDeployCommand>().RunAsync(localDeployArguments, cancellationToken);
 
+                    case DeployArguments deployArguments when deployArguments.CommandName == Constants.Command.Deploy: // bicep deploy [options]
+                        return await services.GetRequiredService<DeployCommand>().RunAsync(deployArguments, cancellationToken);
+
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 
@@ -164,6 +167,7 @@ namespace Bicep.Cli
             => new ServiceCollection()
                 .AddBicepCore()
                 .AddBicepDecompiler()
+                .AddBicepDeploy()
                 .AddCommands()
                 .AddSingleton(CreateLoggerFactory(io).CreateLogger("bicep"))
                 .AddSingleton<DiagnosticLogger>()

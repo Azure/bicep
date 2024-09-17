@@ -42,6 +42,7 @@ namespace Bicep.Cli.Services
                 Constants.Command.Lint => new LintArguments(args[1..]),
                 Constants.Command.JsonRpc => new JsonRpcArguments(args[1..]),
                 Constants.Command.LocalDeploy => new LocalDeployArguments(args[1..]),
+                Constants.Command.Deploy => new DeployArguments(args[1..]),
                 _ => null,
             };
         }

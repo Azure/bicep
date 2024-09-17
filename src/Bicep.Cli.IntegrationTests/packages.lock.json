@@ -1658,6 +1658,7 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Decompiler": "[1.0.0, )",
           "Azure.Bicep.Local.Deploy": "[1.0.0, )",
+          "Bicep.Deploy": "[1.0.0, )",
           "Microsoft.Extensions.Logging": "[8.0.0, )",
           "Sarif.Sdk": "[4.5.4, )",
           "StreamJsonRpc": "[2.19.27, )"
@@ -1699,6 +1700,12 @@
           "Newtonsoft.Json.Schema": "[4.0.1, )",
           "RichardSzalay.MockHttp": "[7.0.0, )",
           "System.IO.Abstractions.TestingHelpers": "[21.0.29, )"
+        }
+      },
+      "bicep.deploy": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Bicep.Core": "[1.0.0, )"
         }
       },
       "bicep.langserver": {

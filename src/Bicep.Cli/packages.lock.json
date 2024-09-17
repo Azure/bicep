@@ -1420,6 +1420,12 @@
           "Google.Protobuf": "[3.28.0, )",
           "Grpc.Net.Client": "[2.65.0, )"
         }
+      },
+      "bicep.deploy": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Bicep.Core": "[1.0.0, )"
+        }
       }
     },
     "net8.0/linux-arm64": {
