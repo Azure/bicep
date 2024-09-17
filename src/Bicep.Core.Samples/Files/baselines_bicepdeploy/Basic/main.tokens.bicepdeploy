@@ -1,0 +1,75 @@
+/*
+Some comment.
+*/
+//@[02:03) NewLine |\n|
+deploy mainDeploy 'main.bicep'    {
+//@[00:06) Identifier |deploy|
+//@[07:17) Identifier |mainDeploy|
+//@[18:30) StringComplete |'main.bicep'|
+//@[34:35) LeftBrace |{|
+//@[35:36) NewLine |\n|
+  scope: resourceGroup('myResourceGroup')
+//@[02:07) Identifier |scope|
+//@[07:08) Colon |:|
+//@[09:22) Identifier |resourceGroup|
+//@[22:23) LeftParen |(|
+//@[23:40) StringComplete |'myResourceGroup'|
+//@[40:41) RightParen |)|
+//@[41:42) NewLine |\n|
+  params: {
+//@[02:08) Identifier |params|
+//@[08:09) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+    myString:    'someString'
+//@[04:12) Identifier |myString|
+//@[12:13) Colon |:|
+//@[17:29) StringComplete |'someString'|
+//@[29:30) NewLine |\n|
+    myInt: 1
+//@[04:09) Identifier |myInt|
+//@[09:10) Colon |:|
+//@[11:12) Integer |1|
+//@[12:13) NewLine |\n|
+    // Some comment.
+//@[20:21) NewLine |\n|
+    myBool: true
+//@[04:10) Identifier |myBool|
+//@[10:11) Colon |:|
+//@[12:16) TrueKeyword |true|
+//@[16:17) NewLine |\n|
+    myArray: [
+//@[04:11) Identifier |myArray|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+      'arrayValue1'
+//@[06:19) StringComplete |'arrayValue1'|
+//@[19:20) NewLine |\n|
+      'arrayValue2'
+//@[06:19) StringComplete |'arrayValue2'|
+//@[19:20) NewLine |\n|
+    ]
+//@[04:05) RightSquare |]|
+//@[05:06) NewLine |\n|
+    myObject: {
+//@[04:12) Identifier |myObject|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) NewLine |\n|
+     myObjectProperty: 'objectValue'
+//@[05:21) Identifier |myObjectProperty|
+//@[21:22) Colon |:|
+//@[23:36) StringComplete |'objectValue'|
+//@[36:37) NewLine |\n|
+    }
+//@[04:05) RightBrace |}|
+//@[05:06) NewLine |\n|
+  }
+//@[02:03) RightBrace |}|
+//@[03:04) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:02) NewLine |\n|
+
+//@[00:00) EndOfFile ||

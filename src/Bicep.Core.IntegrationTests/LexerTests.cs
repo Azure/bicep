@@ -152,6 +152,28 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
+        [DataTestMethod]
+        [BaselineData_BicepDeploy.TestData()]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void BicepDeployFile_lexer_should_produce_expected_tokens(BaselineData_BicepDeploy baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+            var lexer = new Lexer(new SlidingTextWindow(data.DeployFile.Contents), ToListDiagnosticWriter.Create());
+
+            lexer.Lex();
+
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.DeployFile.Contents, "\n", lexer.GetTokens(), GetLoggingString);
+
+            data.TokensFile.WriteToOutputFolder(sourceTextWithDiags);
+            data.TokensFile.ShouldHaveExpectedValue();
+
+            lexer.GetTokens().Count(token => token.Type == TokenType.EndOfFile).Should().Be(1, "because there should only be 1 EOF token");
+            lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");
+
+            static string GetLoggingString(Token token) => $"{token.Type} |{token.Text}|";
+
+        }
+
         private static IEnumerable<object[]> GetData() => DataSets.AllDataSets.ToDynamicTestData();
 
         private static IEnumerable<object[]> GetValidData() => DataSets.AllDataSets.Where(ds => ds.IsValid).ToDynamicTestData();

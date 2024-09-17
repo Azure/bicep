@@ -364,7 +364,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override SignatureHelpRegistrationOptions CreateRegistrationOptions(SignatureHelpCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
+            DocumentSelector = documentSelectorFactory.CreateForBicepLanguageIds(),
             /*
              * ( - triggers sig. help when starting function arguments
              * , - separates function arguments

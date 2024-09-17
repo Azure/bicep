@@ -65,7 +65,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override DocumentFormattingRegistrationOptions CreateRegistrationOptions(DocumentFormattingCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
+            DocumentSelector = documentSelectorFactory.CreateForBicepLanguageIds()
         };
     }
 }

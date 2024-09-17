@@ -16,30 +16,40 @@ namespace Bicep.LanguageServer.Utils
             return "**/*{" + string.Join(',', extensions) + "}";
         }
 
-        public TextDocumentSelector CreateForBicepAndParams() => new(
-            langServerOptions?.VsCompatibilityMode == true
-              // VS doesn't currently support language filters in the document selector, so we must give it a file pattern
-              ? [TextDocumentFilter.ForPattern(Glob(LanguageConstants.LanguageFileExtension, LanguageConstants.ParamsFileExtension))]
-              : [TextDocumentFilter.ForLanguage(LanguageConstants.LanguageId), TextDocumentFilter.ForLanguage(LanguageConstants.ParamsLanguageId)]
-            );
-
-        public TextDocumentSelector CreateForAllSupportedLangIds() => new(
+        public TextDocumentSelector CreateForBicepLanguageIds() => new(
             langServerOptions?.VsCompatibilityMode == true
               ? [
                   // VS doesn't currently support language filters in the document selector, so we must give it a file pattern
                   TextDocumentFilter.ForPattern(Glob(
-                    LanguageConstants.LanguageFileExtension,
-                    LanguageConstants.ParamsFileExtension,
-                    LanguageConstants.JsoncFileExtension,
-                    LanguageConstants.JsonFileExtension,
-                    LanguageConstants.ArmTemplateFileExtension))
-              ] : [
-                    TextDocumentFilter.ForLanguage(LanguageConstants.LanguageId),
+                      LanguageConstants.LanguageFileExtension,
+                      LanguageConstants.ParamsFileExtension,
+                      LanguageConstants.DeployFileExtension))
+                ]
+              : [
+                  TextDocumentFilter.ForLanguage(LanguageConstants.LanguageId),
                   TextDocumentFilter.ForLanguage(LanguageConstants.ParamsLanguageId),
-                  TextDocumentFilter.ForLanguage(LanguageConstants.JsoncLanguageId),
-                  TextDocumentFilter.ForLanguage(LanguageConstants.JsonLanguageId),
-                  TextDocumentFilter.ForLanguage(LanguageConstants.ArmTemplateLanguageId)
-              ]);
+                  TextDocumentFilter.ForLanguage(LanguageConstants.DeployLanguageId)
+                ]);
+
+        public TextDocumentSelector CreateForAllSupportedLangIds() => new(
+            langServerOptions?.VsCompatibilityMode == true
+                ? [
+                    // VS doesn't currently support language filters in the document selector, so we must give it a file pattern
+                    TextDocumentFilter.ForPattern(Glob(
+                        LanguageConstants.LanguageFileExtension,
+                        LanguageConstants.ParamsFileExtension,
+                        LanguageConstants.DeployFileExtension,
+                        LanguageConstants.JsoncFileExtension,
+                        LanguageConstants.JsonFileExtension,
+                        LanguageConstants.ArmTemplateFileExtension))]
+                : [
+                    TextDocumentFilter.ForLanguage(LanguageConstants.LanguageId),
+                    TextDocumentFilter.ForLanguage(LanguageConstants.ParamsLanguageId),
+                    TextDocumentFilter.ForLanguage(LanguageConstants.DeployLanguageId),
+                    TextDocumentFilter.ForLanguage(LanguageConstants.JsoncLanguageId),
+                    TextDocumentFilter.ForLanguage(LanguageConstants.JsonLanguageId),
+                    TextDocumentFilter.ForLanguage(LanguageConstants.ArmTemplateLanguageId)
+                  ]);
     }
 }
 

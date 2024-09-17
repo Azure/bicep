@@ -65,7 +65,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
+            DocumentSelector = documentSelectorFactory.CreateForBicepLanguageIds(),
             AllCommitCharacters = new Container<string>(),
             ResolveProvider = false,
             TriggerCharacters = new Container<string>(":", " ", ".", "/", "'", "@", "{", "#", "?")

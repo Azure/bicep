@@ -56,6 +56,24 @@ namespace Bicep.Core.UnitTests.Utils
             return program;
         }
 
+        public static ProgramSyntax ParseDeployFileContents(string text)
+        {
+            var parser = new DeployParser(text);
+
+            return parser.Program();
+        }
+
+        public static ProgramSyntax ParseDeployFileContents(string text, out IDiagnosticLookup lexingErrorLookup, out IDiagnosticLookup parsingErrorLookup)
+        {
+            var parser = new DeployParser(text);
+            var program = parser.Program();
+
+            lexingErrorLookup = parser.LexingErrorLookup;
+            parsingErrorLookup = parser.ParsingErrorLookup;
+
+            return program;
+        }
+
         public static SyntaxBase ParseExpression(string text, ExpressionFlags expressionFlags = ExpressionFlags.AllowComplexLiterals) => new Parser(text).Expression(expressionFlags);
 
         public static (string file, IReadOnlyList<int> cursors) GetFileWithCursors(string fileWithCursors, char cursor = '|')

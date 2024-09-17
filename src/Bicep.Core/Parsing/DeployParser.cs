@@ -26,12 +26,12 @@ namespace Bicep.Core.Parsing
             while (!this.IsAtEnd())
             {
                 // this produces either a declaration node, skipped tokens node or just a token
-                var declarationOrToken = Declaration();
-                children.Add(declarationOrToken);
+                var child = Declaration();
+                children.Add(child);
 
                 // if skipped node is returned above, the newline is not consumed
                 // if newline token is returned, we must not expect another (could be a beginning of a declaration)
-                if (declarationOrToken is StatementSyntax)
+                if (child is StatementSyntax)
                 {
                     // declarations must be followed by a newline or the file must end
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
@@ -56,7 +56,6 @@ namespace Bicep.Core.Parsing
                 () =>
                 {
                     var leadingNodes = DecorableSyntaxLeadingNodes().ToImmutableArray();
-
                     var current = reader.Peek();
 
                     return current.Type switch

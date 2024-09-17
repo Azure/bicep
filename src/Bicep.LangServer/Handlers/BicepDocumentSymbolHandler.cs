@@ -107,7 +107,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override DocumentSymbolRegistrationOptions CreateRegistrationOptions(DocumentSymbolCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
+            DocumentSelector = documentSelectorFactory.CreateForBicepLanguageIds()
         };
     }
 }

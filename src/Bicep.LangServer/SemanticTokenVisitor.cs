@@ -430,6 +430,13 @@ namespace Bicep.LanguageServer
             Visit(syntax.Value);
         }
 
+        public override void VisitDeployDeclarationSyntax(DeployDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            Visit(syntax.Path);
+            Visit(syntax.Body);
+        }
+
         private static SemanticTokenType GetSemanticTokenForPotentialTypeSymbol(Symbol? symbol) =>
             symbol switch
             {
