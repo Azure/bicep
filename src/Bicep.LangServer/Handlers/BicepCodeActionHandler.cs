@@ -239,7 +239,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override CodeActionRegistrationOptions CreateRegistrationOptions(CodeActionCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
+            DocumentSelector = documentSelectorFactory.CreateForBicepLanguageIds(),
             CodeActionKinds = new Container<CodeActionKind>(CodeActionKind.QuickFix),
             ResolveProvider = false
         };
