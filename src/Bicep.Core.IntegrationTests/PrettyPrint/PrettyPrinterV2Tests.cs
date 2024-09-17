@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Text.RegularExpressions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -78,12 +80,12 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         public void Print_ParamDataSet_ProducesExpectedOutput(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, isParamFile: true);
+            var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, BicepSourceFileKind.ParamsFile);
 
             data.Formatted.WriteToOutputFolder(output);
             data.Formatted.ShouldHaveExpectedValue();
 
-            AssertConsistentParamsOutput(output, PrettyPrinterV2Options.Default);
+            AssertConsistentOutput(output, PrettyPrinterV2Options.Default, BicepSourceFileKind.ParamsFile);
         }
 
         [DataTestMethod]
@@ -92,7 +94,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         public void Print_ParamDataSet_ProducesConsistentNewlines(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, isParamFile: true);
+            var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, BicepSourceFileKind.ParamsFile);
 
             NewlinePattern().Matches(output)
                 .Select(x => x.Value)
@@ -101,17 +103,49 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
                 .HaveCount(1);
         }
 
-        private static void AssertConsistentOutput(string formatted, PrettyPrinterV2Options options) =>
-            Print(formatted, options).Should().Be(formatted);
-
-        private static void AssertConsistentParamsOutput(string formatted, PrettyPrinterV2Options options) =>
-            Print(formatted, options, isParamFile: true).Should().Be(formatted);
-
-        private static string Print(string programText, PrettyPrinterV2Options options, bool isParamFile = false)
+        [DataTestMethod]
+        [BaselineData_BicepDeploy.TestData()]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Print_DeployDataSet_ProducesExpectedOutput(BaselineData_BicepDeploy baselineData)
         {
-            var program = isParamFile
-                ? ParserHelper.ParamsParse(programText, out var lexingErrorLookup, out var parsingErrorLookup)
-                : ParserHelper.Parse(programText, out lexingErrorLookup, out parsingErrorLookup);
+            var data = baselineData.GetData(TestContext);
+            var output = Print(data.DeployFile.Contents, PrettyPrinterV2Options.Default, BicepSourceFileKind.DeployFile);
+
+            data.FormattedFile.WriteToOutputFolder(output);
+            data.FormattedFile.ShouldHaveExpectedValue();
+
+            AssertConsistentOutput(output, PrettyPrinterV2Options.Default, BicepSourceFileKind.DeployFile);
+        }
+
+        [DataTestMethod]
+        [BaselineData_BicepDeploy.TestData()]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Print_DeployDataSet_ProducesConsistentNewlines(BaselineData_BicepDeploy baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+            var output = Print(data.DeployFile.Contents, PrettyPrinterV2Options.Default, BicepSourceFileKind.DeployFile);
+
+            NewlinePattern().Matches(output)
+                .Select(x => x.Value)
+                .Distinct()
+                .Should()
+                .HaveCount(1);
+        }
+
+        private static void AssertConsistentOutput(string formatted, PrettyPrinterV2Options options, BicepSourceFileKind fileKind = BicepSourceFileKind.BicepFile) =>
+            Print(formatted, options, fileKind).Should().Be(formatted);
+
+        private static string Print(string programText, PrettyPrinterV2Options options, BicepSourceFileKind fileKind = BicepSourceFileKind.BicepFile)
+        {
+            IDiagnosticLookup? lexingErrorLookup;
+            IDiagnosticLookup? parsingErrorLookup;
+
+            var program = fileKind switch
+            {
+                BicepSourceFileKind.ParamsFile => ParserHelper.ParamsParse(programText, out lexingErrorLookup, out parsingErrorLookup),
+                BicepSourceFileKind.DeployFile => ParserHelper.ParseDeployFileContents(programText, out lexingErrorLookup, out parsingErrorLookup),
+                _ => ParserHelper.Parse(programText, out lexingErrorLookup, out parsingErrorLookup),
+            };
 
             var context = PrettyPrinterV2Context.Create(options, lexingErrorLookup, parsingErrorLookup);
 

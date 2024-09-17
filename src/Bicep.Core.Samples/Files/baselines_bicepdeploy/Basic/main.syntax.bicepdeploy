@@ -1,0 +1,111 @@
+/*
+//@[00:317) ProgramSyntax
+Some comment.
+*/
+//@[02:003) ├─Token(NewLine) |\n|
+deploy mainDeploy 'main.bicep'    {
+//@[00:296) ├─DeployDeclarationSyntax
+//@[00:006) | ├─Token(Identifier) |deploy|
+//@[07:017) | ├─IdentifierSyntax
+//@[07:017) | | └─Token(Identifier) |mainDeploy|
+//@[18:030) | ├─StringSyntax
+//@[18:030) | | └─Token(StringComplete) |'main.bicep'|
+//@[34:296) | └─ObjectSyntax
+//@[34:035) |   ├─Token(LeftBrace) |{|
+//@[35:036) |   ├─Token(NewLine) |\n|
+  scope: resourceGroup('myResourceGroup')
+//@[02:041) |   ├─ObjectPropertySyntax
+//@[02:007) |   | ├─IdentifierSyntax
+//@[02:007) |   | | └─Token(Identifier) |scope|
+//@[07:008) |   | ├─Token(Colon) |:|
+//@[09:041) |   | └─FunctionCallSyntax
+//@[09:022) |   |   ├─IdentifierSyntax
+//@[09:022) |   |   | └─Token(Identifier) |resourceGroup|
+//@[22:023) |   |   ├─Token(LeftParen) |(|
+//@[23:040) |   |   ├─FunctionArgumentSyntax
+//@[23:040) |   |   | └─StringSyntax
+//@[23:040) |   |   |   └─Token(StringComplete) |'myResourceGroup'|
+//@[40:041) |   |   └─Token(RightParen) |)|
+//@[41:042) |   ├─Token(NewLine) |\n|
+  params: {
+//@[02:216) |   ├─ObjectPropertySyntax
+//@[02:008) |   | ├─IdentifierSyntax
+//@[02:008) |   | | └─Token(Identifier) |params|
+//@[08:009) |   | ├─Token(Colon) |:|
+//@[10:216) |   | └─ObjectSyntax
+//@[10:011) |   |   ├─Token(LeftBrace) |{|
+//@[11:012) |   |   ├─Token(NewLine) |\n|
+    myString:    'someString'
+//@[04:029) |   |   ├─ObjectPropertySyntax
+//@[04:012) |   |   | ├─IdentifierSyntax
+//@[04:012) |   |   | | └─Token(Identifier) |myString|
+//@[12:013) |   |   | ├─Token(Colon) |:|
+//@[17:029) |   |   | └─StringSyntax
+//@[17:029) |   |   |   └─Token(StringComplete) |'someString'|
+//@[29:030) |   |   ├─Token(NewLine) |\n|
+    myInt: 1
+//@[04:012) |   |   ├─ObjectPropertySyntax
+//@[04:009) |   |   | ├─IdentifierSyntax
+//@[04:009) |   |   | | └─Token(Identifier) |myInt|
+//@[09:010) |   |   | ├─Token(Colon) |:|
+//@[11:012) |   |   | └─IntegerLiteralSyntax
+//@[11:012) |   |   |   └─Token(Integer) |1|
+//@[12:013) |   |   ├─Token(NewLine) |\n|
+    // Some comment.
+//@[20:021) |   |   ├─Token(NewLine) |\n|
+    myBool: true
+//@[04:016) |   |   ├─ObjectPropertySyntax
+//@[04:010) |   |   | ├─IdentifierSyntax
+//@[04:010) |   |   | | └─Token(Identifier) |myBool|
+//@[10:011) |   |   | ├─Token(Colon) |:|
+//@[12:016) |   |   | └─BooleanLiteralSyntax
+//@[12:016) |   |   |   └─Token(TrueKeyword) |true|
+//@[16:017) |   |   ├─Token(NewLine) |\n|
+    myArray: [
+//@[04:060) |   |   ├─ObjectPropertySyntax
+//@[04:011) |   |   | ├─IdentifierSyntax
+//@[04:011) |   |   | | └─Token(Identifier) |myArray|
+//@[11:012) |   |   | ├─Token(Colon) |:|
+//@[13:060) |   |   | └─ArraySyntax
+//@[13:014) |   |   |   ├─Token(LeftSquare) |[|
+//@[14:015) |   |   |   ├─Token(NewLine) |\n|
+      'arrayValue1'
+//@[06:019) |   |   |   ├─ArrayItemSyntax
+//@[06:019) |   |   |   | └─StringSyntax
+//@[06:019) |   |   |   |   └─Token(StringComplete) |'arrayValue1'|
+//@[19:020) |   |   |   ├─Token(NewLine) |\n|
+      'arrayValue2'
+//@[06:019) |   |   |   ├─ArrayItemSyntax
+//@[06:019) |   |   |   | └─StringSyntax
+//@[06:019) |   |   |   |   └─Token(StringComplete) |'arrayValue2'|
+//@[19:020) |   |   |   ├─Token(NewLine) |\n|
+    ]
+//@[04:005) |   |   |   └─Token(RightSquare) |]|
+//@[05:006) |   |   ├─Token(NewLine) |\n|
+    myObject: {
+//@[04:058) |   |   ├─ObjectPropertySyntax
+//@[04:012) |   |   | ├─IdentifierSyntax
+//@[04:012) |   |   | | └─Token(Identifier) |myObject|
+//@[12:013) |   |   | ├─Token(Colon) |:|
+//@[14:058) |   |   | └─ObjectSyntax
+//@[14:015) |   |   |   ├─Token(LeftBrace) |{|
+//@[15:016) |   |   |   ├─Token(NewLine) |\n|
+     myObjectProperty: 'objectValue'
+//@[05:036) |   |   |   ├─ObjectPropertySyntax
+//@[05:021) |   |   |   | ├─IdentifierSyntax
+//@[05:021) |   |   |   | | └─Token(Identifier) |myObjectProperty|
+//@[21:022) |   |   |   | ├─Token(Colon) |:|
+//@[23:036) |   |   |   | └─StringSyntax
+//@[23:036) |   |   |   |   └─Token(StringComplete) |'objectValue'|
+//@[36:037) |   |   |   ├─Token(NewLine) |\n|
+    }
+//@[04:005) |   |   |   └─Token(RightBrace) |}|
+//@[05:006) |   |   ├─Token(NewLine) |\n|
+  }
+//@[02:003) |   |   └─Token(RightBrace) |}|
+//@[03:004) |   ├─Token(NewLine) |\n|
+}
+//@[00:001) |   └─Token(RightBrace) |}|
+//@[01:002) ├─Token(NewLine) |\n|
+
+//@[00:000) └─Token(EndOfFile) ||

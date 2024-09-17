@@ -23,7 +23,7 @@ namespace Bicep.Core.Workspaces
         {
         }
 
-        public override BicepSourceFileKind FileKind => BicepSourceFileKind.ParamsFile;
+        public override BicepSourceFileKind FileKind => BicepSourceFileKind.DeployFile;
 
         public override BicepSourceFile ShallowClone() => new BicepDeployFile(this);
     }

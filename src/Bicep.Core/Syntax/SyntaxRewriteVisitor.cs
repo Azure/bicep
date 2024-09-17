@@ -1420,7 +1420,9 @@ namespace Bicep.Core.Syntax
 
         protected virtual SyntaxBase ReplaceDeployDeclarationSyntax(DeployDeclarationSyntax syntax)
         {
-            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            var hasChanges = TryRewriteStrict(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
             hasChanges |= TryRewriteStrict(syntax.Path, out var path);
             hasChanges |= TryRewriteStrict(syntax.Body, out var body);
 
@@ -1429,7 +1431,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new DeployDeclarationSyntax(keyword, path, body);
+            return new DeployDeclarationSyntax(leadingNodes, keyword, name, path, body);
         }
         void ISyntaxVisitor.VisitDeployDeclarationSyntax(DeployDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceDeployDeclarationSyntax);
     }

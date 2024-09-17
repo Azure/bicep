@@ -37,7 +37,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             // the semantic tokens handler requests don't get routed like other handlers
             // it seems we can only have one and it must be shared between all the language IDs we support
-            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
+            DocumentSelector = documentSelectorFactory.CreateForBicepLanguageIds(),
             Legend = this.legend,
             Full = new SemanticTokensCapabilityRequestFull
             {

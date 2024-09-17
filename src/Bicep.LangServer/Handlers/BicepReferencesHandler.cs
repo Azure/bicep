@@ -41,7 +41,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override ReferenceRegistrationOptions CreateRegistrationOptions(ReferenceCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
+            DocumentSelector = documentSelectorFactory.CreateForBicepLanguageIds()
         };
     }
 }

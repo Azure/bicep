@@ -344,7 +344,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
+            DocumentSelector = documentSelectorFactory.CreateForBicepLanguageIds()
         };
     }
 }

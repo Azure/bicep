@@ -88,6 +88,24 @@ namespace Bicep.Core.IntegrationTests
             data.Syntax.ShouldHaveExpectedValue();
         }
 
+        [DataTestMethod]
+        [BaselineData_BicepDeploy.TestData()]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void BicepDeployFile_parser_should_produce_expected_syntax(BaselineData_BicepDeploy baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+            var program = ParserHelper.ParseDeployFileContents(data.DeployFile.Contents);
+            var syntaxList = SyntaxCollectorVisitor.Build(program);
+            var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
+
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.DeployFile.Contents, "\n", syntaxList, GetSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
+
+            data.SyntaxFile.WriteToOutputFolder(sourceTextWithDiags);
+            data.SyntaxFile.ShouldHaveExpectedValue();
+
+            static TextSpan GetSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
+        }
+
         private static IEnumerable<object[]> GetData()
         {
             return DataSets.AllDataSets.ToDynamicTestData();
