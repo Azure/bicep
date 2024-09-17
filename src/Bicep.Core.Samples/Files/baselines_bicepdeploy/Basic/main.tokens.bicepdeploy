@@ -2,11 +2,12 @@
 Some comment.
 */
 //@[02:03) NewLine |\n|
-deploy 'main.bicep'    {
+deploy mainDeploy 'main.bicep'    {
 //@[00:06) Identifier |deploy|
-//@[07:19) StringComplete |'main.bicep'|
-//@[23:24) LeftBrace |{|
-//@[24:25) NewLine |\n|
+//@[07:17) Identifier |mainDeploy|
+//@[18:30) StringComplete |'main.bicep'|
+//@[34:35) LeftBrace |{|
+//@[35:36) NewLine |\n|
   scope: resourceGroup('myResourceGroup')
 //@[02:07) Identifier |scope|
 //@[07:08) Colon |:|

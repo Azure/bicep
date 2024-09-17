@@ -1,7 +1,7 @@
 /*
 Some comment.
 */
-deploy 'main.bicep'    {
+deploy mainDeploy 'main.bicep'    {
   scope: resourceGroup('myResourceGroup')
   params: {
     myString:    'someString'

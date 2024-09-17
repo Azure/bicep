@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,25 +55,30 @@ namespace Bicep.Core.Parsing
             this.WithRecovery<SyntaxBase>(
                 () =>
                 {
+                    var leadingNodes = DecorableSyntaxLeadingNodes().ToImmutableArray();
                     var current = reader.Peek();
 
                     return current.Type switch
                     {
                         TokenType.NewLine => this.NewLine(),
-                        TokenType.Identifier when current.Text is LanguageConstants.DeployKeyword => this.DeployDeclaration(),
+                        TokenType.Identifier when current.Text is LanguageConstants.DeployKeyword => this.DeployDeclaration(leadingNodes),
                         _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeployFileDeclaration()),
                     };
                 },
                 RecoveryFlags.None,
                 TokenType.NewLine);
 
-        private DeployDeclarationSyntax DeployDeclaration()
+        protected SyntaxBase DeployDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
-            var keyword = this.ExpectKeyword(LanguageConstants.DeployKeyword);
-            var path = this.WithRecovery(() => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedModulePathString()), RecoveryFlags.None, TokenType.NewLine);
-            var body = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(path), TokenType.NewLine);
+            var keyword = ExpectKeyword(LanguageConstants.DeployKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var path = this.WithRecovery(
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedModulePathString()),
+                GetSuppressionFlag(name),
+                TokenType.NewLine);
+            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(path), TokenType.NewLine);
 
-            return new(keyword, path, body);
+            return new DeployDeclarationSyntax(leadingNodes, keyword, name, path, value);
         }
     }
 }

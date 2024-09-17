@@ -649,7 +649,7 @@ namespace Bicep.Core.PrettyPrintV2
             this.Glue(syntax.Ellipsis, syntax.Expression);
 
         private IEnumerable<Document> LayoutDeployDeclarationSyntax(DeployDeclarationSyntax syntax) =>
-            this.Spread(syntax.Keyword, syntax.Path, syntax.Body);
+            this.Spread(syntax.Keyword, syntax.Name, syntax.Path, syntax.Body);
 
         private IEnumerable<Document> LayoutLeadingNodes(IEnumerable<SyntaxBase> leadingNodes) =>
             this.LayoutMany(leadingNodes)

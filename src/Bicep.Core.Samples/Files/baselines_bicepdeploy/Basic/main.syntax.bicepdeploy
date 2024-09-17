@@ -1,16 +1,18 @@
 /*
-//@[00:306) ProgramSyntax
+//@[00:317) ProgramSyntax
 Some comment.
 */
 //@[02:003) ├─Token(NewLine) |\n|
-deploy 'main.bicep'    {
-//@[00:285) ├─DeployDeclarationSyntax
+deploy mainDeploy 'main.bicep'    {
+//@[00:296) ├─DeployDeclarationSyntax
 //@[00:006) | ├─Token(Identifier) |deploy|
-//@[07:019) | ├─StringSyntax
-//@[07:019) | | └─Token(StringComplete) |'main.bicep'|
-//@[23:285) | └─ObjectSyntax
-//@[23:024) |   ├─Token(LeftBrace) |{|
-//@[24:025) |   ├─Token(NewLine) |\n|
+//@[07:017) | ├─IdentifierSyntax
+//@[07:017) | | └─Token(Identifier) |mainDeploy|
+//@[18:030) | ├─StringSyntax
+//@[18:030) | | └─Token(StringComplete) |'main.bicep'|
+//@[34:296) | └─ObjectSyntax
+//@[34:035) |   ├─Token(LeftBrace) |{|
+//@[35:036) |   ├─Token(NewLine) |\n|
   scope: resourceGroup('myResourceGroup')
 //@[02:041) |   ├─ObjectPropertySyntax
 //@[02:007) |   | ├─IdentifierSyntax
