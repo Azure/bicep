@@ -40,6 +40,7 @@ import { createLogger, getLogger, resetLogger } from "./utils/logger";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
 import { BicepVisualizerViewManager } from "./visualizer";
+import { DraggableResourcesViewProvider } from "./webviews/draggable-resources-view/provider";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -178,6 +179,16 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
           workspace.onDidSaveTextDocument(async (_d: TextDocument) => {
             await updateUiContext(window.activeTextEditor?.document);
           }),
+        );
+
+        const resourceTypeExplorerViewProvider =
+          new DraggableResourcesViewProvider(extension.extensionUri);
+
+        extension.register(
+          window.registerWebviewViewProvider(
+            "bicep-draggable-resources.view",
+            resourceTypeExplorerViewProvider,
+          ),
         );
 
         await languageClient.start();

@@ -3,9 +3,14 @@ import { useWebviewRequest } from "@vscode-bicep-ui/messaging";
 import { ResourceTypeGroupHeader } from "./ResourceTypeGroupHeader";
 import { ResourceTypeGroupList } from "./ResourceTypeGroupList";
 
+export type ResourceTypes = {
+  resourceType: string;
+  apiVersion: string;
+}
+
 type ResourceTypeCatalog = Array<{
   group: string;
-  resourceTypes: string[];
+  resourceTypes: ResourceTypes[];
 }>;
 
 export function App() {
@@ -27,7 +32,7 @@ export function App() {
                   <ResourceTypeGroupHeader group={group} />
                 </Accordion.ItemCollapse>
                 <Accordion.ItemContent>
-                  <ResourceTypeGroupList group={group} resourceTypes={resourceTypes} />
+                  <ResourceTypeGroupList group={group} resourceTypes={resourceTypes}/>
                 </Accordion.ItemContent>
               </Accordion.Item>
             ))}

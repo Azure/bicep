@@ -12,166 +12,155 @@
         {
           group: "Microsoft.Compute",
           resourceTypes: [
-            "availabilitySets",
-            "virtualMachines",
-            "virtualMachines/extensions",
-            "virtualMachineScaleSets",
-            "virtualMachineScaleSets/extensions",
-            "virtualMachineScaleSets/virtualMachines",
-            "virtualMachineScaleSets/virtualMachines/extensions",
-            "virtualMachineScaleSets/networkInterfaces",
-            "virtualMachineScaleSets/virtualMachines/networkInterfaces",
-            "virtualMachineScaleSets/publicIPAddresses",
-            "locations",
-            "locations/operations",
-            "locations/vmSizes",
-            "locations/runCommands",
-            "locations/systemInfo",
-            "locations/virtualMachines",
-            "locations/virtualMachineScaleSets",
-            "locations/publishers",
-            "operations",
-            "virtualMachines/runCommands",
-            "virtualMachineScaleSets/applications",
-            "virtualMachines/VMApplications",
-            "locations/edgeZones",
-            "locations/edgeZones/vmimages",
-            "locations/edgeZones/publishers",
-            "restorePointCollections",
-            "restorePointCollections/restorePoints",
-            "proximityPlacementGroups",
-            "sshPublicKeys",
-            "capacityReservationGroups",
-            "capacityReservationGroups/capacityReservations",
-            "virtualMachines/metricDefinitions",
-            "locations/spotEvictionRates",
-            "locations/spotPriceHistory",
-            "locations/recommendations",
-            "locations/sharedGalleries",
-            "locations/communityGalleries",
-            "sharedVMImages",
-            "sharedVMImages/versions",
-            "locations/artifactPublishers",
-            "locations/capsoperations",
-            "galleries",
-            "galleries/images",
-            "galleries/images/versions",
-            "locations/galleries",
-            "galleries/applications",
-            "galleries/applications/versions",
-            "sharedVMExtensions",
-            "sharedVMExtensions/versions",
-            "galleries/serviceArtifacts",
-            "disks",
-            "snapshots",
-            "locations/diskoperations",
-            "diskEncryptionSets",
-            "diskAccesses",
-            "restorePointCollections/restorePoints/diskRestorePoints",
-            "virtualMachineScaleSets/disks",
-            "locations/vsmoperations",
-            "cloudServices",
-            "cloudServices/roles",
-            "cloudServices/roleInstances",
-            "locations/csoperations",
-            "locations/cloudServiceOsVersions",
-            "locations/cloudServiceOsFamilies",
-            "cloudServices/networkInterfaces",
-            "cloudServices/roleInstances/networkInterfaces",
-            "cloudServices/publicIPAddresses",
-            "locations/usages",
-            "images",
-            "locations/diagnostics",
-            "locations/diagnosticOperations",
-            "locations/logAnalytics",
-            "hostGroups",
-            "hostGroups/hosts",
+            {
+              resourceType: "availabilitySets",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "virtualMachines",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "virtualMachines/extensions",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "virtualMachineScaleSets",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType:"virtualMachineScaleSets/virtualMachines",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "virtualMachineScaleSets/virtualMachines/extensions",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "virtualMachineScaleSets/networkInterfaces",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType:  "virtualMachineScaleSets/virtualMachines/networkInterfaces",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "virtualMachineScaleSets/publicIPAddresses",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "locations",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "locations/operations",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "locations/vmSizes",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "locations/runCommands",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "locations/systemInfo",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "locations/virtualMachines",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "locations/virtualMachineScaleSets",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType:"locations/publishers",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "operations",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "virtualMachines/runCommands",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "virtualMachineScaleSets/applications",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType:  "virtualMachines/VMApplications",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "locations/edgeZones",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "locations/edgeZones/vmimages",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "locations/edgeZones/publishers",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "restorePointCollections",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "restorePointCollections/restorePoints",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "proximityPlacementGroups",
+              apiVersion: "2022-09-01"
+            }
           ],
         },
         {
           group: "Microsoft.Web",
           resourceTypes: [
-            "publishingUsers",
-            "ishostnameavailable",
-            "validate",
-            "isusernameavailable",
-            "generateGithubAccessTokenForAppserviceCLI",
-            "sourceControls",
-            "availableStacks",
-            "webAppStacks",
-            "locations/webAppStacks",
-            "functionAppStacks",
-            "locations/functionAppStacks",
-            "staticSites",
-            "locations/previewStaticSiteWorkflowFile",
-            "staticSites/userProvidedFunctionApps",
-            "staticSites/linkedBackends",
-            "staticSites/builds/linkedBackends",
-            "staticSites/databaseConnections",
-            "staticSites/builds/databaseConnections",
-            "staticSites/builds",
-            "staticSites/builds/userProvidedFunctionApps",
-            "freeTrialStaticWebApps",
-            "listSitesAssignedToHostName",
-            "locations/getNetworkPolicies",
-            "locations/operations",
-            "locations/operationResults",
-            "sites/networkConfig",
-            "sites/slots/networkConfig",
-            "sites/hostNameBindings",
-            "sites/slots/hostNameBindings",
-            "operations",
-            "certificates",
-            "serverFarms",
-            "sites",
-            "sites/slots",
-            "runtimes",
-            "recommendations",
-            "resourceHealthMetadata",
-            "georegions",
-            "sites/premieraddons",
-            "hostingEnvironments",
-            "hostingEnvironments/multiRolePools",
-            "hostingEnvironments/workerPools",
-            "kubeEnvironments",
-            "deploymentLocations",
-            "deletedSites",
-            "locations/deletedSites",
-            "ishostingenvironmentnameavailable",
-            "locations/deleteVirtualNetworkOrSubnets",
-            "locations/validateDeleteVirtualNetworkOrSubnets",
-            "apiManagementAccounts",
-            "apiManagementAccounts/connections",
-            "apiManagementAccounts/connectionAcls",
-            "apiManagementAccounts/apis/connections/connectionAcls",
-            "apiManagementAccounts/apis/connectionAcls",
-            "apiManagementAccounts/apiAcls",
-            "apiManagementAccounts/apis/apiAcls",
-            "apiManagementAccounts/apis",
-            "apiManagementAccounts/apis/localizedDefinitions",
-            "apiManagementAccounts/apis/connections",
-            "connections",
-            "customApis",
-            "locations",
-            "locations/listWsdlInterfaces",
-            "locations/extractApiDefinitionFromWsdl",
-            "locations/managedApis",
-            "locations/runtimes",
-            "locations/apiOperations",
-            "connectionGateways",
-            "locations/connectionGatewayInstallations",
-            "checkNameAvailability",
-            "billingMeters",
-            "verifyHostingEnvironmentVnet",
-            "serverFarms/eventGridFilters",
-            "sites/eventGridFilters",
-            "sites/slots/eventGridFilters",
-            "hostingEnvironments/eventGridFilters",
-            "serverFarms/firstPartyApps",
-            "serverFarms/firstPartyApps/keyVaultSettings",
-            "workerApps",
-            "containerApps",
-            "customhostnameSites",
+          {
+              resourceType:"publishingUsers",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "ishostnameavailable",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType:  "validate",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "isusernameavailable",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "generateGithubAccessTokenForAppserviceCLI",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "sourceControls",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "availableStacks",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "webAppStacks",
+              apiVersion: "2022-09-01"
+            },
+            {
+              resourceType: "locations/webAppStacks",
+              apiVersion: "2022-09-01"
+            }
           ],
         },
       ];
