@@ -108,6 +108,8 @@ public class WhatIfCommand : ICommand
             await io.Error.WriteLineAsync($"What-if failed: {error.Code} - {error.Message}");
         }
 
+        await io.Output.WriteLineAsync($"WhatIf status: {whatIfResult.Status}");
+        
         // TODO: there's probably a better way to print these out
         foreach (var change in whatIfResult.Changes)
         {

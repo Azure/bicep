@@ -97,6 +97,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deploy", "Deploy", "{96FF0B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Deploy", "src\Bicep.Deploy\Bicep.Deploy.csproj", "{E4C7A152-76D5-43EC-8CDE-5179D284F8F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Deploy.UnitTests", "src\Bicep.Deploy.UnitTests\Bicep.Deploy.UnitTests.csproj", "{2ABB4394-7B22-40D7-8FF1-AD37581040F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -203,6 +205,10 @@ Global
 		{E4C7A152-76D5-43EC-8CDE-5179D284F8F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4C7A152-76D5-43EC-8CDE-5179D284F8F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4C7A152-76D5-43EC-8CDE-5179D284F8F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ABB4394-7B22-40D7-8FF1-AD37581040F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ABB4394-7B22-40D7-8FF1-AD37581040F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ABB4394-7B22-40D7-8FF1-AD37581040F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ABB4394-7B22-40D7-8FF1-AD37581040F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -233,6 +239,7 @@ Global
 		{3F25D072-7A7E-419D-8425-6F2C7CF42BFD} = {8F8DCFBC-A0DC-4E40-93C8-B4FB99FBD757}
 		{A7D359D9-654A-4FAF-9BC2-DA9667EF8756} = {8F8DCFBC-A0DC-4E40-93C8-B4FB99FBD757}
 		{E4C7A152-76D5-43EC-8CDE-5179D284F8F0} = {96FF0BB4-F23F-45A7-9671-53438CF7E8E3}
+		{2ABB4394-7B22-40D7-8FF1-AD37581040F6} = {96FF0BB4-F23F-45A7-9671-53438CF7E8E3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21F77282-91E7-4304-B1EF-FADFA4F39E37}

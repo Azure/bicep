@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using Azure;
+using Azure.ResourceManager.Resources.Models;
 using Bicep.Core.Configuration;
 using Bicep.Core.Models;
+using Bicep.Core.Samples;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Deploy;
@@ -67,6 +70,37 @@ public class WhatIfCommandTests : TestBase
             error.Should().StartWith("Unable to run what-if: Mock what-if request failed");
             output.Should().BeEmpty();
             result.Should().Be(1);
+        }
+    }
+
+    [DataTestMethod]
+    [BaselineData_BicepDeploy.TestData(Filter = BaselineData_BicepDeploy.TestDataFilterType.ValidOnly)]
+    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    public async Task WhatIf_Valid_Deployment_File_Should_Succeed(BaselineData_BicepDeploy baselineData)
+    {
+        var data = baselineData.GetData(TestContext);
+
+        var mockArmWhatIfResult = ArmResourcesModelFactory.WhatIfOperationResult(status: "Succeeded");
+    
+        var deploymentManagerFactory = StrictMock.Of<IDeploymentManagerFactory>();
+        var deploymentManager = StrictMock.Of<IDeploymentManager>();
+        deploymentManager.Setup(x => x.WhatIfAsync(It.IsAny<ArmDeploymentDefinition>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult(mockArmWhatIfResult));
+            
+        deploymentManagerFactory
+            .Setup(x => x.CreateDeploymentManager(It.IsAny<RootConfiguration>()))
+            .Returns(deploymentManager.Object);
+
+        var settings = new InvocationSettings(new(DeploymentFileEnabled: true));
+        var (output, error, result) = await Bicep(
+                settings, 
+                services => services.AddSingleton(deploymentManagerFactory.Object), CancellationToken.None, "what-if", data.DeployFile.OutputFilePath);
+
+        using (new AssertionScope())
+        {
+            result.Should().Be(0);
+            output.Should().NotBeEmpty();
+            AssertNoErrors(error);
         }
     }
 }

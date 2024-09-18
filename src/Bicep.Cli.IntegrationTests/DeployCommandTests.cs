@@ -3,8 +3,14 @@
 
 using System.Collections.Immutable;
 using Azure;
+using Azure.Core;
+using Azure.ResourceManager;
+using Azure.ResourceManager.Resources;
+using Azure.ResourceManager.Resources.Mocking;
 using Azure.ResourceManager.Resources.Models;
+using Bicep.Core.Configuration;
 using Bicep.Core.Models;
+using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -23,7 +29,7 @@ public class DeployCommandTests : TestBase
     [TestMethod]
     public async Task Deploy_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
     {
-        var (output, error, result) = await Bicep("publish");
+        var (output, error, result) = await Bicep("deploy");
 
         using (new AssertionScope())
         {
@@ -50,19 +56,20 @@ public class DeployCommandTests : TestBase
     public async Task Deploy_RequestFailedException_ShouldFail_WithExpectedErrorMessage()
     {
         var bicepDeployPath = FileHelper.SaveResultFile(TestContext, "main.bicepdeploy", "");
-        var deploymentManager = StrictMock.Of<IDeploymentManager>();
-        deploymentManager
-            .Setup(x => x.CreateOrUpdateAsync(It.IsAny<ArmDeploymentDefinition>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new RequestFailedException("Mock deployment request failed"));
-
-        deploymentManager
+        
+        var deploymentManagerFactory = StrictMock.Of<IDeploymentManagerFactory>();
+        var deploymentManager = StrictMock.Of<IDeploymentManager>()
             .Setup(x => x.CreateOrUpdateAsync(It.IsAny<ArmDeploymentDefinition>(), It.IsAny<Action<ImmutableSortedSet<ArmDeploymentOperation>>>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new RequestFailedException("Mock deployment request failed"));
+
+        deploymentManagerFactory
+            .Setup(x => x.CreateDeploymentManager(It.IsAny<RootConfiguration>()))
+            .Returns(StrictMock.Of<IDeploymentManager>().Object);
 
         var settings = new InvocationSettings(new(DeploymentFileEnabled: true));
         var (output, error, result) = await Bicep(
                 settings, 
-                services => services.AddSingleton(deploymentManager.Object), CancellationToken.None, "deploy", bicepDeployPath);
+                services => services.AddSingleton(deploymentManagerFactory.Object), CancellationToken.None, "deploy", bicepDeployPath);
         using (new AssertionScope())
         {
             error.Should().StartWith("Unable to deploy: Mock deployment request failed");
@@ -71,29 +78,39 @@ public class DeployCommandTests : TestBase
         }
     }
 
-    // TODO: Implement this test when baseline data is available
-    // [DataTestMethod]
-    // [BaselineData_BicepDeploy.TestData(Filter = BaselineData_BicepDeploy.TestDataFilterType.ValidOnly)]
-    // [TestCategory(BaselineHelper.BaselineTestCategory)]
-    // public async Task Deploy_Valid_Deployment_File_Should_Succeed(BaselineData_BicepDeploy baselineData)
-    // {
-    //     var data = baselineData.GetData(TestContext);
-    //     var (output, error, result) = await Bicep("deploy", data.DeployFile.OutputFilePath);
-    //     var deploymentManager = StrictMock.Of<IDeploymentManager>();
-    //     deploymentManager
-    //         .Setup(x => x.CreateOrUpdateAsync(It.IsAny<ArmDeploymentDefinition>(), It.IsAny<CancellationToken>()))
-    //         .ThrowsAsync(new RequestFailedException("Mock deployment request failed"));
+    [DataTestMethod]
+    [BaselineData_BicepDeploy.TestData(Filter = BaselineData_BicepDeploy.TestDataFilterType.ValidOnly)]
+    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    public async Task Deploy_Valid_Deployment_File_Should_Succeed(BaselineData_BicepDeploy baselineData)
+    {
+        var data = baselineData.GetData(TestContext);
 
-    //     deploymentManager
-    //         .Setup(x => x.CreateOrUpdateAsync(It.IsAny<ArmDeploymentDefinition>(), It.IsAny<Action<ImmutableSortedSet<ArmDeploymentOperation>>>(), It.IsAny<CancellationToken>()))
-    //         .ThrowsAsync(new RequestFailedException("Mock deployment request failed"));
-    //     using (new AssertionScope())
-    //     {
-    //         result.Should().Be(0);
-    //         output.Should().BeEmpty();
-    //         AssertNoErrors(error);
-    //     }
+        var mockArmDeploymentResourceData = ArmResourcesModelFactory
+            .ArmDeploymentData(properties: ArmResourcesModelFactory.ArmDeploymentPropertiesExtended(provisioningState: "Succeeded"));
 
-    //     data.Compiled!.ShouldHaveExpectedJsonValue();
-    // }
+        var mockArmDeploymentResource = StrictMock.Of<ArmDeploymentResource>();
+        mockArmDeploymentResource.SetupGet(x => x.Data).Returns(mockArmDeploymentResourceData);
+    
+        var deploymentManagerFactory = StrictMock.Of<IDeploymentManagerFactory>();
+        var deploymentManager = StrictMock.Of<IDeploymentManager>();
+        deploymentManager.Setup(x => x.CreateOrUpdateAsync(It.IsAny<ArmDeploymentDefinition>(), It.IsAny<Action<ImmutableSortedSet<ArmDeploymentOperation>>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult(mockArmDeploymentResource.Object));
+            
+
+        deploymentManagerFactory
+            .Setup(x => x.CreateDeploymentManager(It.IsAny<RootConfiguration>()))
+            .Returns(deploymentManager.Object);
+
+        var settings = new InvocationSettings(new(DeploymentFileEnabled: true));
+        var (output, error, result) = await Bicep(
+                settings, 
+                services => services.AddSingleton(deploymentManagerFactory.Object), CancellationToken.None, "deploy", data.DeployFile.OutputFilePath);
+
+        using (new AssertionScope())
+        {
+            result.Should().Be(0);
+            output.Should().NotBeEmpty();
+            AssertNoErrors(error);
+        }
+    }
 }
