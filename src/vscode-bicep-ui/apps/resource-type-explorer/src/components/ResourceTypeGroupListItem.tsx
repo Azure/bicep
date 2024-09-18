@@ -18,7 +18,7 @@ const $ResourceTypeListItem = styled(List.Item)`
 `;
 
 const $ApiVersionItem = styled.span`
-  background-color: var(--vscode-list-hoverBackground)
+  color: var(--vscode-descriptionForeground)
 `;
 
 export function ResourceTypeGroupListItem({ group, resourceType, apiVersion }: ResourceTypeListItemProps) {

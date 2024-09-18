@@ -46,11 +46,6 @@ export class DraggableResourcesViewProvider
     );
     const scriptUri = this.getWebviewResourceUri(webview, "index.js");
 
-    const config = vscode.workspace.getConfiguration('workbench.colorCustomizations');
-    const editorBackground = config['editor.background'] || '#1e1e1e';
-    const editorForeground = config['editor.foreground'] || '#d4d4d4';
-    const listHoverBackground = config['list.hoverBackground'] || '#3c3c3c';
-
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -63,13 +58,6 @@ export class DraggableResourcesViewProvider
         <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${cspSource} data:; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'unsafe-inline' vscode-webview-resource:;">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" type="text/css" href="${stylesUri}">
-        <style>
-          :root {
-              --vscode-editor-background: ${editorBackground};
-              --vscode-editor-foreground: ${editorForeground};
-              --vscode-list-hoverBackground: ${listHoverBackground};
-          }
-        </style>
       </head>
       <body>
         <div id="root"></div>
@@ -80,111 +68,111 @@ export class DraggableResourcesViewProvider
             resourceTypes: [
               {
                 resourceType: "availabilitySets",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "virtualMachines",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "virtualMachines/extensions",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "virtualMachineScaleSets",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType:"virtualMachineScaleSets/virtualMachines",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "virtualMachineScaleSets/virtualMachines/extensions",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "virtualMachineScaleSets/networkInterfaces",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType:  "virtualMachineScaleSets/virtualMachines/networkInterfaces",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "virtualMachineScaleSets/publicIPAddresses",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "locations",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "locations/operations",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "locations/vmSizes",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "locations/runCommands",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "locations/systemInfo",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "locations/virtualMachines",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "locations/virtualMachineScaleSets",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType:"locations/publishers",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "operations",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "virtualMachines/runCommands",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "virtualMachineScaleSets/applications",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType:  "virtualMachines/VMApplications",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "locations/edgeZones",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "locations/edgeZones/vmimages",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "locations/edgeZones/publishers",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "restorePointCollections",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "restorePointCollections/restorePoints",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "proximityPlacementGroups",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               }
             ],
           },
@@ -193,39 +181,39 @@ export class DraggableResourcesViewProvider
             resourceTypes: [
             {
                 resourceType:"publishingUsers",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "ishostnameavailable",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType:  "validate",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "isusernameavailable",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "generateGithubAccessTokenForAppserviceCLI",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "sourceControls",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "availableStacks",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "webAppStacks",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               },
               {
                 resourceType: "locations/webAppStacks",
-                apiVersion: "@2022-09-01"
+                apiVersion: "2022-09-01"
               }
             ],
           },

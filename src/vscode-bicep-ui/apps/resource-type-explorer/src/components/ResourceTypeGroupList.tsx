@@ -10,8 +10,8 @@ interface ResourceTypeListProps {
 
 const $ResourceTypeList = styled(List)`
   padding: 0;
-  color: var(--vscode-editor-foreground);
-  background-color: var(--vscode-editor-background);
+  color: var(--vscode-sideBar-foreground);
+  background-color: var(--vscode-sideBar-background);
 `;
 
 export function ResourceTypeGroupList({ group, resourceTypes }: ResourceTypeListProps) {
