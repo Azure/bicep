@@ -6,6 +6,7 @@ import styled from "styled-components";
 interface ResourceTypeListItemProps {
   group: string;
   resourceType: string;
+  apiVersion: string;
 }
 
 const $ResourceTypeListItem = styled(List.Item)`
@@ -16,15 +17,19 @@ const $ResourceTypeListItem = styled(List.Item)`
   cursor: grab;
 `;
 
-export function ResourceTypeGroupListItem({ group, resourceType }: ResourceTypeListItemProps) {
+const $ApiVersionItem = styled.span`
+  background-color: var(--vscode-list-hoverBackground)
+`;
+
+export function ResourceTypeGroupListItem({ group, resourceType, apiVersion }: ResourceTypeListItemProps) {
   function handleDragStart(event: DragEvent<HTMLLIElement>) {
-    event.dataTransfer.setData("text", `${group}/${resourceType}`);
+    event.dataTransfer.setData("text", `${group}/${resourceType}${apiVersion}`);
   }
 
   return (
     <$ResourceTypeListItem draggable onDragStart={handleDragStart}>
       <AzureIcon resourceType={`${group}/${resourceType}`} size={16} />
-      <span>{resourceType}</span>
+      <span>{`${resourceType}`}</span><$ApiVersionItem>{`${apiVersion}`}</$ApiVersionItem>
     </$ResourceTypeListItem>
   );
 }

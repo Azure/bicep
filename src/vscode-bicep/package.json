@@ -726,7 +726,25 @@
           }
         ]
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "bicep-draggable-resources",
+          "title": "Bicep Resources",
+          "icon": "icons/dumbbell.svg"
+        }
+      ]
+    },
+    "views": {
+      "bicep-draggable-resources": [
+        {
+          "type": "webview",
+          "id": "bicep-draggable-resources.view",
+          "name": "Resource Types"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run build:prod",
@@ -753,7 +771,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/jest": "^29.5.12",
     "@types/mocha": "^10.0.7",
-    "@types/node": "^22.5.4",
+    "@types/node": "^22.5.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@types/react-test-renderer": "^18.3.0",
@@ -800,6 +818,7 @@
     "@microsoft/vscode-azext-azureutils": "^3.1.1",
     "@microsoft/vscode-azext-utils": "^2.5.7",
     "@vscode-bicep-ui/components": "file:../vscode-bicep-ui/packages/components",
+    "@vscode-bicep-ui/packages": "file:../vscode-bicep-ui/apps",
     "@vscode/webview-ui-toolkit": "^1.4.0",
     "cytoscape": "^3.30.2",
     "cytoscape-elk": "^2.2.0",
