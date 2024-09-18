@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-require-imports */
 import { WebviewMessageChannelProvider } from "@vscode-bicep-ui/messaging";
 import React from "react";
 import ReactDOM from "react-dom/client";
