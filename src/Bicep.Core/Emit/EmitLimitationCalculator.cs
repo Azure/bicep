@@ -28,6 +28,8 @@ namespace Bicep.Core.Emit
         {
             var diagnostics = ToListDiagnosticWriter.Create();
 
+            ScopeHelper.ValidateDeploymentScopeForDeployFile(model, diagnostics);
+
             var moduleScopeData = ScopeHelper.GetModuleScopeInfo(model, diagnostics);
             var resourceScopeData = ScopeHelper.GetResourceScopeInfo(model, diagnostics);
             var resourceTypeResolver = ResourceTypeResolver.Create(model);

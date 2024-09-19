@@ -2085,39 +2085,72 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Empty();
             }
 
-            if (!deploySymbol.TryGetSemanticModel().IsSuccess(out var deploySemanticModel, out var failureDiagnostic))
+            if (!deploySymbol.TryGetReferencingSemanticModel().IsSuccess(out var referencingSemanticModel, out var failureDiagnostic))
             {
                 return ErrorType.Create(failureDiagnostic);
             }
 
-            var parameters = new List<TypeProperty>();
-            foreach (var parameter in deploySemanticModel.Parameters.Values)
-            {
-                var type = parameter.TypeReference.Type;
+            var modeTypeProperty = CreateModeTypeProperty();
+            var paramsTypeProperty = CreateParamsTypeProperty();
 
-                var flags = parameter.IsRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly;
-                parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
+            var deployTypeProperties = new List<TypeProperty>
+            {
+                CreateNameTypeProperty(),
+                CreateScopeTypeProperty()
+            };
+
+            if (referencingSemanticModel.TargetScope.HasFlag(ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription))
+            {
+                deployTypeProperties.Add(CreateLocationTypeProperty());
             }
 
-            var paramsRequired = parameters.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required));
-            var parametersObjectType = new ObjectType("parameters", TypeSymbolValidationFlags.Default, parameters, null);
+            deployTypeProperties.Add(modeTypeProperty);
+            deployTypeProperties.Add(paramsTypeProperty);
+
+            return new ObjectType("deploy", TypeSymbolValidationFlags.Default, deployTypeProperties, null);
+
+            // Local methods.
+            TypeProperty CreateNameTypeProperty() => new("name", LanguageConstants.String, TypePropertyFlags.WriteOnly);
+
+            TypeProperty CreateScopeTypeProperty()
+            {
+                var scopeTypeProperty = LanguageConstants.CreateResourceScopeReference(referencingSemanticModel.TargetScope);
+
+                return new("scope", scopeTypeProperty, TypePropertyFlags.Required | TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant);
+            }
+
+            TypeProperty CreateLocationTypeProperty() => new("location", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant);
+
+            TypeProperty CreateModeTypeProperty()
+            {
+                var modeType = new UnionType("modeType", [TypeFactory.CreateStringLiteralType("Incremental"), TypeFactory.CreateStringLiteralType("Complete")]);
+
+                return new("mode", modeType, TypePropertyFlags.WriteOnly);
+            }
             
-            var settingsType = new ObjectType(
-                "settings",
-                TypeSymbolValidationFlags.Default,
-                ImmutableArray<TypeProperty>.Empty, // TODO add settings here
-                null);
-            
-            return new ObjectType(
-                "deploy",
-                TypeSymbolValidationFlags.Default,
-                new[]
+            TypeProperty CreateParamsTypeProperty()
+            {
+                var paramsTypeProperties = new List<TypeProperty>();
+                var paramsTypePropertyFlags = TypePropertyFlags.WriteOnly;
+
+                foreach (var parameter in referencingSemanticModel.Parameters.Values)
                 {
-                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.WriteOnly),
-                    new TypeProperty("params", parametersObjectType, TypePropertyFlags.WriteOnly | (paramsRequired ? TypePropertyFlags.Required : TypePropertyFlags.None)),
-                    new TypeProperty("settings", settingsType, TypePropertyFlags.WriteOnly),
-                },
-                null);
+                    var type = parameter.TypeReference.Type;
+                    var flags = TypePropertyFlags.WriteOnly;
+
+                    if (parameter.IsRequired)
+                    {
+                        flags |= TypePropertyFlags.Required;
+                        paramsTypePropertyFlags |= TypePropertyFlags.Required;
+                    }
+
+                    paramsTypeProperties.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
+                }
+
+                var paramsType = new ObjectType("parameters", TypeSymbolValidationFlags.Default, paramsTypeProperties, null);
+
+                return new("params", paramsType, paramsTypePropertyFlags);
+            }
         }
 
         private TypeSymbol GetDeclaredTestType(TestDeclarationSyntax test)

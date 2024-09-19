@@ -504,6 +504,53 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
+            static IEnumerable<FunctionOverload> GetDeployFilePermittedOverloads()
+            {
+                yield return new FunctionOverloadBuilder("tenant")
+                    .WithReturnResultBuilder(GetTenantReturnResult, new TenantScopeType([], []))
+                    .WithGenericDescription("Returns the current tenant scope.")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("managementGroup")
+                    .WithReturnResultBuilder(GetRestrictedManagementGroupReturnResult, new ManagementGroupScopeType([], []))
+                    .WithGenericDescription("Returns a management group scope.")
+                    .WithDescription("Returns the scope for a named management group.")
+                    .WithRequiredParameter("name", LanguageConstants.String, "The unique identifier of the management group (not the display name).")
+                    .Build();
+
+                const string subscriptionGenericDescription = "Returns a subscription scope.";
+
+                yield return new FunctionOverloadBuilder("subscription")
+                    .WithReturnResultBuilder(GetSubscriptionReturnResult, new SubscriptionScopeType([], []))
+                    .WithGenericDescription(subscriptionGenericDescription)
+                    .WithDescription("Returns the subscription scope for the current deployment.")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("subscription")
+                    .WithReturnResultBuilder(GetRestrictedSubscriptionReturnResult, new SubscriptionScopeType([], []))
+                    .WithGenericDescription(subscriptionGenericDescription)
+                    .WithDescription("Returns a named subscription scope.")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
+                    .Build();
+
+                const string resourceGroupGenericDescription = "Returns a resource group scope.";
+
+                yield return new FunctionOverloadBuilder("resourceGroup")
+                    .WithReturnResultBuilder(GetRestrictedResourceGroupReturnResult, new ResourceGroupScopeType([], []))
+                    .WithGenericDescription(resourceGroupGenericDescription)
+                    .WithDescription("Returns a named resource group scope")
+                    .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("resourceGroup")
+                    .WithReturnResultBuilder(GetRestrictedResourceGroupReturnResult, new ResourceGroupScopeType([], []))
+                    .WithGenericDescription(resourceGroupGenericDescription)
+                    .WithDescription("Returns a named resource group scope.")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
+                    .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
+                    .Build();
+            }
+
             foreach (var overload in GetBicepFilePermittedOverloads())
             {
                 yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
@@ -512,6 +559,11 @@ namespace Bicep.Core.Semantics.Namespaces
             foreach (var overload in GetParamsFilePermittedOverloads())
             {
                 yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.ParamsFile);
+            }
+
+            foreach (var overload in GetDeployFilePermittedOverloads())
+            {
+                yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.DeployFile);
             }
 
             foreach (var (overload, allowedScopes) in GetScopeFunctions())

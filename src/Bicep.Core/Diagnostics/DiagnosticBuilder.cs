@@ -1806,6 +1806,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic CyclicDeployFileSelfReference() => CoreError(
                 "BCP408",
                 "This deploy file references itself, which is not allowed.");
+
+            public Diagnostic UnsupportedDeploymentScope(ResourceScope suppliedScope, ResourceScope supportedScopes) => CoreError(
+                "BCP409",
+                $"Scope {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(suppliedScope))} is not valid for this deployment. Permitted scopes: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(supportedScopes))}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

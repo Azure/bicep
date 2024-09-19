@@ -114,7 +114,6 @@ namespace Bicep.Core.Registry
             ExtendsDeclarationSyntax => x => x.ExtendsPathHasNotBeenSpecified(),
             CompileTimeImportDeclarationSyntax => x => x.PathHasNotBeenSpecified(),
             ModuleDeclarationSyntax => x => x.ModulePathHasNotBeenSpecified(),
-            DeployDeclarationSyntax => x => x.ModulePathHasNotBeenSpecified(),
             TestDeclarationSyntax => x => x.PathHasNotBeenSpecified(),
             DeployDeclarationSyntax => x => x.PathHasNotBeenSpecified(),
             _ => throw new NotImplementedException($"Unexpected artifact reference syntax type '{artifactReferenceSyntax.GetType().Name}'.")

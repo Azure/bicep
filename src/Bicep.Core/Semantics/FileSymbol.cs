@@ -106,6 +106,9 @@ namespace Bicep.Core.Semantics
                     case WildcardImportSymbol wildcardImport:
                         wildcardImports.Add(wildcardImport);
                         break;
+                    case DeploySymbol deploy:
+                        this.DeployDeclaration = deploy;
+                        break;
                 }
             }
 
@@ -207,6 +210,8 @@ namespace Bicep.Core.Semantics
         public IEnumerable<ImportedSymbol> ImportedSymbols => ImportedTypes
             .Concat<ImportedSymbol>(ImportedVariables)
             .Concat(ImportedFunctions);
+
+        public DeploySymbol? DeployDeclaration { get; }
 
         public ImmutableArray<WildcardImportSymbol> WildcardImports { get; }
 

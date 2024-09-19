@@ -27,6 +27,7 @@ public class BicepDeployTests
             ("test.txt", """Hello $NAME!"""),
             ("main.bicepdeploy", """
 deploy foo 'main.bicep' {
+  scope: resourceGroup('myRG')
   params: {
     greeting: replace(loadTextContent('test.txt'), '$NAME', 'Anthony')
   }
@@ -42,14 +43,14 @@ output greeting string = greeting
     }
 
     [TestMethod]
-    public void Bicepdeploy_type_validation_works()
+    public void Bicepdeploy_required_property_type_validation_works()
     {
         var result = CompilationHelper.CompileBicepDeploy(
             new ServiceBuilder(),
             ("main.bicepdeploy", """
 deploy foo 'main.bicep' {
   params: {
-    bar: 'bar' // this isn't defined in the main.bicep file
+    foo: 'test'
   }
 }
 """),
@@ -58,8 +59,56 @@ param foo string
 """));
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP035", DiagnosticLevel.Error, """The specified "object" declaration is missing the following required properties: "scope"."""),
+        ]);
+    }
+
+    [TestMethod]
+    public void Bicepdeploy_parameters_type_validation_works()
+    {
+        var result = CompilationHelper.CompileBicepDeploy(
+            new ServiceBuilder(),
+            ("main.bicepdeploy", """
+deploy foo 'main.bicep' {
+  scope: subscription()
+  params: {
+    bar: 'bar' // this isn't defined in the main.bicep file
+  }
+}
+"""),
+            ("main.bicep", """
+targetScope = 'subscription'
+
+param foo string
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
             ("BCP035", DiagnosticLevel.Error, """The specified "object" declaration is missing the following required properties: "foo"."""),
             ("BCP037", DiagnosticLevel.Error, """The property "bar" is not allowed on objects of type "parameters". Permissible properties include "foo"."""),
+        ]);
+    }
+
+    [TestMethod]
+    public void Bicepdeploy_scope_validation_works()
+    {
+        var result = CompilationHelper.CompileBicepDeploy(
+            new ServiceBuilder(),
+            ("main.bicepdeploy", """
+deploy foo 'main.bicep' {
+  scope: tenant()
+  params: {
+    foo: 'bar'
+  }
+}
+"""),
+            ("main.bicep", """
+targetScope = 'subscription'
+
+param foo string
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP409", DiagnosticLevel.Error, """Scope "tenant" is not valid for this deployment. Permitted scopes: "subscription"."""),
         ]);
     }
 }
