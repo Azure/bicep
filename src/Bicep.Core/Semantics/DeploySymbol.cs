@@ -18,7 +18,7 @@ namespace Bicep.Core.Semantics
 
         public override SymbolKind Kind => SymbolKind.Deploy;
 
-        public ResultWithDiagnostic<ISemanticModel> TryGetSemanticModel()
+        public ResultWithDiagnostic<ISemanticModel> TryGetReferencingSemanticModel()
             => SemanticModelHelper.TryGetTemplateModelForArtifactReference(Context.Compilation.SourceFileGrouping,
                 DeclaringDeploySyntax,
                 b => b.ModuleDeclarationMustReferenceBicepModule(),

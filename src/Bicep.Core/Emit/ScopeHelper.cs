@@ -583,5 +583,32 @@ namespace Bicep.Core.Emit
 
             return scopeInfo.ToImmutableDictionary();
         }
+
+        public static void ValidateDeploymentScopeForDeployFile(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            if (semanticModel.Root.DeployDeclaration is not { } deploySymbol ||
+                !deploySymbol.TryGetReferencingSemanticModel().IsSuccess(out var referencingSemanticModel))
+            {
+                return;
+            }
+
+            if (deploySymbol.DeclaringDeploySyntax.Body is not ObjectSyntax deployBody ||
+                deployBody.TryGetPropertyByName(LanguageConstants.ResourceScopePropertyName) is not { } scopeValue)
+            {
+                return;
+            }
+
+            if (semanticModel.GetTypeInfo(scopeValue) is not IScopeReference { Scope: var deploymentScope })
+            {
+                return;
+            }
+
+            var validScope = referencingSemanticModel.TargetScope;
+
+            if (!validScope.HasFlag(deploymentScope))
+            {
+                diagnosticWriter.Write(scopeValue, x => x.UnsupportedDeploymentScope(deploymentScope, validScope));
+            }
+        }
     }
 }
