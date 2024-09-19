@@ -29,7 +29,7 @@
             "preLaunchTask": "Build CLI",
             "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/net8.0/bicep",
             "args": [
-                "build",
+                "deploy",
                 "${file}"
             ],
           "env": {

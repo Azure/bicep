@@ -59,7 +59,6 @@ public class DeploymentManager : IDeploymentManager
             var deploymentContent = new ArmDeploymentContent(deploymentDefinition.Properties);
 
             var deploymentOperation = await deploymentResource.UpdateAsync(WaitUntil.Started, deploymentContent, cancellationToken);
-
             var currentOperations = ImmutableSortedSet.Create<ArmDeploymentOperation>(Comparer<ArmDeploymentOperation>.Create((x, y) => 
             {
                 return string.Compare(x.Properties.TargetResource?.Id, y.Properties.TargetResource?.Id, StringComparison.Ordinal);
@@ -72,9 +71,13 @@ public class DeploymentManager : IDeploymentManager
                 await foreach (var operation in deploymentResource.GetDeploymentOperationsAsync().WithCancellation(cancellationToken))
                 {
                     currentOperations = currentOperations.Add(operation);
-                    onOperationsUpdated?.Invoke(currentOperations);
                 }
 
+                onOperationsUpdated?.Invoke(currentOperations);
+                
+                // TODO: Retry-After header doesn't seem to be present in the response
+                // even tho it does show in the portal. Need to investigate further.
+                // Potentially implement more sophisticated retry logic here i.e.
                 await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
             }
 

@@ -110,7 +110,8 @@ public class WhatIfCommand : ICommand
 
         await io.Output.WriteLineAsync($"WhatIf status: {whatIfResult.Status}");
         
-        // TODO: there's probably a better way to print these out
+        // TODO: Port https://github.com/Azure/azure-powershell/blob/main/src/Resources/ResourceManager/Formatters/WhatIfOperationResultFormatter.cs
+        // for a better output format
         foreach (var change in whatIfResult.Changes)
         {
             switch (change.ChangeType)
