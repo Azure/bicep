@@ -32,6 +32,7 @@
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
     <ProjectReference Include="..\Bicep.Decompiler\Bicep.Decompiler.csproj" />
     <ProjectReference Include="../Bicep.Local.Deploy/Bicep.Local.Deploy.csproj" />
+    <ProjectReference Include="../Bicep.Deploy/Bicep.Deploy.csproj" />
   </ItemGroup>
 
   <ItemGroup>

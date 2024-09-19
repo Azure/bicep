@@ -16,6 +16,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
+using Bicep.Deploy;
 using Microsoft.Extensions.DependencyInjection;
 using Environment = Bicep.Core.Utils.Environment;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
@@ -55,6 +56,9 @@ public static class ServiceCollectionExtensions
             .AddSingleton<LintCommand>()
             .AddSingleton<JsonRpcCommand>()
             .AddSingleton<LocalDeployCommand>()
+            .AddSingleton<DeployCommand>()
+            .AddSingleton<ValidateCommand>()
+            .AddSingleton<WhatIfCommand>()
             .AddSingleton<RootCommand>();
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
@@ -77,4 +81,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepDecompiler>();
+
+    public static IServiceCollection AddBicepDeploy(this IServiceCollection services) => services
+        .AddSingleton<IDeploymentManagerFactory, DeploymentManagerFactory>();
 }

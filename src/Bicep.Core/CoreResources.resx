@@ -511,6 +511,9 @@
   <data name="ExperimentalFeatureNames_ResourceDerivedTypes" xml:space="preserve">
     <value>Resource-derived types</value>
   </data>
+  <data name="ExperimentalFeatureNames_DeployFile" xml:space="preserve">
+    <value>Deploy file</value>
+  </data>
   <data name="UseSafeAccessRule_Description" xml:space="preserve">
     <value>Use the safe access (.?) operator instead of checking object contents with the 'contains' function.</value>
   </data>

@@ -27,6 +27,8 @@ public interface IFeatureProvider
 
     bool LocalDeployEnabled { get; }
 
+    bool DeploymentFileEnabled { get; }
+
     bool ResourceDerivedTypesEnabled { get; }
 
     bool ExtendableParamFilesEnabled { get; }
@@ -50,6 +52,7 @@ public interface IFeatureProvider
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
                 (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),
+                (DeploymentFileEnabled, CoreResources.ExperimentalFeatureNames_DeploymentFile, false, false),
                 (LocalDeployEnabled, "Enable local deploy", false, false),
                 (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
                 (SecureOutputsEnabled, CoreResources.ExperimentalFeatureNames_SecureOutputs, true, false),

@@ -194,6 +194,15 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ExperimentalFeatureNames_OptionalModuleNames", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enable Bicep Deploy.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_DeploymentFile {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_DeploymentFile", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Resource-derived types.
