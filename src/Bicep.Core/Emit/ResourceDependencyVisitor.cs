@@ -7,6 +7,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Emit
 {
@@ -282,6 +283,15 @@ namespace Bicep.Core.Emit
             base.VisitObjectPropertySyntax(propertySyntax);
         }
 
+        public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
+        {
+            var functionSymbol = model.GetSymbolInfo(syntax) as FunctionSymbol;
+            if (ShouldVisitFunctionArguments(functionSymbol))
+            {
+                base.VisitFunctionCallSyntax(syntax);
+            }
+        }
+
         private bool IsTopLevelPropertyOfCurrentDeclaration(ObjectPropertySyntax propertySyntax)
         {
             SyntaxBase? declaringSyntax = this.currentDeclaration switch
@@ -294,5 +304,8 @@ namespace Bicep.Core.Emit
 
             return currentDeclarationProperties?.Contains(propertySyntax) ?? false;
         }
+
+        private static bool ShouldVisitFunctionArguments(FunctionSymbol? functionSymbol)
+            => functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent);
     }
 }
