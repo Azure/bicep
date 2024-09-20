@@ -60,6 +60,24 @@ export const getDeploymentDataRequestType = new ProtocolRequestType<
   void
 >("bicep/getDeploymentData");
 
+export type ResourceTypes = {
+  resourceType: string;
+  apiVersion?: string;
+}
+
+export type ResourceTypeCatalog = Array<{
+  group: string;
+  resourceTypes: ResourceTypes[];
+}>;
+
+export const getResourceCatalogRequestType = new ProtocolRequestType<
+  null,
+  ResourceTypeCatalog,
+  never,
+  void,
+  void
+>("bicep/getResourceCatalog");
+
 export interface LocalDeployRequest {
   textDocument: TextDocumentIdentifier;
 }

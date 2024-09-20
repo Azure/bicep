@@ -6,7 +6,7 @@ import styled from "styled-components";
 interface ResourceTypeListItemProps {
   group: string;
   resourceType: string;
-  apiVersion: string;
+  apiVersion?: string;
 }
 
 const $ResourceTypeListItem = styled(List.Item)`
@@ -23,7 +23,7 @@ const $ApiVersionItem = styled.span`
 
 export function ResourceTypeGroupListItem({ group, resourceType, apiVersion }: ResourceTypeListItemProps) {
   function handleDragStart(event: DragEvent<HTMLLIElement>) {
-    event.dataTransfer.setData("text", `${group}/${resourceType}${apiVersion}`);
+    event.dataTransfer.setData("text", `${group}/${resourceType}@${apiVersion}`);
   }
 
   return (

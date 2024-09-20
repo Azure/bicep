@@ -5,7 +5,7 @@ import { ResourceTypeGroupList } from "./ResourceTypeGroupList";
 
 export type ResourceTypes = {
   resourceType: string;
-  apiVersion: string;
+  apiVersion?: string;
 }
 
 type ResourceTypeCatalog = Array<{
