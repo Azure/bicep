@@ -182,7 +182,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         );
 
         const resourceTypeExplorerViewProvider =
-          new DraggableResourcesViewProvider(extension.extensionUri);
+          new DraggableResourcesViewProvider(extension.extensionUri, languageClient);
 
         extension.register(
           window.registerWebviewViewProvider(

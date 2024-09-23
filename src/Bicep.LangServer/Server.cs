@@ -69,6 +69,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<InsertResourceHandler>()
                     .WithHandler<ConfigurationSettingsHandler>()
                     .WithHandler<LocalDeployHandler>()
+                    .WithHandler<BicepGetResourceTypesHandler>()
                     .WithServices(services => services.AddServerDependencies(bicepLangServerOptions));
 
                 onOptionsFunc(options);
