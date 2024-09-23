@@ -23,7 +23,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/vscode-webview": "^1.57.5",
-    "@vitest/coverage-v8": "^2.0.5",
+    "@vitest/coverage-v8": "^2.1.1",
     "happy-dom": "^14.12.3",
     "vite": "^5.4.7",
     "vite-plugin-dts": "^4.0.2",

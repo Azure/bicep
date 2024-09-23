@@ -39,7 +39,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "@vitest/coverage-v8": "^2.0.5",
+    "@vitest/coverage-v8": "^2.1.1",
     "@vscode/codicons": "^0.0.36",
     "eslint-plugin-storybook": "^0.8.0",
     "eslint-plugin-testing-library": "^6.3.0",
