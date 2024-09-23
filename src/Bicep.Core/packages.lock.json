@@ -108,9 +108,9 @@
       },
       "JsonPath.Net": {
         "type": "Direct",
-        "requested": "[1.1.4, )",
-        "resolved": "1.1.4",
-        "contentHash": "RAVhHdPEJPUoKPSSHBh82Q8Qrwl3mr1OlRj0I/IFj42DSoS8b9VUOPCCr+O6V/2gmPDbuGnf2mdic9Cp8AqfBg==",
+        "requested": "[1.1.5, )",
+        "resolved": "1.1.5",
+        "contentHash": "IDZkSLyaOH3AJ1hoNa60GD6xOJ8pnmbF5YfFZRrZwjap8afeNiOToyf8/JfJwivF7F5ag7OBw6cnRsRfQ35HWA==",
         "dependencies": {
           "Json.More.Net": "2.0.2"
         }
