@@ -1,6 +1,6 @@
 import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import useGetPanZoomTransform from "../useGetPanZoomTransform";
+import { useGetPanZoomTransform } from "../useGetPanZoomTransform";
 import { firePanZoomEvent, renderPanZoomHook } from "./utils";
 
 describe("useGetPanZoomValue", () => {
