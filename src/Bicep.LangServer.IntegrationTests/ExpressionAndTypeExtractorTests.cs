@@ -34,9 +34,9 @@ namespace Bicep.LangServer.IntegrationTests;
 [TestClass]
 public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 {
-    private const string ExtractToVariableTitle = "Extract variable";
-    private const string ExtractToParameterTitle = "Extract parameter";
-    private const string ExtractToTypeTitle = "Create type for ";
+    private const string ExtractToVariableTitle = "[Preview] Extract variable";
+    private const string ExtractToParameterTitle = "[Preview] Extract parameter";
+    private const string ExtractToTypeTitle = "[Preview] Create type for ";
     private const string StartRenameCommandName = "bicep.internal.startRename";
 
     ////////////////////////////////////////////////////////////////////

@@ -149,7 +149,7 @@ public class ExpressionAndTypeExtractor
 
     private IEnumerable<CodeFixWithCommand> CreateAllExtractions(ExtractionContext extractionContext)
     {
-        yield return CreateExtraction(extractionContext, ExtractionKind.Variable, "Extract variable");
+        yield return CreateExtraction(extractionContext, ExtractionKind.Variable, "[Preview] Extract variable");
 
         // For the new param's type, try to use the declared type if there is one (i.e. the type of
         //   what we're assigning to), otherwise use the actual calculated type of the expression
@@ -169,7 +169,7 @@ public class ExpressionAndTypeExtractor
         yield return CreateExtraction(
             extractionContext,
             ExtractionKind.Parameter,
-            $"Extract parameter of type {GetQuotedText(stringifiedLooseType)}",
+            $"[Preview] Extract parameter of type {GetQuotedText(stringifiedLooseType)}",
             stringifiedLooseType);
 
         if (userDefinedTypeAvailable)
@@ -177,13 +177,13 @@ public class ExpressionAndTypeExtractor
             yield return CreateExtraction(
                 extractionContext,
                 ExtractionKind.Parameter,
-                $"Extract parameter of type {GetQuotedText(stringifiedUserDefinedType)}",
+                $"[Preview] Extract parameter of type {GetQuotedText(stringifiedUserDefinedType)}",
                 stringifiedUserDefinedType);
 
             yield return CreateExtraction(
                 extractionContext,
                 ExtractionKind.Type,
-                $"Create type for {GetQuotedText(stringifiedUserDefinedType)}",
+                $"[Preview] Create type for {GetQuotedText(stringifiedUserDefinedType)}",
                 stringifiedUserDefinedType);
         }
     }
