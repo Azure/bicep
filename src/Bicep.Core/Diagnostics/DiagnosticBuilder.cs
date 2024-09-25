@@ -1798,6 +1798,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ExtendsNotSupported() => CoreError(
                 "BCP406",
                 $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
+
+            public Diagnostic MicrosoftGraphBuiltinDeprecatedSoon() => CoreWarning(
+                "BCP407",
+                $"Extension \"microsoftGraph\" is deprecated. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

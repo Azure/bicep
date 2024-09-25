@@ -42,8 +42,9 @@ namespace Bicep.Core.IntegrationTests
                     emptyDiagnostics };
                 yield return new object[] {
                     "microsoftGraph",
-                    true,
-                    emptyDiagnostics };
+                    false,
+                    new (string, DiagnosticLevel, string)[] {
+                     ("BCP407", DiagnosticLevel.Warning, "Extension \"microsoftGraph\" is deprecated. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes" ) } };
                 yield return new object[] {
                     "az",
                     true,
