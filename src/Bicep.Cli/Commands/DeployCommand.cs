@@ -57,9 +57,9 @@ public class DeployCommand : ICommand
         var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
 
         // TODO: Use bicepdeploy compilation emission here
-        var result = compilation.Emitter.Template();
+        var result = compilation.Emitter.Deploy();
 
-        if (result.Template is not { } template)
+        if (!result.Success)
         {
             return 1;
         }
@@ -71,16 +71,17 @@ public class DeployCommand : ICommand
         }
 
         // TODO: Use deploy file emission to build deployment definition
-        var deploymentDefinition = new ArmDeploymentDefinition(
-            null,
-            "92722693-40f1-44fe-8c39-9cf6b6353750",
-            "levi-bicep-deploy",
-            args.Name ?? "main",
-            new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
-            {
-                Template = new BinaryData(JsonDocument.Parse(template).RootElement),
-                Parameters = new BinaryData("{}")
-            });
+        //var deploymentDefinition = new ArmDeploymentDefinition(
+        //    null,
+        //    "92722693-40f1-44fe-8c39-9cf6b6353750",
+        //    "levi-bicep-deploy",
+        //    args.Name ?? "main",
+        //    new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
+        //    {
+        //        Template = new BinaryData(JsonDocument.Parse(template).RootElement),
+        //        Parameters = new BinaryData("{}")
+        //    });
+        var deploymentDefinition = result.DeploymentDefinition!;
 
         var rootConfiguration = configurationManager.GetConfiguration(deploymentFile);
         var deploymentManager = deploymentManagerFactory.CreateDeploymentManager(rootConfiguration);

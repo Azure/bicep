@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Models;
 using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
 using Newtonsoft.Json;
@@ -21,11 +22,18 @@ public record TemplateResult(
     string? Template,
     string? SourceMap);
 
+public record DeployResult(
+    bool Success,
+    ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> Diagnostics,
+    ArmDeploymentDefinition? DeploymentDefinition);
+
 public interface ICompilationEmitter
 {
     TemplateResult Template();
 
     ParametersResult Parameters();
+
+    DeployResult Deploy();
 }
 
 public class CompilationEmitter : ICompilationEmitter
@@ -90,7 +98,7 @@ public class CompilationEmitter : ICompilationEmitter
     public TemplateResult Template()
     {
         var model = this.compilation.GetEntrypointSemanticModel();
-        if (model.SourceFileKind != Workspaces.BicepSourceFileKind.BicepFile)
+        if (model.SourceFileKind != BicepSourceFileKind.BicepFile)
         {
             throw new InvalidOperationException($"Entry-point {model.Root.FileUri} is not a bicep file");
         }
@@ -98,7 +106,14 @@ public class CompilationEmitter : ICompilationEmitter
         return Template(model);
     }
 
-    private TemplateResult Template(SemanticModel model)
+    public DeployResult Deploy()
+    {
+        var deployEmitter = new DeployEmitter(this.compilation);
+
+        return deployEmitter.Emit();
+    }
+
+    public TemplateResult Template(SemanticModel model)
     {
         var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
 

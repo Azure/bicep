@@ -38,6 +38,8 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase SourceSyntax => this.Path;
 
+        public ObjectSyntax BodyObject => this.Body as ObjectSyntax ?? throw new InvalidOperationException("Expect Body to be an instance of ObjectSyntax.");
+
         public override TextSpan Span => TextSpan.Between(this.Keyword, this.Body);
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitDeployDeclarationSyntax(this);
