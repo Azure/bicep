@@ -750,8 +750,8 @@
       },
       "Microsoft.VisualStudio.Setup.Configuration.Interop": {
         "type": "Transitive",
-        "resolved": "3.10.2154",
-        "contentHash": "spd07AGnhaWt+/0TtO2kAD7cmnYg1eMqRwd9eTFkEE+Iic0se/ncF498pQ4TtKIAFbjV5bHHTBa65HjgBR5bBw=="
+        "resolved": "3.11.2177",
+        "contentHash": "WZc6Wgrkg5lM2ers9oyATJA7khAfO2eDz+t9RmcD1ojghwnrF58pfiaXUYCI41IIxOcPRNPBGwZj9LZq8wnA1A=="
       },
       "Microsoft.VisualStudio.Shell.15.0": {
         "type": "Transitive",
@@ -1269,7 +1269,7 @@
         "dependencies": {
           "Microsoft.VisualStudio.LanguageServer.Client": "[17.10.124, )",
           "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",
-          "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.10.2154, )",
+          "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.11.2177, )",
           "Microsoft.VisualStudio.Shell.Framework": "[17.11.40262, )",
           "Microsoft.VisualStudio.Shell.Interop": "[17.10.40170, )",
           "Microsoft.VisualStudio.Utilities": "[17.11.40262, )",

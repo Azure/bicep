@@ -64,9 +64,9 @@
       },
       "Microsoft.VisualStudio.Setup.Configuration.Interop": {
         "type": "Direct",
-        "requested": "[3.10.2154, )",
-        "resolved": "3.10.2154",
-        "contentHash": "spd07AGnhaWt+/0TtO2kAD7cmnYg1eMqRwd9eTFkEE+Iic0se/ncF498pQ4TtKIAFbjV5bHHTBa65HjgBR5bBw=="
+        "requested": "[3.11.2177, )",
+        "resolved": "3.11.2177",
+        "contentHash": "WZc6Wgrkg5lM2ers9oyATJA7khAfO2eDz+t9RmcD1ojghwnrF58pfiaXUYCI41IIxOcPRNPBGwZj9LZq8wnA1A=="
       },
       "Microsoft.VisualStudio.Shell.Framework": {
         "type": "Direct",
