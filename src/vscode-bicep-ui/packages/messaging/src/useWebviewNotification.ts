@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { WebviewNotificationCallback } from "./webviewMessageChannel";
 
 import { useEffect } from "react";

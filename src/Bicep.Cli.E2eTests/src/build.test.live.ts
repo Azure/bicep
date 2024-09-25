@@ -46,14 +46,14 @@ module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
     invokingBicepCommand("build", bicepPath, "--no-restore")
       .shouldFail()
       .withStderr(
-        /.+BCP190: The artifact with reference "br:biceptest.+\.azurecr\..+\/does-not-exist:v-never" has not been restored..*/
+        /.+BCP190: The artifact with reference "br:biceptest.+\.azurecr\..+\/does-not-exist:v-never" has not been restored..*/,
       );
   });
 
   it("should build file with external modules", () => {
     const builder = new BicepRegistryReferenceBuilder(
       environment.registryUri,
-      testArea
+      testArea,
     );
 
     const storageRef = builder.getBicepReference("storage", "v1");
@@ -61,7 +61,7 @@ module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
       environment.environmentOverrides,
       storageRef,
       "modules" + environment.suffix,
-      "storage.bicep"
+      "storage.bicep",
     );
 
     const passthroughRef = builder.getBicepReference("passthrough", "v1");
@@ -69,7 +69,7 @@ module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
       environment.environmentOverrides,
       passthroughRef,
       "modules" + environment.suffix,
-      "passthrough.bicep"
+      "passthrough.bicep",
     );
 
     const mainContent = `
@@ -118,23 +118,23 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
     const bicepPath = writeTempFile(
       "build",
       "build-external.bicep",
-      mainContent
+      mainContent,
     );
 
     writeTempFile(
       "build",
       "build-external-local-module.bicep",
-      localModuleContent
+      localModuleContent,
     );
 
     writeTempFile(
       "build",
       "build-external-nested-local-module.bicep",
-      nestedLocalModuleContent
+      nestedLocalModuleContent,
     );
 
     const exampleConfig = readFileSync(
-      pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
+      pathToExampleFile("modules" + environment.suffix, "bicepconfig.json"),
     );
     writeTempFile("build", "bicepconfig.json", exampleConfig);
 
@@ -148,27 +148,27 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
     expectBrModuleStructure(
       builder.registry,
       "build$passthrough",
-      `v1_${builder.tagSuffix}$4002000`
+      `v1_${builder.tagSuffix}$4002000`,
     );
 
     expectBrModuleStructure(
       builder.registry,
       "build$storage",
-      `v1_${builder.tagSuffix}$4002000`
+      `v1_${builder.tagSuffix}$4002000`,
     );
 
     expectFileExists(
       pathToCachedTsModuleFile(
         `${environment.templateSpecSubscriptionId}/bicep-ci/webappspec-${environment.resourceSuffix}/1.0.0`,
-        "main.json"
-      )
+        "main.json",
+      ),
     );
   });
 
   it("should build file deeply nested external modules", () => {
     const builder = new BicepRegistryReferenceBuilder(
       environment.registryUri,
-      testArea
+      testArea,
     );
 
     const passthroughRef = builder.getBicepReference("passthrough", "v1");
@@ -176,7 +176,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
       environment.environmentOverrides,
       passthroughRef,
       "modules" + environment.suffix,
-      "passthrough.bicep"
+      "passthrough.bicep",
     );
 
     const nested0 = `
@@ -213,7 +213,7 @@ module passthrough '${passthroughRef}' = {
     expectBrModuleStructure(
       builder.registry,
       "build$passthrough",
-      `v1_${builder.tagSuffix}$4002000`
+      `v1_${builder.tagSuffix}$4002000`,
     );
   });
 });

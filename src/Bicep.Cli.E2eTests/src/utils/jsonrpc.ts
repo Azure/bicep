@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import path from "path";
 import os from "os";
 import { spawn } from "child_process";
@@ -12,7 +13,8 @@ import {
 import { bicepCli } from "./fs";
 import { logStdErr } from "./log";
 
-interface VersionRequest { }
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface VersionRequest {}
 
 interface VersionResponse {
   version: string;
@@ -70,7 +72,7 @@ interface CompileResponse {
 
 interface CompileParamsRequest {
   path: string;
-  parameterOverrides: Record<string, any>;
+  parameterOverrides: Record<string, unknown>;
 }
 
 interface CompileParamsResponse {
@@ -179,8 +181,8 @@ export async function openConnection() {
 
   const [reader, writer] = await transport.onConnected();
   const connection = createMessageConnection(reader, writer, console);
-  process.on("SIGINT", connection.end);
-  process.on("SIGTERM", connection.end);
+  process.on("SIGINT", () => connection.end());
+  process.on("SIGTERM", () => connection.end());
 
   connection.listen();
   return connection;

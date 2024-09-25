@@ -17,14 +17,14 @@ describe("bicep publish", () => {
   const environment = getEnvironment();
   const builder = new BicepRegistryReferenceBuilder(
     environment.registryUri,
-    testArea
+    testArea,
   );
 
   it("should publish valid module", () => {
     const exampleFilePath = pathToExampleFile(
       "101",
       "aks" + environment.suffix,
-      "main.bicep"
+      "main.bicep",
     );
     const target = builder.getBicepReference("aks", "v1");
 
@@ -37,15 +37,21 @@ describe("bicep publish", () => {
     const exampleFilePath = pathToExampleFile(
       "101",
       "aks" + environment.suffix,
-      "main.bicep"
+      "main.bicep",
     );
     const target = builder.getBicepReferenceWithAlias(
       "publish-alias",
       "aks",
-      "v1"
+      "v1",
     );
 
-    invokingBicepCommand("publish", exampleFilePath, "--target", target, "--force")
+    invokingBicepCommand(
+      "publish",
+      exampleFilePath,
+      "--target",
+      target,
+      "--force",
+    )
       .withEnvironmentOverrides(environment.environmentOverrides)
       .shouldSucceed();
   });
@@ -54,7 +60,7 @@ describe("bicep publish", () => {
     const exampleFilePath = pathToExampleFile(
       "101",
       "aks" + environment.suffix,
-      "flawed.bicep"
+      "flawed.bicep",
     );
     const target = builder.getBicepReference("aks-flawed", "v1");
 

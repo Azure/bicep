@@ -8,7 +8,7 @@ import { homedir } from "os";
 export const bicepCli = path.resolve(
   __dirname,
   process.env.BICEP_CLI_EXECUTABLE ||
-    "../../../Bicep.Cli/bin/Debug/net8.0/bicep"
+    "../../../Bicep.Cli/bin/Debug/net8.0/bicep",
 );
 
 export const moduleCacheRoot = path.resolve(homedir(), ".bicep");
@@ -70,7 +70,7 @@ export function expectFileNotExists(filePath: string): void {
 export function writeTempFile(
   testArea: string,
   fileName: string,
-  contents: string
+  contents: string,
 ): string {
   const tempDir = pathToTempFile(testArea);
   fs.mkdirSync(tempDir, { recursive: true });
@@ -91,8 +91,8 @@ export function copyToTempFile(
   testArea: string,
   replace?: {
     values: Record<string, string>;
-    relativePath: string
-  }
+    relativePath: string;
+  },
 ) {
   const fileContents = readFileSync(path.join(baseFolder, relativePath));
 
@@ -101,5 +101,9 @@ export function copyToTempFile(
     fileContents,
   );
 
-  return writeTempFile(testArea, replace?.relativePath ?? relativePath, replacedContents);
+  return writeTempFile(
+    testArea,
+    replace?.relativePath ?? relativePath,
+    replacedContents,
+  );
 }

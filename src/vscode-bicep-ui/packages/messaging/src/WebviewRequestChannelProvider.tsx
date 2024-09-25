@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { ReactNode } from "react";
 
 import { createContext, useEffect } from "react";

@@ -28,10 +28,6 @@ export default [{
         parser: tsParser,
         ecmaVersion: 2020,
         sourceType: "module",
-
-        parserOptions: {
-            project: "./tsconfig.json",
-        },
     },
 
     rules: {
@@ -42,14 +38,10 @@ export default [{
             }
         ]
     }
-}, ...compat.extends("plugin:@typescript-eslint/recommended", "plugin:jest/all").map(config => ({
+}, ...compat.extends("plugin:@typescript-eslint/recommended").map(config => ({
     ...config,
     files: ["**/*.ts", "**/*.tsx"],
 })), {
-    files: ["**/*.ts", "**/*.tsx"],
-
-    
-}, {
     files: ["**/*.js"],
 
     languageOptions: {

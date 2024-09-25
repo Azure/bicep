@@ -19,7 +19,7 @@ const compat = new FlatCompat({
 
 export default [{
     ignores: ["out/**/*"],
-}, ...compat.extends("eslint:recommended"), {
+}, ...compat.extends("eslint:recommended", "plugin:prettier/recommended"), {
     plugins: {
         notice,
     },
@@ -41,14 +41,27 @@ export default [{
                 "templateFile": "../copyright-template.js",
             }
         ]
-    }
-}, ...compat.extends("plugin:@typescript-eslint/recommended", "plugin:jest/all").map(config => ({
+    },
+}, ...compat.extends(
+    "plugin:@typescript-eslint/recommended",
+    "plugin:jest/all",
+    "plugin:prettier/recommended",
+).map(config => ({
     ...config,
-    files: ["**/*.ts", "**/*.tsx"],
+    files: ["**/*.ts"],
 })), {
-    files: ["**/*.ts", "**/*.tsx"],
+    files: ["**/*.ts"],
 
-    
+    rules: {
+        "jest/no-hooks": "off",
+        "jest/prefer-expect-assertions": "off",
+
+        "jest/expect-expect": ["error", {
+            assertFunctionNames: ["expect*", "invokingBicepCommand"],
+        }],
+
+        "jest/prefer-importing-jest-globals": "off",
+    },
 }, {
     files: ["**/*.js"],
 
