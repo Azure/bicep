@@ -111,6 +111,9 @@ jobs:
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
           cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
 
+      - name: Check npm version
+        run: npm -v
+
       - name: npm ci (vscode-bicep-ui)
         run: npm ci
         working-directory: ./src/vscode-bicep-ui
@@ -164,6 +167,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Check npm version
+        run: npm -v
+
       - name: npm ci
         run: npm ci
         working-directory: ./src/vscode-bicep-ui
@@ -213,6 +219,9 @@ jobs:
         run: |
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
           cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
+
+      - name: Check npm version
+        run: npm -v
 
       - name: npm ci (vscode-bicep-ui)
         run: npm ci
@@ -407,6 +416,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Check npm version
+        run: npm -v
+
       - name: npm ci
         if: matrix.runTests
         run: npm ci
@@ -480,6 +492,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Check npm version
+        run: npm -v
+
       - name: npm ci
         run: npm ci
         working-directory: ./src/playground
@@ -516,6 +531,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Check npm version
+        run: npm -v
 
       - name: TextMate Grammar
         run: |
