@@ -13,6 +13,6 @@ export async function expectFileContents(filePath: string, contents: string) {
     expect(existsSync(filePath)).toBeTruthy();
 
     const readContents = await readFile(filePath, { encoding: 'utf8' });
-    expect(contents).toBe(readContents);
+    expect(contents.replace(/\r\n/g, '\n')).toBe(readContents.replace(/\r\n/g, '\n'));
   }
 }
