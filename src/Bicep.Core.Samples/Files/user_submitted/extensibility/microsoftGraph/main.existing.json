@@ -10,19 +10,19 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10094365870369225747"
+      "templateHash": "14301681087671152959"
     }
   },
   "imports": {
-    "microsoftGraph": {
+    "MicrosoftGraphBeta": {
       "provider": "MicrosoftGraph",
-      "version": "1.0.0"
+      "version": "0.1.8-preview"
     }
   },
   "resources": {
     "resourceApp": {
       "existing": true,
-      "import": "microsoftGraph",
+      "import": "MicrosoftGraphBeta",
       "type": "Microsoft.Graph/applications@beta",
       "properties": {
         "uniqueName": "resourceApp"
@@ -30,7 +30,7 @@
     },
     "group": {
       "existing": true,
-      "import": "microsoftGraph",
+      "import": "MicrosoftGraphBeta",
       "type": "Microsoft.Graph/applications@beta",
       "properties": {
         "uniqueName": "myGroup"
