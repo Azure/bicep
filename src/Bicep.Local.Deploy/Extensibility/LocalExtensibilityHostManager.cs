@@ -190,9 +190,9 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
             {
                 await extension.DisposeAsync();
             }
-            catch
+            catch (Exception ex)
             {
-                // TODO: handle errors shutting down processes gracefully
+                Trace.WriteLine($"Failed to gracefully shut down extension '{extension.BinaryPath}'. Exception: {ex}");
             }
         }));
     }

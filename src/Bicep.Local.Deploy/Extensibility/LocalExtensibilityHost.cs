@@ -30,6 +30,8 @@ public static class LocalExtensibilityOperationResponseJsonDefaults
 
 public abstract class LocalExtensibilityHost : IAsyncDisposable
 {
+    public abstract Uri BinaryPath { get; }
+
     public abstract Task<LocalExtensibilityOperationResponse> Delete(ResourceReference request, CancellationToken cancellationToken);
 
     public abstract Task<LocalExtensibilityOperationResponse> Get(ResourceReference request, CancellationToken cancellationToken);

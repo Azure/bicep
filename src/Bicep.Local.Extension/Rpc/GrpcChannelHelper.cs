@@ -15,23 +15,16 @@ namespace Bicep.Local.Extension.Rpc;
 
 public static class GrpcChannelHelper
 {
-    public class UnixDomainSocketsConnectionFactory
+    public static GrpcChannel CreateDomainSocketChannel(string socketPath)
     {
-        private readonly EndPoint endPoint;
-
-        public UnixDomainSocketsConnectionFactory(EndPoint endPoint)
+        static async ValueTask<Stream> connectSocket(string socketPath, CancellationToken cancellationToken)
         {
-            this.endPoint = endPoint;
-        }
-
-        public async ValueTask<Stream> ConnectAsync(SocketsHttpConnectionContext _,
-            CancellationToken cancellationToken = default)
-        {
+            var udsEndPoint = new UnixDomainSocketEndPoint(socketPath);
             var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
 
             try
             {
-                await socket.ConnectAsync(this.endPoint, cancellationToken).ConfigureAwait(false);
+                await socket.ConnectAsync(udsEndPoint, cancellationToken).ConfigureAwait(false);
                 return new NetworkStream(socket, true);
             }
             catch
@@ -40,15 +33,10 @@ public static class GrpcChannelHelper
                 throw;
             }
         }
-    }
 
-    public static GrpcChannel CreateDomainSocketChannel(string socketPath)
-    {
-        var udsEndPoint = new UnixDomainSocketEndPoint(socketPath);
-        var connectionFactory = new UnixDomainSocketsConnectionFactory(udsEndPoint);
         var socketsHttpHandler = new SocketsHttpHandler
         {
-            ConnectCallback = connectionFactory.ConnectAsync
+            ConnectCallback = (context, cancellationToken) => connectSocket(socketPath, cancellationToken),
         };
 
         // The URL is not used, but it must be a valid URI.
@@ -86,6 +74,7 @@ public static class GrpcChannelHelper
             ConnectCallback = (context, cancellationToken) => connectPipe(pipeName, cancellationToken),
         };
 
+        // The URL is not used, but it must be a valid URI.
         return GrpcChannel.ForAddress("http://localhost", new GrpcChannelOptions
         {
             HttpHandler = socketsHttpHandler
