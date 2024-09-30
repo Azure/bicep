@@ -128,11 +128,11 @@
       },
       "Microsoft.VisualStudio.Shell.Interop": {
         "type": "Direct",
-        "requested": "[17.10.40170, )",
-        "resolved": "17.10.40170",
-        "contentHash": "Paqp12+psmGEdYifPdNiE057DbzVYl2DXjSCrgwrjJ2kGzWlURP9N6sFbbmWyLc7A0x3luJHRGM6n/24+hZvMw==",
+        "requested": "[17.11.40262, )",
+        "resolved": "17.11.40262",
+        "contentHash": "qEAAgCORAzqATEfDCPhUxo0RCL3oS/I+yJGGKBwUhX+D6I5mTURsnAeYKJjzRrggUmCSqLehpDKEXyKnygjFdA==",
         "dependencies": {
-          "Microsoft.VisualStudio.Interop": "17.10.40170"
+          "Microsoft.VisualStudio.Interop": "17.11.40262"
         }
       },
       "Microsoft.VisualStudio.Telemetry": {
