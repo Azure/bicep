@@ -1799,9 +1799,23 @@ namespace Bicep.Core.Diagnostics
                 "BCP406",
                 $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
 
-            public Diagnostic MicrosoftGraphBuiltinDeprecatedSoon() => CoreWarning(
+            public Diagnostic MicrosoftGraphBuiltinDeprecatedSoon(ExtensionDeclarationSyntax syntax)
+            {
+                var msGraphRegistryPath = "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview";
+                var codeFix = new CodeFix(
+                    $"Replace built-in extension \'microsoftGraph\' with dynamic types registry path",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax.SpecificationString.Span, $"\'{msGraphRegistryPath}\'"));
+
+                return CoreWarning(
                 "BCP407",
-                $"Extension \"microsoftGraph\" is deprecated. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes");
+                $"Built-in extension \"microsoftGraph\" is deprecated. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes")
+                with
+                {
+                    Fixes = [codeFix]
+                };
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
