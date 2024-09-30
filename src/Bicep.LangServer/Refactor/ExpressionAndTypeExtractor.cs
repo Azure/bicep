@@ -34,10 +34,10 @@ namespace Bicep.LanguageServer.Refactor;
 public class ExpressionAndTypeExtractor
 {
     private const int MaxExpressionLengthInCodeAction = 45;
-    private static Regex regexCompactWhitespace = new("\\s+", RegexOptions.Compiled);
+    private static readonly Regex regexCompactWhitespace = new("\\s+", RegexOptions.Compiled);
 
-    private CompilationContext compilationContext;
-    private SemanticModel semanticModel;
+    private readonly CompilationContext compilationContext;
+    private readonly SemanticModel semanticModel;
     private readonly Uri documentUri;
 
     private record ExtractionContext(

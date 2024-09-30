@@ -180,7 +180,7 @@ public static class TypeStringifier
                 // strict: {} with additional properties allowed should be "object" not "{}"
                 // medium: Bicep infers {} with no allowable members from the literal "{}", the user more likely wants to allow members
                 if (writeableProperties.Length == 0 &&
-                    (strictness == Strictness.Medium || !IsObjectLiteral(objectType)))
+                    (strictness == Strictness.Medium || !IsEmptyObjectLiteral(objectType)))
                 {
                     return "object";
                 }
@@ -281,7 +281,7 @@ public static class TypeStringifier
         unionType.Members.Where(m => m.Type is not NullType).Select(tr => tr.Type);
 
     // True if "{}" (which allows no additional properties) instead of "object"
-    private static bool IsObjectLiteral(ObjectType objectType)
+    private static bool IsEmptyObjectLiteral(ObjectType objectType)
     {
         return objectType.Properties.Count == 0 && !objectType.HasExplicitAdditionalPropertiesType;
     }
