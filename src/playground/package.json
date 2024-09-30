@@ -38,7 +38,7 @@
     "webpack-dev-server": "^5.1.0"
   },
   "dependencies": {
-    "@microsoft/applicationinsights-web": "^3.3.2",
+    "@microsoft/applicationinsights-web": "^3.3.3",
     "bootstrap": "^5.3.3",
     "monaco-editor": "^0.52.0",
     "pako": "^2.1.0",
