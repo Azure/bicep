@@ -918,7 +918,7 @@ namespace Bicep.Core.TypeSystem
 
                 if (LanguageConstants.IdentifierComparer.Equals(namespaceType.Name, MicrosoftGraphNamespaceType.BuiltInName))
                 {
-                    diagnostics.Write(syntax, x => x.MicrosoftGraphBuiltinDeprecatedSoon());
+                    diagnostics.Write(syntax.SpecificationString, x => x.MicrosoftGraphBuiltinDeprecatedSoon(syntax));
                 }
 
                 return namespaceType;
