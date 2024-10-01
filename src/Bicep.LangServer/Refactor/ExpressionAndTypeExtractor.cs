@@ -222,7 +222,7 @@ public class ExpressionAndTypeExtractor
         }
 
         var parentStatementPosition = extractionContext.ParentStatement.Span.Position;
-        var declarationInsertionOffset = FindOffsetToInsertNewDeclarationOfType(compilationContext, parentStatementPosition, declarationStatementSyntaxType);
+        var declarationInsertionOffset = FindOffsetToInsertNewDeclaration(compilationContext, parentStatementPosition, declarationStatementSyntaxType);
         var declarationInsertionPosition = TextCoordinateConverter.GetPosition(compilationContext.LineStarts, declarationInsertionOffset);
 
         var newName = FindUnusedValidName(extractionContext, defaultNoncontextualName);
@@ -345,7 +345,7 @@ public class ExpressionAndTypeExtractor
 
     // Finds a suitable location to create a new declaration, putting it near existing declarations of that type
     //   *above the extraction point*, if there are any.
-    private int FindOffsetToInsertNewDeclarationOfType(CompilationContext compilationContext, int extractionOffset, Type declarationSyntaxType)
+    private int FindOffsetToInsertNewDeclaration(CompilationContext compilationContext, int extractionOffset, Type declarationSyntaxType)
     {
         ImmutableArray<int> lineStarts = compilationContext.LineStarts;
 
