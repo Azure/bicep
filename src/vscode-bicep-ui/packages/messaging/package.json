@@ -12,7 +12,7 @@
     "build": "tsc && vite build",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "peerDependencies": {
     "react": "^18.3.1"

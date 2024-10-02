@@ -14,7 +14,10 @@ import { EnvironmentOverrides } from "./types";
 export class BicepRegistryReferenceBuilder {
   readonly tagSuffix: string;
 
-  constructor(readonly registry: string, readonly testArea: string) {
+  constructor(
+    readonly registry: string,
+    readonly testArea: string,
+  ) {
     const runId = uuidv4();
 
     // round down to full hour
@@ -39,7 +42,7 @@ export class BicepRegistryReferenceBuilder {
   public getBicepReferenceWithAlias(
     alias: string,
     name: string,
-    tagPrefix: string
+    tagPrefix: string,
   ): string {
     const tag = this.getTag(tagPrefix);
     return `br/${alias}:${name}:${tag}`;

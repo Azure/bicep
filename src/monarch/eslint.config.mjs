@@ -44,11 +44,20 @@ export default [{
     }
 }, ...compat.extends("plugin:@typescript-eslint/recommended", "plugin:jest/all").map(config => ({
     ...config,
-    files: ["**/*.ts", "**/*.tsx"],
+    files: ["**/*.ts"],
 })), {
-    files: ["**/*.ts", "**/*.tsx"],
+    files: ["**/*.ts"],
 
-    
+    rules: {
+        "jest/no-hooks": "off",
+        "jest/prefer-expect-assertions": "off",
+
+        "jest/expect-expect": ["error", {
+            assertFunctionNames: ["expect*"],
+        }],
+
+        "jest/prefer-importing-jest-globals": "off",
+    },
 }, {
     files: ["**/*.js"],
 

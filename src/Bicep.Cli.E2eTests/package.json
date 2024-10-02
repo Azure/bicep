@@ -2,6 +2,8 @@
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.11.1",
     "@types/cross-spawn": "^6.0.6",
     "@types/jest": "^27.4.1",
     "@types/minimist": "^1.2.5",
@@ -13,9 +15,10 @@
     "cross-spawn": "^7.0.3",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^28.8.3",
+    "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.9.0",
     "jest": "^27.5.1",
     "jest-runner-groups": "^2.2.0",
     "prettier": "^3.3.3",
@@ -29,7 +32,7 @@
     "test": "jest --group=CI --runInBand",
     "test:live:prod": "cross-env TEST_ENVIRONMENT=prod jest --group=live --runInBand",
     "test:live:ff": "cross-env TEST_ENVIRONMENT=fairfax jest --group=live --runInBand",
-    "lint": "eslint src --ext ts",
-    "lint:fix": "eslint src --ext ts --fix"
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix"
   }
 }

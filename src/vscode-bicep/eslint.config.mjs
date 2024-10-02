@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import notice from "eslint-plugin-notice";
+import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
-import globals from "globals";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
@@ -18,19 +18,34 @@ const compat = new FlatCompat({
 });
 
 export default [{
-    ignores: ["out/**/*"],
-}, ...compat.extends("eslint:recommended"), {
+    ignores: [
+        "out/**/*",
+        "**/.eslintrc.cjs",
+        "**/webpack.config.ts",
+        "**/jest.config.*.js",
+    ],
+}, ...compat.extends(
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react/jsx-runtime",
+    "plugin:jest/recommended",
+    "plugin:jest/style",
+), {
+    files: ["**/*.ts", "**/*.tsx"],
+    
     plugins: {
         notice,
+        "@typescript-eslint": typescriptEslint,
     },
 
     languageOptions: {
         parser: tsParser,
-        ecmaVersion: 2020,
-        sourceType: "module",
+        ecmaVersion: 5,
+        sourceType: "script",
 
         parserOptions: {
-            project: "./tsconfig.json",
+            project: true,
         },
     },
 
@@ -41,20 +56,11 @@ export default [{
                 "templateFile": "../copyright-template.js",
             }
         ]
-    }
-}, ...compat.extends("plugin:@typescript-eslint/recommended", "plugin:jest/all").map(config => ({
-    ...config,
-    files: ["**/*.ts", "**/*.tsx"],
-})), {
-    files: ["**/*.ts", "**/*.tsx"],
+    },
 
-    
-}, {
-    files: ["**/*.js"],
-
-    languageOptions: {
-        globals: {
-            ...globals.node,
+    settings: {
+        react: {
+            version: "detect",
         },
     },
 }];
