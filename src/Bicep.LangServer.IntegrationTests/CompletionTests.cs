@@ -40,7 +40,7 @@ using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
-namespace Bicep.LangServer.IntegrationTests
+namespace Bicep.LangServer.IntegrationTests.Completions
 {
     [TestClass]
     public class CompletionTests
