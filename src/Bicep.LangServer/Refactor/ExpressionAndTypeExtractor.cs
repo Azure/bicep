@@ -54,6 +54,21 @@ public class ExpressionAndTypeExtractor
         Type,
     }
 
+    private record LineContentType
+    {
+        public LineContentType((bool hasContent, bool hasComments) checkResult)
+        {
+            HasContent = checkResult.hasContent;
+            HasComments = checkResult.hasComments;
+        }
+
+        public bool HasContent { get; init; }
+        public bool HasComments { get; init; }
+        public bool IsEmpty => !HasContent && !HasComments;
+        public bool IsNotEmpty => !IsEmpty;
+        public bool HasCommentsOnly => !HasContent && HasComments;
+    }
+
     public ExpressionAndTypeExtractor(CompilationContext compilationContext, SemanticModel semanticModel, Uri documentUri)
     {
         this.compilationContext = compilationContext;
@@ -222,7 +237,7 @@ public class ExpressionAndTypeExtractor
         }
 
         var parentStatementPosition = extractionContext.ParentStatement.Span.Position;
-        var declarationInsertionOffset = FindOffsetToInsertNewDeclaration(compilationContext, parentStatementPosition, declarationStatementSyntaxType);
+        var (declarationInsertionOffset, insertNewlineBefore, insertNewlineAfter) = FindOffsetToInsertNewDeclaration(compilationContext, extractionContext.ParentStatement, parentStatementPosition, declarationStatementSyntaxType);
         var declarationInsertionPosition = TextCoordinateConverter.GetPosition(compilationContext.LineStarts, declarationInsertionOffset);
 
         var newName = FindUnusedValidName(extractionContext, defaultNoncontextualName);
@@ -238,6 +253,14 @@ public class ExpressionAndTypeExtractor
         };
 
         var declarationTextLines = PrettyPrintDeclaration(declarationSyntax).TrimEnd() + NewLine;
+        if (insertNewlineBefore)
+        {
+            declarationTextLines = NewLine + declarationTextLines;
+        }
+        if (insertNewlineAfter)
+        {
+            declarationTextLines += NewLine;
+        }
 
         // Declaration text can have leading nodes. Find actual location of the declaration and identifier inside the printed lines
         //   so we know where to request a rename.
@@ -262,7 +285,7 @@ public class ExpressionAndTypeExtractor
         CodeReplacement[] replacements = [new CodeReplacement(new TextSpan(declarationInsertionOffset, 0), declarationTextLines)];
         if (kind != ExtractionKind.Type)
         {
-            replacements = [..replacements, new CodeReplacement(extractionContext.ExpressionSyntax.Span, newName)];
+            replacements = [.. replacements, new CodeReplacement(extractionContext.ExpressionSyntax.Span, newName)];
         }
         return CodeFixWithCommand.CreateWithRenameCommand(
             title,
@@ -345,45 +368,131 @@ public class ExpressionAndTypeExtractor
 
     // Finds a suitable location to create a new declaration, putting it near existing declarations of that type
     //   *above the extraction point*, if there are any.
-    private int FindOffsetToInsertNewDeclaration(CompilationContext compilationContext, int extractionOffset, Type declarationSyntaxType)
+    private (int offset, bool insertNewlineBefore, bool insertNewlineAfter) FindOffsetToInsertNewDeclaration(CompilationContext compilationContext, StatementSyntax extractionStatement, int extractionOffset, Type declarationSyntaxType)
     {
         ImmutableArray<int> lineStarts = compilationContext.LineStarts;
 
-        var extractionLine = GetPosition(extractionOffset).line;
-        var startSearchingAtLine = extractionLine - 1;
+        var extractionLine = TextCoordinateConverter.GetPosition(lineStarts, extractionOffset).line;
 
-        for (int line = startSearchingAtLine; line >= 0; --line)
+        var existingDeclarationStatement = compilationContext.ProgramSyntax.Children.OfType<StatementSyntax>()
+            .Where(s => s.GetType() == declarationSyntaxType)
+            .Where(s => s.Span.Position < extractionOffset)
+            .OrderByDescending(s => s.Span.Position)
+            .FirstOrDefault();
+        if (existingDeclarationStatement is { })
         {
-            var existingDeclarationStatement = StatementOfTypeAtLine(line);
-            if (existingDeclarationStatement != null)
-            {
-                // Insert on the line right after the existing declaration
-                var insertionLine = line + 1;
+            // Insert after the existing declaration of the same type
+            int existingDeclarationLine = TextCoordinateConverter.GetPosition(lineStarts, existingDeclarationStatement.GetEndPosition()).line;
+            var insertionLine = existingDeclarationLine + 1;
 
-                // Is there a blank line above this existing statement that we found (excluding its leading nodes)?
-                //   If so, assume user probably wants one after as well.
-                var beginningOffsetOfExistingDeclaration = existingDeclarationStatement.Span.Position;
-                var beginningLineOfExistingDeclaration =
-                    GetPosition(beginningOffsetOfExistingDeclaration)
-                    .line;
-
-                return GetOffset(insertionLine, 0);
-            }
+            // Is there a blank line above this existing statement that we found (excluding its leading nodes/comments)?
+            //   If so, put one before the new declaration as well.
+            var (addBlankBefore, addBlankAfter) = ShouldAddBlankLines(existingDeclarationStatement);
+            return (TextCoordinateConverter.GetOffset(lineStarts, insertionLine, 0), addBlankBefore, addBlankAfter);
         }
 
         // If no existing declarations of the desired type, insert right before the statement containing the extraction expression
-        return GetOffset(extractionLine, 0);
+        var extractionStatementFirstLine = GetFirstLineOfStatementIncludingComments(compilationContext, extractionStatement);
+        var extractionLineHasNewlineBefore = IsFirstLine(extractionStatementFirstLine) || CheckLineContent(extractionStatementFirstLine - 1).IsEmpty;
+        return (TextCoordinateConverter.GetOffset(lineStarts, extractionLine, 0), false, extractionLineHasNewlineBefore);
+    }
 
-        StatementSyntax? StatementOfTypeAtLine(int line)
+    private bool IsFirstLine(int line) => line == 0;
+
+    private bool IsLastLine(int line) => line >= compilationContext.LineStarts.Length - 1;
+
+    private LineContentType CheckLineContent(int line) =>
+        new(CheckLineContent(compilationContext.LineStarts, compilationContext.ProgramSyntax, line));
+
+    public static (bool hasContent, bool hasComments) CheckLineContent(IReadOnlyList<int> lineStarts, SyntaxBase programSyntax, int line)
+    {
+        var lineSpan = TextCoordinateConverter.GetLineSpan(lineStarts, programSyntax.GetEndPosition(), line);
+        var visitor = new CheckContentVisitor(lineSpan);
+        programSyntax.Accept(visitor);
+        return (visitor.HasContent, visitor.HasComments);
+    }
+
+    private static int GetFirstLineOfStatementIncludingComments(CompilationContext compilationContext, StatementSyntax statementSyntax) =>
+        GetFirstLineOfStatementIncludingComments(compilationContext.LineStarts, compilationContext.ProgramSyntax, statementSyntax);
+
+    public static int GetFirstLineOfStatementIncludingComments(IReadOnlyList<int> lineStarts, ProgramSyntax programSyntax, StatementSyntax statementSyntax)
+    {
+        var statementStartLine = TextCoordinateConverter.GetPosition(lineStarts, statementSyntax.Span.Position).line; // Includes trivia but not comments
+
+        for (int line = statementStartLine; line >= 1; --line)
         {
-            var lineOffset = GetOffset(line, 0);
-            var statementAtLine = SyntaxMatcher.FindNodesSpanningRange(compilationContext.ProgramSyntax, lineOffset, lineOffset)
-                .OfType<StatementSyntax>()
-                .FirstOrDefault(s => s.GetType() == declarationSyntaxType);
-            return statementAtLine;
+            var (hasContent, hasComments) = CheckLineContent(lineStarts, programSyntax, line - 1);
+            if (hasComments && !hasContent)
+            {
+                continue;
+            }
+            else
+            {
+                return line;
+            }
         }
 
-        (int line, int character) GetPosition(int offset) => TextCoordinateConverter.GetPosition(lineStarts, offset);
-        int GetOffset(int line, int character) => TextCoordinateConverter.GetOffset(lineStarts, line, character);
+        return 0;
+    }
+
+    private static int GetLastLineOfStatement(CompilationContext compilationContext, StatementSyntax statementSyntax)
+    {
+        return TextCoordinateConverter.GetPosition(compilationContext.LineStarts, statementSyntax.GetEndPosition()).line;
+    }
+
+    private (bool addBefore, bool addAfter) ShouldAddBlankLines(StatementSyntax statementSyntax)
+    {
+        bool addBefore = false;
+        bool addAfter = false;
+
+        var startingLine = GetFirstLineOfStatementIncludingComments(compilationContext, statementSyntax);
+        var endingLine = GetLastLineOfStatement(compilationContext, statementSyntax);
+
+        bool? hasBlankLineBefore = IsFirstLine(startingLine) ? null : CheckLineContent(startingLine - 1).IsEmpty;
+        bool? hasBlankLineAfter = IsLastLine(endingLine) ? null : CheckLineContent(endingLine + 1).IsEmpty;
+
+        bool existingDeclarationUsesBlankLines = hasBlankLineBefore ?? hasBlankLineAfter ?? true;
+        addBefore = existingDeclarationUsesBlankLines;
+        addAfter = hasBlankLineAfter ?? true;
+
+        // Don't add another after if there's already one
+        addAfter = addAfter && (IsLastLine(endingLine) || CheckLineContent(endingLine + 1).IsNotEmpty);
+
+        return (addBefore, addAfter);
+    }
+
+    private sealed class CheckContentVisitor : CstVisitor
+    {
+        private readonly TextSpan span;
+
+        public CheckContentVisitor(TextSpan span)
+        {
+            this.span = span;
+        }
+
+        public bool HasContent { get; private set; } = false;
+        public bool HasComments { get; private set; } = false;
+        public bool HasContentOrComments => HasContent || HasComments;
+
+        public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
+        {
+            if (TextSpan.AreOverlapping(span, syntaxTrivia.Span))
+            {
+                if (syntaxTrivia.Type == SyntaxTriviaType.SingleLineComment || syntaxTrivia.Type == SyntaxTriviaType.MultiLineComment)
+                {
+                    HasComments = true;
+                }
+            }
+        }
+
+        protected override void VisitInternal(SyntaxBase node)
+        {
+            if (TextSpan.AreOverlapping(span, node.Span) && node is Token token && token.Text.Trim().Length > 0)
+            {
+                HasContent = true;
+            }
+
+            base.VisitInternal(node);
+        }
     }
 }
