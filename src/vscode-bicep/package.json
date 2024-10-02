@@ -762,7 +762,7 @@
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@types/cytoscape": "^3.21.7",
     "@types/fs-extra": "^11.0.4",
-    "@types/jest": "^29.5.12",
+    "@types/jest": "^29.5.13",
     "@types/mocha": "^10.0.7",
     "@types/node": "^22.5.4",
     "@types/react": "^18.3.5",
