@@ -476,7 +476,7 @@ public class ExpressionAndTypeExtractor
 
         public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
         {
-            if (TextSpan.AreOverlapping(span, syntaxTrivia.Span))
+            if (!HasComments && TextSpan.AreOverlapping(span, syntaxTrivia.Span))
             {
                 if (syntaxTrivia.Type == SyntaxTriviaType.SingleLineComment || syntaxTrivia.Type == SyntaxTriviaType.MultiLineComment)
                 {
@@ -487,7 +487,12 @@ public class ExpressionAndTypeExtractor
 
         protected override void VisitInternal(SyntaxBase node)
         {
-            if (TextSpan.AreOverlapping(span, node.Span) && node is Token token && token.Text.Trim().Length > 0)
+            if ((HasComments && HasContent) || !TextSpan.AreOverlapping(span, node.GetSpanIncludingTrivia()))
+            {
+                return;
+            }
+
+            if (!HasContent && node is Token token && token.Text.Trim().Length > 0)
             {
                 HasContent = true;
             }
