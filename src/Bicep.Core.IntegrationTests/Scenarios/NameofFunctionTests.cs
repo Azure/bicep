@@ -241,7 +241,7 @@ output name string = nameof(sqlServer::databases[100].properties.collation)
         }
 
         [TestMethod]
-        public void UsingNameofFunction_ShouldNotGenerateDependsOnEntries()
+        public void UsingNameofFunction_ShouldGenerateDependsOnEntries()
         {
             var result = CompilationHelper.Compile("""
 resource myStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
@@ -257,7 +257,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
             {
                 result.Should().NotHaveAnyCompilationBlockingDiagnostics();
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Sql/servers')].name", "myStorage", "Nameof function should emit static string during compilation");
-                result.Template.Should().NotHaveValueAtPath("$.resources[?(@.type == 'Microsoft.Sql/servers')].dependsOn", "Depends on should not be generated for nameof function usage");
+                result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.Sql/servers')].dependsOn[0]", "[resourceId('Microsoft.Storage/storageAccounts', 'storage123')]");
             }
         }
 
