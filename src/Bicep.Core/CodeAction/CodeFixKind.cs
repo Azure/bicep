@@ -7,5 +7,6 @@ namespace Bicep.Core.CodeAction
     {
         QuickFix,
         Refactor,
+        RefactorExtract,
     }
 }

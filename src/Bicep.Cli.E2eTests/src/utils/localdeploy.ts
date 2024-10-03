@@ -27,6 +27,7 @@ function execDotnet(args: string[], envOverrides?: NodeJS.ProcessEnv) {
       ...(envOverrides ?? {}),
     },
   });
+
   expect(result.status).toBe(0);
 }
 

@@ -50,7 +50,7 @@ class BicepCommandTestRunner {
   constructor(private readonly args: string[]) {}
 
   withEnvironmentOverrides(
-    environmentOverrides: EnvironmentOverrides
+    environmentOverrides: EnvironmentOverrides,
   ): BicepCommandTestRunner {
     this.environmentOverrides = environmentOverrides;
     return this;
@@ -64,9 +64,10 @@ class BicepCommandTestRunner {
 
     return new StdoutAssertionBuilder(result.stdout);
   }
-  
+
   shouldFail(): StderrAssertionBuilder {
     const result = this.runCommand();
+
     expect(result.status).toBe(1);
 
     return new StderrAssertionBuilder(result.stderr);
@@ -81,9 +82,10 @@ class BicepCommandTestRunner {
     });
 
     expect(result).toBeTruthy();
+
     if (result.status == null) {
       throw new Error(
-        `Process terminated prematurely. result = ${JSON.stringify(result)}`
+        `Process terminated prematurely. result = ${JSON.stringify(result)}`,
       );
     }
 

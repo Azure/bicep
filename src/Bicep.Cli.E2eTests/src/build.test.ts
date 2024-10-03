@@ -26,6 +26,7 @@ describe("bicep build", () => {
     expectFileExists(jsonFilePath);
 
     const jsonContents = readFileSync(jsonFilePath);
+
     expect(jsonContents.length).toBeGreaterThan(0);
 
     // Building with --stdout should emit consistent result.

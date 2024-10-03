@@ -81,7 +81,7 @@ output name string = nameof(obj[prop])
             {
                 result.Should()
                     .NotGenerateATemplate().And
-                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "The \"nameof\" function can only be used with an expression which has a name.")]);
+                    .HaveDiagnostics([("BCP408", DiagnosticLevel.Error, "The \"nameof\" function can only be used with an expression which has a name.")]);
             }
         }
 
@@ -97,7 +97,7 @@ output name string = nameof(arr[0])
             {
                 result.Should()
                     .NotGenerateATemplate().And
-                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "The \"nameof\" function can only be used with an expression which has a name.")]);
+                    .HaveDiagnostics([("BCP408", DiagnosticLevel.Error, "The \"nameof\" function can only be used with an expression which has a name.")]);
             }
         }
 
@@ -277,7 +277,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
             {
                 result.Should()
                     .NotGenerateATemplate().And
-                    .HaveDiagnostics([("BCP407", DiagnosticLevel.Error, "The \"nameof\" function can only be used with an expression which has a name.")]);
+                    .HaveDiagnostics([("BCP408", DiagnosticLevel.Error, "The \"nameof\" function can only be used with an expression which has a name.")]);
             }
         }
     }

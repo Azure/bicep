@@ -26,6 +26,7 @@ describe("bicep local-deploy", () => {
     testArea,
   );
 
+  // eslint-disable-next-line jest/require-hook
   itif(platformSupportsLocalDeploy())(
     "should publish and run an extension published to a registry",
     () => {

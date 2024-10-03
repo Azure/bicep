@@ -16,7 +16,7 @@
     "build": "tsc && vite build",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "peerDependencies": {
     "framer-motion": "^11.3.24",
@@ -25,32 +25,32 @@
     "styled-components": "^6.1.11"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^8.2.8",
+    "@storybook/addon-essentials": "^8.3.4",
     "@storybook/addon-interactions": "^8.2.9",
     "@storybook/addon-links": "^8.2.8",
     "@storybook/addon-themes": "^8.2.9",
     "@storybook/blocks": "^8.2.9",
     "@storybook/react": "^8.2.2",
-    "@storybook/react-vite": "^8.2.9",
+    "@storybook/react-vite": "^8.3.2",
     "@storybook/test": "^8.2.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.1",
-    "@types/react": "^18.3.3",
+    "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "@vitest/coverage-v8": "^2.0.5",
+    "@vitest/coverage-v8": "^2.1.1",
     "@vscode/codicons": "^0.0.36",
     "eslint-plugin-storybook": "^0.8.0",
     "eslint-plugin-testing-library": "^6.3.0",
     "happy-dom": "^14.12.3",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "storybook": "^8.2.8",
+    "storybook": "^8.3.0",
     "styled-components": "^6.1.12",
-    "vite": "^5.4.2",
+    "vite": "^5.4.7",
     "vite-plugin-dts": "^4.0.2",
     "vite-plugin-lib-inject-css": "^2.1.1",
     "vite-plugin-svgr": "^4.2.0",
-    "vitest": "^2.0.2"
+    "vitest": "^2.1.1"
   }
 }

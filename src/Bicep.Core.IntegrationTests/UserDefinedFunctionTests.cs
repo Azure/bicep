@@ -45,6 +45,26 @@ func testFunc(baz string) string => '${foo}-${bar}-${baz}-${getBaz()}'
     }
 
     [TestMethod]
+    public void User_defined_functions_import_variable()
+    {
+        var result = CompilationHelper.Compile([("exports.bicep", @"
+    @export()
+    var greeting = 'Hello {0}!'
+"),
+            ("main.bicep", @"
+import { greeting } from './exports.bicep'
+func greet(name string) string =>  format(greeting, name)
+
+output outputFoo string = greet('userName')
+")]);
+
+        result.Should().NotHaveAnyDiagnostics();
+        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+
+        evaluated.Should().HaveValueAtPath("$.outputs['outputFoo'].value", "Hello userName!");
+    }
+
+    [TestMethod]
     public void Outer_scope_symbolic_variables_are_allowed()
     {
         var result = CompilationHelper.Compile(@"

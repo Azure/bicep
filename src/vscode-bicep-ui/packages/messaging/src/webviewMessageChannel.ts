@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { WebviewApi } from "vscode-webview";
 
 export interface WebviewRequestMessage {
