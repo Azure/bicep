@@ -26,7 +26,7 @@
     "@vitest/coverage-v8": "^2.1.1",
     "happy-dom": "^14.12.3",
     "vite": "^5.4.7",
-    "vite-plugin-dts": "^4.0.2",
+    "vite-plugin-dts": "^4.2.3",
     "vitest": "^2.1.1"
   }
 }
