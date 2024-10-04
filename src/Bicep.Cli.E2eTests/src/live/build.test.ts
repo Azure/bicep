@@ -7,6 +7,7 @@
  * @group live
  */
 
+import { describe, it, beforeEach } from "vitest";
 import {
   BicepRegistryReferenceBuilder,
   expectBrModuleStructure,

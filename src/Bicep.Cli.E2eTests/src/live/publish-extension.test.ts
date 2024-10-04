@@ -7,6 +7,7 @@
  * @group live
  */
 
+import { describe, it } from "vitest";
 import path from "path";
 import { BicepRegistryReferenceBuilder } from "../utils/br";
 import { invokingBicepCommand } from "../utils/command";

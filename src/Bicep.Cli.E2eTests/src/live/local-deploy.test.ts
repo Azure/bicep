@@ -7,6 +7,7 @@
  * @group live
  */
 
+import { describe } from "vitest";
 import os from "os";
 import { invokingBicepCommand } from "../utils/command";
 import { copyToTempFile, pathToExampleFile, pathToTempFile } from "../utils/fs";

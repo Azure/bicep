@@ -24,8 +24,8 @@
   },
   "scripts": {
     "test": "vitest local/",
-    "test:live:prod": "cross-env TEST_ENVIRONMENT=prod jest --group=live --runInBand",
-    "test:live:ff": "cross-env TEST_ENVIRONMENT=fairfax jest --group=live --runInBand",
+    "test:live:prod": "cross-env TEST_ENVIRONMENT=prod vitest live/",
+    "test:live:ff": "cross-env TEST_ENVIRONMENT=fairfax vitest live/",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   }
