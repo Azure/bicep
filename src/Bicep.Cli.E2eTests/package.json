@@ -5,6 +5,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.11.1",
+    "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@types/cross-spawn": "^6.0.6",
     "@types/eslint__js": "^8.42.3",
     "@types/uuid": "^10.0.0",
@@ -26,6 +27,7 @@
     "test:live:prod": "cross-env TEST_ENVIRONMENT=prod vitest live/",
     "test:live:ff": "cross-env TEST_ENVIRONMENT=fairfax vitest live/",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{js,ts,md}\""
   }
 }

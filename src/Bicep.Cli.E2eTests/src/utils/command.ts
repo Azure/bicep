@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 import spawn from "cross-spawn";
-
 import { expect } from "vitest";
 import { bicepCli } from "./fs";
-import { logStdErr } from "./log";
 import { EnvironmentOverrides } from "./liveTestEnvironments";
+import { logStdErr } from "./log";
 
 class StdoutAssertionBuilder {
   constructor(private readonly stdout: string) {}
@@ -49,9 +48,7 @@ class BicepCommandTestRunner {
 
   constructor(private readonly args: string[]) {}
 
-  withEnvironmentOverrides(
-    environmentOverrides: EnvironmentOverrides,
-  ): BicepCommandTestRunner {
+  withEnvironmentOverrides(environmentOverrides: EnvironmentOverrides): BicepCommandTestRunner {
     this.environmentOverrides = environmentOverrides;
     return this;
   }
@@ -84,17 +81,13 @@ class BicepCommandTestRunner {
     expect(result).toBeTruthy();
 
     if (result.status == null) {
-      throw new Error(
-        `Process terminated prematurely. result = ${JSON.stringify(result)}`,
-      );
+      throw new Error(`Process terminated prematurely. result = ${JSON.stringify(result)}`);
     }
 
     return result;
   }
 }
 
-export function invokingBicepCommand(
-  ...args: string[]
-): BicepCommandTestRunner {
+export function invokingBicepCommand(...args: string[]): BicepCommandTestRunner {
   return new BicepCommandTestRunner(args);
 }

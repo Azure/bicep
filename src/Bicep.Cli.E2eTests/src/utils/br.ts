@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { v4 as uuidv4 } from "uuid";
-import { expectFileExists, pathToCachedBrModuleFile } from "./fs";
 import path from "path";
+import { v4 as uuidv4 } from "uuid";
 import { invokingBicepCommand } from "./command";
-import { pathToExampleFile } from "./fs";
+import { expectFileExists, pathToCachedBrModuleFile, pathToExampleFile } from "./fs";
 import { EnvironmentOverrides } from "./liveTestEnvironments";
 
 // The modules published from live tests to our test ACR instances need to be periodically
@@ -39,11 +38,7 @@ export class BicepRegistryReferenceBuilder {
     return `br:${this.registry}/${this.getRepository(name)}:${tag}`;
   }
 
-  public getBicepReferenceWithAlias(
-    alias: string,
-    name: string,
-    tagPrefix: string,
-  ): string {
+  public getBicepReferenceWithAlias(alias: string, name: string, tagPrefix: string): string {
     const tag = this.getTag(tagPrefix);
     return `br/${alias}:${name}:${tag}`;
   }

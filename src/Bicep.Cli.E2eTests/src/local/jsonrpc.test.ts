@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import path from "path";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { MessageConnection } from "vscode-jsonrpc";
 import { pathToExampleFile, writeTempFile } from "../utils/fs";
 import {
@@ -13,7 +14,6 @@ import {
   openConnection,
   versionRequestType,
 } from "../utils/jsonrpc";
-import path from "path";
 
 describe("bicep jsonrpc", () => {
   let connection: MessageConnection;
@@ -29,29 +29,20 @@ describe("bicep jsonrpc", () => {
   });
 
   it("should build a bicep file", async () => {
-    const result = await compile(
-      connection,
-      pathToExampleFile("101", "aks.prod", "main.bicep"),
-    );
+    const result = await compile(connection, pathToExampleFile("101", "aks.prod", "main.bicep"));
 
     expect(result.success).toBeTruthy();
     expect(result.contents?.length).toBeGreaterThan(0);
   });
 
   it("should build a bicepparam file", async () => {
-    const result = await compileParams(
-      connection,
-      pathToExampleFile("bicepparam", "main.bicepparam"),
-      {
-        foo: "OVERRIDDEN",
-      },
-    );
+    const result = await compileParams(connection, pathToExampleFile("bicepparam", "main.bicepparam"), {
+      foo: "OVERRIDDEN",
+    });
 
     expect(result.success).toBeTruthy();
     expect(result.parameters?.length).toBeGreaterThan(0);
-    expect(JSON.parse(result.parameters!).parameters.foo.value).toBe(
-      "OVERRIDDEN",
-    );
+    expect(JSON.parse(result.parameters!).parameters.foo.value).toBe("OVERRIDDEN");
   });
 
   it("should return a deployment graph", async () => {
@@ -120,9 +111,7 @@ describe("bicep jsonrpc", () => {
 
     const result = await getMetadata(connection, bicepPath);
 
-    expect(
-      result.metadata.filter((x) => x.name === "description")[0].value,
-    ).toBe("my file");
+    expect(result.metadata.filter((x) => x.name === "description")[0].value).toBe("my file");
     expect(result.parameters.filter((x) => x.name === "foo")[0]).toStrictEqual({
       description: "foo param",
       name: "foo",
@@ -217,19 +206,13 @@ async function getMetadata(connection: MessageConnection, bicepFile: string) {
   });
 }
 
-async function getDeploymentGraph(
-  connection: MessageConnection,
-  bicepFile: string,
-) {
+async function getDeploymentGraph(connection: MessageConnection, bicepFile: string) {
   return await connection.sendRequest(getDeploymentGraphRequestType, {
     path: bicepFile,
   });
 }
 
-async function getFileReferences(
-  connection: MessageConnection,
-  bicepFile: string,
-) {
+async function getFileReferences(connection: MessageConnection, bicepFile: string) {
   return await connection.sendRequest(getFileReferencesRequestType, {
     path: bicepFile,
   });

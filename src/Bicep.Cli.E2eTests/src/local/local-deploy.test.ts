@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, it } from "vitest";
 import os from "os";
+import { describe, it } from "vitest";
 import { invokingBicepCommand } from "../utils/command";
 import { copyToTempFile, pathToExampleFile, pathToTempFile } from "../utils/fs";
-import {
-  platformSupportsLocalDeploy,
-  publishExtension,
-} from "../utils/localdeploy";
+import { platformSupportsLocalDeploy, publishExtension } from "../utils/localdeploy";
 
 describe("bicep local-deploy", () => {
   const testArea = "local-deploy";
@@ -33,19 +30,14 @@ describe("bicep local-deploy", () => {
       };
 
       const typesIndexPath = pathToTempFile(testArea, "types", "index.json");
-      publishExtension(typesIndexPath, target)
-        .shouldSucceed()
-        .withEmptyStdout();
+      publishExtension(typesIndexPath, target).shouldSucceed().withEmptyStdout();
 
       invokingBicepCommand("local-deploy", files.bicepparam)
         .shouldSucceed()
         .withStdout(
-          [
-            'Output sayHiResult: "Hello, World!"',
-            "Resource sayHi (Create): Succeeded",
-            "Result: Succeeded",
-            "",
-          ].join(os.EOL),
+          ['Output sayHiResult: "Hello, World!"', "Resource sayHi (Create): Succeeded", "Result: Succeeded", ""].join(
+            os.EOL,
+          ),
         );
     },
   );
