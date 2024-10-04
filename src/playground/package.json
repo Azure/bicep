@@ -28,7 +28,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-jest": "^28.8.3",
     "eslint-plugin-notice": "^1.0.0",
-    "globals": "^15.9.0",
+    "globals": "^15.10.0",
     "html-webpack-plugin": "^5.6.0",
     "monaco-editor-webpack-plugin": "^7.1.0",
     "nerdbank-gitversioning": "^3.6.143",
