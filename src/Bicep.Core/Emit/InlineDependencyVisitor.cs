@@ -109,14 +109,24 @@ namespace Bicep.Core.Emit
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            VisitFunctionCallSyntaxBaseInternal(syntax);
-            base.VisitFunctionCallSyntax(syntax);
+            var functionSymbol = model.GetSymbolInfo(syntax) as FunctionSymbol;
+            VisitFunctionCallSyntaxBaseInternal(functionSymbol, syntax);
+
+            if (ShouldVisitFunctionArguments(functionSymbol))
+            {
+                base.VisitFunctionCallSyntax(syntax);
+            }
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            VisitFunctionCallSyntaxBaseInternal(syntax);
-            base.VisitInstanceFunctionCallSyntax(syntax);
+            var functionSymbol = model.GetSymbolInfo(syntax) as FunctionSymbol;
+            VisitFunctionCallSyntaxBaseInternal(functionSymbol, syntax);
+
+            if (ShouldVisitFunctionArguments(functionSymbol))
+            {
+                base.VisitInstanceFunctionCallSyntax(syntax);
+            }
         }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
@@ -255,7 +265,7 @@ namespace Bicep.Core.Emit
             _ => this.model.GetSymbolInfo(syntax)
         };
 
-        private void VisitFunctionCallSyntaxBaseInternal(FunctionCallSyntaxBase syntax)
+        private void VisitFunctionCallSyntaxBaseInternal(FunctionSymbol? functionSymbol, FunctionCallSyntaxBase syntax)
         {
             if (currentDeclaration == null)
             {
@@ -268,11 +278,10 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            switch (model.GetSymbolInfo(syntax))
+            if (functionSymbol is {})
             {
-                case FunctionSymbol functionSymbol:
-                    SetInlineCache(functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining));
-                    return;
+                var shouldInline = functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining);
+                SetInlineCache(shouldInline);
             }
         }
 
@@ -290,5 +299,8 @@ namespace Bicep.Core.Emit
                 this.shouldInlineCache[this.currentDeclaration] = shouldNotInline ? Decision.SkipInline : Decision.Inline;
             }
         }
+
+        private static bool ShouldVisitFunctionArguments(FunctionSymbol? functionSymbol)
+            => functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent);
     }
 }

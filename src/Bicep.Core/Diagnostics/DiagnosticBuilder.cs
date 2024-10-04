@@ -1816,6 +1816,10 @@ namespace Bicep.Core.Diagnostics
                     Fixes = [codeFix]
                 };
             }
+
+            public Diagnostic NameofInvalidOnUnnamedExpression() => CoreError(
+                "BCP408",
+                $"The \"{LanguageConstants.NameofFunctionName}\" function can only be used with an expression which has a name.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

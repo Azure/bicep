@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11554370276860411233"
+      "templateHash": "4645020002980758832"
     }
   },
   "parameters": {
@@ -103,13 +103,13 @@
     },
     "storageName": {
       "type": "string",
-      "maxLength": 24,
-      "minLength": 3
+      "minLength": 3,
+      "maxLength": 24
     },
     "someArray": {
       "type": "array",
-      "maxLength": 24,
-      "minLength": 3
+      "minLength": 3,
+      "maxLength": 24
     },
     "emptyMetadata": {
       "type": "string",
@@ -149,8 +149,8 @@
       "metadata": {
         "description": "Name of the storage account"
       },
-      "maxLength": 24,
-      "minLength": 3
+      "minLength": 3,
+      "maxLength": 24
     },
     "defaultExpression": {
       "type": "bool",
@@ -178,8 +178,8 @@
         "Apple",
         "Banana"
       ],
-      "maxLength": 10,
-      "minLength": 2
+      "minLength": 2,
+      "maxLength": 10
     },
     "decoratedInt": {
       "type": "int",
@@ -188,8 +188,8 @@
     },
     "negativeValues": {
       "type": "int",
-      "maxValue": -3,
-      "minValue": -10
+      "minValue": -10,
+      "maxValue": -3
     },
     "decoratedBool": {
       "type": "bool",
@@ -238,6 +238,10 @@
         "description": "An array."
       },
       "maxLength": 20
+    },
+    "nameofParam": {
+      "type": "string",
+      "defaultValue": "decoratedArray"
     }
   },
   "resources": []

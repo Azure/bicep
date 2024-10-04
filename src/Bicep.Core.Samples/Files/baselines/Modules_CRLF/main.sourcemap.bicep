@@ -2189,7 +2189,7 @@ var vaults = [
 ]
 var secrets = [
 //@    "secrets": [
-//@    ]
+//@    ],
   {
 //@      {
 //@      },
@@ -2407,8 +2407,126 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@          }
 //@        }
 //@      }
-//@    }
+//@    },
   name: 'childWithSpace'
 //@      "name": "childWithSpace",
+}
+
+// nameof
+
+var nameofModule = nameof(folderWithSpace)
+//@    "nameofModule": "folderWithSpace",
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+//@    "nameofModuleParam": "exposedSecureString"
+
+module moduleWithNameof 'modulea.bicep' = {
+//@    {
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2022-09-01",
+//@      "resourceGroup": "nameofModuleParam",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "8300391961099598421"
+//@            }
+//@          },
+//@          "parameters": {
+//@            "stringParamA": {
+//@              "type": "string",
+//@              "defaultValue": "test"
+//@            },
+//@            "stringParamB": {
+//@              "type": "string"
+//@            },
+//@            "objParam": {
+//@              "type": "object"
+//@            },
+//@            "arrayParam": {
+//@              "type": "array"
+//@            }
+//@          },
+//@          "resources": [
+//@            {
+//@              "type": "Mock.Rp/mockResource",
+//@              "apiVersion": "2020-01-01",
+//@              "name": "basicblobs",
+//@              "location": "[parameters('stringParamA')]"
+//@            },
+//@            {
+//@              "type": "Mock.Rp/mockResource",
+//@              "apiVersion": "2020-01-01",
+//@              "name": "myZone",
+//@              "location": "[parameters('stringParamB')]"
+//@            }
+//@          ],
+//@          "outputs": {
+//@            "stringOutputA": {
+//@              "type": "string",
+//@              "value": "[parameters('stringParamA')]"
+//@            },
+//@            "stringOutputB": {
+//@              "type": "string",
+//@              "value": "[parameters('stringParamB')]"
+//@            },
+//@            "objOutput": {
+//@              "type": "object",
+//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@            },
+//@            "arrayOutput": {
+//@              "type": "array",
+//@              "value": [
+//@                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+//@                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+//@              ]
+//@            }
+//@          }
+//@        }
+//@      },
+//@      "dependsOn": [
+//@        "[resourceId('Microsoft.Resources/deployments', 'childWithSpace')]",
+//@        "[resourceId('Microsoft.Resources/deployments', 'secureModuleCondition')]",
+//@        "[resourceId('Microsoft.Resources/deployments', 'withSpace')]"
+//@      ]
+//@    }
+  name: 'nameofModule'
+//@      "name": "nameofModule",
+  scope: resourceGroup(nameof(nameofModuleParam))
+  params:{
+//@        "parameters": {
+//@        },
+    stringParamA: nameof(withSpace)
+//@          "stringParamA": {
+//@            "value": "withSpace"
+//@          },
+    stringParamB: nameof(folderWithSpace)
+//@          "stringParamB": {
+//@            "value": "folderWithSpace"
+//@          },
+    objParam: {
+//@          "objParam": {
+//@            "value": {
+//@            }
+//@          },
+      a: nameof(secureModuleCondition.outputs.exposedSecureString)
+//@              "a": "exposedSecureString"
+    }
+    arrayParam: [
+//@          "arrayParam": {
+//@            "value": [
+//@            ]
+//@          }
+      nameof(vaults)
+//@              "vaults"
+    ]
+  }
 }
 
