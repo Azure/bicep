@@ -7,7 +7,7 @@
  * @group CI
  */
 
-import { invokingBicepCommand } from "./utils/command";
+import { invokingBicepCommand } from "../utils/command";
 
 describe("bicep --version", () => {
   it("should output version information", () => {

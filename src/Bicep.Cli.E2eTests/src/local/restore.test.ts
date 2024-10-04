@@ -7,7 +7,7 @@
  * @group CI
  */
 
-import { invokingBicepCommand } from "./utils/command";
+import { invokingBicepCommand } from "../utils/command";
 
 describe("bicep restore", () => {
   it("should show error message when no input file path was specified", () => {

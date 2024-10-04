@@ -7,7 +7,7 @@
  * @group CI
  */
 
-import { invokingBicepCommand } from "./utils/command";
+import { invokingBicepCommand } from "../utils/command";
 
 describe("bicep --help", () => {
   it("should output help information", () => {

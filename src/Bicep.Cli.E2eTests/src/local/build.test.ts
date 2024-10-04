@@ -7,13 +7,13 @@
  * @group CI
  */
 
-import { invokingBicepCommand } from "./utils/command";
+import { invokingBicepCommand } from "../utils/command";
 import {
   expectFileExists,
   expectFileNotExists,
   pathToExampleFile,
   readFileSync,
-} from "./utils/fs";
+} from "../utils/fs";
 
 describe("bicep build", () => {
   it("should build a bicep file", () => {

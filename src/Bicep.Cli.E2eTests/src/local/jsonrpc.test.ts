@@ -8,7 +8,7 @@
  */
 
 import { MessageConnection } from "vscode-jsonrpc";
-import { pathToExampleFile, writeTempFile } from "./utils/fs";
+import { pathToExampleFile, writeTempFile } from "../utils/fs";
 import {
   compileParamsRequestType,
   compileRequestType,
@@ -17,7 +17,7 @@ import {
   getMetadataRequestType,
   openConnection,
   versionRequestType,
-} from "./utils/jsonrpc";
+} from "../utils/jsonrpc";
 import path from "path";
 
 describe("bicep jsonrpc", () => {

@@ -2,38 +2,50 @@
 // Licensed under the MIT License.
 
 /**
- * Tests for "bicep local-deploy".
+ * Live tests for "bicep local-deploy".
  *
- * @group CI
+ * @group live
  */
 
 import os from "os";
-import { invokingBicepCommand } from "./utils/command";
-import { copyToTempFile, pathToExampleFile, pathToTempFile } from "./utils/fs";
+import { invokingBicepCommand } from "../utils/command";
+import { copyToTempFile, pathToExampleFile, pathToTempFile } from "../utils/fs";
 import {
   platformSupportsLocalDeploy,
   publishExtension,
-} from "./utils/localdeploy";
-import { itif } from "./utils/testHelpers";
+} from "../utils/localdeploy";
+import { getEnvironment } from "../utils/liveTestEnvironments";
+import { BicepRegistryReferenceBuilder } from "../utils/br";
+import { itif } from "../utils/testHelpers";
 
 describe("bicep local-deploy", () => {
-  const testArea = "local-deploy";
+  const environment = getEnvironment();
+  const testArea = `local-deploy-live${environment.suffix}`;
+  const builder = new BicepRegistryReferenceBuilder(
+    environment.registryUri,
+    testArea,
+  );
 
   itif(platformSupportsLocalDeploy())(
-    "should publish and run an extension published to the local file system",
+    "should publish and run an extension published to a registry",
     () => {
       const baseFolder = pathToExampleFile("local-deploy");
-      const target = pathToTempFile(testArea, "mock.tgz");
+      const target = builder.getBicepReference("mock", "0.0.1");
 
       const files = {
         bicep: copyToTempFile(baseFolder, "main.bicep", testArea),
         bicepparam: copyToTempFile(baseFolder, "main.bicepparam", testArea),
-        bicepconfig: copyToTempFile(baseFolder, `bicepconfig.json`, testArea, {
-          relativePath: "bicepconfig.json",
-          values: {
-            $TARGET_REFERENCE: "./mock.tgz",
+        bicepconfig: copyToTempFile(
+          baseFolder,
+          `bicepconfig${environment.suffix}.json`,
+          testArea,
+          {
+            relativePath: "bicepconfig.json",
+            values: {
+              $TARGET_REFERENCE: target,
+            },
           },
-        }),
+        ),
       };
 
       const typesIndexPath = pathToTempFile(testArea, "types", "index.json");

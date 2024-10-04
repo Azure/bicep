@@ -8,10 +8,10 @@
  */
 
 import path from "path";
-import { BicepRegistryReferenceBuilder } from "./utils/br";
-import { invokingBicepCommand } from "./utils/command";
-import { pathToExampleFile, readFileSync, writeTempFile } from "./utils/fs";
-import { getEnvironment } from "./utils/liveTestEnvironments";
+import { BicepRegistryReferenceBuilder } from "../utils/br";
+import { invokingBicepCommand } from "../utils/command";
+import { pathToExampleFile, readFileSync, writeTempFile } from "../utils/fs";
+import { getEnvironment } from "../utils/liveTestEnvironments";
 
 describe("bicep publish-extension live", () => {
   const testArea = "publish-extension";

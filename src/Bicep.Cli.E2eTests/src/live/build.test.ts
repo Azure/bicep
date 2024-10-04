@@ -11,8 +11,8 @@ import {
   BicepRegistryReferenceBuilder,
   expectBrModuleStructure,
   publishModule,
-} from "./utils/br";
-import { invokingBicepCommand } from "./utils/command";
+} from "../utils/br";
+import { invokingBicepCommand } from "../utils/command";
 import {
   emptyDir,
   expectFileExists,
@@ -22,8 +22,8 @@ import {
   pathToTempFile,
   readFileSync,
   writeTempFile,
-} from "./utils/fs";
-import { getEnvironment } from "./utils/liveTestEnvironments";
+} from "../utils/fs";
+import { getEnvironment } from "../utils/liveTestEnvironments";
 
 async function emptyModuleCacheRoot() {
   await emptyDir(moduleCacheRoot);

@@ -7,7 +7,7 @@
  * @group CI
  */
 
-import { invokingBicepCommand } from "./utils/command";
+import { invokingBicepCommand } from "../utils/command";
 import {
   ensureParentDirExists,
   expectFileExists,
@@ -15,7 +15,7 @@ import {
   pathToTempFile,
   readFileSync,
   writeTempFile,
-} from "./utils/fs";
+} from "../utils/fs";
 
 describe("bicep publish-extension", () => {
   it("should publish extension to the file system", () => {
