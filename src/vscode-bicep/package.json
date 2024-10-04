@@ -284,8 +284,8 @@
         "category": "Bicep Internal"
       },
       {
-        "command": "bicep.internal.startRename",
-        "title": "(Renme identifier at given location)",
+        "command": "bicep.internal.postExtraction",
+        "title": "(Perform operations after var/param/type extractions)",
         "category": "Bicep Internal"
       },
       {
@@ -634,7 +634,7 @@
           "when": "never"
         },
         {
-          "command": "bicep.internal.startRename",
+          "command": "bicep.internal.postExtraction",
           "when": "never"
         }
       ]
