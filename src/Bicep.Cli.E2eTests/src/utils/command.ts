@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable jest/no-standalone-expect */
 import spawn from "cross-spawn";
 
 import { bicepCli } from "./fs";

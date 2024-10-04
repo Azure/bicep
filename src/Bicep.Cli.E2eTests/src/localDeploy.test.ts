@@ -19,7 +19,6 @@ import { itif } from "./utils/testHelpers";
 describe("bicep local-deploy", () => {
   const testArea = "local-deploy";
 
-  // eslint-disable-next-line jest/require-hook
   itif(platformSupportsLocalDeploy())(
     "should publish and run an extension published to the local file system",
     () => {
