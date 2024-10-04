@@ -17,6 +17,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Refactor;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -38,6 +39,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     private const string ExtractToParameterTitle = "[Preview] Extract parameter";
     private const string ExtractToTypeTitle = "[Preview] Create type for ";
     private const string StartRenameCommandName = "bicep.internal.startRename";
+    private const string Tab = "\t";
 
     ////////////////////////////////////////////////////////////////////
 
@@ -60,6 +62,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             }
 
             param a object = { p: 'mystring', i: 123 }
+
             param p { *: superComplexType } = {
                 a: a
             }
@@ -71,24 +74,25 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             }
 
             param a { i: 123 | 456, p: string } = { p: 'mystring', i: 123 }
+
             param p { *: superComplexType } = {
                 a: a
             }
             """)]
-
     [DataRow(
         """
             var blah = |[{foo: 'bar'}, {foo: 'baz'}]
             """,
         """
             param newParameter array = [{ foo: 'bar' }, { foo: 'baz' }]
+
             var blah = newParameter
             """,
         """
             param newParameter { foo: string }[] = [{ foo: 'bar' }, { foo: 'baz' }]
+
             var blah = newParameter
             """)]
-
     [DataRow(
         """
             param p1 { intVal: int} = { intVal:123}
@@ -104,7 +108,6 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter { intVal: int } = p1
             output o object = newParameter
             """)]
-
     [DataRow(
         """
             param p2 'foo' || 'bar'
@@ -120,7 +123,6 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter 'bar' | 'foo' = p2
             param v1 int = newParameter
             """)]
-
     [DataRow(
         """
             param p1 { intVal: int}
@@ -136,7 +138,6 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter { intVal: int } = p1
             output o = newParameter
             """)]
-
     public async Task BicepDiscussion(string fileWithSelection, string expectedLooseParamText, string expectedMediumParamText)
     {
         await RunExtractToParameterTest(fileWithSelection, expectedLooseParamText, expectedMediumParamText);
@@ -151,10 +152,12 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             var newVariable = 'b'
+
             var a = newVariable
             """,
         """
             param newParameter string = 'b'
+
             var a = newParameter
             """)]
     [DataRow(
@@ -201,6 +204,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         """
             // comment 1
             var newVariable = 'a'
+
             @secure()
             // comment 2
             param a = newVariable
@@ -208,6 +212,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         """
             // comment 1
             param newParameter string = 'a'
+
             @secure()
             // comment 2
             param a = newParameter
@@ -256,6 +261,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         """
             // My comment here
             var location = 'westus'
+
             resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
                 name: 'name'
                 location: location
@@ -269,6 +275,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             // My comment here
             @description('Required. Gets or sets the location of the resource. This will be one of the supported and registered Azure Geo Regions (e.g. West US, East US, Southeast Asia, etc.). The geo region of a resource cannot be changed once it is created, but if an identical geo region is specified on update, the request will succeed.')
             param location string = 'westus'
+
             resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
                 name: 'name'
                 location: location
@@ -289,10 +296,12 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
        "var v = |null",
        """
             var newVariable = null
+
             var v = newVariable
             """,
        """
             param newParameter object? /* null */ = null
+
             var v = newParameter
             """,
        null)]
@@ -311,6 +320,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             param newParameter string = 'b'
+
             var a = newParameter
             """,
         null // no second option
@@ -321,10 +331,12 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             param newParameter object = { a: 'b' }
+
             var a = newParameter
             """,
         """
             param newParameter { a: string } = { a: 'b' }
+
             var a = newParameter
             """)]
     public async Task ShouldOfferTwoParameterExtractions_IffTheExtractedTypesAreDifferent(string fileWithSelection, string? expectedLooseParamText, string? expectedMediumParamText)
@@ -393,30 +405,35 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         "var v = {| 'An*a#and a\\'B': 'a b' }",
         """
             param newParameter object = { 'An*a#and a\'B': 'a b' }
+
             var v = newParameter
             """)]
     [DataRow(
         "var v = { 'An a and 1 B': 'a| b' }",
         """
             param An_a_and_1_B string = 'a b'
+
             var v = { 'An a and 1 B': An_a_and_1_B }
             """)]
     [DataRow(
         "var v = { 'A*b#and 1\\'C ': 'b| c' }",
         """
             param A_b_and_1_C_ string = 'b c'
+
             var v = { 'A*b#and 1\'C ': A_b_and_1_C_ }
             """)]
     [DataRow(
         "var v = { '': |'empty' }",
         """
             param _ string = 'empty'
+
             var v = { '': _ }
             """)]
     [DataRow(
         "var v = { '  ': |'spaces' }",
         """
             param ___ string = 'spaces'
+
             var v = { '  ': ___ }
             """)]
     [DataRow(
@@ -435,6 +452,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         "var v = { '99': '|Luftballoons' }",
         """
             param _99 string = 'Luftballoons'
+
             var v = { '99': _99 }
             """)]
     [DataTestMethod]
@@ -461,6 +479,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 """,
             """
                 var newVariable = [1, 2, 3]
+
                 resource subnets 'Microsoft.Network/virtualNetworks/subnets@2024-01-01' = [
                   for (item, index) in newVariable: {
                     name: 'subnet${index}'
@@ -472,6 +491,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 """,
             """
                 param newParameter array = [1, 2, 3]
+
                 resource subnets 'Microsoft.Network/virtualNetworks/subnets@2024-01-01' = [
                   for (item, index) in newParameter: {
                     name: 'subnet${index}'
@@ -483,6 +503,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 """,
             """
                 param newParameter int[] = [1, 2, 3]
+
                 resource subnets 'Microsoft.Network/virtualNetworks/subnets@2024-01-01' = [
                   for (item, index) in newParameter: {
                     name: 'subnet${index}'
@@ -539,6 +560,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 commandToExecute: commandToExecute
               }
             }
+
             resource resourceWithProperties 'Microsoft.Compute/virtualMachines/extensions@2019-12-01' = if (isWindowsOS && provisionExtensions) {
                 parent: vmName_resource
                 name: 'cse-windows'
@@ -633,6 +655,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             param newParameter int = 1
+
             var i = newParameter
             """,
         null,
@@ -693,10 +716,12 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             param newParameter array = [1, 2, 3]
+
             var p = newParameter
             """,
         """
             param newParameter int[] = [1, 2, 3]
+
             var p = newParameter
             """,
         DisplayName = "array literal")]
@@ -706,10 +731,12 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             param newParameter object = { a: 1, b: 'b' }
+
             var p = newParameter
             """,
         """
             param newParameter { a: int, b: string } = { a: 1, b: 'b' }
+
             var p = newParameter
             """,
         DisplayName = "object literal with literal types")]
@@ -719,6 +746,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             param a int = 1
+
             var p = { a: a, b: 'b' }
             """,
         null,
@@ -772,7 +800,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter { int: int } = a
             var b = newParameter.int
             """,
-    DisplayName = "object properties")]
+        DisplayName = "object properties")]
     [DataRow(
         """
             param p {
@@ -842,6 +870,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             param unknownProperty int = 123
+
             resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
                 unknownProperty: unknownProperty
             }
@@ -875,10 +904,12 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             param newParameter object = { intVal: 2 }
+
             var foo = newParameter
             """,
         """
             param newParameter { intVal: int } = { intVal: 2 }
+
             var foo = newParameter
             """)]
     [DataRow(
@@ -896,6 +927,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         """
             @description('The resource name')
             param name string = 'virtualNetwork/name'
+
             resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {
                 name: name
                 properties: {
@@ -922,6 +954,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         """
             @description('The SKU name. Required for account creation; optional for update. Note that in older versions, SKU name was called accountType.')
             param name string = 'Premium_LRS'
+
             resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
                 name: 'name'
                 location: 'location'
@@ -934,6 +967,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         """
             @description('The SKU name. Required for account creation; optional for update. Note that in older versions, SKU name was called accountType.')
             param name string /* 'Premium_LRS' | 'Premium_ZRS' | 'Standard_GRS' | 'Standard_GZRS' | 'Standard_LRS' | 'Standard_RAGRS' | 'Standard_RAGZRS' | 'Standard_ZRS' | string */ = 'Premium_LRS'
+
             resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
                 name: 'name'
                 location: 'location'
@@ -1075,6 +1109,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             var newVariable = 'jkl'
+
             resource vmName_resource 'Microsoft.Compute/virtualMachines@2019-12-01' = {
               name: vmName
               location: location
@@ -1127,6 +1162,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 ]
               }
             ]
+
             resource vmName_resource 'Microsoft.Compute/virtualMachines@2019-12-01' = {
                 name: vmName
                 location: location
@@ -1153,48 +1189,56 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         "var a = resourceGroup().locati|on",
         """
             var resourceGroupLocation = resourceGroup().location
+
             var a = resourceGroupLocation
             """)]
     [DataRow(
         "var a = abc|().bcd",
         """
             var newVariable = abc()
+
             var a = newVariable.bcd
             """)]
     [DataRow(
         "var a = abc.bcd.|def",
         """
             var bcdDef = abc.bcd.def
+
             var a = bcdDef
             """)]
     [DataRow(
         "var a = abc.b|cd",
         """
             var abcBcd = abc.bcd
+
             var a = abcBcd
             """)]
     [DataRow(
         "var a = abc.bc|d",
         """
             var abcBcd = abc.bcd
+
             var a = abcBcd
             """)]
     [DataRow(
         "var a = reference(storageAccount.id, '2018-02-01').primaryEndpoints.blob|",
         """
             var primaryEndpointsBlob = reference(storageAccount.id, '2018-02-01').primaryEndpoints.blob
+
             var a = primaryEndpointsBlob
             """)]
     [DataRow(
         "var a = reference(storageAccount.id, '2018-02-01').prim|aryEndpoints.blob",
         """
             var referencePrimaryEndpoints = reference(storageAccount.id, '2018-02-01').primaryEndpoints
+
             var a = referencePrimaryEndpoints.blob
             """)]
     [DataRow(
         "var a = a.b.|c.d.e",
         """
             var bC = a.b.c
+
             var a = bC.d.e
             """)]
     // CONSIDER: ideally this would work
@@ -1221,6 +1265,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             var newVariable = 2
+
             var a = 1 + newVariable
             """)]
     [DataRow(
@@ -1229,6 +1274,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             var newVariable = 1 + 2
+
             var a = newVariable
             """)]
     [DataRow(
@@ -1237,6 +1283,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             var newVariable = 1 + 2
+
             var a = newVariable
             """)]
     [DataRow(
@@ -1245,12 +1292,14 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             var newVariable = 1 + 2
+
             var a = newVariable
             """)]
     [DataRow(
         "var a = |1+2",
         """
             var newVariable = 1
+
             var a = newVariable+2
             """)]
 
@@ -1259,24 +1308,28 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     //    "var a = 1|+2",
     //    """
     //        var newVariable = 1+2
+    //
     //        var a = newVariable
     //        """)]
     //[DataRow(
     //    "var a = 1| +2",
     //    """
     //        var newVariable = 1+2
+    //
     //        var a = newVariable
     //        """)]
     //[DataRow(
     //    "var a = 1 | +2",
     //    """
     //        var newVariable = 1+2
+    //
     //        var a = newVariable
     //        """)]
     //[DataRow(
     //    "var a = 1 |+2",
     //    """
     //        var newVariable = 1+2
+    //
     //        var a = newVariable
     //        """)]
 
@@ -1285,6 +1338,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     //    "var a = 1+|2",
     //    """
     //        var newVariable = 2
+    //
     //        var a = 1+newVariable
     //        """")]
     // TODO: BUG: should be picking up just 2
@@ -1292,6 +1346,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     //    "var a = 1+<<2>>",
     //    """
     //        var newVariable = 2
+    //
     //        var a = 1+newVariable
     //        """)]
 
@@ -1299,6 +1354,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         "var a = <<1>>+2",
         """
             var newVariable = 1
+
             var a = newVariable+2
             """)]
 
@@ -1307,24 +1363,28 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     //    "var a = 1+<<2>>",
     //    """
     //        var newVariable = 2
+    //
     //        var a = 1+newVariable
     //        """)]
     //[DataRow(
     //    "var a = << 1 >>+2",
     //    """
     //        var newVariable = 1
+    //
     //        var a = newVariable+2
     //        """)]
     //[DataRow(
     //    "var a = 1+<< 2>>",
     //    """
     //        var newVariable = 2
+    //
     //        var a = 1+newVariable
     //        """)]
     [DataRow(
         "var a = 1+2|",
         """
             var newVariable = 2
+
             var a = 1+newVariable
             """)]
 
@@ -1332,12 +1392,14 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         "var a = <<1+2>>",
         """
             var newVariable = 1 + 2
+
             var a = newVariable
             """)]
     [DataRow(
         "var a = 1<<+2>>",
         """
             var newVariable = 1 + 2
+
             var a = newVariable
             """)]
     [DataRow(
@@ -1346,6 +1408,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             var newVariable = 1 + 2 + 3 + 4
+
             var a = newVariable
             """)]
     [DataRow(
@@ -1354,6 +1417,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             var newVariable = 2
+
             param p1 int = 1 + newVariable
             """)]
     // TODO: bug
@@ -1361,6 +1425,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     //    "var blah1 = [<<{ foo: 'bar' }>>, { foo: 'baz' }]",
     //    """
     //        var newVariable = { foo: 'bar' }
+    //
     //        var blah1 = [newVariable, { foo: 'baz' }]",
     //        """
     //    )]
@@ -1502,6 +1567,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' existing = { name: 'storageaccountname' }
 
             EXPECTEDNEWDECLARATION
+
             resource vm 'Microsoft.Compute/virtualMachines@2019-12-01' = { name: 'vm', location: 'eastus'
               properties: {
                 diagnosticsProfile: {
@@ -1567,6 +1633,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                     resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' existing = { name: 'storageaccountname' }
 
                     EXPECTEDNEWDECLARATION
+
                     resource vm 'Microsoft.Compute/virtualMachines@2019-12-01' = { name: 'vm', location: 'eastus'
                       properties: {
                         diagnosticsProfile: {
@@ -1656,6 +1723,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             // My comment here
             @description('A key-value pair of options to be applied for the request. This corresponds to the headers sent with the request.')
             param options { autoscaleSettings: { maxThroughput: int? }?, throughput: int? } = {}
+
             resource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {
                 name: 'testResource/cassandraKeyspace'
                 properties: {
@@ -1699,6 +1767,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
             @description('My string\'s field')
             param myString string = 'hello'
+
             param p t = {
                 myString: myString
                 myInt: 42
@@ -1738,6 +1807,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
             @description('My int\'s field\nis very long\n')
             param myInt int = 42
+
             param p t = {
                 myString: 'hello'
                 myInt: myInt
@@ -1759,13 +1829,58 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             var newVariable = 1
+
             var v = newVariable
             """,
         """
             param newParameter int = 1
+
             var v = newParameter
             """,
         DisplayName = "Extracting at top of file -> insert at top")]
+    [DataRow(
+        """
+            @secure()
+            var v1 = [
+                1
+                2
+            ]
+            @secure()
+            param p1 array = [
+                1
+                2
+            ]
+            var v = |1
+            """,
+        """
+            @secure()
+            var v1 = [
+                1
+                2
+            ]
+            var newVariable = 1
+            @secure()
+            param p1 array = [
+                1
+                2
+            ]
+            var v = newVariable
+            """,
+        """
+            @secure()
+            var v1 = [
+                1
+                2
+            ]
+            @secure()
+            param p1 array = [
+                1
+                2
+            ]
+            param newParameter int = 1
+            var v = newParameter
+            """,
+        DisplayName = "Handle multi-line existing declarations")]
     [DataRow(
         """
             metadata firstLine = 'first line'
@@ -1780,6 +1895,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
             // Some comments
             var newVariable = 1
+
             var v = newVariable
             """,
         """
@@ -1788,6 +1904,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
             // Some comments
             param newParameter int = 1
+
             var v = newParameter
             """,
         DisplayName = "No existing params/vars above -> insert right before extraction line")]
@@ -1865,63 +1982,6 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             var v = newParameter
             """,
         DisplayName = "Existing params and vars at top of file -> param and var inserted after their corresponding existing declarations")]
-    //[DataRow(
-    //    """
-    //        // location comment
-    //        param location string
-
-    //        // rg comment
-    //        param resourceGroup string
-
-    //        var simpleCalculation = 1 + 1
-
-    //        @export()
-    //        @description('this still counts as having an empty line beforehand')
-    //        var complexCalculation = simpleCalculation * 2
-
-    //        metadata line = 'line'
-
-    //        var v = <<1>>
-    //        """,
-    //    """
-    //        // location comment
-    //        param location string
-
-    //        // rg comment
-    //        param resourceGroup string
-
-    //        var simpleCalculation = 1 + 1
-
-    //        @export()
-    //        @description('this still counts as having an empty line beforehand')
-    //        var complexCalculation = simpleCalculation * 2
-
-    //        var newVariable = 1
-
-    //        metadata line = 'line'
-
-    //        var v = newVariable
-    //        """,
-    //    """
-    //        // location comment
-    //        param location string
-
-    //        // rg comment
-    //        param resourceGroup string
-
-    //        param newParameter int = 1
-
-    //        var simpleCalculation = 1 + 1
-
-    //        @export()
-    //        @description('this still counts as having an empty line beforehand')
-    //        var complexCalculation = simpleCalculation * 2
-
-    //        metadata line = 'line'
-
-    //        var v = newParameter
-    //        """,
-    //    DisplayName = "If closest existing declaration has a blank line before it, insert a blank line above the new declaration")]
     [DataRow(
         """
             param location string
@@ -1939,11 +1999,6 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             metadata line2 = 'line2'
 
             var v = <<1>>
-
-            param location3 string
-            param resourceGroup3 string
-            var simpleCalculation3 = 1 + 1
-            var complexCalculation3 = simpleCalculation * 2            
             """,
         """
             param location string
@@ -1962,11 +2017,6 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             metadata line2 = 'line2'
 
             var v = newVariable
-
-            param location3 string
-            param resourceGroup3 string
-            var simpleCalculation3 = 1 + 1
-            var complexCalculation3 = simpleCalculation * 2            
             """,
         """
             param location string
@@ -1985,11 +2035,6 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             metadata line2 = 'line2'
 
             var v = newParameter
-
-            param location3 string
-            param resourceGroup3 string
-            var simpleCalculation3 = 1 + 1
-            var complexCalculation3 = simpleCalculation * 2            
             """,
         DisplayName = "Existing params and vars in multiple places in file -> insert after closest existing declarations above extraction")]
     [DataRow(
@@ -2024,6 +2069,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         "IGNORE",
         """
             param location string
+
             @description('The extension can contain either protectedSettings or protectedSettingsFromKeyVault or no protected settings at all.')
             param protectedSettings object = {
               commandToExecute: 'loadTextContent(\'files/my script.ps1\')'
@@ -2053,10 +2099,446 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             }
             """,
         DisplayName = "get the rename position correct")]
-    public async Task VarsAndParams_InsertAfterExistingDeclarations(string fileWithSelection, string expectedVarText, string? expectedParamText)
+    public async Task InsertAfterExistingDeclarations(string fileWithSelection, string expectedVarText, string? expectedParamText)
     {
         await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\n"), expectedVarText, expectedParamText, "IGNORE");
         await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\r\n"), expectedVarText, expectedParamText, "IGNORE");
+    }
+
+    [DataRow(
+        """
+            metadata hello = true
+            // Hello
+            @description('hello')
+            /*
+              there
+            */
+            @export()
+            @allowed([1, 2])
+            param p int = <<1>>
+            """,
+        "IGNORE",
+        """
+            metadata hello = true
+            // Hello
+            param newParameter int = 1
+            @description('hello')
+            /*
+              there
+            */
+            @export()
+            @allowed([1, 2])
+            param p int = newParameter
+            """)]
+    [TestMethod]
+    public async Task VarsAndParams_ShouldInsertBeforeStatementTrivia(string fileWithSelection, string expectedVarText, string? expectedParamText)
+    {
+        await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\n"), expectedVarText, expectedParamText, "IGNORE");
+        await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\r\n"), expectedVarText, expectedParamText, "IGNORE");
+    }
+
+    // We try to imitate the behavior of the existing declarations when inserting new declarations.
+    // Logic matrix:
+    //   Has an existing declaration
+    //   Has a newline before the existing declaration (or at beginning of file)
+    //   Has a newline after the existing declaration (or at end of file)
+    //   Is there already a newline after the new declaration?
+    // 
+    // ==== No existing declaration
+    [DataRow(
+        """
+            output o = <<1>>
+            """,
+        """
+            var newVariable = 1
+
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+
+            output o = <<2>>
+            """,
+        """
+
+            var newVariable = 2
+
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+
+
+            output o = <<3>>
+            """,
+        """
+
+
+            var newVariable = 3
+
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+            param o1 object = { a: 1, b: 'b' }
+            var a = <<o1.a>>
+            """,
+        """
+            param o1 object = { a: 1, b: 'b' }
+            var o1A = o1.a
+            var a = o1A
+            """)]
+    [DataRow(
+        """
+            param o1 object = { a: 1, b: 'b' }
+
+            param a int = <<o1.a>>
+            """,
+        """
+            param o1 object = { a: 1, b: 'b' }
+
+            var o1A = o1.a
+
+            param a int = o1A
+            """)]
+    [DataRow(
+        """
+            param o1 object = { a: 1, b: 'b' }
+            param a int = <<o1.a>>
+            """,
+        """
+            param o1 object = { a: 1, b: 'b' }
+            var o1A = o1.a
+            param a int = o1A
+            """)]
+    // ==== Single existing declaration
+    [DataRow(
+        """
+            var v1 = 1
+            output o = <<10>>
+            """,
+        """
+            var v1 = 1
+            var newVariable = 10
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+            var v1 = 1
+
+            output o = <<11>>
+            """,
+        """
+            var v1 = 1
+
+            var newVariable = 11
+
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+
+            var v1 = 1
+
+            output o = <<12>>
+            """,
+        """
+
+            var v1 = 1
+
+            var newVariable = 12
+
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+            var v1 = 1
+            output o = <<13>>
+            """,
+        """
+            var v1 = 1
+            var newVariable = 13
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+
+            var v1 = 1
+
+            output o = <<14>>
+            """,
+        """
+
+            var v1 = 1
+
+            var newVariable = 14
+
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+
+            var v1 = 1
+            output o = <<15>>
+            """,
+        """
+
+            var v1 = 1
+
+            var newVariable = 15
+            output o = newVariable
+            """)]
+    // ==== Multiple existing declarations
+    [DataRow(
+        """
+            var v1 = 1
+            var v2 = 2
+            output o = <<20>>
+            """,
+        """
+            var v1 = 1
+            var v2 = 2
+            var newVariable = 20
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+            var v1 = 1
+
+            var v2 = 2
+            output o = <<21>>
+            """,
+        """
+            var v1 = 1
+
+            var v2 = 2
+
+            var newVariable = 21
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+            var v1 = 1
+
+            var v2 = 2
+
+            output o = <<22>>
+            """,
+        """
+            var v1 = 1
+
+            var v2 = 2
+
+            var newVariable = 22
+
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+            var v1 = 1
+
+            var v2 = 2
+
+
+            output o = <<23>>
+            """,
+        """
+            var v1 = 1
+
+            var v2 = 2
+
+            var newVariable = 23
+
+
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+            var v1 = 1
+
+
+            var v2 = 2
+
+
+
+            output o = <<24>>
+            """,
+        """
+            var v1 = 1
+
+
+            var v2 = 2
+
+            var newVariable = 24
+
+
+
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+            var v1 = 1
+
+
+            var v2 = 2
+            var v3 = 3
+
+
+
+            output o = <<25>>
+            """,
+        """
+            var v1 = 1
+
+
+            var v2 = 2
+            var v3 = 3
+            var newVariable = 25
+
+
+
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+            var v1 = 1
+
+
+            var v2 = 2
+
+
+
+            var v3 = 3
+
+
+
+            output o = <<26>>
+            """,
+        """
+            var v1 = 1
+
+
+            var v2 = 2
+
+
+
+            var v3 = 3
+
+            var newVariable = 26
+
+
+
+            output o = newVariable
+            """)]
+    // ==== Leading and trailing trivia
+    [DataRow(
+        """
+            var v1 = 1
+            // comment
+            @description('v1')
+            /* comment
+
+            */
+            var v2 = [
+                1,
+                2,
+                3
+            ]
+            // comment
+            output o = <<30>>
+            """,
+        """
+            var v1 = 1
+            // comment
+            @description('v1')
+            /* comment
+            
+            */
+            var v2 = [
+                1,
+                2,
+                3
+            ]
+            var newVariable = 30
+            // comment
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+            var v1 = 1
+
+            // comment
+            @description('v1')
+            /* comment
+
+            */
+            var v2 = [
+                1,
+                2,
+                3
+            ]
+
+            // comment
+            output o = <<31>>
+            """,
+        """
+            var v1 = 1
+
+            // comment
+            @description('v1')
+            /* comment
+            
+            */
+            var v2 = [
+                1,
+                2,
+                3
+            ]
+
+            var newVariable = 31
+
+            // comment
+            output o = newVariable
+            """)]
+    [DataRow(
+        """
+            var v1 = 1
+
+            // comment
+            @description('v1')
+            /* comment
+
+            */
+            var v2 = [
+                1,
+                2,
+                3
+            ]
+            // comment
+            output o = <<32>>
+            """,
+        """
+            var v1 = 1
+
+            // comment
+            @description('v1')
+            /* comment
+            
+            */
+            var v2 = [
+                1,
+                2,
+                3
+            ]
+
+            var newVariable = 32
+            // comment
+            output o = newVariable
+            """)]
+    [TestMethod]
+    public async Task ImitateExistingBlankLineStyle(string fileWithSelection, string expectedVarText)
+    {
+        await RunExtractToVariableTest(fileWithSelection, expectedVarText);
     }
 
     [TestMethod]
@@ -2163,6 +2645,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                     }
                   }
                 }
+
                 resource windowsVMExtensions 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = newParameter
                 """);
     }
@@ -2201,6 +2684,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 }
 
                 param propertiesPrimaryEndpoints object = stg.properties.primaryEndpoints
+
                 output storageEndpoint object = propertiesPrimaryEndpoints
                 """,
             null);
@@ -2274,6 +2758,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                   }?
                   supportsHttpsTrafficOnly: bool?
                 }
+
                 output storageEndpoint object = stg.properties.primaryEndpoints
                 """);
     }
@@ -2298,6 +2783,251 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 output storageEndpoint object = stg.properties.|primaryEndpoints
                 """,
             null);
+    }
+
+    [TestMethod]
+    public void TestCheckLineContent()
+    {
+        var bicep = $$"""
+
+                COMMENT // hello, cruel world
+                COMMENT /* cruel, cruel world
+                COMMENT
+                COMMENT */
+                
+                CONTENT @description('description')
+                CONTENT @allowed([
+                    CONTENT 'abc'
+                    CONTENT 'def'
+                    CONTENT COMMENT 'ghi' // comment
+                    CONTENT COMMENT /* comment */ 'jkl'
+                CONTENT ]
+                CONTENT )
+                CONTENT COMMENT param p1 string = /*comment*/ 'abc'
+                CONTENT param p2 object = {
+                    CONTENT a: 'abc'
+                    COMMENT // hi
+                    CONTENT COMMENT b: /*comment*/ 'bcd'
+                
+                    CONTENT b: [
+                        CONTENT 1, 2
+                
+                        CONTENT 3
+                        CONTENT 4
+                CONTENT  ]
+                CONTENT}
+                
+                
+                CONTENT COMMENT /*hello*/ resource stg 'Microsoft.Storage/storageAccounts@2019-04-01' = {
+                  CONTENT name: '${storagePrefix}${uniqueString(resourceGroup().id)}'
+                  CONTENT location: location
+                  CONTENT sku: {
+                    CONTENT name: storageSKU
+                  CONTENT }
+                
+                  CONTENT kind: 'StorageV2'
+                  CONTENT properties: {
+                    COMMENT // supportsHttpsTrafficOnly: true
+                  CONTENT }
+                CONTENT }
+                {{Tab}}   {{Tab}}
+                CONTENT output storageEndpoint object = stg.properties.|primaryEndpoints
+                
+                COMMENT // Comments are not empty
+                
+                COMMENT /* Not even
+                COMMENT 
+                COMMENT this one
+                COMMENT 
+                COMMENT */
+                
+                CONTENT         param p2 string
+                CONTENT param p3 int            {{Tab}}
+                """;
+
+        (bool hasContent, bool hasComments)[] expected = bicep.Split(["\r\n", "\n"], StringSplitOptions.None)
+            .Select(x => (x.Contains("CONTENT"), x.Contains("COMMENT"))).ToArray();
+        bicep = bicep.Replace("COMMENT", "").Replace("CONTENT", "");
+        var result = Core.UnitTests.Utils.CompilationHelper.Compile(bicep);
+        var lineStarts = result.SourceFile.LineStarts;
+        var programSyntax = result.SourceFile.ProgramSyntax;
+
+        using (new AssertionScope())
+        {
+            for (int line = 0; line < lineStarts.Length; ++line)
+            {
+                var span = TextCoordinateConverter.GetLineSpan(lineStarts, programSyntax.GetEndPosition(), line);
+                var text = bicep.Substring(span.Position, span.Length);
+                var (hasContent, hasComments) = ExpressionAndTypeExtractor.CheckLineContent(result.SourceFile.LineStarts, result.SourceFile.ProgramSyntax, line);
+                // Console.WriteLine($"{line}: content={hasContent},comments={hasComments}: \"{text.Trim()}\"");
+
+                hasContent.Should().Be(expected[line].hasContent, "line at {0} should {1} have content (text=\"{2}\")", line, expected[line].hasContent ? "" : "not", text);
+                hasComments.Should().Be(expected[line].hasComments, "line at {0} should {1} have comments (text=\"{2}\")", line, expected[line].hasComments ? "" : "not", text);
+            }
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////
+
+    [DataRow(
+        """
+            var v = 1
+            """,
+        0)]
+    [DataRow(
+        """
+
+            var v = 2
+            """,
+        1)]
+    [DataRow(
+        """
+
+            // comment
+            var v = 3
+            """,
+        1)]
+    [DataRow(
+        """
+
+            /* comment */
+            var v = 4
+            """,
+        1)]
+    [DataRow(
+        """
+
+            /* comment
+
+            */
+            var v = 5
+            """,
+        1)]
+    [DataRow(
+        """
+            /* comment
+
+            */
+            var v = 6
+            """,
+        0)]
+    [DataRow(
+        """
+            /* comment
+
+            */
+            @description('description')
+            var v = 7
+            """,
+        0)]
+    [DataRow(
+        """
+            @description('description')
+            var v = 8
+            """,
+        0)]
+    [DataRow(
+        """
+
+            @description('description')
+            var v = 9
+            """,
+        1)]
+    [DataRow(
+        """
+
+            @description('description') // comment
+            var v = 10
+            """,
+        1)]
+    [DataRow(
+        """
+            param p1 string
+            @description('description') // comment
+            var v = 11
+            """,
+        1)]
+    [DataRow(
+        """
+            param p1 string
+            @description('description') /* comment
+            */
+            var v = 12
+            """,
+        1)]
+    [DataRow(
+        """
+            param p1 string
+            @allowed([1, 2])
+            // hello
+            /*
+            there
+            */
+            @description('description') /* comment
+            */
+            var v = 13
+            """,
+        1)]
+    [DataRow(
+        """
+            param p1 string
+            @allowed([1, 2]) // hi
+            // hello
+            /*
+            there
+            */
+            /* comment */ @description('description') /* comment */
+            /*
+
+            */
+            var v = [
+                14
+            ]
+            """,
+        1)]
+    [DataRow(
+        """
+            /* hello there */ param p1 string // hello
+            @allowed([1, 2]) // hi
+            // hello
+            /*
+            there
+            */
+            /* comment */ @description('description') /* comment */
+            /*
+
+            */
+            var v = [
+                15
+            ]
+            """,
+        1)]
+    [DataRow(
+        """
+            /* hello there */
+            @allowed([1, 2]) // hi
+            // hello
+            /*
+            there
+            */
+            /* comment */ @description('description') /* comment */
+            /*
+
+            */
+            var v = [
+                16
+            ]
+            """,
+        0)]
+    [DataTestMethod]
+    public void TestGetFirstLineOfStatementIncludingComments(string bicep, int expected)
+    {
+        // Find the variable declaration line
+        var result = Core.UnitTests.Utils.CompilationHelper.Compile(bicep);
+        var varDeclaration = result.BicepFile.ProgramSyntax.Declarations.OfType<VariableDeclarationSyntax>().Single();
+
+        var actual = ExpressionAndTypeExtractor.GetFirstLineOfStatementIncludingComments(result.SourceFile.LineStarts, result.SourceFile.ProgramSyntax, varDeclaration);
+        actual.Should().Be(expected);
     }
 
     #region Support
