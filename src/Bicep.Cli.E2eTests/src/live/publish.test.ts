@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/**
- * Live tests for "bicep publish".
- *
- * @group live
- */
-
 import { describe, it } from "vitest";
 import { BicepRegistryReferenceBuilder } from "../utils/br";
 import { invokingBicepCommand } from "../utils/command";

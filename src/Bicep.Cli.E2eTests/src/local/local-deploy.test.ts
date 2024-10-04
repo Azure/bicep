@@ -1,13 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/**
- * Tests for "bicep local-deploy".
- *
- * @group CI
- */
-
-import { describe } from "vitest";
+import { describe, it } from "vitest";
 import os from "os";
 import { invokingBicepCommand } from "../utils/command";
 import { copyToTempFile, pathToExampleFile, pathToTempFile } from "../utils/fs";
@@ -15,12 +9,11 @@ import {
   platformSupportsLocalDeploy,
   publishExtension,
 } from "../utils/localdeploy";
-import { itif } from "../utils/testHelpers";
 
 describe("bicep local-deploy", () => {
   const testArea = "local-deploy";
 
-  itif(platformSupportsLocalDeploy())(
+  it.runIf(platformSupportsLocalDeploy())(
     "should publish and run an extension published to the local file system",
     () => {
       const baseFolder = pathToExampleFile("local-deploy");

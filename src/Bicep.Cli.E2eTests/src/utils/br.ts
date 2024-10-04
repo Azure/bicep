@@ -6,7 +6,7 @@ import { expectFileExists, pathToCachedBrModuleFile } from "./fs";
 import path from "path";
 import { invokingBicepCommand } from "./command";
 import { pathToExampleFile } from "./fs";
-import { EnvironmentOverrides } from "./types";
+import { EnvironmentOverrides } from "./liveTestEnvironments";
 
 // The modules published from live tests to our test ACR instances need to be periodically
 // purged. ACR purge tasks support wildcards but only on tags. This means that we have to have

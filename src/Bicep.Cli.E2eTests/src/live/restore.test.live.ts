@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/**
- * Live tests for "bicep restore".
- *
- * @group live
- */
-
 import { describe, it, beforeEach } from "vitest";
 import {
   BicepRegistryReferenceBuilder,

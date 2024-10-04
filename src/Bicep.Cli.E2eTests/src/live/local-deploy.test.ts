@@ -1,13 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/**
- * Live tests for "bicep local-deploy".
- *
- * @group live
- */
-
-import { describe } from "vitest";
+import { describe, it } from "vitest";
 import os from "os";
 import { invokingBicepCommand } from "../utils/command";
 import { copyToTempFile, pathToExampleFile, pathToTempFile } from "../utils/fs";
@@ -17,7 +11,6 @@ import {
 } from "../utils/localdeploy";
 import { getEnvironment } from "../utils/liveTestEnvironments";
 import { BicepRegistryReferenceBuilder } from "../utils/br";
-import { itif } from "../utils/testHelpers";
 
 describe("bicep local-deploy", () => {
   const environment = getEnvironment();
@@ -27,7 +20,7 @@ describe("bicep local-deploy", () => {
     testArea,
   );
 
-  itif(platformSupportsLocalDeploy())(
+  it.runIf(platformSupportsLocalDeploy())(
     "should publish and run an extension published to a registry",
     () => {
       const baseFolder = pathToExampleFile("local-deploy");

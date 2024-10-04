@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/**
- * Tests for "bicep jsonrpc".
- *
- * @group CI
- */
-
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { MessageConnection } from "vscode-jsonrpc";
 import { pathToExampleFile, writeTempFile } from "../utils/fs";
