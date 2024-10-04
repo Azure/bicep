@@ -7,6 +7,7 @@
  * @group CI
  */
 
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { MessageConnection } from "vscode-jsonrpc";
 import { pathToExampleFile, writeTempFile } from "../utils/fs";
 import {

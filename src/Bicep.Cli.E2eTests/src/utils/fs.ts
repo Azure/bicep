@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import { expect } from "vitest";
 import path from "path";
 import fs from "fs";
 import { rimraf } from "rimraf";

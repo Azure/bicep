@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/**
- * Tests for "bicep build".
- *
- * @group CI
- */
-
+import { describe, it, expect } from "vitest";
 import { invokingBicepCommand } from "../utils/command";
 import {
   expectFileExists,

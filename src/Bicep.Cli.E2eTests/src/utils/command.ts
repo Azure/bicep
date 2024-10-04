@@ -3,6 +3,7 @@
 
 import spawn from "cross-spawn";
 
+import { expect } from "vitest";
 import { bicepCli } from "./fs";
 import { EnvironmentOverrides } from "./types";
 import { logStdErr } from "./log";

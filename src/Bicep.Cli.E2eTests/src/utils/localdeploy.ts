@@ -7,6 +7,7 @@
  * @group CI
  */
 
+import { expect } from "vitest";
 import spawn from "cross-spawn";
 import path from "path";
 import { ensureParentDirExists } from "./fs";

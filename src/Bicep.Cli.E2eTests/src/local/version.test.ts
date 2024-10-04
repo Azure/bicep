@@ -7,6 +7,7 @@
  * @group CI
  */
 
+import { describe, it } from "vitest";
 import { invokingBicepCommand } from "../utils/command";
 
 describe("bicep --version", () => {

@@ -7,6 +7,7 @@
  * @group CI
  */
 
+import { describe } from "vitest";
 import os from "os";
 import { invokingBicepCommand } from "../utils/command";
 import { copyToTempFile, pathToExampleFile, pathToTempFile } from "../utils/fs";
@@ -24,6 +25,8 @@ describe("bicep local-deploy", () => {
     () => {
       const baseFolder = pathToExampleFile("local-deploy");
       const target = pathToTempFile(testArea, "mock.tgz");
+
+      console.log(1);
 
       const files = {
         bicep: copyToTempFile(baseFolder, "main.bicep", testArea),
