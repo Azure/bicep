@@ -1820,6 +1820,13 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic NameofInvalidOnUnnamedExpression() => CoreError(
                 "BCP408",
                 $"The \"{LanguageConstants.NameofFunctionName}\" function can only be used with an expression which has a name.");
+
+            public Diagnostic InvalidBicepVersion(string? configFilePath, string expectedVersion, string actualVersion) => CoreError(
+                "BCP409",
+                configFilePath switch {
+                    {} => $"""Bicep version "{actualVersion}" was used for compilation, but version "{expectedVersion}" is required in configuration file "{configFilePath}".""",
+                    _ => $"""Bicep version "{actualVersion}" was used for compilation, but version "{expectedVersion}" is required.""",
+                });
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

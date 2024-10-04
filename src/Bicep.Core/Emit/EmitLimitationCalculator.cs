@@ -37,7 +37,8 @@ namespace Bicep.Core.Emit
             ForSyntaxValidatorVisitor.Validate(model, diagnostics);
             FunctionPlacementValidatorVisitor.Validate(model, diagnostics);
             IntegerValidatorVisitor.Validate(model, diagnostics);
-
+            
+            BlockIncorrectBicepVersion(model, diagnostics);
             DetectDuplicateNames(model, diagnostics, resourceScopeData, moduleScopeData);
             DetectIncorrectlyFormattedNames(model, diagnostics);
             DetectUnexpectedResourceLoopInvariantProperties(model, diagnostics);
@@ -59,6 +60,16 @@ namespace Bicep.Core.Emit
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
+        }
+
+        private static void BlockIncorrectBicepVersion(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            var actualVersion = ThisAssembly.AssemblyInformationalVersion.Split('+')[0];
+            if (model.Configuration.Bicep.Data.Version is {} expectedVersion &&
+                expectedVersion != actualVersion)
+            {
+                diagnostics.Write(TextSpan.TextDocumentStart, x => x.InvalidBicepVersion(model.Configuration.ConfigFileUri?.LocalPath, expectedVersion, actualVersion));
+            }
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)

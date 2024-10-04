@@ -28,6 +28,8 @@ namespace Bicep.Core.Configuration
 
         public const string FormattingKey = "formatting";
 
+        public const string BicepKey = "bicep";
+
         public RootConfiguration(
             CloudConfiguration cloud,
             ModuleAliasesConfiguration moduleAliases,
@@ -37,6 +39,7 @@ namespace Bicep.Core.Configuration
             string? cacheRootDirectory,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
             FormattingConfiguration formatting,
+            BicepConfigurationSection bicep,
             Uri? configFileUri,
             IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
         {
@@ -48,6 +51,7 @@ namespace Bicep.Core.Configuration
             this.CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
             this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
             this.Formatting = formatting;
+            this.Bicep = bicep;
             this.ConfigFileUri = configFileUri;
             this.DiagnosticBuilders = diagnosticBuilders?.ToImmutableArray() ?? [];
         }
@@ -60,11 +64,12 @@ namespace Bicep.Core.Configuration
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
             var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
             var formatting = FormattingConfiguration.Bind(element.GetProperty(FormattingKey));
+            var bicep = BicepConfigurationSection.Bind(element.GetProperty(BicepKey));
 
             var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
             var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
 
-            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configFileUri, diagnosticBuilders);
+            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, bicep, configFileUri, diagnosticBuilders);
         }
 
         public CloudConfiguration Cloud { get; }
@@ -82,6 +87,8 @@ namespace Bicep.Core.Configuration
         public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; }
 
         public FormattingConfiguration Formatting { get; }
+
+        public BicepConfigurationSection Bicep { get; }
 
         public Uri? ConfigFileUri { get; }
 
@@ -121,6 +128,9 @@ namespace Bicep.Core.Configuration
 
                 writer.WritePropertyName(FormattingKey);
                 this.Formatting.WriteTo(writer);
+
+                writer.WritePropertyName(BicepKey);
+                this.Bicep.WriteTo(writer);
 
                 writer.WriteEndObject();
             }

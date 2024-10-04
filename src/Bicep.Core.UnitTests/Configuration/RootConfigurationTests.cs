@@ -23,6 +23,7 @@ public class RootConfigurationTests
                 cacheRootDirectory,
                 BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesEnabled,
                 BicepTestConstants.BuiltInConfiguration.Formatting,
+                BicepTestConstants.BuiltInConfiguration.Bicep,
                 BicepTestConstants.BuiltInConfiguration.ConfigFileUri,
                 BicepTestConstants.BuiltInConfiguration.DiagnosticBuilders);
 

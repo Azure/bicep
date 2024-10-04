@@ -46,6 +46,7 @@ namespace Bicep.Core.Configuration
                 current.CacheRootDirectory,
                 current.ExperimentalFeaturesEnabled,
                 current.Formatting,
+                current.Bicep,
                 current.ConfigFileUri,
                 current.DiagnosticBuilders);
 

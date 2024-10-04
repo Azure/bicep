@@ -4,6 +4,8 @@
 using System.IO.Compression;
 using Bicep.Cli.Arguments;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Utils;
+using Environment = System.Environment;
 
 namespace Bicep.Cli.Commands
 {
@@ -265,10 +267,11 @@ Usage:
 
         private static string GetVersionString()
         {
-            var versionSplit = ThisAssembly.AssemblyInformationalVersion.Split('+');
+            var version = BicepVersion.Instance.Value;
+            var commitHash = BicepVersion.Instance.CommitHash;
 
             // <major>.<minor>.<patch> (<commmithash>)
-            return $"{versionSplit[0]} ({(versionSplit.Length > 1 ? versionSplit[1] : "custom")})";
+            return $"{version} ({(commitHash is {} ? commitHash : "custom")})";
         }
 
         private static void WriteEmbeddedResource(TextWriter writer, string streamName)

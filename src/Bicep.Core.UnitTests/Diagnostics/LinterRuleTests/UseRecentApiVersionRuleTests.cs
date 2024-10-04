@@ -130,6 +130,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     Extensibility = true,
                 },
                 original.Formatting,
+                original.Bicep,
                 null,
                 null);
         }

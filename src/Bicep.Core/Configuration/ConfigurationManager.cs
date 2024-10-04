@@ -102,6 +102,7 @@ namespace Bicep.Core.Configuration
                     configuration.CacheRootDirectory,
                     configuration.ExperimentalFeaturesEnabled,
                     configuration.Formatting,
+                    configuration.Bicep,
                     configuration.ConfigFileUri,
                     diagnostics);
             }
