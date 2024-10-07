@@ -2785,6 +2785,101 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             null);
     }
 
+    [DataRow(
+        """
+            resource nsg 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
+              name: 'nsg'
+              location: 'westus'
+              properties: |{
+                securityRules: [{
+                  id: 'id1'
+                  name: 'name1'
+                  type: 'type1'
+                  properties: {
+                    access: 'Allow'
+                    direction: 'Inbound'
+                    priority: 4096
+                    protocol: 'Tcp'
+                  }
+                }]
+              }
+            }
+            """,
+        "IGNORE",
+        """
+           param nsgProps resource<'Microsoft.Network/networkSecurityGroups@2023-09-01'>.properties = {
+             securityRules: [{
+               id: 'id1'
+               name: 'name1'
+               type: 'type1'
+               properties: {
+                 access: 'Allow'
+                 direction: 'Inbound'
+                 priority: 4096
+                 protocol: 'Tcp'
+               }
+             }]
+           }
+
+           resource nsg 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
+             name: 'nsg'
+             location: 'westus'
+             properties: nsgProps
+           }           
+           """,
+        "type",
+        DisplayName = "networkSecurityGroups.properties")]
+    [DataRow(
+        """
+            resource nsg 'Microsoft.Network/networkSecurityGroups@2023-09-01' = |{
+              name: 'nsg'
+              location: 'westus'
+              properties: {
+                securityRules: [{
+                  id: 'id1'
+                  name: 'name1'
+                  type: 'type1'
+                  properties: {
+                    access: 'Allow'
+                    direction: 'Inbound'
+                    priority: 4096
+                    protocol: 'Tcp'
+                  }
+                }]
+              }
+            }
+            """,
+        "IGNORE",
+        """
+           param newParameter object = {
+             name: 'nsg'
+             location: 'westus'
+             properties: {
+               securityRules: [
+                 {
+                   id: 'id1'
+                   name: 'name1'
+                   type: 'type1'
+                   properties: {
+                     access: 'Allow'
+                     direction: 'Inbound'
+                     priority: 4096
+                     protocol: 'Tcp'
+                   }
+                 }
+               ]
+             }
+           }
+
+           resource nsg 'Microsoft.Network/networkSecurityGroups@2023-09-01' = newParameter
+           """,
+        "")]
+    [DataTestMethod]
+    public async Task ResourceDerivedTypes_asdfg(string fileWithSelection, string? expectedVarText, string? expectedLooseParamText, string? expectedMediumParamText)
+    {
+        await RunExtractToVariableAndParameterTest(fileWithSelection, expectedVarText, expectedLooseParamText, expectedMediumParamText);
+    }
+
     [TestMethod]
     public void TestCheckLineContent()
     {

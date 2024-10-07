@@ -178,6 +178,7 @@ public class ExpressionAndTypeExtractor
         // Strict typing for the param doesn't appear useful, providing only loose and medium at the moment
         var stringifiedLooseType = Stringify(newParamType, extractionContext.TypeProperty, Strictness.Loose, ignoreTopLevelNullability);
         var stringifiedUserDefinedType = Stringify(newParamType, extractionContext.TypeProperty, Strictness.Medium, ignoreTopLevelNullability);
+        var resourceDerivedType = TryStringifyResourceDerivedType(newParamType, extractionContext.TypeProperty);
 
         var userDefinedTypeAvailable = !string.Equals(stringifiedLooseType, stringifiedUserDefinedType, StringComparison.Ordinal);
 
@@ -200,6 +201,15 @@ public class ExpressionAndTypeExtractor
                 ExtractionKind.Type,
                 $"[Preview] Create type for {GetQuotedText(stringifiedUserDefinedType)}",
                 stringifiedUserDefinedType);
+        }
+
+        if (resourceDerivedType is { })
+        {
+            yield return CreateExtraction(
+                extractionContext,
+                ExtractionKind.Type,
+                $"[Preview] Extract parameter of type {GetQuotedText(resourceDerivedType)}",
+                resourceDerivedType);
         }
     }
 

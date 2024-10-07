@@ -25,6 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.LangServer.IntegrationTests;
 
+//asdfg test stringizing a resource-derived type
 [TestClass]
 public class TypeStringifierTests
 {
@@ -516,6 +517,27 @@ public class TypeStringifierTests
 
     [DataTestMethod]
     //
+    // entire resource
+    //
+    [DataRow(
+        """
+            resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+              name: 'name'
+              location: location
+            }
+
+            resource testResource 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+              parent: virtualMachine
+              name: 'name'
+            }            
+            """,
+        "parent",
+        "type loose = object? /* Microsoft.Compute/virtualMachines */",
+        "type medium = object? /* Microsoft.Compute/virtualMachines */",
+        "type strict = object? /* Microsoft.Compute/virtualMachines */",
+        "type resource = resource<'Microsoft.Compute/virtualMachines'>",
+        DisplayName = "virtual machine entire object (via 'parent')")]
+    //
     // storage Kind property
     //
     [DataRow(
@@ -528,6 +550,7 @@ public class TypeStringifierTests
         "type loose = string",
         "type medium = string /* 'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Storage' | 'StorageV2' | string */",
         "type strict = string /* 'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Storage' | 'StorageV2' | string */",
+        "asdfg",
         DisplayName = "Storage kind property (open enum)")]
     [DataRow(
         """
@@ -554,6 +577,7 @@ public class TypeStringifierTests
         "type loose = array",
         "type medium = string[]",
         "type strict = ['https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-vm-simple-windows/writeblob.ps1?sas=abcd']",
+        "asdfg",
         DisplayName = "virtual machine extensions fileUris property")]
     //
     // "settings" property
@@ -583,6 +607,7 @@ public class TypeStringifierTests
         "type loose = object",
         "type medium = { commandToExecute: string, fileUris: string[] }",
         "type strict = { commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File writeblob.ps1', fileUris: ['https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-vm-simple-windows/writeblob.ps1?sas=abcd'] }",
+        "asdfg",
         DisplayName = "virtual machine extensions settings property")]
     //
     // "properties" property
@@ -674,27 +699,11 @@ public class TypeStringifierTests
               typeHandlerVersion: string?
             }
             """,
+        "asdfg",
         DisplayName = "virtual machine extensions properties")]
-    [DataRow(
-        """
-            resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
-              name: 'name'
-              location: location
-            }
-
-            resource testResource 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-              parent: virtualMachine
-              name: 'name'
-            }            
-            """,
-        "parent",
-        "type loose = object? /* Microsoft.Compute/virtualMachines */",
-        "type medium = object? /* Microsoft.Compute/virtualMachines */",
-        "type strict = object? /* Microsoft.Compute/virtualMachines */",
-        DisplayName = "virtual machine entire object (via 'parent')")]
-    public void ResourcePropertyTypes(string resourceDeclaration, string resourcePropertyName, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax)
+    public void ResourcePropertyTypes(string resourceDeclaration, string resourcePropertyName, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax, string expectedResourceDerivedSyntax)
     {
-        RunTestFromResourceProperty(resourceDeclaration, resourcePropertyName, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax);
+        RunTestFromResourceProperty(resourceDeclaration, resourcePropertyName, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, expectedResourceDerivedSyntax);
     }
 
     [DataTestMethod]
@@ -732,9 +741,9 @@ public class TypeStringifierTests
         "type loose = object", // TODO: better: "{ a: t1, b: [t1, t1] }"
         "type medium = { a: { a: string, b: int }, b: { a: string, b: int }[] }", // TODO: better: "{ a: t1, b: [t1, t1] }"
         "type strict = { a: { a: 'abc', b: 123 }, b: [{ a: 'abc', b: 123 }, { a: 'abc', b: 123 }] }")]
-    public void NamedTypes(string typeDeclaration, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax)
+    public void NamedTypes(string typeDeclaration, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax, string? expectedResourceDerivedSyntax) //asdfg?
     {
-        RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax);
+        RunTestFromTypeDeclaration(typeDeclaration, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, expectedResourceDerivedSyntax);
     }
 
     [DataTestMethod]
@@ -762,7 +771,7 @@ public class TypeStringifierTests
     #region Support
 
     // input is a type declaration statement for type "testType", e.g. "type testType = int"
-    private static void RunTestFromTypeDeclaration(string typeDeclaration, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax)
+    private static void RunTestFromTypeDeclaration(string typeDeclaration, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax, string? expectedResourceDerivedSyntax = null/*asdfg*/)
     {
         var compilationResult = CompilationHelper.Compile(typeDeclaration);
         var semanticModel = compilationResult.Compilation.GetEntrypointSemanticModel();
@@ -770,11 +779,11 @@ public class TypeStringifierTests
         var declaredType = semanticModel.GetDeclaredType(semanticModel.Root.TypeDeclarations.Single(t => t.Name == "testType").Value);
         declaredType.Should().NotBeNull();
 
-        RunTestHelper(null, declaredType!, semanticModel, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax);
+        RunTestHelper(null, declaredType!, semanticModel, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, expectedResourceDerivedSyntax);
     }
 
     // input is a resource declaration for resource "testResource" and a property name such as "properties" that is exposed anywhere on the resource
-    private static void RunTestFromResourceProperty(string resourceDeclaration, string resourcePropertyName, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax)
+    private static void RunTestFromResourceProperty(string resourceDeclaration, string resourcePropertyName, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax, string expectedResourceDerivedSyntax)
     {
         var compilationResult = CompilationHelper.Compile(resourceDeclaration);
         var semanticModel = compilationResult.Compilation.GetEntrypointSemanticModel();
@@ -788,10 +797,10 @@ public class TypeStringifierTests
         var matchingPropertyType = declaredType is AnyType || declaredType == null ? inferredType : declaredType;
         matchingPropertyType.Should().NotBeNull();
 
-        RunTestHelper(null, matchingPropertyType!, semanticModel, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax);
+        RunTestHelper(null, matchingPropertyType!, semanticModel, expectedLooseSyntax, expectedMediumStrictSyntax, expectedStrictSyntax, expectedResourceDerivedSyntax);
     }
 
-    private static void RunTestHelper(TypeProperty? typeProperty, TypeSymbol typeSymbol, SemanticModel semanticModel, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax)
+    private static void RunTestHelper(TypeProperty? typeProperty, TypeSymbol typeSymbol, SemanticModel semanticModel, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax, string?/*asdfg*/ expectedResourceDerivedSyntax=null/*asdfg*/)
     {
         if (debugPrintAllSyntaxNodeTypes)
         {
@@ -801,12 +810,17 @@ public class TypeStringifierTests
         var looseSyntax = TypeStringifier.Stringify(typeSymbol, typeProperty, TypeStringifier.Strictness.Loose);
         var mediumStrictSyntax = TypeStringifier.Stringify(typeSymbol, typeProperty, TypeStringifier.Strictness.Medium);
         var strictSyntax = TypeStringifier.Stringify(typeSymbol, typeProperty, TypeStringifier.Strictness.Strict);
+        var resourceDerivedSyntax = expectedResourceDerivedSyntax is { } ? TypeStringifier.TryStringifyResourceDerivedType(typeSymbol, typeProperty) : null;
 
         using (new AssertionScope())
         {
             CompilationHelper.Compile(expectedLooseSyntax).Diagnostics.Should().NotHaveAnyDiagnostics("expected loose syntax should be error-free");
             CompilationHelper.Compile(expectedMediumStrictSyntax).Diagnostics.Should().NotHaveAnyDiagnostics("expected medium strictness syntax should be error-free");
             CompilationHelper.Compile(expectedStrictSyntax).Diagnostics.Should().NotHaveAnyDiagnostics("expected strict syntax should be error-free");
+            if (expectedResourceDerivedSyntax is { })//asdfg
+            {
+                CompilationHelper.Compile(expectedResourceDerivedSyntax).Diagnostics.Should().NotHaveAnyDiagnostics("expected resource-derived syntax should be error-free");
+            }
         }
 
         using (new AssertionScope())
@@ -820,10 +834,20 @@ public class TypeStringifierTests
             string actualStrictSyntaxType = $"type strict = {strictSyntax}";
             actualStrictSyntaxType.Should().EqualIgnoringBicepFormatting(expectedStrictSyntax);
 
+            string? actualResourceDerivedSyntaxType = null;
+            if (expectedResourceDerivedSyntax is { })//asdfg
+            {
+                actualResourceDerivedSyntaxType = $"type resource = {resourceDerivedSyntax}";
+                resourceDerivedSyntax.Should().EqualIgnoringBicepFormatting(expectedResourceDerivedSyntax);
+            }
+
             CompilationHelper.Compile(actualLooseSyntaxType).Diagnostics.Should().NotHaveAnyDiagnostics("the generated loose type string should compile successfully");
             CompilationHelper.Compile(actualMediumLooseSyntaxType).Diagnostics.Should().NotHaveAnyDiagnostics("the generated medium strictness type string should compile successfully");
             CompilationHelper.Compile(actualStrictSyntaxType).Diagnostics.Should().NotHaveAnyDiagnostics("the generated loose strict string should compile successfully");
-
+            if (expectedResourceDerivedSyntax is { })//asdfg
+            {
+                CompilationHelper.Compile(actualResourceDerivedSyntaxType!).Diagnostics.Should().NotHaveAnyDiagnostics("the generated resource-derived type string should compile successfully");
+            }
         }
     }
 

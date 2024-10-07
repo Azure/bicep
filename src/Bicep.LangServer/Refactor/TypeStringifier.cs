@@ -34,6 +34,11 @@ public static class TypeStringifier
         /// Widen everything to basic types only, e.g. => `object`
         /// </summary>
         Loose,
+
+        ///// <summary>
+        ///// asdfg
+        ///// </summary>
+        ////ResourceDerived,
     }
 
     // Note: This is "best effort" code for now. Ideally we should handle this exactly, but Bicep doesn't support expressing all the types it actually supports
@@ -41,6 +46,21 @@ public static class TypeStringifier
     public static string Stringify(TypeSymbol? type, TypeProperty? typeProperty, Strictness strictness, bool removeTopLevelNullability = false)
     {
         return StringifyCore(type, typeProperty, strictness, [], removeTopLevelNullability);
+    }
+
+    // Note: This is "best effort" code for now. Ideally we should handle this exactly, but Bicep doesn't support expressing all the types it actually supports
+    // Note: Returns type on a single line
+    public static string? TryStringifyResourceDerivedType(TypeSymbol? type, TypeProperty? typeProperty)
+    {
+        //TypeKind.ResourceScopeReference asdfg?
+        if (type?.TypeKind == TypeKind.Resource)
+        {
+            return $"resource<'{type.Name}'>";
+        }
+
+        //asdfg nullable?
+
+        return null;
     }
 
     private static string StringifyCore(TypeSymbol? type, TypeProperty? typeProperty, Strictness strictness, TypeSymbol[] visitedTypes, bool removeTopLevelNullability = false)
