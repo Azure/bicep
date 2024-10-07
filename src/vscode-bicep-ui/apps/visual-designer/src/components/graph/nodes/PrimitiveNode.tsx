@@ -5,7 +5,7 @@ import { useGetPanZoomTransform } from "@vscode-bicep-ui/components";
 import { drag } from "d3-drag";
 import { select } from "d3-selection";
 import { animate, frame, transform } from "framer-motion";
-import { useSetAtom, useStore } from "jotai";
+import { useStore } from "jotai";
 import { useEffect, useRef } from "react";
 import { styled } from "styled-components";
 
@@ -26,6 +26,7 @@ type NodeProps = {
 };
 
 const $Node = styled.div`
+  position: absolute;
   cursor: default;
   display: flex;
   justify-content: center;
@@ -34,12 +35,12 @@ const $Node = styled.div`
   background: #1f1f1f1f;
   border-style: solid;
   border-color: black;
+  z-index: 1;
 `;
 
-export function Node({ id, originAtom, boxAtom }: NodeProps) {
+export function PrimitiveNode({ id, originAtom, boxAtom }: NodeProps) {
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
-  const setBox = useSetAtom(boxAtom);
   const getPanZoomTransform = useGetPanZoomTransform();
 
   useEffect(() => {
@@ -50,8 +51,7 @@ export function Node({ id, originAtom, boxAtom }: NodeProps) {
       if (origin.x === center.x && origin.y === center.y) {
         return;
       }
-
-      const xTransform = transform([0, 100], [center.x, origin.x]);
+      const xTransform = transform([0, 100], [center.x, origin.x])
       const yTransform = transform([0, 100], [center.y, origin.y]);
 
       animate(0, 100, {
@@ -67,31 +67,32 @@ export function Node({ id, originAtom, boxAtom }: NodeProps) {
               center: { x, y },
             }));
           });
-        }
+        },
       });
     });
   }, [boxAtom, originAtom, store]);
 
   useEffect(() => {
-    return store.sub(boxAtom, () => {
+    const updateBox = () => {
       if (!ref.current) {
         return;
       }
-
       const { center, width, height } = store.get(boxAtom);
 
-      ref.current.style.transform = `translate(${center.x}px, ${center.y}px)`;
+      ref.current.style.translate = `${center.x - width / 2}px ${center.y - height / 2}px`;
       ref.current.style.width = `${width}px`;
       ref.current.style.height = `${height}px`;
-    });
+    };
+
+    updateBox();
+
+    return store.sub(boxAtom, () => updateBox());
   }, [boxAtom, store]);
 
   useEffect(() => {
     if (!ref.current) {
       return;
     }
-
-    setBox((box) => ({ ...box }));
 
     const selection = select(ref.current);
     const dragBehavior = drag<HTMLDivElement, unknown>().on(
@@ -100,7 +101,7 @@ export function Node({ id, originAtom, boxAtom }: NodeProps) {
         const { scale } = getPanZoomTransform();
 
         frame.update(() => {
-          setBox((box) => ({
+          store.set(boxAtom, (box) => ({
             ...box,
             center: {
               x: box.center.x + dx / scale,
@@ -116,7 +117,7 @@ export function Node({ id, originAtom, boxAtom }: NodeProps) {
     return () => {
       selection.on("drag", null);
     };
-  }, [getPanZoomTransform, setBox]);
+  }, [boxAtom, getPanZoomTransform, store]);
 
   return <$Node ref={ref}>{id}</$Node>;
 }

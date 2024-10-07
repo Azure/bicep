@@ -4,10 +4,10 @@ import { PanZoom } from "@vscode-bicep-ui/components";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 import styled from "styled-components";
-import { nodesAtom } from "./atoms";
+import { isNode, nodesAtom } from "./atoms";
 import { Graph } from "./Graph";
 
-const $PanZoom = styled(PanZoom)`
+const $CanvasPanel = styled(PanZoom)`
   position: absolute;
   left: 0px;
   top: 0px;
@@ -23,15 +23,17 @@ export function Canvas() {
 
       const nodes = get(nodesAtom);
       for (const node of Object.values(nodes)) {
-        set(node.origin, { ...get(node.origin) });
+        if (isNode(node)) {
+          set(node.origin, { ...get(node.origin) });
+        }
       }
     }, []),
   );
 
   return (
-    <$PanZoom>
+    <$CanvasPanel>
       <button onClick={layout}>Layout</button>
       <Graph />
-    </$PanZoom>
+    </$CanvasPanel>
   );
 }
