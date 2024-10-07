@@ -40,7 +40,7 @@ export class AzureUiManager implements IAzureUiManager {
   public async pickScope(scopeType: DeploymentScopeType): Promise<DeploymentScope> {
     switch (scopeType) {
       case "resourceGroup": {
-        const treeItem = await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker("", this.context);
+        const treeItem = await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker("", this.context); //asdfg
 
         return {
           scopeType,
