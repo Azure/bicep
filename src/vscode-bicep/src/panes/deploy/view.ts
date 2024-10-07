@@ -255,7 +255,7 @@ export class DeployPaneView extends Disposable {
         <meta charset="UTF-8">
         <!--
         Use a content security policy to only allow loading images from our extension directory,
-        and only allow scripts that have a specific nonce.
+      and only allow scripts that have a specific nonce.
         -->
         <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://management.azure.com; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src data: ${cspSource};">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
