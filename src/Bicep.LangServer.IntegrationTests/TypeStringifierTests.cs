@@ -535,7 +535,7 @@ public class TypeStringifierTests
         "type loose = object? /* Microsoft.Compute/virtualMachines */",
         "type medium = object? /* Microsoft.Compute/virtualMachines */",
         "type strict = object? /* Microsoft.Compute/virtualMachines */",
-        "type resource = resource<'Microsoft.Compute/virtualMachines'>",
+        null, // Resource-derived type expressions must de-refence a property within the resource body. Using the entire resource body type is not permitted
         DisplayName = "virtual machine entire object (via 'parent')")]
     //
     // storage Kind property
@@ -550,7 +550,7 @@ public class TypeStringifierTests
         "type loose = string",
         "type medium = string /* 'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Storage' | 'StorageV2' | string */",
         "type strict = string /* 'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Storage' | 'StorageV2' | string */",
-        "asdfg",
+        null,
         DisplayName = "Storage kind property (open enum)")]
     [DataRow(
         """
@@ -577,7 +577,7 @@ public class TypeStringifierTests
         "type loose = array",
         "type medium = string[]",
         "type strict = ['https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-vm-simple-windows/writeblob.ps1?sas=abcd']",
-        "asdfg",
+        null,
         DisplayName = "virtual machine extensions fileUris property")]
     //
     // "settings" property
@@ -607,7 +607,7 @@ public class TypeStringifierTests
         "type loose = object",
         "type medium = { commandToExecute: string, fileUris: string[] }",
         "type strict = { commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File writeblob.ps1', fileUris: ['https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-vm-simple-windows/writeblob.ps1?sas=abcd'] }",
-        "asdfg",
+        "type resourceDerived = 'asdfg'",
         DisplayName = "virtual machine extensions settings property")]
     //
     // "properties" property
@@ -699,7 +699,7 @@ public class TypeStringifierTests
               typeHandlerVersion: string?
             }
             """,
-        "asdfg",
+        "type resourceDerived = 'asdfg'",
         DisplayName = "virtual machine extensions properties")]
     public void ResourcePropertyTypes(string resourceDeclaration, string resourcePropertyName, string expectedLooseSyntax, string expectedMediumStrictSyntax, string expectedStrictSyntax, string expectedResourceDerivedSyntax)
     {
@@ -837,7 +837,7 @@ public class TypeStringifierTests
             string? actualResourceDerivedSyntaxType = null;
             if (expectedResourceDerivedSyntax is { })//asdfg
             {
-                actualResourceDerivedSyntaxType = $"type resource = {resourceDerivedSyntax}";
+                actualResourceDerivedSyntaxType = $"type resourceDerived = {resourceDerivedSyntax}";
                 resourceDerivedSyntax.Should().EqualIgnoringBicepFormatting(expectedResourceDerivedSyntax);
             }
 

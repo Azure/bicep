@@ -52,11 +52,17 @@ public static class TypeStringifier
     // Note: Returns type on a single line
     public static string? TryStringifyResourceDerivedType(TypeSymbol? type, TypeProperty? typeProperty)
     {
-        //TypeKind.ResourceScopeReference asdfg?
-        if (type?.TypeKind == TypeKind.Resource)
+        if (typeProperty == null)
         {
-            return $"resource<'{type.Name}'>";
+            // Resource-derived type expressions must de-refence a property within the resource body. Using the entire resource body type is not permitted.
+            return null;
         }
+
+        //TypeKind.ResourceScopeReference asdfg?
+        //if (type?.TypeKind == TypeKind.Resource)
+        //{
+        //    return $"resource<'{type.Name}'>";
+        //}
 
         //asdfg nullable?
 
