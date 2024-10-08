@@ -1,6 +1,6 @@
 type invalid1 = resource
 //@[016:024) [BCP231 (Error)] Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature "ResourceTypedParamsAndOutputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP231) |resource|
-//@[024:024) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) ||
+//@[024:024) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) ||
 
 type invalid2 = resource<>
 //@[024:026) [BCP071 (Error)] Expected 1 argument, but got 0. (bicep https://aka.ms/bicep/core-diagnostics#BCP071) |<>|
@@ -10,15 +10,15 @@ type invalid3 = resource<'abc', 'def'>
 type invalid4 = resource<hello>
 //@[025:030) [BCP070 (Error)] Argument of type "{ bar: Astronomer.Astro/organizations }" is not assignable to parameter of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |hello|
 type invalid5 = resource<'Microsoft.Storage/storageAccounts'>
-//@[025:060) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Storage/storageAccounts'|
+//@[025:060) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Storage/storageAccounts'|
 type invalid6 = resource<'Microsoft.Storage/storageAccounts@'>
-//@[025:061) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Storage/storageAccounts@'|
+//@[025:061) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Storage/storageAccounts@'|
 type invalid7 = resource<'Microsoft.Storage/storageAccounts@hello'>
-//@[025:066) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Storage/storageAccounts@hello'|
+//@[025:066) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Storage/storageAccounts@hello'|
 type invalid8 = resource<'notARealNamespace:Microsoft.Storage/storageAccounts@2022-09-01'>
 //@[025:089) [BCP208 (Error)] The specified namespace "notARealNamespace" is not recognized. Specify a resource reference using one of the following namespaces: "az", "sys". (bicep https://aka.ms/bicep/core-diagnostics#BCP208) |'notARealNamespace:Microsoft.Storage/storageAccounts@2022-09-01'|
 type invalid9 = resource<':Microsoft.Storage/storageAccounts@2022-09-01'>
-//@[025:072) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |':Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[025:072) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |':Microsoft.Storage/storageAccounts@2022-09-01'|
 type invalid10 = resource<'abc' 'def'>
 //@[025:038) [BCP071 (Error)] Expected 1 argument, but got 2. (bicep https://aka.ms/bicep/core-diagnostics#BCP071) |<'abc' 'def'>|
 //@[032:032) [BCP236 (Error)] Expected a new line or comma character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP236) ||
