@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { Example } from "./example";
 
 describe("msbuild", () => {
