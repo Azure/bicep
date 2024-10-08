@@ -5,9 +5,8 @@ import { styled } from "styled-components";
 
 const $PanZoomTransformed = styled(PanZoomTransformed)`
   transform-origin: 0 0;
-  height: 100px;
-  width: 100px;
-  background-color: lime;
+  height: 0px;
+  width: 0px;
 `;
 
 export function Graph() {

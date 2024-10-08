@@ -1,21 +1,13 @@
-import type { D3DragEvent, SubjectPosition } from "d3-drag";
-import type { Atom, PrimitiveAtom } from "jotai";
-import type { Box } from "../atoms";
+import type { CompoundNodeAtomValue } from "./atoms";
 
-import { useGetPanZoomTransform } from "@vscode-bicep-ui/components";
-import { drag } from "d3-drag";
-import { select } from "d3-selection";
 import { frame } from "framer-motion";
 import { useStore } from "jotai";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import styled from "styled-components";
-import { isSubgraph, nodesAtom } from "../atoms";
-
-type SubgraphProps = {
-  id: string;
-  childIdsAtom: PrimitiveAtom<string[]>;
-  boxAtom: Atom<Box>;
-};
+import { boxTranslate } from "../../../math";
+import { isPrimitive, nodesAtom } from "../nodes";
+import { useBoxSubscription } from "./useBoxSubscription";
+import { useDragListener } from "./useDragListener";
 
 const $Subgraph = styled.div`
   position: absolute;
@@ -30,78 +22,29 @@ const $Subgraph = styled.div`
   z-index: 0;
 `;
 
-export function CompoundNode({ id, childIdsAtom, boxAtom }: SubgraphProps) {
+export function CompoundNode({ id, childIdsAtom, boxAtom }: CompoundNodeAtomValue) {
   const ref = useRef<HTMLDivElement>(null);
-  const getPanZoomTransform = useGetPanZoomTransform();
   const store = useStore();
 
-  useEffect(() => {
-    if (!ref.current) {
-      return;
-    }
+  useDragListener(ref, (dx, dy) => {
+    const childIds = store.get(childIdsAtom);
 
-    const { center, width, height } = store.get(boxAtom);
+    const translateChildren = (childIds: string[]) => {
+      for (const childId of childIds) {
+        const child = store.get(nodesAtom)[childId];
 
-    ref.current.style.translate = `${center.x - width / 2}px ${center.y - height / 2}px`;
-    ref.current.style.width = `${width}px`;
-    ref.current.style.height = `${height}px`;
-
-    return store.sub(boxAtom, () => {
-      if (!ref.current) {
-        return;
+        if (isPrimitive(child)) {
+          frame.update(() => store.set(child.boxAtom, (box) => boxTranslate(box, dx, dy)));
+        } else {
+          translateChildren(store.get(child.childIdsAtom));
+        }
       }
-
-      const { center, width, height } = store.get(boxAtom);
-
-      ref.current.style.translate = `${center.x - width / 2}px ${center.y - height / 2}px`;
-      ref.current.style.width = `${width}px`;
-      ref.current.style.height = `${height}px`;
-    });
-  }, [boxAtom, store]);
-
-  useEffect(() => {
-    if (!ref.current) {
-      return;
-    }
-
-    const selection = select(ref.current);
-    const dragBehavior = drag<HTMLDivElement, unknown>().on(
-      "drag",
-      ({ dx, dy }: D3DragEvent<HTMLDivElement, unknown, SubjectPosition>) => {
-        const childIds = store.get(childIdsAtom);
-
-        const translateChildren = (childIds: string[]) => {
-          for (const childId of childIds) {
-            const child = store.get(nodesAtom)[childId];
-
-            if (isSubgraph(child)) {
-              translateChildren(store.get(child.childNodeIds));
-            } else {
-              const { scale } = getPanZoomTransform();
-
-              frame.update(() => {
-                store.set(child.box, (box) => ({
-                  ...box,
-                  center: {
-                    x: box.center.x + dx / scale,
-                    y: box.center.y + dy / scale,
-                  },
-                }));
-              });
-            }
-          }
-        };
-
-        translateChildren(childIds);
-      },
-    );
-
-    selection.call(dragBehavior);
-
-    return () => {
-      selection.on("drag", null);
     };
-  }, [childIdsAtom, getPanZoomTransform, store]);
+
+    translateChildren(childIds);
+  });
+
+  useBoxSubscription(ref, store, boxAtom);
 
   return <$Subgraph ref={ref}>{id}</$Subgraph>;
 }
