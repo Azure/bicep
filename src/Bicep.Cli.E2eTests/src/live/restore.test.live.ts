@@ -1,28 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/**
- * Live tests for "bicep restore".
- *
- * @group live
- */
-
+import { beforeEach, describe, it } from "vitest";
+import { BicepRegistryReferenceBuilder, expectBrModuleStructure, publishModule } from "../utils/br";
+import { invokingBicepCommand } from "../utils/command";
 import {
-  BicepRegistryReferenceBuilder,
-  expectBrModuleStructure,
-  publishModule,
-} from "./utils/br";
-import { invokingBicepCommand } from "./utils/command";
-import {
+  emptyDir,
+  expectFileExists,
   moduleCacheRoot,
   pathToCachedTsModuleFile,
   pathToExampleFile,
-  emptyDir,
-  expectFileExists,
-  writeTempFile,
   readFileSync,
-} from "./utils/fs";
-import { getEnvironment } from "./utils/liveTestEnvironments";
+  writeTempFile,
+} from "../utils/fs";
+import { getEnvironment } from "../utils/liveTestEnvironments";
 
 async function emptyModuleCacheRoot() {
   await emptyDir(moduleCacheRoot);
@@ -57,9 +48,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
 `;
 
     const bicepPath = writeTempFile("restore-ts", "main.bicep", bicep);
-    const exampleConfig = readFileSync(
-      pathToExampleFile("modules" + environment.suffix, "bicepconfig.json"),
-    );
+    const exampleConfig = readFileSync(pathToExampleFile("modules" + environment.suffix, "bicepconfig.json"));
 
     writeTempFile("restore-ts", "bicepconfig.json", exampleConfig);
 
@@ -91,18 +80,10 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
   });
 
   it("should restore OCI artifacts", () => {
-    const builder = new BicepRegistryReferenceBuilder(
-      environment.registryUri,
-      testArea,
-    );
+    const builder = new BicepRegistryReferenceBuilder(environment.registryUri, testArea);
 
     const storageRef = builder.getBicepReference("storage", "v1");
-    publishModule(
-      environment.environmentOverrides,
-      storageRef,
-      "modules" + environment.suffix,
-      "storage.bicep",
-    );
+    publishModule(environment.environmentOverrides, storageRef, "modules" + environment.suffix, "storage.bicep");
 
     const passthroughRef = builder.getBicepReference("passthrough", "v1");
     publishModule(
@@ -118,11 +99,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
       "v1",
     );
 
-    const passthroughWithFullAliasRef = builder.getBicepReferenceWithAlias(
-      "test-modules",
-      "passthrough",
-      "v1",
-    );
+    const passthroughWithFullAliasRef = builder.getBicepReferenceWithAlias("test-modules", "passthrough", "v1");
 
     const bicep = `
 module passthrough '${passthroughRef}' = {
@@ -168,9 +145,7 @@ output blobEndpoint string = storage.outputs.blobEndpoint
 
     const bicepPath = writeTempFile("restore-br", "main.bicep", bicep);
 
-    const exampleConfig = readFileSync(
-      pathToExampleFile("modules" + environment.suffix, "bicepconfig.json"),
-    );
+    const exampleConfig = readFileSync(pathToExampleFile("modules" + environment.suffix, "bicepconfig.json"));
     writeTempFile("restore-br", "bicepconfig.json", exampleConfig);
 
     invokingBicepCommand("restore", bicepPath)
@@ -178,22 +153,10 @@ output blobEndpoint string = storage.outputs.blobEndpoint
       .shouldSucceed()
       .withEmptyStdout();
 
-    expectBrModuleStructure(
-      builder.registry,
-      "restore$passthrough",
-      `v1_${builder.tagSuffix}$4002000`,
-    );
+    expectBrModuleStructure(builder.registry, "restore$passthrough", `v1_${builder.tagSuffix}$4002000`);
 
-    expectBrModuleStructure(
-      builder.registry,
-      "restore$storage",
-      `v1_${builder.tagSuffix}$4002000`,
-    );
+    expectBrModuleStructure(builder.registry, "restore$storage", `v1_${builder.tagSuffix}$4002000`);
 
-    expectBrModuleStructure(
-      "mcr.microsoft.com",
-      "bicep$samples$hello-world",
-      "1.0.1$",
-    );
+    expectBrModuleStructure("mcr.microsoft.com", "bicep$samples$hello-world", "1.0.1$");
   });
 });

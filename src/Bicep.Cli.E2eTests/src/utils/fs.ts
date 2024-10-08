@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import path from "path";
 import fs from "fs";
-import { rimraf } from "rimraf";
 import { homedir } from "os";
+import path from "path";
+import { rimraf } from "rimraf";
+import { expect } from "vitest";
 
 export const bicepCli = path.resolve(
   __dirname,
-  process.env.BICEP_CLI_EXECUTABLE ||
-    "../../../Bicep.Cli/bin/Debug/net8.0/bicep",
+  process.env.BICEP_CLI_EXECUTABLE || "../../../Bicep.Cli/bin/Debug/net8.0/bicep",
 );
 
 export const moduleCacheRoot = path.resolve(homedir(), ".bicep");
@@ -67,11 +67,7 @@ export function expectFileNotExists(filePath: string): void {
   expect(fs.existsSync(filePath)).toBeFalsy();
 }
 
-export function writeTempFile(
-  testArea: string,
-  fileName: string,
-  contents: string,
-): string {
+export function writeTempFile(testArea: string, fileName: string, contents: string): string {
   const tempDir = pathToTempFile(testArea);
   fs.mkdirSync(tempDir, { recursive: true });
 
@@ -101,9 +97,5 @@ export function copyToTempFile(
     fileContents,
   );
 
-  return writeTempFile(
-    testArea,
-    replace?.relativePath ?? relativePath,
-    replacedContents,
-  );
+  return writeTempFile(testArea, replace?.relativePath ?? relativePath, replacedContents);
 }
