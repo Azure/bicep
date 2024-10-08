@@ -424,11 +424,6 @@ jobs:
         run: npm ci
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
-      - name: Compile
-        if: matrix.runTests
-        run: npm run compile
-        working-directory: ./src/Bicep.MSBuild.E2eTests
-
       - name: Run lint
         if: matrix.runTests
         run: npm run lint
