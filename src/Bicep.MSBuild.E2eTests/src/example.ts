@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import { expect } from "vitest";
 import * as spawn from "cross-spawn";
 import * as path from "path";
 import * as fs from "fs";

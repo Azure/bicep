@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { describe, it, expect } from "vitest";
 import * as asserts from "./asserts";
 import { Example } from "./example";
 
