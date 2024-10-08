@@ -4,12 +4,13 @@ import { animate, frame, transform } from "framer-motion";
 import { useStore } from "jotai";
 import { useEffect, useRef } from "react";
 import { styled } from "styled-components";
-import { boxTranslate, boxTranslateTo, pointsEqual } from "../../../math";
+import { pointsEqual, translateBox } from "../../../math";
 import { useBoxSubscription } from "./useBoxSubscription";
 import { useDragListener } from "./useDragListener";
 
 const $Node = styled.div`
   position: absolute;
+  box-sizing: border-box;
   cursor: default;
   display: flex;
   justify-content: center;
@@ -26,7 +27,7 @@ export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeAtomValu
   const store = useStore();
 
   useDragListener(ref, (dx, dy) => {
-    frame.update(() => store.set(boxAtom, (box) => boxTranslate(box, dx, dy)));
+    frame.update(() => store.set(boxAtom, (box) => translateBox(box, dx, dy)));
   });
 
   useBoxSubscription(ref, store, boxAtom);
@@ -50,9 +51,7 @@ export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeAtomValu
           const x = xTransform(latest);
           const y = yTransform(latest);
 
-          frame.update(() => {
-            store.set(boxAtom, (box) => boxTranslateTo(box, { x, y }));
-          });
+          frame.update(() => store.set(boxAtom, (box) => translateBox(box, x - box.min.x, y - box.min.y)));
         },
       });
     });

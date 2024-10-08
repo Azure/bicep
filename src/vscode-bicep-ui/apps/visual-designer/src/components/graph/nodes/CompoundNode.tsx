@@ -4,13 +4,14 @@ import { frame } from "framer-motion";
 import { useStore } from "jotai";
 import { useRef } from "react";
 import styled from "styled-components";
-import { boxTranslate } from "../../../math";
+import { translateBox } from "../../../math";
 import { isPrimitive, nodesAtom } from "../nodes";
 import { useBoxSubscription } from "./useBoxSubscription";
 import { useDragListener } from "./useDragListener";
 
-const $Subgraph = styled.div`
+const $CompoundNode = styled.div`
   position: absolute;
+  box-sizing: border-box;
   cursor: default;
   display: flex;
   justify-content: center;
@@ -33,8 +34,12 @@ export function CompoundNode({ id, childIdsAtom, boxAtom }: CompoundNodeAtomValu
       for (const childId of childIds) {
         const child = store.get(nodesAtom)[childId];
 
+        if (!child) {
+          return;
+        }
+
         if (isPrimitive(child)) {
-          frame.update(() => store.set(child.boxAtom, (box) => boxTranslate(box, dx, dy)));
+          frame.update(() => store.set(child.boxAtom, (box) => translateBox(box, dx, dy)));
         } else {
           translateChildren(store.get(child.childIdsAtom));
         }
@@ -46,5 +51,5 @@ export function CompoundNode({ id, childIdsAtom, boxAtom }: CompoundNodeAtomValu
 
   useBoxSubscription(ref, store, boxAtom);
 
-  return <$Subgraph ref={ref}>{id}</$Subgraph>;
+  return <$CompoundNode ref={ref}>{id}</$CompoundNode>;
 }

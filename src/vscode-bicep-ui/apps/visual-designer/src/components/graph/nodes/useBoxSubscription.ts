@@ -11,7 +11,7 @@ export function useBoxSubscription(
 ) {
   useEffect(() => {
     const onBoxUpdate = () => {
-      if (!ref.current) {
+      if (!ref.current || !boxAtom) {
         return;
       }
       const { min, max } = store.get(boxAtom);

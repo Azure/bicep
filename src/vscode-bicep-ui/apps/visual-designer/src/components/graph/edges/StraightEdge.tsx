@@ -1,3 +1,72 @@
-export function StraightEdge() {
-  return <></>;
+import type { EdgeAtomValue } from "./atoms";
+
+import { atom, useStore } from "jotai";
+import { useEffect, useMemo, useRef } from "react";
+import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "../../../math";
+import { nodesAtom } from "../nodes";
+import { styled } from "styled-components";
+
+const $Svg = styled.svg`
+  overflow: visible;
+  position: absolute;
+`
+
+export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
+  const ref = useRef<SVGPathElement>(null);
+  const store = useStore();
+  const edgeSegmentAtom = useMemo(
+    () =>
+      atom((get) => {
+        const fromNode = get(nodesAtom)[fromId];
+        const toNode = get(nodesAtom)[toId];
+
+        if (!fromNode || !toNode) {
+          return {};
+        }
+
+        const fromBox = get(fromNode.boxAtom);
+        const toBox = get(toNode.boxAtom);
+
+        if (boxesOverlap(fromBox, toBox)) {
+          return {};
+        }
+
+        const fromCenter = getBoxCenter(fromBox);
+        const toCenter = getBoxCenter(toBox);
+
+        return {
+          from: getBoxCenterSegmentIntersection(fromBox, toCenter),
+          to: getBoxCenterSegmentIntersection(toBox, fromCenter),
+        };
+      }),
+    [fromId, toId],
+  );
+
+  useEffect(() => {
+    const onEdgeSegmentUpdate = () => {
+      if (!ref.current) {
+        return;
+      }
+
+      const { from, to } = store.get(edgeSegmentAtom);
+
+      if (!from || !to) {
+        ref.current.removeAttribute("d");
+      }
+      else
+      {
+        ref.current.setAttribute("d", `M ${from.x} ${from.y} L ${to.x} ${to.y}`);
+      }
+    };
+
+    onEdgeSegmentUpdate();
+
+    return store.sub(edgeSegmentAtom, () => onEdgeSegmentUpdate());
+  }, [store, edgeSegmentAtom]);
+
+  return (
+    <$Svg>
+      <path ref={ref} fill="none" stroke="#222" strokeWidth={1.5} />
+    </$Svg>
+  );
 }

@@ -1,5 +1,7 @@
-import { atom, type Atom, type PrimitiveAtom } from "jotai";
+import type { Atom, PrimitiveAtom } from "jotai";
 import type { Box, Point } from "../../../math/geometry";
+
+import { atom } from "jotai";
 
 export interface PrimitiveNodeAtomValue {
   id: string;
@@ -37,7 +39,7 @@ export const addPrimitiveNodeAtom = atom(null, (_, set, id: string, origin: Poin
       originAtom: atom(origin),
       boxAtom: atom(box),
       dataAtom: atom(data),
-    }
+    },
   }));
 });
 
@@ -46,8 +48,13 @@ export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: str
   const boxAtom = atom((get) => {
     const childBoxes = get(childIdsAtom).map((id) => {
       const node = get(nodesAtom)[id];
+
+      if (!node) {
+        return null;
+      }
+
       return get(node.boxAtom);
-    });
+    }).filter(box => box !== null);
 
     const minX = Math.min(...childBoxes.map((box) => box.min.x));
     const minY = Math.min(...childBoxes.map((box) => box.min.y));
@@ -67,7 +74,6 @@ export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: str
       childIdsAtom,
       boxAtom,
       dataAtom: atom(data),
-    }
+    },
   }));
 });
-

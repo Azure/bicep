@@ -4,11 +4,15 @@ import { useSetAtom } from "jotai";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback, useEffect } from "react";
 import { Canvas } from "./graph";
+import { addEdgeAtom, edgesAtom } from "./graph/edges/atoms";
 import { addCompoundNodeAtom, addPrimitiveNodeAtom, isPrimitive, nodesAtom } from "./graph/nodes";
 
 export function App() {
+  const setNodesAtom = useSetAtom(nodesAtom);
+  const setEdgesAtom = useSetAtom(edgesAtom);
   const addPrimitiveNode = useSetAtom(addPrimitiveNodeAtom);
   const addCompoundNode = useSetAtom(addCompoundNodeAtom);
+  const addEdge = useSetAtom(addEdgeAtom);
 
   const layout = useAtomCallback(
     useCallback((get, set, event: MouseEvent<HTMLButtonElement>) => {
@@ -52,17 +56,24 @@ export function App() {
       { resourceType: "Foobar" },
     );
 
-    addCompoundNode(
-      "E",
-      ["A", "C"],
-      { resourceType: "Foobar" },
-    );
-  }, [addCompoundNode, addPrimitiveNode]);
+    addCompoundNode("E", ["A", "C"], { resourceType: "Foobar" });
+
+    addEdge("A->B", "A", "B");
+    addEdge("E->D", "E", "D");
+    addEdge("C->B", "C", "B");
+
+    return () => {
+      setEdgesAtom([]);
+      setNodesAtom({});
+    }
+  }, [addCompoundNode, addPrimitiveNode, addEdge, setNodesAtom, setEdgesAtom]);
 
   return (
     <>
       <Canvas />
-      <button style={{ position: "absolute", zIndex: 100, left: 10, top: 10 }} onClick={layout}>Layout</button>
+      <button style={{ position: "absolute", zIndex: 100, left: 10, top: 10 }} onClick={layout}>
+        Layout
+      </button>
     </>
   );
 }

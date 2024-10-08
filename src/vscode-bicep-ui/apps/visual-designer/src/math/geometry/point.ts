@@ -11,7 +11,7 @@ export function pointsEqual(a: Point, b: Point): boolean {
   return equal(a.x, b.x) && equal(a.y, b.y);
 }
 
-export function pointTranslate({ x, y }: Point, dx: number, dy: number): Point {
+export function translatePoint({ x, y }: Point, dx: number, dy: number): Point {
   return {
     x: x + dx,
     y: y + dy,
