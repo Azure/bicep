@@ -4,7 +4,7 @@ import type { Box } from "../../../math";
 
 import { useEffect } from "react";
 
-export function useBoxSubscription(
+export function useBoxSizeAndPosition(
   ref: RefObject<HTMLDivElement>,
   store: ReturnType<typeof createStore>,
   boxAtom: Atom<Box>,

@@ -6,7 +6,7 @@ import { useRef } from "react";
 import styled from "styled-components";
 import { translateBox } from "../../../math";
 import { isPrimitive, nodesAtom } from "../nodes";
-import { useBoxSubscription } from "./useBoxSubscription";
+import { useBoxSizeAndPosition } from "./useBoxSizeAndPosition";
 import { useDragListener } from "./useDragListener";
 
 const $CompoundNode = styled.div`
@@ -49,7 +49,7 @@ export function CompoundNode({ id, childIdsAtom, boxAtom }: CompoundNodeAtomValu
     translateChildren(childIds);
   });
 
-  useBoxSubscription(ref, store, boxAtom);
+  useBoxSizeAndPosition(ref, store, boxAtom);
 
   return <$CompoundNode ref={ref}>{id}</$CompoundNode>;
 }

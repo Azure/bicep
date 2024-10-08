@@ -1,3 +1,4 @@
+import type { Point } from "../../../math";
 import type { PrimitiveNodeAtomValue } from "./atoms";
 
 import { animate, frame, transform } from "framer-motion";
@@ -5,7 +6,7 @@ import { useStore } from "jotai";
 import { useEffect, useRef } from "react";
 import { styled } from "styled-components";
 import { pointsEqual, translateBox } from "../../../math";
-import { useBoxSubscription } from "./useBoxSubscription";
+import { useBoxSizeAndPosition } from "./useBoxSizeAndPosition";
 import { useDragListener } from "./useDragListener";
 
 const $Node = styled.div`
@@ -22,6 +23,26 @@ const $Node = styled.div`
   z-index: 1;
 `;
 
+function animatePointTransform(fromPoint: Point, toPoint: Point, onPointUpdate: (point: Point) => void) {
+  const from = 0;
+  const to = 100;
+
+  const transformOptions = { clamp: false };
+  const xTransform = transform([from, to], [fromPoint.x, toPoint.x], transformOptions);
+  const yTransform = transform([from, to], [fromPoint.y, toPoint.y], transformOptions);
+
+  animate(from, to, {
+    type: "spring",
+    duration: 0.7,
+    onUpdate: (latest) => {
+      const x = xTransform(latest);
+      const y = yTransform(latest);
+
+      onPointUpdate({ x, y });
+    },
+  });
+}
+
 export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeAtomValue) {
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
@@ -30,7 +51,7 @@ export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeAtomValu
     frame.update(() => store.set(boxAtom, (box) => translateBox(box, dx, dy)));
   });
 
-  useBoxSubscription(ref, store, boxAtom);
+  useBoxSizeAndPosition(ref, store, boxAtom);
 
   useEffect(() => {
     return store.sub(originAtom, () => {
@@ -41,18 +62,8 @@ export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeAtomValu
         return;
       }
 
-      const xTransform = transform([0, 100], [min.x, origin.x]);
-      const yTransform = transform([0, 100], [min.y, origin.y]);
-
-      animate(0, 100, {
-        type: "spring",
-        duration: 0.4,
-        onUpdate: (latest) => {
-          const x = xTransform(latest);
-          const y = yTransform(latest);
-
-          frame.update(() => store.set(boxAtom, (box) => translateBox(box, x - box.min.x, y - box.min.y)));
-        },
+      animatePointTransform(min, origin, ({ x, y }) => {
+        frame.update(() => store.set(boxAtom, (box) => translateBox(box, x - box.min.x, y - box.min.y)));
       });
     });
   }, [store, boxAtom, originAtom]);
