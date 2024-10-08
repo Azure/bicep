@@ -21,10 +21,12 @@ using Bicep.Core.TypeSystem.Types;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Model;
+using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using static Bicep.LanguageServer.Completions.BicepCompletionContext;
 using static Bicep.LanguageServer.Refactor.TypeStringifier;
+using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
 using static Google.Protobuf.Reflection.ExtensionRangeOptions.Types;
 using Type = System.Type;
 
@@ -46,13 +48,6 @@ public class ExpressionAndTypeExtractor
         TypeProperty? TypeProperty, // The property inside a parent object's type whose value is being extracted, if any
         string? ContextDerivedName  // Suggested name based on context
     );
-
-    private enum ExtractionKind
-    {
-        Variable,
-        Parameter,
-        Type,
-    }
 
     private record LineContentType
     {
@@ -183,7 +178,7 @@ public class ExpressionAndTypeExtractor
 
         yield return CreateExtraction(
             extractionContext,
-            ExtractionKind.Parameter,
+            userDefinedTypeAvailable ? ExtractionKind.SimpleNotUserParam : ExtractionKind.OnlySimpleParam,
             $"[Preview] Extract parameter of type {GetQuotedText(stringifiedLooseType)}",
             stringifiedLooseType);
 
@@ -191,7 +186,7 @@ public class ExpressionAndTypeExtractor
         {
             yield return CreateExtraction(
                 extractionContext,
-                ExtractionKind.Parameter,
+                ExtractionKind.UserParam,
                 $"[Preview] Extract parameter of type {GetQuotedText(stringifiedUserDefinedType)}",
                 stringifiedUserDefinedType);
 
@@ -220,7 +215,7 @@ public class ExpressionAndTypeExtractor
                 declarationKeywordPlusSpace = "var ";
                 declarationStatementSyntaxType = typeof(VariableDeclarationSyntax);
                 break;
-            case ExtractionKind.Parameter:
+            case ExtractionKind.OnlySimpleParam or ExtractionKind.SimpleNotUserParam or ExtractionKind.UserParam:
                 defaultNoncontextualName = "newParameter";
                 declarationKeywordPlusSpace = "param ";
                 declarationStatementSyntaxType = typeof(ParameterDeclarationSyntax);
@@ -246,7 +241,7 @@ public class ExpressionAndTypeExtractor
         StatementSyntax declarationSyntax = kind switch
         {
             ExtractionKind.Variable => SyntaxFactory.CreateVariableDeclaration(newNamePlusSentinel, extractionContext.ExpressionSyntax),
-            ExtractionKind.Parameter => CreateNewParameterDeclaration(
+            ExtractionKind.OnlySimpleParam or ExtractionKind.SimpleNotUserParam or ExtractionKind.UserParam => CreateNewParameterDeclaration(
                 extractionContext, stringifiedType!, newNamePlusSentinel, extractionContext.ExpressionSyntax),
             ExtractionKind.Type => SyntaxFactory.CreateTypeDeclaration(newNamePlusSentinel, SyntaxFactory.CreateIdentifierWithTrailingSpace(stringifiedType!)),
             _ => throw new ArgumentOutOfRangeException(nameof(ExtractionKind))
@@ -287,13 +282,15 @@ public class ExpressionAndTypeExtractor
         {
             replacements = [.. replacements, new CodeReplacement(extractionContext.ExpressionSyntax.Span, newName)];
         }
-        return CodeFixWithCommand.CreateWithRenameCommand(
+
+        return CodeFixWithCommand.CreateWithPostExtractionCommand(
             title,
             isPreferred: false,
             CodeFixKind.RefactorExtract,
             replacements,
             this.documentUri,
-            absoluteIdentifierPosition);
+            absoluteIdentifierPosition,
+            telemetryEvent: BicepTelemetryEvent.ExtractionRefactoring(kind));
     }
 
     private ParameterDeclarationSyntax CreateNewParameterDeclaration(

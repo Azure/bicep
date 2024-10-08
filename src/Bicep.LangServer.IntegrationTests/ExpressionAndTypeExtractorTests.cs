@@ -38,7 +38,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     private const string ExtractToVariableTitle = "[Preview] Extract variable";
     private const string ExtractToParameterTitle = "[Preview] Extract parameter";
     private const string ExtractToTypeTitle = "[Preview] Create type for ";
-    private const string StartRenameCommandName = "bicep.internal.startRename";
+    private const string PostExtractionCommandName = "bicep.internal.postExtraction";
     private const string Tab = "\t";
 
     ////////////////////////////////////////////////////////////////////
@@ -3115,7 +3115,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             extractedVar!.Kind.Should().Be(CodeActionKind.RefactorExtract);
 
             extractedVar.Command.Should().NotBeNull();
-            extractedVar.Command!.Name.Should().Be(StartRenameCommandName);
+            extractedVar.Command!.Name.Should().Be(PostExtractionCommandName);
             var updatedFile = ApplyCodeAction(bicepFile, extractedVar);
             updatedFile.Should().HaveSourceText(expectedText, "extract to variable should match expected outcome");
         }
@@ -3136,7 +3136,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             extractedType!.Kind.Should().Be(CodeActionKind.RefactorExtract);
 
             extractedType.Command.Should().NotBeNull();
-            extractedType.Command!.Name.Should().Be(StartRenameCommandName);
+            extractedType.Command!.Name.Should().Be(PostExtractionCommandName);
 
             var updatedFile = ApplyCodeAction(bicepFile, extractedType);
             updatedFile.Should().HaveSourceText(expectedText, "create new type should match expected outcome");
@@ -3169,7 +3169,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 looseFix.Kind.Should().Be(CodeActionKind.RefactorExtract);
 
                 looseFix.Command.Should().NotBeNull();
-                looseFix.Command!.Name.Should().Be(StartRenameCommandName);
+                looseFix.Command!.Name.Should().Be(PostExtractionCommandName);
 
                 var updatedFileLoose = ApplyCodeAction(bicepFile, looseFix);
                 updatedFileLoose.Should().HaveSourceText(expectedLooseParameterText, "extract to param with loose typing should match expected outcome");
@@ -3189,7 +3189,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                     mediumFix.Kind.Should().Be(CodeActionKind.RefactorExtract);
 
                     mediumFix.Command.Should().NotBeNull();
-                    mediumFix.Command!.Name.Should().Be(StartRenameCommandName);
+                    mediumFix.Command!.Name.Should().Be(PostExtractionCommandName);
 
                     var updatedFileMedium = ApplyCodeAction(bicepFile, mediumFix);
                     updatedFileMedium.Should().HaveSourceText(expectedMediumParameterText, "extract to param with medium-strict typing should match expected outcome");
