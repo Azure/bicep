@@ -52,13 +52,11 @@ export class Example {
 
   public expectFile(relativeFilePath: string): void {
     const filePath = this.resolveRelativePath(relativeFilePath);
-    // eslint-disable-next-line jest/no-standalone-expect
     expect(fs.existsSync(filePath)).toBeTruthy();
   }
 
   public expectNoFile(relativeFilePath: string): void {
     const filePath = this.resolveRelativePath(relativeFilePath);
-    // eslint-disable-next-line jest/no-standalone-expect
     expect(fs.existsSync(filePath)).toBeFalsy();
   }
 
