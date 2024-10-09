@@ -1,23 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as spawn from "cross-spawn";
-import * as path from "path";
 import * as fs from "fs";
 import { SpawnSyncReturns } from "node:child_process";
+import * as path from "path";
+import * as spawn from "cross-spawn";
+import { expect } from "vitest";
 
 export class Example {
   readonly projectDir: string;
   readonly projectFile: string;
 
   constructor(projectName: string, projectFile?: string) {
-    const projectDir = path.normalize(
-      path.join(__dirname, `../examples/${projectName}/`),
-    );
+    const projectDir = path.normalize(path.join(__dirname, `../examples/${projectName}/`));
     this.projectDir = projectDir;
-    this.projectFile = path.join(
-      projectDir,
-      projectFile ?? `${projectName}.proj`,
-    );
+    this.projectFile = path.join(projectDir, projectFile ?? `${projectName}.proj`);
   }
 
   public cleanProjectDir(): void {
@@ -40,10 +36,7 @@ export class Example {
     return this.runMsBuild("build", null, expectSuccess);
   }
 
-  public publish(
-    targetFramework: string | null,
-    expectSuccess = true,
-  ): SpawnSyncReturns<string> {
+  public publish(targetFramework: string | null, expectSuccess = true): SpawnSyncReturns<string> {
     return this.runMsBuild("publish", targetFramework, expectSuccess);
   }
 
@@ -59,13 +52,11 @@ export class Example {
 
   public expectFile(relativeFilePath: string): void {
     const filePath = this.resolveRelativePath(relativeFilePath);
-    // eslint-disable-next-line jest/no-standalone-expect
     expect(fs.existsSync(filePath)).toBeTruthy();
   }
 
   public expectNoFile(relativeFilePath: string): void {
     const filePath = this.resolveRelativePath(relativeFilePath);
-    // eslint-disable-next-line jest/no-standalone-expect
     expect(fs.existsSync(filePath)).toBeFalsy();
   }
 
@@ -73,11 +64,7 @@ export class Example {
     return path.join(this.projectDir, relativeFilePath);
   }
 
-  private runMsBuild(
-    verb: string,
-    targetFramework: string | null,
-    expectSuccess: boolean,
-  ): SpawnSyncReturns<string> {
+  private runMsBuild(verb: string, targetFramework: string | null, expectSuccess: boolean): SpawnSyncReturns<string> {
     const runtimeSuffix = process.env.RuntimeSuffix;
     if (!runtimeSuffix) {
       throw new Error(
