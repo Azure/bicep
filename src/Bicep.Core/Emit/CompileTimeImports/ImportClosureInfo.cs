@@ -330,7 +330,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
     ) => model.Root.TypeDeclarations
         .Concat<DeclaredSymbol>(model.Root.VariableDeclarations)
         .Concat(model.Root.FunctionDeclarations)
-        .Where(t => t.IsExported())
+        .Where(t => t.IsExported(model))
         .Select(s => (s.Name, referenceFactory.SymbolFor(s, model, referrer)));
 
     private static IEnumerable<
