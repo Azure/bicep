@@ -1,13 +1,12 @@
-import type { CompoundNodeAtomValue } from "./atoms";
+import type { CompoundNodeState } from "../../atoms/nodes";
 
 import { frame } from "framer-motion";
 import { useStore } from "jotai";
 import { useRef } from "react";
 import styled from "styled-components";
-import { translateBox } from "../../../math";
-import { isPrimitive, nodesAtom } from "../nodes";
-import { useBoxSizeAndPosition } from "./useBoxSizeAndPosition";
-import { useDragListener } from "./useDragListener";
+import { isPrimitive, nodesByIdAtom } from ".";
+import { translateBox } from "../../../../utils/math";
+import { useBoxGeometry, useDragListener } from "../../hooks";
 
 const $CompoundNode = styled.div`
   position: absolute;
@@ -23,16 +22,14 @@ const $CompoundNode = styled.div`
   z-index: 0;
 `;
 
-export function CompoundNode({ id, childIdsAtom, boxAtom }: CompoundNodeAtomValue) {
+export function CompoundNode({ id, childIdsAtom, boxAtom }: CompoundNodeState) {
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
 
-  useDragListener(ref, (dx, dy) => {
-    const childIds = store.get(childIdsAtom);
-
+  useDragListener(ref, (dx: number, dy: number) => {
     const translateChildren = (childIds: string[]) => {
       for (const childId of childIds) {
-        const child = store.get(nodesAtom)[childId];
+        const child = store.get(nodesByIdAtom)[childId];
 
         if (!child) {
           return;
@@ -46,10 +43,10 @@ export function CompoundNode({ id, childIdsAtom, boxAtom }: CompoundNodeAtomValu
       }
     };
 
-    translateChildren(childIds);
+    translateChildren(store.get(childIdsAtom));
   });
 
-  useBoxSizeAndPosition(ref, store, boxAtom);
+  useBoxGeometry(ref, store, boxAtom);
 
   return <$CompoundNode ref={ref}>{id}</$CompoundNode>;
 }

@@ -1,9 +1,9 @@
-import type { EdgeAtomValue } from "./atoms";
+import type { EdgeAtomValue } from "../../atoms/edges";
 
 import { atom, useStore } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
-import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "../../../math";
-import { nodesAtom } from "../nodes";
+import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "../../../../utils/math";
+import { nodesByIdAtom } from "../nodes";
 import { styled } from "styled-components";
 
 const $Svg = styled.svg`
@@ -17,8 +17,8 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
   const edgeSegmentAtom = useMemo(
     () =>
       atom((get) => {
-        const fromNode = get(nodesAtom)[fromId];
-        const toNode = get(nodesAtom)[toId];
+        const fromNode = get(nodesByIdAtom)[fromId];
+        const toNode = get(nodesByIdAtom)[toId];
 
         if (!fromNode || !toNode) {
           return {};

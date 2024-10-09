@@ -1,38 +1,36 @@
 import type { Atom, PrimitiveAtom } from "jotai";
-import type { Box, Point } from "../../../math/geometry";
+import type { Box, Point } from "../../../utils/math/geometry";
 
 import { atom } from "jotai";
 
-export interface PrimitiveNodeAtomValue {
+export interface PrimitiveNodeState {
   id: string;
   originAtom: PrimitiveAtom<Point>;
   boxAtom: PrimitiveAtom<Box>;
   dataAtom: PrimitiveAtom<unknown>;
 }
 
-export interface CompoundNodeAtomValue {
+export interface CompoundNodeState {
   id: string;
   childIdsAtom: PrimitiveAtom<string[]>;
   boxAtom: Atom<Box>;
   dataAtom: PrimitiveAtom<unknown>;
 }
 
-export type NodeAtomValue = PrimitiveNodeAtomValue | CompoundNodeAtomValue;
+export type NodeState = PrimitiveNodeState | CompoundNodeState;
 
-export type NodesAtomValue = Record<string, NodeAtomValue>;
-
-export function isPrimitive(node: NodeAtomValue): node is PrimitiveNodeAtomValue {
+export function isPrimitive(node: NodeState): node is PrimitiveNodeState {
   return "originAtom" in node;
 }
 
-export function isCompound(node: NodeAtomValue): node is CompoundNodeAtomValue {
+export function isCompound(node: NodeState): node is CompoundNodeState {
   return "childIdsAtom" in node;
 }
 
-export const nodesAtom = atom<NodesAtomValue>({});
+export const nodesByIdAtom = atom<Record<string, NodeState>>({});
 
 export const addPrimitiveNodeAtom = atom(null, (_, set, id: string, origin: Point, box: Box, data: unknown) => {
-  set(nodesAtom, (nodes) => ({
+  set(nodesByIdAtom, (nodes) => ({
     ...nodes,
     [id]: {
       id,
@@ -47,7 +45,7 @@ export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: str
   const childIdsAtom = atom(childIds);
   const boxAtom = atom((get) => {
     const childBoxes = get(childIdsAtom).map((id) => {
-      const node = get(nodesAtom)[id];
+      const node = get(nodesByIdAtom)[id];
 
       if (!node) {
         return null;
@@ -67,7 +65,7 @@ export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: str
     };
   });
 
-  set(nodesAtom, (nodes) => ({
+  set(nodesByIdAtom, (nodes) => ({
     ...nodes,
     [id]: {
       id,

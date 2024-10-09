@@ -3,12 +3,18 @@ import type { MouseEvent } from "react";
 import { useSetAtom } from "jotai";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback, useEffect } from "react";
-import { Canvas } from "./graph";
-import { addEdgeAtom, edgesAtom } from "./graph/edges/atoms";
-import { addCompoundNodeAtom, addPrimitiveNodeAtom, isPrimitive, nodesAtom } from "./graph/nodes";
+import {
+  addCompoundNodeAtom,
+  addEdgeAtom,
+  addPrimitiveNodeAtom,
+  edgesAtom,
+  isPrimitive,
+  nodesByIdAtom,
+} from "./features/graph/atoms";
+import { Canvas } from "./features/graph/components";
 
 export function App() {
-  const setNodesAtom = useSetAtom(nodesAtom);
+  const setNodesAtom = useSetAtom(nodesByIdAtom);
   const setEdgesAtom = useSetAtom(edgesAtom);
   const addPrimitiveNode = useSetAtom(addPrimitiveNodeAtom);
   const addCompoundNode = useSetAtom(addCompoundNodeAtom);
@@ -18,7 +24,7 @@ export function App() {
     useCallback((get, set, event: MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
 
-      const nodes = get(nodesAtom);
+      const nodes = get(nodesByIdAtom);
       for (const node of Object.values(nodes)) {
         if (isPrimitive(node)) {
           set(node.originAtom, { ...get(node.originAtom) });
@@ -65,7 +71,7 @@ export function App() {
     return () => {
       setEdgesAtom([]);
       setNodesAtom({});
-    }
+    };
   }, [addCompoundNode, addPrimitiveNode, addEdge, setNodesAtom, setEdgesAtom]);
 
   return (

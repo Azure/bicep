@@ -1,10 +1,10 @@
 import type { Atom, createStore } from "jotai";
 import type { RefObject } from "react";
-import type { Box } from "../../../math";
+import type { Box } from "../../../utils/math";
 
 import { useEffect } from "react";
 
-export function useBoxSizeAndPosition(
+export function useBoxGeometry(
   ref: RefObject<HTMLDivElement>,
   store: ReturnType<typeof createStore>,
   boxAtom: Atom<Box>,

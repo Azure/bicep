@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { edgesAtom } from "./edges/atoms";
+import { edgesAtom } from "../atoms/edges";
 import { StraightEdge } from "./edges/StraightEdge";
 
 export function EdgeLayer() {
