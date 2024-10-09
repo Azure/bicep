@@ -4869,7 +4869,7 @@ When a wildcard is used, that needs to be the only value.  " + @"
 
             var updated = file.ApplyCompletion(completions, "resource");
             updated.Should().HaveSourceText("""
-                type acct = resource<|>
+                type acct = resource<'|'>
                 """);
         }
 
