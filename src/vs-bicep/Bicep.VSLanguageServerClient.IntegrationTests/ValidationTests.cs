@@ -39,7 +39,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
                 d.LineNumber == 3 &&
                 d.Column == 9));
             Assert.IsTrue(diagnostics.Any(
-                d => d.Description.Contains(@"The resource type is not valid. Specify a valid resource type of format ""<types>@<apiVersion>"".") &&
+                d => d.Description.Contains(@"The resource type is not valid. Specify a valid resource type of format ""<type-name>@<apiVersion>"".") &&
                 d.ErrorLevel == ErrorListErrorLevel.Error &&
                 d.LineNumber == 3 &&
                 d.Column == 9));

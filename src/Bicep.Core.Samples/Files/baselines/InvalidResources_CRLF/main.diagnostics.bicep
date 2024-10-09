@@ -4,42 +4,42 @@ bad
 //@[000:003) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (bicep https://aka.ms/bicep/core-diagnostics#BCP007) |bad|
 
 // incomplete #completionTest(9) -> empty
-resource 
+resource
 //@[009:009) [BCP017 (Error)] Expected a resource identifier at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP017) ||
-//@[009:009) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
+//@[009:009) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
 resource foo
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
-//@[012:012) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) ||
-//@[012:012) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
+//@[012:012) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) ||
+//@[012:012) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
 resource fo/o
-//@[011:012) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) |/|
-//@[011:013) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |/o|
+//@[011:012) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) |/|
+//@[011:013) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |/o|
 //@[013:013) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 resource foo 'ddd'
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
-//@[013:018) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'ddd'|
+//@[013:018) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'ddd'|
 //@[018:018) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // #completionTest(23) -> resourceTypes
-resource trailingSpace  
-//@[024:024) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) ||
-//@[024:024) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
+resource trailingSpace
+//@[024:024) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) ||
+//@[024:024) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
 
 // #completionTest(19,20) -> resourceObject
-resource foo 'ddd'= 
+resource foo 'ddd'=
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
-//@[013:018) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'ddd'|
+//@[013:018) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'ddd'|
 //@[020:020) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP118) ||
 
 // wrong resource type
 resource foo 'ddd'={
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
-//@[013:018) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'ddd'|
+//@[013:018) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'ddd'|
 }
 
 resource foo 'ddd'=if (1 + 1 == 2) {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
-//@[013:018) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'ddd'|
+//@[013:018) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'ddd'|
 }
 
 // using string interpolation for the resource type
@@ -234,7 +234,7 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 // there should be no completions without the colon
 resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   // #completionTest(7,8) -> empty
-  kind  
+  kind
 //@[008:008) [BCP018 (Error)] Expected the ":" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 }
 
@@ -589,7 +589,7 @@ resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[009:034) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |missingTopLevelProperties|
   // #completionTest(0, 1, 2) -> topLevelProperties
-  
+
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
@@ -599,7 +599,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 //@[008:012) [BCP333 (Warning)] The provided value (whose length will always be less than or equal to 2) is too short to assign to a target for which the minimum allowable length is 3. (bicep https://aka.ms/bicep/core-diagnostics#BCP333) |'me'|
   // do not remove whitespace before the closing curly
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
-  
+
 }
 
 // #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
@@ -610,13 +610,13 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     subnets: [
       {
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
-       
+
         // #completionTest(0,1,2,3,4,5,6,7) -> empty
         properties: {
           delegations: [
             {
               // #completionTest(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14) -> delegationProperties
-              
+
             }
           ]
         }
@@ -631,7 +631,7 @@ Discriminator key missing
 resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[086:148) [BCP078 (Error)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. (bicep https://aka.ms/bicep/core-diagnostics#BCP078) |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
   // #completionTest(0,1,2) -> discriminatorProperty
-  
+
 }
 
 /*
@@ -640,7 +640,7 @@ Discriminator key missing (conditional)
 resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(true) {
 //@[098:160) [BCP078 (Error)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. (bicep https://aka.ms/bicep/core-diagnostics#BCP078) |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
   // #completionTest(0,1,2) -> discriminatorProperty
-  
+
 }
 
 /*
@@ -649,7 +649,7 @@ Discriminator key missing (loop)
 resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
 //@[108:170) [BCP078 (Error)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. (bicep https://aka.ms/bicep/core-diagnostics#BCP078) |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
   // #completionTest(0,1,2) -> discriminatorProperty
-  
+
 }]
 
 /*
@@ -658,7 +658,7 @@ Discriminator key missing (filtered loop)
 resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
 //@[120:182) [BCP078 (Error)] The property "kind" requires a value of type "'AzureCLI' | 'AzurePowerShell'", but none was supplied. (bicep https://aka.ms/bicep/core-diagnostics#BCP078) |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
   // #completionTest(0,1,2) -> discriminatorProperty
-  
+
 }]
 
 /*
@@ -666,7 +666,7 @@ Discriminator key value missing with property access
 */
 resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
-  kind:   
+  kind:
 //@[010:010) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 }
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
@@ -687,7 +687,7 @@ Discriminator key value missing with property access (conditional)
 */
 resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(false) {
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_if
-  kind:   
+  kind:
 //@[010:010) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 }
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
@@ -708,7 +708,7 @@ Discriminator key value missing with property access (loops)
 */
 resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for
-  kind:   
+  kind:
 //@[010:010) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 }]
 
@@ -736,7 +736,7 @@ Discriminator key value missing with property access (filtered loops)
 */
 resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
-  kind:   
+  kind:
 //@[010:010) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 }]
 
@@ -766,11 +766,11 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[009:031) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |discriminatorKeySetOne|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-    
+
   }
 }
 // #completionTest(75) -> cliPropertyAccess
@@ -794,11 +794,11 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[009:034) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |discriminatorKeySetOne_if|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-    
+
   }
 }
 // #completionTest(81) -> cliPropertyAccess
@@ -822,11 +822,11 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[009:035) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |discriminatorKeySetOne_for|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-    
+
   }
 }]
 // #completionTest(86) -> cliPropertyAccess
@@ -850,11 +850,11 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[009:038) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |discriminatorKeySetOne_for_if|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-    
+
   }
 }]
 // #completionTest(92) -> cliPropertyAccess
@@ -879,11 +879,11 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[009:031) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |discriminatorKeySetTwo|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-    
+
   }
 }
 // #completionTest(75) -> powershellPropertyAccess
@@ -913,11 +913,11 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[009:034) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |discriminatorKeySetTwo_if|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-    
+
   }
 }
 // #completionTest(81) -> powershellPropertyAccess
@@ -948,11 +948,11 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[009:035) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |discriminatorKeySetTwo_for|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-    
+
   }
 }]
 // #completionTest(86) -> powershellPropertyAccess
@@ -983,11 +983,11 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[009:038) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |discriminatorKeySetTwo_for_if|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-    
+
   }
 }]
 // #completionTest(92) -> powershellPropertyAccess
@@ -1032,46 +1032,46 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
   properties: {
     azCliVersion: '2'
     retentionInterval: 'PT1H'
-    
+
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliPropertiesMinusSpecified
-    
+
     // #completionTest(22,23) -> cleanupPreferencesPlusSymbols
-    cleanupPreference: 
+    cleanupPreference:
 //@[023:023) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 
     // #completionTest(25,26) -> arrayPlusSymbols
-    supportingScriptUris: 
+    supportingScriptUris:
 //@[026:026) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 
     // #completionTest(27,28) -> objectPlusSymbols
-    storageAccountSettings: 
+    storageAccountSettings:
 //@[028:028) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 
     environmentVariables: [
       {
         // #completionTest(0,2,4,6,8) -> environmentVariableProperties
-        
+
       }
       // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbolsWithRequiredProperties
-      
+
     ]
   }
 }
 
 // #completionTest(21) -> resourceTypes
-resource missingType 
-//@[021:021) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) ||
-//@[021:021) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
+resource missingType
+//@[021:021) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) ||
+//@[021:021) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
 
 // #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
 resource startedTypingTypeWithQuotes 'virma'
-//@[037:044) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'virma'|
+//@[037:044) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'virma'|
 //@[044:044) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
 resource startedTypingTypeWithoutQuotes virma
-//@[040:045) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) |virma|
-//@[040:045) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |virma|
+//@[040:045) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) |virma|
+//@[040:045) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |virma|
 //@[045:045) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
@@ -1086,7 +1086,7 @@ var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
 //@[004:024) [no-unused-vars (Warning)] Variable "letsAccessTheDashes2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |letsAccessTheDashes2|
 //@[078:078) [BCP020 (Error)] Expected a function or property name at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP020) ||
 
-/* 
+/*
 Nested discriminator missing key
 */
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
@@ -1112,7 +1112,7 @@ var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['p
 var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKey.properties['']
 //@[004:049) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyIndexCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |nestedDiscriminatorMissingKeyIndexCompletions|
 
-/* 
+/*
 Nested discriminator missing key (conditional)
 */
 resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(bool(1)) {
@@ -1138,7 +1138,7 @@ var nestedDiscriminatorMissingKeyCompletions2_if = nestedDiscriminatorMissingKey
 var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissingKey_if.properties['']
 //@[004:052) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyIndexCompletions_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |nestedDiscriminatorMissingKeyIndexCompletions_if|
 
-/* 
+/*
 Nested discriminator missing key (loop)
 */
 resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
@@ -1166,7 +1166,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissi
 //@[004:053) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyIndexCompletions_for" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |nestedDiscriminatorMissingKeyIndexCompletions_for|
 
 
-/* 
+/*
 Nested discriminator missing key (filtered loop)
 */
 resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
@@ -1354,7 +1354,7 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
   name: 'test'
   properties: {
     additionalCapabilities: {
-      
+
     }
   }
 }
@@ -1366,7 +1366,7 @@ var sigh = nestedPropertyAccessOnConditional.properties.
 
 /*
   boolean property value completions
-*/ 
+*/
 resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
   properties: {
     // #completionTest(28,29,30) -> boolPropertyValuesPlusSymbols
@@ -1738,7 +1738,7 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
   location: account.location
   sku: {
     // #completionTest(9,10) -> storageSkuNamePlusSymbols
-    name: 
+    name:
 //@[010:010) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
   }
   kind: 'StorageV2'
@@ -1794,7 +1794,7 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
     ]
   }
   dependsOn: [
-    
+
   ]
 }]
 
@@ -1830,7 +1830,7 @@ resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[109:120) [BCP018 (Error)] Expected the "{" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) |environment|
 
 // #completionTest(54,55) -> objectPlusFor
-resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' =
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
 //@[055:055) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP118) ||
 
@@ -1838,10 +1838,10 @@ resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
   properties: {
     // #completionTest(32,33) -> symbolsPlusArrayAndFor
-    registrationVirtualNetworks: 
+    registrationVirtualNetworks:
 //@[033:033) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
     resolutionVirtualNetworks: [for lol in []: {
-      
+
     }]
   }
 }]
@@ -1852,7 +1852,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
         properties: {
           remoteAddressSpace: {
             // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
-            addressPrefixes: 
+            addressPrefixes:
 //@[029:029) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
           }
         }
@@ -2050,37 +2050,37 @@ resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-
 
 // #completionTest(15,36,37) -> resourceTypes
 resource comp1 'Microsoft.Resources/'
-//@[015:037) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Resources/'|
+//@[015:037) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Resources/'|
 //@[037:037) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // #completionTest(15,16,17) -> resourceTypes
 resource comp2 ''
-//@[015:017) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |''|
+//@[015:017) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |''|
 //@[017:017) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // #completionTest(38) -> resourceTypes
 resource comp3 'Microsoft.Resources/t'
-//@[015:038) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Resources/t'|
+//@[015:038) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Resources/t'|
 //@[038:038) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // #completionTest(40) -> resourceTypes
 resource comp4 'Microsoft.Resources/t/v'
-//@[015:040) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Resources/t/v'|
+//@[015:040) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Resources/t/v'|
 //@[040:040) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // #completionTest(49) -> resourceTypes
 resource comp5 'Microsoft.Storage/storageAccounts'
-//@[015:050) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Storage/storageAccounts'|
+//@[015:050) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Storage/storageAccounts'|
 //@[050:050) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // #completionTest(50) -> storageAccountsResourceTypes
 resource comp6 'Microsoft.Storage/storageAccounts@'
-//@[015:051) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Storage/storageAccounts@'|
+//@[015:051) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Storage/storageAccounts@'|
 //@[051:051) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // #completionTest(52) -> templateSpecsResourceTypes
 resource comp7 'Microsoft.Resources/templateSpecs@20'
-//@[015:053) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<types>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Resources/templateSpecs@20'|
+//@[015:053) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |'Microsoft.Resources/templateSpecs@20'|
 //@[053:053) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // #completionTest(60,61) -> virtualNetworksResourceTypes
@@ -2122,7 +2122,7 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[002:006) [BCP187 (Warning)] The property "plan" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP187) |plan|
   eTag: ''
 //@[002:006) [BCP187 (Warning)] The property "eTag" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP187) |eTag|
-  scale: {}  
+  scale: {}
 //@[002:007) [BCP187 (Warning)] The property "scale" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP187) |scale|
 //@[002:007) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "capacity". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |scale|
 }
@@ -2172,7 +2172,7 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[002:007) [BCP187 (Warning)] The property "scale" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP187) |scale|
 //@[009:021) [BCP036 (Warning)] The property "scale" expected a value of type "scale" but the provided value is of type "[object]". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |[\r\n  {}\r\n  ]|
   {}
-  ]  
+  ]
 }
 
 resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
@@ -2180,7 +2180,7 @@ resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   kind: 'StorageV2'
   location: 'West US'
   sku: {
-    name: 'Premium_LRS'    
+    name: 'Premium_LRS'
   }
   madeUpProperty: {}
 //@[002:016) [BCP037 (Error)] The property "madeUpProperty" is not allowed on objects of type "Microsoft.Storage/storageAccounts". Permissible properties include "asserts", "dependsOn", "extendedLocation", "identity", "properties", "tags". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |madeUpProperty|
