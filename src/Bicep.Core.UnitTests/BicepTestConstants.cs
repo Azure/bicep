@@ -103,6 +103,7 @@ namespace Bicep.Core.UnitTests
                 ["analyzers"] = new Dictionary<string, object>(),
                 ["experimentalFeaturesEnabled"] = new Dictionary<string, bool>(),
                 ["formatting"] = new Dictionary<string, bool>(),
+                ["bicep"] = new Dictionary<string, bool>(),
             };
 
             if (customConfigurationData is not null)

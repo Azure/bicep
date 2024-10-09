@@ -117,7 +117,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
-        }
+        },
+        "bicep": {}
       }
       """);
         }
@@ -198,7 +199,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
-        }
+        },
+        "bicep": {}
       }
       """);
         }
@@ -304,7 +306,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
-        }
+        },
+        "bicep": {}
       }
       """);
         }
@@ -481,7 +484,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "insertFinalNewline": true,
                 "indentSize": 2,
                 "width": 120
-            }
+            },
+            "bicep": {}
             }
             """);
         }
@@ -729,6 +733,9 @@ namespace Bicep.Core.UnitTests.Configuration
         "insertFinalNewline": true,
         "indentSize": 2,
         "width": 80
+        },
+        "bicep": {
+          "version": "1.2.3"
         }
     }
     """
@@ -846,6 +853,9 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 80
+        },
+        "bicep": {
+          "version": "1.2.3"
         }
       }
       """);
