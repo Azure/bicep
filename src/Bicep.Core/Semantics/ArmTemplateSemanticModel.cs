@@ -20,6 +20,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics
@@ -85,7 +86,8 @@ namespace Bicep.Core.Semantics
                                 parameterProperty.Key,
                                 type,
                                 parameterProperty.Value.DefaultValue is null && !TypeHelper.IsNullable(type.Type),
-                                GetMostSpecificDescription(parameterProperty.Value));
+                                GetMostSpecificDescription(parameterProperty.Value),
+                                GetDeprecationMetadata(parameterProperty.Value));
                         },
                         LanguageConstants.IdentifierComparer);
             });
@@ -103,7 +105,8 @@ namespace Bicep.Core.Semantics
                     .Select(outputProperty => new OutputMetadata(
                         outputProperty.Key,
                         GetType(outputProperty.Value),
-                        TryGetMetadataDescription(outputProperty.Value.Metadata)))
+                        TryGetMetadataDescription(outputProperty.Value.Metadata),
+                        GetDeprecationMetadata(outputProperty.Value.Metadata)))
                     .ToImmutableArray();
             });
         }
@@ -187,6 +190,24 @@ namespace Bicep.Core.Semantics
             return null;
         }
 
+        private DeprecationMetadata? GetDeprecationMetadata(ITemplateSchemaNode schemaNode)
+            => GetMetadata(schemaNode) is JObject metadataObject ? GetDeprecationMetadata(metadataObject) : null;
+
+        private DeprecationMetadata? GetDeprecationMetadata(TemplateGenericProperty<JToken>? property)
+            => property?.Value is JObject metadataObject ? GetDeprecationMetadata(metadataObject) : null;
+
+        private static DeprecationMetadata? GetDeprecationMetadata(JObject metadataObject)
+        {
+            if (metadataObject.TryGetValue(LanguageConstants.MetadataDeprecatedPropertyName, out var deprecationData) &&
+                deprecationData is JValue { Value: string reason })
+            {
+                // null is written as "", so we convert "" back to null
+                return new(reason == "" ? null : reason);
+            }
+
+            return null;
+        }
+
         private JToken? GetMetadata(ITemplateSchemaNode schemaNode)
         {
             try
@@ -222,7 +243,7 @@ namespace Bicep.Core.Semantics
             if (template.Definitions is { } typeDefinitions)
             {
                 exports.AddRange(typeDefinitions.Where(kvp => IsExported(kvp.Value))
-                    .Select(kvp => new ExportedTypeMetadata(kvp.Key, AsTypeType(GetType(kvp.Value)), GetMostSpecificDescription(kvp.Value))));
+                    .Select(kvp => new ExportedTypeMetadata(kvp.Key, AsTypeType(GetType(kvp.Value)), GetMostSpecificDescription(kvp.Value), GetDeprecationMetadata(kvp.Value))));
             }
 
             if (template.Functions is { } userDefinedFunctions)
@@ -246,7 +267,8 @@ namespace Bicep.Core.Semantics
                                 .Select(p => new ExportedFunctionParameterMetadata(p.Name?.Value ?? string.Empty, GetType(p), GetMostSpecificDescription(p)))
                                 .ToImmutableArray(),
                             Return: new(GetType(kvp.Value.Output), GetMostSpecificDescription(kvp.Value.Output)),
-                            Description: kvp.Value.Metadata?.Value is JObject metadataObject ? GetDescriptionFromMetadata(metadataObject) : null)));
+                            Description: kvp.Value.Metadata?.Value is JObject metadataObject ? GetDescriptionFromMetadata(metadataObject) : null,
+                            DeprecationMetadata: GetDeprecationMetadata(kvp.Value.Metadata))));
                 }
             }
 
@@ -262,7 +284,14 @@ namespace Bicep.Core.Semantics
                         nameToken is JValue { Value: string name } &&
                         evaluator.TryGetEvaluatedVariableValue(name) is JToken evaluatedValue)
                     {
-                        exports.Add(new ExportedVariableMetadata(name, SystemNamespaceType.ConvertJsonToBicepType(evaluatedValue), GetDescription(exportedVariableObject)));
+                        var exportedVariableMetadata = new JObject();
+                        if (exportedVariableObject.TryGetValue(LanguageConstants.ParameterMetadataPropertyName, StringComparison.OrdinalIgnoreCase, out var metadataToken) &&
+                            metadataToken is JObject metadataObject)
+                        {
+                            exportedVariableMetadata = metadataObject;
+                        }
+
+                        exports.Add(new ExportedVariableMetadata(name, SystemNamespaceType.ConvertJsonToBicepType(evaluatedValue), GetDescription(exportedVariableMetadata), GetDeprecationMetadata(exportedVariableMetadata)));
                     }
                 }
             }

@@ -3,6 +3,9 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
+using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
@@ -106,5 +109,10 @@ namespace Bicep.Core.Semantics
 
             return new(sourceFile);
         }
+
+        public static bool IsParameterRequired(SemanticModel model, ParameterDeclarationSyntax parameter)
+            => model.GetSymbolInfo(parameter) is ParameterSymbol parameterSymbol &&
+                SyntaxHelper.TryGetDefaultValue(parameter) is null &&
+                !TypeHelper.IsNullable(parameterSymbol.Type);
     }
 }

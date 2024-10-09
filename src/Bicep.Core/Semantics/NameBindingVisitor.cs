@@ -214,7 +214,7 @@ namespace Bicep.Core.Semantics
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
-            allowedFlags = FunctionFlags.TypeDecorator;
+            allowedFlags = FunctionFlags.TypePropertyDecorator;
             this.Visit(syntax.Type);
             allowedFlags = FunctionFlags.OutputDecorator;
             this.Visit(syntax.Assignment);
@@ -240,7 +240,7 @@ namespace Bicep.Core.Semantics
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
-            allowedFlags = FunctionFlags.TypeDecorator;
+            allowedFlags = FunctionFlags.TypePropertyDecorator;
             this.Visit(syntax.Type);
             allowedFlags = FunctionFlags.ParamDefaultsOnly;
             this.Visit(syntax.Modifier);
@@ -253,6 +253,7 @@ namespace Bicep.Core.Semantics
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
+            allowedFlags = FunctionFlags.TypePropertyDecorator;
             this.Visit(syntax.Value);
             allowedFlags = FunctionFlags.Default;
         }

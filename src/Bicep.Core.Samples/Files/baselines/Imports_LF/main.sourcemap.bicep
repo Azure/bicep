@@ -46,7 +46,7 @@ import {foo, fizz, pop, greet} from 'modules/mod.bicep'
 //@          "metadata": {
 //@            "__bicep_imported_from!": {
 //@              "sourceTemplate": "modules/mod.bicep"
-//@            }
+//@            },
 //@          }
 //@        }
 //@    "_1.bar": "[variables('_1.baz')]",
@@ -86,8 +86,38 @@ import {
 //@    "refersToCopyVariable": "[variables('_2.copyVariable')]",
 } from 'modules/mod.json'
 
+import { fooFunc, fooVar, fooType } from 'modules/deprecations.bicep'
+//@    "fooType": {
+//@      "type": "object",
+//@      "properties": {
+//@        "bar": {
+//@          "type": "string"
+//@        }
+//@      },
+//@      "metadata": {
+//@        "__bicep_deprecated!": "deprecated type",
+//@        "__bicep_imported_from!": {
+//@          "sourceTemplate": "modules/deprecations.bicep"
+//@        }
+//@      }
+//@    },
+//@        "fooFunc": {
+//@          "parameters": [],
+//@          "output": {
+//@            "type": "string",
+//@            "value": ":("
+//@          },
+//@          "metadata": {
+//@            "__bicep_imported_from!": {
+//@              "sourceTemplate": "modules/deprecations.bicep"
+//@            },
+//@            "__bicep_deprecated!": "deprecated func"
+//@          }
+//@        },
+//@            "description": "Say hi to someone!"
+//@    "fooVar": "",
+
 var aliasedFoo = foo
-//@            "description": "Say hi to someone!",
 //@    "aliasedFoo": "[variables('foo')]",
 var aliasedBar = mod2.foo
 //@    "aliasedBar": "[variables('_3.foo')]",

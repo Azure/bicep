@@ -1,5 +1,5 @@
 
-//@[000:9426) ProgramSyntax
+//@[000:9601) ProgramSyntax
 //@[000:0002) ├─Token(NewLine) |\r\n|
 @sys.description('this is deployTimeSuffix param')
 //@[000:0093) ├─ParameterDeclarationSyntax
@@ -3537,6 +3537,67 @@ module moduleWithNameof 'modulea.bicep' = {
 //@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
-//@[001:0003) ├─Token(NewLine) |\r\n|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+module deprecations 'child/deprecations.bicep' = {
+//@[000:0116) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0019) | ├─IdentifierSyntax
+//@[007:0019) | | └─Token(Identifier) |deprecations|
+//@[020:0046) | ├─StringSyntax
+//@[020:0046) | | └─Token(StringComplete) |'child/deprecations.bicep'|
+//@[047:0048) | ├─Token(Assignment) |=|
+//@[049:0116) | └─ObjectSyntax
+//@[049:0050) |   ├─Token(LeftBrace) |{|
+//@[050:0052) |   ├─Token(NewLine) |\r\n|
+  name: 'deprecations'
+//@[002:0022) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0022) |   | └─StringSyntax
+//@[008:0022) |   |   └─Token(StringComplete) |'deprecations'|
+//@[022:0024) |   ├─Token(NewLine) |\r\n|
+  params: {
+//@[002:0037) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0037) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
+    fooParam: 'foo'
+//@[004:0019) |   |   ├─ObjectPropertySyntax
+//@[004:0012) |   |   | ├─IdentifierSyntax
+//@[004:0012) |   |   | | └─Token(Identifier) |fooParam|
+//@[012:0013) |   |   | ├─Token(Colon) |:|
+//@[014:0019) |   |   | └─StringSyntax
+//@[014:0019) |   |   |   └─Token(StringComplete) |'foo'|
+//@[019:0021) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+var testDeprecated = deprecations.outputs.fooOutput
+//@[000:0051) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0018) | ├─IdentifierSyntax
+//@[004:0018) | | └─Token(Identifier) |testDeprecated|
+//@[019:0020) | ├─Token(Assignment) |=|
+//@[021:0051) | └─PropertyAccessSyntax
+//@[021:0041) |   ├─PropertyAccessSyntax
+//@[021:0033) |   | ├─VariableAccessSyntax
+//@[021:0033) |   | | └─IdentifierSyntax
+//@[021:0033) |   | |   └─Token(Identifier) |deprecations|
+//@[033:0034) |   | ├─Token(Dot) |.|
+//@[034:0041) |   | └─IdentifierSyntax
+//@[034:0041) |   |   └─Token(Identifier) |outputs|
+//@[041:0042) |   ├─Token(Dot) |.|
+//@[042:0051) |   └─IdentifierSyntax
+//@[042:0051) |     └─Token(Identifier) |fooOutput|
+//@[051:0053) ├─Token(NewLine) |\r\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

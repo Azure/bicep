@@ -1869,6 +1869,22 @@ namespace Bicep.Core.Semantics.Namespaces
                         }
                     })
                     .Build();
+
+                yield return new DecoratorBuilder(LanguageConstants.DeprecatedDecoratorName)
+                    .WithDescription("Indicates that a parameter, output or type is deprecated.")
+                    .WithOptionalParameter("description", LanguageConstants.String, "A description to give details about the deprecation.")
+                    .WithFlags(FunctionFlags.DeprecatableSyntaxDecorator)
+                    .WithEvaluator((functionCall, decorated) =>
+                    {
+                        if (decorated is DescribableExpression describable)
+                        {
+                            var reason = functionCall.Parameters.FirstOrDefault() is StringLiteralExpression stringExpression ? stringExpression.Value : null;
+                            return describable with { DeprecationMetadata = new(reason) };
+                        }
+
+                        return decorated;
+                    })
+                    .Build();
             }
 
             foreach (var decorator in GetAlwaysPermittedDecorators())

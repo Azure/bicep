@@ -1,5 +1,5 @@
 
-//@[000:9426) ProgramExpression
+//@[000:9601) ProgramExpression
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) | | └─ModuleReferenceExpression [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
@@ -1304,4 +1304,22 @@ module moduleWithNameof 'modulea.bicep' = {
     ]
   }
 }
+
+module deprecations 'child/deprecations.bicep' = {
+//@[000:0116) ├─DeclaredModuleExpression
+//@[049:0116) | ├─ObjectExpression
+  name: 'deprecations'
+//@[002:0022) | | └─ObjectPropertyExpression
+//@[002:0006) | |   ├─StringLiteralExpression { Value = name }
+//@[008:0022) | |   └─StringLiteralExpression { Value = deprecations }
+  params: {
+//@[010:0037) | └─ObjectExpression
+    fooParam: 'foo'
+//@[004:0019) |   └─ObjectPropertyExpression
+//@[004:0012) |     ├─StringLiteralExpression { Value = fooParam }
+//@[014:0019) |     └─StringLiteralExpression { Value = foo }
+  }
+}
+
+var testDeprecated = deprecations.outputs.fooOutput
 

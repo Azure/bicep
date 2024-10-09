@@ -38,6 +38,19 @@ import {
 //@[07:25) StringComplete |'modules/mod.json'|
 //@[25:27) NewLine |\n\n|
 
+import { fooFunc, fooVar, fooType } from 'modules/deprecations.bicep'
+//@[00:06) Identifier |import|
+//@[07:08) LeftBrace |{|
+//@[09:16) Identifier |fooFunc|
+//@[16:17) Comma |,|
+//@[18:24) Identifier |fooVar|
+//@[24:25) Comma |,|
+//@[26:33) Identifier |fooType|
+//@[34:35) RightBrace |}|
+//@[36:40) Identifier |from|
+//@[41:69) StringComplete |'modules/deprecations.bicep'|
+//@[69:71) NewLine |\n\n|
+
 var aliasedFoo = foo
 //@[00:03) Identifier |var|
 //@[04:14) Identifier |aliasedFoo|

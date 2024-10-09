@@ -2213,6 +2213,46 @@ module moduleWithNameof 'modulea.bicep' = {
 //@[003:005) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:003) NewLine |\r\n|
+//@[001:005) NewLine |\r\n\r\n|
+
+module deprecations 'child/deprecations.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:019) Identifier |deprecations|
+//@[020:046) StringComplete |'child/deprecations.bicep'|
+//@[047:048) Assignment |=|
+//@[049:050) LeftBrace |{|
+//@[050:052) NewLine |\r\n|
+  name: 'deprecations'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:022) StringComplete |'deprecations'|
+//@[022:024) NewLine |\r\n|
+  params: {
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:013) NewLine |\r\n|
+    fooParam: 'foo'
+//@[004:012) Identifier |fooParam|
+//@[012:013) Colon |:|
+//@[014:019) StringComplete |'foo'|
+//@[019:021) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+var testDeprecated = deprecations.outputs.fooOutput
+//@[000:003) Identifier |var|
+//@[004:018) Identifier |testDeprecated|
+//@[019:020) Assignment |=|
+//@[021:033) Identifier |deprecations|
+//@[033:034) Dot |.|
+//@[034:041) Identifier |outputs|
+//@[041:042) Dot |.|
+//@[042:051) Identifier |fooOutput|
+//@[051:053) NewLine |\r\n|
 
 //@[000:000) EndOfFile ||

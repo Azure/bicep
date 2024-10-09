@@ -27,6 +27,7 @@ namespace Bicep.Core.Semantics
 {
     public class SemanticModel : ISemanticModel
     {
+        public FactsCache Facts { get; }
         private readonly Lazy<EmitLimitationInfo> emitLimitationInfoLazy;
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
@@ -47,6 +48,7 @@ namespace Bicep.Core.Semantics
 
         public SemanticModel(Compilation compilation, BicepSourceFile sourceFile)
         {
+            this.Facts = new(this);
             this.Compilation = compilation;
             this.SourceFile = sourceFile;
             this.Configuration = compilation.ConfigurationManager.GetConfiguration(sourceFile.FileUri);
@@ -111,18 +113,19 @@ namespace Bicep.Core.Semantics
 
                 foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
                 {
-                    var description = DescriptionHelper.TryGetFromDecorator(this, param.DeclaringParameter);
+                    var description = Facts.Description.Get(param.DeclaringParameter);
+                    var deprecation = Facts.DeprecationMetadata.Get(param.DeclaringParameter);
                     var isRequired = SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null && !TypeHelper.IsNullable(param.Type);
                     if (param.Type is ResourceType resourceType)
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated
                         // type so we can compare differently for assignment.
                         var type = new UnresolvedResourceType(resourceType.TypeReference);
-                        parameters.Add(param.Name, new ParameterMetadata(param.Name, type, isRequired, description));
+                        parameters.Add(param.Name, new ParameterMetadata(param.Name, type, isRequired, description, deprecation));
                     }
                     else
                     {
-                        parameters.Add(param.Name, new ParameterMetadata(param.Name, param.Type, isRequired, description));
+                        parameters.Add(param.Name, new ParameterMetadata(param.Name, param.Type, isRequired, description, deprecation));
                     }
                 }
 
@@ -139,17 +142,18 @@ namespace Bicep.Core.Semantics
 
                 foreach (var output in this.Root.OutputDeclarations.DistinctBy(o => o.Name))
                 {
-                    var description = DescriptionHelper.TryGetFromDecorator(this, output.DeclaringOutput);
+                    var description = Facts.Description.Get(output.DeclaringSyntax);
+                    var deprecation = Facts.DeprecationMetadata.Get(output.DeclaringSyntax);
                     if (output.Type is ResourceType resourceType)
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated
                         // type so we can compare differently for assignment and code generation.
                         var type = new UnresolvedResourceType(resourceType.TypeReference);
-                        outputs.Add(new OutputMetadata(output.Name, type, description));
+                        outputs.Add(new OutputMetadata(output.Name, type, description, deprecation));
                     }
                     else
                     {
-                        outputs.Add(new OutputMetadata(output.Name, output.Type, description));
+                        outputs.Add(new OutputMetadata(output.Name, output.Type, description, deprecation));
                     }
                 }
 
@@ -168,18 +172,19 @@ namespace Bicep.Core.Semantics
 
         private IEnumerable<ExportMetadata> FindExportedTypes() => Root.TypeDeclarations
             .Where(t => t.IsExported())
-            .Select(t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType)));
+            .Select(t => new ExportedTypeMetadata(t.Name, t.Type, Facts.Description.Get(t.DeclaringType), Facts.DeprecationMetadata.Get(t.DeclaringType)));
 
         private IEnumerable<ExportMetadata> FindExportedVariables() => Root.VariableDeclarations
             .Where(v => v.IsExported())
-            .Select(v => new ExportedVariableMetadata(v.Name, v.Type, DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable)));
+            .Select(v => new ExportedVariableMetadata(v.Name, v.Type, Facts.Description.Get(v.DeclaringVariable), Facts.DeprecationMetadata.Get(v.DeclaringVariable)));
 
         private IEnumerable<ExportMetadata> FindExportedFunctions() => Root.FunctionDeclarations
             .Where(f => f.IsExported())
             .Select(f => new ExportedFunctionMetadata(f.Name,
                 f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description)).ToImmutableArray(),
                 new(f.Overload.TypeSignatureSymbol, null),
-                DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
+                Facts.Description.Get(f.DeclaringFunction),
+                Facts.DeprecationMetadata.Get(f.DeclaringFunction)));
 
         private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, RootConfiguration configuration)
         {

@@ -128,6 +128,11 @@ namespace Bicep.Core.Semantics
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsParameterDecorator(functionSymbol.Name));
             }
 
+            if (!functionFlags.HasFlag(FunctionFlags.TypePropertyDecorator) && allowedFlags.HasFlag(FunctionFlags.TypePropertyDecorator))
+            {
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsTypePropertyDecorator(functionSymbol.Name));
+            }
+
             if (!functionFlags.HasFlag(FunctionFlags.TypeDecorator) && allowedFlags.HasFlag(FunctionFlags.TypeDecorator))
             {
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsTypeDecorator(functionSymbol.Name));

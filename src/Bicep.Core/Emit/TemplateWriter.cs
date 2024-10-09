@@ -16,6 +16,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
+using Microsoft.Extensions.Azure;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
@@ -124,7 +125,7 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("contentVersion", "1.0.0.0");
 
-            this.EmitMetadata(emitter, program.Metadata);
+            this.EmitMetadata(emitter, program);
 
             this.EmitTypeDefinitionsIfPresent(emitter, programTypes);
 
@@ -228,11 +229,6 @@ namespace Bicep.Core.Emit
                 result = result.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false, @sealed.SourceSyntax));
             }
 
-            if (expression is DeclaredTypeExpression declaredTypeExpression && declaredTypeExpression.Exported is { } exported)
-            {
-                result = ApplyMetadataProperty(result, LanguageConstants.MetadataExportedPropertyName, ExpressionFactory.CreateBooleanLiteral(true, exported.SourceSyntax));
-            }
-
             foreach (var (modifier, propertyName) in new[]
             {
                 (expression.Metadata, LanguageConstants.ParameterMetadataPropertyName),
@@ -248,11 +244,24 @@ namespace Bicep.Core.Emit
                 }
             }
 
-            return ApplyDescription(expression, result);
+            return ApplyMetadataProperties(expression, result);
         }
 
-        private static ObjectExpression ApplyDescription(DescribableExpression expression, ObjectExpression input)
-            => ApplyMetadataProperty(input, LanguageConstants.MetadataDescriptionPropertyName, expression.Description);
+        private static ObjectExpression ApplyMetadataProperties(DescribableExpression expression, ObjectExpression input, bool skipExportProperty = false)
+        {
+            input = ApplyMetadataProperty(input, LanguageConstants.MetadataDescriptionPropertyName, expression.Description);
+            if (!skipExportProperty && expression is IExportableExpression exportable && exportable.Exported is {})
+            {
+                input = ApplyMetadataProperty(input, LanguageConstants.MetadataExportedPropertyName, ExpressionFactory.CreateBooleanLiteral(true, exportable.Exported.SourceSyntax));
+            }
+            if (expression.DeprecationMetadata is {} deprecationMetadata)
+            {
+                var reason = deprecationMetadata.Description ?? "";
+                input = ApplyMetadataProperty(input, LanguageConstants.MetadataDeprecatedPropertyName, new StringLiteralExpression(expression.SourceSyntax, reason));
+            }
+
+            return input;
+        }
 
         private static ObjectExpression ApplyMetadataProperty(ObjectExpression input, string propertyName, Expression? propertyValue) => propertyValue is not null
             ? input.MergeProperty(LanguageConstants.ParameterMetadataPropertyName, ExpressionFactory.CreateObject(
@@ -317,31 +326,30 @@ namespace Bicep.Core.Emit
 
                 if (function.Description is not null || function.Exported is not null || Context.ImportClosureInfo.ImportedSymbolOriginMetadata.ContainsKey(originMetadataLookupKey))
                 {
-                    emitter.EmitObjectProperty(LanguageConstants.ParameterMetadataPropertyName, () =>
+                    var metadataObj = ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty);
+                    if (Context.ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(originMetadataLookupKey, out var originMetadata))
                     {
-                        if (function.Description is not null)
+                        var importedFromProps = new List<ObjectPropertyExpression>
                         {
-                            emitter.EmitProperty(LanguageConstants.MetadataDescriptionPropertyName, function.Description);
+                            ExpressionFactory.CreateObjectProperty(
+                                LanguageConstants.ImportMetadataSourceTemplatePropertyName,
+                                new StringLiteralExpression(null, originMetadata.SourceTemplateIdentifier))
+                        };
+
+                        if (!function.Name.Equals(originMetadata.OriginalName))
+                        {
+                            importedFromProps.Add(ExpressionFactory.CreateObjectProperty(
+                                LanguageConstants.ImportMetadataOriginalIdentifierPropertyName,
+                                new StringLiteralExpression(null, originMetadata.OriginalName)));
                         }
 
-                        if (function.Exported is not null)
-                        {
-                            emitter.EmitProperty(LanguageConstants.MetadataExportedPropertyName, ExpressionFactory.CreateBooleanLiteral(true, function.Exported.SourceSyntax));
-                        }
+                        metadataObj = ApplyMetadataProperty(metadataObj, LanguageConstants.MetadataImportedFromPropertyName, ExpressionFactory.CreateObject(importedFromProps, null));
+                    }
 
-                        if (Context.ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(originMetadataLookupKey, out var originMetadata))
-                        {
-                            emitter.EmitObjectProperty(LanguageConstants.MetadataImportedFromPropertyName, () =>
-                            {
-                                emitter.EmitProperty(LanguageConstants.ImportMetadataSourceTemplatePropertyName, originMetadata.SourceTemplateIdentifier);
-
-                                if (!function.Name.Equals(originMetadata.OriginalName))
-                                {
-                                    emitter.EmitProperty(LanguageConstants.ImportMetadataOriginalIdentifierPropertyName, originMetadata.OriginalName);
-                                }
-                            });
-                        }
-                    });
+                    foreach (var property in ApplyMetadataProperties(function, metadataObj).Properties)
+                    {
+                        emitter.EmitProperty(property);
+                    }
                 }
             }, function.SourceSyntax);
         }
@@ -1259,7 +1267,7 @@ namespace Bicep.Core.Emit
 
                 // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
                 // and emit its properties to merge decorator properties.
-                foreach (var property in ApplyDescription(resource, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
+                foreach (var property in ApplyMetadataProperties(resource, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
                 {
                     emitter.EmitProperty(property);
                 }
@@ -1382,7 +1390,7 @@ namespace Bicep.Core.Emit
 
                 // Since we don't want to be mutating the body of the original ObjectSyntax, we create a placeholder body in place
                 // and emit its properties to merge decorator properties.
-                foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
+                foreach (var property in ApplyMetadataProperties(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
                 {
                     emitter.EmitProperty(property);
                 }
@@ -1477,7 +1485,7 @@ namespace Bicep.Core.Emit
 
                 // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
                 // and emit its properties to merge decorator properties.
-                foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
+                foreach (var property in ApplyMetadataProperties(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
                 {
                     emitter.EmitProperty(property);
                 }
@@ -1640,7 +1648,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitMetadata(ExpressionEmitter emitter, ImmutableArray<DeclaredMetadataExpression> metadata)
+        private void EmitMetadata(ExpressionEmitter emitter, ProgramExpression program)
         {
             emitter.EmitObjectProperty("metadata", () =>
             {
@@ -1672,17 +1680,20 @@ namespace Bicep.Core.Emit
                         {
                             emitter.EmitObject(() =>
                             {
-                                emitter.EmitProperty("name", exportedVariable.Name);
-                                if (exportedVariable.Description is string description)
-                                {
-                                    emitter.EmitProperty(LanguageConstants.MetadataDescriptionPropertyName, description);
+                                var variable = program.Variables.Single(x => LanguageConstants.IdentifierComparer.Equals(x.Name, exportedVariable.Name));
+                            
+                                emitter.EmitProperty("name", variable.Name);
+                                // emitting "__bicep_export!" is technically unnecessary here, because this is already a list of exported variables
+                                foreach (var property in ApplyMetadataProperties(variable, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty), skipExportProperty: true).Properties)
+                                {                                    
+                                    emitter.EmitProperty(property);
                                 }
                             });
                         }
                     });
                 }
 
-                foreach (var item in metadata)
+                foreach (var item in program.Metadata)
                 {
                     emitter.EmitProperty(item.Name, item.Value);
                 }

@@ -402,3 +402,15 @@ module moduleWithNameof 'modulea.bicep' = {
   }
 }
 
+module deprecations 'child/deprecations.bicep' = {
+  name: 'deprecations'
+  params: {
+    fooParam: 'foo'
+//@[04:12) [no-deprecated-dependencies (Warning)] Symbol 'fooParam' has been marked as deprecated, and should not be used. Reason: 'deprecated param'. (bicep core linter https://aka.ms/bicep/linter/no-deprecated-dependencies) |fooParam|
+  }
+}
+
+var testDeprecated = deprecations.outputs.fooOutput
+//@[04:18) [no-unused-vars (Warning)] Variable "testDeprecated" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |testDeprecated|
+//@[21:51) [no-deprecated-dependencies (Warning)] Symbol 'fooOutput' has been marked as deprecated, and should not be used. Reason: 'deprecated output'. (bicep core linter https://aka.ms/bicep/linter/no-deprecated-dependencies) |deprecations.outputs.fooOutput|
+

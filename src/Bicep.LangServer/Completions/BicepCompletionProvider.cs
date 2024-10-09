@@ -1771,7 +1771,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(declaredType.Type.Name)
                 .WithSortText(GetSortText(declaredType.Name, priority));
 
-            if (DescriptionHelper.TryGetFromDecorator(model, declaredType.DeclaringType) is string documentation)
+            if (model.Facts.Description.Get(declaredType.DeclaringType) is string documentation)
             {
                 builder = builder.WithDocumentation(documentation);
             }
@@ -2190,7 +2190,7 @@ namespace Bicep.LanguageServer.Completions
                     buffer.Append(MarkdownHelper.AppendNewline($"Type: `{declaredSymbol.Type}`"));
                 }
 
-                var documentation = DescriptionHelper.TryGetFromDecorator(model, decorableSyntax);
+                var documentation = model.Facts.Description.Get(decorableSyntax);
                 buffer.Append(MarkdownHelper.AppendNewline(documentation));
 
                 return buffer.ToString();

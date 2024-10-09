@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18183633158511667674"
+      "templateHash": "16966837921391267388"
     }
   },
   "definitions": {
@@ -52,6 +52,20 @@
         }
       }
     },
+    "fooType": {
+      "type": "object",
+      "properties": {
+        "bar": {
+          "type": "string"
+        }
+      },
+      "metadata": {
+        "__bicep_deprecated!": "deprecated type",
+        "__bicep_imported_from!": {
+          "sourceTemplate": "modules/deprecations.bicep"
+        }
+      }
+    },
     "pop": {
       "type": "string",
       "minLength": 3,
@@ -66,6 +80,19 @@
     {
       "namespace": "__bicep",
       "members": {
+        "fooFunc": {
+          "parameters": [],
+          "output": {
+            "type": "string",
+            "value": ":("
+          },
+          "metadata": {
+            "__bicep_imported_from!": {
+              "sourceTemplate": "modules/deprecations.bicep"
+            },
+            "__bicep_deprecated!": "deprecated func"
+          }
+        },
         "greet": {
           "parameters": [
             {
@@ -78,10 +105,10 @@
             "value": "[format('Hi, {0}!', parameters('name'))]"
           },
           "metadata": {
-            "description": "Say hi to someone!",
             "__bicep_imported_from!": {
               "sourceTemplate": "modules/mod.bicep"
-            }
+            },
+            "description": "Say hi to someone!"
           }
         }
       }
@@ -114,6 +141,7 @@
     ],
     "_3.foo": "bar",
     "foo": "[variables('_1.bar')]",
+    "fooVar": "",
     "refersToCopyVariable": "[variables('_2.copyVariable')]",
     "withInvalidIdentifier": "value"
   },
