@@ -3,9 +3,14 @@ import type { MouseEvent } from "react";
 import { useSetAtom } from "jotai";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback, useEffect } from "react";
-import { Canvas } from "./graph";
-import { addEdgeAtom, edgesAtom } from "./graph/edges/atoms";
-import { addCompoundNodeAtom, addPrimitiveNodeAtom, isPrimitive, nodesAtom } from "./graph/nodes";
+import {
+  addCompoundNodeAtom,
+  addEdgeAtom,
+  addPrimitiveNodeAtom,
+  edgesAtom,
+  nodesAtom,
+} from "./features/graph/atoms";
+import { Canvas } from "./features/graph/components";
 
 export function App() {
   const setNodesAtom = useSetAtom(nodesAtom);
@@ -20,7 +25,7 @@ export function App() {
 
       const nodes = get(nodesAtom);
       for (const node of Object.values(nodes)) {
-        if (isPrimitive(node)) {
+        if (node.kind === "primitive") {
           set(node.originAtom, { ...get(node.originAtom) });
         }
       }
@@ -65,7 +70,7 @@ export function App() {
     return () => {
       setEdgesAtom([]);
       setNodesAtom({});
-    }
+    };
   }, [addCompoundNode, addPrimitiveNode, addEdge, setNodesAtom, setEdgesAtom]);
 
   return (

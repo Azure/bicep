@@ -1,8 +1,8 @@
-import type { EdgeAtomValue } from "./atoms";
+import type { EdgeAtomValue } from "../../atoms/edges";
 
 import { atom, useStore } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
-import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "../../../math";
+import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "../../../../utils/math";
 import { nodesAtom } from "../nodes";
 import { styled } from "styled-components";
 

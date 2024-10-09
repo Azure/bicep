@@ -1,40 +1,33 @@
 import type { Atom, PrimitiveAtom } from "jotai";
-import type { Box, Point } from "../../../math/geometry";
+import type { Box, Point } from "../../../utils/math/geometry";
 
 import { atom } from "jotai";
 
-export interface PrimitiveNodeAtomValue {
+export interface PrimitiveNodeState {
+  kind: "primitive";
   id: string;
   originAtom: PrimitiveAtom<Point>;
   boxAtom: PrimitiveAtom<Box>;
   dataAtom: PrimitiveAtom<unknown>;
 }
 
-export interface CompoundNodeAtomValue {
+export interface CompoundNodeState {
+  kind: "compound";
   id: string;
   childIdsAtom: PrimitiveAtom<string[]>;
   boxAtom: Atom<Box>;
   dataAtom: PrimitiveAtom<unknown>;
 }
 
-export type NodeAtomValue = PrimitiveNodeAtomValue | CompoundNodeAtomValue;
+export type NodeState = PrimitiveNodeState | CompoundNodeState;
 
-export type NodesAtomValue = Record<string, NodeAtomValue>;
-
-export function isPrimitive(node: NodeAtomValue): node is PrimitiveNodeAtomValue {
-  return "originAtom" in node;
-}
-
-export function isCompound(node: NodeAtomValue): node is CompoundNodeAtomValue {
-  return "childIdsAtom" in node;
-}
-
-export const nodesAtom = atom<NodesAtomValue>({});
+export const nodesAtom = atom<Record<string, NodeState>>({});
 
 export const addPrimitiveNodeAtom = atom(null, (_, set, id: string, origin: Point, box: Box, data: unknown) => {
   set(nodesAtom, (nodes) => ({
     ...nodes,
     [id]: {
+      kind: "primitive",
       id,
       originAtom: atom(origin),
       boxAtom: atom(box),
@@ -70,6 +63,7 @@ export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: str
   set(nodesAtom, (nodes) => ({
     ...nodes,
     [id]: {
+      kind: "compound",
       id,
       childIdsAtom,
       boxAtom,

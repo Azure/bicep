@@ -1,13 +1,12 @@
-import type { Point } from "../../../math";
-import type { PrimitiveNodeAtomValue } from "./atoms";
+import type { Point } from "../../../../utils/math";
+import type { PrimitiveNodeState } from "../../atoms/nodes";
 
-import { animate, frame, transform } from "framer-motion";
+import { animate, transform } from "framer-motion";
 import { useStore } from "jotai";
 import { useEffect, useRef } from "react";
 import { styled } from "styled-components";
-import { pointsEqual, translateBox } from "../../../math";
-import { useBoxSizeAndPosition } from "./useBoxSizeAndPosition";
-import { useDragListener } from "./useDragListener";
+import { pointsEqual, translateBox } from "../../../../utils/math";
+import { useBoxGeometry, useDragListener } from "../../hooks";
 
 const $Node = styled.div`
   position: absolute;
@@ -23,7 +22,7 @@ const $Node = styled.div`
   z-index: 1;
 `;
 
-function animatePointTransform(fromPoint: Point, toPoint: Point, onPointUpdate: (point: Point) => void) {
+function animatePointTranslation(fromPoint: Point, toPoint: Point, onPointUpdate: (point: Point) => void) {
   const from = 0;
   const to = 100;
 
@@ -43,15 +42,15 @@ function animatePointTransform(fromPoint: Point, toPoint: Point, onPointUpdate: 
   });
 }
 
-export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeAtomValue) {
+export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeState) {
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
 
-  useDragListener(ref, (dx, dy) => {
-    frame.update(() => store.set(boxAtom, (box) => translateBox(box, dx, dy)));
+  useDragListener(ref, (dx: number, dy: number) => {
+    store.set(boxAtom, (box) => translateBox(box, dx, dy));
   });
 
-  useBoxSizeAndPosition(ref, store, boxAtom);
+  useBoxGeometry(ref, store, boxAtom);
 
   useEffect(() => {
     return store.sub(originAtom, () => {
@@ -62,8 +61,8 @@ export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeAtomValu
         return;
       }
 
-      animatePointTransform(min, origin, ({ x, y }) => {
-        frame.update(() => store.set(boxAtom, (box) => translateBox(box, x - box.min.x, y - box.min.y)));
+      animatePointTranslation(min, origin, ({ x, y }) => {
+        store.set(boxAtom, (box) => translateBox(box, x - box.min.x, y - box.min.y));
       });
     });
   }, [store, boxAtom, originAtom]);
