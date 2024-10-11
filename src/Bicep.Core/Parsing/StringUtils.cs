@@ -107,5 +107,7 @@ namespace Bicep.Core.Parsing
                     .Select(x => x.Length == 0 ? x : x[commonPrefixLength..])
                     .Prepend(firstLine));
         }
+
+        public static string ToCamelCase(string name) => char.ToLowerInvariant(name[0]) + name[1..];
     }
 }

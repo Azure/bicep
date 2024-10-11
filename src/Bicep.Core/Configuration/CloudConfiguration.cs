@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.Core;
 using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Configuration
 {
@@ -95,8 +96,6 @@ namespace Bicep.Core.Configuration
 
         private static (Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri) ValidateCurrentProfile(Cloud cloud)
         {
-            static string ToCamelCase(string name) => char.ToLowerInvariant(name[0]) + name[1..];
-
             string BuildAvailableProfileNamesClause() => cloud.Profiles.Keys.Any() ? $"\"{cloud.Profiles.Keys.OrderBy(name => name).ConcatString("\", \"")}\"" : "";
 
             Uri ValidateUri(string? value, string propertyName)
@@ -120,8 +119,8 @@ namespace Bicep.Core.Configuration
                 throw new ConfigurationException($"The cloud profile \"{cloud.CurrentProfileName}\" does not exist. Available profiles include {BuildAvailableProfileNamesClause()}.");
             }
 
-            var endpointUri = ValidateUri(currentProfile.ResourceManagerEndpoint, ToCamelCase(nameof(currentProfile.ResourceManagerEndpoint)));
-            var authorityUri = ValidateUri(currentProfile.ActiveDirectoryAuthority, ToCamelCase(nameof(currentProfile.ActiveDirectoryAuthority)));
+            var endpointUri = ValidateUri(currentProfile.ResourceManagerEndpoint, StringUtils.ToCamelCase(nameof(currentProfile.ResourceManagerEndpoint)));
+            var authorityUri = ValidateUri(currentProfile.ActiveDirectoryAuthority, StringUtils.ToCamelCase(nameof(currentProfile.ActiveDirectoryAuthority)));
 
             return (endpointUri, authorityUri);
         }

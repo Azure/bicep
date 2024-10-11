@@ -182,7 +182,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
 
             var command = codeAction.Command;
-            if (command != null && command.Name == "bicep.internal.startRename")
+            if (command != null && command.Name == "bicep.internal.postExtraction")
             {
                 command.Arguments.Should().NotBeNull();
                 command.Arguments!.Should().BeOfType<JArray>();
