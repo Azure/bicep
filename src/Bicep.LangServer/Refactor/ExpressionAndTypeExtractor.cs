@@ -45,7 +45,8 @@ public class ExpressionAndTypeExtractor
     private record ExtractionContext(
         StatementSyntax ParentStatement, // The statement containing the extraction context
         ExpressionSyntax ExpressionSyntax, // The expression to be extracted
-        TypeProperty? TypeProperty, // The property inside a parent object's type whose value is being extracted, if any
+        ObjectPropertySyntax? PropertySyntax, // The property syntax containing the expression, if any
+        TypeProperty? TypeProperty, // The type property for PropertySyntax
         string? ContextDerivedName  // Suggested name based on context
     );
 
@@ -93,7 +94,8 @@ public class ExpressionAndTypeExtractor
             return null;
         }
 
-        TypeProperty? parentTypeProperty = null;
+        ObjectPropertySyntax? containingProperty = null;
+        TypeProperty? containingTypeProperty = null;
         string? contextDerivedNewName = null;
 
         // Pick a semi-intelligent default name for the new param and variable.
@@ -105,7 +107,8 @@ public class ExpressionAndTypeExtractor
             // `{ objectPropertyName: <<expression>> }` // entire property value expression selected
             //   -> default to the name "objectPropertyName"
             contextDerivedNewName = propertyName;
-            parentTypeProperty = propertySyntax.TryGetTypeProperty(semanticModel);
+            containingProperty = propertySyntax;
+            containingTypeProperty = containingProperty.TryGetTypeProperty(semanticModel);
         }
         else if (expressionSyntax is ObjectPropertySyntax propertySyntax2
             && propertySyntax2.TryGetKeyText() is string propertyName2)
@@ -119,7 +122,8 @@ public class ExpressionAndTypeExtractor
             if (propertyValueSyntax != null)
             {
                 expressionSyntax = propertyValueSyntax;
-                parentTypeProperty = propertySyntax2.TryGetTypeProperty(semanticModel);
+                containingProperty = propertySyntax2;
+                containingTypeProperty = containingProperty.TryGetTypeProperty(semanticModel);
             }
             else
             {
@@ -154,13 +158,11 @@ public class ExpressionAndTypeExtractor
             return null;
         }
 
-        return new ExtractionContext(parentStatement, expressionSyntax, parentTypeProperty, contextDerivedNewName);
+        return new ExtractionContext(parentStatement, expressionSyntax, containingProperty, containingTypeProperty, contextDerivedNewName);
     }
 
     private IEnumerable<CodeFixWithCommand> CreateAllExtractions(ExtractionContext extractionContext)
     {
-        yield return CreateExtraction(extractionContext, ExtractionKind.Variable, "[Preview] Extract variable");
-
         // For the new param's type, try to use the declared type if there is one (i.e. the type of
         //   what we're assigning to), otherwise use the actual calculated type of the expression
         var inferredType = semanticModel.GetTypeInfo(extractionContext.ExpressionSyntax);
@@ -173,28 +175,62 @@ public class ExpressionAndTypeExtractor
         // Strict typing for the param doesn't appear useful, providing only loose and medium at the moment
         var stringifiedLooseType = Stringify(newParamType, extractionContext.TypeProperty, Strictness.Loose, ignoreTopLevelNullability);
         var stringifiedUserDefinedType = Stringify(newParamType, extractionContext.TypeProperty, Strictness.Medium, ignoreTopLevelNullability);
+        var resourceDerivedType = extractionContext.PropertySyntax is null ? null : TryGetResourceDerivedTypeName(semanticModel, extractionContext.PropertySyntax);
 
+        var simpleTypeAvailable = true;
         var userDefinedTypeAvailable = !string.Equals(stringifiedLooseType, stringifiedUserDefinedType, StringComparison.Ordinal);
+        var resourceDerivedTypeAvailable = resourceDerivedType is { } && semanticModel.Features.ResourceDerivedTypesEnabled;
+
+        ExtractKindsAvailable extractKindsAvailable = new(
+            simpleTypeAvailable: simpleTypeAvailable,
+            userDefinedTypeAvailable: userDefinedTypeAvailable,
+            resourceDerivedTypeAvailable: resourceDerivedTypeAvailable);
 
         yield return CreateExtraction(
             extractionContext,
-            userDefinedTypeAvailable ? ExtractionKind.SimpleNotUserParam : ExtractionKind.OnlySimpleParam,
-            $"[Preview] Extract parameter of type {GetQuotedText(stringifiedLooseType)}",
-            stringifiedLooseType);
+            ExtractionKind.Variable,
+            "[Preview] Extract variable",
+            null,
+            extractKindsAvailable);
+
+        if (simpleTypeAvailable)
+        {
+            yield return CreateExtraction(
+                extractionContext,
+                ExtractionKind.SimpleParam,
+                $"[Preview] Extract parameter of type {GetQuotedText(stringifiedLooseType)}",
+                stringifiedLooseType,
+                extractKindsAvailable);
+        }
 
         if (userDefinedTypeAvailable)
         {
             yield return CreateExtraction(
                 extractionContext,
-                ExtractionKind.UserParam,
+                ExtractionKind.UserDefParam,
                 $"[Preview] Extract parameter of type {GetQuotedText(stringifiedUserDefinedType)}",
-                stringifiedUserDefinedType);
+                stringifiedUserDefinedType,
+                extractKindsAvailable);
+        }
 
+        if (resourceDerivedTypeAvailable)
+        {
+            yield return CreateExtraction(
+                extractionContext,
+                ExtractionKind.ResDerivedParam,
+                $"[Preview] Extract parameter of type {GetQuotedText(resourceDerivedType!)}",
+                resourceDerivedType,
+                extractKindsAvailable);
+        }
+
+        if (userDefinedTypeAvailable)
+        {
             yield return CreateExtraction(
                 extractionContext,
                 ExtractionKind.Type,
                 $"[Preview] Create type for {GetQuotedText(stringifiedUserDefinedType)}",
-                stringifiedUserDefinedType);
+                stringifiedUserDefinedType,
+                extractKindsAvailable);
         }
     }
 
@@ -202,8 +238,8 @@ public class ExpressionAndTypeExtractor
         ExtractionContext extractionContext,
         ExtractionKind kind,
         string title,
-        string? stringifiedType = null
-        )
+        string? stringifiedType,
+        ExtractKindsAvailable extractKindsAvailable)
     {
         string defaultNoncontextualName;
         string declarationKeywordPlusSpace;
@@ -214,8 +250,9 @@ public class ExpressionAndTypeExtractor
                 defaultNoncontextualName = "newVariable";
                 declarationKeywordPlusSpace = "var ";
                 declarationStatementSyntaxType = typeof(VariableDeclarationSyntax);
+                Debug.Assert(stringifiedType == null);
                 break;
-            case ExtractionKind.OnlySimpleParam or ExtractionKind.SimpleNotUserParam or ExtractionKind.UserParam:
+            case ExtractionKind.SimpleParam or ExtractionKind.UserDefParam or ExtractionKind.ResDerivedParam:
                 defaultNoncontextualName = "newParameter";
                 declarationKeywordPlusSpace = "param ";
                 declarationStatementSyntaxType = typeof(ParameterDeclarationSyntax);
@@ -241,7 +278,7 @@ public class ExpressionAndTypeExtractor
         StatementSyntax declarationSyntax = kind switch
         {
             ExtractionKind.Variable => SyntaxFactory.CreateVariableDeclaration(newNamePlusSentinel, extractionContext.ExpressionSyntax),
-            ExtractionKind.OnlySimpleParam or ExtractionKind.SimpleNotUserParam or ExtractionKind.UserParam => CreateNewParameterDeclaration(
+            ExtractionKind.SimpleParam or ExtractionKind.UserDefParam or ExtractionKind.ResDerivedParam => CreateNewParameterDeclaration(
                 extractionContext, stringifiedType!, newNamePlusSentinel, extractionContext.ExpressionSyntax),
             ExtractionKind.Type => SyntaxFactory.CreateTypeDeclaration(newNamePlusSentinel, SyntaxFactory.CreateIdentifierWithTrailingSpace(stringifiedType!)),
             _ => throw new ArgumentOutOfRangeException(nameof(ExtractionKind))
@@ -290,7 +327,9 @@ public class ExpressionAndTypeExtractor
             replacements,
             this.documentUri,
             absoluteIdentifierPosition,
-            telemetryEvent: BicepTelemetryEvent.ExtractionRefactoring(kind));
+            telemetryEvent: BicepTelemetryEvent.ExtractionRefactoring(
+                kind,
+                extractKindsAvailable));
     }
 
     private ParameterDeclarationSyntax CreateNewParameterDeclaration(
