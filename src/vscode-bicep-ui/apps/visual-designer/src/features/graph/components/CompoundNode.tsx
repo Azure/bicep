@@ -7,7 +7,7 @@ import styled from "styled-components";
 import { translateBox } from "../../../utils/math";
 import { nodesAtom } from "../atoms";
 import { useBoxUpdate, useDragListener } from "../hooks";
-import { NodeContent } from "./NodeContent";
+import { NodeContentResolver } from "./NodeContentResolver";
 
 const $CompoundNode = styled.div`
   position: absolute;
@@ -59,7 +59,7 @@ export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNo
 
   return (
     <$CompoundNode ref={ref}>
-      <NodeContent id={id} dataAtom={dataAtom} />
+      <NodeContentResolver id={id} dataAtom={dataAtom} />
     </$CompoundNode>
   );
 }

@@ -8,7 +8,7 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 import { styled } from "styled-components";
 import { pointsEqual, translateBox } from "../../../utils/math";
 import { useBoxUpdate, useDragListener } from "../hooks";
-import { NodeContent } from "./NodeContent";
+import { NodeContentResolver } from "./NodeContentResolver";
 
 const $Node = styled.div`
   position: absolute;
@@ -109,7 +109,7 @@ export function PrimitiveNode({ id, originAtom, boxAtom, dataAtom }: PrimitiveNo
 
   return (
     <$Node ref={ref}>
-      <NodeContent id={id} dataAtom={dataAtom} />
+      <NodeContentResolver id={id} dataAtom={dataAtom} />
     </$Node>
   );
 }

@@ -4,12 +4,6 @@ import { atom, useStore } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
 import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "../../../utils/math";
 import { nodesAtom } from "../atoms";
-import { styled } from "styled-components";
-
-const $Svg = styled.svg`
-  overflow: visible;
-  position: absolute;
-`
 
 export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
   const ref = useRef<SVGPathElement>(null);
@@ -52,9 +46,7 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
 
       if (!from || !to) {
         ref.current.removeAttribute("d");
-      }
-      else
-      {
+      } else {
         ref.current.setAttribute("d", `M ${from.x} ${from.y} L ${to.x} ${to.y}`);
       }
     };
@@ -65,8 +57,14 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
   }, [store, edgeSegmentAtom]);
 
   return (
-    <$Svg>
-      <path ref={ref} fill="none" stroke="#222" strokeWidth={1.5} />
-    </$Svg>
+    <path
+      ref={ref}
+      fill="none"
+      stroke="#aaa"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      strokeWidth={1.5}
+      marker-end="url(#line-arrow)"
+    />
   );
 }

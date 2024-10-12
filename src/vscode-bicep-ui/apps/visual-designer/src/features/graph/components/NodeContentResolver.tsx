@@ -6,7 +6,7 @@ export interface NodeBodyProps {
   dataAtom: Atom<unknown>;
 }
 
-export function NodeContent({ id, dataAtom }: NodeBodyProps) {
+export function NodeContentResolver({ id, dataAtom }: NodeBodyProps) {
   const nodeConfig = useAtomValue(nodeConfigAtom);
   const data = useAtomValue(dataAtom);
   const NodeContentComponent = nodeConfig.resolveNodeContentComponent(data);
