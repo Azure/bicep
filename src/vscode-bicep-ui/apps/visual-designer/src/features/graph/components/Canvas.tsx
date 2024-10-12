@@ -2,7 +2,7 @@ import { PanZoom } from "@vscode-bicep-ui/components";
 import styled from "styled-components";
 import { Graph } from "./Graph";
 
-const $CanvasPanel = styled(PanZoom)`
+const $PanZoom = styled(PanZoom)`
   position: absolute;
   left: 0px;
   top: 0px;
@@ -13,8 +13,8 @@ const $CanvasPanel = styled(PanZoom)`
 
 export function Canvas() {
   return (
-    <$CanvasPanel>
+    <$PanZoom>
       <Graph />
-    </$CanvasPanel>
+    </$PanZoom>
   );
 }

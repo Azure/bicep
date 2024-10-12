@@ -16,6 +16,7 @@
     "vite": "^5.4.5"
   },
   "dependencies": {
+    "@react-hook/resize-observer": "^2.0.2",
     "@vscode-bicep-ui/components": "^0.0.0",
     "@vscode-bicep-ui/messaging": "^0.0.0",
     "framer-motion": "^11.5.4",

@@ -1,12 +1,13 @@
 import type { Point } from "../../../../utils/math";
 import type { PrimitiveNodeState } from "../../atoms/nodes";
 
-import { animate, transform } from "framer-motion";
+import useResizeObserver from "@react-hook/resize-observer";
+import { animate, frame, transform } from "framer-motion";
 import { useStore } from "jotai";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { styled } from "styled-components";
 import { pointsEqual, translateBox } from "../../../../utils/math";
-import { useBoxGeometry, useDragListener } from "../../hooks";
+import { useBoxUpdate, useDragListener } from "../../hooks";
 
 const $Node = styled.div`
   position: absolute;
@@ -32,7 +33,7 @@ function animatePointTranslation(fromPoint: Point, toPoint: Point, onPointUpdate
 
   animate(from, to, {
     type: "spring",
-    duration: 0.7,
+    duration: 0.6,
     onUpdate: (latest) => {
       const x = xTransform(latest);
       const y = yTransform(latest);
@@ -42,15 +43,55 @@ function animatePointTranslation(fromPoint: Point, toPoint: Point, onPointUpdate
   });
 }
 
+function TestNode({ id} : { id: string }) {
+  return <div style={{ width: 80, height: 40 }}>{id}</div>;
+}
+
 export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeState) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null!);
   const store = useStore();
+
+  useLayoutEffect(() => {
+    if (!ref.current) {
+      return;
+    }
+
+    const { offsetWidth, offsetHeight } = ref.current;
+
+    store.set(boxAtom, (box) => ({
+      ...box,
+      max: {
+        x: box.min.x + offsetWidth,
+        y: box.min.y + offsetHeight,
+      },
+    }));
+  }, [boxAtom, store]);
+
+  useResizeObserver(ref, (entry) => {
+    const borderBoxSize = entry.borderBoxSize[0];
+
+    if (!borderBoxSize) {
+      return;
+    }
+
+    store.set(boxAtom, (box) => ({
+      ...box,
+      max: {
+        x: box.min.x + borderBoxSize.inlineSize,
+        y: box.min.y + borderBoxSize.blockSize,
+      },
+    }));
+  });
 
   useDragListener(ref, (dx: number, dy: number) => {
     store.set(boxAtom, (box) => translateBox(box, dx, dy));
   });
 
-  useBoxGeometry(ref, store, boxAtom);
+  useBoxUpdate(store, boxAtom, ({ min }) => {
+    frame.render(() => {
+      ref.current.style.translate = `${min.x}px ${min.y}px`;
+    });
+  });
 
   useEffect(() => {
     return store.sub(originAtom, () => {
@@ -67,5 +108,5 @@ export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeState) {
     });
   }, [store, boxAtom, originAtom]);
 
-  return <$Node ref={ref}>{id}</$Node>;
+  return <$Node ref={ref}><TestNode id={id} /></$Node>;
 }

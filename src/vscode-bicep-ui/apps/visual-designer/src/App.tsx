@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { MouseEvent } from "react";
 
+import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { useSetAtom } from "jotai";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback, useEffect } from "react";
-import {
-  addCompoundNodeAtom,
-  addEdgeAtom,
-  addPrimitiveNodeAtom,
-  edgesAtom,
-  nodesAtom,
-} from "./features/graph/atoms";
+import { addCompoundNodeAtom, addEdgeAtom, addPrimitiveNodeAtom, edgesAtom, nodesAtom } from "./features/graph/atoms";
 import { Canvas } from "./features/graph/components";
+import { useSetNodeConfig } from "./features/graph/hooks";
+
+function DummyComponent(_: { data: unknown }) {
+  return <div />
+}
 
 export function App() {
   const setNodesAtom = useSetAtom(nodesAtom);
@@ -32,36 +33,30 @@ export function App() {
     }, []),
   );
 
+  const updateSize = useAtomCallback(
+    useCallback((get, set, event: MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+
+      const nodes = get(nodesAtom);
+      for (const node of Object.values(nodes)) {
+        if (node.kind === "primitive") {
+          set(node.dataAtom, { resourceType: "Bar" });
+          console.log(get(node.dataAtom));
+        }
+      }
+    }, []),
+  );
+
+  useSetNodeConfig({
+    resolveNodeComponent: (_) => DummyComponent,
+  });
+
   useEffect(() => {
-    addPrimitiveNode(
-      "A",
-      { x: 200, y: 200 },
-      { min: { x: 200, y: 200 }, max: { x: 300, y: 300 } },
-      { resourceType: "Foo" },
-    );
-
-    addPrimitiveNode(
-      "B",
-      { x: 500, y: 200 },
-      { min: { x: 500, y: 200 }, max: { x: 600, y: 300 } },
-      { resourceType: "Bar" },
-    );
-
-    addPrimitiveNode(
-      "C",
-      { x: 800, y: 500 },
-      { min: { x: 800, y: 500 }, max: { x: 900, y: 600 } },
-      { resourceType: "Baz" },
-    );
-
-    addPrimitiveNode(
-      "D",
-      { x: 1200, y: 700 },
-      { min: { x: 1000, y: 800 }, max: { x: 1200, y: 900 } },
-      { resourceType: "Foobar" },
-    );
-
-    addCompoundNode("E", ["A", "C"], { resourceType: "Foobar" });
+    addPrimitiveNode("A", { x: 200, y: 200 }, { resourceType: "Foo" });
+    addPrimitiveNode("B", { x: 500, y: 200 }, { resourceType: "Foo" });
+    addPrimitiveNode("C", { x: 800, y: 500 }, { resourceType: "Foo" });
+    addPrimitiveNode("D", { x: 1200, y: 700 }, { resourceType: "Foo" });
+    addCompoundNode("E", ["A", "C"], { resourceType: "Foo" });
 
     addEdge("A->B", "A", "B");
     addEdge("E->D", "E", "D");
@@ -74,11 +69,14 @@ export function App() {
   }, [addCompoundNode, addPrimitiveNode, addEdge, setNodesAtom, setEdgesAtom]);
 
   return (
-    <>
+    <PanZoomProvider>
       <Canvas />
       <button style={{ position: "absolute", zIndex: 100, left: 10, top: 10 }} onClick={layout}>
         Layout
       </button>
-    </>
+      <button style={{ position: "absolute", zIndex: 100, left: 100, top: 10 }} onClick={updateSize}>
+        UpdateSize
+      </button>
+    </PanZoomProvider>
   );
 }

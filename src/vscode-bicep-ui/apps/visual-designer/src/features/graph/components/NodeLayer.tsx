@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { nodesAtom } from "./nodes";
+import { nodesAtom } from "../atoms";
 import { CompoundNode } from "./nodes/CompoundNode";
 import { PrimitiveNode } from "./nodes/PrimitiveNode";
 

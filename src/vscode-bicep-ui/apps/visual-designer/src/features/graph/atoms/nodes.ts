@@ -23,14 +23,18 @@ export type NodeState = PrimitiveNodeState | CompoundNodeState;
 
 export const nodesAtom = atom<Record<string, NodeState>>({});
 
-export const addPrimitiveNodeAtom = atom(null, (_, set, id: string, origin: Point, box: Box, data: unknown) => {
+export const addPrimitiveNodeAtom = atom(null, (get, set, id: string, origin: Point, data: unknown) => {
+  if (get(nodesAtom)[id] !== undefined) {
+    throw new Error(`Cannot add primitive node ${id} because it already exists.`);
+  }
+
   set(nodesAtom, (nodes) => ({
     ...nodes,
     [id]: {
       kind: "primitive",
       id,
       originAtom: atom(origin),
-      boxAtom: atom(box),
+      boxAtom: atom({ min: origin, max: origin }),
       dataAtom: atom(data),
     },
   }));
@@ -39,15 +43,11 @@ export const addPrimitiveNodeAtom = atom(null, (_, set, id: string, origin: Poin
 export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: string[], data: unknown) => {
   const childIdsAtom = atom(childIds);
   const boxAtom = atom((get) => {
-    const childBoxes = get(childIdsAtom).map((id) => {
-      const node = get(nodesAtom)[id];
-
-      if (!node) {
-        return null;
-      }
-
-      return get(node.boxAtom);
-    }).filter(box => box !== null);
+    const nodes = get(nodesAtom);
+    const childBoxes = get(childIdsAtom)
+      .map((id) => nodes[id])
+      .filter((child) => child !== undefined)
+      .map((child) => get(child.boxAtom));
 
     const minX = Math.min(...childBoxes.map((box) => box.min.x));
     const minY = Math.min(...childBoxes.map((box) => box.min.y));

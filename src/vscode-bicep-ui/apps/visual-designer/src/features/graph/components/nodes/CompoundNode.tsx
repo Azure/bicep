@@ -1,11 +1,12 @@
 import type { CompoundNodeState } from "../../atoms/nodes";
 
+import { frame } from "framer-motion";
 import { useStore } from "jotai";
 import { useRef } from "react";
 import styled from "styled-components";
-import { nodesAtom } from ".";
+import { nodesAtom } from "../../atoms";
 import { translateBox } from "../../../../utils/math";
-import { useBoxGeometry, useDragListener } from "../../hooks";
+import { useDragListener, useBoxUpdate } from "../../hooks";
 
 const $CompoundNode = styled.div`
   position: absolute;
@@ -22,7 +23,7 @@ const $CompoundNode = styled.div`
 `;
 
 export function CompoundNode({ id, childIdsAtom, boxAtom }: CompoundNodeState) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null!);
   const store = useStore();
 
   useDragListener(ref, (dx: number, dy: number) => {
@@ -45,7 +46,13 @@ export function CompoundNode({ id, childIdsAtom, boxAtom }: CompoundNodeState) {
     translateChildren(store.get(childIdsAtom));
   });
 
-  useBoxGeometry(ref, store, boxAtom);
+  useBoxUpdate(store, boxAtom, ({ min, max }) => {
+    frame.render(() => {
+      ref.current.style.translate = `${min.x}px ${min.y}px`;
+      ref.current.style.width = `${max.x - min.x}px`;
+      ref.current.style.height = `${max.y - min.y}px`;
+    });
+  });
 
   return <$CompoundNode ref={ref}>{id}</$CompoundNode>;
 }
