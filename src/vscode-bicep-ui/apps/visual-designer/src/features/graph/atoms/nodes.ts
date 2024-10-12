@@ -2,6 +2,7 @@ import type { Atom, PrimitiveAtom } from "jotai";
 import type { Box, Point } from "../../../utils/math/geometry";
 
 import { atom } from "jotai";
+import { nodeConfigAtom } from "./configs";
 
 export interface PrimitiveNodeState {
   kind: "primitive";
@@ -21,6 +22,8 @@ export interface CompoundNodeState {
 
 export type NodeState = PrimitiveNodeState | CompoundNodeState;
 
+export type NodeKind = NodeState["kind"];
+
 export const nodesAtom = atom<Record<string, NodeState>>({});
 
 export const addPrimitiveNodeAtom = atom(null, (get, set, id: string, origin: Point, data: unknown) => {
@@ -34,7 +37,7 @@ export const addPrimitiveNodeAtom = atom(null, (get, set, id: string, origin: Po
       kind: "primitive",
       id,
       originAtom: atom(origin),
-      boxAtom: atom({ min: origin, max: origin }),
+      boxAtom: atom({ min: { ...origin }, max: { ...origin } }),
       dataAtom: atom(data),
     },
   }));
@@ -44,15 +47,16 @@ export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: str
   const childIdsAtom = atom(childIds);
   const boxAtom = atom((get) => {
     const nodes = get(nodesAtom);
+    const { padding } = get(nodeConfigAtom);
     const childBoxes = get(childIdsAtom)
       .map((id) => nodes[id])
       .filter((child) => child !== undefined)
       .map((child) => get(child.boxAtom));
 
-    let minX = Math.min(...childBoxes.map((box) => box.min.x));
-    let minY = Math.min(...childBoxes.map((box) => box.min.y));
-    let maxX = Math.max(...childBoxes.map((box) => box.max.x));
-    let maxY = Math.max(...childBoxes.map((box) => box.max.y));
+    let minX = Math.min(...childBoxes.map((box) => box.min.x)) - padding.left;
+    let minY = Math.min(...childBoxes.map((box) => box.min.y)) - padding.top;
+    let maxX = Math.max(...childBoxes.map((box) => box.max.x)) + padding.right;
+    let maxY = Math.max(...childBoxes.map((box) => box.max.y)) + padding.bottom;
 
     minX = isNaN(minX) ? 0 : minX;
     minY = isNaN(minY) ? 0 : minY;

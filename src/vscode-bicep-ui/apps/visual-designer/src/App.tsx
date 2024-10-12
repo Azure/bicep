@@ -1,17 +1,29 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { ComponentType, MouseEvent } from "react";
+import type { NodeKind } from "./features/graph/atoms";
 
 import { PanZoomProvider } from "@vscode-bicep-ui/components";
-import { useSetAtom } from "jotai";
+import { getDefaultStore, useSetAtom } from "jotai";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback, useEffect } from "react";
-import { addCompoundNodeAtom, addEdgeAtom, addPrimitiveNodeAtom, edgesAtom, nodesAtom } from "./features/graph/atoms";
+import { ModuleDeclaration } from "./features/declarations/components/ModuleDeclaration";
+import { ResourceDeclaration } from "./features/declarations/components/ResourceDeclaration";
+import {
+  addCompoundNodeAtom,
+  addEdgeAtom,
+  addPrimitiveNodeAtom,
+  edgesAtom,
+  nodeConfigAtom,
+  nodesAtom,
+} from "./features/graph/atoms";
 import { Canvas, Graph } from "./features/graph/components";
-import { useSetNodeConfig } from "./features/graph/hooks";
 
-function DummyComponent({ id, data }: { id: string; data: { resourceType: string } }) {
-  return <div>{id}:{data.resourceType}</div>;
-}
+const store = getDefaultStore();
+
+store.set(nodeConfigAtom, {
+  ...store.get(nodeConfigAtom),
+  getContentComponent: (kind: NodeKind) =>
+    (kind === "primitive" ? ResourceDeclaration : ModuleDeclaration) as ComponentType<{ id: string; data: unknown }>,
+});
 
 export function App() {
   const setNodesAtom = useSetAtom(nodesAtom);
@@ -33,16 +45,12 @@ export function App() {
     }, []),
   );
 
-  useSetNodeConfig({
-    resolveNodeContentComponent: (_data) => DummyComponent as ComponentType<{ id: string, data: unknown }>,
-  });
-
   useEffect(() => {
-    addPrimitiveNode("A", { x: 200, y: 200 }, { resourceType: "Foobar" });
-    addPrimitiveNode("B", { x: 500, y: 200 }, { resourceType: "Foo" });
-    addPrimitiveNode("C", { x: 800, y: 500 }, { resourceType: "Foo" });
-    addPrimitiveNode("D", { x: 1200, y: 700 }, { resourceType: "Foo" });
-    addCompoundNode("E", ["A", "C"], { resourceType: "Foo" });
+    addPrimitiveNode("A", { x: 200, y: 200 }, { symbolicName: 'foobar', resourceType: "Microsoft.Compute/virualMachines" });
+    addPrimitiveNode("B", { x: 500, y: 200 }, { symbolicName: 'bar', resourceType: "Foo" });
+    addPrimitiveNode("C", { x: 800, y: 500 }, { symbolicName: 'Bicep', resourceType: "Foo" });
+    addPrimitiveNode("D", { x: 1200, y: 700 }, { symbolicName: 'Tricep', resourceType: "Foo" });
+    addCompoundNode("E", ["A", "C"], { symbolicName: 'module', path: "modules/foobar" });
 
     addEdge("A->B", "A", "B");
     addEdge("E->D", "E", "D");

@@ -3,25 +3,11 @@ import type { CompoundNodeState } from "../atoms/nodes";
 import { frame } from "framer-motion";
 import { useStore } from "jotai";
 import { useRef } from "react";
-import styled from "styled-components";
 import { translateBox } from "../../../utils/math";
 import { nodesAtom } from "../atoms";
 import { useBoxUpdate, useDragListener } from "../hooks";
-import { NodeContentResolver } from "./NodeContentResolver";
-
-const $CompoundNode = styled.div`
-  position: absolute;
-  box-sizing: border-box;
-  cursor: default;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transform-origin: 0 0;
-  background: #1f1f1f1f;
-  border-style: solid;
-  border-color: black;
-  z-index: 0;
-`;
+import { NodeContent } from "./NodeContent";
+import { BaseNode } from "./BaseNode";
 
 export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNodeState) {
   const ref = useRef<HTMLDivElement>(null);
@@ -58,8 +44,8 @@ export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNo
   });
 
   return (
-    <$CompoundNode ref={ref}>
-      <NodeContentResolver id={id} dataAtom={dataAtom} />
-    </$CompoundNode>
+    <BaseNode ref={ref} zIndex={0}>
+      <NodeContent id={id} kind="compound" dataAtom={dataAtom} />
+    </BaseNode>
   );
 }

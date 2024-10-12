@@ -14,10 +14,10 @@ export function EdgeMarkerDefs() {
         <polyline
           points="2,2 5,5 2,8"
           fill="none"
-          stroke-width="1"
+          strokeWidth="1"
           stroke="#aaa"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </marker>
     </defs>

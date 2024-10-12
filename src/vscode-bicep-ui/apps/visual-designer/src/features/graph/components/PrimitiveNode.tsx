@@ -5,24 +5,10 @@ import useResizeObserver from "@react-hook/resize-observer";
 import { animate, frame, transform } from "framer-motion";
 import { useStore } from "jotai";
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { styled } from "styled-components";
 import { pointsEqual, translateBox } from "../../../utils/math";
 import { useBoxUpdate, useDragListener } from "../hooks";
-import { NodeContentResolver } from "./NodeContentResolver";
-
-const $Node = styled.div`
-  position: absolute;
-  box-sizing: border-box;
-  cursor: default;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transform-origin: 0 0;
-  background: #1f1f1f1f;
-  border-style: solid;
-  border-color: black;
-  z-index: 1;
-`;
+import { NodeContent } from "./NodeContent";
+import { BaseNode } from "./BaseNode";
 
 function animatePointTranslation(fromPoint: Point, toPoint: Point, onPointUpdate: (point: Point) => void) {
   const from = 0;
@@ -108,8 +94,8 @@ export function PrimitiveNode({ id, originAtom, boxAtom, dataAtom }: PrimitiveNo
   }, [store, boxAtom, originAtom]);
 
   return (
-    <$Node ref={ref}>
-      <NodeContentResolver id={id} dataAtom={dataAtom} />
-    </$Node>
+    <BaseNode ref={ref} zIndex={1}>
+      <NodeContent id={id} kind="primitive" dataAtom={dataAtom} />
+    </BaseNode>
   );
 }

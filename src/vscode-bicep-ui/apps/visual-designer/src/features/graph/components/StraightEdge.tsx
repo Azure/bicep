@@ -46,6 +46,8 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
 
       if (!from || !to) {
         ref.current.removeAttribute("d");
+      } else if (isNaN(from.x) || isNaN(from.y) || isNaN(to.x) || isNaN(to.y)) {
+        ref.current.removeAttribute("d");
       } else {
         ref.current.setAttribute("d", `M ${from.x} ${from.y} L ${to.x} ${to.y}`);
       }
@@ -61,10 +63,10 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
       ref={ref}
       fill="none"
       stroke="#aaa"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       strokeWidth={1.5}
-      marker-end="url(#line-arrow)"
+      markerEnd="url(#line-arrow)"
     />
   );
 }
