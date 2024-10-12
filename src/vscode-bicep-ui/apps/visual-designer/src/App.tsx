@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { MouseEvent } from "react";
+import type { ComponentType, MouseEvent } from "react";
 
 import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { useSetAtom } from "jotai";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback, useEffect } from "react";
 import { addCompoundNodeAtom, addEdgeAtom, addPrimitiveNodeAtom, edgesAtom, nodesAtom } from "./features/graph/atoms";
-import { Canvas } from "./features/graph/components";
+import { Canvas, Graph } from "./features/graph/components";
 import { useSetNodeConfig } from "./features/graph/hooks";
 
-function DummyComponent(_: { data: unknown }) {
-  return <div />
+function DummyComponent({ id, data }: { id: string; data: { resourceType: string } }) {
+  return <div>{id}:{data.resourceType}</div>;
 }
 
 export function App() {
@@ -33,26 +33,12 @@ export function App() {
     }, []),
   );
 
-  const updateSize = useAtomCallback(
-    useCallback((get, set, event: MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
-
-      const nodes = get(nodesAtom);
-      for (const node of Object.values(nodes)) {
-        if (node.kind === "primitive") {
-          set(node.dataAtom, { resourceType: "Bar" });
-          console.log(get(node.dataAtom));
-        }
-      }
-    }, []),
-  );
-
   useSetNodeConfig({
-    resolveNodeComponent: (_) => DummyComponent,
+    resolveNodeContentComponent: (_data) => DummyComponent as ComponentType<{ id: string, data: unknown }>,
   });
 
   useEffect(() => {
-    addPrimitiveNode("A", { x: 200, y: 200 }, { resourceType: "Foo" });
+    addPrimitiveNode("A", { x: 200, y: 200 }, { resourceType: "Foobar" });
     addPrimitiveNode("B", { x: 500, y: 200 }, { resourceType: "Foo" });
     addPrimitiveNode("C", { x: 800, y: 500 }, { resourceType: "Foo" });
     addPrimitiveNode("D", { x: 1200, y: 700 }, { resourceType: "Foo" });
@@ -70,13 +56,12 @@ export function App() {
 
   return (
     <PanZoomProvider>
-      <Canvas />
-      <button style={{ position: "absolute", zIndex: 100, left: 10, top: 10 }} onClick={layout}>
-        Layout
-      </button>
-      <button style={{ position: "absolute", zIndex: 100, left: 100, top: 10 }} onClick={updateSize}>
-        UpdateSize
-      </button>
+      <Canvas>
+        <Graph />
+        <button style={{ position: "absolute", zIndex: 100, left: 10, top: 10 }} onClick={layout}>
+          Layout
+        </button>
+      </Canvas>
     </PanZoomProvider>
   );
 }

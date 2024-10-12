@@ -1,13 +1,14 @@
-import type { Point } from "../../../../utils/math";
-import type { PrimitiveNodeState } from "../../atoms/nodes";
+import type { Point } from "../../../utils/math";
+import type { PrimitiveNodeState } from "../atoms/nodes";
 
 import useResizeObserver from "@react-hook/resize-observer";
 import { animate, frame, transform } from "framer-motion";
 import { useStore } from "jotai";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { styled } from "styled-components";
-import { pointsEqual, translateBox } from "../../../../utils/math";
-import { useBoxUpdate, useDragListener } from "../../hooks";
+import { pointsEqual, translateBox } from "../../../utils/math";
+import { useBoxUpdate, useDragListener } from "../hooks";
+import { NodeContent } from "./NodeContent";
 
 const $Node = styled.div`
   position: absolute;
@@ -43,12 +44,8 @@ function animatePointTranslation(fromPoint: Point, toPoint: Point, onPointUpdate
   });
 }
 
-function TestNode({ id} : { id: string }) {
-  return <div style={{ width: 80, height: 40 }}>{id}</div>;
-}
-
-export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeState) {
-  const ref = useRef<HTMLDivElement>(null!);
+export function PrimitiveNode({ id, originAtom, boxAtom, dataAtom }: PrimitiveNodeState) {
+  const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
 
   useLayoutEffect(() => {
@@ -89,7 +86,9 @@ export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeState) {
 
   useBoxUpdate(store, boxAtom, ({ min }) => {
     frame.render(() => {
-      ref.current.style.translate = `${min.x}px ${min.y}px`;
+      if (ref.current) {
+        ref.current.style.translate = `${min.x}px ${min.y}px`;
+      }
     });
   });
 
@@ -108,5 +107,9 @@ export function PrimitiveNode({ id, originAtom, boxAtom }: PrimitiveNodeState) {
     });
   }, [store, boxAtom, originAtom]);
 
-  return <$Node ref={ref}><TestNode id={id} /></$Node>;
+  return (
+    <$Node ref={ref}>
+      <NodeContent id={id} dataAtom={dataAtom} />
+    </$Node>
+  );
 }

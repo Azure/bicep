@@ -1,6 +1,6 @@
 import { PanZoom } from "@vscode-bicep-ui/components";
+import type { PropsWithChildren } from "react";
 import styled from "styled-components";
-import { Graph } from "./Graph";
 
 const $PanZoom = styled(PanZoom)`
   position: absolute;
@@ -11,10 +11,6 @@ const $PanZoom = styled(PanZoom)`
   overflow: hidden;
 `;
 
-export function Canvas() {
-  return (
-    <$PanZoom>
-      <Graph />
-    </$PanZoom>
-  );
+export function Canvas({ children }: PropsWithChildren) {
+  return <$PanZoom>{children}</$PanZoom>
 }

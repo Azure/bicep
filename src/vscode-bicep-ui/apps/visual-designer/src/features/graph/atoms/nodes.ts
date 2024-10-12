@@ -49,10 +49,15 @@ export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: str
       .filter((child) => child !== undefined)
       .map((child) => get(child.boxAtom));
 
-    const minX = Math.min(...childBoxes.map((box) => box.min.x));
-    const minY = Math.min(...childBoxes.map((box) => box.min.y));
-    const maxX = Math.max(...childBoxes.map((box) => box.max.x));
-    const maxY = Math.max(...childBoxes.map((box) => box.max.y));
+    let minX = Math.min(...childBoxes.map((box) => box.min.x));
+    let minY = Math.min(...childBoxes.map((box) => box.min.y));
+    let maxX = Math.max(...childBoxes.map((box) => box.max.x));
+    let maxY = Math.max(...childBoxes.map((box) => box.max.y));
+
+    minX = isNaN(minX) ? 0 : minX;
+    minY = isNaN(minY) ? 0 : minY;
+    maxX = isNaN(maxX) ? 0 : maxX;
+    maxY = isNaN(maxY) ? 0 : maxY;
 
     return {
       min: { x: minX, y: minY },
