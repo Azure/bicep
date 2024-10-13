@@ -46,7 +46,7 @@
     "happy-dom": "^15.7.4",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "storybook": "^8.3.0",
-    "styled-components": "^6.1.12",
+    "styled-components": "^6.1.13",
     "vite": "^5.4.8",
     "vite-plugin-dts": "^4.2.3",
     "vite-plugin-lib-inject-css": "^2.1.1",
