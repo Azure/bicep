@@ -7,6 +7,7 @@ import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
 const $Svg = styled.svg`
   overflow: visible;
   position: absolute;
+  pointer-events: none;
 `;
 
 export function EdgeLayer() {

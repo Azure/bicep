@@ -1,6 +1,8 @@
-import { PanZoom } from "@vscode-bicep-ui/components";
 import type { PropsWithChildren } from "react";
+
+import { PanZoom } from "@vscode-bicep-ui/components";
 import styled from "styled-components";
+import { CanvasBackground } from "./CanvasBackground";
 
 const $PanZoom = styled(PanZoom)`
   position: absolute;
@@ -12,5 +14,10 @@ const $PanZoom = styled(PanZoom)`
 `;
 
 export function Canvas({ children }: PropsWithChildren) {
-  return <$PanZoom>{children}</$PanZoom>
+  return (
+    <$PanZoom>
+      <CanvasBackground />
+      {children}
+    </$PanZoom>
+  );
 }
