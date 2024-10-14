@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -1750,9 +1751,11 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(type.Description ?? type.Name)
                 .WithSortText(GetSortText(typeName, priority));
 
-            if (type.Type is TypeTemplate)
+            if (type.Type is TypeTemplate typeTemplate)
             {
-                builder = builder.WithSnippetEdit(replacementRange, $"{typeName}<$0>")
+                var needsQuotes = typeTemplate.Parameters.Length > 0 && typeTemplate.Parameters[0].Type?.IsString() == true;
+                var quote = needsQuotes ? "'" : string.Empty;
+                builder = builder.WithSnippetEdit(replacementRange, $"{typeName}<{quote}$0{quote}>")
                     // parameterized types always require at least one argument, so automatically request signature help
                     .WithCommand(new Command { Name = EditorCommands.SignatureHelp, Title = "signature help" });
             }

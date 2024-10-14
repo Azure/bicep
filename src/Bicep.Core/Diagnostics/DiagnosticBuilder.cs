@@ -191,7 +191,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidResourceType() => CoreError(
                 "BCP029",
-                "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\".");
+                "The resource type is not valid. Specify a valid resource type of format \"<type-name>@<apiVersion>\".");
 
             public Diagnostic InvalidOutputType(IEnumerable<string> validTypes) => CoreError(
                 "BCP030",
@@ -409,7 +409,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ExpectedResourceTypeString() => CoreError(
                 "BCP068",
-                "Expected a resource type string. Specify a valid resource type of format \"<types>@<apiVersion>\".");
+                "Expected a resource type string. Specify a valid resource type of format \"<type-name>@<apiVersion>\".");
 
             public Diagnostic FunctionNotSupportedOperatorAvailable(string function, string @operator) => CoreError(
                 "BCP069",
