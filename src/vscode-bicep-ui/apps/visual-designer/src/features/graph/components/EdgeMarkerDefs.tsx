@@ -15,7 +15,7 @@ export function EdgeMarkerDefs() {
           points="2,2 5,5 2,8"
           fill="none"
           strokeWidth="1"
-          stroke="#aaa"
+          stroke="#cecccc"
           strokeLinecap="round"
           strokeLinejoin="round"
         />

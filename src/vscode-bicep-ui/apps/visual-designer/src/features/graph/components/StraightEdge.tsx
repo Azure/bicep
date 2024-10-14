@@ -62,10 +62,10 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
     <path
       ref={ref}
       fill="none"
-      stroke="#aaa"
+      stroke="#cecccc"
       strokeLinecap="round"
       strokeLinejoin="round"
-      strokeWidth={1.5}
+      strokeWidth={2}
       markerEnd="url(#line-arrow)"
     />
   );

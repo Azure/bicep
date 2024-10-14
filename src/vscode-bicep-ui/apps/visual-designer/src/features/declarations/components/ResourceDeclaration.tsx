@@ -1,3 +1,4 @@
+import { AzureIcon } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
 
 export interface ResourceDeclarationProps {
@@ -6,15 +7,45 @@ export interface ResourceDeclarationProps {
     symbolicName: string;
     resourceType: string;
     apiVersion: string;
-  }
+  };
 }
 
 const $ResourceDelcarton = styled.div`
   flex: 1;
   display: flex;
-  flex-direction: column;
-  border: 1px solid #ccc;
+  align-items: center;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  border: 2px solid #333638;
   border-radius: 4px;
+  background-color: #f9fafa;
+  height: 70px;
+  min-width: 200px;
+`;
+
+const $TextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 12px;
+  margin-right: 2px;
+  margin-bottom: 4px;
+  height: 100%;
+`;
+
+const $SymbolicNameContainer = styled.div`
+  font-size: 18px;
+  font-family: "Segoe UI";
+  font-weight: 500;
+  color: #242424;
+`
+
+const $ResourceTypeContainer = styled.div`
+  font-size: 12px;
+  font-family: "Segoe UI";
+  font-weight: 500;
+  color: #898e96;
+  text-transform: uppercase;
 `;
 
 export function ResourceDeclaration({ data }: ResourceDeclarationProps) {
@@ -22,8 +53,11 @@ export function ResourceDeclaration({ data }: ResourceDeclarationProps) {
 
   return (
     <$ResourceDelcarton>
-      <div>{symbolicName}</div>
-      <div>{resourceType}</div>
+      <AzureIcon resourceType={resourceType} size={36} />
+      <$TextContainer>
+        <$SymbolicNameContainer>{symbolicName}</$SymbolicNameContainer>
+        <$ResourceTypeContainer>{resourceType.split("/").pop()}</$ResourceTypeContainer>
+      </$TextContainer>
     </$ResourceDelcarton>
   );
 }

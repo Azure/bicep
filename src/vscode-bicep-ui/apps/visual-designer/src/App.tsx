@@ -18,9 +18,14 @@ import {
 import { Canvas, Graph } from "./features/graph/components";
 
 const store = getDefaultStore();
+const nodeConfig = store.get(nodeConfigAtom);
 
 store.set(nodeConfigAtom, {
-  ...store.get(nodeConfigAtom),
+  ...nodeConfig,
+  padding: {
+    ...nodeConfig.padding,
+    top: 50,
+  },
   getContentComponent: (kind: NodeKind) =>
     (kind === "primitive" ? ResourceDeclaration : ModuleDeclaration) as ComponentType<{ id: string; data: unknown }>,
 });
@@ -46,11 +51,15 @@ export function App() {
   );
 
   useEffect(() => {
-    addPrimitiveNode("A", { x: 200, y: 200 }, { symbolicName: 'foobar', resourceType: "Microsoft.Compute/virualMachines" });
-    addPrimitiveNode("B", { x: 500, y: 200 }, { symbolicName: 'bar', resourceType: "Foo" });
-    addPrimitiveNode("C", { x: 800, y: 500 }, { symbolicName: 'Bicep', resourceType: "Foo" });
-    addPrimitiveNode("D", { x: 1200, y: 700 }, { symbolicName: 'Tricep', resourceType: "Foo" });
-    addCompoundNode("E", ["A", "C"], { symbolicName: 'module', path: "modules/foobar" });
+    addPrimitiveNode(
+      "A",
+      { x: 200, y: 200 },
+      { symbolicName: "foobar", resourceType: "Microsoft.Compute/virtualMachines" },
+    );
+    addPrimitiveNode("B", { x: 500, y: 200 }, { symbolicName: "bar", resourceType: "Foo" });
+    addPrimitiveNode("C", { x: 800, y: 500 }, { symbolicName: "someRandomStorage", resourceType: "Foo" });
+    addPrimitiveNode("D", { x: 1200, y: 700 }, { symbolicName: "Tricep", resourceType: "Foo" });
+    addCompoundNode("E", ["A", "C"], { symbolicName: "module", path: "modules/foobar" });
 
     addEdge("A->B", "A", "B");
     addEdge("E->D", "E", "D");
