@@ -33,12 +33,6 @@ const $SymbolicNameContainer = styled.div`
   margin-left: 8px;
 `;
 
-// const $PathContainer = styled.div`
-//   font-size: 14px;
-//   color: #898e96;
-//   margin-left: auto;
-// `;
-
 export function ModuleDeclaration({ data }: ModuleDeclarationProps) {
   const { symbolicName } = data;
 

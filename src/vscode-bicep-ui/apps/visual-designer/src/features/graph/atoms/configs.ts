@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 
-import { atomWithNullCheck } from "../../../utils/jotai/atom-creators";
 import type { NodeState } from "./nodes";
+import { atom } from "jotai";
 
 export interface Padding {
   top: number;
@@ -15,7 +15,7 @@ export interface NodeConfig {
   getContentComponent: (kind: NodeState["kind"], data: unknown) => ComponentType<{ id: string; data: unknown }>;
 }
 
-export const nodeConfigAtom = atomWithNullCheck<NodeConfig>({
+export const nodeConfigAtom = atom<NodeConfig>({
   padding: { top: 40, right: 40, bottom: 40, left: 40 },
   getContentComponent: () => {
     throw new Error("getContentComponent not initialized.");

@@ -1,5 +1,6 @@
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
+import { camelCaseToWords } from "../../../utils/text";
 
 export interface ResourceDeclarationProps {
   id: string;
@@ -49,13 +50,14 @@ const $ResourceTypeContainer = styled.div`
 
 export function ResourceDeclaration({ data }: ResourceDeclarationProps) {
   const { symbolicName, resourceType } = data;
+  const resourceTypeDisplayName = camelCaseToWords(resourceType.split("/").pop());
 
   return (
     <$ResourceDelcarton>
       <AzureIcon resourceType={resourceType} size={36} />
       <$TextContainer>
         <$SymbolicNameContainer>{symbolicName}</$SymbolicNameContainer>
-        <$ResourceTypeContainer>{resourceType.split("/").pop()}</$ResourceTypeContainer>
+        <$ResourceTypeContainer>{resourceTypeDisplayName}</$ResourceTypeContainer>
       </$TextContainer>
     </$ResourceDelcarton>
   );
