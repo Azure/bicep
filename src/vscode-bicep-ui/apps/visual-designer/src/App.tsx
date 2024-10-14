@@ -59,7 +59,7 @@ export function App() {
     addPrimitiveNode("B", { x: 500, y: 200 }, { symbolicName: "bar", resourceType: "Foo" });
     addPrimitiveNode("C", { x: 800, y: 500 }, { symbolicName: "someRandomStorage", resourceType: "Foo" });
     addPrimitiveNode("D", { x: 1200, y: 700 }, { symbolicName: "Tricep", resourceType: "Foo" });
-    addCompoundNode("E", ["A", "C"], { symbolicName: "module", path: "modules/foobar" });
+    addCompoundNode("E", ["A", "C"], { symbolicName: "myMod", path: "modules/foooooooooooooooooooooooooooooooooooooobar.bicep" });
 
     addEdge("A->B", "A", "B");
     addEdge("E->D", "E", "D");

@@ -16,7 +16,7 @@ export interface NodeConfig {
 }
 
 export const nodeConfigAtom = atomWithNullCheck<NodeConfig>({
-  padding: { top: 20, right: 20, bottom: 20, left: 20 },
+  padding: { top: 40, right: 40, bottom: 40, left: 40 },
   getContentComponent: () => {
     throw new Error("getContentComponent not initialized.");
   },

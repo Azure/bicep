@@ -11,9 +11,6 @@ const $BaseNode = styled.div<{ $zIndex: number }>`
   box-sizing: border-box;
   cursor: default;
   transform-origin: 0 0;
-  border-style: solid;
-  border-width: 3px;
-  border-color: transparent;
   z-index: ${({ $zIndex }) => $zIndex};
 `;
 

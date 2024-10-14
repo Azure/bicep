@@ -15,6 +15,7 @@ const $ResourceDelcarton = styled.div`
   display: flex;
   align-items: center;
   padding: 12px 16px;
+  margin: 4px;
   box-sizing: border-box;
   border: 2px solid #333638;
   border-radius: 4px;
@@ -35,14 +36,12 @@ const $TextContainer = styled.div`
 
 const $SymbolicNameContainer = styled.div`
   font-size: 18px;
-  font-family: "Segoe UI";
   font-weight: 500;
   color: #242424;
 `
 
 const $ResourceTypeContainer = styled.div`
   font-size: 12px;
-  font-family: "Segoe UI";
   font-weight: 500;
   color: #898e96;
   text-transform: uppercase;
