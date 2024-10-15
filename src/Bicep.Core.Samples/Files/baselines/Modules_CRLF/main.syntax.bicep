@@ -1,5 +1,5 @@
 
-//@[000:8922) ProgramSyntax
+//@[000:9426) ProgramSyntax
 //@[000:0002) ├─Token(NewLine) |\r\n|
 @sys.description('this is deployTimeSuffix param')
 //@[000:0093) ├─ParameterDeclarationSyntax
@@ -3349,6 +3349,192 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@[008:0024) |   | └─StringSyntax
 //@[008:0024) |   |   └─Token(StringComplete) |'childWithSpace'|
 //@[024:0026) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+// nameof
+//@[009:0013) ├─Token(NewLine) |\r\n\r\n|
+
+var nameofModule = nameof(folderWithSpace)
+//@[000:0042) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0016) | ├─IdentifierSyntax
+//@[004:0016) | | └─Token(Identifier) |nameofModule|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0042) | └─FunctionCallSyntax
+//@[019:0025) |   ├─IdentifierSyntax
+//@[019:0025) |   | └─Token(Identifier) |nameof|
+//@[025:0026) |   ├─Token(LeftParen) |(|
+//@[026:0041) |   ├─FunctionArgumentSyntax
+//@[026:0041) |   | └─VariableAccessSyntax
+//@[026:0041) |   |   └─IdentifierSyntax
+//@[026:0041) |   |     └─Token(Identifier) |folderWithSpace|
+//@[041:0042) |   └─Token(RightParen) |)|
+//@[042:0044) ├─Token(NewLine) |\r\n|
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+//@[000:0081) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0021) | ├─IdentifierSyntax
+//@[004:0021) | | └─Token(Identifier) |nameofModuleParam|
+//@[022:0023) | ├─Token(Assignment) |=|
+//@[024:0081) | └─FunctionCallSyntax
+//@[024:0030) |   ├─IdentifierSyntax
+//@[024:0030) |   | └─Token(Identifier) |nameof|
+//@[030:0031) |   ├─Token(LeftParen) |(|
+//@[031:0080) |   ├─FunctionArgumentSyntax
+//@[031:0080) |   | └─PropertyAccessSyntax
+//@[031:0060) |   |   ├─PropertyAccessSyntax
+//@[031:0052) |   |   | ├─VariableAccessSyntax
+//@[031:0052) |   |   | | └─IdentifierSyntax
+//@[031:0052) |   |   | |   └─Token(Identifier) |secureModuleCondition|
+//@[052:0053) |   |   | ├─Token(Dot) |.|
+//@[053:0060) |   |   | └─IdentifierSyntax
+//@[053:0060) |   |   |   └─Token(Identifier) |outputs|
+//@[060:0061) |   |   ├─Token(Dot) |.|
+//@[061:0080) |   |   └─IdentifierSyntax
+//@[061:0080) |   |     └─Token(Identifier) |exposedSecureString|
+//@[080:0081) |   └─Token(RightParen) |)|
+//@[081:0085) ├─Token(NewLine) |\r\n\r\n|
+
+module moduleWithNameof 'modulea.bicep' = {
+//@[000:0358) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0023) | ├─IdentifierSyntax
+//@[007:0023) | | └─Token(Identifier) |moduleWithNameof|
+//@[024:0039) | ├─StringSyntax
+//@[024:0039) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[040:0041) | ├─Token(Assignment) |=|
+//@[042:0358) | └─ObjectSyntax
+//@[042:0043) |   ├─Token(LeftBrace) |{|
+//@[043:0045) |   ├─Token(NewLine) |\r\n|
+  name: 'nameofModule'
+//@[002:0022) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0022) |   | └─StringSyntax
+//@[008:0022) |   |   └─Token(StringComplete) |'nameofModule'|
+//@[022:0024) |   ├─Token(NewLine) |\r\n|
+  scope: resourceGroup(nameof(nameofModuleParam))
+//@[002:0049) |   ├─ObjectPropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |scope|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0049) |   | └─FunctionCallSyntax
+//@[009:0022) |   |   ├─IdentifierSyntax
+//@[009:0022) |   |   | └─Token(Identifier) |resourceGroup|
+//@[022:0023) |   |   ├─Token(LeftParen) |(|
+//@[023:0048) |   |   ├─FunctionArgumentSyntax
+//@[023:0048) |   |   | └─FunctionCallSyntax
+//@[023:0029) |   |   |   ├─IdentifierSyntax
+//@[023:0029) |   |   |   | └─Token(Identifier) |nameof|
+//@[029:0030) |   |   |   ├─Token(LeftParen) |(|
+//@[030:0047) |   |   |   ├─FunctionArgumentSyntax
+//@[030:0047) |   |   |   | └─VariableAccessSyntax
+//@[030:0047) |   |   |   |   └─IdentifierSyntax
+//@[030:0047) |   |   |   |     └─Token(Identifier) |nameofModuleParam|
+//@[047:0048) |   |   |   └─Token(RightParen) |)|
+//@[048:0049) |   |   └─Token(RightParen) |)|
+//@[049:0051) |   ├─Token(NewLine) |\r\n|
+  params:{
+//@[002:0235) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[009:0235) |   | └─ObjectSyntax
+//@[009:0010) |   |   ├─Token(LeftBrace) |{|
+//@[010:0012) |   |   ├─Token(NewLine) |\r\n|
+    stringParamA: nameof(withSpace)
+//@[004:0035) |   |   ├─ObjectPropertySyntax
+//@[004:0016) |   |   | ├─IdentifierSyntax
+//@[004:0016) |   |   | | └─Token(Identifier) |stringParamA|
+//@[016:0017) |   |   | ├─Token(Colon) |:|
+//@[018:0035) |   |   | └─FunctionCallSyntax
+//@[018:0024) |   |   |   ├─IdentifierSyntax
+//@[018:0024) |   |   |   | └─Token(Identifier) |nameof|
+//@[024:0025) |   |   |   ├─Token(LeftParen) |(|
+//@[025:0034) |   |   |   ├─FunctionArgumentSyntax
+//@[025:0034) |   |   |   | └─VariableAccessSyntax
+//@[025:0034) |   |   |   |   └─IdentifierSyntax
+//@[025:0034) |   |   |   |     └─Token(Identifier) |withSpace|
+//@[034:0035) |   |   |   └─Token(RightParen) |)|
+//@[035:0037) |   |   ├─Token(NewLine) |\r\n|
+    stringParamB: nameof(folderWithSpace)
+//@[004:0041) |   |   ├─ObjectPropertySyntax
+//@[004:0016) |   |   | ├─IdentifierSyntax
+//@[004:0016) |   |   | | └─Token(Identifier) |stringParamB|
+//@[016:0017) |   |   | ├─Token(Colon) |:|
+//@[018:0041) |   |   | └─FunctionCallSyntax
+//@[018:0024) |   |   |   ├─IdentifierSyntax
+//@[018:0024) |   |   |   | └─Token(Identifier) |nameof|
+//@[024:0025) |   |   |   ├─Token(LeftParen) |(|
+//@[025:0040) |   |   |   ├─FunctionArgumentSyntax
+//@[025:0040) |   |   |   | └─VariableAccessSyntax
+//@[025:0040) |   |   |   |   └─IdentifierSyntax
+//@[025:0040) |   |   |   |     └─Token(Identifier) |folderWithSpace|
+//@[040:0041) |   |   |   └─Token(RightParen) |)|
+//@[041:0043) |   |   ├─Token(NewLine) |\r\n|
+    objParam: {
+//@[004:0090) |   |   ├─ObjectPropertySyntax
+//@[004:0012) |   |   | ├─IdentifierSyntax
+//@[004:0012) |   |   | | └─Token(Identifier) |objParam|
+//@[012:0013) |   |   | ├─Token(Colon) |:|
+//@[014:0090) |   |   | └─ObjectSyntax
+//@[014:0015) |   |   |   ├─Token(LeftBrace) |{|
+//@[015:0017) |   |   |   ├─Token(NewLine) |\r\n|
+      a: nameof(secureModuleCondition.outputs.exposedSecureString)
+//@[006:0066) |   |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   |   |   | ├─IdentifierSyntax
+//@[006:0007) |   |   |   | | └─Token(Identifier) |a|
+//@[007:0008) |   |   |   | ├─Token(Colon) |:|
+//@[009:0066) |   |   |   | └─FunctionCallSyntax
+//@[009:0015) |   |   |   |   ├─IdentifierSyntax
+//@[009:0015) |   |   |   |   | └─Token(Identifier) |nameof|
+//@[015:0016) |   |   |   |   ├─Token(LeftParen) |(|
+//@[016:0065) |   |   |   |   ├─FunctionArgumentSyntax
+//@[016:0065) |   |   |   |   | └─PropertyAccessSyntax
+//@[016:0045) |   |   |   |   |   ├─PropertyAccessSyntax
+//@[016:0037) |   |   |   |   |   | ├─VariableAccessSyntax
+//@[016:0037) |   |   |   |   |   | | └─IdentifierSyntax
+//@[016:0037) |   |   |   |   |   | |   └─Token(Identifier) |secureModuleCondition|
+//@[037:0038) |   |   |   |   |   | ├─Token(Dot) |.|
+//@[038:0045) |   |   |   |   |   | └─IdentifierSyntax
+//@[038:0045) |   |   |   |   |   |   └─Token(Identifier) |outputs|
+//@[045:0046) |   |   |   |   |   ├─Token(Dot) |.|
+//@[046:0065) |   |   |   |   |   └─IdentifierSyntax
+//@[046:0065) |   |   |   |   |     └─Token(Identifier) |exposedSecureString|
+//@[065:0066) |   |   |   |   └─Token(RightParen) |)|
+//@[066:0068) |   |   |   ├─Token(NewLine) |\r\n|
+    }
+//@[004:0005) |   |   |   └─Token(RightBrace) |}|
+//@[005:0007) |   |   ├─Token(NewLine) |\r\n|
+    arrayParam: [
+//@[004:0046) |   |   ├─ObjectPropertySyntax
+//@[004:0014) |   |   | ├─IdentifierSyntax
+//@[004:0014) |   |   | | └─Token(Identifier) |arrayParam|
+//@[014:0015) |   |   | ├─Token(Colon) |:|
+//@[016:0046) |   |   | └─ArraySyntax
+//@[016:0017) |   |   |   ├─Token(LeftSquare) |[|
+//@[017:0019) |   |   |   ├─Token(NewLine) |\r\n|
+      nameof(vaults)
+//@[006:0020) |   |   |   ├─ArrayItemSyntax
+//@[006:0020) |   |   |   | └─FunctionCallSyntax
+//@[006:0012) |   |   |   |   ├─IdentifierSyntax
+//@[006:0012) |   |   |   |   | └─Token(Identifier) |nameof|
+//@[012:0013) |   |   |   |   ├─Token(LeftParen) |(|
+//@[013:0019) |   |   |   |   ├─FunctionArgumentSyntax
+//@[013:0019) |   |   |   |   | └─VariableAccessSyntax
+//@[013:0019) |   |   |   |   |   └─IdentifierSyntax
+//@[013:0019) |   |   |   |   |     └─Token(Identifier) |vaults|
+//@[019:0020) |   |   |   |   └─Token(RightParen) |)|
+//@[020:0022) |   |   |   ├─Token(NewLine) |\r\n|
+    ]
+//@[004:0005) |   |   |   └─Token(RightSquare) |]|
+//@[005:0007) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\r\n|

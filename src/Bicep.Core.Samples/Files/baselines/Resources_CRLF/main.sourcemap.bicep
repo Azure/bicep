@@ -621,7 +621,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
 //@    "storageAccounts": [
 //@    ],
@@ -728,7 +728,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@            }
 //@          }
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
 //@              "name": "[format('subnet-{0}-{1}', range(0, 3)[copyIndex()], range(0, 4)[copyIndex('subnets')])]"
@@ -1139,7 +1139,7 @@ output p4_res1childid string = p4_child1.id
 //@    "p4_res1childid": {
 //@      "type": "string",
 //@      "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
-//@    }
+//@    },
 
 // parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
 var dbs = ['db1', 'db2','db3']
@@ -1147,13 +1147,13 @@ var dbs = ['db1', 'db2','db3']
 //@      "db1",
 //@      "db2",
 //@      "db3"
-//@    ]
+//@    ],
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@    {
 //@      "type": "Microsoft.Sql/servers",
 //@      "apiVersion": "2021-11-01",
 //@      "name": "sql-server-name",
-//@    }
+//@    },
   name: 'sql-server-name'
   location: 'polandcentral'
 //@      "location": "polandcentral"
@@ -1199,5 +1199,57 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
     name: 'primary-db'
     location: 'polandcentral'
 //@      "location": "polandcentral",
+
+    resource threatProtection 'advancedThreatProtectionSettings' existing = {
+      name: 'default'
+    }
   }
 }
+
+//nameof
+output nameof_sqlServer string = nameof(sqlServer)
+//@    "nameof_sqlServer": {
+//@      "type": "string",
+//@      "value": "sqlServer"
+//@    },
+output nameof_location string = nameof(sqlServer.location)
+//@    "nameof_location": {
+//@      "type": "string",
+//@      "value": "location"
+//@    },
+output nameof_minCapacity string = nameof(sqlServer::primaryDb.properties.minCapacity)
+//@    "nameof_minCapacity": {
+//@      "type": "string",
+//@      "value": "minCapacity"
+//@    },
+output nameof_creationTime string = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+//@    "nameof_creationTime": {
+//@      "type": "string",
+//@      "value": "creationTime"
+//@    },
+output nameof_id string = nameof(sqlServer::sqlDatabases[0].id)
+//@    "nameof_id": {
+//@      "type": "string",
+//@      "value": "id"
+//@    }
+
+var sqlConfig = {
+//@    "sqlConfig": {
+//@    }
+  westus: {}
+//@      "westus": {},
+  'server-name': {}
+//@      "server-name": {}
+}
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+//@    {
+//@      "type": "Microsoft.Sql/servers",
+//@      "apiVersion": "2021-11-01",
+//@      "name": "[format('sql-server-nameof-{0}', 'server-name')]",
+//@    }
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+  location: nameof(sqlConfig.westus)
+//@      "location": "westus"
+}
+

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { createContext } from "react";
 
 export interface AccordionItemContextType {

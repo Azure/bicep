@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { useEffect, useState } from "react";
 import { useWebviewMessageChannel } from "./useWebviewMessageChannel";
 

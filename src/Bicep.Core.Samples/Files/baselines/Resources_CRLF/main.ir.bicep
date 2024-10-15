@@ -1,5 +1,7 @@
 
-//@[000:13327) ProgramExpression
+//@[000:14055) ProgramExpression
+//@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
+//@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -802,7 +804,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
 //@[000:00129) ├─DeclaredVariableExpression { Name = storageAccounts }
 //@[022:00129) | └─ArrayExpression
@@ -894,35 +896,35 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 
 // basic nested loop
 @sys.description('this is just a basic nested loop')
-//@[000:00399) ├─DeclaredResourceExpression
+//@[000:00394) ├─DeclaredResourceExpression
 //@[017:00051) | ├─StringLiteralExpression { Value = this is just a basic nested loop }
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[063:00345) | └─ForLoopExpression
+//@[063:00340) | └─ForLoopExpression
 //@[073:00084) |   ├─FunctionCallExpression { Name = range }
 //@[079:00080) |   | ├─IntegerLiteralExpression { Value = 0 }
 //@[082:00083) |   | └─IntegerLiteralExpression { Value = 3 }
-//@[086:00344) |   └─ObjectExpression
+//@[086:00339) |   └─ObjectExpression
 //@[073:00084) |                   | └─FunctionCallExpression { Name = range }
 //@[079:00080) |                   |   ├─IntegerLiteralExpression { Value = 0 }
 //@[082:00083) |                   |   └─IntegerLiteralExpression { Value = 3 }
   name: 'vnet-${i}'
   properties: {
-//@[002:00231) |     └─ObjectPropertyExpression
+//@[002:00226) |     └─ObjectPropertyExpression
 //@[002:00012) |       ├─StringLiteralExpression { Value = properties }
-//@[014:00231) |       └─ObjectExpression
+//@[014:00226) |       └─ObjectExpression
     subnets: [for j in range(0, 4): {
-//@[004:00209) |         └─ObjectPropertyExpression
+//@[004:00204) |         └─ObjectPropertyExpression
 //@[004:00011) |           ├─StringLiteralExpression { Value = subnets }
-//@[013:00209) |           └─ForLoopExpression
+//@[013:00204) |           └─ForLoopExpression
 //@[023:00034) |             ├─FunctionCallExpression { Name = range }
 //@[029:00030) |             | ├─IntegerLiteralExpression { Value = 0 }
 //@[032:00033) |             | └─IntegerLiteralExpression { Value = 4 }
-//@[036:00208) |             └─ObjectExpression
+//@[036:00203) |             └─ObjectExpression
 //@[023:00034) |                     └─FunctionCallExpression { Name = range }
 //@[029:00030) |                       ├─IntegerLiteralExpression { Value = 0 }
 //@[032:00033) |                       └─IntegerLiteralExpression { Value = 4 }
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
 //@[006:00030) |               └─ObjectPropertyExpression
@@ -1332,10 +1334,10 @@ output p4_res1childtype string = p4_child1.type
 //@[033:00047) | └─PropertyAccessExpression { PropertyName = type }
 //@[033:00042) |   └─ResourceReferenceExpression
 output p4_res1childid string = p4_child1.id
-//@[000:00043) └─DeclaredOutputExpression { Name = p4_res1childid }
-//@[022:00028)   ├─AmbientTypeReferenceExpression { Name = string }
-//@[031:00043)   └─PropertyAccessExpression { PropertyName = id }
-//@[031:00040)     └─ResourceReferenceExpression
+//@[000:00043) ├─DeclaredOutputExpression { Name = p4_res1childid }
+//@[022:00028) | ├─AmbientTypeReferenceExpression { Name = string }
+//@[031:00043) | └─PropertyAccessExpression { PropertyName = id }
+//@[031:00040) |   └─ResourceReferenceExpression
 
 // parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
 var dbs = ['db1', 'db2','db3']
@@ -1345,8 +1347,8 @@ var dbs = ['db1', 'db2','db3']
 //@[018:00023) |   ├─StringLiteralExpression { Value = db2 }
 //@[024:00029) |   └─StringLiteralExpression { Value = db3 }
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-//@[000:00416) ├─DeclaredResourceExpression
-//@[056:00416) | └─ObjectExpression
+//@[000:00527) ├─DeclaredResourceExpression
+//@[056:00527) | └─ObjectExpression
   name: 'sql-server-name'
   location: 'polandcentral'
 //@[002:00027) |   └─ObjectPropertyExpression
@@ -1369,14 +1371,66 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   }]
 
   @description('Primary Sql Database')
-//@[002:00136) ├─DeclaredResourceExpression
+//@[002:00247) ├─DeclaredResourceExpression
 //@[015:00037) | ├─StringLiteralExpression { Value = Primary Sql Database }
   resource primaryDb 'databases' = {
-//@[035:00096) | ├─ObjectExpression
+//@[035:00207) | ├─ObjectExpression
     name: 'primary-db'
     location: 'polandcentral'
 //@[004:00029) | | └─ObjectPropertyExpression
 //@[004:00012) | |   ├─StringLiteralExpression { Value = location }
 //@[014:00029) | |   └─StringLiteralExpression { Value = polandcentral }
+
+    resource threatProtection 'advancedThreatProtectionSettings' existing = {
+//@[004:00107) ├─DeclaredResourceExpression
+//@[076:00107) | ├─ObjectExpression
+      name: 'default'
+    }
   }
 }
+
+//nameof
+output nameof_sqlServer string = nameof(sqlServer)
+//@[000:00050) ├─DeclaredOutputExpression { Name = nameof_sqlServer }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
+//@[040:00049) | └─StringLiteralExpression { Value = sqlServer }
+output nameof_location string = nameof(sqlServer.location)
+//@[000:00058) ├─DeclaredOutputExpression { Name = nameof_location }
+//@[023:00029) | ├─AmbientTypeReferenceExpression { Name = string }
+//@[039:00057) | └─StringLiteralExpression { Value = location }
+output nameof_minCapacity string = nameof(sqlServer::primaryDb.properties.minCapacity)
+//@[000:00086) ├─DeclaredOutputExpression { Name = nameof_minCapacity }
+//@[026:00032) | ├─AmbientTypeReferenceExpression { Name = string }
+//@[042:00085) | └─StringLiteralExpression { Value = minCapacity }
+output nameof_creationTime string = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+//@[000:00106) ├─DeclaredOutputExpression { Name = nameof_creationTime }
+//@[027:00033) | ├─AmbientTypeReferenceExpression { Name = string }
+//@[043:00105) | └─StringLiteralExpression { Value = creationTime }
+output nameof_id string = nameof(sqlServer::sqlDatabases[0].id)
+//@[000:00063) └─DeclaredOutputExpression { Name = nameof_id }
+//@[017:00023)   ├─AmbientTypeReferenceExpression { Name = string }
+//@[033:00062)   └─StringLiteralExpression { Value = id }
+
+var sqlConfig = {
+//@[000:00055) ├─DeclaredVariableExpression { Name = sqlConfig }
+//@[016:00055) | └─ObjectExpression
+  westus: {}
+//@[002:00012) |   ├─ObjectPropertyExpression
+//@[002:00008) |   | ├─StringLiteralExpression { Value = westus }
+//@[010:00012) |   | └─ObjectExpression
+  'server-name': {}
+//@[002:00019) |   └─ObjectPropertyExpression
+//@[002:00015) |     ├─StringLiteralExpression { Value = server-name }
+//@[017:00019) |     └─ObjectExpression
+}
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00173) ├─DeclaredResourceExpression
+//@[066:00173) | └─ObjectExpression
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+  location: nameof(sqlConfig.westus)
+//@[002:00036) |   └─ObjectPropertyExpression
+//@[002:00010) |     ├─StringLiteralExpression { Value = location }
+//@[019:00035) |     └─StringLiteralExpression { Value = westus }
+}
+

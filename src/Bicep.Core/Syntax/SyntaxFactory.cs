@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using System.ComponentModel;
 using Bicep.Core.Extensions;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Json.Pointer;
 
@@ -106,6 +107,7 @@ namespace Bicep.Core.Syntax
         public static Token IfKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.IfKeyword);
         public static Token ForKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ForKeyword);
         public static Token InKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.InKeyword);
+        public static Token TypeKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.TypeKeyword);
 
         public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
         {
@@ -389,5 +391,29 @@ namespace Bicep.Core.Syntax
 
         public static ParenthesizedExpressionSyntax CreateParenthesized(SyntaxBase inner)
             => new(LeftParenToken, inner, RightParenToken);
+
+        public static VariableDeclarationSyntax CreateVariableDeclaration(string name, SyntaxBase value, IEnumerable<SyntaxBase>? leadingNodes = null)
+            => new(
+                leadingNodes ?? [],
+                VariableKeywordToken,
+                CreateIdentifierWithTrailingSpace(name),
+                AssignmentToken,
+                value);
+
+        public static ParameterDeclarationSyntax CreateParameterDeclaration(string name, SyntaxBase type, SyntaxBase? defaultValue = null, IEnumerable<SyntaxBase>? leadingNodes = null)
+            => new(
+                leadingNodes ?? [],
+                ParameterKeywordToken,
+                CreateIdentifierWithTrailingSpace(name),
+                type,
+                defaultValue is { } ? new ParameterDefaultValueSyntax(AssignmentToken, defaultValue) : null);
+
+        public static TypeDeclarationSyntax CreateTypeDeclaration(string name, SyntaxBase typeValue, IEnumerable<SyntaxBase>? leadingNodes = null)
+            => new(
+                leadingNodes ?? [],
+                TypeKeywordToken,
+                CreateIdentifierWithTrailingSpace(name),
+                AssignmentToken,
+                typeValue);
     }
 }

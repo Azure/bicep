@@ -73,7 +73,7 @@ namespace Bicep.Core.Text
             return lineStarts[line] + character;
         }
 
-        public static TextSpan GetLineSpan(IReadOnlyList<int> lineStarts, int programLength, int line) //asdfg test
+        public static TextSpan GetLineSpan(IReadOnlyList<int> lineStarts, int programLength, int line)
         {
             int lineStart = GetOffset(lineStarts, line, 0);
             if (line == lineStarts.Count - 1)

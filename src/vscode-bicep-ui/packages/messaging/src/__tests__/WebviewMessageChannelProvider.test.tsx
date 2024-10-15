@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { WebviewMessageChannel } from "../webviewMessageChannel";

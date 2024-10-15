@@ -1,18 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import path from "path";
-import os from "os";
+
 import { spawn } from "child_process";
 import { randomBytes } from "crypto";
-import {
-  RequestType,
-  createMessageConnection,
-  createClientPipeTransport,
-} from "vscode-jsonrpc/node";
+import os from "os";
+import path from "path";
+import { createClientPipeTransport, createMessageConnection, RequestType } from "vscode-jsonrpc/node";
 import { bicepCli } from "./fs";
 import { logStdErr } from "./log";
 
-interface VersionRequest { }
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface VersionRequest {}
 
 interface VersionResponse {
   version: string;
@@ -70,7 +68,7 @@ interface CompileResponse {
 
 interface CompileParamsRequest {
   path: string;
-  parameterOverrides: Record<string, any>;
+  parameterOverrides: Record<string, unknown>;
 }
 
 interface CompileParamsResponse {
@@ -124,29 +122,17 @@ interface TypeDefinition {
   name: string;
 }
 
-export const versionRequestType = new RequestType<
-  VersionRequest,
-  VersionResponse,
-  never
->("bicep/version");
+export const versionRequestType = new RequestType<VersionRequest, VersionResponse, never>("bicep/version");
 
-export const compileRequestType = new RequestType<
-  CompileRequest,
-  CompileResponse,
-  never
->("bicep/compile");
+export const compileRequestType = new RequestType<CompileRequest, CompileResponse, never>("bicep/compile");
 
-export const compileParamsRequestType = new RequestType<
-  CompileParamsRequest,
-  CompileParamsResponse,
-  never
->("bicep/compileParams");
+export const compileParamsRequestType = new RequestType<CompileParamsRequest, CompileParamsResponse, never>(
+  "bicep/compileParams",
+);
 
-export const getMetadataRequestType = new RequestType<
-  GetMetadataRequest,
-  GetMetadataResponse,
-  never
->("bicep/getMetadata");
+export const getMetadataRequestType = new RequestType<GetMetadataRequest, GetMetadataResponse, never>(
+  "bicep/getMetadata",
+);
 
 export const getDeploymentGraphRequestType = new RequestType<
   GetDeploymentGraphRequest,
@@ -154,11 +140,9 @@ export const getDeploymentGraphRequestType = new RequestType<
   never
 >("bicep/getDeploymentGraph");
 
-export const getFileReferencesRequestType = new RequestType<
-  GetFileReferencesRequest,
-  GetFileReferencesResponse,
-  never
->("bicep/getFileReferences");
+export const getFileReferencesRequestType = new RequestType<GetFileReferencesRequest, GetFileReferencesResponse, never>(
+  "bicep/getFileReferences",
+);
 
 function generateRandomPipeName(): string {
   const randomSuffix = randomBytes(21).toString("hex");
@@ -179,8 +163,8 @@ export async function openConnection() {
 
   const [reader, writer] = await transport.onConnected();
   const connection = createMessageConnection(reader, writer, console);
-  process.on("SIGINT", connection.end);
-  process.on("SIGTERM", connection.end);
+  process.on("SIGINT", () => connection.end());
+  process.on("SIGTERM", () => connection.end());
 
   connection.listen();
   return connection;

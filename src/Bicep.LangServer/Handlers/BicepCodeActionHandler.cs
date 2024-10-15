@@ -15,7 +15,9 @@ using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Model;
 using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Refactor;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using Newtonsoft.Json.Linq;
@@ -69,7 +71,7 @@ namespace Bicep.LanguageServer.Handlers
                     fixable.Span.ContainsInclusive(requestEndOffset) ||
                     (requestStartOffset <= fixable.Span.Position && fixable.GetEndPosition() <= requestEndOffset))
                 .OfType<IFixable>()
-                .SelectMany(fixable => fixable.Fixes.Select(fix => CreateCodeFix(request.TextDocument.Uri, compilationContext, fix)));
+                .SelectMany(fixable => fixable.Fixes.Select(fix => CreateCodeActionFromFix(request.TextDocument.Uri, compilationContext, fix)));
 
             List<CommandOrCodeAction> commandOrCodeActions = new();
 
@@ -112,11 +114,15 @@ namespace Bicep.LanguageServer.Handlers
                 commandOrCodeActions.AddRange(editLinterRuleActions);
             }
 
-            var matchingNodes = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
+            var nodesInRange = SyntaxMatcher.FindNodesSpanningRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
             var codeFixes = GetDecoratorCodeFixProviders(semanticModel)
-                .SelectMany(provider => provider.GetFixes(semanticModel, matchingNodes))
-                .Select(fix => CreateCodeFix(request.TextDocument.Uri, compilationContext, fix));
+                .SelectMany(provider => provider.GetFixes(semanticModel, nodesInRange))
+                .Select(fix => CreateCodeActionFromFix(request.TextDocument.Uri, compilationContext, fix));
             commandOrCodeActions.AddRange(codeFixes);
+
+            var extractionActions = new ExpressionAndTypeExtractor(compilationContext, semanticModel, request.TextDocument.Uri.ToUriEncoded()).GetExtractionCodeFixes(nodesInRange)
+                .Select(fix => CreateCodeActionFromFix(documentUri, compilationContext, fix));
+            commandOrCodeActions.AddRange(extractionActions);
 
             return new(commandOrCodeActions);
         }
@@ -209,12 +215,13 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult(request);
         }
 
-        private static CommandOrCodeAction CreateCodeFix(DocumentUri uri, CompilationContext context, CodeFix fix)
+        private static CommandOrCodeAction CreateCodeActionFromFix(DocumentUri uri, CompilationContext context, CodeFix fix)
         {
             var codeActionKind = fix.Kind switch
             {
                 CodeFixKind.QuickFix => CodeActionKind.QuickFix,
                 CodeFixKind.Refactor => CodeActionKind.Refactor,
+                CodeFixKind.RefactorExtract => CodeActionKind.RefactorExtract,
                 _ => CodeActionKind.Empty,
             };
 
@@ -233,7 +240,8 @@ namespace Bicep.LanguageServer.Handlers
                             NewText = replacement.Text
                         })
                     }
-                }
+                },
+                Command = fix is CodeFixWithCommand withCommand ? withCommand.Command : null,
             };
         }
 
