@@ -1189,7 +1189,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    ["[2] The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."]);
+                    ["[2] The resource type is not valid. Specify a valid resource type of format \"<type-name>@<apiVersion>\"."]);
             }
 
             [TestMethod]
@@ -1315,7 +1315,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
                     [
-                      "[2] The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."
+                      "[2] The resource type is not valid. Specify a valid resource type of format \"<type-name>@<apiVersion>\"."
                     ]);
             }
 

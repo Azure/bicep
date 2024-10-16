@@ -1937,7 +1937,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     new TypeTemplate(LanguageConstants.TypeNameResource,
                         [
                             new TypeParameter("ResourceTypeIdentifier",
-                                        "A string of the format '<type-name>@<api-version>' that identifies the kind of resource whose body type definition is to be used.",
+                                        "A string of the format `<type-name>@<api-version>` that identifies the kind of resource whose body type definition is to be used.",
                                         LanguageConstants.StringResourceIdentifier),
                         ],
                         (binder, syntax, argumentTypes) =>
