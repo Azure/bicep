@@ -13,6 +13,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Serialization;
 using StreamJsonRpc;
@@ -42,7 +43,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         await Task.Yield();
 
         return new(
-            ThisAssembly.AssemblyInformationalVersion.Split('+')[0]);
+            BicepVersion.Instance.Value);
     }
 
     /// <inheritdoc/>
