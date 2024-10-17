@@ -332,8 +332,8 @@
       },
       "JsonPath.Net": {
         "type": "Transitive",
-        "resolved": "1.1.4",
-        "contentHash": "RAVhHdPEJPUoKPSSHBh82Q8Qrwl3mr1OlRj0I/IFj42DSoS8b9VUOPCCr+O6V/2gmPDbuGnf2mdic9Cp8AqfBg==",
+        "resolved": "1.1.6",
+        "contentHash": "FQLbFJdjIa70GdYGR3RpdGkLTMZwQCqcd8gC35yx6aGofVEP3QxMvSuXHn75N30jj9SS6yvsPPTDzJmPMt/Mdw==",
         "dependencies": {
           "Json.More.Net": "2.0.2"
         }
@@ -1741,7 +1741,7 @@
           "Azure.Identity": "[1.12.1, )",
           "Azure.ResourceManager.Resources": "[1.8.0, )",
           "JsonPatch.Net": "[3.1.1, )",
-          "JsonPath.Net": "[1.1.4, )",
+          "JsonPath.Net": "[1.1.6, )",
           "Microsoft.Extensions.Configuration": "[8.0.0, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.0.2, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
@@ -1784,7 +1784,7 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
-          "JsonPath.Net": "[1.1.4, )",
+          "JsonPath.Net": "[1.1.6, )",
           "JsonSchema.Net": "[7.2.3, )",
           "Markdig": "[0.37.0, )",
           "Microsoft.Extensions.Logging": "[8.0.0, )",
