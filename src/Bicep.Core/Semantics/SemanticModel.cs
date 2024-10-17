@@ -14,7 +14,9 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -44,31 +46,34 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
         private readonly ConcurrentDictionary<Uri, ResultWithDiagnosticBuilder<AuxiliaryFile>> auxiliaryFileCache = new();
+        private readonly IReadableFileCache fileCache;
 
-        public SemanticModel(Compilation compilation, BicepSourceFile sourceFile)
+        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, IFeatureProvider features, IEnvironment environment, IReadableFileCache fileCache, BicepSourceFile sourceFile)
         {
-            this.Compilation = compilation;
+            this.ArtifactReferenceFactory = artifactReferenceFactory;
+            this.ModelLookup = modelLookup;
+            this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
-            this.Configuration = compilation.ConfigurationManager.GetConfiguration(sourceFile.FileUri);
-            this.Features = compilation.FeatureProviderFactory.GetFeatureProvider(sourceFile.FileUri);
-            this.Environment = compilation.Environment;
-
+            this.Configuration = configuration;
+            this.Features = features;
+            this.Environment = environment;
+            this.fileCache = fileCache;
             TraceBuildOperation(sourceFile, Features, Configuration);
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var symbolContext = new SymbolContext(compilation, this);
+            var symbolContext = new SymbolContext(this, sourceFileGrouping, modelLookup, artifactReferenceFactory, sourceFile);
             // Because import cycles would have been detected and blocked earlier in the compilation, it's fine to allow
             // access to *other* models in the compilation while the symbol context is locked.
             // This allows the binder to create the right kind of symbol for compile-time imports.
-            var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(compilation, sourceFile);
+            var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(modelLookup, sourceFile);
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(
-                compilation.NamespaceProvider,
+                namespaceProvider,
                 Configuration,
                 Features,
-                compilation.SourceFileGrouping,
+                sourceFileGrouping,
                 cycleBlockingModelLookup,
                 sourceFile,
                 this.SymbolContext);
@@ -94,7 +99,7 @@ namespace Bicep.Core.Semantics
             this.resourceAncestorsLazy = new(() => ResourceAncestorGraph.Compute(this));
             this.ResourceMetadata = new ResourceMetadataCache(this);
 
-            LinterAnalyzer = compilation.LinterAnalyzer;
+            LinterAnalyzer = linterAnalyzer;
 
             this.allResourcesLazy = new(GetAllResourceMetadata);
             this.declaredResourcesLazy = new(() => this.AllResources.OfType<DeclaredResourceMetadata>().ToImmutableArray());
@@ -158,7 +163,7 @@ namespace Bicep.Core.Semantics
         }
 
         public ResultWithDiagnosticBuilder<AuxiliaryFile> ReadAuxiliaryFile(Uri uri)
-            => auxiliaryFileCache.GetOrAdd(uri, Compilation.FileCache.Read);
+            => auxiliaryFileCache.GetOrAdd(uri, fileCache.Read);
 
         public IEnumerable<Uri> GetAuxiliaryFileReferences()
             => auxiliaryFileCache.Keys;
@@ -167,15 +172,15 @@ namespace Bicep.Core.Semantics
             => auxiliaryFileCache.ContainsKey(uri);
 
         private IEnumerable<ExportMetadata> FindExportedTypes() => Root.TypeDeclarations
-            .Where(t => t.IsExported())
+            .Where(t => t.IsExported(this))
             .Select(t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType)));
 
         private IEnumerable<ExportMetadata> FindExportedVariables() => Root.VariableDeclarations
-            .Where(v => v.IsExported())
+            .Where(v => v.IsExported(this))
             .Select(v => new ExportedVariableMetadata(v.Name, v.Type, DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable)));
 
         private IEnumerable<ExportMetadata> FindExportedFunctions() => Root.FunctionDeclarations
-            .Where(f => f.IsExported())
+            .Where(f => f.IsExported(this))
             .Select(f => new ExportedFunctionMetadata(f.Name,
                 f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description)).ToImmutableArray(),
                 new(f.Overload.TypeSignatureSymbol, null),
@@ -221,7 +226,11 @@ namespace Bicep.Core.Semantics
 
         public ISymbolContext SymbolContext { get; }
 
-        public Compilation Compilation { get; }
+        public IArtifactReferenceFactory ArtifactReferenceFactory { get; }
+
+        public ISemanticModelLookup ModelLookup { get; }
+
+        public SourceFileGrouping SourceFileGrouping { get; }
 
         public ITypeManager TypeManager { get; }
 
