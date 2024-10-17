@@ -1,6 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
+import {
+  VscodeTable,
+  VscodeTableBody,
+  VscodeTableCell,
+  VscodeTableHeader,
+  VscodeTableHeaderCell,
+  VscodeTableRow
+} from "@vscode-elements/react-elements";
 import { FC } from "react";
 import { LocalDeploymentOperationContent, LocalDeployResponse } from "../../../../language";
 import { FormSection } from "./sections/FormSection";
@@ -12,20 +19,20 @@ export const LocalDeployResult: FC<{ result: LocalDeployResponse }> = ({ result 
     <FormSection title="Result">
       <p>{result.deployment.provisioningState}</p>
       {error && (
-        <VSCodeDataGrid gridTemplateColumns="max-content auto">
+        <VscodeTable>
           {error && (
-            <VSCodeDataGridRow key={0}>
-              <VSCodeDataGridCell gridColumn="1">Code</VSCodeDataGridCell>
-              <VSCodeDataGridCell gridColumn="2">{error.code}</VSCodeDataGridCell>
-            </VSCodeDataGridRow>
+            <VscodeTableRow key={0}>
+              <VscodeTableCell id="1">Code</VscodeTableCell>
+              <VscodeTableCell id="2">{error.code}</VscodeTableCell>
+            </VscodeTableRow>
           )}
           {error.message && (
-            <VSCodeDataGridRow key={1}>
-              <VSCodeDataGridCell gridColumn="1">Message</VSCodeDataGridCell>
-              <VSCodeDataGridCell gridColumn="2">{error.message}</VSCodeDataGridCell>
-            </VSCodeDataGridRow>
+            <VscodeTableRow key={1}>
+              <VscodeTableCell id="1">Message</VscodeTableCell>
+              <VscodeTableCell id="2">{error.message}</VscodeTableCell>
+            </VscodeTableRow>
           )}
-        </VSCodeDataGrid>
+        </VscodeTable>
       )}
     </FormSection>
   );
@@ -38,31 +45,33 @@ export const LocalDeployOperations: FC<{ result: LocalDeployResponse }> = ({ res
 
   return (
     <FormSection title="Operations">
-      <VSCodeDataGrid>
-        <VSCodeDataGridRow rowType="header">
-          <VSCodeDataGridCell gridColumn="1" cellType="columnheader">
+      <VscodeTable>
+        <VscodeTableHeader slot="header">
+          <VscodeTableHeaderCell id="1">
             Resource Name
-          </VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="2" cellType="columnheader">
+          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="2">
             State
-          </VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="3" cellType="columnheader">
+          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="3">
             Error
-          </VSCodeDataGridCell>
-        </VSCodeDataGridRow>
-        {result.operations.map((operation) => (
-          <VSCodeDataGridRow
-            key={operation.resourceName}
-            style={isFailed(operation) ? { background: "rgba(255, 72, 45, 0.3)" } : {}}
-          >
-            <VSCodeDataGridCell gridColumn="1">{operation.resourceName}</VSCodeDataGridCell>
-            <VSCodeDataGridCell gridColumn="2">{operation.provisioningState}</VSCodeDataGridCell>
-            <VSCodeDataGridCell gridColumn="3">
-              {operation.error ? getPreformattedJson(operation.error) : ""}
-            </VSCodeDataGridCell>
-          </VSCodeDataGridRow>
-        ))}
-      </VSCodeDataGrid>
+          </VscodeTableHeaderCell>
+        </VscodeTableHeader>
+        <VscodeTableBody slot="body">
+          {result.operations.map((operation) => (
+            <VscodeTableRow
+              key={operation.resourceName}
+              style={isFailed(operation) ? { background: "rgba(255, 72, 45, 0.3)" } : {}}
+            >
+              <VscodeTableCell id="1">{operation.resourceName}</VscodeTableCell>
+              <VscodeTableCell id="2">{operation.provisioningState}</VscodeTableCell>
+              <VscodeTableCell id="3">
+                {operation.error ? getPreformattedJson(operation.error) : ""}
+              </VscodeTableCell>
+            </VscodeTableRow>
+          ))}
+        </VscodeTableBody>
+      </VscodeTable>
     </FormSection>
   );
 };
@@ -74,24 +83,26 @@ export const LocalDeployOutputs: FC<{ result: LocalDeployResponse }> = ({ result
 
   return (
     <FormSection title="Outputs">
-      <VSCodeDataGrid>
-        <VSCodeDataGridRow rowType="header">
-          <VSCodeDataGridCell gridColumn="1" cellType="columnheader">
+      <VscodeTable>
+        <VscodeTableHeader slot="header">
+          <VscodeTableHeaderCell id="1">
             Name
-          </VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="2" cellType="columnheader">
+          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="2">
             Value
-          </VSCodeDataGridCell>
-        </VSCodeDataGridRow>
-        {Object.keys(result.deployment.outputs).map((name) => (
-          <VSCodeDataGridRow key={name}>
-            <VSCodeDataGridCell gridColumn="1">{name}</VSCodeDataGridCell>
-            <VSCodeDataGridCell gridColumn="2">
-              {getPreformattedJson(result.deployment.outputs[name])}
-            </VSCodeDataGridCell>
-          </VSCodeDataGridRow>
-        ))}
-      </VSCodeDataGrid>
+          </VscodeTableHeaderCell>
+        </VscodeTableHeader>
+        <VscodeTableBody slot="body">
+          {Object.keys(result.deployment.outputs).map((name) => (
+            <VscodeTableRow key={name}>
+              <VscodeTableCell id="1">{name}</VscodeTableCell>
+              <VscodeTableCell id="2">
+                {getPreformattedJson(result.deployment.outputs[name])}
+              </VscodeTableCell>
+            </VscodeTableRow>
+          ))}
+        </VscodeTableBody>
+      </VscodeTable>
     </FormSection>
   );
 };

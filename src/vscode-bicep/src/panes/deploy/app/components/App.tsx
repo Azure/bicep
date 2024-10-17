@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VscodeProgressRing, VscodeButton } from "@vscode-elements/react-elements";
 import { FC, useState } from "react";
 
 import "./index.css";
@@ -16,7 +16,7 @@ import { FormSection } from "./sections/FormSection";
 import { ParametersInputView } from "./sections/ParametersInputView";
 import { ResultsView } from "./sections/ResultsView";
 import { WhatIfChangesView } from "./sections/WhatIfChangesView";
-import { Codicon } from "@vscode-bicep-ui/components";
+//import { Codicon } from "@vscode-bicep-ui/components";
 
 export const App: FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -62,7 +62,7 @@ export const App: FC = () => {
   }
 
   if (!messages.messageState.initialized) {
-    return <VSCodeProgressRing />;
+    return <VscodeProgressRing />;
   }
 
   const showLocalDeployControls =
@@ -76,7 +76,7 @@ export const App: FC = () => {
         <>
           <FormSection title="Experimental Warning">
             <div className="alert-error">
-              <Codicon name="beaker" size={14} />
+              {/* <Codicon name="beaker" size={14} /> */}
               The Bicep Deployment Pane is an experimental feature.
               <br />
               Documentation is available{" "}
@@ -98,22 +98,22 @@ export const App: FC = () => {
           <FormSection title="Actions">
             {errorMessage && (
               <div className="alert-error">
-                <Codicon name="error" size={14} />
+                {/* <Codicon name="error" size={14} /> */}
                 {errorMessage}
               </div>
             )}
             <div className="controls">
-              <VSCodeButton onClick={handleDeployClick} disabled={azureDisabled}>
+              <VscodeButton onClick={handleDeployClick} disabled={azureDisabled}>
                 Deploy
-              </VSCodeButton>
-              <VSCodeButton onClick={handleValidateClick} disabled={azureDisabled}>
+              </VscodeButton>
+              <VscodeButton onClick={handleValidateClick} disabled={azureDisabled}>
                 Validate
-              </VSCodeButton>
-              <VSCodeButton onClick={handleWhatIfClick} disabled={azureDisabled}>
+              </VscodeButton>
+              <VscodeButton onClick={handleWhatIfClick} disabled={azureDisabled}>
                 What-If
-              </VSCodeButton>
+              </VscodeButton>
             </div>
-            {azure.running && <VSCodeProgressRing></VSCodeProgressRing>}
+            {azure.running && <VscodeProgressRing></VscodeProgressRing>}
           </FormSection>
 
           {messages.scope && (
@@ -131,7 +131,7 @@ export const App: FC = () => {
         <>
           <FormSection title="Experimental Warning">
             <div className="alert-error">
-                <Codicon name="error" size={14} />
+                {/* <Codicon name="error" size={14} /> */}
               Local Deployment is an experimental feature.
             </div>
           </FormSection>
@@ -149,16 +149,16 @@ export const App: FC = () => {
               <FormSection title="Actions">
                 {errorMessage && (
                   <div className="alert-error">
-                    <Codicon name="error" size={14} />
+                    {/* <Codicon name="error" size={14} /> */}
                     {errorMessage}
                   </div>
                 )}
                 <div className="controls">
-                  <VSCodeButton onClick={handleLocalDeployClick} disabled={localDeployRunning}>
+                  <VscodeButton onClick={handleLocalDeployClick} disabled={localDeployRunning}>
                     Deploy
-                  </VSCodeButton>
+                  </VscodeButton>
                 </div>
-                {localDeployRunning && <VSCodeProgressRing></VSCodeProgressRing>}
+                {localDeployRunning && <VscodeProgressRing></VscodeProgressRing>}
               </FormSection>
 
               {!localDeployRunning && messages.localDeployResult && (

@@ -811,7 +811,7 @@
     "@microsoft/vscode-azext-azureutils": "^3.1.1",
     "@microsoft/vscode-azext-utils": "^2.5.7",
     "@vscode-bicep-ui/components": "file:../vscode-bicep-ui/packages/components",
-    "@vscode/webview-ui-toolkit": "^1.4.0",
+    "@vscode-elements/react-elements": "^0.4.0",
     "cytoscape": "^3.30.2",
     "cytoscape-elk": "^2.2.0",
     "fs-extra": "^11.2.0",

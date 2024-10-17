@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import {
-  VSCodeButton,
-  VSCodeCheckbox,
-  VSCodeDropdown,
-  VSCodeOption,
-  VSCodeTextArea,
-  VSCodeTextField,
-} from "@vscode/webview-ui-toolkit/react";
+  VscodeButton,
+  VscodeCheckbox,
+  VscodeOption,
+  VscodeSingleSelect,
+  VscodeTextarea,
+  VscodeTextfield
+} from "@vscode-elements/react-elements";
 import { FC } from "react";
 import { ParamData, ParamDefinition } from "../../models";
 
@@ -35,19 +35,19 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
     switch (type) {
       case "bool":
         return (
-          <VSCodeCheckbox checked={!!value} onChange={() => handleValueChange(!value)} disabled={disabled}>
+          <VscodeCheckbox checked={!!value} onChange={() => handleValueChange(!value)} disabled={disabled}>
             {name}
-          </VSCodeCheckbox>
+          </VscodeCheckbox>
         );
       case "int":
         return (
-          <VSCodeTextField
+          <VscodeTextfield
             value={`${value ?? 0}`}
-            onChange={(e) => handleValueChange(parseInt((e.currentTarget as HTMLInputElement).value, 10))}
+            onChange={(e) => handleValueChange(parseInt(e.currentTarget.value, 10))}
             disabled={disabled}
           >
             {name}
-          </VSCodeTextField>
+          </VscodeTextfield>
         );
       case "string":
         if (definition.allowedValues) {
@@ -55,41 +55,41 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
           return (
             <div className="dropdown-container">
               <label htmlFor={dropdownHtmlId}>{name}</label>
-              <VSCodeDropdown
+              <VscodeSingleSelect
                 id={dropdownHtmlId}
-                onChange={(e) => handleValueChange((e.currentTarget as HTMLSelectElement).value)}
+                onChange={(e) => handleValueChange(e.currentTarget.value)}
                 disabled={disabled}
               >
                 {definition.allowedValues.map((option) => (
-                  <VSCodeOption key={option} selected={value === option}>
+                  <VscodeOption key={option} selected={value === option}>
                     {option}
-                  </VSCodeOption>
+                  </VscodeOption>
                 ))}
-              </VSCodeDropdown>
+              </VscodeSingleSelect>
             </div>
           );
         } else {
           return (
-            <VSCodeTextField
+            <VscodeTextfield
               value={`${value ?? ""}`}
-              onChange={(e) => handleValueChange((e.currentTarget as HTMLInputElement).value)}
+              onChange={(e) => handleValueChange(e.currentTarget.value)}
               disabled={disabled}
             >
               {name}
-            </VSCodeTextField>
+            </VscodeTextfield>
           );
         }
       default:
         return (
-          <VSCodeTextArea
+          <VscodeTextarea
             className="code-textarea-container"
             resize="vertical"
             value={value ? JSON.stringify(value, null, 2) : ""}
-            onChange={(e) => handleValueChange(JSON.parse((e.currentTarget as HTMLInputElement).value))}
+            onChange={(e) => handleValueChange(JSON.parse(e.currentTarget.value))}
             disabled={disabled}
           >
             {name}
-          </VSCodeTextArea>
+          </VscodeTextarea>
         );
     }
   }
@@ -98,9 +98,9 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
     <span className="input-row">
       {getInputBox()}
       {defaultValue !== undefined && value !== defaultValue && (
-        <VSCodeButton onClick={handleResetToDefaultClick} disabled={disabled}>
+        <VscodeButton onClick={handleResetToDefaultClick} disabled={disabled}>
           Reset to default
-        </VSCodeButton>
+        </VscodeButton>
       )}
     </span>
   );

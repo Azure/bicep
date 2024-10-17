@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 import { ErrorResponse } from "@azure/arm-resources";
 import {
-  VSCodeCheckbox,
-  VSCodeDataGrid,
-  VSCodeDataGridCell,
-  VSCodeDataGridRow,
-} from "@vscode/webview-ui-toolkit/react";
+  VscodeCheckbox,
+  VscodeTable,
+  VscodeTableBody,
+  VscodeTableCell,
+  VscodeTableRow
+} from "@vscode-elements/react-elements";
 import { FC, useState } from "react";
 import { DeployResult } from "../../../models";
 import { getPreformattedJson } from "../utils";
@@ -27,9 +28,9 @@ export const ResultsView: FC<ResultsViewProps> = ({ result }) => {
     <FormSection title="Result">
       <p>{result.success ? "Succeeded" : "Failed"}</p>
       {result.error && (
-        <VSCodeCheckbox onChange={() => setShowJson(!showJson)} checked={showJson}>
+        <VscodeCheckbox onChange={() => setShowJson(!showJson)} checked={showJson}>
           Show JSON?
-        </VSCodeCheckbox>
+        </VscodeCheckbox>
       )}
       {result.error && getError(result.error, showJson)}
     </FormSection>
@@ -42,31 +43,33 @@ function getError(error: ErrorResponse, showJson: boolean) {
   }
 
   return (
-    <VSCodeDataGrid gridTemplateColumns="max-content auto">
+    <VscodeTable>
+      <VscodeTableBody slot="body">
       {error.code && (
-        <VSCodeDataGridRow key={0}>
-          <VSCodeDataGridCell gridColumn="1">Code</VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="2">{error.code}</VSCodeDataGridCell>
-        </VSCodeDataGridRow>
+        <VscodeTableRow key={0}>
+          <VscodeTableCell id="1">Code</VscodeTableCell>
+          <VscodeTableCell id="2">{error.code}</VscodeTableCell>
+        </VscodeTableRow>
       )}
       {error.message && (
-        <VSCodeDataGridRow key={1}>
-          <VSCodeDataGridCell gridColumn="1">Message</VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="2">{error.message}</VSCodeDataGridCell>
-        </VSCodeDataGridRow>
+        <VscodeTableRow key={1}>
+          <VscodeTableCell id="1">Message</VscodeTableCell>
+          <VscodeTableCell id="2">{error.message}</VscodeTableCell>
+        </VscodeTableRow>
       )}
       {error.target && (
-        <VSCodeDataGridRow key={2}>
-          <VSCodeDataGridCell gridColumn="1">Target</VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="2">{error.target}</VSCodeDataGridCell>
-        </VSCodeDataGridRow>
+        <VscodeTableRow key={2}>
+          <VscodeTableCell id="1">Target</VscodeTableCell>
+          <VscodeTableCell id="2">{error.target}</VscodeTableCell>
+        </VscodeTableRow>
       )}
       {error.details && (
-        <VSCodeDataGridRow key={3}>
-          <VSCodeDataGridCell gridColumn="1">Details</VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="2">{error.details.map((x) => getError(x, showJson))}</VSCodeDataGridCell>
-        </VSCodeDataGridRow>
+        <VscodeTableRow key={3}>
+          <VscodeTableCell id="1">Details</VscodeTableCell>
+          <VscodeTableCell id="2">{error.details.map((x) => getError(x, showJson))}</VscodeTableCell>
+        </VscodeTableRow>
       )}
-    </VSCodeDataGrid>
+      </VscodeTableBody>
+    </VscodeTable>
   );
 }
