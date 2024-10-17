@@ -472,3 +472,14 @@ module moduleWithNameof 'modulea.bicep' = {
   }
 }
 
+module deprecations 'child/deprecations.bicep' = {
+//@[07:19) Module deprecations. Type: module. Declaration start char: 0, length: 116
+  name: 'deprecations'
+  params: {
+    fooParam: 'foo'
+  }
+}
+
+var testDeprecated = deprecations.outputs.fooOutput
+//@[04:18) Variable testDeprecated. Type: string. Declaration start char: 0, length: 51
+

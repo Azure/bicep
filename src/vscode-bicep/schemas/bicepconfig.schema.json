@@ -438,6 +438,16 @@
                     }
                   ]
                 },
+                "no-deprecated-dependencies": {
+                  "allOf": [
+                    {
+                      "description": "Use of deprecated dependencies should be avoided. Defaults to 'Warning'. See https://aka.ms/bicep/linter/no-deprecated-dependencies"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-hardcoded-env-urls": {
                   "allOf": [
                     {

@@ -421,6 +421,33 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string NoDeprecatedDependenciesRuleDescription {
+            get {
+                return ResourceManager.GetString("NoDeprecatedDependenciesRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string NoDeprecatedDependenciesRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("NoDeprecatedDependenciesRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string NoDeprecatedDependenciesRuleMessageFormatWithDescription {
+            get {
+                return ResourceManager.GetString("NoDeprecatedDependenciesRuleMessageFormatWithDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A resource location should not use a hard-coded string or variable value. Change variable &apos;{0}&apos; into a parameter instead..
         /// </summary>
         internal static string NoHardcodedLocation_ErrorChangeVarToParam {

@@ -1,10 +1,12 @@
 import {foo, fizz, pop, greet} from 'modules/mod.bicep'
-//@[00:407) ProgramExpression
+//@[00:478) ProgramExpression
 import * as mod2 from 'modules/mod2.bicep'
 import {
   'not-a-valid-bicep-identifier' as withInvalidIdentifier
   refersToCopyVariable
 } from 'modules/mod.json'
+
+import { fooFunc, fooVar, fooType } from 'modules/deprecations.bicep'
 
 var aliasedFoo = foo
 //@[00:020) ├─DeclaredVariableExpression { Name = aliasedFoo }

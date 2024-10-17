@@ -389,3 +389,12 @@ module moduleWithNameof 'modulea.bicep' = {
     ]
   }
 }
+
+module deprecations 'child/deprecations.bicep' = {
+  name: 'deprecations'
+  params: {
+    fooParam: 'foo'
+  }
+}
+
+var testDeprecated = deprecations.outputs.fooOutput

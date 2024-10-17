@@ -89,7 +89,7 @@ namespace Bicep.Core.Semantics
             => declaredSymbol is not OutputSymbol and not MetadataSymbol;
 
         public static string? TryGetDescriptionFromDecorator(this DeclaredSymbol symbol)
-            => symbol.DeclaringSyntax is DecorableSyntax decorableSyntax ? DescriptionHelper.TryGetFromDecorator(symbol.Context.Compilation.GetSemanticModel(symbol.Context.SourceFile), decorableSyntax) : null;
+            => symbol.Context.SemanticModel.Facts.Description.Get(symbol.DeclaringSyntax);
 
         public static DecoratorSyntax? TryGetDecorator(this Symbol symbol, string @namespace, string decoratorName)
             => symbol is DeclaredSymbol declaredSymbol && declaredSymbol.DeclaringSyntax is DecorableSyntax decorableSyntax ?

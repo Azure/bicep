@@ -82,7 +82,7 @@ type objectWithInvalidPropertyDecorators = {
   barProp: string
 
   @allowed(['snap', 'crackle', 'pop'])
-//@[03:010) [BCP297 (Error)] Function "allowed" cannot be used as a type decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP297) |allowed|
+//@[03:010) [BCP410 (Error)] Function "allowed" cannot be used as a type property decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP410) |allowed|
   krispyProp: string
 }
 

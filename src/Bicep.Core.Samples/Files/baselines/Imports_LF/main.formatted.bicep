@@ -5,6 +5,8 @@ import {
   refersToCopyVariable
 } from 'modules/mod.json'
 
+import { fooFunc, fooVar, fooType } from 'modules/deprecations.bicep'
+
 var aliasedFoo = foo
 var aliasedBar = mod2.foo
 

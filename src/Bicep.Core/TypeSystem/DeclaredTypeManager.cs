@@ -30,16 +30,16 @@ namespace Bicep.Core.TypeSystem
         private readonly ConcurrentDictionary<TypeAliasSymbol, TypeSymbol> userDefinedTypeReferences = new();
         private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntaxBase, ResultWithDiagnostic<TypeExpression>> reifiedTypes = new();
         private readonly Lazy<ImmutableDictionary<TypeAliasSymbol, ImmutableArray<TypeAliasSymbol>>> typeCycles;
-        private readonly ITypeManager typeManager;
         private readonly IBinder binder;
+        private readonly SemanticModel model;
         private readonly IFeatureProvider features;
         private readonly ResourceDerivedTypeResolver resourceDerivedTypeResolver;
 
-        public DeclaredTypeManager(ITypeManager typeManager, IBinder binder, IFeatureProvider features)
+        public DeclaredTypeManager(SemanticModel model, IBinder binder)
         {
-            this.typeManager = typeManager;
             this.binder = binder;
-            this.features = features;
+            this.model = model;
+            this.features = model.Features;
             this.resourceDerivedTypeResolver = new(binder);
             this.typeCycles = new(() => CyclicTypeCheckVisitor.FindCycles(
                 binder,
@@ -100,7 +100,7 @@ namespace Bicep.Core.TypeSystem
                     return GetExtensionType(extension);
 
                 case MetadataDeclarationSyntax metadata:
-                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(metadata.Value), metadata);
+                    return new DeclaredTypeAssignment(model.TypeManager.GetTypeInfo(metadata.Value), metadata);
 
                 case ParameterDeclarationSyntax parameter:
                     return GetParameterType(parameter);
@@ -145,7 +145,7 @@ namespace Bicep.Core.TypeSystem
                     return GetResourceAccessType(resourceAccess);
 
                 case LocalVariableSyntax localVariable:
-                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(localVariable), localVariable);
+                    return new DeclaredTypeAssignment(model.TypeManager.GetTypeInfo(localVariable), localVariable);
 
                 case FunctionCallSyntax functionCall:
                     return GetFunctionType(functionCall);
@@ -341,9 +341,9 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetModifiedInteger(IntegerType declaredInteger, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
         {
-            var minValueDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinValuePropertyName);
+            var minValueDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinValuePropertyName);
             var minValue = GetSingleIntDecoratorArgument(minValueDecorator) ?? declaredInteger.MinValue;
-            var maxValueDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxValuePropertyName);
+            var maxValueDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxValuePropertyName);
             var maxValue = GetSingleIntDecoratorArgument(maxValueDecorator) ?? declaredInteger.MaxValue;
 
             if (minValue.HasValue && maxValue.HasValue && minValue.Value > maxValue.Value)
@@ -372,12 +372,12 @@ namespace Bicep.Core.TypeSystem
         }
 
         private long? GetSingleIntDecoratorArgument(DecoratorSyntax? syntax)
-            => syntax?.Arguments.Count() == 1 && typeManager.GetTypeInfo(syntax.Arguments.Single()) is IntegerLiteralType integerLiteral
+            => syntax?.Arguments.Count() == 1 && model.TypeManager.GetTypeInfo(syntax.Arguments.Single()) is IntegerLiteralType integerLiteral
                 ? integerLiteral.Value
                 : null;
 
         private string? GetSingleStringDecoratorArgument(DecoratorSyntax? syntax)
-            => syntax?.Arguments.Count() == 1 && typeManager.GetTypeInfo(syntax.Arguments.Single()) is StringLiteralType stringLiteral
+            => syntax?.Arguments.Count() == 1 && model.TypeManager.GetTypeInfo(syntax.Arguments.Single()) is StringLiteralType stringLiteral
                 ? stringLiteral.RawStringValue
                 : null;
 
@@ -403,9 +403,9 @@ namespace Bicep.Core.TypeSystem
 
         private bool GetLengthModifiers(DecorableSyntax syntax, long? defaultMinLength, long? defaultMaxLength, out long? minLength, out long? maxLength, [NotNullWhen(false)] out ErrorType? error)
         {
-            var minLengthDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinLengthPropertyName);
+            var minLengthDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinLengthPropertyName);
             minLength = GetSingleIntDecoratorArgument(minLengthDecorator) ?? defaultMinLength;
-            var maxLengthDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxLengthPropertyName);
+            var maxLengthDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxLengthPropertyName);
             maxLength = GetSingleIntDecoratorArgument(maxLengthDecorator) ?? defaultMaxLength;
 
             if (minLength.HasValue && maxLength.HasValue && minLength.Value > maxLength.Value)
@@ -543,7 +543,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol? GetOutputValueType(SyntaxBase syntax) => binder.GetParent(syntax) switch
         {
-            OutputDeclarationSyntax outputDeclaration => typeManager.GetTypeInfo(outputDeclaration.Value),
+            OutputDeclarationSyntax outputDeclaration => model.TypeManager.GetTypeInfo(outputDeclaration.Value),
             ParenthesizedExpressionSyntax parenthesized => GetOutputValueType(parenthesized),
             _ => null,
         };
@@ -642,7 +642,7 @@ namespace Bicep.Core.TypeSystem
                     }
                     propertyNamesEncountered.Add(propertyName);
 
-                    properties.Add(new(propertyName, propertyType, TypePropertyFlags.Required, DescriptionHelper.TryGetFromDecorator(binder, typeManager, prop)));
+                    properties.Add(new(propertyName, propertyType, TypePropertyFlags.Required, model.Facts.Description.Get(prop)));
                     nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType));
                 }
                 else
@@ -695,10 +695,10 @@ namespace Bicep.Core.TypeSystem
         }
 
         private bool HasSecureDecorator(DecorableSyntax syntax)
-            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
+            => SemanticModelHelper.TryGetDecoratorInNamespace(model, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
 
         private DecoratorSyntax? TryGetSystemDecorator(DecorableSyntax syntax, string decoratorName)
-            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, decoratorName);
+            => SemanticModelHelper.TryGetDecoratorInNamespace(model, syntax, SystemNamespaceType.BuiltInName, decoratorName);
 
         private TupleType GetTupleTypeType(TupleTypeSyntax syntax)
         {
@@ -731,7 +731,7 @@ namespace Bicep.Core.TypeSystem
                 }
                 else
                 {
-                    if (typeManager.GetTypeInfo(syntax.Expressions[i / 2]) is StringLiteralType literalSegment)
+                    if (model.TypeManager.GetTypeInfo(syntax.Expressions[i / 2]) is StringLiteralType literalSegment)
                     {
                         literalText.Append(literalSegment.RawStringValue);
                     }
@@ -1218,7 +1218,7 @@ namespace Bicep.Core.TypeSystem
                     return this.GetDeclaredTypeAssignment(innerModuleBody);
 
                 case VariableSymbol variableSymbol when IsCycleFree(variableSymbol):
-                    var variableType = this.typeManager.GetTypeInfo(variableSymbol.DeclaringVariable.Value);
+                    var variableType = model.TypeManager.GetTypeInfo(variableSymbol.DeclaringVariable.Value);
                     return new DeclaredTypeAssignment(variableType, variableSymbol.DeclaringVariable);
 
                 case ImportedVariableSymbol importedVariable:
@@ -1323,7 +1323,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetArrayAccessType(DeclaredTypeAssignment baseExpressionAssignment, ArrayAccessSyntax syntax)
         {
-            var indexAssignedType = this.typeManager.GetTypeInfo(syntax.IndexExpression);
+            var indexAssignedType = model.TypeManager.GetTypeInfo(syntax.IndexExpression);
 
             static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax) => indexType.Value switch
             {
@@ -1502,7 +1502,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetFunctionType(FunctionCallSyntaxBase syntax)
         {
-            return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(syntax), declaringSyntax: null);
+            return new DeclaredTypeAssignment(model.TypeManager.GetTypeInfo(syntax), declaringSyntax: null);
         }
 
         private DeclaredTypeAssignment? GetFunctionArgumentType(FunctionArgumentSyntax syntax)
@@ -1518,7 +1518,7 @@ namespace Bicep.Core.TypeSystem
             var argIndex = arguments.IndexOf(syntax);
             var declaredType = functionSymbol.GetDeclaredArgumentType(
                 argIndex,
-                getAssignedArgumentType: i => typeManager.GetTypeInfo(parentFunction.Arguments[i]));
+                getAssignedArgumentType: i => model.TypeManager.GetTypeInfo(parentFunction.Arguments[i]));
 
             return new DeclaredTypeAssignment(declaredType, declaringSyntax: null);
         }
@@ -1809,7 +1809,7 @@ namespace Bicep.Core.TypeSystem
             // `syntax.TryGetKeyText()` will only return a non-null value if the key is a bare identifier or a non-interpolated string
             // if it does return null, look at the *type* of the key and see if it's a string literal. If an interpolated key can be folded
             // to a literal type at compile time, this will likely already have been calculated and cached in the type manager
-            var propertyName = syntax.TryGetKeyText() ?? (typeManager.GetTypeInfo(syntax.Key) as StringLiteralType)?.RawStringValue;
+            var propertyName = syntax.TryGetKeyText() ?? (model.TypeManager.GetTypeInfo(syntax.Key) as StringLiteralType)?.RawStringValue;
             var parent = this.binder.GetParent(syntax);
             if (parent is not ObjectSyntax parentObject)
             {

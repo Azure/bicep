@@ -14,38 +14,6 @@ namespace Bicep.Core.Semantics
     public static class DescriptionHelper
     {
         /// <summary>
-        /// Retrieves description for a given syntax from a @description decorator
-        /// </summary>
-        public static string? TryGetFromDecorator(SemanticModel semanticModel, DecorableSyntax decorable)
-            => TryGetFromDecorator(semanticModel.Binder, semanticModel.TypeManager, decorable);
-
-        /// <summary>
-        /// Retrieves description for a given syntax from a @description decorator
-        /// </summary>
-        public static string? TryGetFromDecorator(IBinder binder, ITypeManager typeManager, DecorableSyntax decorable)
-        {
-            var decorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder,
-                typeManager.GetDeclaredType,
-                decorable,
-                SystemNamespaceType.BuiltInName,
-                LanguageConstants.MetadataDescriptionPropertyName);
-
-            if (decorator is not null &&
-                decorator.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
-                && stringSyntax.TryGetLiteralValue() is string description)
-            {
-                if (stringSyntax.IsVerbatimString())
-                {
-                    return StringUtils.NormalizeIndent(description);
-                }
-
-                return description;
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Retrieves description for a given module represented by a semantic model (bicep or json ARM)
         /// </summary>
         public static string? TryGetFromSemanticModel(ISemanticModel semanticModel)

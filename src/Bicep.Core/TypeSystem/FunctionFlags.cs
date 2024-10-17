@@ -88,6 +88,11 @@ namespace Bicep.Core.TypeSystem
         IsArgumentValueIndependent = 1 << 15,
 
         /// <summary>
+        /// The function can be to decorate a type property.
+        /// </summary>
+        TypePropertyDecorator = 1 << 16,
+
+        /// <summary>
         /// The function can be used as a resource or module decorator.
         /// </summary>
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,
@@ -95,21 +100,26 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The function can be used as a parameter or type decorator.
         /// </summary>
-        ParameterOrTypeDecorator = ParameterDecorator | TypeDecorator,
+        ParameterOrTypeDecorator = ParameterDecorator | TypeDecorator | TypePropertyDecorator,
 
         /// <summary>
         /// The function can be used as a parameter, output, or type decorator.
         /// </summary>
-        ParameterOutputOrTypeDecorator = ParameterDecorator | OutputDecorator | TypeDecorator,
+        ParameterOutputOrTypeDecorator = ParameterDecorator | OutputDecorator | TypeDecorator | TypePropertyDecorator,
 
         /// <summary>
         /// The function can be used as a type or variable decorator.
         /// </summary>
-        TypeVariableOrFunctionDecorator = TypeDecorator | VariableDecorator | FunctionDecorator,
+        TypeVariableOrFunctionDecorator = TypeDecorator | TypePropertyDecorator | VariableDecorator | FunctionDecorator,
+
+        /// <summary>
+        /// Syntax that can be deprecated with the @deprecated() decorator.
+        /// </summary>
+        DeprecatableSyntaxDecorator = ParameterDecorator | OutputDecorator | TypeDecorator | VariableDecorator | FunctionDecorator,
 
         /// <summary>
         /// The function can be used as a decorator anywhere.
         /// </summary>
-        AnyDecorator = ParameterDecorator | VariableDecorator | FunctionDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ExtensionDecorator | MetadataDecorator | TypeDecorator,
+        AnyDecorator = ParameterDecorator | VariableDecorator | FunctionDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ExtensionDecorator | MetadataDecorator | TypeDecorator | TypePropertyDecorator,
     }
 }

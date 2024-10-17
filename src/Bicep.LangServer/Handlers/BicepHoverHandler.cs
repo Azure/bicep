@@ -61,17 +61,10 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         private static string? TryGetDescription(SymbolResolutionResult result, DeclaredSymbol symbol)
-        {
-            if (symbol.DeclaringSyntax is DecorableSyntax decorableSyntax)
-            {
-                return DescriptionHelper.TryGetFromDecorator(result.Context.Compilation.GetEntrypointSemanticModel(), decorableSyntax);
-            }
-
-            return null;
-        }
+            => symbol.Context.SemanticModel.Facts.Description.Get(symbol.DeclaringSyntax);
 
         private static string? TryGetDescription(SymbolResolutionResult result, WildcardImportSymbol symbol)
-            => DescriptionHelper.TryGetFromDecorator(result.Context.Compilation.GetEntrypointSemanticModel(), symbol.EnclosingDeclaration);
+            => symbol.Context.SemanticModel.Facts.Description.Get(symbol.EnclosingDeclaration);
 
         private static async Task<MarkedStringsOrMarkupContent?> GetMarkdown(
             HoverParams request,

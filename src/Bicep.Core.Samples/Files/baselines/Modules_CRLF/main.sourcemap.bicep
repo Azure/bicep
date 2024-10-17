@@ -2496,7 +2496,7 @@ module moduleWithNameof 'modulea.bicep' = {
 //@        "[resourceId('Microsoft.Resources/deployments', 'secureModuleCondition')]",
 //@        "[resourceId('Microsoft.Resources/deployments', 'withSpace')]"
 //@      ]
-//@    }
+//@    },
   name: 'nameofModule'
 //@      "name": "nameofModule",
   scope: resourceGroup(nameof(nameofModuleParam))
@@ -2529,4 +2529,103 @@ module moduleWithNameof 'modulea.bicep' = {
     ]
   }
 }
+
+module deprecations 'child/deprecations.bicep' = {
+//@    {
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2022-09-01",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.0",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "10582621891520661866"
+//@            },
+//@            "__bicep_exported_variables!": [
+//@              {
+//@                "name": "fooVar",
+//@                "metadata": {
+//@                  "__bicep_deprecated!": "deprecated var"
+//@                }
+//@              }
+//@            ]
+//@          },
+//@          "definitions": {
+//@            "fooType": {
+//@              "type": "object",
+//@              "properties": {
+//@                "bar": {
+//@                  "type": "string"
+//@                }
+//@              },
+//@              "metadata": {
+//@                "__bicep_export!": true,
+//@                "__bicep_deprecated!": "deprecated type"
+//@              }
+//@            }
+//@          },
+//@          "functions": [
+//@            {
+//@              "namespace": "__bicep",
+//@              "members": {
+//@                "fooFunc": {
+//@                  "parameters": [],
+//@                  "output": {
+//@                    "type": "string",
+//@                    "value": ":("
+//@                  },
+//@                  "metadata": {
+//@                    "__bicep_export!": true,
+//@                    "__bicep_deprecated!": "deprecated func"
+//@                  }
+//@                }
+//@              }
+//@            }
+//@          ],
+//@          "parameters": {
+//@            "fooParam": {
+//@              "type": "string",
+//@              "nullable": true,
+//@              "metadata": {
+//@                "__bicep_deprecated!": "deprecated param"
+//@              }
+//@            }
+//@          },
+//@          "variables": {
+//@            "fooVar": ""
+//@          },
+//@          "resources": {},
+//@          "outputs": {
+//@            "fooOutput": {
+//@              "type": "string",
+//@              "metadata": {
+//@                "__bicep_deprecated!": "deprecated output"
+//@              },
+//@              "value": ":("
+//@            }
+//@          }
+//@        }
+//@      }
+//@    }
+  name: 'deprecations'
+//@      "name": "deprecations",
+  params: {
+//@        "parameters": {
+//@        },
+    fooParam: 'foo'
+//@          "fooParam": {
+//@            "value": "foo"
+//@          }
+  }
+}
+
+var testDeprecated = deprecations.outputs.fooOutput
 

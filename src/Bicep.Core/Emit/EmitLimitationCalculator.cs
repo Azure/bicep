@@ -9,6 +9,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
@@ -55,6 +56,7 @@ namespace Bicep.Core.Emit
             BlockResourceDerivedTypesThatDoNotDereferenceProperties(model, diagnostics);
             BlockSpreadInUnsupportedLocations(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
+            BlockDeprecationInUnsupportedCases(model, diagnostics);
 
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
@@ -620,6 +622,28 @@ namespace Bicep.Core.Emit
                 if (!model.Features.ExtendableParamFilesEnabled)
                 {
                     diagnostics.Write(extendsDeclaration, x => x.ExtendsNotSupported());
+                }
+            }
+        }
+
+        private static void BlockDeprecationInUnsupportedCases(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var declaration in model.SourceFile.ProgramSyntax.Declarations.OfType<DecorableSyntax>())
+            {
+                if (SemanticModelHelper.TryGetDecoratorInNamespace(model, declaration, SystemNamespaceType.BuiltInName, "deprecated") is not {} deprecated)
+                {
+                    continue;
+                }
+
+                if (declaration is TypeDeclarationSyntax or FunctionDeclarationSyntax or VariableDeclarationSyntax &&
+                    SemanticModelHelper.TryGetDecoratorInNamespace(model, declaration, SystemNamespaceType.BuiltInName, "export") is null)
+                {
+                    diagnostics.Write(deprecated, x => x.CannotDeprecateUnexportedDeclarations());
+                }
+
+                if (declaration is ParameterDeclarationSyntax parameter && SemanticModelHelper.IsParameterRequired(model, parameter))
+                {
+                    diagnostics.Write(deprecated, x => x.CannotDeprecateParameterWithMandatoryValue());
                 }
             }
         }

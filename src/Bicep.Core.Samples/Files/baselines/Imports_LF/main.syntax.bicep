@@ -1,5 +1,5 @@
 import {foo, fizz, pop, greet} from 'modules/mod.bicep'
-//@[00:407) ProgramSyntax
+//@[00:478) ProgramSyntax
 //@[00:055) ├─CompileTimeImportDeclarationSyntax
 //@[00:006) | ├─Token(Identifier) |import|
 //@[07:030) | ├─ImportedSymbolsListSyntax
@@ -66,6 +66,29 @@ import {
 //@[07:025) |   └─StringSyntax
 //@[07:025) |     └─Token(StringComplete) |'modules/mod.json'|
 //@[25:027) ├─Token(NewLine) |\n\n|
+
+import { fooFunc, fooVar, fooType } from 'modules/deprecations.bicep'
+//@[00:069) ├─CompileTimeImportDeclarationSyntax
+//@[00:006) | ├─Token(Identifier) |import|
+//@[07:035) | ├─ImportedSymbolsListSyntax
+//@[07:008) | | ├─Token(LeftBrace) |{|
+//@[09:016) | | ├─ImportedSymbolsListItemSyntax
+//@[09:016) | | | └─IdentifierSyntax
+//@[09:016) | | |   └─Token(Identifier) |fooFunc|
+//@[16:017) | | ├─Token(Comma) |,|
+//@[18:024) | | ├─ImportedSymbolsListItemSyntax
+//@[18:024) | | | └─IdentifierSyntax
+//@[18:024) | | |   └─Token(Identifier) |fooVar|
+//@[24:025) | | ├─Token(Comma) |,|
+//@[26:033) | | ├─ImportedSymbolsListItemSyntax
+//@[26:033) | | | └─IdentifierSyntax
+//@[26:033) | | |   └─Token(Identifier) |fooType|
+//@[34:035) | | └─Token(RightBrace) |}|
+//@[36:069) | └─CompileTimeImportFromClauseSyntax
+//@[36:040) |   ├─Token(Identifier) |from|
+//@[41:069) |   └─StringSyntax
+//@[41:069) |     └─Token(StringComplete) |'modules/deprecations.bicep'|
+//@[69:071) ├─Token(NewLine) |\n\n|
 
 var aliasedFoo = foo
 //@[00:020) ├─VariableDeclarationSyntax

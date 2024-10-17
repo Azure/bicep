@@ -12,6 +12,11 @@ import {
 //@[02:22) Variable refersToCopyVariable. Type: (object | object | object | object | object | object | object | object | object | object)[]. Declaration start char: 2, length: 20
 } from 'modules/mod.json'
 
+import { fooFunc, fooVar, fooType } from 'modules/deprecations.bicep'
+//@[26:33) TypeAlias fooType. Type: Type<{ bar: string }>. Declaration start char: 26, length: 7
+//@[18:24) Variable fooVar. Type: ''. Declaration start char: 18, length: 6
+//@[09:16) Function fooFunc. Type: () => string. Declaration start char: 9, length: 7
+
 var aliasedFoo = foo
 //@[04:14) Variable aliasedFoo. Type: 'quux'. Declaration start char: 0, length: 20
 var aliasedBar = mod2.foo

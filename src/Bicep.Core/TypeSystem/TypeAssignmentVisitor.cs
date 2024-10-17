@@ -1968,6 +1968,7 @@ namespace Bicep.Core.TypeSystem
                 ModuleDeclarationSyntax _ => FunctionFlags.ModuleDecorator,
                 ParameterDeclarationSyntax _ => FunctionFlags.ParameterDecorator,
                 TypeDeclarationSyntax _ => FunctionFlags.TypeDecorator,
+                ObjectTypePropertySyntax _ => FunctionFlags.TypePropertyDecorator,
                 VariableDeclarationSyntax _ => FunctionFlags.VariableDecorator,
                 OutputDeclarationSyntax _ => FunctionFlags.OutputDecorator,
                 _ => FunctionFlags.AnyDecorator,

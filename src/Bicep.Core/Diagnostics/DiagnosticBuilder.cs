@@ -1820,6 +1820,18 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic NameofInvalidOnUnnamedExpression() => CoreError(
                 "BCP408",
                 $"The \"{LanguageConstants.NameofFunctionName}\" function can only be used with an expression which has a name.");
+
+            public Diagnostic CannotUseFunctionAsTypePropertyDecorator(string functionName) => CoreError(
+                "BCP410",
+                $"Function \"{functionName}\" cannot be used as a type property decorator.");
+
+            public Diagnostic CannotDeprecateUnexportedDeclarations() => CoreError(
+                "BCP411",
+                $"This declaration cannot be marked as deprecated, because it has not been exported.");
+
+            public Diagnostic CannotDeprecateParameterWithMandatoryValue() => CoreError(
+                "BCP412",
+                $"Parameters must either be nullable or have a default value to be marked as deprecated.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
