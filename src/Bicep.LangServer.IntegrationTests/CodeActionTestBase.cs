@@ -8,12 +8,14 @@ using System.Threading;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.PrettyPrintV2;
 using Bicep.Core.UnitTests.Serialization;
 using Bicep.Core.UnitTests.Utils;
@@ -39,7 +41,9 @@ namespace Bicep.LangServer.IntegrationTests
         private static SemaphoreSlim initialize = new(1);
         private static bool isInitialized = false;
 
-        protected static ServiceBuilder Services => new();
+        private static FeatureProviderOverrides FeatureProviderOverrides => new() { ResourceDerivedTypesEnabled = true, ResourceTypedParamsAndOutputsEnabled = true };
+
+        protected static ServiceBuilder Services => new ServiceBuilder().WithFeatureOverrides(FeatureProviderOverrides);
 
         protected static readonly SharedLanguageHelperManager DefaultServer = new();
 
@@ -61,10 +65,10 @@ namespace Bicep.LangServer.IntegrationTests
                 if (!isInitialized)
                 {
                     isInitialized = true;
-                    DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
-                    ServerWithFileResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
-                    ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BuiltInTestTypes.Create())));
-                    ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BicepTestConstants.NamespaceProvider)));
+                    DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithFeatureOverrides(FeatureProviderOverrides)));
+                    ServerWithFileResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithFeatureOverrides(FeatureProviderOverrides)));
+                    ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFeatureOverrides(FeatureProviderOverrides)));
+                    ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BicepTestConstants.NamespaceProvider).WithFeatureOverrides(FeatureProviderOverrides)));
                 }
             }
             finally
