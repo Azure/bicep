@@ -189,7 +189,7 @@ function configureTelemetry(client: lsp.LanguageClient) {
   const startTime = Date.now();
   const defaultErrorHandler = client.createDefaultErrorHandler();
 
-  client.onTelemetry((telemetryData: { eventName: string; properties: { [key: string]: string | undefined } }) => {
+  client.onTelemetry((telemetryData: { eventName: string; properties: { [key: string]: string | undefined } }) => {   
     callWithTelemetryAndErrorHandlingSync(telemetryData.eventName, (telemetryActionContext) => {
       telemetryActionContext.errorHandling.suppressDisplay = true;
       telemetryActionContext.telemetry.properties = telemetryData.properties;

@@ -7,16 +7,14 @@
  * @group CI
  */
 
-import spawn from "cross-spawn";
 import path from "path";
-import { ensureParentDirExists } from "./fs";
+import spawn from "cross-spawn";
+import { expect } from "vitest";
 import { invokingBicepCommand } from "./command";
+import { ensureParentDirExists } from "./fs";
 
 const mockExtensionExeName = "bicep-ext-mock";
-const mockExtensionProjPath = path.resolve(
-  __dirname,
-  "../../../Bicep.Local.Extension.Mock",
-);
+const mockExtensionProjPath = path.resolve(__dirname, "../../../Bicep.Local.Extension.Mock");
 
 function execDotnet(args: string[], envOverrides?: NodeJS.ProcessEnv) {
   const result = spawn.sync("dotnet", args, {
@@ -27,6 +25,7 @@ function execDotnet(args: string[], envOverrides?: NodeJS.ProcessEnv) {
       ...(envOverrides ?? {}),
     },
   });
+
   expect(result.status).toBe(0);
 }
 
@@ -63,10 +62,7 @@ export function platformSupportsLocalDeploy() {
   const cliDotnetRid = process.env.BICEP_CLI_DOTNET_RID;
 
   // We don't have an easy way of running this test for linux-musl-x64 RID, so skip for now.
-  return (
-    !cliDotnetRid ||
-    supportedConfigurations.map((x) => x.dotnetRid).includes(cliDotnetRid)
-  );
+  return !cliDotnetRid || supportedConfigurations.map((x) => x.dotnetRid).includes(cliDotnetRid);
 }
 
 export function publishExtension(typesIndexPath: string, target: string) {
@@ -90,12 +86,9 @@ export function publishExtension(typesIndexPath: string, target: string) {
   ensureParentDirExists(typesIndexPath);
 
   // generate types on disk
-  execDotnet(
-    ["run", "--verbosity", "quiet", "--project", mockExtensionProjPath],
-    {
-      MOCK_TYPES_OUTPUT_PATH: typesDir,
-    },
-  );
+  execDotnet(["run", "--verbosity", "quiet", "--project", mockExtensionProjPath], {
+    MOCK_TYPES_OUTPUT_PATH: typesDir,
+  });
 
   // run the bicep command to publish it
   return invokingBicepCommand(
@@ -103,9 +96,6 @@ export function publishExtension(typesIndexPath: string, target: string) {
     typesIndexPath,
     "--target",
     target,
-    ...supportedConfigurations.flatMap((c) => [
-      c.bicepCliPublishArg,
-      c.dotnetPublishPath,
-    ]),
+    ...supportedConfigurations.flatMap((c) => [c.bicepCliPublishArg, c.dotnetPublishPath]),
   );
 }

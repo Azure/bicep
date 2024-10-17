@@ -207,3 +207,5 @@ param decoratedArray array = [
   utcNow()
   newGuid()
 ]
+
+param nameofParam string = nameof(decoratedArray)

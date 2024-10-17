@@ -40,6 +40,7 @@ import { createLogger, getLogger, resetLogger } from "./utils/logger";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
 import { BicepVisualizerViewManager } from "./visualizer";
+import { PostExtractionCommand } from "./commands/PostExtractionCommand";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -148,6 +149,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
             new WalkthroughOpenBicepFileCommand(),
             new ImportKubernetesManifestCommand(languageClient),
             new ShowModuleSourceFileCommand(),
+            new PostExtractionCommand(),
           );
 
         // Register events

@@ -1053,6 +1053,24 @@ namespace Bicep.Core.Semantics.Namespaces
                         return new(LanguageConstants.Object);
                     }, LanguageConstants.Object)
                     .Build();
+
+                yield return new FunctionOverloadBuilder(LanguageConstants.NameofFunctionName)
+                    .WithGenericDescription("Returns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.")
+                    .WithRequiredParameter("symbol", LanguageConstants.Any, "The declared symbol or property to get the name of.")
+                    .WithReturnResultBuilder((model, diagnostics, call, argumentTypes) =>
+                    {
+                        var argument = call.Arguments[0].Expression;
+                        if (GetNameOfReturnValue(argument) is not {} returnValue)
+                        {
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(call.Arguments[0]).NameofInvalidOnUnnamedExpression()));
+                        }
+
+                        return new(
+                            new StringLiteralType(returnValue, TypeSymbolValidationFlags.Default),
+                            new StringLiteralExpression(argument, returnValue));
+                    }, LanguageConstants.String)
+                    .WithFlags(FunctionFlags.IsArgumentValueIndependent)
+                    .Build();
             }
 
             static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()
@@ -1919,7 +1937,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     new TypeTemplate(LanguageConstants.TypeNameResource,
                         [
                             new TypeParameter("ResourceTypeIdentifier",
-                                        "A string of the format '<type-name>@<api-version>' that identifies the kind of resource whose body type definition is to be used.",
+                                        "A string of the format `<type-name>@<api-version>` that identifies the kind of resource whose body type definition is to be used.",
                                         LanguageConstants.StringResourceIdentifier),
                         ],
                         (binder, syntax, argumentTypes) =>
@@ -1953,6 +1971,19 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new(typeProp, (features, sfk) => features.ResourceDerivedTypesEnabled && sfk == BicepSourceFileKind.BicepFile);
             }
+        }
+
+        private static string? GetNameOfReturnValue(SyntaxBase syntax)
+        {
+            return syntax switch
+            {
+                VariableAccessSyntax variableAccess => variableAccess.Name.IdentifierName,
+                PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
+                ResourceAccessSyntax resourceAccess => resourceAccess.ResourceName.IdentifierName,
+                ModuleDeclarationSyntax moduleDeclaration => moduleDeclaration.Name.IdentifierName,
+                ArrayAccessSyntax { IndexExpression: StringSyntax indexExpression } when indexExpression.TryGetLiteralValue() is {} literalValue => literalValue,
+                _ => null,
+            };
         }
 
         public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)

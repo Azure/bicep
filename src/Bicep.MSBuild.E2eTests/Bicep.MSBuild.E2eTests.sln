@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{D1257ABC-2351-4BD2-8239-EEBE396C1B50}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "csharp", "examples\csharp\csharp.csproj", "{BED08E46-4FCD-48D3-83D7-5793FF8DEB01}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "csharp-recursive", "examples\csharp-recursive\csharp-recursive.csproj", "{EB2B79A4-A3FB-40B0-93A6-91B9E316C7A1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BED08E46-4FCD-48D3-83D7-5793FF8DEB01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BED08E46-4FCD-48D3-83D7-5793FF8DEB01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BED08E46-4FCD-48D3-83D7-5793FF8DEB01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BED08E46-4FCD-48D3-83D7-5793FF8DEB01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB2B79A4-A3FB-40B0-93A6-91B9E316C7A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB2B79A4-A3FB-40B0-93A6-91B9E316C7A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB2B79A4-A3FB-40B0-93A6-91B9E316C7A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB2B79A4-A3FB-40B0-93A6-91B9E316C7A1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BED08E46-4FCD-48D3-83D7-5793FF8DEB01} = {D1257ABC-2351-4BD2-8239-EEBE396C1B50}
+		{EB2B79A4-A3FB-40B0-93A6-91B9E316C7A1} = {D1257ABC-2351-4BD2-8239-EEBE396C1B50}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3EF98019-2DC4-451E-9829-BD5273ED2279}
+	EndGlobalSection
+EndGlobal

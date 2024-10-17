@@ -38,7 +38,7 @@ namespace Bicep.Core.Samples
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(testContext);
 
-            var compiler = ServiceBuilder.Create(s => s.AddSingleton(templateSpecRepositoryFactory).AddSingleton(clientFactory).WithFeatureOverrides(features)).GetCompiler();
+            var compiler = ServiceBuilder.Create(s => s.AddSingleton(templateSpecRepositoryFactory).AddSingleton(clientFactory).WithFeatureOverrides(features).WithAnalyzersCodesToDisableConfiguration(BicepTestConstants.TestAnalyzersToSkip)).GetCompiler();
 
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
             var compilation = await compiler.CreateCompilation(fileUri);

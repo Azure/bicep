@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -1618,20 +1619,7 @@ namespace Bicep.LanguageServer.Completions
             var nextLine = line + 1;
             if (lineStarts.Length > nextLine)
             {
-                var nextLineStart = lineStarts[nextLine];
-
-                int nextLineEnd;
-
-                if (lineStarts.Length > nextLine + 1)
-                {
-                    nextLineEnd = lineStarts[nextLine + 1] - 1;
-                }
-                else
-                {
-                    nextLineEnd = programSyntax.GetEndPosition();
-                }
-
-                return new TextSpan(nextLineStart, nextLineEnd - nextLineStart);
+                return TextCoordinateConverter.GetLineSpan(lineStarts, programSyntax.GetEndPosition(), nextLine);
             }
 
             return TextSpan.Nil;
@@ -1686,7 +1674,7 @@ namespace Bicep.LanguageServer.Completions
         {
             var required = TypeHelper.IsRequired(property);
 
-            var escapedPropertyName = IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name;
+            var escapedPropertyName = StringUtils.EscapeBicepPropertyName(property.Name);
             var suffix = includeColon ? ":" : string.Empty;
             return CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
                 // property names that match Bicep keywords or contain non-identifier chars need to be escaped
@@ -1762,9 +1750,11 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(type.Description ?? type.Name)
                 .WithSortText(GetSortText(typeName, priority));
 
-            if (type.Type is TypeTemplate)
+            if (type.Type is TypeTemplate typeTemplate)
             {
-                builder = builder.WithSnippetEdit(replacementRange, $"{typeName}<$0>")
+                var needsQuotes = typeTemplate.Parameters.Length > 0 && typeTemplate.Parameters[0].Type?.IsString() == true;
+                var quote = needsQuotes ? "'" : string.Empty;
+                builder = builder.WithSnippetEdit(replacementRange, $"{typeName}<{quote}$0{quote}>")
                     // parameterized types always require at least one argument, so automatically request signature help
                     .WithCommand(new Command { Name = EditorCommands.SignatureHelp, Title = "signature help" });
             }
@@ -2152,7 +2142,7 @@ namespace Bicep.LanguageServer.Completions
             };
 
         private static bool IsPropertyNameEscapingRequired(TypeProperty property) =>
-            !Lexer.IsValidIdentifier(property.Name) || LanguageConstants.NonContextualKeywords.ContainsKey(property.Name);
+            StringUtils.IsPropertyNameEscapingRequired(property.Name);
 
         private static string FormatPropertyDetail(TypeProperty property) =>
             TypeHelper.IsRequired(property)

@@ -50,7 +50,7 @@ namespace Bicep.Core.TypeSystem
         {
             var flags = TypePropertyFlags.None;
             var types = new List<TypeSymbol>();
-            
+
             foreach (var objectType in objectTypes)
             {
                 if (objectType.Properties.TryGetValue(propertyName) is {} namedProperty)
@@ -83,7 +83,7 @@ namespace Bicep.Core.TypeSystem
 
             var flags = TypePropertyFlags.None;
             var types = new List<TypeSymbol>();
-            
+
             foreach (var objectType in objectTypes)
             {
                 if (objectType.AdditionalPropertiesType is {} additionalPropertyType)
@@ -100,6 +100,11 @@ namespace Bicep.Core.TypeSystem
 
             return (CreateTypeUnion(types), flags);
         }
+
+        /// <summary>
+        /// Makes a type nullable by unioning it with null
+        /// </summary>
+        public static TypeSymbol MakeNullable(ITypeReference typeReference) => CreateTypeUnion(typeReference, LanguageConstants.Null);
 
         /// <summary>
         /// Converts a set of object types into a single object type with unioned properties

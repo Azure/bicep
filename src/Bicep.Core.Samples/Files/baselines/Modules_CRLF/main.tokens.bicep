@@ -2102,6 +2102,117 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@[024:026) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+// nameof
+//@[009:013) NewLine |\r\n\r\n|
+
+var nameofModule = nameof(folderWithSpace)
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |nameofModule|
+//@[017:018) Assignment |=|
+//@[019:025) Identifier |nameof|
+//@[025:026) LeftParen |(|
+//@[026:041) Identifier |folderWithSpace|
+//@[041:042) RightParen |)|
+//@[042:044) NewLine |\r\n|
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+//@[000:003) Identifier |var|
+//@[004:021) Identifier |nameofModuleParam|
+//@[022:023) Assignment |=|
+//@[024:030) Identifier |nameof|
+//@[030:031) LeftParen |(|
+//@[031:052) Identifier |secureModuleCondition|
+//@[052:053) Dot |.|
+//@[053:060) Identifier |outputs|
+//@[060:061) Dot |.|
+//@[061:080) Identifier |exposedSecureString|
+//@[080:081) RightParen |)|
+//@[081:085) NewLine |\r\n\r\n|
+
+module moduleWithNameof 'modulea.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:023) Identifier |moduleWithNameof|
+//@[024:039) StringComplete |'modulea.bicep'|
+//@[040:041) Assignment |=|
+//@[042:043) LeftBrace |{|
+//@[043:045) NewLine |\r\n|
+  name: 'nameofModule'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:022) StringComplete |'nameofModule'|
+//@[022:024) NewLine |\r\n|
+  scope: resourceGroup(nameof(nameofModuleParam))
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:022) Identifier |resourceGroup|
+//@[022:023) LeftParen |(|
+//@[023:029) Identifier |nameof|
+//@[029:030) LeftParen |(|
+//@[030:047) Identifier |nameofModuleParam|
+//@[047:048) RightParen |)|
+//@[048:049) RightParen |)|
+//@[049:051) NewLine |\r\n|
+  params:{
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:012) NewLine |\r\n|
+    stringParamA: nameof(withSpace)
+//@[004:016) Identifier |stringParamA|
+//@[016:017) Colon |:|
+//@[018:024) Identifier |nameof|
+//@[024:025) LeftParen |(|
+//@[025:034) Identifier |withSpace|
+//@[034:035) RightParen |)|
+//@[035:037) NewLine |\r\n|
+    stringParamB: nameof(folderWithSpace)
+//@[004:016) Identifier |stringParamB|
+//@[016:017) Colon |:|
+//@[018:024) Identifier |nameof|
+//@[024:025) LeftParen |(|
+//@[025:040) Identifier |folderWithSpace|
+//@[040:041) RightParen |)|
+//@[041:043) NewLine |\r\n|
+    objParam: {
+//@[004:012) Identifier |objParam|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
+      a: nameof(secureModuleCondition.outputs.exposedSecureString)
+//@[006:007) Identifier |a|
+//@[007:008) Colon |:|
+//@[009:015) Identifier |nameof|
+//@[015:016) LeftParen |(|
+//@[016:037) Identifier |secureModuleCondition|
+//@[037:038) Dot |.|
+//@[038:045) Identifier |outputs|
+//@[045:046) Dot |.|
+//@[046:065) Identifier |exposedSecureString|
+//@[065:066) RightParen |)|
+//@[066:068) NewLine |\r\n|
+    }
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
+    arrayParam: [
+//@[004:014) Identifier |arrayParam|
+//@[014:015) Colon |:|
+//@[016:017) LeftSquare |[|
+//@[017:019) NewLine |\r\n|
+      nameof(vaults)
+//@[006:012) Identifier |nameof|
+//@[012:013) LeftParen |(|
+//@[013:019) Identifier |vaults|
+//@[019:020) RightParen |)|
+//@[020:022) NewLine |\r\n|
+    ]
+//@[004:005) RightSquare |]|
+//@[005:007) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
 //@[001:003) NewLine |\r\n|
 
 //@[000:000) EndOfFile ||

@@ -40,7 +40,7 @@ using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
-namespace Bicep.LangServer.IntegrationTests
+namespace Bicep.LangServer.IntegrationTests.Completions
 {
     [TestClass]
     public class CompletionTests
@@ -191,8 +191,8 @@ namespace Bicep.LangServer.IntegrationTests
                 sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                     TestContext,
                     File.Exists(combinedFileName) ? (await File.ReadAllTextAsync(combinedFileName)) : string.Empty,
-                    expectedLocation: combinedSourceFileName,
-                    actualLocation: combinedFileName + ".actual");
+                    expectedPath: combinedSourceFileName,
+                    actualPath: combinedFileName + ".actual");
             }
         }
 
@@ -4869,7 +4869,7 @@ When a wildcard is used, that needs to be the only value.  " + @"
 
             var updated = file.ApplyCompletion(completions, "resource");
             updated.Should().HaveSourceText("""
-                type acct = resource<|>
+                type acct = resource<'|'>
                 """);
         }
 

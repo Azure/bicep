@@ -67,6 +67,13 @@ namespace Bicep.Core.Extensions
             }
         }
 
+        public static IEnumerable<T> TakeWhileNotNull<T>(this IEnumerable<T?> source)
+            where T : class
+        {
+            return source.TakeWhile(x => x is not null)
+                .Cast<T>();
+        }
+
         public static T[] ToArrayExcludingNull<T>(this IEnumerable<T?> source)
             where T : class
             => source.WhereNotNull().ToArray();

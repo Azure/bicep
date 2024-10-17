@@ -2226,6 +2226,69 @@
     }
   },
   {
+    "label": "nameof",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nnameof(symbol: any): string\n\n```  \nReturns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_nameof",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "nameof1",
+    "kind": "variable",
+    "detail": "nameof1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameof1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof1"
+    }
+  },
+  {
+    "label": "nameof2",
+    "kind": "variable",
+    "detail": "nameof2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameof2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof2"
+    }
+  },
+  {
+    "label": "nameof3",
+    "kind": "variable",
+    "detail": "nameof3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameof3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof3"
+    }
+  },
+  {
     "label": "nestedBrackets",
     "kind": "variable",
     "detail": "nestedBrackets",

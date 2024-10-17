@@ -1491,6 +1491,27 @@
     }
   },
   {
+    "label": "nameof",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nnameof(symbol: any): string\n\n```  \nReturns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_nameof",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "newGuid",
     "kind": "function",
     "documentation": {

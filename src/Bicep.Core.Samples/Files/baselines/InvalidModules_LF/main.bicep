@@ -1,4 +1,4 @@
-﻿module nonExistentFileRef './nonExistent.bicep' = {
+module nonExistentFileRef './nonExistent.bicep' = {
 
 }
 
@@ -15,6 +15,21 @@ module nonExistentFileRefEquivalentPath 'abc/def/../../nonExistent.bicep' = {
 module moduleWithoutPath = {
 
 }
+
+module modDOne 'moduled.bicep' = {
+  name: 'modDOne'
+  params: {
+    input: 'NameOne'
+  }
+}
+
+module modDTwo 'moduled.bicep' = {
+  name: 'modDTwo'
+  params: {
+    input: modDOne.outputs.storageAccountName
+  }
+}
+
 
 // #completionTest(41) -> moduleBodyCompletions
 module moduleWithPath './moduleb.bicep' =
