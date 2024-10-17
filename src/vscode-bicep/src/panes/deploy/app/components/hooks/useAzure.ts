@@ -4,6 +4,7 @@ import {
   CloudError,
   Deployment,
   DeploymentOperation,
+  ErrorResponse,
   ResourceManagementClient,
   WhatIfChange,
 } from "@azure/arm-resources";
@@ -12,7 +13,7 @@ import { AccessToken, TokenCredential } from "@azure/identity";
 import { useState } from "react";
 import {
   DeploymentScope,
-  DeployResult,
+  DeployState,
   ParamData,
   ParametersMetadata,
   TemplateMetadata,
@@ -29,12 +30,10 @@ export interface UseAzureProps {
 
 export function useAzure(props: UseAzureProps) {
   const { scope, templateMetadata, parametersMetadata, acquireAccessToken, setErrorMessage } = props;
-  const deploymentName = "bicep-deploy";
   const [operations, setOperations] = useState<DeploymentOperation[]>();
   const [whatIfChanges, setWhatIfChanges] = useState<WhatIfChange[]>();
   const [outputs, setOutputs] = useState<Record<string, unknown>>();
-  const [result, setResult] = useState<DeployResult>();
-  const [running, setRunning] = useState(false);
+  const [deployState, setDeployState] = useState<DeployState>({});
 
   function getArmClient(scope: DeploymentScope, accessToken: AccessToken) {
     const tokenProvider: TokenCredential = {
@@ -55,7 +54,8 @@ export function useAzure(props: UseAzureProps) {
 
   async function doDeploymentOperation(
     scope: DeploymentScope,
-    operation: (armClient: ResourceManagementClient, deployment: Deployment) => Promise<void>,
+    deploymentName: string | undefined,
+    operation: (armClient: ResourceManagementClient, deployment: Deployment) => Promise<{ success: boolean, error?: ErrorResponse}>,
   ) {
     if (!templateMetadata) {
       return;
@@ -63,17 +63,18 @@ export function useAzure(props: UseAzureProps) {
 
     try {
       setErrorMessage(undefined);
-      clearState();
-      setRunning(true);
+      setOperations(undefined);
+      setWhatIfChanges(undefined);
+      setDeployState({ status: "running", name: deploymentName });
 
       const deployment = getDeploymentProperties(scope, templateMetadata, parametersMetadata.parameters);
       const accessToken = await acquireAccessToken();
       const armClient = getArmClient(scope, accessToken);
-      await operation(armClient, deployment);
+      const { success, error } = await operation(armClient, deployment);
+      setDeployState({ status: success ? "succeeded" : "failed", name: deploymentName, error });
     } catch (error) {
+      setDeployState({ status: "failed", name: deploymentName });
       setErrorMessage(`Azure operation failed: ${error}`);
-    } finally {
-      setRunning(false);
     }
   }
 
@@ -82,7 +83,8 @@ export function useAzure(props: UseAzureProps) {
       return;
     }
 
-    await doDeploymentOperation(scope, async (client, deployment) => {
+    const deploymentName = `bicep-deploy-${Date.now()}`;
+    await doDeploymentOperation(scope, deploymentName, async (client, deployment) => {
       const updateOperations = async () => {
         const operations = [];
         const result = client.deploymentOperations.listAtScope(getScopeId(scope), deploymentName);
@@ -102,20 +104,14 @@ export function useAzure(props: UseAzureProps) {
           await poller.poll();
         }
       } catch (e) {
-        setResult({
-          success: false,
-          error: parseError(e),
-        });
-        return;
+        return { success: false, error: parseError(e) };
       } finally {
         await updateOperations();
       }
 
       const finalResult = poller.getResult();
       setOutputs(finalResult?.properties?.outputs);
-      setResult({
-        success: true,
-      });
+      return { success: true };
     });
   }
 
@@ -124,23 +120,17 @@ export function useAzure(props: UseAzureProps) {
       return;
     }
 
-    await doDeploymentOperation(scope, async (client, deployment) => {
+    await doDeploymentOperation(scope, undefined, async (client, deployment) => {
       try {
         const response = await client.deployments.beginValidateAtScopeAndWait(
           getScopeId(scope),
-          deploymentName,
+          "bicep-deploy",
           deployment,
         );
 
-        setResult({
-          success: !response.error,
-          error: response.error,
-        });
+        return { success: !response.error, error: response.error };
       } catch (e) {
-        setResult({
-          success: false,
-          error: parseError(e),
-        });
+        return { success: false, error: parseError(e) };
       }
     });
   }
@@ -150,37 +140,23 @@ export function useAzure(props: UseAzureProps) {
       return;
     }
 
-    await doDeploymentOperation(scope, async (client, deployment) => {
+    await doDeploymentOperation(scope, undefined, async (client, deployment) => {
       try {
-        const response = await beginWhatIfAndWait(client, scope, deploymentName, deployment);
+        const response = await beginWhatIfAndWait(client, scope, "bicep-deploy", deployment);
 
-        setResult({
-          success: !response.error,
-          error: response.error,
-        });
         setWhatIfChanges(response.changes);
+        return { success: !response.error, error: response.error };
       } catch (e) {
-        setResult({
-          success: false,
-          error: parseError(e),
-        });
+        return { success: false, error: parseError(e) };
       }
     });
   }
 
-  function clearState() {
-    setOutputs(undefined);
-    setResult(undefined);
-    setOperations(undefined);
-    setWhatIfChanges(undefined);
-  }
-
   return {
-    running,
+    deployState,
     operations,
     whatIfChanges,
     outputs,
-    result,
     deploy,
     validate,
     whatIf,
@@ -233,6 +209,14 @@ function getScopeId(scope: DeploymentScope) {
     case "tenant":
       return `/`;
   }
+}
+
+export function getDeploymentResourceId(scope: DeploymentScope, deploymentName: string) {
+  let scopeId = getScopeId(scope);
+  if (scopeId.endsWith("/")) {
+    scopeId = scopeId.slice(0, -1);
+  }
+  return `${scopeId}/providers/Microsoft.Resources/deployments/${deploymentName}`;
 }
 
 async function beginWhatIfAndWait(
