@@ -140,7 +140,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """)]
     public async Task BicepDiscussion(string fileWithSelection, string expectedLooseParamText, string expectedMediumParamText)
     {
-        await RunExtractToParameterTest(fileWithSelection, expectedLooseParamText, expectedMediumParamText);
+        await RunExtractToParameterTest(fileWithSelection, expectedLooseParamText, expectedMediumParamText, "IGNORE");
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -159,7 +159,9 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter string = 'b'
 
             var a = newParameter
-            """)]
+            """,
+        null,
+        null)]
     [DataRow(
         """
             var a = 'a'
@@ -177,7 +179,9 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter string = 'b'
             var b = newParameter
             var c = 'c'
-            """)]
+            """,
+        null,
+        null)]
     [DataRow(
         """
             var a = 1 + 2
@@ -193,6 +197,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter string = '${a}{a}'
             var b = newParameter
             """,
+        null,
+        null,
         DisplayName = "Full interpolated string")]
     [DataRow(
         """
@@ -217,6 +223,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             // comment 2
             param a = newParameter
             """,
+        null,
+        null,
         DisplayName = "Preceding lines")]
     [DataRow(
         """
@@ -245,6 +253,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 'c'
             ]
             """,
+        null,
+        null,
         DisplayName = "Inside a data structure")]
     [DataRow(
         """
@@ -284,10 +294,12 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 name: 'Premium_LRS'
                 }
             }
-            """)]
-    public async Task Basics(string fileWithSelection, string? expectedVarText, string? expectedLooseParamText = null, string? expectedMediumParamText = null)
+            """,
+        null,
+        null)]
+    public async Task Basics(string fileWithSelection, string? expectedVarText, string? expectedLooseParamText, string? expectedMediumParamText, string? expectedResourceDerivedParamText)
     {
-        await RunExtractToVariableAndParameterTest(fileWithSelection, expectedVarText, expectedLooseParamText, expectedMediumParamText);
+        await RunExtractToVariableAndParameterTest(fileWithSelection, expectedVarText, expectedLooseParamText, expectedMediumParamText, expectedResourceDerivedParamText);
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -304,11 +316,12 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
             var v = newParameter
             """,
+       null,
        null)]
     [DataTestMethod]
-    public async Task NullType(string fileWithSelection, string? expectedVarText, string? expectedLooseParamText = null, string? expectedMediumParamText = null)
+    public async Task NullType(string fileWithSelection, string? expectedVarText, string? expectedLooseParamText, string? expectedMediumParamText, string? expectedResourceDerivedParamText)
     {
-        await RunExtractToVariableAndParameterTest(fileWithSelection, expectedVarText, expectedLooseParamText, expectedMediumParamText);
+        await RunExtractToVariableAndParameterTest(fileWithSelection, expectedVarText, expectedLooseParamText, expectedMediumParamText, expectedResourceDerivedParamText);
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -339,9 +352,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
             var a = newParameter
             """)]
-    public async Task ShouldOfferTwoParameterExtractions_IffTheExtractedTypesAreDifferent(string fileWithSelection, string? expectedLooseParamText, string? expectedMediumParamText)
-    {
-        await RunExtractToParameterTest(fileWithSelection, expectedLooseParamText, expectedMediumParamText);
+    public async Task ShouldOfferTwoParameterExtractions_IffTheExtractedTypesAreDifferent(string fileWithSelection, string? expectedLooseParamText, string? expectedMediumParamText)    {
+        await RunExtractToParameterTest(fileWithSelection, expectedLooseParamText, expectedMediumParamText, "IGNORE");
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -458,7 +470,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     [DataTestMethod]
     public async Task WeirdNames(string fileWithSelection, string expectedText)
     {
-        await RunExtractToParameterTest(fileWithSelection, expectedText, "IGNORE");
+        await RunExtractToParameterTest(fileWithSelection, expectedText, "IGNORE", "IGNORE");
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -512,7 +524,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                     }
                   }
                 ]
-                """);
+                """,
+            null);
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -644,6 +657,31 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 location: location
                 properties: properties
             }
+            """,
+        """
+            param _artifactsLocation string
+            param  _artifactsLocationSasToken string
+            @description('Describes the properties of a Virtual Machine Extension.')
+            param properties resource<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties = {
+              // Entire properties object selected
+              publisher: 'Microsoft.Compute'
+              type: 'CustomScriptExtension'
+              typeHandlerVersion: '1.8'
+              autoUpgradeMinorVersion: true
+              settings: {
+                fileUris: [
+                  uri(_artifactsLocation, 'writeblob.ps1${_artifactsLocationSasToken}')
+                ]
+                commandToExecute: commandToExecute
+              }
+            }
+
+            resource resourceWithProperties 'Microsoft.Compute/virtualMachines/extensions@2019-12-01' = if (isWindowsOS && provisionExtensions) {
+                parent: vmName_resource
+                name: 'cse-windows'
+                location: location
+                properties: properties
+            }
             """);
     }
 
@@ -659,6 +697,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             var i = newParameter
             """,
         null,
+        null,
         DisplayName = "Literal integer")]
     [DataRow(
         """
@@ -670,6 +709,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter int = i
             var j = newParameter + 1
             """,
+        null,
         null,
         DisplayName = "int parameter reference")]
     [DataRow(
@@ -683,6 +723,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             var j = newParameter
             """,
         null,
+        null,
         DisplayName = "int expression with param")]
     [DataRow(
         """
@@ -694,6 +735,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter string = concat(i, i)
             var j = newParameter
             """,
+        null,
         null,
         DisplayName = "strings concatenated")]
     [DataRow(
@@ -708,6 +750,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             var i2 = 'i2'
             var j = newParameter
             """,
+        null,
         null,
         DisplayName = "strings concatenated")]
     [DataRow(
@@ -724,6 +767,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
             var p = newParameter
             """,
+        null,
         DisplayName = "array literal")]
     [DataRow(
         """
@@ -739,6 +783,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
             var p = newParameter
             """,
+        null,
         DisplayName = "object literal with literal types")]
     [DataRow(
         """
@@ -749,6 +794,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
             var p = { a: a, b: 'b' }
             """,
+        null,
         null,
         DisplayName = "property value from object literal")]
     [DataRow(
@@ -761,6 +807,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param o1A int = o1.a
             var a = o1A
             """,
+        null,
         null,
         DisplayName = "referenced property value from object literal")]
     [DataRow(
@@ -778,6 +825,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter 'a' | 'b' = p
             var v = newParameter
             """,
+        null,
         DisplayName = "string literal union")]
     [DataRow(
         """
@@ -800,6 +848,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter { int: int } = a
             var b = newParameter.int
             """,
+        null,
         DisplayName = "object properties")]
     [DataRow(
         """
@@ -831,6 +880,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter { i: int, o: { i2: int } } = p
             var v = newParameter.o.i2
             """,
+        null,
         DisplayName = "custom object type, whole object")]
     [DataRow(
         """
@@ -862,6 +912,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param pO { i2: int } = p.o
             var v = pO.i2
             """,
+        null,
         DisplayName = "custom object type, partial")]
     [DataRow("""
             resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
@@ -875,6 +926,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 unknownProperty: unknownProperty
             }
             """,
+        null,
         null,
         DisplayName = "resource types undefined 1")]
     [DataRow(
@@ -898,6 +950,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 unknownProperty: unknownProperty
             }
             """,
+        null,
         DisplayName = "resource properties unknown property, follows expression's inferred type")]
     [DataRow("""
             var foo = <<{ intVal: 2 }>>
@@ -911,7 +964,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter { intVal: int } = { intVal: 2 }
 
             var foo = newParameter
-            """)]
+            """,
+        null)]
     [DataRow(
         """
             resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {
@@ -938,6 +992,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 }
             }
             """,
+        null,
         null,
         DisplayName = "resource types - string property")]
     [DataRow(
@@ -977,6 +1032,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 }
             }
             """,
+        null,
         DisplayName = "resource properties - string union")]
     [DataRow(
         """
@@ -989,6 +1045,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             var v = newParameter
             """,
         null,
+        null,
         DisplayName = "nullable types")]
     [DataRow(
         """
@@ -1000,6 +1057,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param newParameter object? /* unknown */ = p + 1
             var v = newParameter
             """,
+        null,
         null,
         DisplayName = "error types")]
     [DataRow(
@@ -1016,11 +1074,12 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param p1 { a: { b: string } }
             param newParameter { a: { b: string } } = p1
             var v = newParameter
-            """)]
+            """,
+        null)]
     [DataTestMethod]
-    public async Task Params_InferType(string fileWithSelection, string expectedMediumParameterText, string expectedStrictParameterText)
+    public async Task Params_InferType(string fileWithSelection, string expectedMediumParameterText, string expectedStrictParameterText, string? expectedResourceDerivedParameterText)
     {
-        await RunExtractToParameterTest(fileWithSelection, expectedMediumParameterText, expectedStrictParameterText);
+        await RunExtractToParameterTest(fileWithSelection, expectedMediumParameterText, expectedStrictParameterText, expectedResourceDerivedParameterText);
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -1079,6 +1138,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 }
             }
             """,
+        "IGNORE",
         "IGNORE");
     }
 
@@ -1734,6 +1794,21 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 }
             }
             """,
+        """
+            // My comment here
+            @description('A key-value pair of options to be applied for the request. This corresponds to the headers sent with the request.')
+            param options resource<'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15'>.properties.options = {}
+
+            resource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {
+                name: 'testResource/cassandraKeyspace'
+                properties: {
+                resource: {
+                    id: 'id'
+                }
+                options: options
+                }
+            }
+            """,
         DisplayName = "Resource property description")]
     [DataRow(
         """
@@ -1773,6 +1848,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 myInt: 42
             }
             """,
+        null,
         null,
         DisplayName = "Apostrophe in description")]
     [DataRow(
@@ -1814,10 +1890,11 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             }
             """,
         null,
+        null,
         DisplayName = "multiline description")]
-    public async Task Params_ShouldPickUpDescriptions(string fileWithSelection, string expectedLooseParamText, string? expectedMediumParamText)
+    public async Task Params_ShouldPickUpDescriptions(string fileWithSelection, string expectedLooseParamText, string? expectedMediumParamText, string? expectedResourceDerivedParamText)
     {
-        await RunExtractToParameterTest(fileWithSelection, expectedLooseParamText, expectedMediumParamText);
+        await RunExtractToParameterTest(fileWithSelection, expectedLooseParamText, expectedMediumParamText, expectedResourceDerivedParamText);
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -2101,8 +2178,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         DisplayName = "get the rename position correct")]
     public async Task InsertAfterExistingDeclarations(string fileWithSelection, string expectedVarText, string? expectedParamText)
     {
-        await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\n"), expectedVarText, expectedParamText, "IGNORE");
-        await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\r\n"), expectedVarText, expectedParamText, "IGNORE");
+        await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\n"), expectedVarText, expectedParamText, "IGNORE", "IGNORE");
+        await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\r\n"), expectedVarText, expectedParamText, "IGNORE", "IGNORE");
     }
 
     [DataRow(
@@ -2133,8 +2210,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     [TestMethod]
     public async Task VarsAndParams_ShouldInsertBeforeStatementTrivia(string fileWithSelection, string expectedVarText, string? expectedParamText)
     {
-        await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\n"), expectedVarText, expectedParamText, "IGNORE");
-        await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\r\n"), expectedVarText, expectedParamText, "IGNORE");
+        await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\n"), expectedVarText, expectedParamText, "IGNORE", "IGNORE");
+        await RunExtractToVariableAndParameterTest(fileWithSelection.ReplaceNewlines("\r\n"), expectedVarText, expectedParamText, "IGNORE", "IGNORE");
     }
 
     // We try to imitate the behavior of the existing declarations when inserting new declarations.
@@ -2647,7 +2724,9 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 }
 
                 resource windowsVMExtensions 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = newParameter
-                """);
+                """,
+            null // resource-derived types not allowed for the entire resource
+        );
     }
 
     [TestMethod]
@@ -2687,6 +2766,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
                 output storageEndpoint object = propertiesPrimaryEndpoints
                 """,
+            null,
             null);
     }
 
@@ -2783,6 +2863,161 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 output storageEndpoint object = stg.properties.|primaryEndpoints
                 """,
             null);
+    }
+
+    [DataTestMethod]
+    [DataRow(
+        """
+            resource nsg 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
+              name: 'nsg'
+              location: 'westus'
+              properties: |{
+                securityRules: [{
+                  id: 'id1'
+                  name: 'name1'
+                  type: 'type1'
+                  properties: {
+                    access: 'Allow'
+                    direction: 'Inbound'
+                    priority: 4096
+                    protocol: 'Tcp'
+                  }
+                }]
+              }
+            }
+            """,
+        """
+            @description('Properties of the network security group.')
+            param properties resource<'Microsoft.Network/networkSecurityGroups@2023-09-01'>.properties = {
+              securityRules: [
+                {
+                  id: 'id1'
+                  name: 'name1'
+                  type: 'type1'
+                  properties: {
+                    access: 'Allow'
+                    direction: 'Inbound'
+                    priority: 4096
+                    protocol: 'Tcp'
+                  }
+                }
+              ]
+            }
+
+            resource nsg 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
+              name: 'nsg'
+              location: 'westus'
+              properties: properties
+            }
+            """
+        )]
+    [DataRow(
+        """
+            resource nsg 'Microsoft.Network/networkSecurityGroups@2023-09-01' = |{
+              name: 'nsg'
+              location: 'westus'
+              properties: {
+                securityRules: [{
+                  id: 'id1'
+                  name: 'name1'
+                  type: 'type1'
+                  properties: {
+                    access: 'Allow'
+                    direction: 'Inbound'
+                    priority: 4096
+                    protocol: 'Tcp'
+                  }
+                }]
+              }
+            }
+            """,
+        null)]
+    [DataRow(
+        """
+            resource testResource 'Microsoft.Network/applicationGateways@2020-11-01' = {
+              properties: {
+                urlPathMaps: [
+                  {
+                    properties: {
+                      pathRules: [
+                        {
+                          name: 'name'
+                          properties: {
+                            paths: [
+                              'path'
+                            ]
+                            |backendAddressPool: {
+                              id: 'id'
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            """,
+        """
+           @description('Backend address pool resource of URL path map path rule.')
+           param backendAddressPool resource<'Microsoft.Network/applicationGateways@2020-11-01'>.properties.urlPathMaps[*].properties.pathRules[*].properties.backendAddressPool = {
+             id: 'id'
+           }
+
+           resource testResource 'Microsoft.Network/applicationGateways@2020-11-01' = {
+             properties: {
+               urlPathMaps: [
+                 {
+                   properties: {
+                     pathRules: [
+                       {
+                         name: 'name'
+                         properties: {
+                           paths: [
+                             'path'
+                           ]
+                           backendAddressPool: backendAddressPool
+                         }
+                       }
+                     ]
+                   }
+                 }
+               ]
+             }
+           }
+           """
+        )]
+    [DataRow(
+        """
+            resource testResource 'Microsoft.Network/applicationGateways@2020-11-01' = {
+              properties: {
+                urlPathMaps: [
+                  {
+                    properties: {
+                      pathRules: [
+                        {
+                          name: 'name'
+                          properties: {
+                            paths: [
+                              'path'
+                            ]
+                            backendAddressPool: {
+                              |id: 'id'
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }            
+            """,
+        null // Just a simple string property
+        )]
+    public async Task ResourceDerivedTypes(string fileWithSelection, string? expectedResourceDerivedText)
+    {
+        await RunExtractToVariableAndParameterTest(fileWithSelection, "IGNORE", "IGNORE", "IGNORE", expectedResourceDerivedText);
     }
 
     [TestMethod]
@@ -3059,7 +3294,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 .Replace("EXPECTEDMODIFIEDLINE", expectedModifiedLine),
             expectedNewParamMediumDeclaration == null ? null :
                 expectedOutputTemplate.Replace("EXPECTEDNEWDECLARATION", expectedNewParamMediumDeclaration)
-                    .Replace("EXPECTEDMODIFIEDLINE", expectedModifiedLine)
+                    .Replace("EXPECTEDMODIFIEDLINE", expectedModifiedLine),
+            "IGNORE"
         );
     }
 
@@ -3089,7 +3325,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             expectedModifiedLine);
     }
 
-    private async Task RunExtractToVariableAndParameterTest(string fileWithSelection, string? expectedVariableText, string? expectedLooseParamText, string? expectedMediumParamText)
+    private async Task RunExtractToVariableAndParameterTest(string fileWithSelection, string? expectedVariableText, string? expectedLooseParamText, string? expectedMediumParamText, string? expectedResourceDerivedText)
     {
         await RunExtractToVariableTest(
             fileWithSelection,
@@ -3097,7 +3333,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         await RunExtractToParameterTest(
             fileWithSelection,
             expectedLooseParamText,
-            expectedMediumParamText);
+            expectedMediumParamText,
+            expectedResourceDerivedText);
     }
 
     private async Task RunExtractToVariableTest(string fileWithSelection, string? expectedText)
@@ -3144,7 +3381,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     }
 
     // expectedMediumParameterText can be "SAME" or "IGNORE"
-    private async Task RunExtractToParameterTest(string fileWithSelection, string? expectedLooseParameterText, string? expectedMediumParameterText)
+    // null means that there is no menu item for that option
+    private async Task RunExtractToParameterTest(string fileWithSelection, string? expectedLooseParameterText, string? expectedMediumParameterText, string? expectedResourceDerivedText)
     {
         if (expectedMediumParameterText == "SAME")
         {
@@ -3153,7 +3391,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
         (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithSelection);
         var extractedParamFixes = codeActions.Where(x => x.Title.StartsWith(ExtractToParameterTitle)).ToArray();
-        extractedParamFixes.Length.Should().BeLessThanOrEqualTo(2);
+        extractedParamFixes.Length.Should().BeLessThanOrEqualTo(3);
 
         if (expectedLooseParameterText == null)
         {
@@ -3183,7 +3421,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             {
                 if (expectedMediumParameterText != "IGNORE")
                 {
-                    extractedParamFixes.Length.Should().Be(2, "expected a second option to extract to parameter");
+                    extractedParamFixes.Length.Should().BeGreaterThanOrEqualTo(2, "expected a second option to extract to parameter");
 
                     var mediumFix = extractedParamFixes[1];
                     mediumFix.Kind.Should().Be(CodeActionKind.RefactorExtract);
@@ -3195,6 +3433,24 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                     updatedFileMedium.Should().HaveSourceText(expectedMediumParameterText, "extract to param with medium-strict typing should match expected outcome");
                 }
             }
+
+            var resourceDerivedFix = extractedParamFixes.Where(fix => fix.Title.Contains("resource<")).SingleOrDefault();
+            if (expectedResourceDerivedText == null)
+            {
+                resourceDerivedFix.Should().BeNull("expected no code actions to extract parameter with resource-derived type");
+            }
+            else if (expectedResourceDerivedText != "IGNORE")
+            {
+                resourceDerivedFix.Should().NotBeNull("expected a code action to extract to parameter with resource-derived type");
+                resourceDerivedFix!.Kind.Should().Be(CodeActionKind.RefactorExtract);
+
+                resourceDerivedFix.Command.Should().NotBeNull();
+                resourceDerivedFix.Command!.Name.Should().Be(PostExtractionCommandName);
+
+                var updatedFileResourceDerived = ApplyCodeAction(bicepFile, resourceDerivedFix);
+                updatedFileResourceDerived.Should().HaveSourceText(expectedResourceDerivedText, "extract to param with resource-derived typing should match expected outcome");
+            }
+
         }
     }
 }
