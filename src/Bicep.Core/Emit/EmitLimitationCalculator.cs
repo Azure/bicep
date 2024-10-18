@@ -506,7 +506,9 @@ namespace Bicep.Core.Emit
 
             foreach (var extendsDeclaration in extendsDeclarations)
             {
-                if (model.TryGetReferencedModel(extendsDeclaration).IsSuccess(out var extendedModel, out var failure))
+                var result = extendsDeclaration.TryGetReferencedModel(model.SourceFileGrouping, model.ModelLookup, b => b.ExtendsPathHasNotBeenSpecified());
+
+                if (result.IsSuccess(out var extendedModel, out var failure))
                 {
                     if (extendedModel is not SemanticModel extendedSemanticModel)
                     {
