@@ -1203,7 +1203,6 @@
           "Microsoft.Extensions.DependencyInjection": "[8.0.1, )",
           "Microsoft.Extensions.Http": "[8.0.1, )",
           "Microsoft.Graph.Bicep.Types": "[0.1.7-preview, )",
-          "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2070, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "Semver": "[2.3.0, )",
           "SharpYaml": "[2.1.1, )",

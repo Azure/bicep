@@ -40,7 +40,6 @@
     <PackageReference Include="Semver" Version="2.3.0" />
     <PackageReference Include="SharpYaml" Version="2.1.1" />
     <PackageReference Include="Azure.Deployments.Templates" Version="1.152.0" />
-    <PackageReference Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2070" />
     <PackageReference Include="Azure.Bicep.Types" Version="0.5.110" />
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.706" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
