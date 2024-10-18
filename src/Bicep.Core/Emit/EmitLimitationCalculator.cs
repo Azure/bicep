@@ -506,20 +506,12 @@ namespace Bicep.Core.Emit
 
             foreach (var extendsDeclaration in extendsDeclarations)
             {
-                var result = model.TryGetTemplateModelForArtifactReference(
-                                        model.Compilation.SourceFileGrouping,
-                                        extendsDeclaration,
-                                        b => b.ExtendsPathHasNotBeenSpecified(),
-                                        model.Compilation
-                                    );
-
-                if (result.IsSuccess(out var extendedModel, out var failure))
+                if (model.TryGetReferencedModel(extendsDeclaration).IsSuccess(out var extendedModel, out var failure))
                 {
                     if (extendedModel is not SemanticModel extendedSemanticModel)
                     {
-                        throw new UnreachableException("We have already verified this is a .bicepparam file in ryGetTemplateModelForArtifactReference");
+                        throw new UnreachableException("We have already verified this is a .bicepparam file");
                     }
-
                     generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ParameterAssignments);
                 }
                 else
