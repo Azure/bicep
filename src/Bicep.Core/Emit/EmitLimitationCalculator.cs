@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -505,16 +506,25 @@ namespace Bicep.Core.Emit
 
             foreach (var extendsDeclaration in extendsDeclarations)
             {
-                var extendedModel = SemanticModelHelper.TryGetTemplateModelForArtifactReference(
+                var result = SemanticModelHelper.TryGetTemplateModelForArtifactReference(
                                         model.Compilation.SourceFileGrouping,
                                         extendsDeclaration,
                                         b => b.ExtendsPathHasNotBeenSpecified(),
                                         model.Compilation
                                     );
 
-                if (extendedModel.IsSuccess() && extendedModel.Unwrap() is SemanticModel extendedSemanticModel)
+                if (result.IsSuccess(out var extendedModel, out var failure))
                 {
+                    if (extendedModel is not SemanticModel extendedSemanticModel)
+                    {
+                        throw new UnreachableException("We have already verified this is a .bicepparam file in ryGetTemplateModelForArtifactReference");
+                    }
+
                     generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ParameterAssignments);
+                }
+                else
+                {
+                    diagnostics.Write(failure);
                 }
             }
 
