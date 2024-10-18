@@ -37,7 +37,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 {
     private const string ExtractToVariableTitle = "[Preview] Extract variable";
     private const string ExtractToParameterTitle = "[Preview] Extract parameter";
-    private const string ExtractToTypeTitle = "[Preview] Create type for ";
+    private const string ExtractToTypeTitle = "[Preview] Create user-defined type for ";
     private const string PostExtractionCommandName = "bicep.internal.postExtraction";
     private const string Tab = "\t";
 
@@ -2143,7 +2143,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     //   Has a newline before the existing declaration (or at beginning of file)
     //   Has a newline after the existing declaration (or at end of file)
     //   Is there already a newline after the new declaration?
-    // 
+    //
     // ==== No existing declaration
     [DataRow(
         """
@@ -2452,7 +2452,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             // comment
             @description('v1')
             /* comment
-            
+
             */
             var v2 = [
                 1,
@@ -2487,7 +2487,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             // comment
             @description('v1')
             /* comment
-            
+
             */
             var v2 = [
                 1,
@@ -2523,7 +2523,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             // comment
             @description('v1')
             /* comment
-            
+
             */
             var v2 = [
                 1,
@@ -2794,7 +2794,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 COMMENT /* cruel, cruel world
                 COMMENT
                 COMMENT */
-                
+
                 CONTENT @description('description')
                 CONTENT @allowed([
                     CONTENT 'abc'
@@ -2808,23 +2808,23 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                     CONTENT a: 'abc'
                     COMMENT // hi
                     CONTENT COMMENT b: /*comment*/ 'bcd'
-                
+
                     CONTENT b: [
                         CONTENT 1, 2
-                
+
                         CONTENT 3
                         CONTENT 4
                 CONTENT  ]
                 CONTENT}
-                
-                
+
+
                 CONTENT COMMENT /*hello*/ resource stg 'Microsoft.Storage/storageAccounts@2019-04-01' = {
                   CONTENT name: '${storagePrefix}${uniqueString(resourceGroup().id)}'
                   CONTENT location: location
                   CONTENT sku: {
                     CONTENT name: storageSKU
                   CONTENT }
-                
+
                   CONTENT kind: 'StorageV2'
                   CONTENT properties: {
                     COMMENT // supportsHttpsTrafficOnly: true
@@ -2832,15 +2832,15 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 CONTENT }
                 {{Tab}}   {{Tab}}
                 CONTENT output storageEndpoint object = stg.properties.|primaryEndpoints
-                
+
                 COMMENT // Comments are not empty
-                
+
                 COMMENT /* Not even
-                COMMENT 
+                COMMENT
                 COMMENT this one
-                COMMENT 
+                COMMENT
                 COMMENT */
-                
+
                 CONTENT         param p2 string
                 CONTENT param p3 int            {{Tab}}
                 """;
