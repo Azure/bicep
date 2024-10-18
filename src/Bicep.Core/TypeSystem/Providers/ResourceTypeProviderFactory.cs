@@ -10,6 +10,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Providers.ThirdParty;
 using JetBrains.Annotations;
 
@@ -37,13 +38,18 @@ namespace Bicep.Core.TypeSystem.Providers
 
                     var typeIndex = typesLoader.LoadTypeIndex();
                     var useAzLoader = typeIndex.Settings?.Name == AzNamespaceType.Settings.TemplateExtensionName;
+                    var useMsGraphLoader = MicrosoftGraphNamespaceType.ShouldUseLoader(typeIndex.Settings?.Name);
 
                     if (useAzLoader)
                     {
                         return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typesLoader, typeIndex)));
                     }
+                    else if (useMsGraphLoader)
+                    {
+                        return new(new MicrosoftGraphResourceTypeProvider(new MicrosoftGraphResourceTypeLoader(typesLoader)));
+                    }
 
-                    return new(new ThirdPartyResourceTypeProvider(new ThirdPartyResourceTypeLoader(typesLoader, typeIndex)));
+                    return new(new ThirdPartyResourceTypeProvider(new ThirdPartyResourceTypeLoader(typesLoader)));
                 }
                 catch (Exception ex)
                 {

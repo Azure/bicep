@@ -103,16 +103,24 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            this.FlagIfFunctionRequiresInlining(syntax);
+            var functionSymbol = this.SemanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
 
-            base.VisitFunctionCallSyntax(syntax);
+            FlagIfFunctionRequiresInlining(functionSymbol);
+            if (ShouldVisitFunctionArguments(functionSymbol))
+            {
+                base.VisitFunctionCallSyntax(syntax);
+            }
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            this.FlagIfFunctionRequiresInlining(syntax);
+            var functionSymbol = this.SemanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
 
-            base.VisitInstanceFunctionCallSyntax(syntax);
+            FlagIfFunctionRequiresInlining(functionSymbol);
+            if (ShouldVisitFunctionArguments(functionSymbol))
+            {
+                base.VisitInstanceFunctionCallSyntax(syntax);
+            }
         }
 
         protected override void VisitInternal(SyntaxBase node)
@@ -185,10 +193,12 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        protected void FlagIfFunctionRequiresInlining(FunctionCallSyntaxBase syntax)
+        protected bool ShouldVisitFunctionArguments(FunctionSymbol? functionSymbol)
+            => functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent);
+
+        protected void FlagIfFunctionRequiresInlining(FunctionSymbol? functionSymbol)
         {
-            if (this.SemanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
-                functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+            if (functionSymbol is {} && functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
                 var variableDependencyChain = this.BuildVariableDependencyChain(functionSymbol.Name);
                 FlagDeployTimeConstantViolation(variableDependencyChain: variableDependencyChain);

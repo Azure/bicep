@@ -222,6 +222,20 @@
     }
   },
   {
+    "label": "moduled.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_moduled.bicep",
+    "filterText": "'./moduled.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'./moduled.bicep'"
+    }
+  },
+  {
     "label": "moduled.json",
     "kind": "file",
     "deprecated": false,

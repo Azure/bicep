@@ -13,7 +13,7 @@ internal class ObjectTypeNameBuilder
     private bool finalized = false;
 
     internal void AppendProperty(string propertyName, string propertyValue)
-        => DoAppendProperty(Lexer.IsValidIdentifier(propertyName) ? propertyName : StringUtils.EscapeBicepString(propertyName), propertyValue);
+        => DoAppendProperty(StringUtils.EscapeBicepPropertyName(propertyName), propertyValue);
 
     internal void AppendPropertyMatcher(string matchNotation, string value)
         => DoAppendProperty(matchNotation, value);

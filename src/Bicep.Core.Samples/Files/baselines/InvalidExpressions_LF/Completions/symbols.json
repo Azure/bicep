@@ -1873,6 +1873,181 @@
     }
   },
   {
+    "label": "nameOfConstant",
+    "kind": "variable",
+    "detail": "nameOfConstant",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameOfConstant",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameOfConstant"
+    }
+  },
+  {
+    "label": "nameOfKeyword1",
+    "kind": "variable",
+    "detail": "nameOfKeyword1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameOfKeyword1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameOfKeyword1"
+    }
+  },
+  {
+    "label": "nameOfKeyword2",
+    "kind": "variable",
+    "detail": "nameOfKeyword2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameOfKeyword2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameOfKeyword2"
+    }
+  },
+  {
+    "label": "nameOfKeyword3",
+    "kind": "variable",
+    "detail": "nameOfKeyword3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameOfKeyword3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameOfKeyword3"
+    }
+  },
+  {
+    "label": "nameOfKeyword4",
+    "kind": "variable",
+    "detail": "nameOfKeyword4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameOfKeyword4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameOfKeyword4"
+    }
+  },
+  {
+    "label": "nameOfKeyword5",
+    "kind": "variable",
+    "detail": "nameOfKeyword5",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameOfKeyword5",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameOfKeyword5"
+    }
+  },
+  {
+    "label": "nameof",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nnameof(symbol: any): string\n\n```  \nReturns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_nameof",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "nameofEmpty",
+    "kind": "variable",
+    "detail": "nameofEmpty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameofEmpty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameofEmpty"
+    }
+  },
+  {
+    "label": "nameofExpression1",
+    "kind": "variable",
+    "detail": "nameofExpression1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameofExpression1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameofExpression1"
+    }
+  },
+  {
+    "label": "nameofExpression2",
+    "kind": "variable",
+    "detail": "nameofExpression2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameofExpression2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameofExpression2"
+    }
+  },
+  {
+    "label": "nameofUnknown",
+    "kind": "variable",
+    "detail": "nameofUnknown",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameofUnknown",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameofUnknown"
+    }
+  },
+  {
+    "label": "nameofVar",
+    "kind": "variable",
+    "detail": "nameofVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameofVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameofVar"
+    }
+  },
+  {
     "label": "ne",
     "kind": "variable",
     "detail": "ne",

@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Parsing
 {
@@ -53,12 +54,25 @@ namespace Bicep.Core.Parsing
             return buffer.ToString();
         }
 
+        public static bool IsPropertyNameEscapingRequired(string propertyName) =>
+            !Lexer.IsValidIdentifier(propertyName) || LanguageConstants.NonContextualKeywords.ContainsKey(propertyName);
+
+        public static string EscapeBicepPropertyName(string propertyName)
+        {
+            return IsPropertyNameEscapingRequired(propertyName)
+                ? EscapeBicepString(propertyName)
+                : propertyName;
+        }
+
         public static int CountNewlines(string value) => NewLineRegex().Matches(value).Count;
 
         public static string MatchNewline(string value) => NewLineRegex().Match(value).Value;
 
-        public static string ReplaceNewlines(string value, string newlineReplacement) =>
+        public static string ReplaceNewlines(this string value, string newlineReplacement) =>
             NewLineRegex().Replace(value, newlineReplacement);
+
+        public static string NormalizeNewlines(this string value) =>
+            ReplaceNewlines(value, "\n");
 
         public static IEnumerable<string> SplitOnNewLine(string value) =>
             value.Split(
@@ -93,5 +107,7 @@ namespace Bicep.Core.Parsing
                     .Select(x => x.Length == 0 ? x : x[commonPrefixLength..])
                     .Prepend(firstLine));
         }
+
+        public static string ToCamelCase(string name) => char.ToLowerInvariant(name[0]) + name[1..];
     }
 }

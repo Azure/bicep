@@ -20,6 +20,23 @@ module moduleWithoutPath = {
 
 }
 
+module modDOne 'moduled.bicep' = {
+//@[07:14) Module modDOne. Type: module. Declaration start char: 0, length: 91
+  name: 'modDOne'
+  params: {
+    input: 'NameOne'
+  }
+}
+
+module modDTwo 'moduled.bicep' = {
+//@[07:14) Module modDTwo. Type: module. Declaration start char: 0, length: 116
+  name: 'modDTwo'
+  params: {
+    input: modDOne.outputs.storageAccountName
+  }
+}
+
+
 // #completionTest(41) -> moduleBodyCompletions
 module moduleWithPath './moduleb.bicep' =
 //@[07:21) Module moduleWithPath. Type: module. Declaration start char: 0, length: 41
@@ -745,3 +762,4 @@ module assignToOutput 'empty.bicep' = {
   name: 'assignToOutput'
   outputs: {}
 }
+

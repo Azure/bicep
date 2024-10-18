@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9175006065683431096"
+      "templateHash": "9129114772864237098"
     }
   },
   "parameters": {
@@ -57,7 +57,11 @@
       "db1",
       "db2",
       "db3"
-    ]
+    ],
+    "sqlConfig": {
+      "westus": {},
+      "server-name": {}
+    }
   },
   "resources": [
     {
@@ -629,6 +633,12 @@
       "apiVersion": "2021-11-01",
       "name": "sql-server-name",
       "location": "polandcentral"
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-11-01",
+      "name": "[format('sql-server-nameof-{0}', 'server-name')]",
+      "location": "westus"
     }
   ],
   "outputs": {
@@ -703,6 +713,26 @@
     "p4_res1childid": {
       "type": "string",
       "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
+    },
+    "nameof_sqlServer": {
+      "type": "string",
+      "value": "sqlServer"
+    },
+    "nameof_location": {
+      "type": "string",
+      "value": "location"
+    },
+    "nameof_minCapacity": {
+      "type": "string",
+      "value": "minCapacity"
+    },
+    "nameof_creationTime": {
+      "type": "string",
+      "value": "creationTime"
+    },
+    "nameof_id": {
+      "type": "string",
+      "value": "id"
     }
   }
 }

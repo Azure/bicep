@@ -449,3 +449,26 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
   name: 'childWithSpace'
 }
 
+// nameof
+
+var nameofModule = nameof(folderWithSpace)
+//@[04:16) Variable nameofModule. Type: 'folderWithSpace'. Declaration start char: 0, length: 42
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+//@[04:21) Variable nameofModuleParam. Type: 'exposedSecureString'. Declaration start char: 0, length: 81
+
+module moduleWithNameof 'modulea.bicep' = {
+//@[07:23) Module moduleWithNameof. Type: module. Declaration start char: 0, length: 358
+  name: 'nameofModule'
+  scope: resourceGroup(nameof(nameofModuleParam))
+  params:{
+    stringParamA: nameof(withSpace)
+    stringParamB: nameof(folderWithSpace)
+    objParam: {
+      a: nameof(secureModuleCondition.outputs.exposedSecureString)
+    }
+    arrayParam: [
+      nameof(vaults)
+    ]
+  }
+}
+

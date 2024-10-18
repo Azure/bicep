@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { PropsWithChildren } from "react";
 import type { AccordionItemId } from "./types";
 
@@ -20,7 +23,9 @@ export function AccordionItem({ itemId, children }: AccordionItemProps) {
   const [active, setActive] = useState(activeItemId === itemId);
 
   useEffect(() => {
-    active && setActiveItemId(itemIdRef.current);
+    if (active) {
+      setActiveItemId(itemIdRef.current);
+    }
   }, [active, setActiveItemId]);
 
   useEffect(() => {

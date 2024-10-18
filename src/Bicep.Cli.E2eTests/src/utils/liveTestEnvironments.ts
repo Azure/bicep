@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { EnvironmentOverrides } from "./types";
+export type EnvironmentOverrides = Record<string, string>;
 
 interface LiveTestEnvironment {
   suffix: string;

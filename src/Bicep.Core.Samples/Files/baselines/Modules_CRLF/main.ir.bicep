@@ -1,5 +1,5 @@
 
-//@[000:8922) ProgramExpression
+//@[000:9426) ProgramExpression
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) | | └─ModuleReferenceExpression [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
@@ -22,6 +22,12 @@
 //@[000:0000) | | └─ModuleReferenceExpression [UNPARENTED]
 //@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) |   └─ResourceReferenceExpression [UNPARENTED]
+//@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
+//@[000:0000) | | └─ModuleReferenceExpression [UNPARENTED]
+//@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
+//@[000:0000) | | └─ModuleReferenceExpression [UNPARENTED]
+//@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
+//@[000:0000) |   └─ModuleReferenceExpression [UNPARENTED]
 @sys.description('this is deployTimeSuffix param')
 //@[000:0093) ├─DeclaredParameterExpression { Name = deployTimeSuffix }
 //@[017:0049) | ├─StringLiteralExpression { Value = this is deployTimeSuffix param }
@@ -1251,5 +1257,51 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@[002:0024) |   └─ObjectPropertyExpression
 //@[002:0006) |     ├─StringLiteralExpression { Value = name }
 //@[008:0024) |     └─StringLiteralExpression { Value = childWithSpace }
+}
+
+// nameof
+
+var nameofModule = nameof(folderWithSpace)
+//@[000:0042) ├─DeclaredVariableExpression { Name = nameofModule }
+//@[026:0041) | └─StringLiteralExpression { Value = folderWithSpace }
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+//@[000:0081) ├─DeclaredVariableExpression { Name = nameofModuleParam }
+//@[031:0080) | └─StringLiteralExpression { Value = exposedSecureString }
+
+module moduleWithNameof 'modulea.bicep' = {
+//@[000:0358) ├─DeclaredModuleExpression
+//@[042:0358) | ├─ObjectExpression
+  name: 'nameofModule'
+//@[002:0022) | | └─ObjectPropertyExpression
+//@[002:0006) | |   ├─StringLiteralExpression { Value = name }
+//@[008:0022) | |   └─StringLiteralExpression { Value = nameofModule }
+  scope: resourceGroup(nameof(nameofModuleParam))
+  params:{
+//@[009:0235) | ├─ObjectExpression
+    stringParamA: nameof(withSpace)
+//@[004:0035) | | ├─ObjectPropertyExpression
+//@[004:0016) | | | ├─StringLiteralExpression { Value = stringParamA }
+//@[025:0034) | | | └─StringLiteralExpression { Value = withSpace }
+    stringParamB: nameof(folderWithSpace)
+//@[004:0041) | | ├─ObjectPropertyExpression
+//@[004:0016) | | | ├─StringLiteralExpression { Value = stringParamB }
+//@[025:0040) | | | └─StringLiteralExpression { Value = folderWithSpace }
+    objParam: {
+//@[004:0090) | | ├─ObjectPropertyExpression
+//@[004:0012) | | | ├─StringLiteralExpression { Value = objParam }
+//@[014:0090) | | | └─ObjectExpression
+      a: nameof(secureModuleCondition.outputs.exposedSecureString)
+//@[006:0066) | | |   └─ObjectPropertyExpression
+//@[006:0007) | | |     ├─StringLiteralExpression { Value = a }
+//@[016:0065) | | |     └─StringLiteralExpression { Value = exposedSecureString }
+    }
+    arrayParam: [
+//@[004:0046) | | └─ObjectPropertyExpression
+//@[004:0014) | |   ├─StringLiteralExpression { Value = arrayParam }
+//@[016:0046) | |   └─ArrayExpression
+      nameof(vaults)
+//@[013:0019) | |     └─StringLiteralExpression { Value = vaults }
+    ]
+  }
 }
 

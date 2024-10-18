@@ -6,9 +6,9 @@ set CONFIGURATION=%1
 if (%CONFIGURATION%)==() set CONFIGURATION=debug
 echo Selected configuration: %CONFIGURATION%
 
-set VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe
+set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
 
-for /f "usebackq tokens=*" %%i in (`"%VSWHERE%" -prerelease -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe`) do (
+for /f "usebackq delims=" %%i in (`^""%VSWHERE%"  -latest -version "[17.0,18.0)" -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe^"`) do (
   echo "%%i" %*
   set MSBUILD=%%i
 )

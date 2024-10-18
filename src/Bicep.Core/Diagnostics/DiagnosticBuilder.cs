@@ -191,7 +191,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidResourceType() => CoreError(
                 "BCP029",
-                "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\".");
+                "The resource type is not valid. Specify a valid resource type of format \"<type-name>@<apiVersion>\".");
 
             public Diagnostic InvalidOutputType(IEnumerable<string> validTypes) => CoreError(
                 "BCP030",
@@ -409,7 +409,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ExpectedResourceTypeString() => CoreError(
                 "BCP068",
-                "Expected a resource type string. Specify a valid resource type of format \"<types>@<apiVersion>\".");
+                "Expected a resource type string. Specify a valid resource type of format \"<type-name>@<apiVersion>\".");
 
             public Diagnostic FunctionNotSupportedOperatorAvailable(string function, string @operator) => CoreError(
                 "BCP069",
@@ -1798,6 +1798,28 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ExtendsNotSupported() => CoreError(
                 "BCP406",
                 $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
+
+            public Diagnostic MicrosoftGraphBuiltinDeprecatedSoon(ExtensionDeclarationSyntax syntax)
+            {
+                var msGraphRegistryPath = "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview";
+                var codeFix = new CodeFix(
+                    $"Replace built-in extension \'microsoftGraph\' with dynamic types registry path",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax.SpecificationString.Span, $"\'{msGraphRegistryPath}\'"));
+
+                return CoreWarning(
+                "BCP407",
+                $"Built-in extension \"microsoftGraph\" is deprecated. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes")
+                with
+                {
+                    Fixes = [codeFix]
+                };
+            }
+
+            public Diagnostic NameofInvalidOnUnnamedExpression() => CoreError(
+                "BCP408",
+                $"The \"{LanguageConstants.NameofFunctionName}\" function can only be used with an expression which has a name.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
