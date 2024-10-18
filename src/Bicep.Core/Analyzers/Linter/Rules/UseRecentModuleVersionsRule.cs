@@ -70,7 +70,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var publicRegistryModuleMetadataProvider = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
             var hasShownDownloadWarning = false;
 
-            foreach (var (syntax, artifactResolutionInfo) in model.Compilation.SourceFileGrouping.ArtifactLookup
+            foreach (var (syntax, artifactResolutionInfo) in model.SourceFileGrouping.ArtifactLookup
                 .Where(entry => entry.Value.Origin == model.SourceFile
                     && entry.Value.Syntax is ModuleDeclarationSyntax moduleSyntax))
             {
