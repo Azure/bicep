@@ -41,6 +41,10 @@ namespace Bicep.Core.Intermediate
         {
         }
 
+        public void VisitInvalidLanguageExpression(InvalidLanguageExpression expression)
+        {
+        }
+
         public virtual void VisitNullExpression(NullExpression expression)
         {
         }

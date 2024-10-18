@@ -54,7 +54,8 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         string resourceGroupName,
         CancellationToken cancellationToken,
         string oboToken,
-        string oboCorrelationId)
+        string oboCorrelationId,
+        string auxToken)
         => throw new NotImplementedException();
 
     public override Task<IReadOnlyList<ResourceId>> GetTrackedResourceIds(
@@ -62,14 +63,16 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         Func<ResourceGroupLevelResourceId, bool> resourceIdFilterFunc,
         CancellationToken cancellationToken,
         string oboToken,
-        string oboCorrelationId)
+        string oboCorrelationId,
+        string auxToken)
         => throw new NotImplementedException();
 
     public override Task<ResourceTypeRegistrationInfo[]> FindRegistrationsForSubscription(
         string subscriptionId,
         CancellationToken cancellationToken,
         string oboToken,
-        string oboCorrelationId)
+        string oboCorrelationId,
+        string auxToken)
         => throw new NotImplementedException();
 
     public override Task<HttpResponseMessage> CallFrontdoorService(
@@ -78,6 +81,7 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         CancellationToken cancellationToken,
         string oboToken,
         string oboCorrelationId,
+        string auxToken,
         HttpRequestMessage requestMessage = null,
         HttpContent content = null,
         Action<HttpRequestHeaders> addHeadersFunc = null,
@@ -144,7 +148,7 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
     protected override Task<JToken> GetEnvironmentKey()
         => Task.FromResult<JToken>(new JObject());
 
-    public override Task ValidateDeploymentLocationAcceptable(IDeploymentRequestContext deploymentContext, string deploymentLocation, string oboToken, string oboCorrelationId)
+    public override Task ValidateDeploymentLocationAcceptable(IDeploymentRequestContext deploymentContext, string deploymentLocation, string oboToken, string oboCorrelationId, string auxToken)
         => Task.CompletedTask;
 
     public override void AddAsyncNotificationUri(HttpRequestHeaders httpHeaders, BackgroundJob backgroundJob, DeploymentResourceJobMetadata deploymentJobMetadata, JobLogger jobLogger)

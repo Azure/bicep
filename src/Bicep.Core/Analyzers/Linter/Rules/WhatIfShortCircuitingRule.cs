@@ -64,7 +64,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     var moduleParamsHolder = new Dictionary<string, ObjectPropertySyntax>();
                     foreach (var param in moduleParams)
                     {
-                        moduleParamsInput.Add(param.Key.ToString(), new FunctionExpression("sentinel-placeholder", ImmutableArray.Create<ITemplateLanguageExpression>(new StringExpression(param.Key.ToString(), null, null, null)), ImmutableArray<ITemplateLanguageExpression>.Empty, null, null, null));
+                        moduleParamsInput.Add(param.Key.ToString(), new FunctionExpression("sentinel-placeholder", [new StringExpression(param.Key.ToString(), null, null, null)], [], position: null));
                         moduleParamsHolder.Add(param.Key.ToString(), param);
                     }
 
@@ -93,8 +93,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             suppliedParameterValues: moduleParamsInput,
                             parameterValuesPositionalMetadata: null,
                             metadata: metadata,
-                            metricsRecorder: null,
-                            skipEvaluationOfNonDeterministicFunctionsForWhatIf: false);
+                            metricsRecorder: null);
                     }
                     catch (Exception ex)
                     {
