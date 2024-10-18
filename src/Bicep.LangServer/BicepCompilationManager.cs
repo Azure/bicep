@@ -448,7 +448,7 @@ namespace Bicep.LanguageServer
         {
             var properties = GetTelemetryPropertiesForMainFile(semanticModel, mainFile, diagnostics);
 
-            var referencedFiles = semanticModel.Compilation.SourceFileGrouping.SourceFiles.Where(x => x != mainFile);
+            var referencedFiles = semanticModel.SourceFileGrouping.SourceFiles.Where(x => x != mainFile);
             var propertiesFromReferencedFiles = GetTelemetryPropertiesForReferencedFiles(referencedFiles);
 
             properties = properties.Concat(propertiesFromReferencedFiles).ToDictionary(s => s.Key, s => s.Value);

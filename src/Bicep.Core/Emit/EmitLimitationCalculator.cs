@@ -506,7 +506,7 @@ namespace Bicep.Core.Emit
 
             foreach (var extendsDeclaration in extendsDeclarations)
             {
-                var result = SemanticModelHelper.TryGetTemplateModelForArtifactReference(
+                var result = model.TryGetTemplateModelForArtifactReference(
                                         model.Compilation.SourceFileGrouping,
                                         extendsDeclaration,
                                         b => b.ExtendsPathHasNotBeenSpecified(),
