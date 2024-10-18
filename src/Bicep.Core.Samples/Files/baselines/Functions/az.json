@@ -1,5 +1,15 @@
 [
   {
+    "name": "deployer",
+    "description": "Returns information about the principal that initiated the current deployment operation.",
+    "fixedParameters": [],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 0,
+    "flags": "default",
+    "typeSignature": "(): deployer",
+    "parameterTypeSignatures": []
+  },
+  {
     "name": "deployment",
     "description": "Returns information about the current deployment operation.",
     "fixedParameters": [],
