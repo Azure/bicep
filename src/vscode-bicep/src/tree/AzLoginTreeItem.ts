@@ -15,15 +15,16 @@ import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 const signInLabel: string = localize("signInLabel", "Sign in to Azure...");
 const createAccountLabel: string = localize("createAccountLabel", "Create a Free Azure Account...");
+//asdfg??
 const signInCommandId = "azure-account.login";
 const createAccountCommandId = "azure-account.createAccount";
-const azureAccountExtensionId = "ms-vscode.azure-account";
+const azureAccountExtensionId = "ms-vscode.azure-account"; //asdfg
 const extensionOpenCommand = "extension.open";
 
 type AzureAccountResult = AzureAccount | "notInstalled" | "needsUpdate";
 const minAccountExtensionVersion = "0.9.0";
 
-// Inspired from https://github.com/microsoft/vscode-azuretools/blob/main/azure/src/tree/AzureAccountTreeItemBase.ts,
+// Inspired from https://github.com/microsoft/vscode-azuretools/blob/main/azure/src/tree/AzureAccountTreeItemBase.ts, //asdfg
 // without - list all subscription support
 export class AzLoginTreeItem extends AzExtParentTreeItem {
   public static contextValue = "azureextensionui.azureAccount";
@@ -77,7 +78,7 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
     }
 
     const contextValue = "azureCommand";
-
+//asdfg
     if (azureAccount.status !== "LoggedIn") {
       return [
         new GenericTreeItem(this, {

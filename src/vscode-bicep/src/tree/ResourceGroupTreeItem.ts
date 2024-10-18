@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import { ResourceGroup, ResourceManagementClient } from "@azure/arm-resources";
 import {
   IResourceGroupWizardContext,
