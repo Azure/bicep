@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <BicepTargetOsPlatform>Linux</BicepTargetOsPlatform>
+    <BicepTargetOsArchitecture>X64</BicepTargetOsArchitecture>
+  </PropertyGroup>
+</Project>

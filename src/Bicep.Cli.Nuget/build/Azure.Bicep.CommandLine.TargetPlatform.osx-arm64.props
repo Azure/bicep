@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <BicepTargetOsPlatform>macOS</BicepTargetOsPlatform>
+    <BicepTargetOsArchitecture>Arm64</BicepTargetOsArchitecture>
+  </PropertyGroup>
+</Project>

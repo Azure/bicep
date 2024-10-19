@@ -1,11 +1,12 @@
 <Project TreatAsLocalProperty="BicepExecutableDirectory;BicepNonWindowsExecutableName;BicepWindowsExecutableName">
+  <Import Project="Azure.Bicep.CommandLine.TargetPlatform.props" />
   <PropertyGroup>
     <BicepExecutableDirectory>$(MSBuildThisFileDirectory)..\tools</BicepExecutableDirectory>
     <BicepNonWindowsExecutableName>bicep</BicepNonWindowsExecutableName>
     <BicepWindowsExecutableName>$(BicepNonWindowsExecutableName).exe</BicepWindowsExecutableName>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" $(BicepPath) == '' ">
+  <PropertyGroup Condition=" $(BicepPath) == '' and $([System.OperatingSystem]::IsOSPlatform('$(BicepTargetOsPlatform)')) and $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) == '$(BicepTargetOsArchitecture)' ">
     <BicepPath>$(BicepExecutableDirectory)\$(BicepNonWindowsExecutableName)</BicepPath>
     <BicepPath Condition=" Exists('$(BicepExecutableDirectory)\$(BicepWindowsExecutableName)') ">$(BicepExecutableDirectory)\$(BicepWindowsExecutableName)</BicepPath>
   </PropertyGroup>

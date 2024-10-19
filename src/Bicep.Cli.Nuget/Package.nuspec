@@ -14,6 +14,8 @@
   </metadata>
   <files>
     <file src="..\icons\bicep-logo-256.png" target="bicep-logo-256.png" />
+    <!-- this will pick up only the target platform file that matches the RID property -->
+    <file src="build\Azure.Bicep.CommandLine.TargetPlatform.$rid$.props" target="build\Azure.Bicep.CommandLine.TargetPlatform.props" />
     <file src="build\Azure.Bicep.CommandLine.Common.props" target="build\" />
     <!-- nuget convention requires .props file name to match package ID -->
     <file src="build\Azure.Bicep.CommandLine.RID.props" target="build\Azure.Bicep.CommandLine.$rid$.props" />
