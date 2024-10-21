@@ -4801,7 +4801,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any[, int]) => any): array\n\n```  \nReduces an array with a custom reduce function.  \n"
+      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any[, int]) => any): any\n\n```  \nReduces an array with a custom reduce function.  \n"
     },
     "deprecated": false,
     "preselect": false,
