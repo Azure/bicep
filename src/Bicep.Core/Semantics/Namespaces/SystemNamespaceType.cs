@@ -1001,7 +1001,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         LambdaType lambdaType => new(lambdaType.ReturnType.Type),
                         _ => new(LanguageConstants.Any),
-                    }, LanguageConstants.Array)
+                    }, LanguageConstants.Any)
                     .Build();
 
                 yield return new FunctionOverloadBuilder("toObject")
