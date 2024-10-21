@@ -38,6 +38,7 @@ public static class IArtifactReferenceSyntaxExtensions
         var isValidReference = (reference, sourceFile) switch
         {
             (ExtendsDeclarationSyntax, BicepParamFile) => true,
+            (ExtendsDeclarationSyntax, _) => false,
             (_, BicepFile or ArmTemplateFile or TemplateSpecFile) => true,
             _ => false,
         };
