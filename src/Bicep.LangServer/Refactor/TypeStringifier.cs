@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using Bicep.Core;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
@@ -41,6 +42,56 @@ public static class TypeStringifier
     public static string Stringify(TypeSymbol? type, TypeProperty? typeProperty, Strictness strictness, bool removeTopLevelNullability = false)
     {
         return StringifyCore(type, typeProperty, strictness, [], removeTopLevelNullability);
+    }
+
+    // This works off of the syntax tree of the declared resource rather than the types due to type system limitations
+    public static string? TryGetResourceDerivedTypeName(SemanticModel semanticModel, ObjectPropertySyntax propertySyntax)
+    {
+        SyntaxBase? current = propertySyntax;
+        string propertyAccessDotNotation = ""; // Includes leading periods
+
+        while (current is not null)
+        {
+            if (current is ResourceDeclarationSyntax resourceDeclarationSyntax)
+            {
+                // Found the resource itself
+                var resourceTypeName = (resourceDeclarationSyntax.Type as StringSyntax)?.TryGetLiteralValue();
+                return $"resource<'{resourceTypeName}'>{propertyAccessDotNotation}";
+            }
+            else if (current is ObjectPropertySyntax objectPropertySyntax)
+            {
+                var declaredType = semanticModel.GetDeclaredType(current);
+
+                var isInterestingObjectType =
+                    declaredType is ObjectType objectType
+                    && objectType.Name != LanguageConstants.ObjectType
+                    && GetWriteableProperties(objectType).Length > 0;
+
+                if (isInterestingObjectType || declaredType is ArrayType)
+                {
+                    var propertyName = (objectPropertySyntax.Key as IdentifierSyntax)?.IdentifierName;
+                    if (propertyName is null)
+                    {
+                        return null;
+                    }
+
+                    propertyAccessDotNotation = $".{propertyName}{propertyAccessDotNotation}";
+                }
+                else
+                {
+                    // Not an interesting resource-derived type (for example a primitive type, any, or simple object) that user can declare without needing a resource-derived type
+                    return null;
+                }
+            }
+            else if (current is ArrayItemSyntax)
+            {
+                propertyAccessDotNotation = $"[*]{propertyAccessDotNotation}";
+            }
+
+            current = semanticModel.Binder.GetParent(current);
+        }
+
+        return null;
     }
 
     private static string StringifyCore(TypeSymbol? type, TypeProperty? typeProperty, Strictness strictness, TypeSymbol[] visitedTypes, bool removeTopLevelNullability = false)
@@ -175,7 +226,7 @@ public static class TypeStringifier
                     return LanguageConstants.Object.Name;
                 }
 
-                var writeableProperties = objectType.Properties.Where(p => !p.Value.Flags.HasFlag(TypePropertyFlags.ReadOnly)).ToArray();
+                var writeableProperties = GetWriteableProperties(objectType);
 
                 // strict: {} with additional properties allowed should be "object" not "{}"
                 // medium: Bicep infers {} with no allowable members from the literal "{}", the user more likely wants to allow members
@@ -186,7 +237,7 @@ public static class TypeStringifier
                 }
 
                 return $"{{ {string.Join(", ", writeableProperties
-                        .Select(p => GetFormattedTypeProperty(p.Value, strictness, visitedTypes)))} }}";
+                        .Select(p => GetFormattedTypeProperty(p, strictness, visitedTypes)))} }}";
 
             case AnyType:
                 return AnyTypeName;
@@ -285,6 +336,11 @@ public static class TypeStringifier
     {
         return objectType.Properties.Count == 0 && !objectType.HasExplicitAdditionalPropertiesType;
     }
+
+    private static TypeProperty[] GetWriteableProperties(ObjectType objectType) =>
+        objectType.Properties.Select(p => p.Value)
+        .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly))
+        .ToArray();
 
     private static string GetFormattedTypeProperty(TypeProperty property, Strictness strictness, TypeSymbol[] visitedTypes)
     {
