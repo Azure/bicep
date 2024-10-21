@@ -193,7 +193,7 @@ public class ExpressionAndTypeExtractor
             yield return CreateExtraction(
                 extractionContext,
                 ExtractionKind.Type,
-                $"[Preview] Create type for {GetQuotedText(stringifiedUserDefinedType)}",
+                $"[Preview] Create user-defined type for {GetQuotedText(stringifiedUserDefinedType)}",
                 stringifiedUserDefinedType);
         }
     }

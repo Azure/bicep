@@ -164,19 +164,19 @@
       },
       "Microsoft.VSSDK.BuildTools": {
         "type": "Direct",
-        "requested": "[17.11.435, )",
-        "resolved": "17.11.435",
-        "contentHash": "u62AmujlY7r5so93Cz0KKkzHJvcJ6/UM9/DWRS/zqINz8nlRTB9svwndg1sedrboPggf5uGHoxD5rmj5O/Z0mA==",
+        "requested": "[17.12.2069, )",
+        "resolved": "17.12.2069",
+        "contentHash": "pXOjfaoC926Z2ApbbXBNWWlTPJPDiJdp+kb+bdx5xxOr68yHwTgDD/i3q7JMtKJkHddufYYItRFr3P0/ylP4Sg==",
         "dependencies": {
-          "Microsoft.VisualStudio.SDK.Analyzers": "17.7.41",
-          "Microsoft.VsSDK.CompatibilityAnalyzer": "17.11.435"
+          "Microsoft.VisualStudio.SDK.Analyzers": "17.7.47",
+          "Microsoft.VsSDK.CompatibilityAnalyzer": "17.12.2069"
         }
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.6.143, )",
-        "resolved": "3.6.143",
-        "contentHash": "N24MtdLq4PmdJ2woTQd9515q0I1jeO/DlimYCB/GoRd510Fc9dk9H6YaN8MPPrVF8RHrIalCUfWbWvcoarYeoQ=="
+        "requested": "[3.6.146, )",
+        "resolved": "3.6.146",
+        "contentHash": "W1eQ8hD9Y/cZ2+ilgxECl003xr1hybpN3fMxoTlMqg++BixETBMWzS4y9s08oHJKXgKtudsoxhITNOEf1OR66w=="
       },
       "envdte": {
         "type": "Transitive",
@@ -917,8 +917,8 @@
       },
       "Microsoft.VisualStudio.SDK.Analyzers": {
         "type": "Transitive",
-        "resolved": "17.7.41",
-        "contentHash": "m+z9Li+FThM9BtsvsAEcZP4563DnmfxyCGItaMJHFmfSKMjuZ0t8g8yNdySGB69oKfS3vcA2vOReDHixdSSclQ=="
+        "resolved": "17.7.47",
+        "contentHash": "dP4SOup0OMy8s1cTD4oYXlLd6JrDb8Gp4+1fR+vUuvgLDSuGFWS/8B23GQ670NICw5AadUUK9T9sCvYmpW8/Ig=="
       },
       "Microsoft.VisualStudio.Setup.Configuration.Interop": {
         "type": "Transitive",
@@ -1445,8 +1445,8 @@
       },
       "Microsoft.VsSDK.CompatibilityAnalyzer": {
         "type": "Transitive",
-        "resolved": "17.11.435",
-        "contentHash": "EZbEMCAFA5rVXPHiIth4q9iKZqDbkBYqG/GRT8COUS5/0kSTQ/e1foz4K6xIpjdBsu2qeLg0hCPl/pmiMLhl1g=="
+        "resolved": "17.12.2069",
+        "contentHash": "kQB0zReJK0ezXxi8cGBpMr7r1x2vnftuEn2Qp7pvZnFsP2mTQVauBYioptxStvGcbX9sIfo2YSenYQiShsh+vA=="
       },
       "Microsoft.Win32.Primitives": {
         "type": "Transitive",
