@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -275,7 +276,7 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
             {
                 var completions = GetTypeCompletions(model, context)
-                    .Concat(GetParameterTypeSnippets(model.Compilation, context));
+                    .Concat(GetParameterTypeSnippets(model, context));
 
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 if (model.Features.ResourceTypedParamsAndOutputsEnabled)
@@ -682,7 +683,7 @@ namespace Bicep.LanguageServer.Completions
                     return true;
                 }
 
-                if (model.Compilation.SourceFileGrouping.SourceFiles.Any(sourceFile =>
+                if (model.SourceFileGrouping.SourceFiles.Any(sourceFile =>
                         sourceFile is ArmTemplateFile &&
                         sourceFile.FileUri.LocalPath.Equals(fileUri.LocalPath, PathHelper.PathComparison)))
                 {
@@ -712,12 +713,11 @@ namespace Bicep.LanguageServer.Completions
                 (ModuleRegistryWithoutAliasPattern.IsMatch(text) || ModuleRegistryWithAliasPattern.IsMatch(text));
         }
 
-        private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Compilation computation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetParameterTypeSnippets(SemanticModel model, BicepCompletionContext context)
         {
             if (context.EnclosingDeclaration is ParameterDeclarationSyntax parameterDeclarationSyntax)
             {
-                var bicepFile = computation.SourceFileGrouping.EntryPoint;
-                Range enclosingDeclarationRange = parameterDeclarationSyntax.Keyword.ToRange(bicepFile.LineStarts);
+                Range enclosingDeclarationRange = parameterDeclarationSyntax.Keyword.ToRange(model.SourceFile.LineStarts);
                 TextEdit textEdit = new()
                 {
                     Range = new Range()
@@ -1750,9 +1750,11 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(type.Description ?? type.Name)
                 .WithSortText(GetSortText(typeName, priority));
 
-            if (type.Type is TypeTemplate)
+            if (type.Type is TypeTemplate typeTemplate)
             {
-                builder = builder.WithSnippetEdit(replacementRange, $"{typeName}<$0>")
+                var needsQuotes = typeTemplate.Parameters.Length > 0 && typeTemplate.Parameters[0].Type?.IsString() == true;
+                var quote = needsQuotes ? "'" : string.Empty;
+                builder = builder.WithSnippetEdit(replacementRange, $"{typeName}<{quote}$0{quote}>")
                     // parameterized types always require at least one argument, so automatically request signature help
                     .WithCommand(new Command { Name = EditorCommands.SignatureHelp, Title = "signature help" });
             }
@@ -2077,11 +2079,7 @@ namespace Bicep.LanguageServer.Completions
                 if (context.EnclosingDeclaration is CompileTimeImportDeclarationSyntax compileTimeImportDeclaration &&
                     compileTimeImportDeclaration.ImportExpression.Span.ContainsInclusive(context.ReplacementTarget.Span.Position))
                 {
-                    if (SemanticModelHelper.TryGetModelForArtifactReference(
-                            model.Compilation.SourceFileGrouping,
-                            compileTimeImportDeclaration,
-                            model.Compilation)
-                        .IsSuccess(out var importedModel))
+                    if (model.TryGetReferencedModel(compileTimeImportDeclaration).IsSuccess(out var importedModel))
                     {
                         var claimedNames = model.Root.Declarations.Select(d => d.Name).ToImmutableHashSet();
 
