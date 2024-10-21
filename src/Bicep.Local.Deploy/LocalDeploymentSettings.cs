@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Azure.Deployments.Engine.Host.Azure.Definitions;
 using Azure.Deployments.Engine.Host.Azure.Interfaces;
 
 namespace Bicep.Local.Deploy;
@@ -255,6 +256,15 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
     public TimeSpan ResourceValidationRequestSynchronousWaitDuration => throw new NotImplementedException();
 
     public TimeSpan DeploymentSecureOutputsExpirationTime => throw new NotImplementedException();
+
+    public ExtensibilityHostRoutingRule[] ExtensibilityHostRoutingRules => [
+        new()
+        {
+            EndpointUri = new Uri("https://example.com"),
+            Locations = ["*"]
+        }];
+
+    public IReadOnlyDictionary<string, Uri> ExtensibilityHostUriOverridesBySubscriptionId => ImmutableDictionary<string, Uri>.Empty;
 
     IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledTenantDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
 
