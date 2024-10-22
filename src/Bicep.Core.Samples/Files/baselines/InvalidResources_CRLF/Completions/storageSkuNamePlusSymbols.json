@@ -1018,6 +1018,23 @@
     }
   },
   {
+    "label": "deployer",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndeployer(): deployer\n\n```  \nReturns information about the principal that initiated the current deployment operation.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_deployer",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "deployer()$0"
+    }
+  },
+  {
     "label": "deployment",
     "kind": "function",
     "documentation": {
