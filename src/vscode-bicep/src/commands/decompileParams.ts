@@ -101,7 +101,6 @@ export class DecompileParamsCommand implements Command {
   }
 
   private static async selectBicepFile(context: IActionContext): Promise<Uri | undefined> {
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const quickPickItems: IAzureQuickPickItem<string>[] = [
         {
@@ -172,7 +171,6 @@ export class DecompileParamsCommand implements Command {
   private static async getUniquePath(bicepparamPath: DocumentUri): Promise<string> {
     const parsedPath = path.parse(bicepparamPath);
     let appendNumber = 2;
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const uniquePath = path.join(parsedPath.dir, `${parsedPath.name}${appendNumber}${parsedPath.ext}`);
       if (!(await fse.pathExists(uniquePath))) {

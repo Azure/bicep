@@ -412,7 +412,6 @@ export class DeployCommand implements Command {
   }
 
   private async selectParameterFile(context: IActionContext, sourceUri: Uri): Promise<string | undefined> {
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       let parameterFilePath: string;
 
