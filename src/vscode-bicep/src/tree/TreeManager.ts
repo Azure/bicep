@@ -192,11 +192,11 @@ export class TreeManager extends Disposable {
       try {
         return <IAzureQuickPickItem<ResourceGroup>>{
           label: nonNullProp(rg, "name"),
-          //asdfg description: nonNullProp( rg,""),
           data: rg,
         };
       } catch (error) {
-        this.outputChannelManager.appendToOutputChannel(parseError(error).message); //asdfg
+        this.outputChannelManager.appendToOutputChannel(parseError(error).message);
+        return undefined;
       }
     }).filter(p => !!p);
 

@@ -310,7 +310,7 @@ export class DeployCommand implements Command {
 
     if (accessToken) {
       const token = accessToken.token;
-      const expiresOnTimestamp = String(accessToken.expiresOnTimestamp ?? ""); //asdfg?
+      const expiresOnTimestamp = accessToken.expiresOnTimestamp ? String(accessToken.expiresOnTimestamp) : undefined; //asdfg?
       const portalUrl = subscription.environment.portalUrl;
 
       let parametersFileName: string | undefined;
