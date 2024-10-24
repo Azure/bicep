@@ -1490,10 +1490,13 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(expectedConditionType));
                 }
 
-                // TODO if the condition is of a boolean literal type, return either `trueType` or `falseType`, not the union of both
-
-                // the return type is the union of true and false expression types
-                return TypeHelper.CollapseOrCreateTypeUnion(trueType, falseType);
+                return conditionType switch
+                {
+                    BooleanLiteralType { Value: true } => trueType,
+                    BooleanLiteralType => falseType,
+                    // the return type is the union of true and false expression types
+                    _ => TypeHelper.CollapseOrCreateTypeUnion(trueType, falseType),
+                };
             });
 
         public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
