@@ -25,19 +25,25 @@ internal static class TypeCollapser
     private static TypeSymbol? TryCollapse(UnionType unionType)
     {
         var collapseState = UnionCollapseState.Initialize();
-        foreach (var member in unionType.Members)
+        foreach (var member in Flatten(unionType))
         {
             collapseState = collapseState.Push(member);
         }
 
-        return collapseState.Collapse();
+        return collapseState.TryCollapse();
     }
+
+    private static IEnumerable<TypeSymbol> Flatten(ITypeReference type) => type.Type switch
+    {
+        UnionType union => union.Members.SelectMany(Flatten),
+        TypeSymbol otherwise => otherwise.AsEnumerable(),
+    };
 
     private interface UnionCollapseState
     {
         UnionCollapseState Push(ITypeReference memberType);
 
-        TypeSymbol? Collapse();
+        TypeSymbol? TryCollapse();
 
         public static UnionCollapseState Initialize() => new InitialState();
 
@@ -48,7 +54,7 @@ internal static class TypeCollapser
         {
             private bool nullable = false;
 
-            public TypeSymbol? Collapse() => LanguageConstants.Never;
+            public TypeSymbol? TryCollapse() => LanguageConstants.Never;
 
             public UnionCollapseState Push(ITypeReference memberType) => memberType.Type switch
             {
@@ -92,7 +98,7 @@ internal static class TypeCollapser
                 this.nullable = nullable;
             }
 
-            public TypeSymbol? Collapse() => CreateTypeUnion(
+            public TypeSymbol? TryCollapse() => CreateTypeUnion(
                 // only keep string literals that are not valid in any of the discrete spans
                 stringLiterals.Where(literal => !spanCollapser.Spans.Any(s => s.Contains(literal.RawStringValue.Length)))
                     // create a refined string type for each span
@@ -148,7 +154,7 @@ internal static class TypeCollapser
                 this.nullable = nullable;
             }
 
-            public TypeSymbol? Collapse() => CreateTypeUnion(
+            public TypeSymbol? TryCollapse() => CreateTypeUnion(
                 spanCollapser.Spans.Select(span => span.Min == span.Max
                     ? TypeFactory.CreateIntegerLiteralType(span.Min, span.Flags)
                     : TypeFactory.CreateIntegerType(
@@ -208,7 +214,7 @@ internal static class TypeCollapser
                 this.nullable = nullable;
             }
 
-            public TypeSymbol? Collapse()
+            public TypeSymbol? TryCollapse()
             {
                 TypeSymbol collapsed = includesTrue ^ includesFalse
                     ? TypeFactory.CreateBooleanLiteralType(includesTrue, flags)
@@ -266,7 +272,7 @@ internal static class TypeCollapser
                 this.nullable = nullable;
             }
 
-            public TypeSymbol? Collapse()
+            public TypeSymbol? TryCollapse()
             {
                 foreach (var tuple in tuples.ToArray())
                 {
@@ -340,7 +346,7 @@ internal static class TypeCollapser
                 this.nullable = nullable;
             }
 
-            public TypeSymbol? Collapse()
+            public TypeSymbol? TryCollapse()
             {
                 var (members, viableDiscriminators) = discriminatedObjectTypeBuilder.Build();
 
@@ -365,18 +371,98 @@ internal static class TypeCollapser
                     return nullable ? TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null) : baseType;
                 }
 
-                return null;
+                ObjectTypeNameBuilder structuralNameBuilder = new();
+                List<TypeProperty> properties = new();
+                foreach (var declaredPropertyName in members.SelectMany(m => m.Properties.Keys).Distinct()
+                    .OrderBy(x => x, LanguageConstants.IdentifierComparer))
+                {
+                    List<TypeSymbol> possibleTypes = new();
+                    TypePropertyFlags propertyFlags = ~TypePropertyFlags.None;
+                    foreach (var member in members)
+                    {
+                        if (member.Properties.TryGetValue(declaredPropertyName, out var property))
+                        {
+                            possibleTypes.Add(property.TypeReference.Type);
+                            propertyFlags &= property.Flags;
+                        }
+                        else
+                        {
+                            possibleTypes.Add(member.AdditionalPropertiesType?.Type ?? LanguageConstants.Null);
+                            propertyFlags &= member.AdditionalPropertiesType is not null
+                                ? member.AdditionalPropertiesFlags
+                                : TypePropertyFlags.FallbackProperty;
+                        }
+                    }
+
+                    var propertyTypeUnion = TypeHelper.CreateTypeUnion(possibleTypes);
+
+                    properties.Add(new(
+                        declaredPropertyName,
+                        TypeCollapser.TryCollapse(propertyTypeUnion) is { } collapsed ? collapsed : propertyTypeUnion,
+                        propertyFlags));
+                    structuralNameBuilder.AppendProperty(declaredPropertyName, properties[^1].TypeReference.Type.Name);
+                }
+
+                var (additionalPropertiesType, additionalPropertiesFlags) = GetAdditionalPropertiesType(members);
+                if (additionalPropertiesType is not null &&
+                    !additionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
+                {
+                    structuralNameBuilder.AppendPropertyMatcher(additionalPropertiesType.Name);
+                }
+
+                return new ObjectType(
+                    structuralNameBuilder.ToString(),
+                    flags,
+                    properties,
+                    additionalPropertiesType,
+                    additionalPropertiesFlags);
+            }
+
+            private static (TypeSymbol? type, TypePropertyFlags flags) GetAdditionalPropertiesType(
+                IEnumerable<ObjectType> objects)
+            {
+                var noneHaveAdditionalPropertiesType = true;
+                var allHaveImplicitAnyAdditionalPropertiesType = true;
+
+                List<TypeSymbol> possibleTypes = new();
+                TypePropertyFlags propertyFlags = ~TypePropertyFlags.None;
+                foreach (var @object in objects)
+                {
+                    noneHaveAdditionalPropertiesType &= @object.AdditionalPropertiesType is null;
+                    allHaveImplicitAnyAdditionalPropertiesType &= @object.AdditionalPropertiesType is not null &&
+                        @object.HasExplicitAdditionalPropertiesType;
+
+                    possibleTypes.Add(@object.AdditionalPropertiesType?.Type ?? LanguageConstants.Null);
+                    propertyFlags &= @object.AdditionalPropertiesFlags;
+                }
+
+                if (noneHaveAdditionalPropertiesType)
+                {
+                    return (null, TypePropertyFlags.None);
+                }
+
+                if (allHaveImplicitAnyAdditionalPropertiesType)
+                {
+                    return (LanguageConstants.Any, TypePropertyFlags.FallbackProperty);
+                }
+
+                return (TypeHelper.CollapseOrCreateTypeUnion(possibleTypes), propertyFlags);
             }
 
             public UnionCollapseState Push(ITypeReference memberType)
             {
                 switch (memberType.Type)
                 {
-                    case ObjectType @object when discriminatedObjectTypeBuilder.TryInclude(@object):
+                    case ObjectType @object:
                         flags |= @object.ValidationFlags;
+                        discriminatedObjectTypeBuilder.TryInclude(@object);
                         return this;
-                    case DiscriminatedObjectType @union when @union.UnionMembersByKey.Values.All(discriminatedObjectTypeBuilder.TryInclude):
+                    case DiscriminatedObjectType @union:
                         flags |= @union.ValidationFlags;
+                        foreach (var member in union.UnionMembersByKey.Values)
+                        {
+                            Push(member);
+                        }
                         return this;
                     case NullType:
                         nullable = true;
@@ -395,7 +481,7 @@ internal static class TypeCollapser
 
             internal static readonly CollapsesToAny Instance = new();
 
-            public TypeSymbol? Collapse() => LanguageConstants.Any;
+            public TypeSymbol? TryCollapse() => LanguageConstants.Any;
 
             public UnionCollapseState Push(ITypeReference _) => this;
         }
@@ -406,7 +492,7 @@ internal static class TypeCollapser
 
             internal static readonly Uncollapsable Instance = new();
 
-            public TypeSymbol? Collapse() => null;
+            public TypeSymbol? TryCollapse() => null;
 
             public UnionCollapseState Push(ITypeReference _) => this;
         }

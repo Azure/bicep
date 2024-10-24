@@ -183,7 +183,14 @@ public class TypeHelperTests
                 null),
         };
 
-        TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers).Should().BeNull();
+        var collapsed = TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers).Should().BeAssignableTo<ObjectType>().Subject;
+        collapsed.Properties.Should().HaveCount(3);
+        collapsed.Properties.ContainsKey("type").Should().BeTrue();
+        collapsed.Properties["type"].TypeReference.Type.Name.Should().Be("'a' | 'b'");
+        collapsed.Properties.ContainsKey("foo").Should().BeTrue();
+        collapsed.Properties["foo"].TypeReference.Type.Name.Should().Be("null | string");
+        collapsed.Properties.ContainsKey("bar").Should().BeTrue();
+        collapsed.Properties["bar"].TypeReference.Type.Name.Should().Be("int | null");
     }
 
     [TestMethod]
@@ -203,7 +210,7 @@ public class TypeHelperTests
                 default,
                 new TypeProperty[]
                 {
-                    new("type", TypeFactory.CreateStringLiteralType("b"), default),
+                    new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
                 },
                 null),
@@ -211,10 +218,46 @@ public class TypeHelperTests
                 default,
                 new TypeProperty[]
                 {
-                    new("type", TypeFactory.CreateStringLiteralType("a"), default),
+                    new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("baz", LanguageConstants.Int, TypePropertyFlags.Required),
                 },
                 null),
+        };
+
+        var collapsed = TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers).Should().BeAssignableTo<ObjectType>().Subject;
+        collapsed.Properties.Should().HaveCount(4);
+        collapsed.Properties.ContainsKey("type").Should().BeTrue();
+        collapsed.Properties["type"].TypeReference.Type.Name.Should().Be("'a' | 'b'");
+        collapsed.Properties.ContainsKey("foo").Should().BeTrue();
+        collapsed.Properties["foo"].TypeReference.Type.Name.Should().Be("null | string");
+        collapsed.Properties.ContainsKey("bar").Should().BeTrue();
+        collapsed.Properties["bar"].TypeReference.Type.Name.Should().Be("int | null");
+        collapsed.Properties.ContainsKey("baz").Should().BeTrue();
+        collapsed.Properties["baz"].TypeReference.Type.Name.Should().Be("int | null");
+    }
+
+    [TestMethod]
+    public void Union_should_not_be_collapsed_when_some_members_are_not_objects()
+    {
+        var prospectiveTaggedUnionMembers = new TypeSymbol[]
+        {
+            new ObjectType("{type: 'a', foo: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
+                    new("foo", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                null),
+            new ObjectType("{type: 'b', bar: int}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
+                    new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
+                },
+                null),
+            LanguageConstants.String,
         };
 
         TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers).Should().BeNull();

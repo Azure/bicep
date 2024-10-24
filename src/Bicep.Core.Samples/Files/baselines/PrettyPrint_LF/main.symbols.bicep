@@ -185,14 +185,14 @@ var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
   foo: true})]
 
 var forceBreak11 = true // comment
-//@[04:16) Variable forceBreak11. Type: false | true. Declaration start char: 0, length: 57
+//@[04:16) Variable forceBreak11. Type: bool. Declaration start char: 0, length: 57
     ? true
     : false
 var forceBreak12 = true ? true // comment
-//@[04:16) Variable forceBreak12. Type: false | true. Declaration start char: 0, length: 53
+//@[04:16) Variable forceBreak12. Type: bool. Declaration start char: 0, length: 53
     : false
 var forceBreak13 = true
-//@[04:16) Variable forceBreak13. Type: false | true. Declaration start char: 0, length: 57
+//@[04:16) Variable forceBreak13. Type: bool. Declaration start char: 0, length: 57
     ? true // comment
     : false
 var forceBreak14 = true ? {
@@ -200,7 +200,7 @@ var forceBreak14 = true ? {
     foo: 42
 } : false
 var forceBreak15 = true ? { foo: 0 } : {
-//@[04:16) Variable forceBreak15. Type: object | object. Declaration start char: 0, length: 52
+//@[04:16) Variable forceBreak15. Type: { bar: 1 | null, foo: 0 | null }. Declaration start char: 0, length: 52
     bar: 1}
 
 var forceBreak16 = union({ foo: 0 }, {

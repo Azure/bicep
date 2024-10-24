@@ -46,6 +46,15 @@ namespace Bicep.Core.TypeSystem
             };
         }
 
+        public static TypeSymbol CollapseOrCreateTypeUnion(IEnumerable<ITypeReference> itemTypes)
+        {
+            var unionType = CreateTypeUnion(itemTypes);
+            return TypeCollapser.TryCollapse(unionType) ?? unionType;
+        }
+
+        public static TypeSymbol CollapseOrCreateTypeUnion(params ITypeReference[] itemTypes)
+            => CollapseOrCreateTypeUnion((IEnumerable<ITypeReference>)itemTypes);
+
         private static TypeProperty GetCombinedTypeProperty(IEnumerable<ObjectType> objectTypes, string propertyName)
         {
             var flags = TypePropertyFlags.None;
