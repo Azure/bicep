@@ -1279,8 +1279,7 @@ namespace Bicep.LanguageServer.Completions
                 TestType testType => GetProperties(testType.Body.Type),
                 ObjectType objectType => objectType.Properties.Values,
                 DiscriminatedObjectType discriminated => discriminated.DiscriminatorProperty.AsEnumerable(),
-                UnionType unionType when unionType.Members.All(x => x.Type is ObjectType)
-                    => GetProperties(TypeHelper.CreateObjectTypeFromObjectUnion(unionType.Members.OfType<ObjectType>().ToList())),
+                UnionType unionType => GetProperties(TypeHelper.TryCollapseTypes(unionType.Members)),
                 _ => [],
             }).Where(p => !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty));
         }

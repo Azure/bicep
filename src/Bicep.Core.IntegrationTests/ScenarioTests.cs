@@ -1985,10 +1985,11 @@ var primaryLocation = locations[0]
     // https://github.com/Azure/bicep/issues/2248
     public void Test_Issue2248_UnionTypeInArrayAccessBaseExpression_NegativeCase()
     {
-        var result = CompilationHelper.Compile(@"
-var foos = true ? true : []
-var primaryFoo = foos[0]
-");
+        var result = CompilationHelper.Compile("""
+            param condition bool
+            var foos = condition ? true : []
+            var primaryFoo = foos[0]
+            """);
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP076", DiagnosticLevel.Error, "Cannot index over expression of type \"<empty array> | true\". Arrays or objects are required.")
@@ -2009,7 +2010,7 @@ var default = {
 
 var chosenOne = which ? input : default
 
-var p = chosenOne.foo
+var p = chosenOne.?foo
 ");
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
@@ -3341,8 +3342,8 @@ output valueMap object = toObject(
 """);
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
-            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => (1 | 2)" is not assignable to parameter of type "any => string"."""),
-            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => (2 | 3)" is not assignable to parameter of type "any => string"."""),
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => int" is not assignable to parameter of type "any => string"."""),
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => int" is not assignable to parameter of type "any => string"."""),
         ]);
     }
 
@@ -6211,7 +6212,7 @@ output foo string[] = [for item in items: item.foo]
 ");
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
-            ("BCP053", DiagnosticLevel.Error, """The type "object" does not contain property "foo". Available properties include "bar"."""),
+            ("BCP053", DiagnosticLevel.Error, """The type "object | object" does not contain property "foo". Available properties include "bar"."""),
         ]);
     }
 
@@ -6229,6 +6230,26 @@ var items = [
 
 output foo string[] = [for item in items: item.foo]
 ");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP187", DiagnosticLevel.Warning, """The property "foo" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+        ]);
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/14839
+    public void Test_Issue14839_3()
+    {
+        var result = CompilationHelper.Compile("""
+            param firstItem object
+
+            var items = [
+              firstItem
+              { bar: 'def' }
+            ]
+
+            output foo string[] = [for item in items: item.?foo]
+            """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }

@@ -19,12 +19,12 @@ public class DiscriminatedObjectTypeBuilder
 
     public bool TryInclude(ObjectType @object)
     {
-        if (members.Contains(@object))
+        if (!members.Add(@object))
         {
             return true;
         }
 
-        if (members.Count == 0)
+        if (members.Count == 1)
         {
             var foundViableDiscriminator = false;
 
@@ -49,7 +49,7 @@ public class DiscriminatedObjectTypeBuilder
         }
         else
         {
-            var noLongerViableDiscriminators = ImmutableHashSet.CreateBuilder<string>();
+            HashSet<string> noLongerViableDiscriminators = new();
             Dictionary<string, string> stillViableDiscriminators = new();
 
             foreach (var candidate in discriminatorCandidates.Keys)
@@ -68,13 +68,7 @@ public class DiscriminatedObjectTypeBuilder
                 }
             }
 
-            // If adding @object would eliminate all possible discriminators, reject it
-            if (noLongerViableDiscriminators.SetEquals(discriminatorCandidates.Keys))
-            {
-                return false;
-            }
-
-            // otherwise, narrow the list of discriminator candidates
+            // narrow the list of discriminator candidates
             foreach (var toEliminate in noLongerViableDiscriminators)
             {
                 discriminatorCandidates.Remove(toEliminate);
@@ -85,8 +79,7 @@ public class DiscriminatedObjectTypeBuilder
             }
         }
 
-        members.Add(@object);
-        return true;
+        return discriminatorCandidates.Count > 0;
     }
 
     public (ImmutableHashSet<ObjectType> Members, ImmutableHashSet<string> ViableDiscriminators) Build()

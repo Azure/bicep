@@ -183,7 +183,19 @@ public class TypeHelperTests
                 null),
         };
 
-        TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers).Should().BeNull();
+        var collapsed = TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers).Should().BeAssignableTo<ObjectType>().Subject;
+        collapsed.Properties.Should().HaveCount(3);
+        collapsed.Properties.ContainsKey("type").Should().BeTrue();
+        collapsed.Properties["type"].TypeReference.Type.Name.Should().Be("'a' | 'b'");
+        collapsed.Properties["type"].Flags.HasFlag(TypePropertyFlags.Required).Should().BeFalse();
+
+        collapsed.Properties.ContainsKey("foo").Should().BeTrue();
+        collapsed.Properties["foo"].TypeReference.Type.Name.Should().Be("string");
+        collapsed.Properties["foo"].Flags.HasFlag(TypePropertyFlags.Required).Should().BeFalse();
+
+        collapsed.Properties.ContainsKey("bar").Should().BeTrue();
+        collapsed.Properties["bar"].TypeReference.Type.Name.Should().Be("int");
+        collapsed.Properties["bar"].Flags.HasFlag(TypePropertyFlags.Required).Should().BeFalse();
     }
 
     [TestMethod]
@@ -203,7 +215,7 @@ public class TypeHelperTests
                 default,
                 new TypeProperty[]
                 {
-                    new("type", TypeFactory.CreateStringLiteralType("b"), default),
+                    new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
                 },
                 null),
@@ -211,10 +223,53 @@ public class TypeHelperTests
                 default,
                 new TypeProperty[]
                 {
-                    new("type", TypeFactory.CreateStringLiteralType("a"), default),
+                    new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("baz", LanguageConstants.Int, TypePropertyFlags.Required),
                 },
                 null),
+        };
+
+        var collapsed = TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers).Should().BeAssignableTo<ObjectType>().Subject;
+        collapsed.Properties.Should().HaveCount(4);
+        collapsed.Properties.ContainsKey("type").Should().BeTrue();
+        collapsed.Properties["type"].TypeReference.Type.Name.Should().Be("'a' | 'b'");
+        collapsed.Properties["type"].Flags.HasFlag(TypePropertyFlags.Required).Should().BeTrue();
+
+        collapsed.Properties.ContainsKey("foo").Should().BeTrue();
+        collapsed.Properties["foo"].TypeReference.Type.Name.Should().Be("string");
+        collapsed.Properties["foo"].Flags.HasFlag(TypePropertyFlags.Required).Should().BeFalse();
+
+        collapsed.Properties.ContainsKey("bar").Should().BeTrue();
+        collapsed.Properties["bar"].TypeReference.Type.Name.Should().Be("int");
+        collapsed.Properties["bar"].Flags.HasFlag(TypePropertyFlags.Required).Should().BeFalse();
+
+        collapsed.Properties.ContainsKey("baz").Should().BeTrue();
+        collapsed.Properties["baz"].TypeReference.Type.Name.Should().Be("int");
+        collapsed.Properties["baz"].Flags.HasFlag(TypePropertyFlags.Required).Should().BeFalse();
+    }
+
+    [TestMethod]
+    public void Union_should_not_be_collapsed_when_some_members_are_not_objects()
+    {
+        var prospectiveTaggedUnionMembers = new TypeSymbol[]
+        {
+            new ObjectType("{type: 'a', foo: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
+                    new("foo", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                null),
+            new ObjectType("{type: 'b', bar: int}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
+                    new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
+                },
+                null),
+            LanguageConstants.String,
         };
 
         TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers).Should().BeNull();
@@ -311,5 +366,41 @@ public class TypeHelperTests
 
         collapsed.Should().BeOfType<DiscriminatedObjectType>();
         collapsed.As<DiscriminatedObjectType>().DiscriminatorKey.Should().Be("fizz");
+    }
+
+    [TestMethod]
+    public void Object_collapse_should_incorporate_additionalProperties_types()
+    {
+        var toCollapse = new ObjectType[]
+        {
+            new("{foo: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("foo", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                null),
+            new("{bar: string, *: int}",
+                default,
+                new TypeProperty[]
+                {
+                    new("bar", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                LanguageConstants.Int),
+        };
+
+        var collapsed = TypeHelper.TryCollapseTypes(toCollapse).Should().BeAssignableTo<ObjectType>().Subject;
+        collapsed.Properties.Should().HaveCount(2);
+        collapsed.Properties.ContainsKey("foo").Should().BeTrue();
+        collapsed.Properties["foo"].TypeReference.Type.Name.Should().Be("int | string");
+        collapsed.Properties["foo"].Flags.HasFlag(TypePropertyFlags.Required).Should().BeFalse();
+
+        collapsed.Properties.ContainsKey("bar").Should().BeTrue();
+        collapsed.Properties["bar"].TypeReference.Type.Name.Should().Be("string");
+        collapsed.Properties["bar"].Flags.HasFlag(TypePropertyFlags.Required).Should().BeFalse();
+
+        collapsed.AdditionalPropertiesType.Should().NotBeNull();
+        collapsed.AdditionalPropertiesType!.Type.Name.Should().Be("int");
+        collapsed.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty).Should().BeTrue();
     }
 }

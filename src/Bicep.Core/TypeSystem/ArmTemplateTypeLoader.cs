@@ -289,7 +289,7 @@ public static class ArmTemplateTypeLoader
             {
                 var (type, typeName) = GetDeferrableTypeInfo(context, additionalPropertiesSchema);
                 additionalPropertiesType = type;
-                nameBuilder.AppendPropertyMatcher("*", typeName);
+                nameBuilder.AppendPropertyMatcher(typeName);
             }
             else if (additionalProperties.BooleanValue == false)
             {

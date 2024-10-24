@@ -95,7 +95,7 @@ var toObject7 = toObject(range(0, 10), i => '${i}', () => null)
 var ternary = map([123], true ? i => '${i}' : i => 'hello!')
 //@[32:33) Local i. Type: any. Declaration start char: 32, length: 1
 //@[46:47) Local i. Type: any. Declaration start char: 46, length: 1
-//@[04:11) Variable ternary. Type: any. Declaration start char: 0, length: 60
+//@[04:11) Variable ternary. Type: string[]. Declaration start char: 0, length: 60
 
 var outsideArgs = i => 123
 //@[18:19) Local i. Type: any. Declaration start char: 18, length: 1
