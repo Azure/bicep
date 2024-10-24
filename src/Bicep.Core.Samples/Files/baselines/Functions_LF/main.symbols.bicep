@@ -23,13 +23,13 @@ func objReturnType(name string) object => {
 
 func arrayReturnType(name string) array => [
 //@[21:025) Local name. Type: string. Declaration start char: 21, length: 11
-//@[05:020) Function arrayReturnType. Type: string => [string]. Declaration start char: 0, length: 53
+//@[05:020) Function arrayReturnType. Type: string => [any]. Declaration start char: 0, length: 53
   name
 ]
 
 func asdf(name string) array => [
 //@[10:014) Local name. Type: string. Declaration start char: 10, length: 11
-//@[05:009) Function asdf. Type: string => ['asdf', string]. Declaration start char: 0, length: 51
+//@[05:009) Function asdf. Type: string => [any, any]. Declaration start char: 0, length: 51
   'asdf'
   name
 ]
@@ -43,10 +43,10 @@ func typedArg(input string[]) positiveInt => length(input)
 //@[05:013) Function typedArg. Type: string[] => int. Declaration start char: 0, length: 58
 
 func barTest() array => ['abc', 'def']
-//@[05:012) Function barTest. Type: () => ['abc', 'def']. Declaration start char: 0, length: 38
+//@[05:012) Function barTest. Type: () => [any, any]. Declaration start char: 0, length: 38
 func fooTest() array => map(barTest(), a => 'Hello ${a}!')
 //@[39:040) Local a. Type: any. Declaration start char: 39, length: 1
-//@[05:012) Function fooTest. Type: () => string[]. Declaration start char: 0, length: 58
+//@[05:012) Function fooTest. Type: () => array. Declaration start char: 0, length: 58
 
 output fooValue array = fooTest()
 //@[07:015) Output fooValue. Type: array. Declaration start char: 0, length: 33

@@ -362,7 +362,7 @@ namespace Bicep.Core.TypeSystem
                 return NarrowLambdaType(config, sourceLambda, targetLambdaType);
             }
 
-            return expressionType;
+            return targetType;
         }
 
         private static SyntaxBase UnwrapIfConditionBody(SyntaxBase expression) => expression switch
@@ -457,7 +457,7 @@ namespace Bicep.Core.TypeSystem
                     return expressionIntegerLiteral;
             }
 
-            return expressionType;
+            return targetType;
         }
 
         private TypeSymbol NarrowIntegerLiteralAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, IntegerLiteralType targetType)
@@ -548,7 +548,7 @@ namespace Bicep.Core.TypeSystem
                     return expressionStringLiteral;
             }
 
-            return expressionType;
+            return targetType;
         }
 
         private TypeSymbol NarrowStringLiteralAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, StringLiteralType targetType)
@@ -1049,7 +1049,7 @@ namespace Bicep.Core.TypeSystem
             // we should not return the parse errors however because they will get double collected
             if (this.parsingErrorLookup.Contains(expression))
             {
-                return targetType;
+                return null;
             }
 
             if (expressionType is ObjectType expressionObjectType)

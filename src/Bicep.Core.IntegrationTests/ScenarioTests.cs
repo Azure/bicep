@@ -6258,4 +6258,39 @@ param p invalidRecursiveObjectType = {}
             ("BCP062", DiagnosticLevel.Error, """The referenced declaration with name "invalidRecursiveObjectType" is not valid."""),
         ]);
     }
+
+    // https://github.com/Azure/bicep/issues/15114
+    [TestMethod]
+    public void Test_Issue15114()
+    {
+        var result = CompilationHelper.Compile("""
+            param recoverDeleted bool
+
+            resource KeyVaultResource 'Microsoft.KeyVault/vaults@2023-07-01' = {
+              name: 'vault'
+              location: resourceGroup().location
+              properties: recoverDeleted
+                ? {
+                  createMode: 'recover'
+                  sku: {
+                    name: 'standard'
+                    family: 'A'
+                  }
+                  tenantId: tenant().tenantId
+                }
+                : {
+                  createMode: 'default'
+                  sku: {
+                    name: 'standard'
+                    family: 'A'
+                  }
+                  tenantId: tenant().tenantId
+                }
+            }
+
+            output keyvaultUri string = KeyVaultResource.properties.vaultUri
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
