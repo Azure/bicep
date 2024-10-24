@@ -27,7 +27,6 @@ import {
   ParametersFileUpdateOption,
 } from "../language";
 import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
-import { LocationTreeItem } from "../tree/LocationTreeItem";
 import { TreeManager } from "../tree/TreeManager";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 import { localize } from "../utils/localize";
@@ -35,6 +34,10 @@ import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { Command } from "./types";
+
+//ASDFG https://github.com/Azure/azure-sdk-for-net/issues/39920
+//asdfg? https://github.com/Azure/azure-sdk-for-net/issues/21453
+//asdfg? https://stackoverflow.com/questions/30826726/how-to-identify-if-the-oauth-token-has-expired
 
 //asdfgasdfg If the tree is only used for showing pickers I recommend implementing it without registering a tree 
 // or using tree items. If the tree is actually shown to users as UI and not just pickers then I recommend 
@@ -248,7 +251,7 @@ export class DeployCommand implements Command {
       context,
       documentUri.fsPath,
       parameterFilePath,
-      nonNullProp(rg, "name"),
+      nonNullProp(rg, "id"),
       deploymentScope,
       "",
       template,
@@ -266,7 +269,7 @@ export class DeployCommand implements Command {
     deployId: string,
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
-    const locationTreeItem = await this.treeManager.azLocationTree.showTreeItemPicker<LocationTreeItem>("", context);
+    const locationTreeItem = await this.treeManager.pickLocation .azLocationTree.showTreeItemPicker<LocationTreeItem>("", context);
     const location = locationTreeItem.label;
     const subscription = locationTreeItem.subscription;
     const subscriptionId = subscription.subscriptionPath;
@@ -306,11 +309,11 @@ export class DeployCommand implements Command {
       context.telemetry.properties.parameterFileProvided = "true";
     }
 
-    const accessToken: AccessToken = await subscription.credentials.getToken([]);
+    const accessToken: AccessToken = await subscription.credentials.getToken([]); //asdfgasdfg
 
     if (accessToken) {
       const token = accessToken.token;
-      const expiresOnTimestamp = accessToken.expiresOnTimestamp ? String(accessToken.expiresOnTimestamp) : undefined; //asdfg?
+      const expiresOnTimestamp = accessToken.expiresOnTimestamp ? String(accessToken.expiresOnTimestamp) : undefined;
       const portalUrl = subscription.environment.portalUrl;
 
       let parametersFileName: string | undefined;

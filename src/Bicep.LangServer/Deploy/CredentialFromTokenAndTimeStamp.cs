@@ -9,9 +9,12 @@ namespace Bicep.LanguageServer.Deploy
     {
         private AccessToken accessToken;
 
-        public CredentialFromTokenAndTimeStamp(string token, string timeStamp)
+        public CredentialFromTokenAndTimeStamp(string token, string? timeStamp)
         {
-            accessToken = new AccessToken(token, DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(timeStamp)));
+            var expiresOn = timeStamp is string
+                ? DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(timeStamp))
+                : new DateTimeOffset(DateTime.UtcNow.AddHours(1)); //asdfg long deploy??
+            accessToken = new AccessToken(token, expiresOn);
         }
 
         public override ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)

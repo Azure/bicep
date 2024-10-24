@@ -4,12 +4,11 @@
 import { AzExtTreeDataProvider, createSubscriptionContext, IActionContext, IAzureQuickPickItem, nonNullProp, parseError } from "@microsoft/vscode-azext-utils"; //asdfg remove
 import { Disposable } from "../utils/disposable";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
-import { AzLocationTreeItem } from "./AzLocationTreeItem";
 import { AzManagementGroupTreeItem } from "./AzManagementGroupTreeItem";
 import { AzResourceGroupTreeItem } from "./AzResourceGroupTreeItem";
 import { AzureSubscription, VSCodeAzureSubscriptionProvider } from "@microsoft/vscode-azext-azureauth";
 import { ResourceGroup, ResourceManagementClient } from "@azure/arm-resources";
-import { createResourceManagementClient } from "../azure/azureClients";
+import { createResourceManagementClient, createSubscriptionClient } from "../azure/azureClients";
 import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 //import { QuickInputButton } from "vscode";
 
@@ -33,12 +32,7 @@ export class TreeManager extends Disposable {
     super();
   }
 
-  get azLocationTree(): AzExtTreeDataProvider {
-    const azLocationTreeItem: AzLocationTreeItem = this.register(new AzLocationTreeItem());
-    return new AzExtTreeDataProvider(azLocationTreeItem, "");
-  }
-
-  get azManagementGroupTreeItem(): AzExtTreeDataProvider {
+  get azManagementGroupTreeItem(): AzExtTreeDataProvider { //asdfg remove these
     const azManagementGroupTreeItem: AzManagementGroupTreeItem = this.register(new AzManagementGroupTreeItem());
     return new AzExtTreeDataProvider(azManagementGroupTreeItem, "");
   }
@@ -203,93 +197,15 @@ export class TreeManager extends Disposable {
     return (await context.ui.showQuickPick(picks, { placeHolder: "Select resource group" })).data;
   }
 
-
-  // //asdfg from aks
-  // private getResourceManagementClient(
-  //   sessionProvider: ReadyAzureSessionProvider,
-  //   subscriptionId: string,
-  // ): ResourceManagementClient {
-  //   return new ResourceManagementClient(getCredential(sessionProvider), subscriptionId, { endpoint: getArmEndpoint() });
-  // }
-
-  // private getCredential(sessionProvider: ReadyAzureSessionProvider): TokenCredential {
-  //   return {
-  //     getToken: async () => {
-  //       const session = await sessionProvider.getAuthSession();
-  //       if (failed(session)) {
-  //         throw new Error(`No Microsoft authentication session found: ${session.error}`);
-  //       }
-
-  //       return { token: session.result.accessToken, expiresOnTimestamp: 0 };
-  //     },
-  //   };
-  // }
-
-
-
-
-
-
-  // import { parseAzureResourceId } from "@microsoft/vscode-azext-azureutils";
-  // import  { type AzureResourceQuickPickWizardContext, type AzureWizardPromptStep, type IActionContext, type QuickPickWizardContext} from "@microsoft/vscode-azext-utils";
-  // import { ContextValueQuickPickStep, nonNullProp, runQuickPickWizard } from "@microsoft/vscode-azext-utils";
-  // import { ext } from "../../extensionVariables";
-  // import  { type ContainerAppModel } from "../../tree/ContainerAppItem";
-  // import { ContainerAppItem } from "../../tree/ContainerAppItem";
-  // import { localize } from "../localize";
-  // import  { type PickItemOptions } from "./PickItemOptions";
-  // import { getPickEnvironmentSteps } from "./pickEnvironment";
-
-  // export function getPickContainerAppStep(containerAppName?: string | RegExp): AzureWizardPromptStep<AzureResourceQuickPickWizardContext> {
-  //     let containerAppFilter: RegExp | undefined;
-  //     if (containerAppName) {
-  //         containerAppFilter = containerAppName instanceof RegExp ? containerAppName : new RegExp(`^${containerAppName}$`);
-  //     } else {
-  //         containerAppFilter = ContainerAppItem.contextValueRegExp;
-  //     }
-
-  //     return new ContextValueQuickPickStep(ext.rgApiV2.resources.azureResourceTreeDataProvider, {
-  //         contextValueFilter: { include: containerAppFilter },
-  //         skipIfOne: !!containerAppName,
-  //     }, {
-  //         placeHolder: localize('selectContainerApp', 'Select a container app'),
-  //         noPicksMessage: localize('noContainerApps', 'Selected container apps environment has no apps'),
-  //     });
-  // }
-
-  // export function getPickContainerAppSteps(): AzureWizardPromptStep<AzureResourceQuickPickWizardContext>[] {
-  //     return [
-  //         ...getPickEnvironmentSteps(),
-  //         getPickContainerAppStep()
-  //     ];
-  // }
-
-  // export async function pickContainerApp(context: IActionContext, options?: PickItemOptions): Promise<ContainerAppItem> {
-  //     const promptSteps: AzureWizardPromptStep<QuickPickWizardContext>[] = [
-  //         ...getPickContainerAppSteps()
-  //     ];
-
-  //     return await runQuickPickWizard(context, {
-  //         promptSteps,
-  //         title: options?.title,
-  //         showLoadingPrompt: options?.showLoadingPrompt
-  //     });
-  // }
-
-  // export async function pickContainerAppWithoutPrompt(
-  //     context: IActionContext,
-  //     containerApp: ContainerAppModel,
-  //     options?: PickItemOptions
-  // ): Promise<ContainerAppItem> {
-  //     const environmentName: string = parseAzureResourceId(nonNullProp(containerApp, 'environmentId')).resourceName;
-
-  //     return await runQuickPickWizard(context, {
-  //         promptSteps: [
-  //             ...getPickEnvironmentSteps(true /** skipIfOne */, environmentName),
-  //             getPickContainerAppStep(containerApp.name)
-  //         ],
-  //         title: options?.title,
-  //         showLoadingPrompt: options?.showLoadingPrompt
-  //     });
+  public async pickLocation(context: IActionContext, subscription: AzureSubscription): Promise<Location> {
+    const client = await createSubscriptionClient([context, createSubscriptionContext(subscription)]);
+    const locations = await uiUtils.listAllIterator(client.subscriptions.listLocations(subscription.subscriptionId));
+    const picks = locations.map((l) => <IAzureQuickPickItem<Location>>{
+        label: l.displayName ?? l.name,
+        data: l
+      });    
+    
+    return (await context.ui.showQuickPick(picks, { placeHolder: "Select location" })).data;
+  }
 }
 
