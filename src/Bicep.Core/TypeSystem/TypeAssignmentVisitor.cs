@@ -1686,7 +1686,8 @@ namespace Bicep.Core.TypeSystem
                                 return TypeHelper.GetNamedPropertyType(baseObject,
                                     syntax.IndexExpression,
                                     literalIndex.RawStringValue,
-                                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(baseObject),
+                                    syntax.IsSafeAccess,
+                                    shouldWarn: syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(baseObject),
                                     diagnostics);
                             }
 
@@ -1800,12 +1801,14 @@ namespace Bicep.Core.TypeSystem
             ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType,
                 syntax.PropertyName,
                 syntax.PropertyName.IdentifierName,
+                syntax.IsSafeAccess,
                 syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
                 diagnostics),
 
             UnionType unionType when syntax.PropertyName.IsValid => TypeHelper.GetNamedPropertyType(unionType,
                 syntax.PropertyName,
                 syntax.PropertyName.IdentifierName,
+                syntax.IsSafeAccess,
                 syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(unionType),
                 diagnostics),
 

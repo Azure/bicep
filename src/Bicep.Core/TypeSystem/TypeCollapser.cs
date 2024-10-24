@@ -387,7 +387,14 @@ internal static class TypeCollapser
                         }
                         else
                         {
-                            possibleTypes.Add(member.AdditionalPropertiesType?.Type ?? LanguageConstants.Null);
+                            // If a property is not declared on a member, then it may not be present on the resultant
+                            // value. Make sure it is not flagged as required.
+                            propertyFlags &= ~TypePropertyFlags.Required;
+
+                            if (member.AdditionalPropertiesType?.Type is { } addlPropertiesType)
+                            {
+                                possibleTypes.Add(addlPropertiesType);
+                            }
                             propertyFlags &= member.AdditionalPropertiesType is not null
                                 ? member.AdditionalPropertiesFlags
                                 : TypePropertyFlags.FallbackProperty;
@@ -422,6 +429,7 @@ internal static class TypeCollapser
                 IEnumerable<ObjectType> objects)
             {
                 var noneHaveAdditionalPropertiesType = true;
+                var anyHaveNullAdditionalPropertiesType = false;
                 var allHaveImplicitAnyAdditionalPropertiesType = true;
 
                 List<TypeSymbol> possibleTypes = new();
@@ -429,10 +437,14 @@ internal static class TypeCollapser
                 foreach (var @object in objects)
                 {
                     noneHaveAdditionalPropertiesType &= @object.AdditionalPropertiesType is null;
+                    anyHaveNullAdditionalPropertiesType |= @object.AdditionalPropertiesType is null;
                     allHaveImplicitAnyAdditionalPropertiesType &= @object.AdditionalPropertiesType is not null &&
                         @object.HasExplicitAdditionalPropertiesType;
 
-                    possibleTypes.Add(@object.AdditionalPropertiesType?.Type ?? LanguageConstants.Null);
+                    if (@object.AdditionalPropertiesType?.Type is { } addlPropertiesType)
+                    {
+                        possibleTypes.Add(addlPropertiesType);
+                    }
                     propertyFlags &= @object.AdditionalPropertiesFlags;
                 }
 
@@ -444,6 +456,11 @@ internal static class TypeCollapser
                 if (allHaveImplicitAnyAdditionalPropertiesType)
                 {
                     return (LanguageConstants.Any, TypePropertyFlags.FallbackProperty);
+                }
+
+                if (anyHaveNullAdditionalPropertiesType)
+                {
+                    propertyFlags |= TypePropertyFlags.FallbackProperty;
                 }
 
                 return (TypeHelper.CollapseOrCreateTypeUnion(possibleTypes), propertyFlags);
