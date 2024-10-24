@@ -221,7 +221,7 @@ namespace Bicep.LanguageServer.Completions
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
-                    .WithSortText(GetSortText(version, i))
+                    .WithSortText(GetSortText(i))
                     .WithDetail(description)
                     .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))
                     .Build();
@@ -661,7 +661,7 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
-        private static string GetSortText(string label, int priority) => $"{priority}_{label}";
+        private static string GetSortText(int priority) => $"{priority}".PadLeft(4, '0');
 
         private static string GetSortText(string label, ModuleCompletionPriority priority = ModuleCompletionPriority.Default)
         {
