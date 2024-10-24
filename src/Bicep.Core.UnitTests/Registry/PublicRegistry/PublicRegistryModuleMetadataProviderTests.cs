@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             var httpClient = MockHttpMessageHandler.ToHttpClient();
             return new ServiceBuilder().WithRegistration(x =>
-                x.AddSingleton<IPublicRegistryModuleMetadataClient>(new PublicRegistryModuleMetadataClient(httpClient))
+                x.AddSingleton<IPublicRegistryModuleIndexClient>(new PublicRegistryModuleMetadataClient(httpClient))
             ).Build().Construct<IServiceProvider>();
         }
         private const string ModuleIndexJson = """
@@ -764,7 +764,9 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
                 "moduleName": "samples/array-loop",
                 "tags": [
                   "1.0.1",
+                  "1.10.1",
                   "1.0.2",
+                  "1.0.2-preview",
                   "1.0.3"
                 ],
                 "properties": {
@@ -1174,7 +1176,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = provider.GetCachedModules();
+            var modules = provider.GetModulesMetadata();
             modules.Should().HaveCount(50);
         }
 
@@ -1183,7 +1185,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = await provider.GetModules();
+            var modules = provider.GetModulesMetadata();
             var m = modules.Should().Contain(m => m.Name == "samples/hello-world")
                 .Which;
             m.Description.Should().Be("A \"שָׁלוֹם עוֹלָם\" sample Bicep registry module");
@@ -1195,11 +1197,27 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = await provider.GetModules();
+            var modules = provider.GetModulesMetadata();
             var m = modules.Should().Contain(m => m.Name == "lz/sub-vending")
                 .Which;
             m.Description.Should().Be("This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.");
             m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.2/modules/lz/sub-vending/README.md");
+        }
+
+        [TestMethod]
+        public async Task GetModuleVerionsMetadata_ByDefault_ReturnsMetadataSortedByVersion()
+        {
+            PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
+            (await provider.TryUpdateCacheAsync()).Should().BeTrue();
+
+            var versions = provider.GetModuleVersionsMetadata("samples/array-loop").Select(x => x.Version);
+
+            versions.Should().Equal(
+                  "1.10.1",
+                  "1.0.3",
+                  "1.0.2",
+                  "1.0.2-preview",
+                  "1.0.1");
         }
     }
 }
