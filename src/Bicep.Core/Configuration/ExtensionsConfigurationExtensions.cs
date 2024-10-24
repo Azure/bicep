@@ -24,6 +24,7 @@ public static class ExtensionsConfigurationExtensions
             rootConfiguration.CacheRootDirectory,
             rootConfiguration.ExperimentalFeaturesEnabled,
             rootConfiguration.Formatting,
+            rootConfiguration.Bicep,
             rootConfiguration.ConfigFileUri,
             rootConfiguration.DiagnosticBuilders);
     }
@@ -39,6 +40,7 @@ public static class ExtensionsConfigurationExtensions
             rootConfiguration.CacheRootDirectory,
             rootConfiguration.ExperimentalFeaturesEnabled,
             rootConfiguration.Formatting,
+            rootConfiguration.Bicep,
             rootConfiguration.ConfigFileUri,
             rootConfiguration.DiagnosticBuilders);
     }
