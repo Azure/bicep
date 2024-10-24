@@ -43,10 +43,10 @@ export function useAzure(props: UseAzureProps) {
 
     const authenticatedSubscriptionId =
       scope.scopeType === "managementGroup" || scope.scopeType === "tenant"
-        ? scope.associatedSubscriptionId
-        : scope.subscriptionId;
+        ? scope.associatedSubscription.subscriptionId
+        : scope.subscription.subscriptionId;
 
-    return new ResourceManagementClient(tokenProvider, authenticatedSubscriptionId, {
+    return new ResourceManagementClient(tokenProvider, authenticatedSubscriptionId, { //asdfg  createResourceManagementClient?
       userAgentOptions: {
         userAgentPrefix: "bicepdeploypane",
       },
@@ -225,9 +225,9 @@ function getDeploymentProperties(
 function getScopeId(scope: DeploymentScope) {
   switch (scope.scopeType) {
     case "resourceGroup":
-      return `/subscriptions/${scope.subscriptionId}/resourceGroups/${scope.resourceGroup}`;
+      return `/subscriptions/${scope.subscription.subscriptionId}/resourceGroups/${scope.resourceGroup}`;
     case "subscription":
-      return `/subscriptions/${scope.subscriptionId}`;
+      return `/subscriptions/${scope.subscription.subscriptionId}`;
     case "managementGroup":
       return `/providers/Microsoft.Management/managementGroups/${scope.managementGroup}`;
     case "tenant":

@@ -12,6 +12,7 @@ import { createResourceManagementClient, createSubscriptionClient } from "../azu
 import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 //import { QuickInputButton } from "vscode";
 
+//asdfg filters
 
 //asdfg
 // const signInLabel: string = l10n.t('Sign in to Azure...');
@@ -197,11 +198,11 @@ export class TreeManager extends Disposable {
     return (await context.ui.showQuickPick(picks, { placeHolder: "Select resource group" })).data;
   }
 
-  public async pickLocation(context: IActionContext, subscription: AzureSubscription): Promise<Location> {
+  public async pickLocation(context: IActionContext, subscription: AzureSubscription): Promise<string> {
     const client = await createSubscriptionClient([context, createSubscriptionContext(subscription)]);
-    const locations = await uiUtils.listAllIterator(client.subscriptions.listLocations(subscription.subscriptionId));
-    const picks = locations.map((l) => <IAzureQuickPickItem<Location>>{
-        label: l.displayName ?? l.name,
+    const locations = (await uiUtils.listAllIterator(client.subscriptions.listLocations(subscription.subscriptionId))).map(l => l.name);
+    const picks = locations.map((l) => <IAzureQuickPickItem<string>>{
+        label: l,
         data: l
       });    
     

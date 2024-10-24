@@ -22,13 +22,13 @@ export const DeploymentScopeInputView: FC<DeploymentScopeInputViewProps> = ({ sc
       {scope && (
         <VSCodeDataGrid>
           {(scope.scopeType === "resourceGroup" || scope.scopeType === "subscription") &&
-            getGridRow("Subscription Id", scope.subscriptionId)}
+            getGridRow("Subscription Id", scope.subscription.subscriptionId)}
           {scope.scopeType === "resourceGroup" && getGridRow("Resource Group", scope.resourceGroup)}
           {(scope.scopeType === "managementGroup" || scope.scopeType === "tenant") &&
             getGridRow("Tenant Id", scope.tenantId)}
           {scope.scopeType === "managementGroup" && getGridRow("Management Group", scope.managementGroup)}
           {(scope.scopeType === "managementGroup" || scope.scopeType === "tenant") &&
-            getGridRow("Authenticated Subscription Id", scope.associatedSubscriptionId)}
+            getGridRow("Authenticated Subscription Id", scope.associatedSubscription.subscriptionId)}
           {scope.scopeType !== "resourceGroup" && getGridRow("Location", scope.location)}
         </VSCodeDataGrid>
       )}

@@ -205,7 +205,7 @@ export class DeployCommand implements Command {
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
     const managementGroupTreeItem =
-      await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>("", context);
+      await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>("", context);//asdfg
     const managementGroupId = managementGroupTreeItem?.id;
 
     if (managementGroupId) {
@@ -269,10 +269,8 @@ export class DeployCommand implements Command {
     deployId: string,
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
-    const locationTreeItem = await this.treeManager.pickLocation .azLocationTree.showTreeItemPicker<LocationTreeItem>("", context);
-    const location = locationTreeItem.label;
-    const subscription = locationTreeItem.subscription;
-    const subscriptionId = subscription.subscriptionPath;
+    const subscription = await this.treeManager.pickSubscription(context);
+    const location = await this.treeManager.pickLocation(context, subscription);
 
     const parameterFilePath = await this.selectParameterFile(context, documentUri);
 
@@ -280,11 +278,11 @@ export class DeployCommand implements Command {
       context,
       documentUri.fsPath,
       parameterFilePath,
-      subscriptionId,
+      `/subscriptions/${subscription.subscriptionId}`,
       deploymentScope,
       location,
       template,
-      subscription,
+      createSubscriptionContext(subscription),
       deployId,
       deploymentName,
     );
@@ -309,7 +307,7 @@ export class DeployCommand implements Command {
       context.telemetry.properties.parameterFileProvided = "true";
     }
 
-    const accessToken: AccessToken = await subscription.credentials.getToken([]); //asdfgasdfg
+    const accessToken: AccessToken = await subscription.credentials.getToken(); //asdfgasdfg
 
     if (accessToken) {
       const token = accessToken.token;

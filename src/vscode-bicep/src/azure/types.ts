@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { AccessToken } from "@azure/identity";
+import { AzureSubscription } from "@microsoft/vscode-azext-azureauth";
 import { Event } from "vscode";
 
-// https://github.com/microsoft/vscode-azure-account/blob/main/src/azure-account.api.d.ts
+// https://github.com/microsoft/vscode-azure-account/blob/main/src/azure-account.api.d.ts //asdfg
 // with just the properties we need
 export interface AzureAccount {
   readonly status: AzureLoginStatus;
@@ -19,26 +20,26 @@ type DeploymentScopeBase<T> = {
 
 export type DeploymentScope = DeploymentScopeBase<
   | {
-      scopeType: "resourceGroup";
-      subscriptionId: string;
-      resourceGroup: string;
-    }
+    scopeType: "resourceGroup";
+    subscription: AzureSubscription;
+    resourceGroup: string;
+  }
   | {
-      scopeType: "subscription";
-      location: string;
-      subscriptionId: string;
-    }
+    scopeType: "subscription";
+    location: string;
+    subscription: AzureSubscription;
+  }
   | {
-      scopeType: "managementGroup";
-      associatedSubscriptionId: string;
-      location: string;
-      managementGroup: string;
-    }
+    scopeType: "managementGroup";
+    associatedSubscription: AzureSubscription;
+    location: string;
+    managementGroup: string;
+  }
   | {
-      scopeType: "tenant";
-      associatedSubscriptionId: string;
-      location: string;
-    }
+    scopeType: "tenant";
+    associatedSubscription: AzureSubscription;
+    location: string;
+  }
 >;
 
 export type DeploymentScopeType = "resourceGroup" | "subscription" | "managementGroup" | "tenant";
