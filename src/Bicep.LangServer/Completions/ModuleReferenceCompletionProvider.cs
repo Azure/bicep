@@ -209,10 +209,11 @@ namespace Bicep.LanguageServer.Completions
             List<CompletionItem> completions = new();
             replacementText = replacementText.TrimEnd('\'');
 
-            var versionInfos = publicRegistryModuleMetadataProvider.GetCachedModuleVersions(modulePath).ToArray();
-            for (int i = versionInfos.Count() - 1; i >= 0; i--)
+            var versionsMetadata = publicRegistryModuleMetadataProvider.GetModuleVersionsMetadata(modulePath);
+
+            for (int i = versionsMetadata.Length - 1; i >= 0; i--)
             {
-                var (version, description, documentationUri) = versionInfos[i];
+                var (version, description, documentationUri) = versionsMetadata[i];
 
                 var insertText = $"{replacementText}{version}'$0";
 
@@ -360,7 +361,7 @@ namespace Bicep.LanguageServer.Completions
 
                             if (replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:", StringComparison.Ordinal))
                             {
-                                var modules = publicRegistryModuleMetadataProvider.GetCachedModules();
+                                var modules = publicRegistryModuleMetadataProvider.GetModulesMetadata();
                                 foreach (var (moduleName, description, documentationUri) in modules)
                                 {
                                     var label = $"bicep/{moduleName}";
@@ -399,7 +400,7 @@ namespace Bicep.LanguageServer.Completions
 
                             // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = TrimStart(modulePath, "bicep/");
-                            var modules = publicRegistryModuleMetadataProvider.GetCachedModules();
+                            var modules = publicRegistryModuleMetadataProvider.GetModulesMetadata();
 
                             var matchingModules = modules.Where(x => x.Name.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -508,7 +509,7 @@ namespace Bicep.LanguageServer.Completions
 
             var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
 
-            var modules = publicRegistryModuleMetadataProvider.GetCachedModules();
+            var modules = publicRegistryModuleMetadataProvider.GetModulesMetadata();
             foreach (var (moduleName, description, documentationUri) in modules)
             {
                 var insertText = $"{replacementTextWithTrimmedEnd}{moduleName}:$0'";
