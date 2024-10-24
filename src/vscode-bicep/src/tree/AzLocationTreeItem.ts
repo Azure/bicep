@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { AzureAccountTreeItemBase } from "@microsoft/vscode-azext-azureutils";
-import { ISubscriptionContext } from "@microsoft/vscode-azext-utils";
+
+//asdfg import { AzureAccountTreeItemBase } from "@microsoft/vscode-azext-azureutils";
+import { ISubscriptionContext } from "@microsoft/vscode-azext-utils"; //asdfg
 import { LocationTreeItem } from "./LocationTreeItem";
+import { AzureAccountTreeItemBase } from "./AzureAccountTreeItemBase.copied";
 
 // The root of treeview used in subscription scope deployment. Represents an Azure account
 export class AzLocationTreeItem extends AzureAccountTreeItemBase {

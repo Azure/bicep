@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import { ResourceGroup, ResourceManagementClient } from "@azure/arm-resources";
 import {
   IResourceGroupWizardContext,
@@ -45,9 +46,9 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     return !!this._nextLink;
   }
 
-  // Loads resource group
+  // Loads resource groups
   public async loadMoreChildrenImpl(clearCache: boolean, context: IActionContext): Promise<AzExtTreeItem[]> {
-    if (clearCache) {
+    if (clearCache) { //asdfg when clear?
       this._nextLink = undefined;
     }
     const client: ResourceManagementClient = await createResourceManagementClient([context, this]);
@@ -62,7 +63,7 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     return resourceGroupItems;
   }
 
-  // Adds 'create' option in the resource group tree picker
+  // Adds 'create' option in the resource group tree picker asdfg
   public async createChildImpl(context: ICreateChildImplContext): Promise<AzExtTreeItem> {
     const title: string = localize("createResourceGroup", "Create Resource Group");
     const wizardContext: IResourceGroupWizardContext = {

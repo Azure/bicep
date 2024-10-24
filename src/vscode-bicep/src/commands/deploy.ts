@@ -5,10 +5,11 @@ import assert from "assert";
 import * as path from "path";
 import { AccessToken } from "@azure/identity";
 import {
-  AzExtTreeDataProvider,
+  createSubscriptionContext,
   IActionContext,
   IAzureQuickPickItem,
   ISubscriptionContext,
+  nonNullProp,
   parseError,
 } from "@microsoft/vscode-azext-utils";
 import * as fse from "fs-extra";
@@ -25,9 +26,7 @@ import {
   BicepUpdatedDeploymentParameter,
   ParametersFileUpdateOption,
 } from "../language";
-import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
 import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
-import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
 import { LocationTreeItem } from "../tree/LocationTreeItem";
 import { TreeManager } from "../tree/TreeManager";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
@@ -37,6 +36,9 @@ import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { Command } from "./types";
 
+//asdfgasdfg If the tree is only used for showing pickers I recommend implementing it without registering a tree 
+// or using tree items. If the tree is actually shown to users as UI and not just pickers then I recommend 
+// upgrading it to your own classes and interfaces and using our existing wizard utilities to run the pickers.
 export class DeployCommand implements Command {
   private _none = localize("none", "$(circle-slash) None");
   private _browse = localize("browse", "$(file-directory) Browse...");
@@ -57,7 +59,7 @@ export class DeployCommand implements Command {
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager,
     private readonly treeManager: TreeManager,
-  ) {}
+  ) { }
 
   public async execute(context: IActionContext, documentUri: vscode.Uri | undefined): Promise<void> {
     const deployId = Math.random().toString();
@@ -100,10 +102,18 @@ export class DeployCommand implements Command {
         `Scope specified in ${path.basename(documentPath)} -> ${deploymentScope}`,
       );
 
-      // Shows a treeView that allows user to log in to Azure. If the user is already logged in, then does nothing.
-      const azLoginTreeItem: AzLoginTreeItem = new AzLoginTreeItem();
-      const azExtTreeDataProvider = new AzExtTreeDataProvider(azLoginTreeItem, "");
-      await azExtTreeDataProvider.showTreeItemPicker<AzLoginTreeItem>("", context);
+      // Shows a treeView that allows user to log in to Azure. If the user is already logged in, then does nothing. asdfg
+      // const azLoginTreeItem: AzLoginTreeItem = new AzLoginTreeItem();
+      // const azExtTreeDataProvider = new AzExtTreeDataProvider(azLoginTreeItem, "");
+      // await azExtTreeDataProvider.showTreeItemPicker<AzLoginTreeItem>("", context);
+
+      //asdfg ???
+      // const azLoginTreeItem: AzLoginTreeItem = new AzLoginTreeItem();
+      // const azExtTreeDataProvider = new AzExtTreeDataProvider(azLoginTreeItem, "");
+      // await azExtTreeDataProvider.showTreeItemPicker<AzLoginTreeItem>("", context);
+
+
+      await this.treeManager.EnsureSignedIn();
 
       const fileName = path.basename(documentPath, ".bicep");
       const options = {
@@ -118,7 +128,7 @@ export class DeployCommand implements Command {
 
       switch (deploymentScope) {
         case "resourceGroup":
-          deploymentStartResponse = await this.handleResourceGroupDeployment(
+          deploymentStartResponse = await this.handleResourceGroupDeployment(//asdfg
             context,
             documentUri,
             deploymentScope,
@@ -128,7 +138,7 @@ export class DeployCommand implements Command {
           );
           break;
         case "subscription":
-          deploymentStartResponse = await this.handleSubscriptionDeployment(
+          deploymentStartResponse = await this.handleSubscriptionDeployment(//asdfg
             context,
             documentUri,
             deploymentScope,
@@ -138,7 +148,7 @@ export class DeployCommand implements Command {
           );
           break;
         case "managementGroup":
-          deploymentStartResponse = await this.handleManagementGroupDeployment(
+          deploymentStartResponse = await this.handleManagementGroupDeployment(//asdfg
             context,
             documentUri,
             deploymentScope,
@@ -229,31 +239,26 @@ export class DeployCommand implements Command {
     deployId: string,
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
-    const resourceGroupTreeItem =
-      await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>("", context);
-    const resourceGroupId = resourceGroupTreeItem.id;
+    const subscription = await this.treeManager.pickSubscription(context);
+    const subContext = createSubscriptionContext(subscription);
+    const rg = await this.treeManager.pickResourceGroup(context, subscription);
+    const parameterFilePath = await this.selectParameterFile(context, documentUri);
 
-    if (resourceGroupId) {
-      const parameterFilePath = await this.selectParameterFile(context, documentUri);
-
-      return await this.sendDeployStartCommand(
-        context,
-        documentUri.fsPath,
-        parameterFilePath,
-        resourceGroupId,
-        deploymentScope,
-        "",
-        template,
-        resourceGroupTreeItem.subscription,
-        deployId,
-        deploymentName,
-      );
-    }
-
-    return undefined;
+    return await this.sendDeployStartCommand(
+      context,
+      documentUri.fsPath,
+      parameterFilePath,
+      nonNullProp(rg, "name"),
+      deploymentScope,
+      "",
+      template,
+      subContext,
+      deployId,
+      deploymentName,
+    );
   }
 
-  private async handleSubscriptionDeployment(
+  private async handleSubscriptionDeployment( //asdfg
     context: IActionContext,
     documentUri: vscode.Uri,
     deploymentScope: string,
@@ -305,7 +310,7 @@ export class DeployCommand implements Command {
 
     if (accessToken) {
       const token = accessToken.token;
-      const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
+      const expiresOnTimestamp = String(accessToken.expiresOnTimestamp ?? ""); //asdfg?
       const portalUrl = subscription.environment.portalUrl;
 
       let parametersFileName: string | undefined;
