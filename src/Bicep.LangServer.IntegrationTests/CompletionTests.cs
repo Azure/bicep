@@ -4202,8 +4202,8 @@ var file = " + functionName + @"(templ|)
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
-            completions.Should().Contain(x => x.Label == "1.0.1" && x.SortText == "1_1.0.1" && x.Kind == CompletionItemKind.Snippet && x.Detail == null && x.Documentation == null);
-            completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0_1.0.2" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d1" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help1)");
+            completions.Should().Contain(x => x.Label == "1.0.1" && x.SortText == "0001" && x.Kind == CompletionItemKind.Snippet && x.Detail == null && x.Documentation == null);
+            completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0000" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d1" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help1)");
         }
 
         [DataTestMethod]
