@@ -36,7 +36,7 @@ jobs:
         run: |
           echo "Running npm i for vscode-bicep and dependences"
           cd src/vs-bicep
-          call npm-install.cmd
+          & .\npm-install.cmd
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
