@@ -32,6 +32,12 @@ jobs:
           echo "Restoring dependencies for BicepInVisualStudio.sln"
           dotnet restore src/vs-bicep/BicepInVisualStudio.sln --force-evaluate
 
+      - name: Run npm i
+        run: |
+          echo "Running npm i for vscode-bicep and dependences"
+          cd src/vs-bicep
+          call npm-install.cmd
+
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Update lockfiles
