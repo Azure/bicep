@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Interfaces;
@@ -43,13 +44,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string? downloadError = null)
         {
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules())
-                .Returns(availableModules.Select(m => new RegistryModule(m, null, null)).ToArray());
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions(It.IsAny<string>()))
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata())
+                .Returns(availableModules.Select(m => new PublicRegistryModuleMetadata(m, null, null)).ToImmutableArray());
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata(It.IsAny<string>()))
                 .Returns((string module) =>
                 {
                     return availableModules.Contains(module) ?
-                        availableVersions.Select(v => new RegistryModuleVersion(v, null, null)).ToArray() :
+                        availableVersions.Select(v => new PublicRegistryModuleVersionMetadata(v, null, null)).ToImmutableArray() :
                         [];
                 });
             publicRegistryModuleMetadataProvider.Setup(x => x.IsCached)
