@@ -526,7 +526,7 @@
     "hostpoolRequiredProps": {
       "friendlyName": "[parameters('hostpoolFriendlyName')]",
       "description": "[parameters('hostpoolDescription')]",
-      "hostpoolType": "[parameters('hostpoolType')]",
+      "hostPoolType": "[parameters('hostpoolType')]",
       "personalDesktopAssignmentType": "[parameters('personalDesktopAssignmentType')]",
       "maxSessionLimit": "[parameters('maxSessionLimit')]",
       "loadBalancerType": "[parameters('loadBalancerType')]",

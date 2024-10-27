@@ -18,6 +18,9 @@ internal class ObjectTypeNameBuilder
     internal void AppendPropertyMatcher(string matchNotation, string value)
         => DoAppendProperty(matchNotation, value);
 
+    internal void AppendPropertyMatcher(string value)
+        => AppendPropertyMatcher("*", value);
+
     private void DoAppendProperty(string propertyName, string propertyValue)
     {
         if (finalized)

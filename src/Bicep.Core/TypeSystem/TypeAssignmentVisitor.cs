@@ -1490,10 +1490,13 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(expectedConditionType));
                 }
 
-                // TODO if the condition is of a boolean literal type, return either `trueType` or `falseType`, not the union of both
-
-                // the return type is the union of true and false expression types
-                return TypeHelper.CreateTypeUnion(trueType, falseType);
+                return conditionType switch
+                {
+                    BooleanLiteralType { Value: true } => trueType,
+                    BooleanLiteralType => falseType,
+                    // the return type is the union of true and false expression types
+                    _ => TypeHelper.CollapseOrCreateTypeUnion(trueType, falseType),
+                };
             });
 
         public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
@@ -1683,7 +1686,8 @@ namespace Bicep.Core.TypeSystem
                                 return TypeHelper.GetNamedPropertyType(baseObject,
                                     syntax.IndexExpression,
                                     literalIndex.RawStringValue,
-                                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(baseObject),
+                                    syntax.IsSafeAccess,
+                                    shouldWarn: syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(baseObject),
                                     diagnostics);
                             }
 
@@ -1797,12 +1801,14 @@ namespace Bicep.Core.TypeSystem
             ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType,
                 syntax.PropertyName,
                 syntax.PropertyName.IdentifierName,
+                syntax.IsSafeAccess,
                 syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
                 diagnostics),
 
             UnionType unionType when syntax.PropertyName.IsValid => TypeHelper.GetNamedPropertyType(unionType,
                 syntax.PropertyName,
                 syntax.PropertyName.IdentifierName,
+                syntax.IsSafeAccess,
                 syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(unionType),
                 diagnostics),
 

@@ -671,7 +671,7 @@ namespace Bicep.Core.TypeSystem
 
             if (additionalPropertiesType is not null && !additionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
             {
-                nameBuilder.AppendPropertyMatcher("*", GetPropertyTypeName(additionalPropertiesDeclarations[0].Value, additionalPropertiesType));
+                nameBuilder.AppendPropertyMatcher(GetPropertyTypeName(additionalPropertiesDeclarations[0].Value, additionalPropertiesType));
             }
 
             if (diagnostics.Any())
