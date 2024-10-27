@@ -27,7 +27,7 @@
     <PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.1" />
     <PackageReference Include="Azure.Identity" Version="1.13.0" />
     <PackageReference Include="Azure.ResourceManager.Resources" Version="1.9.0" />
-    <PackageReference Include="JetBrains.Annotations" Version="2024.2.0">
+    <PackageReference Include="JetBrains.Annotations" Version="2024.3.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="JsonPatch.Net" Version="3.1.1" />
