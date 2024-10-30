@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13138224916093371784"
+      "templateHash": "14263039554121650817"
     }
   },
   "parameters": {
@@ -1620,7 +1620,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17167772107049027399"
+              "templateHash": "10816695263040223841"
             }
           },
           "parameters": {
@@ -2022,10 +2022,7 @@
                 "apiServerAccessProfile": {
                   "enablePrivateCluster": "[parameters('aksClusterEnablePrivateCluster')]"
                 }
-              },
-              "dependsOn": [
-                "aksSubnet"
-              ]
+              }
             }
           }
         }
