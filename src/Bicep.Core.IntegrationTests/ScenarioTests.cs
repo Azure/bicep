@@ -5065,7 +5065,7 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 "));
 
         var evaluated = TemplateEvaluator.Evaluate(result.Template);
-        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo2"));
+        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo1"));
     }
 
     // https://github.com/Azure/bicep/issues/11292
