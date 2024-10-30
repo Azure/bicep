@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -169,6 +169,6 @@
     <value>Unsupported target scope: {0}.</value>
   </data>
   <data name="ViewDeploymentInPortalMessage" xml:space="preserve">
-    <value>View deployment in portal: {0}.</value>
+    <value>Open deployment in portal: {0}.</value>
   </data>
 </root>

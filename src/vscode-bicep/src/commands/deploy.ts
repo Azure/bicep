@@ -5,10 +5,10 @@ import assert from "assert";
 import * as path from "path";
 import { AccessToken } from "@azure/identity";
 import {
-  AzExtTreeDataProvider,
+  createSubscriptionContext,
   IActionContext,
   IAzureQuickPickItem,
-  ISubscriptionContext,
+  nonNullProp,
   parseError,
 } from "@microsoft/vscode-azext-utils";
 import * as fse from "fs-extra";
@@ -25,16 +25,13 @@ import {
   BicepUpdatedDeploymentParameter,
   ParametersFileUpdateOption,
 } from "../language";
-import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
-import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
-import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
-import { LocationTreeItem } from "../tree/LocationTreeItem";
-import { TreeManager } from "../tree/TreeManager";
+import { AzurePickers } from "../utils/AzurePickers";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 import { localize } from "../utils/localize";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import { AzureSubscription } from "@microsoft/vscode-azext-azureauth";
 import { Command } from "./types";
 
 export class DeployCommand implements Command {
@@ -56,12 +53,13 @@ export class DeployCommand implements Command {
   public constructor(
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager,
-    private readonly treeManager: TreeManager,
-  ) {}
+    private readonly azurePickers: AzurePickers,
+  ) { }
 
   public async execute(context: IActionContext, documentUri: vscode.Uri | undefined): Promise<void> {
     const deployId = Math.random().toString();
     context.telemetry.properties.deployId = deployId;
+    context.telemetry.properties.vscodeauth = "true";
 
     setOutputChannelManagerAtTheStartOfDeployment(this.outputChannelManager);
 
@@ -70,6 +68,7 @@ export class DeployCommand implements Command {
     const documentPath = documentUri.fsPath;
     // Handle spaces/special characters in folder names.
     const textDocument = TextDocumentIdentifier.create(encodeURIComponent(documentUri.path));
+    this.outputChannelManager.appendToOutputChannel("====================");
     this.outputChannelManager.appendToOutputChannel(`Preparing for deployment of ${documentPath}`);
 
     context.errorHandling.suppressDisplay = true;
@@ -97,13 +96,10 @@ export class DeployCommand implements Command {
 
       context.telemetry.properties.targetScope = deploymentScope;
       this.outputChannelManager.appendToOutputChannel(
-        `Scope specified in ${path.basename(documentPath)} -> ${deploymentScope}`,
+        `Scope specified in ${path.basename(documentPath)}: ${deploymentScope}`,
       );
 
-      // Shows a treeView that allows user to log in to Azure. If the user is already logged in, then does nothing.
-      const azLoginTreeItem: AzLoginTreeItem = new AzLoginTreeItem();
-      const azExtTreeDataProvider = new AzExtTreeDataProvider(azLoginTreeItem, "");
-      await azExtTreeDataProvider.showTreeItemPicker<AzLoginTreeItem>("", context);
+      await this.azurePickers.EnsureSignedIn();
 
       const fileName = path.basename(documentPath, ".bicep");
       const options = {
@@ -191,34 +187,23 @@ export class DeployCommand implements Command {
     deployId: string,
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
-    const managementGroupTreeItem =
-      await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>("", context);
-    const managementGroupId = managementGroupTreeItem?.id;
+    const subscription = await this.azurePickers.pickSubscription(context);
+    const managementGroup = await this.azurePickers.pickManagementGroup(context);
+    const location = await this.azurePickers.pickLocation(context, subscription);
+    const parameterFilePath = await this.selectParameterFile(context, documentUri);
 
-    if (managementGroupId) {
-      const location = await vscode.window.showInputBox({
-        placeHolder: "Please enter location",
-      });
-
-      if (location) {
-        const parameterFilePath = await this.selectParameterFile(context, documentUri);
-
-        return await this.sendDeployStartCommand(
-          context,
-          documentUri.fsPath,
-          parameterFilePath,
-          managementGroupId,
-          deploymentScope,
-          location,
-          template,
-          managementGroupTreeItem.subscription,
-          deployId,
-          deploymentName,
-        );
-      }
-    }
-
-    return undefined;
+    return await this.sendDeployStartCommand(
+      context,
+      documentUri.fsPath,
+      parameterFilePath,
+      nonNullProp(managementGroup, "id"),
+      deploymentScope,
+      location,
+      template,
+      subscription,
+      deployId,
+      deploymentName,
+    );
   }
 
   private async handleResourceGroupDeployment(
@@ -229,28 +214,22 @@ export class DeployCommand implements Command {
     deployId: string,
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
-    const resourceGroupTreeItem =
-      await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>("", context);
-    const resourceGroupId = resourceGroupTreeItem.id;
+    const subscription = await this.azurePickers.pickSubscription(context);
+    const resourceGroup = await this.azurePickers.pickResourceGroup(context, subscription);
+    const parameterFilePath = await this.selectParameterFile(context, documentUri);
 
-    if (resourceGroupId) {
-      const parameterFilePath = await this.selectParameterFile(context, documentUri);
-
-      return await this.sendDeployStartCommand(
-        context,
-        documentUri.fsPath,
-        parameterFilePath,
-        resourceGroupId,
-        deploymentScope,
-        "",
-        template,
-        resourceGroupTreeItem.subscription,
-        deployId,
-        deploymentName,
-      );
-    }
-
-    return undefined;
+    return await this.sendDeployStartCommand(
+      context,
+      documentUri.fsPath,
+      parameterFilePath,
+      nonNullProp(resourceGroup, "id"),
+      deploymentScope,
+      "",
+      template,
+      subscription,
+      deployId,
+      deploymentName,
+    );
   }
 
   private async handleSubscriptionDeployment(
@@ -261,18 +240,15 @@ export class DeployCommand implements Command {
     deployId: string,
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
-    const locationTreeItem = await this.treeManager.azLocationTree.showTreeItemPicker<LocationTreeItem>("", context);
-    const location = locationTreeItem.label;
-    const subscription = locationTreeItem.subscription;
-    const subscriptionId = subscription.subscriptionPath;
-
+    const subscription = await this.azurePickers.pickSubscription(context);
+    const location = await this.azurePickers.pickLocation(context, subscription);
     const parameterFilePath = await this.selectParameterFile(context, documentUri);
 
     return await this.sendDeployStartCommand(
       context,
       documentUri.fsPath,
       parameterFilePath,
-      subscriptionId,
+      `/subscriptions/${nonNullProp(subscription, "subscriptionId")}`,
       deploymentScope,
       location,
       template,
@@ -290,7 +266,7 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     location: string,
     template: string,
-    subscription: ISubscriptionContext,
+    subscription: AzureSubscription,
     deployId: string,
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
@@ -301,11 +277,11 @@ export class DeployCommand implements Command {
       context.telemetry.properties.parameterFileProvided = "true";
     }
 
-    const accessToken: AccessToken = await subscription.credentials.getToken([]);
+    const accessToken: AccessToken = await createSubscriptionContext(subscription).credentials.getToken();
 
     if (accessToken) {
       const token = accessToken.token;
-      const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
+      const expiresOnTimestamp = accessToken.expiresOnTimestamp ? String(accessToken.expiresOnTimestamp) : undefined;
       const portalUrl = subscription.environment.portalUrl;
 
       let parametersFileName: string | undefined;
@@ -401,6 +377,8 @@ export class DeployCommand implements Command {
           deployId,
           documentPath,
         };
+
+        this.outputChannelManager.appendToOutputChannel("Waiting for deployment to complete");
 
         // Intentionally not waiting for completion to avoid blocking language server
         void this.client.sendRequest("workspace/executeCommand", {
