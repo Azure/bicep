@@ -1,6 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
+import {
+  VscodeTable,
+  VscodeTableBody,
+  VscodeTableCell,
+  VscodeTableHeader,
+  VscodeTableHeaderCell,
+  VscodeTableRow
+} from "@vscode-elements/react-elements";
 import { FC } from "react";
 import { getPreformattedJson } from "../utils";
 import { FormSection } from "./FormSection";
@@ -16,24 +23,26 @@ export const DeploymentOutputsView: FC<DeploymentOutputsViewProps> = ({ outputs 
 
   return (
     <FormSection title="Outputs">
-      <VSCodeDataGrid>
-        <VSCodeDataGridRow rowType="header">
-          <VSCodeDataGridCell gridColumn="1" cellType="columnheader">
+      <VscodeTable>
+        <VscodeTableHeader slot="header">
+          <VscodeTableHeaderCell id="1">
             Name
-          </VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="2" cellType="columnheader">
+          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="2">
             Value
-          </VSCodeDataGridCell>
-        </VSCodeDataGridRow>
-        {Object.keys(outputs).map((name) => (
-          <VSCodeDataGridRow key={name}>
-            <VSCodeDataGridCell gridColumn="1">{name}</VSCodeDataGridCell>
-            <VSCodeDataGridCell gridColumn="2">
-              {getPreformattedJson((outputs[name] as { value: unknown }).value)}
-            </VSCodeDataGridCell>
-          </VSCodeDataGridRow>
-        ))}
-      </VSCodeDataGrid>
+          </VscodeTableHeaderCell>
+        </VscodeTableHeader>
+        <VscodeTableBody slot="body">
+          {Object.keys(outputs).map((name) => (
+            <VscodeTableRow key={name}>
+              <VscodeTableCell id="1">{name}</VscodeTableCell>
+              <VscodeTableCell id="2">
+                {getPreformattedJson((outputs[name] as { value: unknown }).value)}
+              </VscodeTableCell>
+            </VscodeTableRow>
+          ))}
+        </VscodeTableBody>
+      </VscodeTable>
     </FormSection>
   );
 };

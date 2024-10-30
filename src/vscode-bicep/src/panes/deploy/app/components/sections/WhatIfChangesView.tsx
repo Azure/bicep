@@ -1,7 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { WhatIfChange, WhatIfPropertyChange } from "@azure/arm-resources";
-import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
+import {
+  VscodeTable,
+  VscodeTableBody,
+  VscodeTableCell,
+  VscodeTableHeader,
+  VscodeTableHeaderCell,
+  VscodeTableRow
+} from "@vscode-elements/react-elements";
 import { FC } from "react";
 import { FormSection } from "./FormSection";
 
@@ -17,26 +24,28 @@ export const WhatIfChangesView: FC<WhatIfChangesViewProps> = ({ changes }) => {
   const filteredChanges = changes.filter((x) => x.changeType !== "Ignore");
   return (
     <FormSection title="What-If Changes">
-      <VSCodeDataGrid>
-        <VSCodeDataGridRow rowType="header">
-          <VSCodeDataGridCell gridColumn="1" cellType="columnheader">
+      <VscodeTable>
+        <VscodeTableHeader slot="header">
+          <VscodeTableHeaderCell id="1">
             Resource Id
-          </VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="2" cellType="columnheader">
+          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="2">
             Change Type
-          </VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="3" cellType="columnheader">
+          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="3">
             Changes
-          </VSCodeDataGridCell>
-        </VSCodeDataGridRow>
-        {filteredChanges.map((change) => (
-          <VSCodeDataGridRow key={change.resourceId}>
-            <VSCodeDataGridCell gridColumn="1">{change.resourceId}</VSCodeDataGridCell>
-            <VSCodeDataGridCell gridColumn="2">{change.changeType}</VSCodeDataGridCell>
-            <VSCodeDataGridCell gridColumn="3">{getWhatIfPropertyChanges(change.delta)}</VSCodeDataGridCell>
-          </VSCodeDataGridRow>
-        ))}
-      </VSCodeDataGrid>
+          </VscodeTableHeaderCell>
+        </VscodeTableHeader>
+        <VscodeTableBody slot="body">
+          {filteredChanges.map((change) => (
+            <VscodeTableRow key={change.resourceId}>
+              <VscodeTableCell id="1">{change.resourceId}</VscodeTableCell>
+              <VscodeTableCell id="2">{change.changeType}</VscodeTableCell>
+              <VscodeTableCell id="3">{getWhatIfPropertyChanges(change.delta)}</VscodeTableCell>
+            </VscodeTableRow>
+          ))}
+        </VscodeTableBody>
+      </VscodeTable>
     </FormSection>
   );
 };
@@ -48,21 +57,21 @@ function getWhatIfPropertyChanges(changes?: WhatIfPropertyChange[]) {
 
   const filteredChanges = changes.filter((x) => x.propertyChangeType !== "NoEffect");
   return (
-    <VSCodeDataGrid>
-      <VSCodeDataGridRow rowType="header">
-        <VSCodeDataGridCell gridColumn="1" cellType="columnheader">
+    <VscodeTable>
+      <VscodeTableHeader slot="header">
+        <VscodeTableHeaderCell id="1">
           Path
-        </VSCodeDataGridCell>
-        <VSCodeDataGridCell gridColumn="2" cellType="columnheader">
+        </VscodeTableHeaderCell>
+        <VscodeTableHeaderCell id="2">
           Change Type
-        </VSCodeDataGridCell>
-      </VSCodeDataGridRow>
+        </VscodeTableHeaderCell>
+      </VscodeTableHeader>
       {filteredChanges.map((change) => (
-        <VSCodeDataGridRow key={change.path}>
-          <VSCodeDataGridCell gridColumn="1">{change.path}</VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="2">{change.propertyChangeType}</VSCodeDataGridCell>
-        </VSCodeDataGridRow>
+        <VscodeTableRow key={change.path}>
+          <VscodeTableCell id="1">{change.path}</VscodeTableCell>
+          <VscodeTableCell id="2">{change.propertyChangeType}</VscodeTableCell>
+        </VscodeTableRow>
       ))}
-    </VSCodeDataGrid>
+    </VscodeTable>
   );
 }

@@ -27,8 +27,9 @@ export interface ParamData {
   value: ParameterValue;
 }
 
-export interface DeployResult {
-  success: boolean;
+export interface DeployState {
+  name?: string;
+  status?: "running" | "succeeded" | "failed";
   error?: ErrorResponse;
 }
 
