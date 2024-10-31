@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16407625085363720986"
+      "templateHash": "14742848894010970609"
     }
   },
   "parameters": {
@@ -138,10 +138,7 @@
             }
           }
         ]
-      },
-      "dependsOn": [
-        "existingVNET"
-      ]
+      }
     },
     "networkProfile": {
       "type": "Microsoft.Network/networkProfiles",
@@ -237,8 +234,7 @@
         }
       },
       "dependsOn": [
-        "containerSubnet",
-        "existingVNET"
+        "containerSubnet"
       ]
     },
     "privateEndpoint": {
@@ -303,7 +299,6 @@
         }
       },
       "dependsOn": [
-        "existingVNET",
         "relaySubnet"
       ]
     },
