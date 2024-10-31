@@ -715,7 +715,7 @@
           {
             "id": "deployToAzure",
             "title": "Deploy to Azure",
-            "description": "It's time to get these resources into Azure. You will be asked to sign in to Azure if you're not already.",
+            "description": "It's time to get these resources into Azure. You will be asked to sign in to Azure if you haven't already.",
             "media": {
               "image": "media/walkthroughs/gettingStarted/5_Deploy.gif",
               "altText": "Example of deploying Bicep file to Azure"
