@@ -73,7 +73,7 @@ namespace Bicep.Core.Emit
             {
                 for (int i = ancestors.Length - 1; i >= 0; i--)
                 {
-                    if (!ancestors[i].Resource.IsExistingResource || options?.IncludeExisting == true)
+                    if (!ancestors[i].Resource.IsExistingResource)
                     {
                         // we found the non-existing resource - we're done
                         return i;
@@ -99,6 +99,7 @@ namespace Bicep.Core.Emit
 
             this.currentDeclaration = resource.Symbol;
             this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select((a, i) => new ResourceDependency(a.Resource.Symbol, a.IndexExpression, i == lastAncestorIndex ? ResourceDependencyKind.Primary : ResourceDependencyKind.Transitive)));
+
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore previous declaration
@@ -181,34 +182,19 @@ namespace Bicep.Core.Emit
                 case ResourceSymbol resourceSymbol:
                     // Only add an explicit dependency on an existing resource IFF the compiled template will include
                     // the existing resource AND this resource will read from the GET response. If we are instead
-                    // skipping existing resources, calling a function like `listKeys()` on the resource, or just
-                    // referring to data that ARM can resolve via the `resourceInfo()` function, skip the explicit
-                    // dependency. This will allow the ARM engine to recognize when an existing resource is unused and
-                    // skip the unnecessary GET request.
+                    // skipping existing resources, setting the current declaration's parent, calling a function like
+                    // `listKeys()` on the resource, or just referring to data that ARM can resolve via the
+                    // `resourceInfo()` function, skip the explicit dependency. This will allow the ARM engine to
+                    // recognize when an existing resource is unused and skip the unnecessary GET request.
                     if (resourceSymbol.DeclaringResource.IsExistingResource() && (
                         options?.IncludeExisting is not true ||
                         IsResourceIdentifierAccessBase(syntax) ||
-                        IsResourceFunctionCallBase(syntax)))
+                        IsResourceFunctionCallBase(syntax) ||
+                        IsWithinResourceParentPropertyValue(syntax)))
                     {
-                        Queue<ResourceSymbol> fetchTransitiveDependenciesQueue = new();
-                        fetchTransitiveDependenciesQueue.Enqueue(resourceSymbol);
+                        var existingDependencies = GetResourceDependencies(resourceSymbol);
 
-                        while (fetchTransitiveDependenciesQueue.TryDequeue(out var dependency))
-                        {
-                            foreach (var transitiveDependency in GetResourceDependencies(dependency))
-                            {
-                                if (transitiveDependency.Resource is ResourceSymbol transitiveResourceDependency &&
-                                    transitiveResourceDependency.DeclaringResource.IsExistingResource())
-                                {
-                                    fetchTransitiveDependenciesQueue.Enqueue(transitiveResourceDependency);
-                                }
-                                else
-                                {
-                                    currentResourceDependencies.Add(transitiveDependency);
-                                }
-                            }
-                        }
-
+                        currentResourceDependencies.UnionWith(existingDependencies);
                         return;
                     }
 
@@ -243,6 +229,12 @@ namespace Bicep.Core.Emit
                 => IsResourceFunctionCallBase(arrayAccess),
             _ => false,
         };
+
+        private bool IsWithinResourceParentPropertyValue(SyntaxBase syntax)
+            => currentDeclaration is ResourceSymbol currentResource &&
+                currentResource.DeclaringResource.TryGetBody() is ObjectSyntax declarationBody &&
+                declarationBody.TryGetPropertyByName(LanguageConstants.ResourceParentPropertyName) is { } parentProp &&
+                model.Binder.IsDescendant(syntax, parentProp);
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {

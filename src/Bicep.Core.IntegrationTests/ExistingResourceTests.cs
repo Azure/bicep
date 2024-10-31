@@ -358,4 +358,44 @@ public class ExistingResourceTests
         result.Template.Should().HaveJsonAtPath("$.resources.newSa.dependsOn", """["deployedSa"]""");
         result.Template.Should().HaveJsonAtPath("$.resources.existingSa.dependsOn", """["deployedSa"]""");
     }
+
+    [TestMethod]
+    public void Using_an_existing_resource_as_an_explicit_parent_does_not_generate_an_explicit_dependency()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)),
+            """
+            resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-08-01' existing = {
+              name: 'vnet'
+            }
+
+            resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-08-01' existing = {
+              parent: virtualNetwork
+              name: 'subnet'
+            }
+
+            resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+              name: 'storage'
+              location: resourceGroup().location
+              sku: {
+                name: 'Standard_LRS'
+              }
+              kind: 'StorageV2'
+              properties: {
+                networkAcls: {
+                  defaultAction: 'Deny'
+                  virtualNetworkRules: [
+                    {
+                      action: 'Allow'
+                      id: subnet.id
+                    }
+                  ]
+                }
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotHaveValueAtPath("$.resources.sa.dependsOn");
+    }
 }
