@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13138224916093371784"
+      "templateHash": "7099217802857967896"
     }
   },
   "parameters": {
@@ -1620,7 +1620,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17167772107049027399"
+              "templateHash": "15899882108574365379"
             }
           },
           "parameters": {
@@ -1949,10 +1949,7 @@
               "existing": true,
               "type": "Microsoft.Network/virtualNetworks/subnets",
               "apiVersion": "2020-08-01",
-              "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]",
-              "dependsOn": [
-                "virtualNetwork"
-              ]
+              "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]"
             },
             "aksCluster": {
               "type": "Microsoft.ContainerService/managedClusters",
@@ -2022,10 +2019,7 @@
                 "apiServerAccessProfile": {
                   "enablePrivateCluster": "[parameters('aksClusterEnablePrivateCluster')]"
                 }
-              },
-              "dependsOn": [
-                "aksSubnet"
-              ]
+              }
             }
           }
         }
