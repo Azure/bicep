@@ -21,15 +21,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(
             1, 800, """
                 resource r% 'Microsoft.Network/virtualNetworks@2021-05-01' = {
-                name: 'r%'
+                    name: 'r%'
+                }
                 """,
-            new string[] { "Too many resources. Number of resources is limited to 1." })]
+            new string[] { })]
         [DataRow(
             1, 801, """
                 resource r% 'Microsoft.Network/virtualNetworks@2021-05-01' = {
-                name: 'r%'
+                    name: 'r%'
+                }
                 """,
-            new string[] { "Too many resources. Number of resources is limited to 1." })]
+            new string[] { "Too many resources. Number of resources is limited to 800." })]
         [DataTestMethod]
         public void TooManyResources(int i, int j, string pattern, string[] expectedMessages)
         {
