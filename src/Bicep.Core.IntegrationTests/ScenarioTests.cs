@@ -6315,7 +6315,7 @@ param p invalidRecursiveObjectType = {}
 
         if (enableSymbolicNameCodegen)
         {
-            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["sa"]""");
+            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["mod"]""");
         }
         else
         {
