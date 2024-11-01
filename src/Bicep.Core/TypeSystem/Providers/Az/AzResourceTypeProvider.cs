@@ -293,6 +293,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 scopePropertyFlags |= TypePropertyFlags.Required;
             }
 
+            // TODO: remove 'dependsOn' from the type library
+            properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny | TypePropertyFlags.SystemProperty));
+
             if (isExistingResource)
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
@@ -300,9 +303,6 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             }
             else
             {
-                // TODO: remove 'dependsOn' from the type library
-                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny | TypePropertyFlags.SystemProperty));
-
                 if (ScopeHelper.TryCreateNonExistingResourceScopeProperty(validParentScopes, scopePropertyFlags) is { } scopeProperty)
                 {
                     properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, scopeProperty);
@@ -396,8 +396,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         {
             foreach (var property in properties)
             {
-                // "name", "scope" & "parent" can be set for existing resources - everything else should be read-only
-                if (UniqueIdentifierProperties.Contains(property.Name))
+                // "name", "dependsOn", "scope" & "parent" can be set for existing resources - everything else should be read-only
+                if (UniqueIdentifierProperties.Contains(property.Name) ||
+                    property.Name.Equals(LanguageConstants.ResourceDependsOnPropertyName))
                 {
                     yield return property;
                 }
