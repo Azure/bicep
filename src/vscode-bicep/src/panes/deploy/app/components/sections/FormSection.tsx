@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { Codicon } from "@vscode-bicep-ui/components";
-import { VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
+import { VscodeDivider, VscodeIcon } from "@vscode-elements/react-elements";
 import { FC, PropsWithChildren, useState } from "react";
 
 type FormSectionProps = PropsWithChildren<{
@@ -13,9 +12,9 @@ export const FormSection: FC<FormSectionProps> = ({ title, children }) => {
 
   return (
     <section className="form-section">
-      <VSCodeDivider />
+      <VscodeDivider />
       <div className="form-title" onClick={() => setOpen(!open)}>
-        <Codicon name={open ? "chevron-up" : "chevron-down"} size={13} />
+        <VscodeIcon name={open ? "chevron-up" : "chevron-down"} size={13} />
         <h3>{title}</h3>
       </div>
       {open && <div className="form-content">{children}</div>}

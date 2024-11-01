@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Parsing;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -327,6 +328,31 @@ namespace Bicep.LanguageServer.Telemetry
                 {
                     ["failureType"] = failureType,
                     ["code"] = code ?? string.Empty,
+                }
+            );
+
+        public enum ExtractionKind
+        {
+            Variable,
+            SimpleParam,    // Extract parameter when only simple type is available
+            UserDefParam,          // Extract parameter with user-defined type (both simple and user-defined-type params are available)
+            ResDerivedParam,    // Extract parameter with resource-derived type
+            Type,
+        }
+
+        public record ExtractKindsAvailable(bool simpleTypeAvailable, bool userDefinedTypeAvailable, bool resourceDerivedTypeAvailable);
+
+        public static BicepTelemetryEvent ExtractionRefactoring(
+            ExtractionKind extractionKind,
+            ExtractKindsAvailable extractKindsAvailable)
+            => new(
+                eventName: TelemetryConstants.EventNames.ExtractionRefactoring,
+                properties: new()
+                {
+                    ["kind"] = StringUtils.ToCamelCase(extractionKind.ToString()),
+                    ["simpleParamAvail"] = ToTrueFalse(extractKindsAvailable.simpleTypeAvailable),
+                    ["userParamAvail"] = ToTrueFalse(extractKindsAvailable.userDefinedTypeAvailable),
+                    ["resDerivedParamAvail"] = ToTrueFalse(extractKindsAvailable.resourceDerivedTypeAvailable),
                 }
             );
     }

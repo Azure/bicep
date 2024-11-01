@@ -70,7 +70,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var publicRegistryModuleMetadataProvider = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
             var hasShownDownloadWarning = false;
 
-            foreach (var (syntax, artifactResolutionInfo) in model.Compilation.SourceFileGrouping.ArtifactLookup
+            foreach (var (syntax, artifactResolutionInfo) in model.SourceFileGrouping.ArtifactLookup
                 .Where(entry => entry.Value.Origin == model.SourceFile
                     && entry.Value.Syntax is ModuleDeclarationSyntax moduleSyntax))
             {
@@ -118,7 +118,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static IEnumerable<Failure> AnalyzeBicepModule(IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
         {
-            var availableVersions = publicRegistryModuleMetadataProvider.GetCachedModuleVersions(publicModulePath)
+            var availableVersions = publicRegistryModuleMetadataProvider.GetModuleVersionsMetadata(publicModulePath)
                 .Select(v => v.Version)
                 .ToArray();
             if (availableVersions.Length == 0)

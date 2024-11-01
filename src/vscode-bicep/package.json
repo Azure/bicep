@@ -284,8 +284,8 @@
         "category": "Bicep Internal"
       },
       {
-        "command": "bicep.internal.startRename",
-        "title": "(Renme identifier at given location)",
+        "command": "bicep.internal.postExtraction",
+        "title": "(Perform operations after var/param/type extractions)",
         "category": "Bicep Internal"
       },
       {
@@ -634,7 +634,7 @@
           "when": "never"
         },
         {
-          "command": "bicep.internal.startRename",
+          "command": "bicep.internal.postExtraction",
           "when": "never"
         }
       ]
@@ -763,7 +763,7 @@
     "@types/cytoscape": "^3.21.7",
     "@types/fs-extra": "^11.0.4",
     "@types/jest": "^29.5.13",
-    "@types/mocha": "^10.0.7",
+    "@types/mocha": "^10.0.9",
     "@types/node": "^22.7.4",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
@@ -773,13 +773,13 @@
     "@types/vscode": "^1.82.0",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
-    "@typescript-eslint/parser": "^8.5.0",
+    "@typescript-eslint/parser": "^8.8.1",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^3.1.0",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
     "esbuild-loader": "^4.2.2",
-    "eslint": "^8.57.0",
+    "eslint": "^9.13.0",
     "eslint-plugin-jest": "^28.8.3",
     "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-react": "^7.35.2",
@@ -800,18 +800,19 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
-    "webpack": "^5.94.0",
+    "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
     "@azure/arm-managementgroups": "2.0.2",
     "@azure/arm-resources": "^5.2.0",
     "@azure/arm-subscriptions": "^5.1.0",
-    "@azure/identity": "^4.4.1",
+    "@azure/identity": "^4.5.0",
     "@microsoft/vscode-azext-azureutils": "^3.1.1",
-    "@microsoft/vscode-azext-utils": "^2.5.7",
+    "@microsoft/vscode-azext-utils": "^2.5.10",
     "@vscode-bicep-ui/components": "file:../vscode-bicep-ui/packages/components",
-    "@vscode/webview-ui-toolkit": "^1.4.0",
+    "@vscode-elements/react-elements": "^0.5.0",
+    "@vscode/codicons": "^0.0.36",
     "cytoscape": "^3.30.2",
     "cytoscape-elk": "^2.2.0",
     "fs-extra": "^11.2.0",

@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import {
-  VSCodeBadge,
-  VSCodeButton,
-  VSCodeDataGrid,
-  VSCodeDataGridCell,
-  VSCodeDataGridRow,
-} from "@vscode/webview-ui-toolkit/react";
+  VscodeBadge,
+  VscodeButton,
+  VscodeTable,
+  VscodeTableBody,
+  VscodeTableCell,
+  VscodeTableRow
+} from "@vscode-elements/react-elements";
 import { FC } from "react";
 import { DeploymentScope } from "../../../models";
 import { FormSection } from "./FormSection";
@@ -20,23 +21,25 @@ export const DeploymentScopeInputView: FC<DeploymentScopeInputViewProps> = ({ sc
   return (
     <FormSection title="Deployment Scope">
       {scope && (
-        <VSCodeDataGrid>
-          {(scope.scopeType === "resourceGroup" || scope.scopeType === "subscription") &&
-            getGridRow("Subscription Id", scope.subscriptionId)}
-          {scope.scopeType === "resourceGroup" && getGridRow("Resource Group", scope.resourceGroup)}
-          {(scope.scopeType === "managementGroup" || scope.scopeType === "tenant") &&
-            getGridRow("Tenant Id", scope.tenantId)}
-          {scope.scopeType === "managementGroup" && getGridRow("Management Group", scope.managementGroup)}
-          {(scope.scopeType === "managementGroup" || scope.scopeType === "tenant") &&
-            getGridRow("Authenticated Subscription Id", scope.associatedSubscriptionId)}
-          {scope.scopeType !== "resourceGroup" && getGridRow("Location", scope.location)}
-        </VSCodeDataGrid>
+        <VscodeTable>
+          <VscodeTableBody slot="body">
+            {(scope.scopeType === "resourceGroup" || scope.scopeType === "subscription") &&
+              getGridRow("Subscription Id", scope.subscriptionId)}
+            {scope.scopeType === "resourceGroup" && getGridRow("Resource Group", scope.resourceGroup)}
+            {(scope.scopeType === "managementGroup" || scope.scopeType === "tenant") &&
+              getGridRow("Tenant Id", scope.tenantId)}
+            {scope.scopeType === "managementGroup" && getGridRow("Management Group", scope.managementGroup)}
+            {(scope.scopeType === "managementGroup" || scope.scopeType === "tenant") &&
+              getGridRow("Authenticated Subscription Id", scope.associatedSubscriptionId)}
+            {scope.scopeType !== "resourceGroup" && getGridRow("Location", scope.location)}
+          </VscodeTableBody>
+        </VscodeTable>
       )}
 
       <div className="controls">
-        <VSCodeButton onClick={onPickScope} appearance={!scope ? "primary" : "secondary"}>
+        <VscodeButton onClick={onPickScope} secondary={!!scope}>
           {!scope ? "Pick Scope" : "Change Scope"}
-        </VSCodeButton>
+        </VscodeButton>
       </div>
     </FormSection>
   );
@@ -44,11 +47,11 @@ export const DeploymentScopeInputView: FC<DeploymentScopeInputViewProps> = ({ sc
 
 function getGridRow(label: string, value: string) {
   return (
-    <VSCodeDataGridRow key={label}>
-      <VSCodeDataGridCell gridColumn="1">{label}</VSCodeDataGridCell>
-      <VSCodeDataGridCell gridColumn="2">
-        <VSCodeBadge>{value}</VSCodeBadge>
-      </VSCodeDataGridCell>
-    </VSCodeDataGridRow>
+    <VscodeTableRow key={label}>
+      <VscodeTableCell id="1">{label}</VscodeTableCell>
+      <VscodeTableCell id="2">
+        <VscodeBadge>{value}</VscodeBadge>
+      </VscodeTableCell>
+    </VscodeTableRow>
   );
 }

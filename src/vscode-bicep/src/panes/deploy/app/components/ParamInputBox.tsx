@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import {
-  VSCodeButton,
-  VSCodeCheckbox,
-  VSCodeDropdown,
-  VSCodeOption,
-  VSCodeTextArea,
-  VSCodeTextField,
-} from "@vscode/webview-ui-toolkit/react";
+  VscodeButton,
+  VscodeCheckbox,
+  VscodeLabel,
+  VscodeOption,
+  VscodeSingleSelect,
+  VscodeTextarea,
+  VscodeTextfield
+} from "@vscode-elements/react-elements";
 import { FC } from "react";
 import { ParamData, ParamDefinition } from "../../models";
 
@@ -32,64 +33,71 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
   }
 
   function getInputBox() {
+    const inputHtmlId = `param-input-${name.toLowerCase()}`;
     switch (type) {
       case "bool":
         return (
-          <VSCodeCheckbox checked={!!value} onChange={() => handleValueChange(!value)} disabled={disabled}>
+          <VscodeCheckbox
+            id={inputHtmlId}
+            checked={!!value}
+            onChange={() => handleValueChange(!value)}
+            disabled={disabled}>
             {name}
-          </VSCodeCheckbox>
+          </VscodeCheckbox>
         );
       case "int":
         return (
-          <VSCodeTextField
-            value={`${value ?? 0}`}
-            onChange={(e) => handleValueChange(parseInt((e.currentTarget as HTMLInputElement).value, 10))}
-            disabled={disabled}
-          >
-            {name}
-          </VSCodeTextField>
+          <>
+            <VscodeLabel htmlFor={inputHtmlId}>{name}</VscodeLabel>
+            <VscodeTextfield
+              id={inputHtmlId}
+              value={`${value ?? 0}`}
+              onChange={(e) => handleValueChange(parseInt((e.currentTarget as HTMLInputElement).value, 10))}
+              disabled={disabled} />
+          </>
         );
       case "string":
         if (definition.allowedValues) {
-          const dropdownHtmlId = `param-input-${name.toLowerCase()}`;
           return (
-            <div className="dropdown-container">
-              <label htmlFor={dropdownHtmlId}>{name}</label>
-              <VSCodeDropdown
-                id={dropdownHtmlId}
+            <>
+              <VscodeLabel htmlFor={inputHtmlId}>{name}</VscodeLabel>
+              <VscodeSingleSelect
+                id={inputHtmlId}
                 onChange={(e) => handleValueChange((e.currentTarget as HTMLSelectElement).value)}
                 disabled={disabled}
               >
                 {definition.allowedValues.map((option) => (
-                  <VSCodeOption key={option} selected={value === option}>
+                  <VscodeOption key={option} selected={value === option}>
                     {option}
-                  </VSCodeOption>
+                  </VscodeOption>
                 ))}
-              </VSCodeDropdown>
-            </div>
+              </VscodeSingleSelect>
+            </>
           );
         } else {
           return (
-            <VSCodeTextField
-              value={`${value ?? ""}`}
-              onChange={(e) => handleValueChange((e.currentTarget as HTMLInputElement).value)}
-              disabled={disabled}
-            >
-              {name}
-            </VSCodeTextField>
+            <>
+              <VscodeLabel htmlFor={inputHtmlId}>{name}</VscodeLabel>
+              <VscodeTextfield
+                id={inputHtmlId}
+                value={`${value ?? ""}`}
+                onChange={(e) => handleValueChange((e.currentTarget as HTMLInputElement).value)}
+                disabled={disabled} />
+            </>
           );
         }
       default:
         return (
-          <VSCodeTextArea
-            className="code-textarea-container"
-            resize="vertical"
-            value={value ? JSON.stringify(value, null, 2) : ""}
-            onChange={(e) => handleValueChange(JSON.parse((e.currentTarget as HTMLInputElement).value))}
-            disabled={disabled}
-          >
-            {name}
-          </VSCodeTextArea>
+          <>
+            <VscodeLabel htmlFor={inputHtmlId}>{name}</VscodeLabel>
+            <VscodeTextarea
+              id={inputHtmlId}
+              className="code-textarea-container"
+              resize="vertical"
+              value={value ? JSON.stringify(value, null, 2) : ""}
+              onChange={(e) => handleValueChange(JSON.parse((e.currentTarget as HTMLInputElement).value))}
+              disabled={disabled} />
+          </>
         );
     }
   }
@@ -98,9 +106,9 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
     <span className="input-row">
       {getInputBox()}
       {defaultValue !== undefined && value !== defaultValue && (
-        <VSCodeButton onClick={handleResetToDefaultClick} disabled={disabled}>
+        <VscodeButton onClick={handleResetToDefaultClick} disabled={disabled}>
           Reset to default
-        </VSCodeButton>
+        </VscodeButton>
       )}
     </span>
   );

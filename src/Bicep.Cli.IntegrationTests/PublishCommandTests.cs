@@ -458,13 +458,15 @@ namespace Bicep.Cli.IntegrationTests
 
             var manifest = blobClient.Manifests.Single().Value.ToObjectFromJson<OciManifest>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
+            manifest.Should().NotBeNull();
+
             if (expectedDescription is null)
             {
-                manifest.Annotations.Keys.Should().NotContain("org.opencontainers.image.description");
+                manifest!.Annotations.Keys.Should().NotContain("org.opencontainers.image.description");
             }
             else
             {
-                manifest.Annotations.Should().ContainKey("org.opencontainers.image.description");
+                manifest!.Annotations.Should().ContainKey("org.opencontainers.image.description");
                 manifest.Annotations["org.opencontainers.image.description"].Should().Be(expectedDescription);
             }
 

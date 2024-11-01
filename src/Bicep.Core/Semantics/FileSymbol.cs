@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
@@ -236,11 +237,6 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public ResultWithDiagnostic<ISemanticModel> TryGetBicepFileSemanticModelViaUsing()
         {
-            if (this.FileKind == BicepSourceFileKind.BicepFile)
-            {
-                throw new InvalidOperationException($"File '{this.FileUri}' cannot reference another Bicep file via a using declaration.");
-            }
-
             var usingDeclaration = this.UsingDeclarationSyntax;
             if (usingDeclaration is null)
             {
@@ -253,11 +249,7 @@ namespace Bicep.Core.Semantics
                 return new(new EmptySemanticModel());
             }
 
-            return SemanticModelHelper.TryGetTemplateModelForArtifactReference(
-                Context.Compilation.SourceFileGrouping,
-                usingDeclaration,
-                b => b.UsingDeclarationMustReferenceBicepFile(),
-                Context.Compilation);
+            return usingDeclaration.TryGetReferencedModel(Context.SourceFileLookup, Context.ModelLookup, b => b.UsingDeclarationMustReferenceBicepFile());
         }
 
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor

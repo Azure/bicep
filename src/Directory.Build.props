@@ -28,7 +28,7 @@
 
   <PropertyGroup>
     <!-- different projects include the GenerateNotice package via different targets - this allows us to centrally manage the upgrades -->
-    <GenerateNoticePackageVersion>0.1.38</GenerateNoticePackageVersion>
+    <GenerateNoticePackageVersion>0.1.45</GenerateNoticePackageVersion>
     
     <!-- settings of the GenerateNotice tool -->
     <GenerateNoticeRetryCount>9</GenerateNoticeRetryCount>
@@ -48,7 +48,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.143" PrivateAssets="All" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.146" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4"  PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.11.20" PrivateAssets="All"/>
