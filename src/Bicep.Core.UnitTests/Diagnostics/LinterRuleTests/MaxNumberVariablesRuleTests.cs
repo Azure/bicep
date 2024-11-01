@@ -20,20 +20,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [DataRow(
-            1, 256, "var v% = %",
+            1, 512, "var v% = %",
             new string[] { })]
         [DataRow(
-            2, 257, "var v% = %",
+            2, 513, "var v% = %",
             new string[] { })]
         [DataRow(
-            1, 257, "var v% = %",
+            1, 513, "var v% = %",
             new string[] {
-                "Too many variables. Number of variables is limited to 256."
+                "Too many variables. Number of variables is limited to 512."
             })]
         [DataRow(
-            2, 258, "var v% = %",
+            2, 514, "var v% = %",
             new string[] {
-                "Too many variables. Number of variables is limited to 256."
+                "Too many variables. Number of variables is limited to 512."
             })]
         [DataTestMethod]
         public void TooManyVariables(int i, int j, string pattern, string[] expectedMessages)
