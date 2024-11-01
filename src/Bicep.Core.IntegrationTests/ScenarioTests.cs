@@ -16,6 +16,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests;
@@ -6278,5 +6279,47 @@ param p invalidRecursiveObjectType = {}
             ("BCP298", DiagnosticLevel.Error, """This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."""),
             ("BCP062", DiagnosticLevel.Error, """The referenced declaration with name "invalidRecursiveObjectType" is not valid."""),
         ]);
+    }
+
+    [DataTestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    // https://github.com/azure/bicep/issues/13596
+    public void Test_Issue13596(bool enableSymbolicNameCodegen)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(SymbolicNameCodegenEnabled: enableSymbolicNameCodegen)),
+            ("main.bicep", """
+                module mod 'empty.bicep' = {
+                  name: 'mod'
+                }
+
+                resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+                  name: 'account'
+                  dependsOn: [
+                    mod
+                  ]
+                }
+
+                resource secret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+                  name: 'vault/secret'
+                  properties: {
+                    value: sa.listKeys().keys[0].value
+                  }
+                }
+                """),
+            ("empty.bicep", string.Empty));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+
+        if (enableSymbolicNameCodegen)
+        {
+            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["sa"]""");
+        }
+        else
+        {
+            result.Template.Should().HaveJsonAtPath("$.resources[?(@.name=='vault/secret')].dependsOn", """["[resourceId('Microsoft.Resources/deployments', 'mod')]"]""");
+        }
     }
 }
