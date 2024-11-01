@@ -1,5 +1,4 @@
-# To run this, comment "/lockfiles" on the PR
-name: Update lockfiles
+name: Fix lockfiles (dotnet and npm)
 on:
   workflow_dispatch:
 
@@ -25,12 +24,18 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4.0.0
 
-      - name: Restore dependencies
+      - name: Restore dotnet dependencies
         run: |
           echo "Restoring dependencies for Bicep.sln"
           dotnet restore --force-evaluate
           echo "Restoring dependencies for BicepInVisualStudio.sln"
           dotnet restore src/vs-bicep/BicepInVisualStudio.sln --force-evaluate
+
+      - name: Restore npm dependencies
+        run: |
+          echo "Restoring npm dependencies for vscode-bicep and related projects"
+          & .\npm-install.bat
+        working-directory: src/vscode-bicep        
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
