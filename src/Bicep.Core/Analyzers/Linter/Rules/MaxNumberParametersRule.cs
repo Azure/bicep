@@ -9,6 +9,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class MaxNumberParametersRule : LinterRuleBase
     {
         public new const string Code = "max-params";
+        // https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/best-practices#template-limits
         public const int MaxNumber = 256;
 
         public MaxNumberParametersRule() : base(
