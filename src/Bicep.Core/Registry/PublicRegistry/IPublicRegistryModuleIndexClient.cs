@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry.Oci;
 using Semver;
+using Semver.Comparers;
 
 namespace Bicep.Core.Registry.PublicRegistry;
 
@@ -20,7 +21,20 @@ public record PublicRegistryModuleIndexEntry(
     private static readonly SemVersion DefaultVersion = new(0);
 
     // Sort tags by version numbers in descending order.
-    public ImmutableArray<string> Versions { get; } = [.. Tags.OrderByDescending(x => SemVersion.TryParse(x, SemVersionStyles.AllowV, out var version) ? version : DefaultVersion)];
+    public ImmutableArray<string> Versions
+    {
+        get
+        {
+            {
+                var parsedVersions = Tags.Select(x =>
+                    (@string: x, version: SemVersion.TryParse(x, SemVersionStyles.AllowV, out var version) ? version : DefaultVersion))
+                    .ToArray();
+                return parsedVersions.OrderByDescending(x => x.version, SemVersion.SortOrderComparer)
+                    .Select(x => x.@string)
+                    .ToImmutableArray();
+            }
+        }
+    }
 
     public string? GetDescription(string? version = null) => this.GetProperty(version, x => x.Description);
 
