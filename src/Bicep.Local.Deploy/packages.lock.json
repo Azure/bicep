@@ -703,8 +703,11 @@
       },
       "Semver": {
         "type": "Transitive",
-        "resolved": "2.3.0",
-        "contentHash": "4vYo1zqn6pJ1YrhjuhuOSbIIm0CpM47grbpTJ5ABjOlfGt/EhMEM9ed4MRK5Jr6gVnntWDqOUzGeUJp68PZGjw=="
+        "resolved": "3.0.0",
+        "contentHash": "9jZCicsVgTebqkAujRWtC9J1A5EQVlu0TVKHcgoCuv345ve5DYf4D1MjhKEnQjdRZo6x/vdv6QQrYFs7ilGzLA==",
+        "dependencies": {
+          "Microsoft.Extensions.Primitives": "5.0.1"
+        }
       },
       "SharpYaml": {
         "type": "Transitive",
@@ -1241,7 +1244,7 @@
           "Microsoft.Graph.Bicep.Types": "[0.1.7-preview, )",
           "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2076, )",
           "Newtonsoft.Json": "[13.0.3, )",
-          "Semver": "[2.3.0, )",
+          "Semver": "[3.0.0, )",
           "SharpYaml": "[2.1.1, )",
           "System.IO.Abstractions": "[21.0.29, )",
           "System.Private.Uri": "[4.3.2, )"

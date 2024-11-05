@@ -161,7 +161,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public static string[] GetMoreRecentModuleVersions(string[] availableVersions, string modulePath, string referencedVersion)
         {
-            if (!SemVersion.TryParse(referencedVersion, SemVersionStyles.Strict, out SemVersion requestedSemver))
+            if (!SemVersion.TryParse(referencedVersion, SemVersionStyles.Strict, out SemVersion? requestedSemver))
             {
                 // Invalid semantic version
                 return [];

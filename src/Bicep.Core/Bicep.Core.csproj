@@ -38,7 +38,7 @@
     <PackageReference Include="Microsoft.Graph.Bicep.Types" Version="0.1.7-preview" />
     <PackageReference Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2076" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Semver" Version="2.3.0" />
+    <PackageReference Include="Semver" Version="3.0.0" />
     <PackageReference Include="SharpYaml" Version="2.1.1" />
     <PackageReference Include="Azure.Deployments.Templates" Version="1.152.0" />
     <PackageReference Include="Azure.Bicep.Types" Version="0.5.110" />
