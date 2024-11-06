@@ -20,6 +20,15 @@ namespace Bicep.Core.IntegrationTests
 {
     public class TemplateEvaluator
     {
+        private class NoOpTemplateMetricRecorder : ITemplateMetricsRecorder
+        {
+            public static readonly NoOpTemplateMetricRecorder Instance = new();
+
+            public void Record(MetricDatum metricDatum)
+            {
+            }
+        }
+
         private class TemplateEvaluationContext : IEvaluationContext
         {
             private readonly IEvaluationContext context;
@@ -36,7 +45,7 @@ namespace Bicep.Core.IntegrationTests
 
             public static TemplateEvaluationContext Create(Template template, OrdinalInsensitiveDictionary<TemplateResource> resourceLookup, EvaluationConfiguration config)
             {
-                var context = TemplateEngine.GetExpressionEvaluationContext(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, null);
+                var context = TemplateEngine.GetExpressionEvaluationContext(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, NoOpTemplateMetricRecorder.Instance);
 
                 return new TemplateEvaluationContext(context, context.Scope, resourceLookup, config);
             }

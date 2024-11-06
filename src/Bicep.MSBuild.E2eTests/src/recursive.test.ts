@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Example } from "./example";
+import { describe, expect, it } from "vitest";
 import * as asserts from "./asserts";
+import { Example } from "./example";
 
-function getOutputFiles(
-  configuration: "Debug" | "Release",
-  framework: string,
-  publish: boolean,
-): string[] {
+function getOutputFiles(configuration: "Debug" | "Release", framework: string, publish: boolean): string[] {
   const publishPart = publish ? "publish/" : "";
   return [
     // templates
@@ -40,18 +37,14 @@ describe("msbuild", () => {
     const targetFrameworks = ["net8.0"];
 
     targetFrameworks.forEach((framework: string): void => {
-      getOutputFiles("Debug", framework, false).forEach((file) =>
-        example.expectTemplate(file),
-      );
+      getOutputFiles("Debug", framework, false).forEach((file) => example.expectTemplate(file));
     });
 
     const cleanResult = example.clean();
     expect(cleanResult.stderr).toBe("");
 
     targetFrameworks.forEach((framework: string): void => {
-      getOutputFiles("Debug", framework, false).forEach((file) =>
-        example.expectNoFile(file),
-      );
+      getOutputFiles("Debug", framework, false).forEach((file) => example.expectNoFile(file));
     });
 
     const publishFramework = targetFrameworks[0];
@@ -60,14 +53,10 @@ describe("msbuild", () => {
 
     // after publish we should expect build output
     // in the Release directory for the chosen framework
-    getOutputFiles("Release", publishFramework, false).forEach((file) =>
-      example.expectTemplate(file),
-    );
+    getOutputFiles("Release", publishFramework, false).forEach((file) => example.expectTemplate(file));
 
     // publish dir should be populated with the same content
-    getOutputFiles("Release", publishFramework, true).forEach((file) =>
-      example.expectTemplate(file),
-    );
+    getOutputFiles("Release", publishFramework, true).forEach((file) => example.expectTemplate(file));
   });
 
   it("should fail if BicepOutputStyle is not set to a valid value", () => {

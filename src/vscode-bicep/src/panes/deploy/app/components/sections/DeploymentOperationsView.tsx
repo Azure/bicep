@@ -2,17 +2,19 @@
 // Licensed under the MIT License.
 import { DeploymentOperation } from "@azure/arm-resources";
 import {
-  VSCodeDataGrid,
-  VSCodeDataGridCell,
-  VSCodeDataGridRow,
-  VSCodeLink,
-  VSCodeProgressRing,
-} from "@vscode/webview-ui-toolkit/react";
+  VscodeProgressRing,
+  VscodeTable,
+  VscodeTableBody,
+  VscodeTableCell,
+  VscodeTableHeader,
+  VscodeTableHeaderCell,
+  VscodeTableRow
+} from "@vscode-elements/react-elements";
 import { FC } from "react";
 import { DeploymentScope } from "../../../models";
 import { getPreformattedJson, isFailed, isInProgress } from "../utils";
 import { FormSection } from "./FormSection";
-import { Codicon } from "@vscode-bicep-ui/components";
+import { PortalButton } from "./PortalButton";
 
 interface DeploymentOperationsViewProps {
   scope: DeploymentScope;
@@ -34,41 +36,43 @@ export const DeploymentOperationsView: FC<DeploymentOperationsViewProps> = ({ sc
 
   return (
     <FormSection title="Operations">
-      <VSCodeDataGrid>
-        <VSCodeDataGridRow rowType="header">
-          <VSCodeDataGridCell gridColumn="1" cellType="columnheader">
+      <VscodeTable>
+        <VscodeTableHeader slot="header">
+          <VscodeTableHeaderCell key="1">
             Resource Name
-          </VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="2" cellType="columnheader">
+          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell key="2">
             Resource Type
-          </VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="3" cellType="columnheader">
+          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell key="3">
             Operation
-          </VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="4" cellType="columnheader">
+          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell key="4">
             State
-          </VSCodeDataGridCell>
-          <VSCodeDataGridCell gridColumn="5" cellType="columnheader">
+          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell key="5">
             Status
-          </VSCodeDataGridCell>
-        </VSCodeDataGridRow>
-        {filteredOperations.map((operation) => (
-          <VSCodeDataGridRow
-            key={operation.id}
-            style={isFailed(operation) ? { background: "rgba(255, 72, 45, 0.3)" } : {}}
-          >
-            <VSCodeDataGridCell gridColumn="1">{getResourceNameContents(scope, operation)}</VSCodeDataGridCell>
-            <VSCodeDataGridCell gridColumn="2">{operation.properties?.targetResource?.resourceType}</VSCodeDataGridCell>
-            <VSCodeDataGridCell gridColumn="3">{operation.properties?.provisioningOperation}</VSCodeDataGridCell>
-            <VSCodeDataGridCell gridColumn="4">
-              {isInProgress(operation) ? <VSCodeProgressRing /> : operation.properties?.provisioningState}
-            </VSCodeDataGridCell>
-            <VSCodeDataGridCell gridColumn="5">
-              {getPreformattedJson(operation.properties?.statusMessage)}
-            </VSCodeDataGridCell>
-          </VSCodeDataGridRow>
-        ))}
-      </VSCodeDataGrid>
+          </VscodeTableHeaderCell>
+        </VscodeTableHeader>
+        <VscodeTableBody slot="body">
+          {filteredOperations.map((operation) => (
+            <VscodeTableRow
+              key={operation.id}
+              style={isFailed(operation) ? { background: "rgba(255, 72, 45, 0.3)" } : {}}
+            >
+              <VscodeTableCell key="1">{getResourceNameContents(scope, operation)}</VscodeTableCell>
+              <VscodeTableCell key="2">{operation.properties?.targetResource?.resourceType}</VscodeTableCell>
+              <VscodeTableCell key="3">{operation.properties?.provisioningOperation}</VscodeTableCell>
+              <VscodeTableCell key="4">
+                {isInProgress(operation) ? <VscodeProgressRing /> : operation.properties?.provisioningState}
+              </VscodeTableCell>
+              <VscodeTableCell key="5">
+                {getPreformattedJson(operation.properties?.statusMessage)}
+              </VscodeTableCell>
+            </VscodeTableRow>
+          ))}
+        </VscodeTableBody>
+      </VscodeTable>
     </FormSection>
   );
 };
@@ -84,7 +88,7 @@ function getResourceNameContents(scope: DeploymentScope, operation: DeploymentOp
   );
 }
 
-function getPortalLinkButton(scope: DeploymentScope, operation: DeploymentOperation) {
+export function getPortalLinkButton(scope: DeploymentScope, operation: DeploymentOperation) {
   const { targetResource, provisioningOperation } = operation.properties ?? {};
   if (!targetResource || !targetResource.id || !targetResource.resourceType) {
     return;
@@ -95,20 +99,5 @@ function getPortalLinkButton(scope: DeploymentScope, operation: DeploymentOperat
     return;
   }
 
-  let portalResourceUrl;
-  switch (targetResource.resourceType.toLowerCase()) {
-    case 'microsoft.resources/deployments':
-      // Deployments have a dedicated Portal blade to track progress
-      portalResourceUrl = `${scope.portalUrl}/#@${scope.tenantId}/blade/HubsExtension/DeploymentDetailsBlade/overview/id/${encodeURIComponent(targetResource.id)}`;
-      break;
-    default:
-      portalResourceUrl = `${scope.portalUrl}/#@${scope.tenantId}/resource${targetResource.id}`;
-      break;
-  }
-
-  return (
-    <VSCodeLink style={{verticalAlign: 'middle'}} title="Open in Portal" href={`${portalResourceUrl}`}>
-      <Codicon name="globe" size={12} />
-    </VSCodeLink>
-  );
+  return <PortalButton scope={scope} resourceId={targetResource.id} resourceType={targetResource.resourceType}/>;
 }

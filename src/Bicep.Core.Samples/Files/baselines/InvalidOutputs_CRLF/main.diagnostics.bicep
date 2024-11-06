@@ -179,7 +179,6 @@ output o object = 'str'
 output exp string = 2 + 3
 //@[20:25) [BCP033 (Error)] Expected a value of type "string" but the provided value is of type "5". (bicep https://aka.ms/bicep/core-diagnostics#BCP033) |2 + 3|
 output union string = true ? 's' : 1
-//@[22:36) [BCP033 (Error)] Expected a value of type "string" but the provided value is of type "'s' | 1". (bicep https://aka.ms/bicep/core-diagnostics#BCP033) |true ? 's' : 1|
 output bad int = true && !4
 //@[25:27) [BCP044 (Error)] Cannot apply operator "!" to operand of type "4". (bicep https://aka.ms/bicep/core-diagnostics#BCP044) |!4|
 output deeper bool = true ? -true : (14 && 's') + 10

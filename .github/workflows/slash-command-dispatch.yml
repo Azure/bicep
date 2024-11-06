@@ -1,3 +1,6 @@
+# NOTE: CURRENTLY DOES NOT WORK!
+
+
 # Implements "slash commands" on PR comments
 #   see https://github.com/peter-evans/slash-command-dispatch
 #   and https://david.gardiner.net.au/2021/05/dependabot-nuget-lockfiles.html

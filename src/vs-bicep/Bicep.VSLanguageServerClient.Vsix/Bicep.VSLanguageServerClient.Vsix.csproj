@@ -63,7 +63,7 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK">
       <Version>17.11.40262</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.11.435">
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.12.2069">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VscodeProgressRing, VscodeButton, VscodeIcon } from "@vscode-elements/react-elements";
 import { FC, useState } from "react";
 
 import "./index.css";
@@ -16,7 +16,6 @@ import { FormSection } from "./sections/FormSection";
 import { ParametersInputView } from "./sections/ParametersInputView";
 import { ResultsView } from "./sections/ResultsView";
 import { WhatIfChangesView } from "./sections/WhatIfChangesView";
-import { Codicon } from "@vscode-bicep-ui/components";
 
 export const App: FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -29,6 +28,7 @@ export const App: FC = () => {
     parametersMetadata: messages.paramsMetadata,
     setErrorMessage,
   });
+  const isRunning = azure.deployState.status === "running" || localDeployRunning;
 
   function setParamValue(key: string, data: ParamData) {
     const parameters = Object.assign({}, messages.paramsMetadata.parameters, { [key]: data });
@@ -39,7 +39,7 @@ export const App: FC = () => {
     messages.setParamsMetadata({ ...messages.paramsMetadata, sourceFilePath: undefined });
   }
 
-  const azureDisabled = !messages.scope || !messages.templateMetadata || azure.running;
+  const azureDisabled = !messages.scope || !messages.templateMetadata || isRunning;
 
   async function handleDeployClick() {
     messages.publishTelemetry("deployPane/deploy", {});
@@ -62,7 +62,7 @@ export const App: FC = () => {
   }
 
   if (!messages.messageState.initialized) {
-    return <VSCodeProgressRing />;
+    return <VscodeProgressRing />;
   }
 
   const showLocalDeployControls =
@@ -76,7 +76,7 @@ export const App: FC = () => {
         <>
           <FormSection title="Experimental Warning">
             <div className="alert-error">
-              <Codicon name="beaker" size={14} />
+              <VscodeIcon name="beaker" size={14} />
               The Bicep Deployment Pane is an experimental feature.
               <br />
               Documentation is available{" "}
@@ -89,7 +89,7 @@ export const App: FC = () => {
           <ParametersInputView
             parameters={messages.paramsMetadata}
             template={messages.templateMetadata}
-            disabled={azure.running}
+            disabled={isRunning}
             onValueChange={setParamValue}
             onEnableEditing={handleEnableParamEditing}
             onPickParametersFile={messages.pickParamsFile}
@@ -98,27 +98,26 @@ export const App: FC = () => {
           <FormSection title="Actions">
             {errorMessage && (
               <div className="alert-error">
-                <Codicon name="error" size={14} />
+                <VscodeIcon name="error" size={14} />
                 {errorMessage}
               </div>
             )}
             <div className="controls">
-              <VSCodeButton onClick={handleDeployClick} disabled={azureDisabled}>
+              <VscodeButton onClick={handleDeployClick} disabled={azureDisabled}>
                 Deploy
-              </VSCodeButton>
-              <VSCodeButton onClick={handleValidateClick} disabled={azureDisabled}>
+              </VscodeButton>
+              <VscodeButton onClick={handleValidateClick} disabled={azureDisabled}>
                 Validate
-              </VSCodeButton>
-              <VSCodeButton onClick={handleWhatIfClick} disabled={azureDisabled}>
+              </VscodeButton>
+              <VscodeButton onClick={handleWhatIfClick} disabled={azureDisabled}>
                 What-If
-              </VSCodeButton>
+              </VscodeButton>
             </div>
-            {azure.running && <VSCodeProgressRing></VSCodeProgressRing>}
           </FormSection>
 
           {messages.scope && (
             <>
-              <ResultsView result={azure.result} />
+              <ResultsView scope={messages.scope} deployState={azure.deployState} />
               <DeploymentOperationsView scope={messages.scope} operations={azure.operations} />
               <DeploymentOutputsView outputs={azure.outputs} />
               <WhatIfChangesView changes={azure.whatIfChanges} />
@@ -131,7 +130,7 @@ export const App: FC = () => {
         <>
           <FormSection title="Experimental Warning">
             <div className="alert-error">
-                <Codicon name="error" size={14} />
+              <VscodeIcon name="error" size={14} />
               Local Deployment is an experimental feature.
             </div>
           </FormSection>
@@ -149,16 +148,16 @@ export const App: FC = () => {
               <FormSection title="Actions">
                 {errorMessage && (
                   <div className="alert-error">
-                    <Codicon name="error" size={14} />
+                    <VscodeIcon name="error" size={14} />
                     {errorMessage}
                   </div>
                 )}
                 <div className="controls">
-                  <VSCodeButton onClick={handleLocalDeployClick} disabled={localDeployRunning}>
+                  <VscodeButton onClick={handleLocalDeployClick} disabled={localDeployRunning}>
                     Deploy
-                  </VSCodeButton>
+                  </VscodeButton>
                 </div>
-                {localDeployRunning && <VSCodeProgressRing></VSCodeProgressRing>}
+                {localDeployRunning && <VscodeProgressRing></VscodeProgressRing>}
               </FormSection>
 
               {!localDeployRunning && messages.localDeployResult && (

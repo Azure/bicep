@@ -16,6 +16,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests;
@@ -1985,10 +1986,11 @@ var primaryLocation = locations[0]
     // https://github.com/Azure/bicep/issues/2248
     public void Test_Issue2248_UnionTypeInArrayAccessBaseExpression_NegativeCase()
     {
-        var result = CompilationHelper.Compile(@"
-var foos = true ? true : []
-var primaryFoo = foos[0]
-");
+        var result = CompilationHelper.Compile("""
+            param condition bool
+            var foos = condition ? true : []
+            var primaryFoo = foos[0]
+            """);
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP076", DiagnosticLevel.Error, "Cannot index over expression of type \"<empty array> | true\". Arrays or objects are required.")
@@ -2009,7 +2011,7 @@ var default = {
 
 var chosenOne = which ? input : default
 
-var p = chosenOne.foo
+var p = chosenOne.?foo
 ");
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
@@ -3341,8 +3343,8 @@ output valueMap object = toObject(
 """);
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
-            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => (1 | 2)" is not assignable to parameter of type "any => string"."""),
-            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => (2 | 3)" is not assignable to parameter of type "any => string"."""),
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => int" is not assignable to parameter of type "any => string"."""),
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => int" is not assignable to parameter of type "any => string"."""),
         ]);
     }
 
@@ -5063,7 +5065,7 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 "));
 
         var evaluated = TemplateEvaluator.Evaluate(result.Template);
-        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo2"));
+        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo1"));
     }
 
     // https://github.com/Azure/bicep/issues/11292
@@ -6211,7 +6213,7 @@ output foo string[] = [for item in items: item.foo]
 ");
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
-            ("BCP053", DiagnosticLevel.Error, """The type "object" does not contain property "foo". Available properties include "bar"."""),
+            ("BCP053", DiagnosticLevel.Error, """The type "object | object" does not contain property "foo". Available properties include "bar"."""),
         ]);
     }
 
@@ -6229,6 +6231,26 @@ var items = [
 
 output foo string[] = [for item in items: item.foo]
 ");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP187", DiagnosticLevel.Warning, """The property "foo" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+        ]);
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/14839
+    public void Test_Issue14839_3()
+    {
+        var result = CompilationHelper.Compile("""
+            param firstItem object
+
+            var items = [
+              firstItem
+              { bar: 'def' }
+            ]
+
+            output foo string[] = [for item in items: item.?foo]
+            """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
@@ -6257,5 +6279,47 @@ param p invalidRecursiveObjectType = {}
             ("BCP298", DiagnosticLevel.Error, """This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."""),
             ("BCP062", DiagnosticLevel.Error, """The referenced declaration with name "invalidRecursiveObjectType" is not valid."""),
         ]);
+    }
+
+    [DataTestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    // https://github.com/azure/bicep/issues/13596
+    public void Test_Issue13596(bool enableSymbolicNameCodegen)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(SymbolicNameCodegenEnabled: enableSymbolicNameCodegen)),
+            ("main.bicep", """
+                module mod 'empty.bicep' = {
+                  name: 'mod'
+                }
+
+                resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+                  name: 'account'
+                  dependsOn: [
+                    mod
+                  ]
+                }
+
+                resource secret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+                  name: 'vault/secret'
+                  properties: {
+                    value: sa.listKeys().keys[0].value
+                  }
+                }
+                """),
+            ("empty.bicep", string.Empty));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+
+        if (enableSymbolicNameCodegen)
+        {
+            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["mod"]""");
+        }
+        else
+        {
+            result.Template.Should().HaveJsonAtPath("$.resources[?(@.name=='vault/secret')].dependsOn", """["[resourceId('Microsoft.Resources/deployments', 'mod')]"]""");
+        }
     }
 }

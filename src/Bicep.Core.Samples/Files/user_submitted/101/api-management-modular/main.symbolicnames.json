@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13726378283629199613"
+      "templateHash": "2208926443863165998"
     }
   },
   "parameters": {
@@ -163,7 +163,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "403029788224868668"
+              "templateHash": "6816770503491912011"
             }
           },
           "parameters": {
@@ -204,10 +204,7 @@
               "properties": {
                 "displayName": "[variables('groupsSet')[copyIndex()].groupDisplayName]",
                 "description": "[variables('groupsSet')[copyIndex()].groupDescription]"
-              },
-              "dependsOn": [
-                "parentAPIM"
-              ]
+              }
             }
           },
           "outputs": {
@@ -251,7 +248,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8034218730798252475"
+              "templateHash": "16793550498477002119"
             }
           },
           "parameters": {
@@ -301,10 +298,7 @@
                 "email": "[variables('usersSet')[copyIndex()].email]",
                 "state": "[variables('usersSet')[copyIndex()].state]",
                 "note": "[variables('usersSet')[copyIndex()].notes]"
-              },
-              "dependsOn": [
-                "parentAPIM"
-              ]
+              }
             }
           }
         }
@@ -336,7 +330,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11528852364160566097"
+              "templateHash": "14248540637091011874"
             }
           },
           "parameters": {
@@ -386,10 +380,7 @@
                 "secret": "[variables('apimNameValueSet')[copyIndex()].isSecret]",
                 "value": "[variables('apimNameValueSet')[copyIndex()].value]",
                 "tags": "[variables('apimNameValueSet')[copyIndex()].tags]"
-              },
-              "dependsOn": [
-                "parentAPIM"
-              ]
+              }
             }
           },
           "outputs": {

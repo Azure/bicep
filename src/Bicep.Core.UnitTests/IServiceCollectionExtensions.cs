@@ -50,7 +50,7 @@ public static class IServiceCollectionExtensions
             .AddPublicRegistryModuleMetadataProviderServices()
             .AddSingleton<BicepCompiler>();
 
-        AddMockHttpClient(services, PublicRegistryModuleMetadataClientMock.Create([]).Object);
+        AddMockHttpClient(services, PublicRegistryModuleIndexClientMock.Create([]).Object);
 
         return services;
     }

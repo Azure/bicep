@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Bicep.Core.DataFlow;
@@ -7,11 +8,15 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Emit
 {
     public class ResourceDependencyVisitor : AstVisitor
     {
+        private static readonly FrozenSet<string> ResourceInfoProperties
+            = new[] { "id", "name", "type", "apiVersion" }.ToFrozenSet();
         private readonly SemanticModel model;
         private Options? options;
         private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
@@ -68,7 +73,7 @@ namespace Bicep.Core.Emit
             {
                 for (int i = ancestors.Length - 1; i >= 0; i--)
                 {
-                    if (!ancestors[i].Resource.IsExistingResource || options?.IncludeExisting == true)
+                    if (!ancestors[i].Resource.IsExistingResource)
                     {
                         // we found the non-existing resource - we're done
                         return i;
@@ -94,6 +99,7 @@ namespace Bicep.Core.Emit
 
             this.currentDeclaration = resource.Symbol;
             this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select((a, i) => new ResourceDependency(a.Resource.Symbol, a.IndexExpression, i == lastAncestorIndex ? ResourceDependencyKind.Primary : ResourceDependencyKind.Transitive)));
+
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore previous declaration
@@ -174,7 +180,17 @@ namespace Bicep.Core.Emit
                     return;
 
                 case ResourceSymbol resourceSymbol:
-                    if (resourceSymbol.DeclaringResource.IsExistingResource() && options?.IncludeExisting != true)
+                    // Only add an explicit dependency on an existing resource IFF the compiled template will include
+                    // the existing resource AND this resource will read from the GET response. If we are instead
+                    // skipping existing resources, setting the current declaration's parent, calling a function like
+                    // `listKeys()` on the resource, or just referring to data that ARM can resolve via the
+                    // `resourceInfo()` function, skip the explicit dependency. This will allow the ARM engine to
+                    // recognize when an existing resource is unused and skip the unnecessary GET request.
+                    if (resourceSymbol.DeclaringResource.IsExistingResource() && (
+                        options?.IncludeExisting is not true ||
+                        IsResourceIdentifierAccessBase(syntax) ||
+                        IsResourceFunctionCallBase(syntax) ||
+                        IsWithinResourceParentPropertyValue(syntax)))
                     {
                         var existingDependencies = GetResourceDependencies(resourceSymbol);
 
@@ -190,6 +206,35 @@ namespace Bicep.Core.Emit
                     return;
             }
         }
+
+        private bool IsResourceIdentifierAccessBase(SyntaxBase syntax) => model.Binder.GetParent(syntax) switch
+        {
+            PropertyAccessSyntax propertyAccess
+                => ResourceInfoProperties.Contains(propertyAccess.PropertyName.IdentifierName),
+            ArrayAccessSyntax arrayAccess when model.GetTypeInfo(arrayAccess.IndexExpression) is StringLiteralType idx
+                => ResourceInfoProperties.Contains(idx.RawStringValue),
+            ArrayAccessSyntax arrayAccess when model.GetSymbolInfo(arrayAccess.BaseExpression) is ResourceSymbol r &&
+                r.IsCollection &&
+                TypeValidator.AreTypesAssignable(model.GetTypeInfo(arrayAccess.IndexExpression), LanguageConstants.Int)
+                => IsResourceIdentifierAccessBase(arrayAccess),
+            _ => false,
+        };
+
+        private bool IsResourceFunctionCallBase(SyntaxBase syntax) => model.Binder.GetParent(syntax) switch
+        {
+            InstanceFunctionCallSyntax => true,
+            ArrayAccessSyntax arrayAccess when model.GetSymbolInfo(arrayAccess.BaseExpression) is ResourceSymbol r &&
+                r.IsCollection &&
+                TypeValidator.AreTypesAssignable(model.GetTypeInfo(arrayAccess.IndexExpression), LanguageConstants.Int)
+                => IsResourceFunctionCallBase(arrayAccess),
+            _ => false,
+        };
+
+        private bool IsWithinResourceParentPropertyValue(SyntaxBase syntax)
+            => currentDeclaration is ResourceSymbol currentResource &&
+                currentResource.DeclaringResource.TryGetBody() is ObjectSyntax declarationBody &&
+                declarationBody.TryGetPropertyByName(LanguageConstants.ResourceParentPropertyName) is { } parentProp &&
+                model.Binder.IsDescendant(syntax, parentProp);
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {

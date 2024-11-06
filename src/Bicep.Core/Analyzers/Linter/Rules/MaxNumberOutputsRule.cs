@@ -9,6 +9,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class MaxNumberOutputsRule : LinterRuleBase
     {
         public new const string Code = "max-outputs";
+        // https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/best-practices#template-limits
         public const int MaxNumber = 64;
 
         public MaxNumberOutputsRule() : base(

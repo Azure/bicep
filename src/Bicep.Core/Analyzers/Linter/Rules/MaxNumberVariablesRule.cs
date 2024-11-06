@@ -9,7 +9,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class MaxNumberVariablesRule : LinterRuleBase
     {
         public new const string Code = "max-variables";
-        public const int MaxNumber = 256;
+        // https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/best-practices#template-limits
+        public const int MaxNumber = 512;
 
         public MaxNumberVariablesRule() : base(
             code: Code,

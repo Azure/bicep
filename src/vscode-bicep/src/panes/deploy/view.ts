@@ -247,6 +247,9 @@ export class DeployPaneView extends Disposable {
     const scriptUri = this.webviewPanel.webview.asWebviewUri(
       vscode.Uri.joinPath(this.extensionUri, "out", "deployPane.js"),
     );
+    const codiconCssUri = this.webviewPanel.webview.asWebviewUri(
+      vscode.Uri.joinPath(this.extensionUri, "out", "codicon.css"),
+    );
 
     return `
       <!DOCTYPE html>
@@ -259,6 +262,7 @@ export class DeployPaneView extends Disposable {
         -->
         <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://management.azure.com; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src data: ${cspSource};">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link id="vscode-codicon-stylesheet" rel="stylesheet" nonce="${nonce}" href="${codiconCssUri}">
       </head>
       <body>
         <div id="root"></div>
