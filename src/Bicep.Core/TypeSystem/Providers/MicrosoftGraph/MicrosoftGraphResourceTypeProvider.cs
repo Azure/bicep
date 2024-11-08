@@ -133,7 +133,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
             foreach (var property in properties)
             {
                 // "uniqueName", "name", "appId", "scope" & "parent" can be set for existing resources - everything else should be read-only
-                if (UniqueIdentifierProperties.Contains(property.Name))
+                if (UniqueIdentifierProperties.Contains(property.Name) || property.Flags.HasFlag(TypePropertyFlags.ResourceIdentifier))
                 {
                     yield return property;
                 }
