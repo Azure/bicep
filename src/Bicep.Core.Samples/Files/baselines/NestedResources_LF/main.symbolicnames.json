@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "236868819280717113"
+      "templateHash": "16972434704035043060"
     }
   },
   "parameters": {
@@ -71,13 +71,19 @@
       "properties": {
         "size": "[reference('existingParent').size]",
         "style": "[reference('existingParent::existingChild').style]"
-      }
+      },
+      "dependsOn": [
+        "existingParent::existingChild"
+      ]
     },
     "existingParent::existingChild": {
       "existing": true,
       "type": "My.Rp/parentType/childType",
       "apiVersion": "2020-12-01",
-      "name": "[format('{0}/{1}', 'existingParent', 'existingChild')]"
+      "name": "[format('{0}/{1}', 'existingParent', 'existingChild')]",
+      "dependsOn": [
+        "existingParent"
+      ]
     },
     "conditionParent::conditionChild::conditionGrandchild": {
       "condition": "[and(and(parameters('createParent'), parameters('createChild')), parameters('createGrandchild'))]",
