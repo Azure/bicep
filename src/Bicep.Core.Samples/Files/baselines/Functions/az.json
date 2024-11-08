@@ -1,7 +1,7 @@
 [
   {
     "name": "deployer",
-    "description": "Returns information about the principal that initiated the current deployment operation.",
+    "description": "Returns information about the current deployment principal.",
     "fixedParameters": [],
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 0,

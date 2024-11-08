@@ -155,7 +155,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 new TypeProperty("namespace", LanguageConstants.String),
                 new TypeProperty("resourceTypes", new TypedArrayType(GetProvidersSingleResourceReturnType(), TypeSymbolValidationFlags.Default)),
-                }, null);
+            }, null);
         }
 
         private static ObjectType GetEnvironmentReturnType()
@@ -329,7 +329,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return (
                 new FunctionOverloadBuilder("deployer")
                     .WithReturnType(GetDeployerReturnType())
-                    .WithGenericDescription("Returns information about the principal that initiated the current deployment operation.")
+                    .WithGenericDescription("Returns information about the current deployment principal.")
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
         }
