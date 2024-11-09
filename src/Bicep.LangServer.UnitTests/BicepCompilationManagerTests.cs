@@ -12,6 +12,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.FileSystem;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
@@ -22,7 +23,7 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -723,7 +724,8 @@ module moduleB './moduleB.bicep' = {
     }
   }
 }";
-            var configurationManager = new ConfigurationManager(new IOFileSystem());
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
+            var configurationManager = new ConfigurationManager(fileExplorer);
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
@@ -775,7 +777,8 @@ module moduleB './moduleB.bicep' = {
     }
   }
 }";
-            var configurationManager = new ConfigurationManager(new IOFileSystem());
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
+            var configurationManager = new ConfigurationManager(fileExplorer);
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
@@ -798,7 +801,8 @@ module moduleB './moduleB.bicep' = {
             var compilationManager = CreateBicepCompilationManager();
 
             var bicepConfigFileContents = @"{}";
-            var configurationManager = new ConfigurationManager(new IOFileSystem());
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
+            var configurationManager = new ConfigurationManager(fileExplorer);
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);

@@ -87,7 +87,7 @@ namespace Bicep.LangServer.IntegrationTests
             Trace.WriteLine("Input bicep:\n" + fileWithCursors + "\n");
 
             var (file, selection) = ParserHelper.GetFileWithSingleSelection(fileWithCursors, emptyCursor.ToString(), escapedCursor);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
 
             server ??= await DefaultServer.GetAsync();
             await server.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);

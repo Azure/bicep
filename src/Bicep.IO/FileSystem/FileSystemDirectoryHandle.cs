@@ -37,7 +37,8 @@ namespace Bicep.IO.FileSystem
 
         public IDirectoryHandle? GetParent()
         {
-            var parentDirectoryPath = FileSystem.Path.GetDirectoryName(Identifier.GetFileSystemPath().TrimEnd('/'));
+            var currentPath = Identifier.GetFileSystemPath().TrimEnd(this.FileSystem.Path.DirectorySeparatorChar);
+            var parentDirectoryPath = this.FileSystem.Path.GetDirectoryName(currentPath);
 
             if (string.IsNullOrEmpty(parentDirectoryPath))
             {

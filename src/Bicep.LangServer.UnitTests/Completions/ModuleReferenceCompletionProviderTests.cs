@@ -7,6 +7,7 @@ using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.FileSystem;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Providers;
@@ -18,7 +19,7 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using ConfigurationManager = Bicep.Core.Configuration.ConfigurationManager;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests.Completions
 {
@@ -123,9 +124,10 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var completionContext = GetBicepCompletionContext("module test '|'", bicepConfigFileContents, out DocumentUri documentUri);
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -213,9 +215,10 @@ namespace Bicep.LangServer.UnitTests.Completions
             publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions("app/dapr-containerapp")).Returns([new("1.0.1", null, null), new("1.0.2", null, null)]);
 
             var completionContext = GetBicepCompletionContext(inputWithCursors, null, out DocumentUri documentUri);
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider.Object,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -243,9 +246,10 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -319,9 +323,10 @@ namespace Bicep.LangServer.UnitTests.Completions
             var settingsProviderMock = StrictMock.Of<ISettingsProvider>();
             settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider,
                 settingsProviderMock.Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -392,9 +397,10 @@ namespace Bicep.LangServer.UnitTests.Completions
             var azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
             azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(documentUri.ToUriEncoded(), CancellationToken.None)).Returns(new List<string> { "testacr3.azurecr.io", "testacr4.azurecr.io" }.ToAsyncEnumerable());
 
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider,
                 settingsProviderMock.Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -444,9 +450,10 @@ namespace Bicep.LangServer.UnitTests.Completions
             var azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
             azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(documentUri.ToUriEncoded(), CancellationToken.None)).Returns(new List<string>().ToAsyncEnumerable());
 
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider,
                 settingsProviderMock.Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -546,9 +553,10 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -599,9 +607,10 @@ namespace Bicep.LangServer.UnitTests.Completions
             publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions("app/dapr-containerapp")).Returns([new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html")]);
 
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider.Object,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -641,9 +650,10 @@ namespace Bicep.LangServer.UnitTests.Completions
             publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions("app/dapr-containerappapp")).Returns([]);
 
             var completionContext = GetBicepCompletionContext("module test 'br/public:app/dapr-containerappapp:|'", null, out DocumentUri documentUri);
+            var fileSystemfileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileSystemfileExplorer),
                 publicRegistryModuleMetadataProvider.Object,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -678,9 +688,10 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -728,9 +739,10 @@ namespace Bicep.LangServer.UnitTests.Completions
             publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()).Returns([new("app/dapr-containerappapp", "dapr description", "contoso.com/help")]);
 
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider.Object,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -789,9 +801,10 @@ namespace Bicep.LangServer.UnitTests.Completions
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
 
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider.Object,
                 settingsProvider,
                 telemetryProvider.Object);
@@ -840,9 +853,10 @@ namespace Bicep.LangServer.UnitTests.Completions
             azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(documentUri.ToUriEncoded(), It.IsAny<CancellationToken>()))
                 .Returns((Uri uri, CancellationToken ct) => GetUris(ct));
 
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
-                new ConfigurationManager(new IOFileSystem()),
+                new ConfigurationManager(fileExplorer),
                 publicRegistryModuleMetadataProvider,
                 settingsProviderMock.Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);

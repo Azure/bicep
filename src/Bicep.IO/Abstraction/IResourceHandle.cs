@@ -11,10 +11,8 @@ namespace Bicep.IO.Abstraction
 {
     public interface IResourceHandle : IEquatable<IResourceHandle>
     {
-        public ResourceIdentifier Identifier { get; }
+        ResourceIdentifier Identifier { get; }
 
-        public bool Exists();
-
-        public string ToString();
+        bool Exists();
     }
 }

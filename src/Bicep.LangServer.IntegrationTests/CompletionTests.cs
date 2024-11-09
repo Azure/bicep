@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
 using System.Text;
 using Bicep.Core;
@@ -37,7 +38,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
@@ -4077,7 +4078,7 @@ var file = " + functionName + @"(templ|)
                 TestContext,
                 services => services
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new IOFileSystem())));
+                .WithFileResolver(new FileResolver(new LocalFileSystem())));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
@@ -4106,7 +4107,7 @@ var file = " + functionName + @"(templ|)
                 TestContext,
                 services => services
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new IOFileSystem())));
+                .WithFileResolver(new FileResolver(new LocalFileSystem())));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
@@ -4152,7 +4153,7 @@ var file = " + functionName + @"(templ|)
                 services => services
                 .AddSingleton<IPublicRegistryModuleMetadataProvider>(publicRegistryModuleMetadataProvider.Object)
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new IOFileSystem())));
+                .WithFileResolver(new FileResolver(new LocalFileSystem())));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
@@ -4196,7 +4197,7 @@ var file = " + functionName + @"(templ|)
                 services => services
                 .AddSingleton<IPublicRegistryModuleMetadataProvider>(publicRegistryModuleMetadataProvider.Object)
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new IOFileSystem())));
+                .WithFileResolver(new FileResolver(new LocalFileSystem())));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);

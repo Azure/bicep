@@ -11,10 +11,10 @@ namespace Bicep.IO.Abstraction
 {
     public interface IDirectoryHandle : IResourceHandle
     {
-        public IDirectoryHandle? GetParent();
+        IDirectoryHandle? GetParent();
 
-        public IDirectoryHandle GetDirectory(string relativePath);
+        IDirectoryHandle GetDirectory(string relativePath);
 
-        public IFileHandle GetFile(string relativePath);
+        IFileHandle GetFile(string relativePath);
     }
 }

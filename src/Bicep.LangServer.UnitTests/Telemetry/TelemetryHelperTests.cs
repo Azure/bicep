@@ -5,11 +5,12 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.FileSystem;
 using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests.Telemetry
 {
@@ -513,7 +514,8 @@ namespace Bicep.LangServer.UnitTests.Telemetry
 
         private (RootConfiguration, RootConfiguration) GetPreviousAndCurrentRootConfiguration(string prevBicepConfigContents, string curBicepConfigContents)
         {
-            var configurationManager = new ConfigurationManager(new IOFileSystem());
+            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
+            var configurationManager = new ConfigurationManager(fileExplorer);
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var prevConfiguration = GetRootConfiguration(testOutputPath, prevBicepConfigContents, configurationManager);

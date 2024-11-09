@@ -9,10 +9,8 @@ using System.Threading.Tasks;
 
 namespace Bicep.IO.Abstraction
 {
-    public interface IFileExplorer
+    public class ResourceIdentifierSchemes
     {
-        IDirectoryHandle GetDirectory(ResourceIdentifier identifier);
-
-        IFileHandle GetFile(ResourceIdentifier identifier);
+        public static string File = "file";
     }
 }

@@ -20,11 +20,13 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests;
 
@@ -42,7 +44,8 @@ public static class IServiceCollectionExtensions
             .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
             .AddSingleton<IFileResolver, FileResolver>()
             .AddSingleton<IEnvironment>(TestEnvironment.Create())
-            .AddSingleton<IFileSystem, IOFileSystem>()
+            .AddSingleton<IFileSystem, LocalFileSystem>()
+            .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
             .AddSingleton<IConfigurationManager, ConfigurationManager>()
             .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
             .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()

@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
@@ -22,10 +23,12 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
 using Moq;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using OnDiskFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests
 {
@@ -37,8 +40,11 @@ namespace Bicep.Core.UnitTests
 
         public const string GeneratorTemplateHashPath = "metadata._generator.templateHash";
 
-        public static readonly IFileSystem FileSystem = new IOFileSystem();
+        public static readonly IFileSystem FileSystem = new OnDiskFileSystem();
+
         public static readonly FileResolver FileResolver = new(FileSystem);
+
+        public static readonly IFileExplorer fileExplorer = new FileSystemFileExplorer(FileSystem);
 
         public static readonly FeatureProviderOverrides FeatureOverrides = new();
 
@@ -89,7 +95,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
 
-        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, Uri? configFileUri = null)
+        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configFilePath = null)
         {
             var configurationData = new Dictionary<string, object>
             {
@@ -120,10 +126,12 @@ namespace Bicep.Core.UnitTests
                 element = element.SetPropertyByPath(path, value);
             }
 
-            return RootConfiguration.Bind(element, configFileUri);
+            ResourceIdentifier? configFileIdentifier = configFilePath is not null ? new ResourceIdentifier("file", "", configFilePath) : null;
+
+            return RootConfiguration.Bind(element, configFileIdentifier);
         }
 
-        public static ConfigurationManager CreateFilesystemConfigurationManager() => new(new IOFileSystem());
+        public static ConfigurationManager CreateFilesystemConfigurationManager() => new(new FileSystemFileExplorer(new OnDiskFileSystem()));
 
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
             => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager()), featureOverrides);

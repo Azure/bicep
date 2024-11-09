@@ -1,10 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.IO.Abstraction;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class DocumentUriExtensions
     {
+        public static ResourceIdentifier ToFileIdentifier(this DocumentUri documentUri) => new(documentUri.Scheme ?? "", documentUri.Authority, documentUri.Path);
+
         public static Uri ToUriEncoded(this DocumentUri documentUri)
         {
 #pragma warning disable RS0030 // Do not use banned APIs

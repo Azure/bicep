@@ -11,12 +11,12 @@ namespace Bicep.IO.Abstraction
 {
     public interface IFileHandle : IResourceHandle
     {
-        public IDirectoryHandle GetParent();
+        IDirectoryHandle GetParent();
 
-        public Stream OpenRead();
+        Stream OpenRead();
 
-        public Stream OpenWrite();
+        Stream OpenWrite();
 
-        public IFileLock? TryLock();
+        IFileLock? TryLock();
     }
 }

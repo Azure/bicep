@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System.IO.Abstractions;
 using Bicep.Core.Emit.Options;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.FileSystem
 {
@@ -28,7 +28,7 @@ namespace Bicep.Core.FileSystem
         /// <param name="fileSystem">The file system abstraction.</param>
         public static string ResolvePath(string path, string? baseDirectory = null, IFileSystem? fileSystem = null)
         {
-            fileSystem ??= new IOFileSystem();
+            fileSystem ??= new LocalFileSystem();
 
             if (fileSystem.Path.IsPathFullyQualified(path))
             {
@@ -54,7 +54,7 @@ namespace Bicep.Core.FileSystem
 
         public static string ResolveDefaultOutputPath(string inputPath, string? outputDir, string? outputFile, Func<string, string> defaultOutputPath, IFileSystem? fileSystem = null)
         {
-            fileSystem ??= new IOFileSystem();
+            fileSystem ??= new LocalFileSystem();
 
             if (outputDir is not null)
             {

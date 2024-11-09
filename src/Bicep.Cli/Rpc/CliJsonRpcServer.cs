@@ -98,9 +98,16 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         {
             fileUris.Add(otherModel.SourceFile.FileUri);
             fileUris.UnionWith(otherModel.GetAuxiliaryFileReferences());
-            if (otherModel.Configuration.ConfigFileUri is { } configFileUri)
+            if (otherModel.Configuration.ConfigFileIdentifier is { } configFileIdentifier)
             {
-                fileUris.Add(configFileUri);
+                var uri = new UriBuilder
+                {
+                    Scheme = configFileIdentifier.Scheme,
+                    Host = configFileIdentifier.Authority,
+                    Path = configFileIdentifier.Path,
+                }.Uri;
+
+                fileUris.Add(uri);
             }
         }
 

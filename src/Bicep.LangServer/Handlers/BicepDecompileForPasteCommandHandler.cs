@@ -49,7 +49,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly TelemetryAndErrorHandlingHelper<BicepDecompileForPasteCommandResult> telemetryHelper;
         private readonly BicepCompiler bicepCompiler;
 
-        private static readonly Uri JsonDummyUri = new("file://from-clipboard.json", UriKind.Absolute);
+        private static readonly Uri JsonDummyUri = new("file:///from-clipboard.json", UriKind.Absolute);
         private static readonly Uri BicepDummyUri = PathHelper.ChangeToBicepExtension(JsonDummyUri);
 
         public const string? PasteType_None = null;

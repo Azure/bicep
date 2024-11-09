@@ -33,9 +33,9 @@ namespace Bicep.IO.FileSystem
 
         public abstract bool Exists();
 
-        public override string ToString() => Identifier.GetFileSystemPath();
-
         public override int GetHashCode() => HashCode.Combine(this.GetType(), Identifier);
+
+        public override bool Equals(object? @object) => Equals(@object as FileSystemResourceHandle);
 
         public bool Equals(IResourceHandle? other)
         {
@@ -67,7 +67,7 @@ namespace Bicep.IO.FileSystem
 
                 return new ResourceIdentifier("file", "", fileSystemPath);
             }
-            catch (Exception exception) when (exception is ArgumentException or SecurityException or NotSupportedException or PathTooLongException)
+            catch (Exception exception) when (exception is ArgumentException or SecurityException or PathTooLongException)
             {
                 throw new FileSystemPathException(exception.Message);
             }

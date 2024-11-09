@@ -51,6 +51,10 @@
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bicep.IO\Bicep.IO.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">
       <DesignTime>True</DesignTime>

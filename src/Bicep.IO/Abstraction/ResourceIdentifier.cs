@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Bicep.IO.Abstraction
     /// </summary>
     public readonly struct ResourceIdentifier : IEquatable<ResourceIdentifier>
     {
-        public static class Settings
+        public static class GlobalSettings
         {
             public static bool PathCaseSensitive { get; set; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
@@ -38,11 +39,24 @@ namespace Bicep.IO.Abstraction
 
         public string Scheme { get; }
 
-        public string Authority { get; }
+        public string? Authority { get; }
 
         public string Path { get; }
 
-        public override string ToString() => $"{Scheme}://{Authority}{Path}";
+        public bool IsFile => this.Scheme.Equals("file", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsLocal => string.IsNullOrEmpty(this.Authority) || this.Authority.Equals("localhost", StringComparison.OrdinalIgnoreCase);
+
+        public static implicit operator string(ResourceIdentifier identifier) => identifier.ToString();
+
+        public override string ToString() => this.TryGetLocalFilePath() ?? this.ToUriString();
+
+        // See: The "file" URI Scheme (https://datatracker.ietf.org/doc/html/rfc8089).
+        // Note that we don't handle the case where the host IP resolves to the local machine.
+        public string? TryGetLocalFilePath() => this.IsFile && this.IsLocal ? new UriBuilder { Scheme = Scheme, Host = "", Path = Path }.Uri.LocalPath : null;
+
+        // See: Uniform Resource Identifier (URI): Generic Syntax (https://datatracker.ietf.org/doc/html/rfc3986).
+        public string ToUriString() => this.Authority is null ? $"{Scheme}:{Path}" : $"{Scheme}://{Authority}{Path}";
 
         private static string CanonicalizePath(string path)
         {
@@ -83,7 +97,7 @@ namespace Bicep.IO.Abstraction
 
             hash.Add(Scheme, StringComparer.Ordinal);
             hash.Add(Authority, StringComparer.Ordinal);
-            hash.Add(Path, Settings.PathComparer);
+            hash.Add(Path, GlobalSettings.PathComparer);
 
             return hash.ToHashCode();
         }
@@ -93,7 +107,7 @@ namespace Bicep.IO.Abstraction
         public bool Equals(ResourceIdentifier other) =>
             string.Equals(Scheme, other.Scheme, StringComparison.Ordinal) &&
             string.Equals(Authority, other.Authority, StringComparison.Ordinal) &&
-            string.Equals(Path, other.Path, Settings.PathComparison);
+            string.Equals(Path, other.Path, GlobalSettings.PathComparison);
 
         public static bool operator ==(ResourceIdentifier left, ResourceIdentifier right) => left.Equals(right);
 

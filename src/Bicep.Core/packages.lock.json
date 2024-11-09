@@ -999,6 +999,12 @@
         "dependencies": {
           "TestableIO.System.IO.Abstractions": "21.0.29"
         }
+      },
+      "bicep.io": {
+        "type": "Project",
+        "dependencies": {
+          "System.IO.Abstractions": "[21.0.29, )"
+        }
       }
     },
     "net8.0/linux-arm64": {
