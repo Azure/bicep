@@ -780,7 +780,7 @@
     "css-loader": "^7.1.2",
     "esbuild-loader": "^4.2.2",
     "eslint": "^9.13.0",
-    "eslint-plugin-jest": "^28.8.3",
+    "eslint-plugin-jest": "^28.9.0",
     "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-react": "^7.37.2",
     "fork-ts-checker-webpack-plugin": "^9.0.2",
