@@ -1280,7 +1280,7 @@
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
     "flags": "default",
-    "typeSignature": "(array: array, initialValue: any, predicate: (any, any[, int]) => any): array",
+    "typeSignature": "(array: array, initialValue: any, predicate: (any, any[, int]) => any): any",
     "parameterTypeSignatures": [
       "array: array",
       "initialValue: any",

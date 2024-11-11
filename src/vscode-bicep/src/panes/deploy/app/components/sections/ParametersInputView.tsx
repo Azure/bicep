@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { VSCodeButton, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { VscodeButton, VscodeTextfield } from "@vscode-elements/react-elements";
 import { FC } from "react";
 import { ParamData, ParamDefinition, ParametersMetadata, TemplateMetadata } from "../../../models";
 import { ParamInputBox } from "../ParamInputBox";
@@ -27,20 +27,22 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({
     return null;
   }
 
+  console.log(parameters);
+
   const { parameterDefinitions } = template;
   const { sourceFilePath } = parameters;
 
   return (
     <FormSection title="Parameters">
       {sourceFilePath && (
-        <VSCodeTextField value={sourceFilePath} disabled={true}>
+        <VscodeTextfield value={sourceFilePath} disabled={true}>
           File Path
-        </VSCodeTextField>
+        </VscodeTextfield>
       )}
       {sourceFilePath && !sourceFilePath.endsWith(".bicepparam") && (
-        <VSCodeButton onClick={onEnableEditing}>Edit Parameters</VSCodeButton>
+        <VscodeButton onClick={onEnableEditing}>Edit Parameters</VscodeButton>
       )}
-      {!sourceFilePath && <VSCodeButton onClick={onPickParametersFile}>Pick JSON Parameters File</VSCodeButton>}
+      {!sourceFilePath && <VscodeButton onClick={onPickParametersFile}>Pick JSON Parameters File</VscodeButton>}
       {!sourceFilePath &&
         parameterDefinitions.map((definition) => (
           <ParamInputBox

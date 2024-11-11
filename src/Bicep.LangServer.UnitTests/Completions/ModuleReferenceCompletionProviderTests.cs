@@ -212,7 +212,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         public async Task GetFilteredCompletions_WithInvalidCompletionContext_ReturnsEmptyList(string inputWithCursors)
         {
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions("app/dapr-containerapp")).Returns([new("1.0.1", null, null), new("1.0.2", null, null)]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.1", null, null), new("1.0.2", null, null)]);
 
             var completionContext = GetBicepCompletionContext(inputWithCursors, null, out DocumentUri documentUri);
             var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
@@ -485,7 +485,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             int expectedEnd)
         {
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()).Returns([new("app/dapr-cntrapp1", null, null), new("app/dapr-cntrapp2", "description2", "contoso.com/help2")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-cntrapp1", null, null), new("app/dapr-cntrapp2", "description2", "contoso.com/help2")]);
 
             var completionContext = GetBicepCompletionContext(inputWithCursors, null, out DocumentUri documentUri);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -574,12 +574,12 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br/public:app/dapr-containerapp:|'", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", "0_1.0.2", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "1_1.0.1", 46)]
-        [DataRow("module test 'br/public:app/dapr-containerapp:|", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", "0_1.0.2", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "1_1.0.1", 45)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", "1.0.2", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.2'$0", "0_1.0.2", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", "1_1.0.1", 63)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", "1.0.2", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.2'$0", "0_1.0.2", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", "1_1.0.1", 62)]
-        [DataRow("module test 'br/test1:dapr-containerapp:|'", "1.0.2", "'br/test1:dapr-containerapp:1.0.2'$0", "0_1.0.2", "1.0.1", "'br/test1:dapr-containerapp:1.0.1'$0", "1_1.0.1", 41)]
-        [DataRow("module test 'br/test1:dapr-containerapp:|", "1.0.2", "'br/test1:dapr-containerapp:1.0.2'$0", "0_1.0.2", "1.0.1", "'br/test1:dapr-containerapp:1.0.1'$0", "1_1.0.1", 40)]
+        [DataRow("module test 'br/public:app/dapr-containerapp:|'", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "0001", 46)]
+        [DataRow("module test 'br/public:app/dapr-containerapp:|", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "0001", 45)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", "1.0.2", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", "0001", 63)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", "1.0.2", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", "0001", 62)]
+        [DataRow("module test 'br/test1:dapr-containerapp:|'", "1.0.2", "'br/test1:dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br/test1:dapr-containerapp:1.0.1'$0", "0001", 41)]
+        [DataRow("module test 'br/test1:dapr-containerapp:|", "1.0.2", "'br/test1:dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br/test1:dapr-containerapp:1.0.1'$0", "0001", 40)]
         public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel1,
@@ -604,7 +604,7 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions("app/dapr-containerapp")).Returns([new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html")]);
 
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
             var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
@@ -647,7 +647,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_AndNoMatchingModuleName_ReturnsEmptyListOfCompletionItems()
         {
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions("app/dapr-containerappapp")).Returns([]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerappapp")).Returns([]);
 
             var completionContext = GetBicepCompletionContext("module test 'br/public:app/dapr-containerappapp:|'", null, out DocumentUri documentUri);
             var fileSystemfileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
@@ -736,7 +736,7 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()).Returns([new("app/dapr-containerappapp", "dapr description", "contoso.com/help")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-containerappapp", "dapr description", "contoso.com/help")]);
 
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
             var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
@@ -796,7 +796,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()).Returns([new("app/dapr-cntrapp1", "description1", null), new("app/dapr-cntrapp2", null, "contoso.com/help2")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-cntrapp1", "description1", null), new("app/dapr-cntrapp2", null, "contoso.com/help2")]);
 
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));

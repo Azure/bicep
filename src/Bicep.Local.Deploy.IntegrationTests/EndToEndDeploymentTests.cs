@@ -439,18 +439,9 @@ param coords = {
 
         var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
         extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
-            .Returns<ResourceSpecification, CancellationToken>((req, _) =>
+            .Returns<ResourceSpecification, CancellationToken>((_, _) =>
             {
-                req.Properties["body"] = """
-{
-  "properties": {
-    "gridId": "SEW",
-    "gridX": "131",
-    "gridY": "68"
-  }
-}
-""";
-                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
+                return Task.FromResult(new LocalExtensibilityOperationResponse(null, new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
             });
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());

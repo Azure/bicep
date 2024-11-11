@@ -107,8 +107,7 @@ public static class OperationReturnTypeEvaluator
                     return ErrorType.Create(errors.SelectMany(e => e.GetDiagnostics()));
                 }
 
-                var unionOfTransformed = TypeHelper.CreateTypeUnion(transformed);
-                return TypeCollapser.TryCollapse(unionOfTransformed) ?? unionOfTransformed;
+                return TypeHelper.CollapseOrCreateTypeUnion(transformed);
             case IntegerLiteralType integerLiteral when Negate(integerLiteral.Value) is long negated:
                 return TypeFactory.CreateIntegerLiteralType(negated, integerLiteral.ValidationFlags);
             case IntegerType @int:

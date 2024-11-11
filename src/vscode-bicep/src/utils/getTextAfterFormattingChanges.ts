@@ -27,7 +27,6 @@ export function getTextAfterFormattingChanges(
 
   const textToMatchNoWhitespace = removeWhitespace(textToMatch);
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     let editorChar = editorText.charAt(editorOffset);
     const textChar = textToMatchNoWhitespace.charAt(textOffset);

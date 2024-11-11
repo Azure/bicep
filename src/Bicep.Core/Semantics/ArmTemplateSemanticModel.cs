@@ -191,6 +191,11 @@ namespace Bicep.Core.Semantics
         {
             try
             {
+                if (SourceFile.Template is null)
+                {
+                    return null;
+                }
+
                 return TemplateEngine.ResolveSchemaReferences(SourceFile.Template, schemaNode).Metadata?.Value;
             }
             catch (TemplateValidationException)

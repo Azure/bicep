@@ -334,19 +334,25 @@ namespace Bicep.LanguageServer.Telemetry
         public enum ExtractionKind
         {
             Variable,
-            OnlySimpleParam,    // Extract parameter when only simple type is available
-            SimpleNotUserParam, // Extract simple-typed parameter when parameter with user-defined type is also available
-            UserParam,          // Extract parameter with user-defined type (both simple and user-defined-type params are available)
+            SimpleParam,    // Extract parameter when only simple type is available
+            UserDefParam,          // Extract parameter with user-defined type (both simple and user-defined-type params are available)
+            ResDerivedParam,    // Extract parameter with resource-derived type
             Type,
         }
 
+        public record ExtractKindsAvailable(bool simpleTypeAvailable, bool userDefinedTypeAvailable, bool resourceDerivedTypeAvailable);
+
         public static BicepTelemetryEvent ExtractionRefactoring(
-            ExtractionKind extractionKind)
+            ExtractionKind extractionKind,
+            ExtractKindsAvailable extractKindsAvailable)
             => new(
                 eventName: TelemetryConstants.EventNames.ExtractionRefactoring,
                 properties: new()
                 {
                     ["kind"] = StringUtils.ToCamelCase(extractionKind.ToString()),
+                    ["simpleParamAvail"] = ToTrueFalse(extractKindsAvailable.simpleTypeAvailable),
+                    ["userParamAvail"] = ToTrueFalse(extractKindsAvailable.userDefinedTypeAvailable),
+                    ["resDerivedParamAvail"] = ToTrueFalse(extractKindsAvailable.resourceDerivedTypeAvailable),
                 }
             );
     }

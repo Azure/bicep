@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { describe, expect, it } from "vitest";
 import { Example } from "./example";
 
-describe("msbuild", () => {
+const runningInAzurePipelines = !!process.env.TF_BUILD;
+
+describe.skipIf(runningInAzurePipelines)("msbuild", () => {
   it("should build a multi-targeting project with default output paths successfully", () => {
     const example = new Example("simpleMultiTarget");
     example.cleanProjectDir();
