@@ -150,13 +150,12 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
 
                 yield return new FunctionOverloadBuilder("buildUri")
-                    .WithReturnType(GetUriReturnType())
-                    .WithGenericDescription("Constructs a URI from specified components and returns an object with these components.")
-                    .WithRequiredParameter("components", GetUriReturnType(), "An object containing URI components such as scheme, host, port, path, and query.")
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("buildUri", LanguageConstants.String), LanguageConstants.String).WithGenericDescription("Constructs a URI from specified components and returns an object with these components.")
+                    .WithRequiredParameter("components", GetParseOrBuildUriReturnType(), "An object containing URI components such as scheme, host, port, path, and query.")
                     .Build();
 
                 yield return new FunctionOverloadBuilder("parseUri")
-                    .WithReturnType(GetUriReturnType())
+                    .WithReturnType(GetParseOrBuildUriReturnType())
                     .WithGenericDescription("Parses a URI string into its components (scheme, host, port, path, query).")
                     .WithRequiredParameter("baseUrl", LanguageConstants.String, "The complete URI to parse.")
                     .Build();
@@ -1120,15 +1119,15 @@ namespace Bicep.Core.Semantics.Namespaces
             }, null);
         }
 
-        private static ObjectType GetUriReturnType()
+        private static ObjectType GetParseOrBuildUriReturnType()
         {
             return new ObjectType("parseUri", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("scheme", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("host", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("port", TypeHelper.CreateTypeUnion(LanguageConstants.Int, LanguageConstants.Null)),
-                new TypeProperty("path", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Null)),
-                new TypeProperty("query", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Null))
+                new TypeProperty("port", LanguageConstants.Int),
+                new TypeProperty("path", LanguageConstants.String),
+                new TypeProperty("query", LanguageConstants.String),
              }, null);
         }
 

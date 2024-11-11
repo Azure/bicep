@@ -127,7 +127,7 @@
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
     "flags": "default",
-    "typeSignature": "(components: parseUri): parseUri",
+    "typeSignature": "(components: parseUri): string",
     "parameterTypeSignatures": [
       "components: parseUri"
     ]

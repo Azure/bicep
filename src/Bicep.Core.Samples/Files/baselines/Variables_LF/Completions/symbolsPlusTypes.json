@@ -449,7 +449,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nbuildUri(components: parseUri): parseUri\n\n```  \nConstructs a URI from specified components and returns an object with these components.  \n"
+      "value": "```bicep\nbuildUri(components: parseUri): string\n\n```  \nConstructs a URI from specified components and returns an object with these components.  \n"
     },
     "deprecated": false,
     "preselect": false,
