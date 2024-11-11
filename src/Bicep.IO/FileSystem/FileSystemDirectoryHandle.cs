@@ -52,7 +52,7 @@ namespace Bicep.IO.FileSystem
         {
             if (FileSystem.Path.IsPathRooted(relativePath))
             {
-                throw new FileSystemPathException("The specified path is not a relative path.");
+                throw new FileSystemPathException("Path must be relative.");
             }
 
             try

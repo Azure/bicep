@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Bicep.IO.Abstraction
 {
     /// <summary>
-    /// A ResourceIdentifier is a URI without the query and fragment components.
+    /// A ResourceIdentifier is a RFC3986 URI with absolute path and without the query and fragment components.
     /// </summary>
     public readonly struct ResourceIdentifier : IEquatable<ResourceIdentifier>
     {
