@@ -429,6 +429,32 @@ output foo string = foo
         }
 
         [TestMethod]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Build_params_works_with_using_none()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+                param unusedParam int
+                ", outputPath);
+
+            var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
+                using none
+
+                param unusedParam = 3
+                ", outputPath);
+
+            var (output, error, result) = await Bicep(["build-params", inputFile, "--bicep-file", bicepFile]);
+
+            var expectedOutputFile = FileHelper.GetResultFilePath(TestContext, "main.json", outputPath);
+
+            File.Exists(expectedOutputFile).Should().BeTrue();
+            output.Should().BeEmpty();
+            error.Should().BeEmpty();
+            result.Should().Be(0);
+        }
+
+        [TestMethod]
         [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Build_params_to_stdout_with_registry_should_succeed_after_restore(EmbeddedFile paramFile)
