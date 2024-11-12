@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14481747842301389436"
+      "templateHash": "16714276462655423062"
     }
   },
   "parameters": {
@@ -275,6 +275,7 @@
         }
       },
       "dependsOn": [
+        "managedResourceGroup",
         "vnet"
       ]
     }

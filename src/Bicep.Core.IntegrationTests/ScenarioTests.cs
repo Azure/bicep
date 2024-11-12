@@ -5065,7 +5065,7 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 "));
 
         var evaluated = TemplateEvaluator.Evaluate(result.Template);
-        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo1"));
+        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo2"));
     }
 
     // https://github.com/Azure/bicep/issues/11292
@@ -6315,7 +6315,7 @@ param p invalidRecursiveObjectType = {}
 
         if (enableSymbolicNameCodegen)
         {
-            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["mod"]""");
+            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["sa"]""");
         }
         else
         {

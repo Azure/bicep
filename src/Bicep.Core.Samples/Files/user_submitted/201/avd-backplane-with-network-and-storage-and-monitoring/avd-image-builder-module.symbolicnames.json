@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2725585745262341266"
+      "templateHash": "9616745895991063718"
     }
   },
   "parameters": {
@@ -99,7 +99,10 @@
             "replicationRegions": []
           }
         ]
-      }
+      },
+      "dependsOn": [
+        "managedidentity"
+      ]
     },
     "aibdef": {
       "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
