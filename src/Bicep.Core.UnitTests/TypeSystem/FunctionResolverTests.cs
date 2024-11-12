@@ -885,8 +885,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(10, "max", new[] { 10, 4, 1, 6 }),
                 CreateRow("foo/bar/baz", "join", new[] { "foo", "bar", "baz"}, "/"),
                 CreateRow("abc/123/True", "join", new object[] { "abc", 123, true }, "/"),
-                CreateRow("https://example.com:443/path/to/resource?key=value", "buildUri", ["https", "example.com", 443, "path/to/resource", "key=value"]),
-                CreateRow(new object[] {"https", "example.com", 443, "path/to/resource", "key=value"},"parseUri", "https://example.com:443/path/to/resource?key=value"),
+                CreateRow("https://example.com:443/path/to/resource?key=value", "buildUri",
+                new { scheme = "https", host = "example.com", port = 443, path = "path/to/resource", query = "key=value" }),
+                CreateRow(new object[] { "https", "example.com", 443, "path/to/resource", "key=value" }, "parseUri", "https://example.com:443/path/to/resource?key=value"),
             };
         }
 
@@ -929,13 +930,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("length", TypeFactory.CreateIntegerType(0), LanguageConstants.Object);
             yield return CreateRow("length", TypeFactory.CreateIntegerType(0), LanguageConstants.Array);
             yield return CreateRow("length", LanguageConstants.Int, TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object));
-
-            //buildUri
-            yield return CreateRow("buildUri", LanguageConstants.String, LanguageConstants.Object);
-
-            //parseUri
-            yield return CreateRow("parseUri", LanguageConstants.Object, LanguageConstants.String);
-
         }
         private static IEnumerable<object[]> GetAmbiguousMatchData()
         {
