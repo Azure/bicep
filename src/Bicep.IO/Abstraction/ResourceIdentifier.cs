@@ -18,11 +18,11 @@ namespace Bicep.IO.Abstraction
     {
         public static class GlobalSettings
         {
-            public static bool PathCaseSensitive { get; set; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+            public static bool FilePathCaseSensitive { get; set; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-            public static StringComparer PathComparer => PathCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
+            public static StringComparer FilePathComparer => FilePathCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 
-            public static StringComparison PathComparison => PathCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            public static StringComparison FilePathComparison => FilePathCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
         }
 
         public ResourceIdentifier(string scheme, string authority, string path)
@@ -95,9 +95,18 @@ namespace Bicep.IO.Abstraction
         {
             var hash = new HashCode();
 
-            hash.Add(Scheme, StringComparer.Ordinal);
-            hash.Add(Authority, StringComparer.Ordinal);
-            hash.Add(Path, GlobalSettings.PathComparer);
+            // Scheme and Authority are case-insenstive.
+            hash.Add(Scheme, StringComparer.OrdinalIgnoreCase);
+            hash.Add(Authority, StringComparer.OrdinalIgnoreCase);
+
+            if (this.IsLocal && this.IsFile)
+            {
+                hash.Add(Path, GlobalSettings.FilePathComparer);
+            }
+            else
+            {
+                hash.Add(Path, StringComparer.Ordinal);
+            }
 
             return hash.ToHashCode();
         }
@@ -105,9 +114,11 @@ namespace Bicep.IO.Abstraction
         public override bool Equals(object? @object) => @object is ResourceIdentifier other && this.Equals(other);
 
         public bool Equals(ResourceIdentifier other) =>
-            string.Equals(Scheme, other.Scheme, StringComparison.Ordinal) &&
-            string.Equals(Authority, other.Authority, StringComparison.Ordinal) &&
-            string.Equals(Path, other.Path, GlobalSettings.PathComparison);
+            string.Equals(Scheme, other.Scheme, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(Authority, other.Authority, StringComparison.OrdinalIgnoreCase) &&
+            this.IsLocal && this.IsFile
+                ? string.Equals(Path, other.Path, GlobalSettings.FilePathComparison)
+                : string.Equals(Path, other.Path, StringComparison.Ordinal);
 
         public static bool operator ==(ResourceIdentifier left, ResourceIdentifier right) => left.Equals(right);
 
