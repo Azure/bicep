@@ -11,6 +11,8 @@ namespace Bicep.IO.Abstraction
 {
     public interface IDirectoryHandle : IResourceHandle
     {
+        void EnsureExists();
+
         IDirectoryHandle? GetParent();
 
         IDirectoryHandle GetDirectory(string relativePath);

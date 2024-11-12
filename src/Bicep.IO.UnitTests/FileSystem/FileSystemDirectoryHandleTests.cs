@@ -123,5 +123,19 @@ namespace Bicep.IO.UnitTests.FileSystem
             parentDirectory.Should().NotBeNull();
             parentDirectory!.Identifier.GetFileSystemPath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
         }
+
+        [TestMethod]
+        public void EnsureExists_DirectoryDoesNotExist_CreatesDirectory()
+        {
+            // Arrange.
+            var fileSystem = new MockFileSystem();
+            var directoryHandle = new FileSystemDirectoryHandle(fileSystem, "/newdir");
+
+            // Act.
+            directoryHandle.EnsureExists();
+
+            // Assert.
+            fileSystem.Directory.Exists("/newdir").Should().BeTrue();
+        }
     }
 }

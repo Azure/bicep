@@ -51,5 +51,25 @@ namespace Bicep.IO.UnitTests.FileSystem
             // Assert.
             parentDirectory.Identifier.GetFileSystemPath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
         }
+
+        [TestMethod]
+        public void OpenWrite_ParentDirectoriesDoNotExist_CreatesParentDirectories()
+        {
+            // Arrange.
+            var fileSystem = new MockFileSystem();
+            var fileHandle = new FileSystemFileHandle(fileSystem, "/dir/subdir/file.txt");
+
+            // Act.
+            using (var stream = fileHandle.OpenWrite())
+            {
+                var content = Encoding.UTF8.GetBytes("Hello, World!");
+                stream.Write(content, 0, content.Length);
+            }
+
+            // Assert.
+            fileSystem.Directory.Exists("/dir/subdir").Should().BeTrue();
+            fileSystem.File.Exists("/dir/subdir/file.txt").Should().BeTrue();
+            fileSystem.File.ReadAllText("/dir/subdir/file.txt").Should().Be("Hello, World!");
+        }
     }
 }

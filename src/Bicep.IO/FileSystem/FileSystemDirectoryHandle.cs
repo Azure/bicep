@@ -19,20 +19,22 @@ namespace Bicep.IO.FileSystem
         {
         }
 
-        public override bool Exists() => FileSystem.Directory.Exists(Identifier.GetFileSystemPath());
+        public override bool Exists() => this.FileSystem.Directory.Exists(Identifier.GetFileSystemPath());
+
+        public void EnsureExists() => this.FileSystem.Directory.CreateDirectory(this.Identifier.GetFileSystemPath());
 
         public IDirectoryHandle GetDirectory(string relativePath)
         {
             var directoryPath = GetFullPath(relativePath);
 
-            return new FileSystemDirectoryHandle(FileSystem, directoryPath);
+            return new FileSystemDirectoryHandle(this.FileSystem, directoryPath);
         }
 
         public IFileHandle GetFile(string relativePath)
         {
             var filePath = GetFullPath(relativePath);
 
-            return new FileSystemFileHandle(FileSystem, filePath);
+            return new FileSystemFileHandle(this.FileSystem, filePath);
         }
 
         public IDirectoryHandle? GetParent()
@@ -50,14 +52,14 @@ namespace Bicep.IO.FileSystem
 
         private string GetFullPath(string relativePath)
         {
-            if (FileSystem.Path.IsPathRooted(relativePath))
+            if (this.FileSystem.Path.IsPathRooted(relativePath))
             {
                 throw new FileSystemPathException("Path must be relative.");
             }
 
             try
             {
-                return FileSystem.Path.GetFullPath(relativePath, basePath: Identifier.GetFileSystemPath());
+                return this.FileSystem.Path.GetFullPath(relativePath, basePath: Identifier.GetFileSystemPath());
             }
             catch (Exception exception) when (exception is ArgumentException)
             {

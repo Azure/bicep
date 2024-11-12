@@ -36,7 +36,12 @@ namespace Bicep.IO.FileSystem
 
         public Stream OpenRead() => this.FileSystem.File.OpenRead(Identifier.GetFileSystemPath());
 
-        public Stream OpenWrite() => this.FileSystem.File.OpenWrite(Identifier.GetFileSystemPath());
+        public Stream OpenWrite()
+        {
+            this.GetParent().EnsureExists();
+
+            return this.FileSystem.File.OpenWrite(Identifier.GetFileSystemPath());
+        }
 
         public IFileLock? TryLock() => FileSystemStreamLock.TryCreate(this.FileSystem, Identifier.GetFileSystemPath());
     }
