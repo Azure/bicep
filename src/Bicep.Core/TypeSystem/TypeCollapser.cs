@@ -470,6 +470,10 @@ internal static class TypeCollapser
             {
                 switch (memberType.Type)
                 {
+                    // scope references and namespaces aren't used as values and therefore cannot be collapsed
+                    case IScopeReference:
+                    case NamespaceType:
+                        return Uncollapsable.Instance;
                     case ObjectType @object:
                         flags |= @object.ValidationFlags;
                         discriminatedObjectTypeBuilder.TryInclude(@object);

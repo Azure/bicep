@@ -6322,4 +6322,20 @@ param p invalidRecursiveObjectType = {}
             result.Template.Should().HaveJsonAtPath("$.resources[?(@.name=='vault/secret')].dependsOn", """["[resourceId('Microsoft.Resources/deployments', 'mod')]"]""");
         }
     }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/15517
+    public void Test_Issue15517()
+    {
+        var result = CompilationHelper.Compile("""
+            param condition bool
+
+            resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+              name: 'account'
+              scope: condition ? resourceGroup('a') : resourceGroup('b')
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
