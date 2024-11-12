@@ -2,7 +2,12 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
+using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
@@ -402,5 +407,70 @@ public class TypeHelperTests
         collapsed.AdditionalPropertiesType.Should().NotBeNull();
         collapsed.AdditionalPropertiesType!.Type.Name.Should().Be("int");
         collapsed.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty).Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void Scope_reference_objects_should_not_be_collapsed()
+    {
+        var scopeRef = new ResourceGroupScopeType(
+            ImmutableArray<FunctionArgumentSyntax>.Empty,
+            ImmutableArray<TypeProperty>.Empty);
+
+        var objects = new ObjectType[]
+        {
+            new("{foo: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("foo", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                null),
+            new("{bar: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("bar", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                LanguageConstants.Int),
+        };
+
+        TypeHelper.TryCollapseTypes(scopeRef.AsEnumerable()).Should().BeSameAs(scopeRef);
+        TypeHelper.TryCollapseTypes(objects).Should().BeAssignableTo<ObjectType>();
+        TypeHelper.TryCollapseTypes(objects.Append(scopeRef)).Should().BeNull();
+    }
+
+    [TestMethod]
+    public void Namespace_objects_should_not_be_collapsed()
+    {
+        var @namespace = new NamespaceType(
+            "alias",
+            new(true, "bicepExtensionName", null, "templateExtensionName", "1.0"),
+            ImmutableArray<TypeProperty>.Empty,
+            ImmutableArray<FunctionOverload>.Empty,
+            ImmutableArray<BannedFunction>.Empty,
+            ImmutableArray<Decorator>.Empty,
+            new EmptyResourceTypeProvider());
+
+        var objects = new ObjectType[]
+        {
+            new("{foo: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("foo", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                null),
+            new("{bar: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("bar", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                LanguageConstants.Int),
+        };
+
+        TypeHelper.TryCollapseTypes(@namespace.AsEnumerable()).Should().BeSameAs(@namespace);
+        TypeHelper.TryCollapseTypes(objects).Should().BeAssignableTo<ObjectType>();
+        TypeHelper.TryCollapseTypes(objects.Append(@namespace)).Should().BeNull();
     }
 }
