@@ -190,7 +190,7 @@ public class BicepTextDocumentSyncHandlerTests
         var fileSystem = new MockFileSystem();
         var configFilePath = fileSystem.Path.GetFullPath("/bicepconfig.json");
         fileSystem.File.WriteAllText(configFilePath, prevBicepConfigFileContents);
-        var bicepConfigUri = new Uri($"file:///{configFilePath.Replace('\\', '/')}");
+        var bicepConfigUri = new UriBuilder { Scheme = "file", Host = "", Path = configFilePath.Replace('\\', '/') }.Uri;
 
         var compilationManager = BicepCompilationManagerHelper.CreateCompilationManager(bicepConfigUri, prevBicepConfigFileContents);
         var fileExplorer = new FileSystemFileExplorer(fileSystem);
