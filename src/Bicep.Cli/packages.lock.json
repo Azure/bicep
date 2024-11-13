@@ -1351,7 +1351,7 @@
           "Azure.Bicep.Types.Az": "[0.2.712, )",
           "Azure.Bicep.Types.K8s": "[0.1.644, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
-          "Azure.Deployments.Templates": "[1.192.0, )",
+          "Azure.Deployments.Templates": "[1.195.0, )",
           "Azure.Identity": "[1.13.1, )",
           "Azure.ResourceManager.Resources": "[1.9.0, )",
           "JsonPatch.Net": "[3.1.1, )",
