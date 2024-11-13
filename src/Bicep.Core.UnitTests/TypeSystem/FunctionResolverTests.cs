@@ -13,6 +13,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.TypeSystem
 {
@@ -813,6 +814,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 bool boolVal => new(TestSyntaxFactory.CreateBool(boolVal)),
                 bool[] boolArray => new(TestSyntaxFactory.CreateArray(boolArray.Select(TestSyntaxFactory.CreateBool))),
                 object[] mixedArray => new(TestSyntaxFactory.CreateArray(mixedArray.Select(obj => ToFunctionArgumentSyntax(obj).Expression))),
+                IDictionary<string, object> obj => new(TestSyntaxFactory.CreateObject(obj.Select(pair => TestSyntaxFactory.CreateProperty(TestSyntaxFactory.CreateIdentifier(pair.Key), ToFunctionArgumentSyntax(pair.Value))))),
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a literal syntax node.")
             };
 
@@ -826,6 +828,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 bool[] boolArray => new TupleType("", boolArray.Select(@bool => TypeFactory.CreateBooleanLiteralType(@bool)).ToImmutableArray<ITypeReference>(), default),
                 null => LanguageConstants.Null,
                 object[] mixedArray => new TupleType("", mixedArray.Select(ToTypeLiteral).ToImmutableArray<ITypeReference>(), default),
+                IDictionary<string, object> obj => new ObjectType("", TypeSymbolValidationFlags.Default, obj.Select(pair => new TypeProperty(pair.Key, ToTypeLiteral(pair.Value))), additionalPropertiesType: null),
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a type literal.")
             };
 
@@ -885,9 +888,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(10, "max", new[] { 10, 4, 1, 6 }),
                 CreateRow("foo/bar/baz", "join", new[] { "foo", "bar", "baz"}, "/"),
                 CreateRow("abc/123/True", "join", new object[] { "abc", 123, true }, "/"),
-                CreateRow("https://example.com:443/path/to/resource?key=value", "buildUri",
-                new { scheme = "https", host = "example.com", port = 443, path = "path/to/resource", query = "key=value" }),
-                CreateRow(new object[] { "https", "example.com", 443, "path/to/resource", "key=value" }, "parseUri", "https://example.com:443/path/to/resource?key=value"),
+                CreateRow("https://example.com:443/path/to/resource?key=value", "buildUri", new Dictionary<string, object>{ ["scheme"] = "https", ["host"] = "example.com", ["port"] = 443, ["path"] = "path/to/resource", ["query"] = "key=value" }),
+                CreateRow(new Dictionary<string, object> { ["scheme"] = "https", ["host"] ="example.com", ["port"] = 443, ["path"] = "path/to/resource", ["query"] = "key=value" }, "parseUri", "https://example.com:443/path/to/resource?key=value"),
             };
         }
 
