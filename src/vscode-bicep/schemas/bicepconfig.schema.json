@@ -767,6 +767,17 @@
         }
       }
     },
+    "bicep": {
+      "type": "object",
+      "description": "Bicep configuration",
+      "properties": {
+        "version": {
+          "type": "string",
+          "format": "[0-9]+\\.[0-9]+\\.[0-9]+",
+          "description": "The version of Bicep to require for compilation. If this is specified and not met, compilation will fail."
+        }
+      }
+    },
     "cacheRootDirectory": {
       "type": "string",
       "description": "The directory in which Bicep may cache templates downloaded from remote registries"
