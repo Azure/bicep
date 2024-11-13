@@ -21,6 +21,7 @@ using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Extension;
 using FluentAssertions;
+using Json.Pointer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
@@ -455,7 +456,7 @@ param coords = {
 
         localDeployResult.Deployment.Properties.Error.Code.Should().Be("DeploymentFailed");
         localDeployResult.Deployment.Properties.Error.Details.Should().NotBeNullOrEmpty();
-        localDeployResult.Deployment.Properties.Error.Details[0].Code.Should().Be("ResourceDeploymentFailure");
-        localDeployResult.Deployment.Properties.Error.Details[0].Target.Should().Be("/resources/gridpointsReq", because: $"Expect a failure when mocking a response for \"/resources/gridpointsReq\" because extension returned '{nameof(ErrorData)}' to indicate a failure.");
+        localDeployResult.Deployment.Properties.Error.Details[0].Code.Should().Be("Code");
+        localDeployResult.Deployment.Properties.Error.Details[0].Message.Should().Be("Error message");
     }
 }
