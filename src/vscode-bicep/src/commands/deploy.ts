@@ -33,6 +33,7 @@ import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { AzureSubscription } from "@microsoft/vscode-azext-azureauth";
 import { Command } from "./types";
+import { minutesToMs } from "../utils/time";
 
 export class DeployCommand implements Command {
   private _none = localize("none", "$(circle-slash) None");
@@ -281,7 +282,16 @@ export class DeployCommand implements Command {
 
     if (accessToken) {
       const token = accessToken.token;
-      const expiresOnTimestamp = accessToken.expiresOnTimestamp ? String(accessToken.expiresOnTimestamp) : undefined;
+
+      // VSCode does not provide the expiresOnTimestamp in the token object, see https://github.com/microsoft/vscode/issues/152517,
+      // but it is required for the language server to create an access token.  What we provide cannot actually change the expiry
+      // time since that is determined by the token provider, but could theoretically be used to determine when to request
+      // a new token.  The VSCode design expects us to always request a new token so they can deal with refreshes, so we'll
+      // just provide a short expiry if it's not provided to us.
+      const expiresOnTimestamp = accessToken.expiresOnTimestamp // Timestamp is in milliseconds since 1970
+        ? String(accessToken.expiresOnTimestamp)
+        : String(Date.now() + minutesToMs(5)); // 5 minutes (some clouds expire tokens in about 15 minutes)
+
       const portalUrl = subscription.environment.portalUrl;
 
       let parametersFileName: string | undefined;
