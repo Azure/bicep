@@ -175,7 +175,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
     {
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
-        var dependenciesBySymbol = ResourceDependencyVisitor.GetResourceDependencies(model, new() { IncludeExisting = true })
+        var dependenciesBySymbol = ResourceDependencyVisitor.GetResourceDependencies(model)
             .Where(x => !x.Key.Type.IsError())
             .ToImmutableDictionary(x => x.Key, x => x.Value);
 
@@ -200,7 +200,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         foreach (var (symbol, dependencies) in dependenciesBySymbol)
         {
             var source = nodesBySymbol.TryGetValue(symbol);
-            foreach (var dependency in dependencies.Where(d => d.Kind == ResourceDependencyKind.Primary))
+            foreach (var dependency in dependencies)
             {
                 var target = nodesBySymbol.TryGetValue(dependency.Resource);
                 if (source is { } && target is { })

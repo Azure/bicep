@@ -17,6 +17,14 @@ namespace Bicep.Core.Semantics
 
         public override SymbolKind Kind => SymbolKind.Variable;
 
+        public bool IsCopyVariable => UnwrapIfParenthesized(DeclaringVariable.Value) is ForSyntax;
+
+        private static SyntaxBase UnwrapIfParenthesized(SyntaxBase syntax) => syntax switch
+        {
+            ParenthesizedExpressionSyntax parenthesized => UnwrapIfParenthesized(parenthesized.Expression),
+            _ => syntax,
+        };
+
         public override IEnumerable<Symbol> Descendants
         {
             get

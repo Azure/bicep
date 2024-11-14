@@ -7,6 +7,7 @@ using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
@@ -22,12 +23,10 @@ namespace Bicep.Core.Emit
         private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
         private DeclaredSymbol? currentDeclaration;
 
-
         public struct Options
         {
             // If true, only inferred dependencies will be returned, not those declared explicitly by dependsOn entries
             public bool? IgnoreExplicitDependsOn;
-            public bool? IncludeExisting;
         }
 
         /// <summary>
@@ -40,24 +39,28 @@ namespace Bicep.Core.Emit
             var visitor = new ResourceDependencyVisitor(model, options);
             visitor.Visit(model.Root.Syntax);
 
-            var output = new Dictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
-            foreach (var kvp in visitor.resourceDependencies)
+            Queue<VariableSymbol> nonInlinedVariables = new(visitor.resourceDependencies
+                .Where(kvp => kvp.Value.Count == 0)
+                .Select(kvp => kvp.Key)
+                .OfType<VariableSymbol>());
+
+            while (nonInlinedVariables.TryDequeue(out var nonInlinedVariable))
             {
-                if (kvp.Key is ResourceSymbol || kvp.Key is ModuleSymbol)
+                foreach (var kvp in visitor.resourceDependencies)
                 {
-                    output[kvp.Key] = OptimizeDependencies(kvp.Value);
+                    if (kvp.Value.RemoveWhere(d => ReferenceEquals(nonInlinedVariable, d.Resource)) > 0 &&
+                        kvp.Value.Count == 0 &&
+                        kvp.Key is VariableSymbol variable)
+                    {
+                        nonInlinedVariables.Enqueue(variable);
+                    }
                 }
             }
-            return output.ToImmutableDictionary();
-        }
 
-        private static ImmutableHashSet<ResourceDependency> OptimizeDependencies(HashSet<ResourceDependency> dependencies) =>
-            dependencies
-                .GroupBy(dep => dep.Resource)
-                .SelectMany(group => @group.FirstOrDefault(dep => dep.IndexExpression == null) is { } dependencyWithoutIndex
-                    ? dependencyWithoutIndex.AsEnumerable()
-                    : @group)
-                .ToImmutableHashSet();
+            return visitor.resourceDependencies.ToImmutableDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.ToImmutableHashSet());
+        }
 
         private ResourceDependencyVisitor(SemanticModel model, Options? options)
         {
@@ -69,36 +72,23 @@ namespace Bicep.Core.Emit
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            int GetIndexOfAncestor(ImmutableArray<ResourceAncestorGraph.ResourceAncestor> ancestors)
-            {
-                for (int i = ancestors.Length - 1; i >= 0; i--)
-                {
-                    if (!ancestors[i].Resource.IsExistingResource)
-                    {
-                        // we found the non-existing resource - we're done
-                        return i;
-                    }
-                }
-
-                // no non-existing resources are found in the ancestors list
-                return -1;
-            }
-
             if (model.ResourceMetadata.TryLookup(syntax) is not DeclaredResourceMetadata resource)
             {
                 // When invoked by BicepDeploymentGraphHandler, it's possible that the declaration is unbound.
                 return;
             }
 
-            // Resource ancestors are always dependencies.
-            var ancestors = this.model.ResourceAncestors.GetAncestors(resource);
-            var lastAncestorIndex = GetIndexOfAncestor(ancestors);
+            HashSet<ResourceDependency> dependencies = new();
+            if (model.ResourceAncestors.GetAncestors(resource).LastOrDefault() is { } parent)
+            {
+                // Resource ancestors are always weak dependencies.
+                dependencies.Add(new(parent.Resource.Symbol, parent.IndexExpression, WeakDependency: true));
+            }
+            resourceDependencies[resource.Symbol] = dependencies;
 
             // save previous declaration as we may call this recursively
             var prevDeclaration = this.currentDeclaration;
-
             this.currentDeclaration = resource.Symbol;
-            this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select((a, i) => new ResourceDependency(a.Resource.Symbol, a.IndexExpression, i == lastAncestorIndex ? ResourceDependencyKind.Primary : ResourceDependencyKind.Transitive)));
 
             base.VisitResourceDeclarationSyntax(syntax);
 
@@ -142,22 +132,6 @@ namespace Bicep.Core.Emit
             this.currentDeclaration = prevDeclaration;
         }
 
-        private IEnumerable<ResourceDependency> GetResourceDependencies(DeclaredSymbol declaredSymbol)
-        {
-            if (!resourceDependencies.TryGetValue(declaredSymbol, out var dependencies))
-            {
-                // recursively visit dependent variables
-                this.Visit(declaredSymbol.DeclaringSyntax);
-
-                if (!resourceDependencies.TryGetValue(declaredSymbol, out dependencies))
-                {
-                    return [];
-                }
-            }
-
-            return dependencies;
-        }
-
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
             if (currentDeclaration is null)
@@ -174,51 +148,56 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case VariableSymbol variableSymbol:
-                    var varDependencies = GetResourceDependencies(variableSymbol);
-
-                    currentResourceDependencies.UnionWith(varDependencies);
+                    currentResourceDependencies.Add(new(variableSymbol, GetIndexExpression(syntax, variableSymbol.IsCopyVariable)));
                     return;
 
                 case ResourceSymbol resourceSymbol:
-                    // Only add an explicit dependency on an existing resource IFF the compiled template will include
-                    // the existing resource AND this resource will read from the GET response. If we are instead
-                    // skipping existing resources, setting the current declaration's parent, calling a function like
-                    // `listKeys()` on the resource, or just referring to data that ARM can resolve via the
-                    // `resourceInfo()` function, skip the explicit dependency. This will allow the ARM engine to
-                    // recognize when an existing resource is unused and skip the unnecessary GET request.
-                    if (resourceSymbol.DeclaringResource.IsExistingResource() && (
-                        options?.IncludeExisting is not true ||
-                        IsResourceIdentifierAccessBase(syntax) ||
-                        IsResourceFunctionCallBase(syntax) ||
-                        IsWithinResourceParentPropertyValue(syntax)))
-                    {
-                        var existingDependencies = GetResourceDependencies(resourceSymbol);
-
-                        currentResourceDependencies.UnionWith(existingDependencies);
-                        return;
-                    }
-
-                    currentResourceDependencies.Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), ResourceDependencyKind.Primary));
+                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), IsWeakDependency(syntax, resourceSymbol)));
                     return;
 
                 case ModuleSymbol moduleSymbol:
-                    currentResourceDependencies.Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection), ResourceDependencyKind.Primary));
+                    currentResourceDependencies.Add(new(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection)));
                     return;
             }
         }
 
-        private bool IsResourceIdentifierAccessBase(SyntaxBase syntax) => model.Binder.GetParent(syntax) switch
-        {
-            PropertyAccessSyntax propertyAccess
-                => ResourceInfoProperties.Contains(propertyAccess.PropertyName.IdentifierName),
-            ArrayAccessSyntax arrayAccess when model.GetTypeInfo(arrayAccess.IndexExpression) is StringLiteralType idx
-                => ResourceInfoProperties.Contains(idx.RawStringValue),
-            ArrayAccessSyntax arrayAccess when model.GetSymbolInfo(arrayAccess.BaseExpression) is ResourceSymbol r &&
-                r.IsCollection &&
-                TypeValidator.AreTypesAssignable(model.GetTypeInfo(arrayAccess.IndexExpression), LanguageConstants.Int)
-                => IsResourceIdentifierAccessBase(arrayAccess),
-            _ => false,
-        };
+        /// <summary>
+        /// Determines whether a reference to a resource is weak.
+        /// </summary>
+        /// <remarks>
+        /// A reference is "weak" if it will not read from the body of a resource. For ARM resources, that means that
+        /// the reference is only used to read one of the referent's identifiers (id, name, type, apiVersion) or to
+        /// call a function. (<code>list*()</code> functions will generate an implicit dependency in the ARM engine,
+        /// but any functions that are resolved at compile time (such as <code>keyVault.getSecret()</code>) will not
+        /// need to access the resource's body.
+        /// </remarks>
+        /// <param name="syntax">The referencing syntax.</param>
+        /// <param name="resourceSymbol">The referenced resource.</param>
+        private bool IsWeakDependency(SyntaxBase syntax, ResourceSymbol resourceSymbol)
+            => resourceSymbol.TryGetResourceType()?.IsAzResource() is true &&
+                (IsResourceInfoAccessBase(syntax, resourceSymbol) || IsResourceFunctionCallBase(syntax));
+
+        private bool IsResourceInfoAccessBase(SyntaxBase syntax, ResourceSymbol resource)
+            => model.Binder.GetParent(syntax) switch
+            {
+                PropertyAccessSyntax propertyAccess 
+                    => IsResourceInfoAccessBase(resource, propertyAccess.PropertyName.IdentifierName),
+                ArrayAccessSyntax arrayAccess => model.GetTypeInfo(arrayAccess.IndexExpression) switch
+                {
+                    // array access can be used to dereference properties, e.g., resourceSymbolicRef['id']
+                    StringLiteralType indexStr => IsResourceInfoAccessBase(resource, indexStr.RawStringValue),
+                    // it can also dereference a member of a resource collection, e.g., resourceSymbolicRef[0].id
+                    var t when resource.IsCollection && TypeValidator.AreTypesAssignable(t, LanguageConstants.Int)
+                        => IsResourceInfoAccessBase(arrayAccess, resource),
+                    _ => false,
+                },
+                _ => false,
+            };
+
+        private static bool IsResourceInfoAccessBase(ResourceSymbol resource, string propertyName)
+            // if specific top-level properties of an ARM resource are accessed, the compiler will migrate syntax from
+            // the resource declaration or emit a `resourceInfo()` function
+            => ResourceInfoProperties.Contains(propertyName);
 
         private bool IsResourceFunctionCallBase(SyntaxBase syntax) => model.Binder.GetParent(syntax) switch
         {
@@ -229,12 +208,6 @@ namespace Bicep.Core.Emit
                 => IsResourceFunctionCallBase(arrayAccess),
             _ => false,
         };
-
-        private bool IsWithinResourceParentPropertyValue(SyntaxBase syntax)
-            => currentDeclaration is ResourceSymbol currentResource &&
-                currentResource.DeclaringResource.TryGetBody() is ObjectSyntax declarationBody &&
-                declarationBody.TryGetPropertyByName(LanguageConstants.ResourceParentPropertyName) is { } parentProp &&
-                model.Binder.IsDescendant(syntax, parentProp);
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {
@@ -252,19 +225,11 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case ResourceSymbol resourceSymbol:
-                    if (resourceSymbol.DeclaringResource.IsExistingResource())
-                    {
-                        var existingDependencies = GetResourceDependencies(resourceSymbol);
-
-                        currentResourceDependencies.UnionWith(existingDependencies);
-                        return;
-                    }
-
-                    currentResourceDependencies.Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), ResourceDependencyKind.Primary));
+                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), IsWeakDependency(syntax, resourceSymbol)));
                     return;
 
                 case ModuleSymbol moduleSymbol:
-                    currentResourceDependencies.Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection), ResourceDependencyKind.Primary));
+                    currentResourceDependencies.Add(new(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection)));
                     return;
             }
         }
@@ -292,7 +257,7 @@ namespace Bicep.Core.Emit
             {
                 ResourceSymbol resourceSymbol => resourceSymbol.DeclaringResource.GetBody(),
                 ModuleSymbol moduleSymbol => moduleSymbol.DeclaringModule.GetBody(),
-                VariableSymbol variableSymbol => variableSymbol.DeclaringVariable.Value,
+                VariableSymbol variableSymbol => variableSymbol.DeclaringVariable.GetBody(),
                 _ => throw new NotImplementedException($"Unexpected current declaration type '{this.currentDeclaration?.GetType().Name}'.")
             };
 
@@ -310,22 +275,26 @@ namespace Bicep.Core.Emit
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax propertySyntax)
         {
-            if (options?.IgnoreExplicitDependsOn == true)
+            if (ShouldSkipProperty(propertySyntax))
             {
-                // Is it a property named "dependsOn"?
-                if (propertySyntax.Key is IdentifierSyntax key && key.NameEquals(LanguageConstants.ResourceDependsOnPropertyName))
-                {
-                    // ... that is the a top-level resource or module property?
-                    if (this.IsTopLevelPropertyOfCurrentDeclaration(propertySyntax))
-                    {
-                        // Yes - don't include dependencies from this property value
-                        return;
-                    }
-                }
+                return;
             }
 
             base.VisitObjectPropertySyntax(propertySyntax);
         }
+
+        private bool ShouldSkipProperty(ObjectPropertySyntax propertySyntax) => propertySyntax.TryGetKeyText() switch
+        {
+            // A resource's parent would be added as a dependency based on the resource ancestry graph. No need to
+            // scan the syntax of a parentage declaration
+            LanguageConstants.ResourceParentPropertyName when IsTopLevelPropertyOfCurrentDeclaration(propertySyntax)
+                => true,
+            // if we are ignoring explicit dependencies and this is a top-level resource or module property named
+            // "dependsOn", skip it
+            LanguageConstants.ResourceDependsOnPropertyName when options?.IgnoreExplicitDependsOn is true &&
+                IsTopLevelPropertyOfCurrentDeclaration(propertySyntax) => true,
+            _ => false,
+        };
 
         private bool IsTopLevelPropertyOfCurrentDeclaration(ObjectPropertySyntax propertySyntax)
         {
