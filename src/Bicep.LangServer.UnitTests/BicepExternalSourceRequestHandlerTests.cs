@@ -15,6 +15,8 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
@@ -32,12 +34,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
         private static string Root(string path) => $"/{path}";
 #endif
 
-        private static readonly IFileSystem MockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+        private static readonly IFileExplorer fileExplorer = new FileSystemFileExplorer(new MockFileSystem(new Dictionary<string, MockFileData>()
         {
             ["/foo/bar/bicepconfig.json"] = BicepTestConstants.BuiltInConfiguration.ToUtf8Json(),
-        });
+        }));
 
-        private static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(MockFileSystem);
+        private static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(fileExplorer);
 
         private class TelemetryProviderMock
         {

@@ -197,7 +197,7 @@ namespace Bicep.Core.Semantics
                 sb.Append($"Experimental features enabled: {string.Join(',', experimentalFeatures)}. ");
             }
 
-            if (configuration.ConfigFileUri is { } configFileUri)
+            if (configuration.ConfigFileIdentifier is { } configFileUri)
             {
                 sb.Append($"Using bicepConfig from {configFileUri}.");
             }
@@ -266,18 +266,6 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<DeclaredResourceMetadata> DeclaredResources => declaredResourcesLazy.Value;
 
         /// <summary>
-        /// Gets all diagnostics raised by loading Bicep config for this template.
-        /// </summary>
-        private IEnumerable<IDiagnostic> GetConfigDiagnostics()
-        {
-            foreach (var builderFunc in Configuration.DiagnosticBuilders)
-            {
-                // This diagnostic does not correspond to any specific location in the template, so just use the first character span.
-                yield return builderFunc(DiagnosticBuilder.ForDocumentStart());
-            }
-        }
-
-        /// <summary>
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
         /// </summary>
         /// <returns></returns>
@@ -322,7 +310,7 @@ namespace Bicep.Core.Semantics
 
         private ImmutableArray<IDiagnostic> AssembleDiagnostics()
         {
-            var diagnostics = GetConfigDiagnostics()
+            var diagnostics = this.Configuration.Diagnostics
                 .Concat(this.LexingErrorLookup)
                 .Concat(this.ParsingErrorLookup)
                 .Concat(GetSemanticDiagnostics())

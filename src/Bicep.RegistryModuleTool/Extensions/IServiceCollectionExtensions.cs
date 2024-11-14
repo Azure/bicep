@@ -14,6 +14,8 @@ using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Environment = Bicep.Core.Utils.Environment;
 
@@ -23,6 +25,7 @@ namespace Bicep.RegistryModuleTool.Extensions
     {
         public static IServiceCollection AddBicepCompiler(this IServiceCollection services) => services
             .AddSingleton<IFileSystem, FileSystem>()
+            .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
             .AddSingleton<INamespaceProvider, NamespaceProvider>()
             .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
             .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()

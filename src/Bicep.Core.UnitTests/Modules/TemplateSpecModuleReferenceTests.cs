@@ -66,10 +66,10 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataTestMethod]
         [DataRow("prodRG", "mySpec:v1", null, "BCP212", "The Template Spec module alias name \"prodRG\" does not exist in the built-in Bicep configuration.")]
-        [DataRow("testRG", "myModule:v2", "bicepconfig.json", "BCP212", "The Template Spec module alias name \"testRG\" does not exist in the Bicep configuration \"/bicepconfig.json\".")]
+        [DataRow("testRG", "myModule:v2", "/bicepconfig.json", "BCP212", "The Template Spec module alias name \"testRG\" does not exist in the Bicep configuration \"/bicepconfig.json\".")]
         public void TryParse_AliasNotInConfiguration_ReturnsFalseAndSetsError(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
         {
-            var configuration = BicepTestConstants.CreateMockConfiguration(configFileUri: configurationPath is { } ? new Uri($"file:///{configurationPath}") : null);
+            var configuration = BicepTestConstants.CreateMockConfiguration(configFilePath: configurationPath);
 
             TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
@@ -180,7 +180,8 @@ namespace Bicep.Core.UnitTests.Modules
                 BicepTestConstants.CreateMockConfiguration(new()
                 {
                     ["moduleAliases.ts.prodRG.subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
-                }, new Uri("file:///bicepconfig.json")),
+                },
+                "/bicepconfig.json"),
                 "BCP215",
                 "The Template Spec module alias \"prodRG\" in the Bicep configuration \"/bicepconfig.json\" is in valid. The \"resourceGroup\" property cannot be null or undefined.",
             };

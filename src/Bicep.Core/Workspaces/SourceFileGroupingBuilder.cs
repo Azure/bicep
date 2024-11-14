@@ -87,16 +87,16 @@ namespace Bicep.Core.Workspaces
             }
 
             // Rebuild source files that contain external artifact references restored during the initial build.
-            var sourceFilesToRebuild = sourceFilesRequiringRestore
+            var sourcefileExplorerbuild = sourceFilesRequiringRestore
                 .SelectMany(current.GetFilesDependingOn)
                 .ToImmutableHashSet();
 
-            return builder.Build(current.EntryPoint.FileUri, featuresFactory, configurationManager, sourceFilesToRebuild);
+            return builder.Build(current.EntryPoint.FileUri, featuresFactory, configurationManager, sourcefileExplorerbuild);
         }
 
-        private SourceFileGrouping Build(Uri entryFileUri, IFeatureProviderFactory featuresFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild = null)
+        private SourceFileGrouping Build(Uri entryFileUri, IFeatureProviderFactory featuresFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild = null)
         {
-            var fileResult = this.PopulateRecursive(entryFileUri, null, sourceFilesToRebuild, featuresFactory, configurationManager);
+            var fileResult = this.PopulateRecursive(entryFileUri, null, sourcefileExplorerbuild, featuresFactory, configurationManager);
 
             if (!fileResult.IsSuccess(out var entryFile, out var errorBuilder))
             {
@@ -149,18 +149,18 @@ namespace Bicep.Core.Workspaces
             return resolutionResult;
         }
 
-        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild, IFeatureProviderFactory featuresFactory, IConfigurationManager configurationManager)
+        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild, IFeatureProviderFactory featuresFactory, IConfigurationManager configurationManager)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, reference);
             if (fileResult.TryUnwrap() is BicepSourceFile bicepSource)
             {
-                PopulateRecursive(bicepSource, featuresFactory, configurationManager, sourceFilesToRebuild);
+                PopulateRecursive(bicepSource, featuresFactory, configurationManager, sourcefileExplorerbuild);
             }
 
             return fileResult;
         }
 
-        private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild)
+        private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild)
         {
             var config = configurationManager.GetConfiguration(file.FileUri);
             implicitExtensions[file] = [];
@@ -210,10 +210,10 @@ namespace Bicep.Core.Workspaces
 
                 // recurse into child modules, to ensure we have an exhaustive list of restorable artifacts for the full compilation
                 if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
-                    (childResult.IsSuccess(out var childFile) && sourceFilesToRebuild is not null && sourceFilesToRebuild.Contains(childFile)))
+                    (childResult.IsSuccess(out var childFile) && sourcefileExplorerbuild is not null && sourcefileExplorerbuild.Contains(childFile)))
                 {
                     // only recurse if we've not seen this file before - to avoid infinite loops
-                    childResult = PopulateRecursive(artifactUri, resolutionInfo.Reference, sourceFilesToRebuild, featureProviderFactory, configurationManager);
+                    childResult = PopulateRecursive(artifactUri, resolutionInfo.Reference, sourcefileExplorerbuild, featureProviderFactory, configurationManager);
                 }
                 fileResultByUri[artifactUri] = childResult;
             }

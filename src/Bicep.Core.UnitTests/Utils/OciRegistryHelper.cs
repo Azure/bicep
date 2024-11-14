@@ -10,6 +10,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Memory;
@@ -110,7 +111,8 @@ namespace Bicep.Core.UnitTests.Utils
             var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object);
 
             var fs = new MockFileSystem();
-            var configurationManager = new ConfigurationManager(fs);
+            var fileExplorer = new FileSystemFileExplorer(fs);
+            var configurationManager = new ConfigurationManager(fileExplorer);
             var parentUri = new Uri("http://test.bicep", UriKind.Absolute);
             var configuration = configurationManager.GetConfiguration(parentUri);
 

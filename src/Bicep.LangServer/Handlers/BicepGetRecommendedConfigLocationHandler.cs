@@ -96,7 +96,7 @@ namespace Bicep.LanguageServer.Handlers
                 return null;
             }
 
-            bool caseSensitive = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            bool caseSensitive = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
             bicepFolder = AddSeparator(bicepFolder);
 
             foreach (var folder in workspaceFolderPaths)

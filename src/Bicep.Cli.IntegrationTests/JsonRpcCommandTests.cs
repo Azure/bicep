@@ -191,26 +191,27 @@ resource baz 'My.Rp/foo@2020-01-01' = {
     [TestMethod]
     public async Task GetFileReferences_returns_all_referenced_files()
     {
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            ["/main.bicepparam"] = """
-using 'main.bicep'
+        var fileSystem = new MockFileSystem(
+            new Dictionary<string, MockFileData>
+            {
+                ["/main.bicepparam"] = """
+                    using 'main.bicep'
 
-param foo = 'foo'
-""",
-            ["/main.bicep"] = """
-param foo string
+                    param foo = 'foo'
+                    """,
+                ["/main.bicep"] = """
+                    param foo string
 
-var test = loadTextContent('invalid.txt')
-var test2 = loadTextContent('valid.txt')
-""",
-            ["/valid.txt"] = """
-hello!
-""",
-            ["/bicepconfig.json"] = """
-{}
-""",
-        });
+                    var test = loadTextContent('invalid.txt')
+                    var test2 = loadTextContent('valid.txt')
+                    """,
+                ["/valid.txt"] = """
+                    hello!
+                    """,
+                ["/bicepconfig.json"] = """
+                    {}
+                    """,
+            });
 
         await RunServerTest(
             services => services.WithFileSystem(fileSystem),
@@ -218,8 +219,8 @@ hello!
             {
                 var response = await client.GetFileReferences(new("/main.bicepparam"), token);
 
-                response.FilePaths.Should().Equal([
-                    "/bicepconfig.json",
+                response.FilePaths.Should().BeEquivalentTo([
+                    fileSystem.Path.GetFullPath("/bicepconfig.json"),
                     "/invalid.txt",
                     "/main.bicep",
                     "/main.bicepparam",

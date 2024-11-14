@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.IO.Abstraction;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Configuration
@@ -43,15 +44,15 @@ namespace Bicep.Core.Configuration
 
     public partial class ModuleAliasesConfiguration : ConfigurationSection<ModuleAliases>
     {
-        private readonly Uri? configFileUri;
+        private readonly ResourceIdentifier? configFileIdentifier;
 
-        private ModuleAliasesConfiguration(ModuleAliases data, Uri? configFileUri)
+        private ModuleAliasesConfiguration(ModuleAliases data, ResourceIdentifier? configFileIdentifier)
             : base(data)
         {
-            this.configFileUri = configFileUri;
+            this.configFileIdentifier = configFileIdentifier;
         }
 
-        public static ModuleAliasesConfiguration Bind(JsonElement element, Uri? configFileUri) => new(element.ToNonNullObject<ModuleAliases>(), configFileUri);
+        public static ModuleAliasesConfiguration Bind(JsonElement element, ResourceIdentifier? configFileIdentifier) => new(element.ToNonNullObject<ModuleAliases>(), configFileIdentifier);
 
         public ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetOciArtifactModuleAliases()
         {
@@ -72,17 +73,17 @@ namespace Bicep.Core.Configuration
 
             if (!this.Data.TemplateSpecModuleAliases.TryGetValue(aliasName, out var alias))
             {
-                return new(x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, configFileUri));
+                return new(x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, configFileIdentifier));
             }
 
             if (alias.Subscription is null)
             {
-                return new(x => x.InvalidTemplateSpecAliasSubscriptionNullOrUndefined(aliasName, configFileUri));
+                return new(x => x.InvalidTemplateSpecAliasSubscriptionNullOrUndefined(aliasName, configFileIdentifier));
             }
 
             if (alias.ResourceGroup is null)
             {
-                return new(x => x.InvalidTemplateSpecAliasResourceGroupNullOrUndefined(aliasName, configFileUri));
+                return new(x => x.InvalidTemplateSpecAliasResourceGroupNullOrUndefined(aliasName, configFileIdentifier));
             }
 
             return new(alias);
@@ -97,12 +98,12 @@ namespace Bicep.Core.Configuration
 
             if (!this.Data.OciArtifactModuleAliases.TryGetValue(aliasName, out var alias))
             {
-                return new(x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, configFileUri));
+                return new(x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, configFileIdentifier));
             }
 
             if (alias.Registry is null)
             {
-                return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileUri));
+                return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileIdentifier));
             }
 
             return new(alias);

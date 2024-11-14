@@ -15,6 +15,8 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Configuration;
@@ -27,7 +29,7 @@ using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LanguageServer;
 
@@ -43,7 +45,8 @@ public static class IServiceCollectionExtensions
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
         .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IEnvironment, Core.Utils.Environment>()
-        .AddSingleton<IFileSystem, IOFileSystem>()
+        .AddSingleton<IFileSystem, LocalFileSystem>()
+        .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
         .AddSingleton<IConfigurationManager, ConfigurationManager>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()

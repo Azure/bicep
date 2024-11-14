@@ -8,7 +8,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests.FileSystem
 {
@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         public TestContext? TestContext { get; set; }
 
         private static IFileResolver GetFileResolver()
-            => new FileResolver(new IOFileSystem());
+            => new FileResolver(new LocalFileSystem());
 
         [DataTestMethod]
         [DynamicData(nameof(TryResolveModulePathData), DynamicDataSourceType.Method)]

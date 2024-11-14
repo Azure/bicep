@@ -1716,6 +1716,7 @@
           "Azure.Deployments.Templates": "[1.195.0, )",
           "Azure.Identity": "[1.13.1, )",
           "Azure.ResourceManager.Resources": "[1.9.0, )",
+          "Bicep.IO": "[1.0.0, )",
           "JsonPatch.Net": "[3.1.1, )",
           "JsonPath.Net": "[1.1.6, )",
           "Microsoft.Extensions.Configuration": "[8.0.0, )",
@@ -1789,6 +1790,12 @@
           "Newtonsoft.Json.Schema": "[4.0.1, )",
           "RichardSzalay.MockHttp": "[7.0.0, )",
           "System.IO.Abstractions.TestingHelpers": "[21.0.29, )"
+        }
+      },
+      "bicep.io": {
+        "type": "Project",
+        "dependencies": {
+          "System.IO.Abstractions": "[21.0.29, )"
         }
       },
       "bicep.langserver": {

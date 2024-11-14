@@ -49,15 +49,13 @@ namespace Bicep.LanguageServer.Handlers
 
             var documentUri = request.TextDocument.Uri;
 
-            this.compilationManager.UpdateCompilation(documentUri, request.TextDocument.Version, contents);
-
-            // Handle scenario where the bicepconfig.json file was opened prior to
-            // language service activation. If the config file was opened before the language server
-            // activation, there won't be an entry for it in the cache. We'll capture the state of the
-            // config file on disk when it's changed and cache it.
             if (ConfigurationHelper.IsBicepConfigFile(documentUri))
             {
                 bicepConfigChangeHandler.HandleBicepConfigChangeEvent(documentUri);
+            }
+            else
+            {
+                this.compilationManager.UpdateCompilation(documentUri, request.TextDocument.Version, contents);
             }
 
             return Unit.Task;
@@ -72,8 +70,10 @@ namespace Bicep.LanguageServer.Handlers
             {
                 bicepConfigChangeHandler.HandleBicepConfigOpenEvent(documentUri);
             }
-
-            this.compilationManager.OpenCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
+            else
+            {
+                this.compilationManager.OpenCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
+            }
 
             return Unit.Task;
         }
@@ -82,10 +82,6 @@ namespace Bicep.LanguageServer.Handlers
         {
             var documentUri = request.TextDocument.Uri;
 
-            // If the documentUri corresponds to bicepconfig.json and there's an entry in activeBicepConfigCache,
-            // we'll use the last known configuration and the one from currently saved config file to figure out
-            // if we need to send out telemetry information regarding the config change.
-            // We'll also update the entry in activeBicepConfigCache.
             if (ConfigurationHelper.IsBicepConfigFile(documentUri))
             {
                 bicepConfigChangeHandler.HandleBicepConfigSaveEvent(documentUri);
@@ -103,8 +99,10 @@ namespace Bicep.LanguageServer.Handlers
             {
                 bicepConfigChangeHandler.HandleBicepConfigCloseEvent(documentUri);
             }
-
-            this.compilationManager.CloseCompilation(request.TextDocument.Uri);
+            else
+            {
+                this.compilationManager.CloseCompilation(request.TextDocument.Uri);
+            }
 
             return Unit.Task;
         }
