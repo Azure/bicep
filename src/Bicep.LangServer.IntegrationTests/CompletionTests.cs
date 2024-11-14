@@ -5160,6 +5160,7 @@ module mod 'mod.bicep' = {
             var mainFile = await serverHelper.OpenFile("/main.bicep", text);
 
             var completions = await mainFile.RequestCompletion(cursor);
+            completions.Should().BeEmpty();
         }
     }
 }
