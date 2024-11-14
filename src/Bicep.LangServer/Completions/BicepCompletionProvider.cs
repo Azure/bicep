@@ -1279,9 +1279,22 @@ namespace Bicep.LanguageServer.Completions
                 TestType testType => GetProperties(testType.Body.Type),
                 ObjectType objectType => objectType.Properties.Values,
                 DiscriminatedObjectType discriminated => discriminated.DiscriminatorProperty.AsEnumerable(),
-                UnionType unionType => GetProperties(TypeHelper.TryCollapseTypes(unionType.Members)),
+                UnionType unionType => GetPropertiesFromUnionType(unionType),
                 _ => [],
             }).Where(p => !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty));
+        }
+
+        private static IEnumerable<TypeProperty> GetPropertiesFromUnionType(UnionType unionType)
+        {
+            var potentiallyCollapsedType = TypeHelper.TryCollapseTypes(unionType.Members);
+            if(potentiallyCollapsedType is UnionType)
+            {
+                // type collapsed into a new or same union type (may have collapsed into itself)
+                // get properties from each union members
+                return unionType.Members.SelectMany(member => GetProperties(member.Type));
+            }
+
+            return GetProperties(potentiallyCollapsedType);
         }
 
         private static TypeSymbol? GetAdditionalPropertiesType(TypeSymbol? type) => type switch
