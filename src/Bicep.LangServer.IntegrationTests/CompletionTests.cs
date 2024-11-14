@@ -5134,5 +5134,32 @@ var items = [
 output foo string[] = [for item in items: item.bar|]
 """);
         }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/15569
+        public async Task String_literal_union_with_object_value_should_not_cause_stack_overflow()
+        {
+            var serverHelper = new ServerRequestHelper(TestContext, DefaultServer);
+
+            // single parameter of string literal union type
+            var moduleText = "param foo 'foo' | 'bar'";
+            var moduleFile = await serverHelper.OpenFile("/mod.bicep", moduleText);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+targetScope = 'resourceGroup'
+
+module mod 'mod.bicep' = {
+  name: ''
+  params: {
+    foo: {
+      |
+    } 
+  }
+}
+""");
+            var mainFile = await serverHelper.OpenFile("/main.bicep", text);
+
+            var completions = await mainFile.RequestCompletion(cursor);
+        }
     }
 }
