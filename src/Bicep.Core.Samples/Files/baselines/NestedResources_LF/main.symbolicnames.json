@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "236868819280717113"
+      "templateHash": "15846782372928243436"
     }
   },
   "parameters": {
@@ -36,7 +36,8 @@
         "style": "[reference('basicParent::basicChild').style]"
       },
       "dependsOn": [
-        "basicParent::basicChild"
+        "basicParent::basicChild",
+        "basicParent"
       ]
     },
     "basicParent::basicChild": {
@@ -71,7 +72,11 @@
       "properties": {
         "size": "[reference('existingParent').size]",
         "style": "[reference('existingParent::existingChild').style]"
-      }
+      },
+      "dependsOn": [
+        "existingParent::existingChild",
+        "existingParent"
+      ]
     },
     "existingParent::existingChild": {
       "existing": true,
@@ -89,7 +94,8 @@
         "style": "[reference('conditionParent::conditionChild').style]"
       },
       "dependsOn": [
-        "conditionParent::conditionChild"
+        "conditionParent::conditionChild",
+        "conditionParent"
       ]
     },
     "conditionParent::conditionChild": {

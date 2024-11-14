@@ -1,5 +1,7 @@
 resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@[00:2073) ProgramExpression
+//@[00:0000) | ├─ResourceDependencyExpression [UNPARENTED]
+//@[00:0000) | | └─ResourceReferenceExpression [UNPARENTED]
 //@[00:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[00:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[00:0000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -8,6 +10,8 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@[00:0000) | | └─ResourceReferenceExpression [UNPARENTED]
 //@[00:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[00:0000) |   └─ResourceReferenceExpression [UNPARENTED]
+//@[00:0000) | ├─ResourceDependencyExpression [UNPARENTED]
+//@[00:0000) | | └─ResourceReferenceExpression [UNPARENTED]
 //@[00:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[00:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[00:0000) | └─ResourceDependencyExpression [UNPARENTED]

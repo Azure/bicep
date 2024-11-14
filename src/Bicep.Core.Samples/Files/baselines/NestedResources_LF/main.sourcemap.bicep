@@ -37,7 +37,8 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@      "apiVersion": "2020-12-01",
 //@      "name": "[format('{0}/{1}/{2}', 'basicParent', 'basicChild', 'basicGrandchild')]",
 //@      "dependsOn": [
-//@        "[resourceId('My.Rp/parentType/childType', 'basicParent', 'basicChild')]"
+//@        "[resourceId('My.Rp/parentType/childType', 'basicParent', 'basicChild')]",
+//@        "[resourceId('My.Rp/parentType', 'basicParent')]"
 //@      ]
 //@    },
       name: 'basicGrandchild'
@@ -151,7 +152,8 @@ resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
 //@      "apiVersion": "2020-12-01",
 //@      "name": "[format('{0}/{1}/{2}', 'conditionParent', 'conditionChild', 'conditionGrandchild')]",
 //@      "dependsOn": [
-//@        "[resourceId('My.Rp/parentType/childType', 'conditionParent', 'conditionChild')]"
+//@        "[resourceId('My.Rp/parentType/childType', 'conditionParent', 'conditionChild')]",
+//@        "[resourceId('My.Rp/parentType', 'conditionParent')]"
 //@      ]
 //@    },
       name: 'conditionGrandchild'
