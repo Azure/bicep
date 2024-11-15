@@ -13,6 +13,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -1294,7 +1295,7 @@ output badArray array = [for (name, i) in jsonArrayBad : {
 ");
 
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         var expectedOutput = new JArray
         {
             new JObject {["element"] = "one"},
@@ -1346,7 +1347,7 @@ output providerOutput object = {
             {
                 ["providers"] = JToken.FromObject(providersMetadata),
             }
-        });
+        }).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.thing", new JObject
         {
@@ -1413,7 +1414,7 @@ output providersLocationFirst string = providers('Test.Rp', 'fakeResource').loca
             {
                 ["providers"] = JToken.FromObject(providersMetadata),
             }
-        });
+        }).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['providersNamespace'].value", "Test.Rp");
         evaluated.Should().HaveValueAtPath("$.outputs['providersResources'].value", new JArray
@@ -1520,8 +1521,8 @@ resource mg 'Microsoft.Management/managementGroups@2020-05-01' = {
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Template.Should().HaveValueAtPath("$.resources[0].properties.details.parent", "[managementGroup()]");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
-        evaluated.Should().HaveValueAtPath("$.resources[0].properties.details.parent.id", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f");
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveValueAtPath("$.resources[0].properties.details.parent.id", $"/providers/Microsoft.Management/managementGroups/{Guid.Empty}");
     }
 
     [TestMethod]
@@ -1595,10 +1596,10 @@ output tdeId string = transparentDataEncryption.id
 ");
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.resources[0].name", "myServer/myDb/current");
-        evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/current");
+        evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", $"/subscriptions/{Guid.Empty}/resourceGroups/DummyResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/current");
     }
 
     [TestMethod]
@@ -2357,7 +2358,7 @@ output one string = map['1']
 
         result.Template.Should().HaveValueAtPath("$.outputs.one.value", "[variables('map')['1']]");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs.one.value", "hello");
     }
 
@@ -2567,7 +2568,7 @@ output test string = '${port}'
 
         result.Template.Should().HaveValueAtPath("$.outputs['test'].value", "[format('{0}', variables('port'))]");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['test'].value", "1234", "the evaluated output should be of type string");
     }
 
@@ -2612,8 +2613,8 @@ resource initiative 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = 
 
         result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'Allowed locations')]");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
-        evaluated.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f/providers/Microsoft.Authorization/policyDefinitions/Allowed locations");
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", $"/providers/Microsoft.Management/managementGroups/{Guid.Empty}/providers/Microsoft.Authorization/policyDefinitions/Allowed locations");
     }
 
     // https://github.com/Azure/bicep/issues/4850
@@ -4166,8 +4167,8 @@ var _subnets = {
 output aksRouteTable string = _subnets.aksPoolSys.routeTable
 "));
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
-        evaluated.Should().HaveValueAtPath("$.outputs['aksRouteTable'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Network/routeTables/aksRouteTable");
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveValueAtPath("$.outputs['aksRouteTable'].value", $"/subscriptions/{Guid.Empty}/resourceGroups/DummyResourceGroup/providers/Microsoft.Network/routeTables/aksRouteTable");
     }
 
     // https://github.com/Azure/bicep/issues/9285
@@ -4438,7 +4439,7 @@ output vaultId string = CertificateVault.id
 
         result.Should().GenerateATemplate();
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['vaultId'].value", "/subscriptions/mySub/resourceGroups/myRg/providers/Microsoft.KeyVault/vaults/myKv");
     }
 
@@ -5064,7 +5065,7 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }
 "));
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo2"));
     }
 
@@ -5490,7 +5491,7 @@ func test4() string => loadFileAsBase64('./repro-data.json')
 """));
 
         result.Should().NotHaveAnyDiagnostics();
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.functions[0].members['test'].output.value", new JObject());
         evaluated.Should().HaveValueAtPath("$.functions[0].members['test2'].output.value", "{}");
         evaluated.Should().HaveValueAtPath("$.functions[0].members['test3'].output.value", new JObject());
@@ -5521,7 +5522,7 @@ func MyFunction(name string) string => '${loadJsonContent('./test-mapping.json')
 """));
 
         result.Should().NotHaveAnyDiagnostics();
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['foo'].value", "bar");
     }
 
@@ -6048,7 +6049,7 @@ output moduleTags object = moduleTags
 """),
             ("compiled.json", moduleResult.Template!.ToString()));
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['moduleTags'].value", new JObject
         {

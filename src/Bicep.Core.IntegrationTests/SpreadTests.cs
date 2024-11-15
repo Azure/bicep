@@ -3,6 +3,7 @@
 
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.IntegrationTests;
@@ -29,7 +30,7 @@ output test object = {
         result.Template.Should().HaveValueAtPath("$.variables['other']['bar']", "[flatten(createArray(createArray(1), createArray(2, 3), createArray(4)))]");
         result.Template.Should().HaveValueAtPath("$.outputs['test'].value", "[shallowMerge(createArray(createObject('foo', 'foo'), variables('other'), createObject('baz', 'baz')))]");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveJsonAtPath("$.outputs['test'].value", """
 {
   "foo": "foo",
@@ -210,7 +211,7 @@ output test3 object = {
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveJsonAtPath("$.outputs['test1'].value", """
 {
   "a": 1,

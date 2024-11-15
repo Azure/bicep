@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,7 +39,7 @@ output sub int = sub
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['sum'].value", 4);
             evaluated.Should().HaveValueAtPath("$.outputs['mult'].value", 20);
@@ -79,7 +80,7 @@ output multiline string = multiline
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['literal'].value", "hello!");
             evaluated.Should().HaveValueAtPath("$.outputs['interp'].value", ">False<>12948<>hello!<>{'a':'b','!c':2}<>[true,2893,'abc']<");
@@ -167,7 +168,7 @@ output resource1Type string = existing1.type
             {
                 SubscriptionId = testSubscriptionId,
                 ResourceGroup = testRgName,
-            });
+            }).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['resource1Id'].value", $"/subscriptions/{testSubscriptionId}/resourceGroups/{testRgName}/providers/My.Rp/parent/myParent/child/myChild");
             evaluated.Should().HaveValueAtPath("$.outputs['resource2Id'].value", $"/subscriptions/{testSubscriptionId}/resourceGroups/customRg/providers/My.Rp/parent/myParent/child/myChild");
@@ -201,7 +202,7 @@ output coalesce int = null ?? 123
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['less'].value", true);
             evaluated.Should().HaveValueAtPath("$.outputs['lessOrEquals'].value", true);
@@ -243,7 +244,7 @@ output abcVal string = testRes.properties.abc
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+            var evaluated = TemplateEvaluator.Evaluate(template, parameters).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['abcVal'].value", "test!!!");
         }
@@ -276,7 +277,7 @@ output abcVal string = testRes.properties.abc
 
                     throw new NotImplementedException();
                 },
-            });
+            }).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['abcVal'].value", "test!!!");
         }
@@ -311,7 +312,7 @@ output inputObjValues array = [for item in items(inputObj): item.value]
 
         var result = CompilationHelper.Compile(bicepTemplateText);
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['inputObjKeys'].value", new JArray
             {
@@ -359,7 +360,7 @@ output joined3 string = join([
 
         result.Should().NotHaveAnyDiagnostics();
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['joined1'].value", "abcdefghi");
         evaluated.Should().HaveValueAtPath("$.outputs['joined2'].value", "abc,def,ghi");
         evaluated.Should().HaveValueAtPath("$.outputs['joined3'].value", "I love Bicep");
@@ -412,7 +413,7 @@ output containsArr123 bool = contains(inputArray, 123)
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+            var evaluated = TemplateEvaluator.Evaluate(template, parameters).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['strIdxFooLC'].value", new JValue(0));
             evaluated.Should().HaveValueAtPath("$.outputs['strIdxFooUC'].value", new JValue(0));
@@ -520,7 +521,7 @@ var objectMap3 = toObject(sortByObjectKey, x => x.name)
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+            var evaluated = TemplateEvaluator.Evaluate(template, parameters).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.variables['sayHello']", new JArray
                 {
@@ -735,7 +736,7 @@ output testFor array = [for record in testArray: {
 }]
 ");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['testMap'].value", JToken.Parse(@"
 [
   {
@@ -794,7 +795,7 @@ output output2 array = map(
         var result = CompilationHelper.Compile(bicepTemplateText);
 
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['output1'].value", JToken.Parse(@"[
   [
     ""no""
@@ -846,7 +847,7 @@ var dogs = [
 output iDogs array = filter(dogs, dog =>  (contains(dog.name, 'C') || contains(dog.name, 'i')))
 ");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['iDogs'].value", JToken.Parse(@"
 [
   {
@@ -943,7 +944,7 @@ output foo object = {
   }
 }");
             },
-        });
+        }).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['test1'].value", "abc");
         evaluated.Should().HaveValueAtPath("$.outputs['test2'].value", "def");
@@ -974,7 +975,7 @@ param param2 = union(param1, { reference: 'param2' })
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+            var evaluated = TemplateEvaluator.Evaluate(template, parameters).ToJToken();
 
             diagnostics.Should().NotHaveAnyDiagnostics();
 
@@ -1064,7 +1065,7 @@ output properties object = {
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.exists", "baz");
             evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.doesntExist", JValue.CreateNull());
@@ -1113,7 +1114,7 @@ param location = 'westus'
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+            var evaluated = TemplateEvaluator.Evaluate(template, parameters).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.asserts['a1']", false);
             evaluated.Should().HaveValueAtPath("$.asserts['a2']", true);
@@ -1130,7 +1131,7 @@ param location = 'westus'
                 output foo string = foo ?? 'not specified'
                 """);
 
-        var evaluated = TemplateEvaluator.Evaluate(template);
+        var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.languageVersion", "2.0");
         evaluated.Should().HaveValueAtPath("$.outputs.foo.value", "not specified");
@@ -1160,7 +1161,7 @@ output sayHiWithLambdas string = replaceMultiple('Hi, $firstName $lastName!', {
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['sayHiWithComposition'].value", "Hi, Anthony Martin!");
             evaluated.Should().HaveValueAtPath("$.outputs['sayHiWithLambdas'].value", "Hi, Anthony Martin!");
@@ -1214,7 +1215,7 @@ output groupByWithValMapTest object = groupBy([
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveJsonAtPath("$.outputs['sayHello'].value", """
 [
