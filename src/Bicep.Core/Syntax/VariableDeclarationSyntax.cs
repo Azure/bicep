@@ -31,7 +31,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase? TryGetBody() => UnwrapBody(Value);
 
-        public SyntaxBase? UnwrapBody(SyntaxBase body) => body switch
+        private static SyntaxBase? UnwrapBody(SyntaxBase body) => body switch
         {
             SkippedTriviaSyntax => null,
             ForSyntax @for => @for.Body,
@@ -40,7 +40,7 @@ namespace Bicep.Core.Syntax
         };
 
         public SyntaxBase GetBody() => TryGetBody() ??
-            throw new InvalidOperationException($"A valid resource body is not available on this variable due to errors. Use {nameof(TryGetBody)}() instead.");
+            throw new InvalidOperationException($"A valid body is not available on this variable due to errors. Use {nameof(TryGetBody)}() instead.");
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitVariableDeclarationSyntax(this);
 
