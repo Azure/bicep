@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.Core.Emit;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -37,9 +39,23 @@ namespace Bicep.Cli.Services
                     semanticModel is SemanticModel testSemanticModel)
                 {
                     var parameters = TryGetParameters(testSemanticModel, testDeclaration);
-                    var template = GetTemplate(testSemanticModel);
+                    var templateJToken = GetTemplate(testSemanticModel);
+                    TestEvaluation evaluation;
 
-                    var evaluation = TemplateEvaluator.Evaluate(template, parameters);
+                    try
+                    {
+                        var template = TemplateEvaluator.Evaluate(templateJToken, parameters);
+                        var allAssertions = template.Asserts?.Select(p => new AssertionResult(p.Key, (bool)p.Value.Value)).ToImmutableArray() ?? [];
+                        var failedAssertions = allAssertions.Where(a => !a.Result).Select(a => a).ToImmutableArray();
+
+                        evaluation = new TestEvaluation(template, null, allAssertions, failedAssertions);
+                    }
+                    catch (Exception exception)
+                    {
+                        var error = exception.Message;
+                        evaluation = new TestEvaluation(null, error, [], []);
+                    }
+
                     var testResult = new TestResult(testDeclaration, evaluation);
 
                     testResults.Add(testResult);
@@ -84,7 +100,19 @@ namespace Bicep.Cli.Services
                 new TemplateWriter(model).EmitTestParameters(emitter, parametersExpression);
                 writer.Flush();
 
-                return textWriter.ToString().FromJson<JObject>();
+                var parameters = textWriter.ToString().FromJson<JObject>().Properties()
+                    .ToDictionary(x => x.Name, x => new JObject()
+                    {
+                        ["value"] = x.Value,
+                    })
+                    .ToJToken();
+
+                return new JObject()
+                {
+                    ["$schema"] = "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                    ["contentVersion"] = "1.0.0.0",
+                    ["parameters"] = parameters,
+                };
             }
 
             return null;

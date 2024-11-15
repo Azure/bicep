@@ -60,7 +60,7 @@ namespace Bicep.Core.IntegrationTests
                     jsonFile.ShouldHaveExpectedJsonValue();
 
                     // validate that the template is parseable by the deployment engine
-                    TemplateHelper.TemplateShouldBeValid(stringWriter.ToString());
+                    UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(stringWriter.ToString());
                 }
             }
         }

@@ -6,6 +6,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -1620,7 +1621,7 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        var parameters = TemplateEvaluator.ParseParametersFile(result.Parameters);
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
         parameters["intParam"].Should().DeepEqual(9);
     }
 
@@ -1649,7 +1650,7 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        var parameters = TemplateEvaluator.ParseParametersFile(result.Parameters);
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
         parameters["intParam"].Should().DeepEqual(9);
     }
 
@@ -1925,7 +1926,7 @@ public class CompileTimeImportTests
         result.Diagnostics.Should().BeEmpty();
         result.Template.Should().NotBeNull();
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("outputs.out.value", "ASP999");
     }
 
