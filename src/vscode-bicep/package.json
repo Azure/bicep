@@ -715,7 +715,7 @@
           {
             "id": "deployToAzure",
             "title": "Deploy to Azure",
-            "description": "It's time to get these resources into Azure. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy?%7B%22walkthrough%22%3A%22true%22%7D)",
+            "description": "It's time to get these resources into Azure. You will be asked to sign in to Azure if you haven't already.",
             "media": {
               "image": "media/walkthroughs/gettingStarted/5_Deploy.gif",
               "altText": "Example of deploying Bicep file to Azure"
@@ -808,6 +808,7 @@
     "@azure/arm-resources": "^5.2.0",
     "@azure/arm-subscriptions": "^5.1.0",
     "@azure/identity": "^4.5.0",
+    "@microsoft/vscode-azext-azureauth": "^3.0.0",
     "@microsoft/vscode-azext-azureutils": "^3.1.1",
     "@microsoft/vscode-azext-utils": "^2.5.10",
     "@vscode-bicep-ui/components": "file:../vscode-bicep-ui/packages/components",

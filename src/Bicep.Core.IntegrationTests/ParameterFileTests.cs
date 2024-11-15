@@ -148,7 +148,7 @@ param baz string
 "));
 
         result.Diagnostics.Should().NotHaveAnyDiagnostics();
-        var parameters = TemplateEvaluator.ParseParametersFile(result.Parameters);
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
 
         parameters["foo"].Should().DeepEqual("abc");
         parameters["bar"].Should().DeepEqual(new JObject

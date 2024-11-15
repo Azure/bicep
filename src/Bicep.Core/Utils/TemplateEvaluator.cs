@@ -1,7 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Diagnostics;
@@ -10,15 +17,13 @@ using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Engines;
 using Bicep.Core.Emit;
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Core.IntegrationTests
+namespace Bicep.Core.Utils
 {
-    public class TemplateEvaluator
+    public partial class TemplateEvaluator
     {
         private class NoOpTemplateMetricRecorder : ITemplateMetricsRecorder
         {
@@ -95,12 +100,14 @@ namespace Bicep.Core.IntegrationTests
             public IEvaluationContext WithNewScope(ExpressionScope scope) => new TemplateEvaluationContext(this.context, scope, this.resourceLookup, this.config);
         }
 
-        const string TestTenantId = "d4c73686-f7cd-458e-b377-67adcd46b624";
-        const string TestManagementGroupName = "3fc9f36e-8699-43af-b038-1c103980942f";
-        const string TestSubscriptionId = "f91a30fd-f403-4999-ae9f-ec37a6d81e13";
-        const string TestResourceGroupName = "testResourceGroup";
-        const string TestLocation = "West US";
+        private static readonly string DummyTenantId = Guid.Empty.ToString();
+        private static readonly string DummyManagementGroupName = Guid.Empty.ToString();
+        private static readonly string DummySubscriptionId = Guid.Empty.ToString();
+        private const string DummyResourceGroupName = "DummyResourceGroup";
+        private const string DummyLocation = "Dummy Location";
 
+        [GeneratedRegex(@"https?://schema\.management\.azure\.com/schemas/[0-9a-zA-Z-]+/(?<templateType>[a-zA-Z]+)Template\.json#?", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex templateSchemaPattern();
         public delegate JToken OnListDelegate(string functionName, string resourceId, string apiVersion, JToken? body);
 
         public delegate JToken OnReferenceDelegate(string resourceId, string apiVersion, bool fullBody);
@@ -116,11 +123,11 @@ namespace Bicep.Core.IntegrationTests
             OnReferenceDelegate? OnReferenceFunc)
         {
             public static EvaluationConfiguration Default = new(
-                TestTenantId,
-                TestManagementGroupName,
-                TestSubscriptionId,
-                TestResourceGroupName,
-                TestLocation,
+                DummyTenantId,
+                DummyManagementGroupName,
+                DummySubscriptionId,
+                DummyResourceGroupName,
+                DummyLocation,
                 new(),
                 null,
                 null
@@ -150,7 +157,6 @@ namespace Bicep.Core.IntegrationTests
             };
 
             var resourceLookup = template.Resources.ToOrdinalInsensitiveDictionary(x => GetResourceId(scopeString, x));
-
             var evaluationContext = TemplateEvaluationContext.Create(template, resourceLookup, config);
 
             for (int i = 0; i < template.Resources.Length; i++)
@@ -176,14 +182,14 @@ namespace Bicep.Core.IntegrationTests
             {
                 foreach (var outputKey in template.Outputs.Keys.ToList())
                 {
-                    template.Outputs[outputKey].Value.Value = ExpressionsEngine.EvaluateLanguageExpressionsRecursive(
+                    template.Outputs[outputKey].Value.Value = ExpressionsEngine.EvaluateLanguageExpressionsOptimistically(
                         root: template.Outputs[outputKey].Value.Value,
                         evaluationContext: evaluationContext);
                 }
             }
         }
 
-        public static JToken Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
+        public static Template Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
         {
             var configuration = EvaluationConfiguration.Default;
 
@@ -195,11 +201,11 @@ namespace Bicep.Core.IntegrationTests
             return EvaluateTemplate(templateJtoken, parametersJToken, configuration);
         }
 
-        private static JToken EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
+        private static Template EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
         {
             templateJtoken = templateJtoken ?? throw new ArgumentNullException(nameof(templateJtoken));
 
-            var deploymentScope = TemplateHelper.GetDeploymentScope(templateJtoken["$schema"]!.ToString());
+            var deploymentScope = GetDeploymentScope(templateJtoken["$schema"]!.ToString());
 
             var metadata = new InsensitiveDictionary<JToken>(config.Metadata);
             if (deploymentScope == TemplateDeploymentScope.Subscription || deploymentScope == TemplateDeploymentScope.ResourceGroup)
@@ -237,7 +243,7 @@ namespace Bicep.Core.IntegrationTests
             try
             {
                 var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
-                var parameters = ParseParametersFile(parametersJToken);
+                var parameters = ConvertParameters(parametersJToken);
 
                 TemplateEngine.ValidateTemplate(template, EmitConstants.NestedDeploymentResourceApiVersion, deploymentScope);
 
@@ -255,7 +261,7 @@ namespace Bicep.Core.IntegrationTests
 
                 TemplateEngine.ValidateProcessedTemplate(template, EmitConstants.NestedDeploymentResourceApiVersion, deploymentScope);
 
-                return template.ToJToken();
+                return template;
             }
             catch (Exception exception)
             {
@@ -267,19 +273,30 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        public static ImmutableDictionary<string, JToken> ParseParametersFile(JToken? parametersJToken)
+        private static ImmutableDictionary<string, JToken> ConvertParameters(JToken? parametersJToken)
         {
             if (parametersJToken is null)
             {
                 return ImmutableDictionary<string, JToken>.Empty;
             }
 
-            parametersJToken.Should().HaveValueAtPath("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");
-            parametersJToken.Should().HaveValueAtPath("contentVersion", "1.0.0.0");
             var parametersObject = parametersJToken["parameters"] as JObject;
-            parametersObject.Should().NotBeNull();
-
             return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x => x.Value["value"]!);
+        }
+
+        private static TemplateDeploymentScope GetDeploymentScope(string templateSchema)
+        {
+            var templateSchemaMatch = templateSchemaPattern().Match(templateSchema);
+            var templateType = templateSchemaMatch.Groups["templateType"].Value.ToLowerInvariant();
+
+            return templateType switch
+            {
+                "deployment" => TemplateDeploymentScope.ResourceGroup,
+                "subscriptiondeployment" => TemplateDeploymentScope.Subscription,
+                "managementgroupdeployment" => TemplateDeploymentScope.ManagementGroup,
+                "tenantdeployment" => TemplateDeploymentScope.Tenant,
+                _ => throw new InvalidOperationException($"Unrecognized schema: {templateSchema}"),
+            };
         }
     }
 }

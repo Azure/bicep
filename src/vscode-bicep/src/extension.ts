@@ -32,7 +32,7 @@ import { BicepExternalSourceContentProvider, createLanguageService, ensureDotnet
 import { bicepConfigurationPrefix, bicepLanguageId } from "./language/constants";
 import { BicepExternalSourceScheme } from "./language/decodeExternalSourceUri";
 import { DeployPaneViewManager } from "./panes/deploy";
-import { TreeManager } from "./tree/TreeManager";
+import { AzurePickers } from "./utils/AzurePickers";
 import { updateUiContext } from "./updateUiContext";
 import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
 import { Disposable } from "./utils/disposable";
@@ -106,7 +106,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
           new OutputChannelManager("Bicep Operations", bicepConfigurationPrefix),
         );
 
-        const treeManager = extension.register(new TreeManager(outputChannelManager));
+        const azurePickers = extension.register(new AzurePickers(outputChannelManager));
 
         const deployPaneViewManager = extension.register(
           new DeployPaneViewManager(
@@ -114,7 +114,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
             extensionContext,
             extension.extensionUri,
             languageClient,
-            new AzureUiManager(actionContext, treeManager),
+            new AzureUiManager(actionContext, azurePickers),
           ),
         );
 
@@ -133,7 +133,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
             new GenerateParamsCommand(languageClient, outputChannelManager),
             new BuildParamsCommand(languageClient, outputChannelManager),
             new CreateBicepConfigurationFile(languageClient),
-            new DeployCommand(languageClient, outputChannelManager, treeManager),
+            new DeployCommand(languageClient, outputChannelManager, azurePickers),
             new DecompileCommand(languageClient, outputChannelManager),
             new DecompileParamsCommand(languageClient, outputChannelManager),
             new ForceModulesRestoreCommand(languageClient, outputChannelManager),

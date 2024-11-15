@@ -113,7 +113,7 @@ export interface BicepDeploymentStartParams {
   location: string;
   template: string;
   token: string;
-  expiresOnTimestamp: string;
+  expiresOnTimestamp: string | undefined;
   deployId: string;
   deploymentName: string;
   portalUrl: string;
