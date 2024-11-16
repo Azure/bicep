@@ -133,7 +133,10 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     vscode.postMessage(createReadyMessage());
     vscode.postMessage(createGetStateMessage());
     return () => window.removeEventListener("message", handleMessageEvent);
-  }, [persistedState, setErrorMessage, setLocalDeployRunning]);
+  // TODO: This is an anti-pattern. We should refactor this.
+  // We cannot add dependencies to this hook because it will cause infinite loops somehow.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function savePersistedState(state: DeployPaneState) {
     vscode.postMessage(createSaveStateMessage(state));
