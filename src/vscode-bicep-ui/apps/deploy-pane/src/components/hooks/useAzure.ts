@@ -1,24 +1,20 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-import {
-  CloudError,
-  Deployment,
-  DeploymentOperation,
-  ErrorResponse,
-  ResourceManagementClient,
-  WhatIfChange,
-} from "@azure/arm-resources";
-import { RestError } from "@azure/core-rest-pipeline";
-import { AccessToken, TokenCredential } from "@azure/identity";
-import { useState } from "react";
-import {
+import type { CloudError, Deployment, DeploymentOperation, ErrorResponse, WhatIfChange } from "@azure/arm-resources";
+import type { AccessToken, TokenCredential } from "@azure/identity";
+import type {
   DeploymentScope,
   DeployState,
   ParamData,
   ParametersMetadata,
   TemplateMetadata,
   UntypedError,
-} from "../../../models";
+} from "../../models";
+
+import { ResourceManagementClient } from "@azure/arm-resources";
+import { RestError } from "@azure/core-rest-pipeline";
+import { useState } from "react";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 export interface UseAzureProps {
   scope?: DeploymentScope;
@@ -55,7 +51,10 @@ export function useAzure(props: UseAzureProps) {
   async function doDeploymentOperation(
     scope: DeploymentScope,
     deploymentName: string | undefined,
-    operation: (armClient: ResourceManagementClient, deployment: Deployment) => Promise<{ success: boolean, error?: ErrorResponse}>,
+    operation: (
+      armClient: ResourceManagementClient,
+      deployment: Deployment,
+    ) => Promise<{ success: boolean; error?: ErrorResponse }>,
   ) {
     if (!templateMetadata) {
       return;

@@ -1,15 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import type { FC } from "react";
+import type { LocalDeploymentOperationContent, LocalDeployResponse } from "../messages";
+
 import {
   VscodeTable,
   VscodeTableBody,
   VscodeTableCell,
   VscodeTableHeader,
   VscodeTableHeaderCell,
-  VscodeTableRow
+  VscodeTableRow,
 } from "@vscode-elements/react-elements";
-import { FC } from "react";
-import { LocalDeploymentOperationContent, LocalDeployResponse } from "../../../../language";
 import { FormSection } from "./sections/FormSection";
 import { getPreformattedJson } from "./utils";
 
@@ -47,15 +48,9 @@ export const LocalDeployOperations: FC<{ result: LocalDeployResponse }> = ({ res
     <FormSection title="Operations">
       <VscodeTable>
         <VscodeTableHeader slot="header">
-          <VscodeTableHeaderCell id="1">
-            Resource Name
-          </VscodeTableHeaderCell>
-          <VscodeTableHeaderCell id="2">
-            State
-          </VscodeTableHeaderCell>
-          <VscodeTableHeaderCell id="3">
-            Error
-          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="1">Resource Name</VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="2">State</VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="3">Error</VscodeTableHeaderCell>
         </VscodeTableHeader>
         <VscodeTableBody slot="body">
           {result.operations.map((operation) => (
@@ -65,9 +60,7 @@ export const LocalDeployOperations: FC<{ result: LocalDeployResponse }> = ({ res
             >
               <VscodeTableCell id="1">{operation.resourceName}</VscodeTableCell>
               <VscodeTableCell id="2">{operation.provisioningState}</VscodeTableCell>
-              <VscodeTableCell id="3">
-                {operation.error ? getPreformattedJson(operation.error) : ""}
-              </VscodeTableCell>
+              <VscodeTableCell id="3">{operation.error ? getPreformattedJson(operation.error) : ""}</VscodeTableCell>
             </VscodeTableRow>
           ))}
         </VscodeTableBody>
@@ -85,20 +78,14 @@ export const LocalDeployOutputs: FC<{ result: LocalDeployResponse }> = ({ result
     <FormSection title="Outputs">
       <VscodeTable>
         <VscodeTableHeader slot="header">
-          <VscodeTableHeaderCell id="1">
-            Name
-          </VscodeTableHeaderCell>
-          <VscodeTableHeaderCell id="2">
-            Value
-          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="1">Name</VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="2">Value</VscodeTableHeaderCell>
         </VscodeTableHeader>
         <VscodeTableBody slot="body">
           {Object.keys(result.deployment.outputs).map((name) => (
             <VscodeTableRow key={name}>
               <VscodeTableCell id="1">{name}</VscodeTableCell>
-              <VscodeTableCell id="2">
-                {getPreformattedJson(result.deployment.outputs[name])}
-              </VscodeTableCell>
+              <VscodeTableCell id="2">{getPreformattedJson(result.deployment.outputs[name])}</VscodeTableCell>
             </VscodeTableRow>
           ))}
         </VscodeTableBody>

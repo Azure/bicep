@@ -245,10 +245,10 @@ export class DeployPaneView extends Disposable {
     const { cspSource } = this.webviewPanel.webview;
     const nonce = crypto.randomBytes(16).toString("hex");
     const scriptUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "deployPane.js"),
+      vscode.Uri.joinPath(this.extensionUri, "out", "deploy-pane", "index.js"),
     );
     const codiconCssUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "codicon.css"),
+      vscode.Uri.joinPath(this.extensionUri, "out", "deploy-pane", "assets", "index.css"),
     );
 
     return `
@@ -266,7 +266,7 @@ export class DeployPaneView extends Disposable {
       </head>
       <body>
         <div id="root"></div>
-        <script nonce="${nonce}" src="${scriptUri}" />
+        <script nonce="${nonce}" type="module" src="${scriptUri}" />
       </body>
       </html>`;
   }
