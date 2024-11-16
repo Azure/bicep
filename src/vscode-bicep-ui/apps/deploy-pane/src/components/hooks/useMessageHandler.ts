@@ -75,8 +75,6 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
 
           const templateMetadata = parseTemplateJson(message.templateJson);
 
-          console.log(templateMetadata);
-
           if (!templateMetadata.scopeType) {
             setTemplateMetadata(undefined);
             setErrorMessage("Failed to obtain the deployment scope from compiled Bicep file.");
@@ -135,7 +133,7 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     vscode.postMessage(createReadyMessage());
     vscode.postMessage(createGetStateMessage());
     return () => window.removeEventListener("message", handleMessageEvent);
-  }, []);
+  }, [persistedState, setErrorMessage, setLocalDeployRunning]);
 
   function savePersistedState(state: DeployPaneState) {
     vscode.postMessage(createSaveStateMessage(state));
