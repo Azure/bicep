@@ -14,10 +14,10 @@
     <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.11.32" />
     <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
     <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.11.2177" />
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.11.40262" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.12.40391" />
     <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.11.40262" />
-    <PackageReference Include="Microsoft.Visualstudio.Telemetry" Version="17.11.20" />
-    <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.11.40262" />
+    <PackageReference Include="Microsoft.Visualstudio.Telemetry" Version="17.12.48" />
+    <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
   </ItemGroup>
