@@ -43,7 +43,8 @@ namespace Bicep.Core.Diagnostics
                 level,
                 DiagnosticSource.Compiler,
                 code,
-                message) { Uri = new($"https://aka.ms/bicep/core-diagnostics#{code}") };
+                message)
+            { Uri = new($"https://aka.ms/bicep/core-diagnostics#{code}") };
 
             private Diagnostic CoreError(string code, string message) => CoreDiagnostic(
                 DiagnosticLevel.Error,
@@ -241,7 +242,8 @@ namespace Bicep.Core.Diagnostics
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP035",
                     $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}")
-                    with { Fixes = [codeFix] };
+                    with
+                { Fixes = [codeFix] };
             }
 
             public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol expectedType, TypeSymbol actualType, bool showTypeInaccuracy = false)
@@ -488,17 +490,23 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => CoreError(
                 "BCP082",
                 $"The name \"{name}\" does not exist in the current context. Did you mean \"{suggestedName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
-                ]};
+                ]
+            };
 
             public Diagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP083",
                 $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty))
-                ]};
+                ]
+            };
 
             public Diagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => CoreError(
                 "BCP084",
@@ -520,17 +528,23 @@ namespace Bicep.Core.Diagnostics
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP088",
                 $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualStringLiteral}\". Did you mean \"{suggestedStringLiteral}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{actualStringLiteral}\" to \"{suggestedStringLiteral}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedStringLiteral))
-                ]};
+                ]
+            };
 
             public Diagnostic DisallowedPropertyWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol type, string suggestedProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP089",
                 $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty))
-                ]};
+                ]
+            };
 
             public Diagnostic ModulePathHasNotBeenSpecified() => CoreError(
                 "BCP090",
@@ -607,9 +621,12 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceType, string name, string suggestedName) => CoreError(
                 "BCP108",
                 $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\". Did you mean \"{suggestedName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
-                ]};                
+                ]
+            };
 
             public Diagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => CoreError(
                 "BCP109",
@@ -618,9 +635,12 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FunctionDoesNotExistOnObjectWithSuggestion(TypeSymbol type, string name, string suggestedName) => CoreError(
                 "BCP110",
                 $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
-                ]};
+                ]
+            };
 
             public Diagnostic FilePathContainsControlChars() => CoreError(
                 "BCP111",
@@ -1184,7 +1204,8 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic DeprecatedProvidersFunction(string functionName) => CoreWarning(
                 "BCP241",
                 $"The \"{functionName}\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow.")
-                with { Styling = DiagnosticStyling.ShowCodeDeprecated };
+                with
+            { Styling = DiagnosticStyling.ShowCodeDeprecated };
 
             public Diagnostic LambdaFunctionsOnlyValidInFunctionArguments() => CoreError(
                 "BCP242",
@@ -1238,7 +1259,8 @@ namespace Bicep.Core.Diagnostics
             public IDiagnostic MissingParameterAssignment(IEnumerable<string> identifiers, CodeFix insertMissingCodefix) => CoreError(
                 "BCP258",
                 $"The following parameters are declared in the Bicep file but are missing an assignment in the params file: {ToQuotedString(identifiers)}.")
-                with { Fixes = [insertMissingCodefix] };
+                with
+            { Fixes = [insertMissingCodefix] };
 
             public Diagnostic MissingParameterDeclaration(string? identifier) => CoreError(
                 "BCP259",
@@ -1267,9 +1289,12 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SymbolicNameShadowsAKnownFunction(string name, string knownFunctionNamespace, string knownFunctionName) => CoreError(
                 "BCP265",
                 $"The name \"{name}\" is not a function. Did you mean \"{knownFunctionNamespace}.{knownFunctionName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{knownFunctionNamespace}.{knownFunctionName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, $"{knownFunctionNamespace}.{knownFunctionName}"))
-                ]};
+                ]
+            };
 
             public Diagnostic ExpectedMetadataIdentifier() => CoreError(
                 "BCP266",
@@ -1455,14 +1480,17 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, AccessExpressionSyntax accessExpression) => CoreWarning(
                 "BCP318",
                 $@"The value of type ""{possiblyNullType}"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new(
                         "If you do not know whether the value will be null and the template would handle a null value for the overall expression, use a `.?` (safe dereference) operator to short-circuit the access expression if the base expression's value is null",
                         true,
                         CodeFixKind.QuickFix,
                         new(accessExpression.Span, accessExpression.AsSafeAccess().ToString())),
                     AsNonNullable(accessExpression.BaseExpression),
-                ]};
+                ]
+            };
 
             private static CodeFix AsNonNullable(SyntaxBase expression) => new(
                 "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
@@ -1481,7 +1509,8 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => CoreWarning(
                 "BCP321",
                 $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".")
-                with { Fixes = [AsNonNullable(expression)] };
+                with
+            { Fixes = [AsNonNullable(expression)] };
 
             public Diagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => CoreError(
                 "BCP322",
@@ -1712,7 +1741,8 @@ namespace Bicep.Core.Diagnostics
                 return CoreWarning(
                     "BCP381",
                     @$"Declaring extension with the ""{syntax.Keyword.Text}"" keyword has been deprecated. Please use the ""extension"" keyword instead. Please see https://github.com/Azure/bicep/issues/14374 for more information.")
-                    with { Fixes = [codeFix] };
+                    with
+                { Fixes = [codeFix] };
             }
 
             public Diagnostic TypeIsNotParameterizable(string typeName) => CoreError(

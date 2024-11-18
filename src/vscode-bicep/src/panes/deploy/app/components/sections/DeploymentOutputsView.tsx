@@ -6,7 +6,7 @@ import {
   VscodeTableCell,
   VscodeTableHeader,
   VscodeTableHeaderCell,
-  VscodeTableRow
+  VscodeTableRow,
 } from "@vscode-elements/react-elements";
 import { FC } from "react";
 import { getPreformattedJson } from "../utils";
@@ -25,12 +25,8 @@ export const DeploymentOutputsView: FC<DeploymentOutputsViewProps> = ({ outputs 
     <FormSection title="Outputs">
       <VscodeTable>
         <VscodeTableHeader slot="header">
-          <VscodeTableHeaderCell id="1">
-            Name
-          </VscodeTableHeaderCell>
-          <VscodeTableHeaderCell id="2">
-            Value
-          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="1">Name</VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="2">Value</VscodeTableHeaderCell>
         </VscodeTableHeader>
         <VscodeTableBody slot="body">
           {Object.keys(outputs).map((name) => (

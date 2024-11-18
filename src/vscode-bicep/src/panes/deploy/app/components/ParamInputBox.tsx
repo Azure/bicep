@@ -7,7 +7,7 @@ import {
   VscodeOption,
   VscodeSingleSelect,
   VscodeTextarea,
-  VscodeTextfield
+  VscodeTextfield,
 } from "@vscode-elements/react-elements";
 import { FC } from "react";
 import { ParamData, ParamDefinition } from "../../models";
@@ -41,7 +41,8 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
             id={inputHtmlId}
             checked={!!value}
             onChange={() => handleValueChange(!value)}
-            disabled={disabled}>
+            disabled={disabled}
+          >
             {name}
           </VscodeCheckbox>
         );
@@ -53,7 +54,8 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
               id={inputHtmlId}
               value={`${value ?? 0}`}
               onChange={(e) => handleValueChange(parseInt((e.currentTarget as HTMLInputElement).value, 10))}
-              disabled={disabled} />
+              disabled={disabled}
+            />
           </>
         );
       case "string":
@@ -82,7 +84,8 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
                 id={inputHtmlId}
                 value={`${value ?? ""}`}
                 onChange={(e) => handleValueChange((e.currentTarget as HTMLInputElement).value)}
-                disabled={disabled} />
+                disabled={disabled}
+              />
             </>
           );
         }
@@ -96,7 +99,8 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
               resize="vertical"
               value={value ? JSON.stringify(value, null, 2) : ""}
               onChange={(e) => handleValueChange(JSON.parse((e.currentTarget as HTMLInputElement).value))}
-              disabled={disabled} />
+              disabled={disabled}
+            />
           </>
         );
     }
