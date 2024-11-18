@@ -198,7 +198,7 @@ namespace Bicep.Core.TypeSystem
 
         protected void FlagIfFunctionRequiresInlining(FunctionSymbol? functionSymbol)
         {
-            if (functionSymbol is {} && functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+            if (functionSymbol is { } && functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
                 var variableDependencyChain = this.BuildVariableDependencyChain(functionSymbol.Name);
                 FlagDeployTimeConstantViolation(variableDependencyChain: variableDependencyChain);

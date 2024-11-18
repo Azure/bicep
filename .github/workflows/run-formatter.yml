@@ -60,7 +60,7 @@ jobs:
 
       - name: Format vscode-bicep
         run: |
-          npm run ci
+          npm ci
           npm run format
         working-directory: ./src/vscode-bicep
 

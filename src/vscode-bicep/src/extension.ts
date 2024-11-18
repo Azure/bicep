@@ -21,6 +21,7 @@ import { WalkthroughOpenBicepFileCommand } from "./commands/gettingStarted/Walkt
 import { ImportKubernetesManifestCommand } from "./commands/importKubernetesManifest";
 import { InsertResourceCommand } from "./commands/insertResource";
 import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
+import { PostExtractionCommand } from "./commands/PostExtractionCommand";
 import { ShowDeployPaneCommand, ShowDeployPaneToSideCommand } from "./commands/showDeployPane";
 import { ShowModuleSourceFileCommand } from "./commands/ShowModuleSourceFileCommand";
 import { ShowSourceFromVisualizerCommand } from "./commands/showSourceFromVisualizer";
@@ -32,15 +33,14 @@ import { BicepExternalSourceContentProvider, createLanguageService, ensureDotnet
 import { bicepConfigurationPrefix, bicepLanguageId } from "./language/constants";
 import { BicepExternalSourceScheme } from "./language/decodeExternalSourceUri";
 import { DeployPaneViewManager } from "./panes/deploy";
-import { AzurePickers } from "./utils/AzurePickers";
 import { updateUiContext } from "./updateUiContext";
 import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
+import { AzurePickers } from "./utils/AzurePickers";
 import { Disposable } from "./utils/disposable";
 import { createLogger, getLogger, resetLogger } from "./utils/logger";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
 import { BicepVisualizerViewManager } from "./visualizer";
-import { PostExtractionCommand } from "./commands/PostExtractionCommand";
 
 let languageClient: lsp.LanguageClient | null = null;
 

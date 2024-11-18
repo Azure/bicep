@@ -1287,7 +1287,7 @@ namespace Bicep.LanguageServer.Completions
         private static IEnumerable<TypeProperty> GetPropertiesFromUnionType(UnionType unionType)
         {
             var potentiallyCollapsedType = TypeHelper.TryCollapseTypes(unionType.Members);
-            if(potentiallyCollapsedType is UnionType)
+            if (potentiallyCollapsedType is UnionType)
             {
                 // type collapsed into a new or same union type (may have collapsed into itself)
                 // get properties from each union members

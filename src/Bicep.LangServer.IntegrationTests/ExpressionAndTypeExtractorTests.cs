@@ -352,7 +352,8 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
             var a = newParameter
             """)]
-    public async Task ShouldOfferTwoParameterExtractions_IffTheExtractedTypesAreDifferent(string fileWithSelection, string? expectedLooseParamText, string? expectedMediumParamText)    {
+    public async Task ShouldOfferTwoParameterExtractions_IffTheExtractedTypesAreDifferent(string fileWithSelection, string? expectedLooseParamText, string? expectedMediumParamText)
+    {
         await RunExtractToParameterTest(fileWithSelection, expectedLooseParamText, expectedMediumParamText, "IGNORE");
     }
 

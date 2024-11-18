@@ -47,7 +47,7 @@ namespace Bicep.Core.Parsing
 
         public TextSpan MoveBy(int offset)
         {
-            return new TextSpan(this.Position +offset, this.Length);
+            return new TextSpan(this.Position + offset, this.Length);
         }
 
         public bool Contains(int offset) => offset >= this.Position && offset < this.Position + this.Length;

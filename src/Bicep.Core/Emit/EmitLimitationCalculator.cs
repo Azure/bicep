@@ -505,7 +505,7 @@ namespace Bicep.Core.Emit
 
             foreach (var extendsDeclaration in extendsDeclarations)
             {
-                if (model.TryGetReferencedModel(extendsDeclaration).IsSuccess(out var extendedModel) && 
+                if (model.TryGetReferencedModel(extendsDeclaration).IsSuccess(out var extendedModel) &&
                     extendedModel is SemanticModel extendedSemanticModel)
                 {
                     generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ParameterAssignments);

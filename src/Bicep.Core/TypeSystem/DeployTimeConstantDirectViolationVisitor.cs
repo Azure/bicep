@@ -175,7 +175,7 @@ namespace Bicep.Core.TypeSystem
 
         protected void FlagIfFunctionRequiresInlining(FunctionSymbol? functionSymbol, FunctionCallSyntaxBase syntax)
         {
-            if (functionSymbol is {} && functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+            if (functionSymbol is { } && functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
                 FlagDeployTimeConstantViolation(syntax);
             }

@@ -22,7 +22,7 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
     {
         var span = GetSpanForRow(programSyntax, declaringSyntax);
         var codeFix = new CodeFix(GetCodeFixDescription(name), true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
-        
+
         return CreateFixableDiagnosticForSpan(diagnosticLevel, nameSpan, codeFix, name);
     }
 

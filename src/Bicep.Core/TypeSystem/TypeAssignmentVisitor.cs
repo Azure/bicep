@@ -2078,7 +2078,7 @@ namespace Bicep.Core.TypeSystem
                 var expressionType = this.typeManager.GetTypeInfo(decoratorSyntax.Expression);
                 CollectErrors(errors, expressionType);
             }
-            
+
             diagnostics.WriteMultiple(errors);
 
             // There must exist at least one decorator for MissingDeclarationSyntax.
