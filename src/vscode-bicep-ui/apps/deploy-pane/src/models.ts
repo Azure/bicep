@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+
 import type { ErrorResponse } from "@azure/arm-resources";
 
 type DeploymentScopeBase<T> = {

@@ -2,6 +2,7 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "lint": {},
+    "lint:fix": {},
     "test": {
       "inputs": ["vite.config.ts", "src/**/*.test.ts", "src/**/*.test.tsx"]
     },

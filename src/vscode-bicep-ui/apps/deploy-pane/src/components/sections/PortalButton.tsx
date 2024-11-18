@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import { Codicon } from "@vscode-bicep-ui/components";
 import type { DeploymentScope } from "../../models";
 

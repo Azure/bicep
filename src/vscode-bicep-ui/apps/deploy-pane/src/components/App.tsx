@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import type { FC } from "react";
 import type { ParamData } from "../models";
 

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+
 import type { AccessToken } from "@azure/identity";
 import type { TelemetryProperties } from "@microsoft/vscode-azext-utils";
 import type { LocalDeployResponse, VscodeMessage } from "../../messages";

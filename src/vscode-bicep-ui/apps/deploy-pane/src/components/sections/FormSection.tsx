@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import type { FC, PropsWithChildren } from "react";
 
 import { VscodeDivider } from "@vscode-elements/react-elements";
