@@ -92,12 +92,12 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
             }
         };
 
-        if (response.Error.InnerError?.ToJsonString() is {} innerError)
+        if (response.Error.InnerError?.ToJsonString() is { } innerError)
         {
             errorData.Error.InnerError = innerError;
         }
 
-        if (Convert(response.Error.Details) is {} errorDetails)
+        if (Convert(response.Error.Details) is { } errorDetails)
         {
             errorData.Error.Details.AddRange(errorDetails);
         }

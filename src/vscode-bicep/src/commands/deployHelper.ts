@@ -8,7 +8,7 @@ let _outputChannelManager: OutputChannelManager;
 export async function writeDeploymentOutputMessageToBicepOperationsOutputChannel(outputMessage: string) {
   if (_outputChannelManager) {
     // Currently getting messages like this for failed deployments:
-    // 
+    //
     //   11:53:56 AM: Deployment failed for main.bicep. At least one resource deployment operation failed...
     //   Status: 200 (OK)
     //   ErrorCode: DeploymentFailed

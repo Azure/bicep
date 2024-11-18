@@ -55,7 +55,10 @@ export function useAzure(props: UseAzureProps) {
   async function doDeploymentOperation(
     scope: DeploymentScope,
     deploymentName: string | undefined,
-    operation: (armClient: ResourceManagementClient, deployment: Deployment) => Promise<{ success: boolean, error?: ErrorResponse}>,
+    operation: (
+      armClient: ResourceManagementClient,
+      deployment: Deployment,
+    ) => Promise<{ success: boolean; error?: ErrorResponse }>,
   ) {
     if (!templateMetadata) {
       return;

@@ -201,7 +201,8 @@ public class ProviderExtensionTests : TestBase
         Protocol.Error error = new("SomeErrorCode", "SomeTarget", "SomeMessage", null, null);
         handlerMock.SetupCreateOrUpdate(req => new(null, new(error)));
 
-        var response = await client.CreateOrUpdateAsync(new() {
+        var response = await client.CreateOrUpdateAsync(new()
+        {
             Type = "mockResource",
             Properties = """
 {}

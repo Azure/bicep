@@ -8,8 +8,8 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Extensions;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
@@ -202,7 +202,7 @@ namespace Bicep.Core.Registry
             {
                 throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
             }
-            
+
             return path;
         }
 
@@ -229,7 +229,7 @@ namespace Bicep.Core.Registry
             => TryGetFileUri(reference, path) ?? throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
 
         private Uri? TryGetFileUri(LocalModuleReference reference, string path)
-            => TryGetArtifactDirectoryPath(reference) is {} directoryPath ? 
+            => TryGetArtifactDirectoryPath(reference) is { } directoryPath ?
             new(FileSystem.Path.Combine(directoryPath, path), UriKind.Absolute) :
             null;
     }

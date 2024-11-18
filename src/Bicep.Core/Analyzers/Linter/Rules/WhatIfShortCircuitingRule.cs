@@ -50,7 +50,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             foreach (var module in model.Root.ModuleDeclarations)
             {
-                if (module.DeclaringSyntax is ModuleDeclarationSyntax moduleSyntax &&  module.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel) && moduleSemanticModel is SemanticModel semanticModel)
+                if (module.DeclaringSyntax is ModuleDeclarationSyntax moduleSyntax && module.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel) && moduleSemanticModel is SemanticModel semanticModel)
                 {
                     var moduleParamsPropertyObject = moduleSyntax.TryGetBody()?
                                     .TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName);
@@ -126,7 +126,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static bool IsDeployTimeConstant(ObjectPropertySyntax syntax, SemanticModel model, ResourceTypeResolver resolver)
         {
             var diagWriter = ToListDiagnosticWriter.Create();
-            DeployTimeConstantValidator.CheckDeployTimeConstantViolations(syntax, syntax.Value, model, diagWriter, resolver); 
+            DeployTimeConstantValidator.CheckDeployTimeConstantViolations(syntax, syntax.Value, model, diagWriter, resolver);
 
             return diagWriter.GetDiagnostics().Count == 0;
         }

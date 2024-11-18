@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { VscodeProgressRing, VscodeButton, VscodeIcon } from "@vscode-elements/react-elements";
+import { VscodeButton, VscodeIcon, VscodeProgressRing } from "@vscode-elements/react-elements";
 import { FC, useState } from "react";
 
 import "./index.css";

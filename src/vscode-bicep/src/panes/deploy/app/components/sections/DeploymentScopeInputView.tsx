@@ -6,7 +6,7 @@ import {
   VscodeTable,
   VscodeTableBody,
   VscodeTableCell,
-  VscodeTableRow
+  VscodeTableRow,
 } from "@vscode-elements/react-elements";
 import { FC } from "react";
 import { DeploymentScope } from "../../../models";
