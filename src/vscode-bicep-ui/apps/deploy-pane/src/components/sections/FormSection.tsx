@@ -3,9 +3,9 @@
 
 import type { FC, PropsWithChildren } from "react";
 
+import { Codicon } from "@vscode-bicep-ui/components";
 import { VscodeDivider } from "@vscode-elements/react-elements";
 import { useState } from "react";
-import { Codicon } from "@vscode-bicep-ui/components";
 
 type FormSectionProps = PropsWithChildren<{
   title: string;

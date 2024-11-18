@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Codicon } from "@vscode-bicep-ui/components";
 import type { DeploymentScope } from "../../models";
+
+import { Codicon } from "@vscode-bicep-ui/components";
 
 interface PortalButtonProps {
   scope: DeploymentScope;
