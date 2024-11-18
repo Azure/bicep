@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { ErrorResponse } from "@azure/arm-resources";
+
+import type { ErrorResponse } from "@azure/arm-resources";
+import type { FC } from "react";
+import type { DeploymentScope, DeployState } from "../../models";
+
 import {
   VscodeBadge,
   VscodeCheckbox,
@@ -10,8 +14,7 @@ import {
   VscodeTableCell,
   VscodeTableRow,
 } from "@vscode-elements/react-elements";
-import { FC, useState } from "react";
-import { DeploymentScope, DeployState } from "../../../models";
+import { useState } from "react";
 import { getDeploymentResourceId } from "../hooks/useAzure";
 import { getPreformattedJson } from "../utils";
 import { FormSection } from "./FormSection";
@@ -23,11 +26,11 @@ interface ResultsViewProps {
 }
 
 export const ResultsView: FC<ResultsViewProps> = ({ deployState, scope }) => {
+  const [showJson, setShowJson] = useState(false);
+
   if (!deployState.status) {
     return null;
   }
-
-  const [showJson, setShowJson] = useState(false);
 
   return (
     <FormSection title="Result">

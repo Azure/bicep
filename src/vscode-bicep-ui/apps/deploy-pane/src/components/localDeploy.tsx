@@ -1,5 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+import type { FC } from "react";
+import type { LocalDeploymentOperationContent, LocalDeployResponse } from "../messages";
+
 import {
   VscodeTable,
   VscodeTableBody,
@@ -8,8 +12,6 @@ import {
   VscodeTableHeaderCell,
   VscodeTableRow,
 } from "@vscode-elements/react-elements";
-import { FC } from "react";
-import { LocalDeploymentOperationContent, LocalDeployResponse } from "../../../../language";
 import { FormSection } from "./sections/FormSection";
 import { getPreformattedJson } from "./utils";
 

@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { DeploymentOperation } from "@azure/arm-resources";
+
+import type { DeploymentOperation } from "@azure/arm-resources";
+import type { FC } from "react";
+import type { DeploymentScope } from "../../models";
+
 import {
   VscodeProgressRing,
   VscodeTable,
@@ -10,8 +14,6 @@ import {
   VscodeTableHeaderCell,
   VscodeTableRow,
 } from "@vscode-elements/react-elements";
-import { FC } from "react";
-import { DeploymentScope } from "../../../models";
 import { getPreformattedJson, isFailed, isInProgress } from "../utils";
 import { FormSection } from "./FormSection";
 import { PortalButton } from "./PortalButton";
@@ -76,7 +78,7 @@ function getResourceNameContents(scope: DeploymentScope, operation: DeploymentOp
   );
 }
 
-export function getPortalLinkButton(scope: DeploymentScope, operation: DeploymentOperation) {
+function getPortalLinkButton(scope: DeploymentScope, operation: DeploymentOperation) {
   const { targetResource, provisioningOperation } = operation.properties ?? {};
   if (!targetResource || !targetResource.id || !targetResource.resourceType) {
     return;

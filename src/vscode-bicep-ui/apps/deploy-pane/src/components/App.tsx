@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { VscodeButton, VscodeIcon, VscodeProgressRing } from "@vscode-elements/react-elements";
-import { FC, useState } from "react";
 
-import "./index.css";
+import type { FC } from "react";
+import type { ParamData } from "../models";
 
-import { ParamData } from "../../models";
+import { Codicon } from "@vscode-bicep-ui/components";
+import { VscodeButton, VscodeProgressRing } from "@vscode-elements/react-elements";
+import { useState } from "react";
 import { useAzure } from "./hooks/useAzure";
 import { useMessageHandler } from "./hooks/useMessageHandler";
 import { LocalDeployOperations, LocalDeployOutputs, LocalDeployResult } from "./localDeploy";
@@ -76,7 +77,7 @@ export const App: FC = () => {
         <>
           <FormSection title="Experimental Warning">
             <div className="alert-error">
-              <VscodeIcon name="beaker" size={14} />
+              <Codicon name="beaker" size={14} />
               The Bicep Deployment Pane is an experimental feature.
               <br />
               Documentation is available{" "}
@@ -98,7 +99,7 @@ export const App: FC = () => {
           <FormSection title="Actions">
             {errorMessage && (
               <div className="alert-error">
-                <VscodeIcon name="error" size={14} />
+                <Codicon name="error" size={14} />
                 {errorMessage}
               </div>
             )}
@@ -130,7 +131,7 @@ export const App: FC = () => {
         <>
           <FormSection title="Experimental Warning">
             <div className="alert-error">
-              <VscodeIcon name="error" size={14} />
+              <Codicon name="error" size={14} />
               Local Deployment is an experimental feature.
             </div>
           </FormSection>
@@ -148,7 +149,7 @@ export const App: FC = () => {
               <FormSection title="Actions">
                 {errorMessage && (
                   <div className="alert-error">
-                    <VscodeIcon name="error" size={14} />
+                    <Codicon name="error" size={14} />
                     {errorMessage}
                   </div>
                 )}

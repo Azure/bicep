@@ -1,5 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+import type { FC } from "react";
+import type { ParamData, ParamDefinition } from "../models";
+
 import {
   VscodeButton,
   VscodeCheckbox,
@@ -9,8 +13,6 @@ import {
   VscodeTextarea,
   VscodeTextfield,
 } from "@vscode-elements/react-elements";
-import { FC } from "react";
-import { ParamData, ParamDefinition } from "../../models";
 
 interface ParamInputBoxProps {
   definition: ParamDefinition;

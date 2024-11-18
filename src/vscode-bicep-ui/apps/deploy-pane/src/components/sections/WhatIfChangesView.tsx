@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { WhatIfChange, WhatIfPropertyChange } from "@azure/arm-resources";
+
+import type { WhatIfChange, WhatIfPropertyChange } from "@azure/arm-resources";
+import type { FC } from "react";
+
 import {
   VscodeTable,
   VscodeTableBody,
@@ -9,7 +12,6 @@ import {
   VscodeTableHeaderCell,
   VscodeTableRow,
 } from "@vscode-elements/react-elements";
-import { FC } from "react";
 import { FormSection } from "./FormSection";
 
 interface WhatIfChangesViewProps {

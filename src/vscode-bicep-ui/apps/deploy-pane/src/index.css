@@ -6,7 +6,7 @@ body {
 #webview-body {
   max-width: 1024px;
   min-width: 500px;
-  overflow: scroll;
+  overflow: auto;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -82,7 +82,7 @@ vscode-button {
   width: auto;
 }
 
-.code-wrapped { 
+.code-wrapped {
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-x: auto;

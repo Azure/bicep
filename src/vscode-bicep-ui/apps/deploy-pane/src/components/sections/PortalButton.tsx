@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { VscodeIcon } from "@vscode-elements/react-elements";
-import { DeploymentScope } from "../../../models";
+
+import type { DeploymentScope } from "../../models";
+
+import { Codicon } from "@vscode-bicep-ui/components";
 
 interface PortalButtonProps {
   scope: DeploymentScope;
@@ -25,7 +27,7 @@ export function PortalButton(props: PortalButtonProps) {
 
   return (
     <a style={{ verticalAlign: "middle" }} title="Open in Portal" href={`${portalResourceUrl}`}>
-      <VscodeIcon name="globe" size={12} style={{ color: "inherit" }} />
+      <Codicon name="globe" size={12} />
     </a>
   );
 }
