@@ -4,6 +4,7 @@
 import type { ErrorResponse } from "@azure/arm-resources";
 
 type DeploymentScopeBase<T> = {
+  armUrl: string;
   portalUrl: string;
   tenantId: string;
 } & T;

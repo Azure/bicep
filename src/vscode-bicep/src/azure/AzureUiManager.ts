@@ -25,6 +25,7 @@ export class AzureUiManager implements IAzureUiManager {
 
         return {
           scopeType,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
           portalUrl: subscription.environment.portalUrl,
           tenantId: subscription.tenantId,
           subscriptionId: subscription.subscriptionId,
@@ -36,6 +37,7 @@ export class AzureUiManager implements IAzureUiManager {
         const location = await this.azurePickers.pickLocation(this.context, subscription);
         return {
           scopeType,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
           portalUrl: subscription.environment.portalUrl,
           tenantId: subscription.tenantId,
           subscriptionId: subscription.subscriptionId,
@@ -50,6 +52,7 @@ export class AzureUiManager implements IAzureUiManager {
 
         return {
           scopeType,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
           portalUrl: subscription.environment.portalUrl,
           tenantId: subscription.tenantId,
           managementGroup: nonNullProp(managementGroup, "name"),
@@ -64,6 +67,7 @@ export class AzureUiManager implements IAzureUiManager {
 
         return {
           scopeType,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
           portalUrl: subscription.environment.portalUrl,
           tenantId: subscription.tenantId,
           associatedSubscriptionId: subscription.subscriptionId,
