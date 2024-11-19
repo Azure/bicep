@@ -45,6 +45,7 @@ export function useAzure(props: UseAzureProps) {
       userAgentOptions: {
         userAgentPrefix: "bicepdeploypane",
       },
+      endpoint: scope.armUrl,
     });
   }
 

@@ -3,6 +3,7 @@
 import { AccessToken } from "@azure/identity";
 
 type DeploymentScopeBase<T> = {
+  armUrl: string;
   portalUrl: string;
   tenantId: string;
 } & T;
