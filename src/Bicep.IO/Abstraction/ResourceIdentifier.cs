@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Bicep.IO.Abstraction
 {
     /// <summary>
-    /// A ResourceIdentifier is a RFC3986 URI with absolute path and without the query and fragment components.
+    /// A ResourceIdentifier is a RFC3986 URI with absolute path.
     /// </summary>
     public readonly struct ResourceIdentifier : IEquatable<ResourceIdentifier>
     {
@@ -25,7 +25,7 @@ namespace Bicep.IO.Abstraction
             public static StringComparison FilePathComparison => FilePathCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
         }
 
-        public ResourceIdentifier(string scheme, string authority, string path)
+        public ResourceIdentifier(string scheme, string? authority, string path, string? query = null, string? fragment = null)
         {
             if (!path.StartsWith('/'))
             {
@@ -35,6 +35,8 @@ namespace Bicep.IO.Abstraction
             this.Scheme = scheme;
             this.Authority = authority;
             this.Path = CanonicalizePath(path);
+            this.Query = query;
+            this.Fragment = fragment;
         }
 
         public string Scheme { get; }
@@ -42,6 +44,10 @@ namespace Bicep.IO.Abstraction
         public string? Authority { get; }
 
         public string Path { get; }
+
+        public string? Query { get; }
+
+        public string? Fragment { get; }
 
         public bool IsFile => this.Scheme.Equals("file", StringComparison.OrdinalIgnoreCase);
 
