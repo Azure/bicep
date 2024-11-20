@@ -23,16 +23,6 @@
         "resolved": "3.3.4",
         "contentHash": "0k2Jwpc8eq0hjOtX6TxRkHm9clkJ2PAQ3heEHgqIJZcsfdFosC/iyz18nsgTVDDWpID80rC7aiYK7ripx+Qndg=="
       },
-      "Microsoft.NET.Test.Sdk": {
-        "type": "Direct",
-        "requested": "[17.11.1, )",
-        "resolved": "17.11.1",
-        "contentHash": "U3Ty4BaGoEu+T2bwSko9tWqWUOU16WzSFkq6U8zve75oRBMSLTBdMAZrVNNz1Tq12aCdDom9fcOcM9QZaFHqFg==",
-        "dependencies": {
-          "Microsoft.CodeCoverage": "17.11.1",
-          "Microsoft.TestPlatform.TestHost": "17.11.1"
-        }
-      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[8.0.0, )",
@@ -428,11 +418,6 @@
         "resolved": "8.0.0",
         "contentHash": "bZKfSIKJRXLTuSzLudMFte/8CempWjVamNUR5eHJizsy+iuOuO/k2gnh7W0dHJmYY0tBf+gUErfluCv5mySAOQ=="
       },
-      "Microsoft.CodeCoverage": {
-        "type": "Transitive",
-        "resolved": "17.11.1",
-        "contentHash": "nPJqrcA5iX+Y0kqoT3a+pD/8lrW/V7ayqnEJQsTonSoPz59J8bmoQhcSN4G8+UJ64Hkuf0zuxnfuj2lkHOq4cA=="
-      },
       "Microsoft.Diagnostics.Tracing.EventRegister": {
         "type": "Transitive",
         "resolved": "1.1.28",
@@ -723,15 +708,6 @@
         "contentHash": "E2jZqAU6JeWEVsyOEOrSW1o1bpHLgb25ypvKNB/moBXPVsFYBPd/Jwi7OrYahG50J83LfHzezYI+GaEkpAotiA==",
         "dependencies": {
           "System.Reflection.Metadata": "1.6.0"
-        }
-      },
-      "Microsoft.TestPlatform.TestHost": {
-        "type": "Transitive",
-        "resolved": "17.11.1",
-        "contentHash": "DnG+GOqJXO/CkoqlJWeDFTgPhqD/V6VqUIL3vINizCWZ3X+HshCtbbyDdSHQQEjrc2Sl/K3yaxX6s+5LFEdYuw==",
-        "dependencies": {
-          "Microsoft.TestPlatform.ObjectModel": "17.11.1",
-          "Newtonsoft.Json": "13.0.1"
         }
       },
       "Microsoft.VisualStudio.Threading": {
@@ -1643,7 +1619,7 @@
           "FluentAssertions": "[6.12.1, )",
           "MSTest.TestAdapter": "[3.6.2, )",
           "MSTest.TestFramework": "[3.6.2, )",
-          "Microsoft.NET.Test.Sdk": "[17.11.1, )",
+          "Microsoft.NET.Test.Sdk": "[17.12.0, )",
           "bicep": "[1.0.0, )"
         }
       },
@@ -1655,7 +1631,7 @@
           "FluentAssertions": "[6.12.1, )",
           "MSTest.TestAdapter": "[3.6.2, )",
           "MSTest.TestFramework": "[3.6.2, )",
-          "Microsoft.NET.Test.Sdk": "[17.11.1, )"
+          "Microsoft.NET.Test.Sdk": "[17.12.0, )"
         }
       },
       "bicep.core.unittests": {
@@ -1668,7 +1644,7 @@
           "JsonDiffPatch.Net": "[2.3.0, )",
           "MSTest.TestAdapter": "[3.6.2, )",
           "MSTest.TestFramework": "[3.6.2, )",
-          "Microsoft.NET.Test.Sdk": "[17.11.1, )",
+          "Microsoft.NET.Test.Sdk": "[17.12.0, )",
           "Moq": "[4.20.72, )",
           "Newtonsoft.Json.Schema": "[4.0.1, )",
           "RichardSzalay.MockHttp": "[7.0.0, )",

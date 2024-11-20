@@ -13,15 +13,15 @@
     </PackageReference>
     <PackageReference Include="Microsoft.IO.Redist" Version="6.0.1" />
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.11.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.ServiceHub.Framework" Version="4.7.36" />
+    <PackageReference Include="Microsoft.ServiceHub.Framework" Version="4.7.20" />
     <PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.12.18" />
     <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.12.48" />
     <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
     <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.11.2177" />
     <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.12.40391" />
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40392" />
-    <PackageReference Include="Microsoft.Visualstudio.Telemetry" Version="17.2.48" />
-    <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40392" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
+    <PackageReference Include="Microsoft.Visualstudio.Telemetry" Version="17.6.20" />
+    <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
