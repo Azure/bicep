@@ -31,6 +31,12 @@
         "resolved": "8.0.11",
         "contentHash": "zk5lnZrYJgtuJG8L4v17Ej8rZ3PUcR2iweNV08BaO5LbYHIi2wNaVNcJoLxvqgQdnjLlKnCCfVGLDr6QHeAarQ=="
       },
+      "Microsoft.PerformanceUtilities": {
+        "type": "Direct",
+        "requested": "[0.7.2, )",
+        "resolved": "0.7.2",
+        "contentHash": "DC3HRw61bB0VR25aXcC/vFSS9LJ8eA20swuJCjo1R2lqtvAWy68IxCdbGERMY4KkSejXJtdbH8ZUJy+BE/pg0g=="
+      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[8.0.0, )",

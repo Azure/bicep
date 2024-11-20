@@ -638,6 +638,11 @@
         "resolved": "1.1.3",
         "contentHash": "3Wrmi0kJDzClwAC+iBdUBpEKmEle8FQNsCs77fkiOIw/9oYA07bL1EZNX0kQ2OMN3xpwvl0vAtOCYY3ndDNlhQ=="
       },
+      "Microsoft.PerformanceUtilities": {
+        "type": "Transitive",
+        "resolved": "0.7.2",
+        "contentHash": "DC3HRw61bB0VR25aXcC/vFSS9LJ8eA20swuJCjo1R2lqtvAWy68IxCdbGERMY4KkSejXJtdbH8ZUJy+BE/pg0g=="
+      },
       "Microsoft.PowerPlatform.ResourceStack": {
         "type": "Transitive",
         "resolved": "7.0.0.2076",
@@ -1514,6 +1519,7 @@
           "Azure.Bicep.Local.Deploy": "[1.0.0, )",
           "Microsoft.Extensions.Logging": "[8.0.1, )",
           "Microsoft.NET.ILLink.Tasks": "[8.0.11, )",
+          "Microsoft.PerformanceUtilities": "[0.7.2, )",
           "Sarif.Sdk": "[4.5.4, )",
           "StreamJsonRpc": "[2.20.17, )"
         }

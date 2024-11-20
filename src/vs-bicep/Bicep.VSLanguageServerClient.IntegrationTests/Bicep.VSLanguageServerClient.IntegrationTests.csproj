@@ -32,6 +32,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
 		<PackageReference Include="MSTest.TestAdapter" Version="3.6.3" />
 		<PackageReference Include="MSTest.TestFramework" Version="3.6.3" />
+		<PackageReference Include="Microsoft.PerformanceUtilities" Version="0.7.2" />
 	</ItemGroup>
 
 	<ItemGroup>
