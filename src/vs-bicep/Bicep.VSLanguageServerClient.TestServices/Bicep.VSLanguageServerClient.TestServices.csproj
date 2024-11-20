@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.12.40391" />
     <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.1.11-preview-0002" />
+    <!-- <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.12.18" /> -->
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />
 
   </ItemGroup>
