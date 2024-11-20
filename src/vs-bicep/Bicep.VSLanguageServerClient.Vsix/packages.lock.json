@@ -1867,6 +1867,12 @@
           "OmniSharp.Extensions.LanguageServer": "[0.19.9, )",
           "System.Text.Json": "[8.0.5, )"
         }
+      },
+      "bicep.vslanguageserverclient.itemtemplate": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.VisualStudio.CoreUtility": "[17.11.260, )"
+        }
       }
     },
     ".NETFramework,Version=v4.7.2/linux-arm64": {
