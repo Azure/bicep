@@ -41,18 +41,18 @@
       },
       "Microsoft.ServiceHub.Framework": {
         "type": "Direct",
-        "requested": "[4.6.13, )",
-        "resolved": "4.6.13",
-        "contentHash": "W7apHuHE9OyoeiZOAYrsUf0NiOciKRpiCBqZaVEqUTK9kZCe2D0fZHQrj4uxaaT2FXuvAyHD0ppbUoPANplmLQ==",
+        "requested": "[4.7.19, )",
+        "resolved": "4.7.36",
+        "contentHash": "q0Zt9MqueeVHE5rIF5E7S5hdMDmjAMgVGcZbaw8dDZ+wHu8p6cOgEazgDt3zerFEQf+fiNVoNNw3d2Puk14tyg==",
         "dependencies": {
-          "Microsoft.ServiceHub.Analyzers": "4.6.13",
-          "Microsoft.VisualStudio.Composition": "17.6.17",
+          "Microsoft.ServiceHub.Analyzers": "4.7.36",
+          "Microsoft.VisualStudio.Composition": "17.12.18",
           "Microsoft.VisualStudio.Threading": "17.10.48",
           "Microsoft.VisualStudio.Validation": "17.8.8",
-          "Nerdbank.Streams": "2.10.69",
-          "StreamJsonRpc": "2.16.41",
-          "System.Collections.Immutable": "7.0.0",
-          "System.Text.Json": "7.0.3"
+          "Nerdbank.Streams": "2.11.79",
+          "StreamJsonRpc": "2.20.11",
+          "System.Collections.Immutable": "8.0.0",
+          "System.Text.Json": "8.0.3"
         }
       },
       "Microsoft.SourceLink.GitHub": {
@@ -97,7 +97,7 @@
         "resolved": "17.10.191",
         "contentHash": "XiXJJcZ9zxqYXpb8/l/RksNr/X3kFV7v6RhiBlRYPZbDQs8kCiMiFIQ4lBbEzCWVYr2D76bAxO/rosnWZkBVvA==",
         "dependencies": {
-          "Microsoft.ServiceHub.Framework": "4.7.36",
+          "Microsoft.ServiceHub.Framework": "4.5.31",
           "Microsoft.VisualStudio.ComponentModelHost": "17.10.149",
           "Microsoft.VisualStudio.Composition": "17.10.31",
           "Microsoft.VisualStudio.CoreUtility": "17.10.191",
@@ -145,8 +145,8 @@
           "Microsoft.Build.Framework": "17.11.2",
           "Microsoft.IO.Redist": "6.0.0",
           "Microsoft.NET.StringTools": "17.11.2",
-          "Microsoft.ServiceHub.Analyzers": "4.7.36",
-          "Microsoft.ServiceHub.Framework": "4.7.36",
+          "Microsoft.ServiceHub.Analyzers": "4.7.19",
+          "Microsoft.ServiceHub.Framework": "4.7.19",
           "Microsoft.ServiceHub.Resources": "4.4.10157",
           "Microsoft.VisualStudio.Composition": "17.11.13",
           "Microsoft.VisualStudio.Composition.Analyzers": "17.11.13",
@@ -208,7 +208,7 @@
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.IO.Redist": "6.0.0",
           "Microsoft.NET.StringTools": "17.11.2",
-          "Microsoft.ServiceHub.Framework": "4.7.36",
+          "Microsoft.ServiceHub.Framework": "4.7.19",
           "Microsoft.ServiceHub.Resources": "4.4.10157",
           "Microsoft.VisualStudio.Composition": "17.11.13",
           "Microsoft.VisualStudio.Composition.Analyzers": "17.11.13",
@@ -465,8 +465,8 @@
       },
       "Microsoft.ServiceHub.Analyzers": {
         "type": "Transitive",
-        "resolved": "4.6.13",
-        "contentHash": "tUwmkD6SPEPt5IZxS3BfCzQoKbz42aUksqX/Hx9KTCPnFqVm3g7RG8/USd4b4kJGC4C5BhVc0c4jA6GTPcnSeQ=="
+        "resolved": "4.7.36",
+        "contentHash": "9rBj1R2v7hpl3x+VPl3KtdAOE4i48VVqObBGDbOpsJavdjS+ob1eQLfqduCZySRMFXFWFlpuEgsPFRKUG9/rmA=="
       },
       "Microsoft.ServiceHub.Resources": {
         "type": "Transitive",
@@ -521,7 +521,7 @@
         "resolved": "17.10.191",
         "contentHash": "ulSQoXRQrzSzSz/hlpuB4S7JAnk7F27QKH531jvVaPZ5gKUr/oKiD1AaLVO75oh3SK8AAJ13VZjsAzwJjZKRAw==",
         "dependencies": {
-          "Microsoft.ServiceHub.Framework": "4.7.36",
+          "Microsoft.ServiceHub.Framework": "4.5.31",
           "Microsoft.VisualStudio.Composition": "17.10.31",
           "Microsoft.VisualStudio.RpcContracts": "17.10.21",
           "Microsoft.VisualStudio.Threading": "17.10.41",
@@ -565,8 +565,8 @@
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.IO.Redist": "6.0.0",
           "Microsoft.NET.StringTools": "17.10.4",
-          "Microsoft.ServiceHub.Analyzers": "4.7.36",
-          "Microsoft.ServiceHub.Framework": "4.7.36",
+          "Microsoft.ServiceHub.Analyzers": "4.5.31",
+          "Microsoft.ServiceHub.Framework": "4.5.31",
           "Microsoft.ServiceHub.Resources": "4.4.7109",
           "Microsoft.VisualStudio.Composition": "17.10.37",
           "Microsoft.VisualStudio.Composition.Analyzers": "17.10.37",
@@ -689,7 +689,7 @@
         "resolved": "17.11.8",
         "contentHash": "heVS0DxHbin8ZsjjcjiLuBfjsDvmvIjYsjcbImmsclEmRke4yLgwCFdcUaAMoAzV9jZ7Df/Ae7GUszTE6mUwog==",
         "dependencies": {
-          "Microsoft.ServiceHub.Framework": "4.7.36",
+          "Microsoft.ServiceHub.Framework": "4.5.35",
           "System.Threading.Tasks.Dataflow": "7.0.0"
         }
       },
@@ -714,8 +714,8 @@
           "Microsoft.Build.Framework": "17.10.4",
           "Microsoft.IO.Redist": "6.0.0",
           "Microsoft.NET.StringTools": "17.10.4",
-          "Microsoft.ServiceHub.Analyzers": "4.7.36",
-          "Microsoft.ServiceHub.Framework": "4.7.36",
+          "Microsoft.ServiceHub.Analyzers": "4.5.31",
+          "Microsoft.ServiceHub.Framework": "4.5.31",
           "Microsoft.ServiceHub.Resources": "4.4.7109",
           "Microsoft.VisualStudio.ComponentModelHost": "17.10.191",
           "Microsoft.VisualStudio.Composition": "17.10.37",
@@ -916,8 +916,8 @@
       },
       "Nerdbank.Streams": {
         "type": "Transitive",
-        "resolved": "2.11.74",
-        "contentHash": "r4G7uHHfoo8LCilPOdtf2C+Q5ymHOAXtciT4ZtB2xRlAvv4gPkWBYNAijFblStv3+uidp81j5DP11jMZl4BfJw==",
+        "resolved": "2.11.79",
+        "contentHash": "eF4uizOaGqde/sTA8pDf+fUMHrca4OKpIHbduBgYFRy/Sme8PMHDdZedfkDjBLlmyk7h2aYIiDXv+dE6lCb7Mg==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
           "Microsoft.VisualStudio.Threading": "17.10.48",
@@ -985,8 +985,8 @@
       },
       "StreamJsonRpc": {
         "type": "Transitive",
-        "resolved": "2.19.27",
-        "contentHash": "om/+aUQ+OAskHf6Tl8Jgg4+/2P/P5ZDzn9/epiLHmxB/0HaBa8Jebaj3pdPu5o2kAbM9SZblwx8xbwMeeevntw==",
+        "resolved": "2.20.17",
+        "contentHash": "AOVxkrwRqe7lPUDhYRMnaSSupdk8lxiHyXuoL+bZzUdzaA2Fnle+Os/gWGEGRGah1CTMmm5vdv9TyimCThXzoQ==",
         "dependencies": {
           "MessagePack": "2.5.108",
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",

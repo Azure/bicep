@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.IO.Redist" Version="6.0.1" />
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.11.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="Microsoft.ServiceHub.Framework" Version="4.6.13" />
+    <PackageReference Include="Microsoft.ServiceHub.Framework" Version="4.7.19" />
     <PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.11.35222.181" />
     <PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.11.13" />
     <PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.10.191" />
