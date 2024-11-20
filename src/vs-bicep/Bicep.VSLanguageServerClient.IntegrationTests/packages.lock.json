@@ -41,11 +41,27 @@
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
-        "requested": "[17.11.1, )",
-        "resolved": "17.11.1",
-        "contentHash": "U3Ty4BaGoEu+T2bwSko9tWqWUOU16WzSFkq6U8zve75oRBMSLTBdMAZrVNNz1Tq12aCdDom9fcOcM9QZaFHqFg==",
+        "requested": "[17.12.0, )",
+        "resolved": "17.12.0",
+        "contentHash": "kt/PKBZ91rFCWxVIJZSgVLk+YR+4KxTuHf799ho8WNiK5ZQpJNAEZCAWX86vcKrs+DiYjiibpYKdGZP6+/N17w==",
         "dependencies": {
-          "Microsoft.CodeCoverage": "17.11.1"
+          "Microsoft.CodeCoverage": "17.12.0"
+        }
+      },
+      "Microsoft.ServiceHub.Framework": {
+        "type": "Direct",
+        "requested": "[4.7.36, )",
+        "resolved": "4.7.36",
+        "contentHash": "q0Zt9MqueeVHE5rIF5E7S5hdMDmjAMgVGcZbaw8dDZ+wHu8p6cOgEazgDt3zerFEQf+fiNVoNNw3d2Puk14tyg==",
+        "dependencies": {
+          "Microsoft.ServiceHub.Analyzers": "4.7.36",
+          "Microsoft.VisualStudio.Composition": "17.12.18",
+          "Microsoft.VisualStudio.Threading": "17.10.48",
+          "Microsoft.VisualStudio.Validation": "17.8.8",
+          "Nerdbank.Streams": "2.11.79",
+          "StreamJsonRpc": "2.20.11",
+          "System.Collections.Immutable": "8.0.0",
+          "System.Text.Json": "8.0.3"
         }
       },
       "Microsoft.SourceLink.GitHub": {
@@ -90,7 +106,7 @@
         "resolved": "17.10.191",
         "contentHash": "XiXJJcZ9zxqYXpb8/l/RksNr/X3kFV7v6RhiBlRYPZbDQs8kCiMiFIQ4lBbEzCWVYr2D76bAxO/rosnWZkBVvA==",
         "dependencies": {
-          "Microsoft.ServiceHub.Framework": "4.5.31",
+          "Microsoft.ServiceHub.Framework": "4.7.36",
           "Microsoft.VisualStudio.ComponentModelHost": "17.10.149",
           "Microsoft.VisualStudio.Composition": "17.10.31",
           "Microsoft.VisualStudio.CoreUtility": "17.10.191",
@@ -186,9 +202,9 @@
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Direct",
-        "requested": "[17.11.20, )",
-        "resolved": "17.11.20",
-        "contentHash": "yI80R8Ja4ipU7/fyVAMCu0oGTN/u97OgL99gd/8ycGnCF58Kn93iBU3T7rkxGMnlsHf5vEgRu95dujtYcgwf9Q=="
+        "requested": "[17.12.19, )",
+        "resolved": "17.12.19",
+        "contentHash": "v3IYeedjoktvZ+GqYmLudxZJngmf/YWIxNT2Uy6QMMN19cvw+nkWoip1Gr1RtnFkUo1MPUVMis4C8Kj8d8DpSQ=="
       },
       "Microsoft.VisualStudio.Utilities": {
         "type": "Direct",
@@ -330,8 +346,8 @@
       },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
-        "resolved": "17.11.1",
-        "contentHash": "nPJqrcA5iX+Y0kqoT3a+pD/8lrW/V7ayqnEJQsTonSoPz59J8bmoQhcSN4G8+UJ64Hkuf0zuxnfuj2lkHOq4cA=="
+        "resolved": "17.12.0",
+        "contentHash": "4svMznBd5JM21JIG2xZKGNanAHNXplxf/kQDFfLHXQ3OnpJkayRK/TjacFjA+EYmoyuNXHo/sOETEfcYtAzIrA=="
       },
       "Microsoft.CSharp": {
         "type": "Transitive",
@@ -458,23 +474,8 @@
       },
       "Microsoft.ServiceHub.Analyzers": {
         "type": "Transitive",
-        "resolved": "4.6.13",
-        "contentHash": "tUwmkD6SPEPt5IZxS3BfCzQoKbz42aUksqX/Hx9KTCPnFqVm3g7RG8/USd4b4kJGC4C5BhVc0c4jA6GTPcnSeQ=="
-      },
-      "Microsoft.ServiceHub.Framework": {
-        "type": "Transitive",
-        "resolved": "4.6.13",
-        "contentHash": "W7apHuHE9OyoeiZOAYrsUf0NiOciKRpiCBqZaVEqUTK9kZCe2D0fZHQrj4uxaaT2FXuvAyHD0ppbUoPANplmLQ==",
-        "dependencies": {
-          "Microsoft.ServiceHub.Analyzers": "4.6.13",
-          "Microsoft.VisualStudio.Composition": "17.6.17",
-          "Microsoft.VisualStudio.Threading": "17.10.48",
-          "Microsoft.VisualStudio.Validation": "17.8.8",
-          "Nerdbank.Streams": "2.10.69",
-          "StreamJsonRpc": "2.16.41",
-          "System.Collections.Immutable": "7.0.0",
-          "System.Text.Json": "7.0.3"
-        }
+        "resolved": "4.7.36",
+        "contentHash": "9rBj1R2v7hpl3x+VPl3KtdAOE4i48VVqObBGDbOpsJavdjS+ob1eQLfqduCZySRMFXFWFlpuEgsPFRKUG9/rmA=="
       },
       "Microsoft.ServiceHub.Resources": {
         "type": "Transitive",
@@ -579,7 +580,7 @@
         "resolved": "17.10.191",
         "contentHash": "ulSQoXRQrzSzSz/hlpuB4S7JAnk7F27QKH531jvVaPZ5gKUr/oKiD1AaLVO75oh3SK8AAJ13VZjsAzwJjZKRAw==",
         "dependencies": {
-          "Microsoft.ServiceHub.Framework": "4.5.31",
+          "Microsoft.ServiceHub.Framework": "4.7.36",
           "Microsoft.VisualStudio.Composition": "17.10.31",
           "Microsoft.VisualStudio.RpcContracts": "17.10.21",
           "Microsoft.VisualStudio.Threading": "17.10.41",
@@ -623,8 +624,8 @@
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.IO.Redist": "6.0.0",
           "Microsoft.NET.StringTools": "17.10.4",
-          "Microsoft.ServiceHub.Analyzers": "4.5.31",
-          "Microsoft.ServiceHub.Framework": "4.5.31",
+          "Microsoft.ServiceHub.Analyzers": "4.7.36",
+          "Microsoft.ServiceHub.Framework": "4.7.36",
           "Microsoft.ServiceHub.Resources": "4.4.7109",
           "Microsoft.VisualStudio.Composition": "17.10.37",
           "Microsoft.VisualStudio.Composition.Analyzers": "17.10.37",
@@ -772,8 +773,8 @@
           "Microsoft.Build.Framework": "17.10.4",
           "Microsoft.IO.Redist": "6.0.0",
           "Microsoft.NET.StringTools": "17.10.4",
-          "Microsoft.ServiceHub.Analyzers": "4.5.31",
-          "Microsoft.ServiceHub.Framework": "4.5.31",
+          "Microsoft.ServiceHub.Analyzers": "4.7.36",
+          "Microsoft.ServiceHub.Framework": "4.7.36",
           "Microsoft.ServiceHub.Resources": "4.4.7109",
           "Microsoft.VisualStudio.ComponentModelHost": "17.10.191",
           "Microsoft.VisualStudio.Composition": "17.10.37",
@@ -986,8 +987,8 @@
       },
       "Nerdbank.Streams": {
         "type": "Transitive",
-        "resolved": "2.11.74",
-        "contentHash": "r4G7uHHfoo8LCilPOdtf2C+Q5ymHOAXtciT4ZtB2xRlAvv4gPkWBYNAijFblStv3+uidp81j5DP11jMZl4BfJw==",
+        "resolved": "2.11.79",
+        "contentHash": "eF4uizOaGqde/sTA8pDf+fUMHrca4OKpIHbduBgYFRy/Sme8PMHDdZedfkDjBLlmyk7h2aYIiDXv+dE6lCb7Mg==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
           "Microsoft.VisualStudio.Threading": "17.10.48",
@@ -1055,8 +1056,8 @@
       },
       "StreamJsonRpc": {
         "type": "Transitive",
-        "resolved": "2.19.27",
-        "contentHash": "om/+aUQ+OAskHf6Tl8Jgg4+/2P/P5ZDzn9/epiLHmxB/0HaBa8Jebaj3pdPu5o2kAbM9SZblwx8xbwMeeevntw==",
+        "resolved": "2.20.17",
+        "contentHash": "AOVxkrwRqe7lPUDhYRMnaSSupdk8lxiHyXuoL+bZzUdzaA2Fnle+Os/gWGEGRGah1CTMmm5vdv9TyimCThXzoQ==",
         "dependencies": {
           "MessagePack": "2.5.108",
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
@@ -1281,6 +1282,8 @@
         "dependencies": {
           "MessagePack": "[2.5.187, )",
           "Microsoft.IO.Redist": "[6.0.1, )",
+          "Microsoft.ServiceHub.Framework": "[4.7.36, )",
+          "Microsoft.VisualStudio.Composition": "[17.12.18, )",
           "Microsoft.VisualStudio.LanguageServer.Client": "[17.11.32, )",
           "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",
           "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.11.2177, )",
@@ -1298,7 +1301,8 @@
         "dependencies": {
           "Bicep.VSLanguageServerClient": "[1.0.0, )",
           "Microsoft.IO.Redist": "[6.0.1, )",
-          "Microsoft.NET.Test.Sdk": "[17.11.1, )",
+          "Microsoft.NET.Test.Sdk": "[17.12.0, )",
+          "Microsoft.ServiceHub.Framework": "[4.6.13, )",
           "Microsoft.Test.Apex.VisualStudio": "[17.11.35222.181, )",
           "Microsoft.VisualStudio.Composition": "[17.11.13, )",
           "Microsoft.VisualStudio.Editor": "[17.10.191, )",

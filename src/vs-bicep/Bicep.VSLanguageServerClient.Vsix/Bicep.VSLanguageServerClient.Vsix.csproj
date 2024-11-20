@@ -63,6 +63,12 @@
     <PackageReference Include="Microsoft.IO.Redist">
       <Version>6.0.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.ServiceHub.Framework">
+      <Version>4.7.36</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Composition">
+      <Version>17.12.18</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.SDK">
       <Version>17.11.40262</Version>
     </PackageReference>
