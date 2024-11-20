@@ -473,7 +473,7 @@ namespace Bicep.LanguageServer
             properties.Add("Resources", semanticModel.DeclaredResources.Length.ToString());
             properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
 
-            properties.Add("CharCount", bicepFile.GetOriginalSource().Length.ToString());
+            properties.Add("CharCount", bicepFile.Text.Length.ToString());
 
             var (errorsCount, warningsCount) = CountErrorsAndWarnings(diagnostics);
             properties.Add("LineCount", bicepFile.LineStarts.Length.ToString());

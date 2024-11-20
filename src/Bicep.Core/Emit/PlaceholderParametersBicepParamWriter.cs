@@ -22,7 +22,7 @@ namespace Bicep.Core.Emit
 
         public void Write(TextWriter writer, string existingContent)
         {
-            var bicepFileName = Path.GetFileName(semanticModel.SourceFile.FileUri.LocalPath);
+            var bicepFileName = Path.GetFileName(semanticModel.SourceFile.Identifier.LocalPath);
 
             var allParameterDeclarations = semanticModel.Root.ParameterDeclarations;
 

@@ -781,7 +781,7 @@ param |foo| string
             var bicepFile = SourceFileFactory.CreateBicepFile(new($"file:///{testContext.TestName}/path/to/main.bicep"), file);
 
             var helper = await DefaultServer.GetAsync();
-            await helper.OpenFileOnceAsync(testContext, file, bicepFile.FileUri);
+            await helper.OpenFileOnceAsync(testContext, file, bicepFile.Identifier);
 
             var results = await RequestDefinitions(helper.Client, bicepFile, cursors);
 
@@ -804,7 +804,7 @@ param |foo| string
                 services.WithFileResolver(fileResolver)));
 
             var helper = await server.GetAsync();
-            await helper.OpenFileOnceAsync(testContext, file, bicepFile.FileUri);
+            await helper.OpenFileOnceAsync(testContext, file, bicepFile.Identifier);
             var results = await RequestDefinitions(helper.Client, bicepFile, cursors);
 
             assertAction(results);
@@ -819,7 +819,7 @@ param |foo| string
             {
                 var result = await client.RequestDefinition(new DefinitionParams()
                 {
-                    TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                    TextDocument = new TextDocumentIdentifier(bicepFile.Identifier),
                     Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
                 });
 

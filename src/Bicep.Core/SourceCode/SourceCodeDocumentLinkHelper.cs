@@ -34,7 +34,7 @@ public static class SourceCodeDocumentLinkHelper
         foreach (var grouping in sourceFileGrouping.ArtifactLookup.Values.GroupBy(x => x.Origin))
         {
             var referencingFile = grouping.Key;
-            var referencingFileLineStarts = TextCoordinateConverter.GetLineStarts(referencingFile.GetOriginalSource());
+            var referencingFileLineStarts = TextCoordinateConverter.GetLineStarts(referencingFile.Text);
             var linksForReferencingFile = new List<SourceCodeDocumentUriLink>();
 
             foreach (var artifact in grouping)
@@ -50,7 +50,7 @@ public static class SourceCodeDocumentLinkHelper
                 }
             }
 
-            dictionary.Add(referencingFile.FileUri, [.. linksForReferencingFile]);
+            dictionary.Add(referencingFile.Identifier, [.. linksForReferencingFile]);
         }
 
         return dictionary.ToImmutableDictionary();
