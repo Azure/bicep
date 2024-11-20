@@ -491,8 +491,8 @@
       },
       "Microsoft.VisualStudio.CoreUtility": {
         "type": "Transitive",
-        "resolved": "17.12.170",
-        "contentHash": "KDXMbmJbbbNMTOAvEdGJ/02lbksM7DzkjJLprEvipTThZfsUNxhp9OpMrpC0wfMT68pA+O14UL8v5tpUzmkoQA==",
+        "resolved": "17.12.215",
+        "contentHash": "wSo+aObPUWcvA4c0KPxuHkTAVeciBDpQaoC2beVYiahiorFbhWH21fOL0lycs29nTHbn1taWVxevayjDeswG+g==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.VisualStudio.Threading": "17.12.14",
@@ -1176,11 +1176,11 @@
       },
       "Microsoft.VisualStudio.Text.Data": {
         "type": "Transitive",
-        "resolved": "17.12.170",
-        "contentHash": "J/s8RS67+QELZ6MLlTHCLONU4inEp7WPANDf2BqXiPJ0EF/kyKamyJsqpyBO/Avabs0JW2Tg8bJJX5yVxz5FXQ==",
+        "resolved": "17.12.215",
+        "contentHash": "yJH2Bw9RnQyOUcsWjFsArA5h7mbdvGgHrziJ33k0odsrH+c7PXuWDoAJeHg9VrBVpkVPjIw9kJVz9l5ZNrJZ/Q==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
-          "Microsoft.VisualStudio.CoreUtility": "17.12.170",
+          "Microsoft.VisualStudio.CoreUtility": "17.12.215",
           "Microsoft.VisualStudio.Threading": "17.12.14",
           "Microsoft.VisualStudio.Validation": "17.8.8",
           "Microsoft.Win32.Registry": "5.0.0",
@@ -1193,12 +1193,12 @@
       },
       "Microsoft.VisualStudio.Text.Logic": {
         "type": "Transitive",
-        "resolved": "17.12.170",
-        "contentHash": "q++htS1qSVEW7TyOFCYkeeJ4+8zJveep2VoYTP3gXt0hm6Zui3LKkr7OgeQMzso1sFH72PZRp90UKA+ZN2cTyQ==",
+        "resolved": "17.12.215",
+        "contentHash": "jji0P8woPlI5Lbguz6c1hAAh/Og4gqlOudk7Lw4a1CD8h6ycjXzhYY/mImwUiqAvz01K80hz2i6KSMGxyG+WlQ==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
-          "Microsoft.VisualStudio.CoreUtility": "17.12.170",
-          "Microsoft.VisualStudio.Text.Data": "17.12.170",
+          "Microsoft.VisualStudio.CoreUtility": "17.12.215",
+          "Microsoft.VisualStudio.Text.Data": "17.12.215",
           "Microsoft.VisualStudio.Threading": "17.12.14",
           "Microsoft.VisualStudio.Validation": "17.8.8",
           "Microsoft.Win32.Registry": "5.0.0",
@@ -1876,6 +1876,12 @@
           "Microsoft.Visualstudio.Telemetry": "[17.12.48, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.9, )",
           "System.Text.Json": "[8.0.5, )"
+        }
+      },
+      "bicep.vslanguageserverclient.itemtemplate": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.VisualStudio.CoreUtility": "[17.11.260, )"
         }
       }
     },
