@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Azure.Bicep.Core</AssemblyName>
     <RootNamespace>Bicep.Core</RootNamespace>
@@ -33,7 +33,7 @@
     <PackageReference Include="JsonPatch.Net" Version="3.1.1" />
     <PackageReference Include="JsonPath.Net" Version="1.1.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
     <PackageReference Include="Microsoft.Graph.Bicep.Types" Version="0.1.7-preview" />
     <PackageReference Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2076" />
@@ -72,4 +72,8 @@
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.146" />
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties configuration_4bicepconfig_1json__JsonSchema="https://appsemble.app/api.json" /></VisualStudio></ProjectExtensions>
+
+<ItemGroup>
+	<PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="8.0.11" />
+</ItemGroup>
 </Project>
