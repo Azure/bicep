@@ -70,6 +70,10 @@
     <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="$(GenerateNoticePackageVersion)">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+
+    <!-- Update some indirect references due to security issues -->
+    <PackageReference Include="Microsoft.IO.Redist" Version="6.0.1" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bicep.VSLanguageServerClient.ItemTemplate\Bicep.VSLanguageServerClient.ItemTemplate.csproj">
