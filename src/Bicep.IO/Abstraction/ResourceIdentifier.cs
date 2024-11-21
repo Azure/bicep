@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Bicep.IO.Abstraction
 {
     /// <summary>
-    /// A ResourceIdentifier is a RFC3986 URI with absolute path and without the query and fragment components.
+    /// A ResourceIdentifier is a RFC3986 URI with absolute path.
     /// </summary>
     public readonly struct ResourceIdentifier : IEquatable<ResourceIdentifier>
     {
@@ -25,7 +25,7 @@ namespace Bicep.IO.Abstraction
             public static StringComparison FilePathComparison => FilePathCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
         }
 
-        public ResourceIdentifier(string scheme, string authority, string path)
+        public ResourceIdentifier(string scheme, string? authority, string path, string? query = null, string? fragment = null)
         {
             if (!path.StartsWith('/'))
             {
@@ -35,6 +35,8 @@ namespace Bicep.IO.Abstraction
             this.Scheme = scheme;
             this.Authority = authority;
             this.Path = CanonicalizePath(path);
+            this.Query = query;
+            this.Fragment = fragment;
         }
 
         public string Scheme { get; }
@@ -42,6 +44,10 @@ namespace Bicep.IO.Abstraction
         public string? Authority { get; }
 
         public string Path { get; }
+
+        public string? Query { get; }
+
+        public string? Fragment { get; }
 
         public bool IsFile => this.Scheme.Equals("file", StringComparison.OrdinalIgnoreCase);
 
@@ -96,17 +102,11 @@ namespace Bicep.IO.Abstraction
             var hash = new HashCode();
 
             // Scheme and Authority are case-insenstive.
-            hash.Add(Scheme, StringComparer.OrdinalIgnoreCase);
-            hash.Add(Authority, StringComparer.OrdinalIgnoreCase);
-
-            if (this.IsLocal && this.IsFile)
-            {
-                hash.Add(Path, GlobalSettings.FilePathComparer);
-            }
-            else
-            {
-                hash.Add(Path, StringComparer.Ordinal);
-            }
+            hash.Add(this.Scheme, StringComparer.OrdinalIgnoreCase);
+            hash.Add(this.Authority, StringComparer.OrdinalIgnoreCase);
+            hash.Add(this.Path, this.IsLocal && this.IsFile ? GlobalSettings.FilePathComparer : StringComparer.Ordinal);
+            hash.Add(this.Query, StringComparer.Ordinal);
+            hash.Add(this.Fragment, StringComparer.Ordinal);
 
             return hash.ToHashCode();
         }
@@ -114,11 +114,13 @@ namespace Bicep.IO.Abstraction
         public override bool Equals(object? @object) => @object is ResourceIdentifier other && this.Equals(other);
 
         public bool Equals(ResourceIdentifier other) =>
-            string.Equals(Scheme, other.Scheme, StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(Authority, other.Authority, StringComparison.OrdinalIgnoreCase) &&
-            this.IsLocal && this.IsFile
+            string.Equals(this.Scheme, other.Scheme, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(this.Authority, other.Authority, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(this.Query, other.Query, StringComparison.Ordinal) &&
+            string.Equals(this.Fragment, other.Fragment, StringComparison.Ordinal) &&
+            (this.IsLocal && this.IsFile
                 ? string.Equals(Path, other.Path, GlobalSettings.FilePathComparison)
-                : string.Equals(Path, other.Path, StringComparison.Ordinal);
+                : string.Equals(Path, other.Path, StringComparison.Ordinal));
 
         public static bool operator ==(ResourceIdentifier left, ResourceIdentifier right) => left.Equals(right);
 

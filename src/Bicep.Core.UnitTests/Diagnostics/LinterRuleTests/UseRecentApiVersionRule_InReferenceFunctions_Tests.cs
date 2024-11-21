@@ -43,7 +43,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     bicep);
                 using (new AssertionScope().WithFullSource(result.BicepFile))
                 {
-                    UseRecentApiVersionRuleTests.VerifyAllTypesAndDatesAreFake(result.BicepFile.GetOriginalSource());
+                    UseRecentApiVersionRuleTests.VerifyAllTypesAndDatesAreFake(result.BicepFile.Text);
 
                     var actual = UseRecentApiVersionRule.GetFunctionCallInfos(result.Compilation.GetEntrypointSemanticModel()).ToArray();
                     actual.Should().HaveCount(1, "Expecting a single function call per test");

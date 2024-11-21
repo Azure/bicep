@@ -44,8 +44,8 @@ namespace Bicep.Core.IntegrationTests
             {
                 foreach (var (bicepFile, diagnostics) in diagnosticsByBicepFile)
                 {
-                    var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(bicepFile.FileUri);
-                    var bicepOutput = filesToSave[bicepFile.FileUri];
+                    var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(bicepFile.Identifier);
+                    var bicepOutput = filesToSave[bicepFile.Identifier];
 
                     var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, baselineFolder.OutputFolderPath, diag));
 

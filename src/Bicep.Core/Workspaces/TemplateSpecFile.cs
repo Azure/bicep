@@ -5,16 +5,17 @@ namespace Bicep.Core.Workspaces
 {
     public class TemplateSpecFile : ISourceFile
     {
-        public TemplateSpecFile(Uri fileUri, string? templateSpecId, ArmTemplateFile mainTemplateFile)
+        public TemplateSpecFile(Uri fileUri, string text, string? templateSpecId, ArmTemplateFile mainTemplateFile)
         {
-            this.FileUri = fileUri;
+            this.Identifier = fileUri;
+            this.Text = text;
             this.TemplateSpecId = templateSpecId;
             this.MainTemplateFile = mainTemplateFile;
         }
 
-        public Uri FileUri { get; }
+        public Uri Identifier { get; }
 
-        public string GetOriginalSource() => MainTemplateFile.GetOriginalSource();
+        public string Text { get; }
 
         public string? TemplateSpecId { get; }
 

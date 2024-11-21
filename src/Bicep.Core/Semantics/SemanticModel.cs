@@ -190,7 +190,7 @@ namespace Bicep.Core.Semantics
         {
             var sb = new StringBuilder();
 
-            sb.Append($"Building semantic model for {sourceFile.FileUri} ({sourceFile.FileKind}). ");
+            sb.Append($"Building semantic model for {sourceFile.Identifier} ({sourceFile.FileKind}). ");
             var experimentalFeatures = features.EnabledFeatureMetadata.Select(x => x.name).ToArray();
             if (experimentalFeatures.Any())
             {
