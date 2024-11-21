@@ -83,7 +83,9 @@ binaryExpression ->
 equalityExpression ->
   relationalExpression |
   equalityExpression "==" relationalExpression |
-  equalityExpression "!=" relationalExpression
+  equalityExpression "!=" relationalExpression |
+  equalityExpression "=~" relationalExpression |
+  equalityExpression "!~" relationalExpression
 
 relationalExpression ->
   additiveExpression |
