@@ -38,9 +38,9 @@
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Direct",
-        "requested": "[17.11.20, )",
-        "resolved": "17.11.20",
-        "contentHash": "yI80R8Ja4ipU7/fyVAMCu0oGTN/u97OgL99gd/8ycGnCF58Kn93iBU3T7rkxGMnlsHf5vEgRu95dujtYcgwf9Q=="
+        "requested": "[17.12.19, )",
+        "resolved": "17.12.19",
+        "contentHash": "v3IYeedjoktvZ+GqYmLudxZJngmf/YWIxNT2Uy6QMMN19cvw+nkWoip1Gr1RtnFkUo1MPUVMis4C8Kj8d8DpSQ=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
@@ -768,10 +768,10 @@
       },
       "Microsoft.VisualStudio.Threading": {
         "type": "Transitive",
-        "resolved": "17.11.20",
-        "contentHash": "918NdBNk1ESmoEOgm5OZqUD5z0LkwiwveocriECRlfcB+k9WPZDiyUy7n7tJmDvMKS8tqPczxkuW4HoRXFhV4A==",
+        "resolved": "17.12.19",
+        "contentHash": "eLiGMkMYyaSguqHs3lsrFxy3tAWSLuPEL2pIWRcADMDVAs2xqm3dr1d9QYjiEusTgiClF9KD6OB2NdZP72Oy0Q==",
         "dependencies": {
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.11.20",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.12.19",
           "Microsoft.VisualStudio.Validation": "17.8.8"
         }
       },
@@ -1699,7 +1699,7 @@
           "MSTest.TestAdapter": "[3.6.2, )",
           "MSTest.TestFramework": "[3.6.2, )",
           "Microsoft.NET.Test.Sdk": "[17.11.1, )",
-          "Microsoft.VisualStudio.Threading": "[17.11.20, )",
+          "Microsoft.VisualStudio.Threading": "[17.12.19, )",
           "Moq": "[4.20.72, )",
           "OmniSharp.Extensions.LanguageClient": "[0.19.9, )"
         }
