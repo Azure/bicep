@@ -1009,8 +1009,8 @@
       },
       "StreamJsonRpc": {
         "type": "Transitive",
-        "resolved": "2.19.27",
-        "contentHash": "om/+aUQ+OAskHf6Tl8Jgg4+/2P/P5ZDzn9/epiLHmxB/0HaBa8Jebaj3pdPu5o2kAbM9SZblwx8xbwMeeevntw==",
+        "resolved": "2.20.17",
+        "contentHash": "AOVxkrwRqe7lPUDhYRMnaSSupdk8lxiHyXuoL+bZzUdzaA2Fnle+Os/gWGEGRGah1CTMmm5vdv9TyimCThXzoQ==",
         "dependencies": {
           "MessagePack": "2.5.108",
           "Microsoft.VisualStudio.Threading": "17.10.48",
@@ -1634,7 +1634,7 @@
           "Azure.Bicep.Local.Deploy": "[1.0.0, )",
           "Microsoft.Extensions.Logging": "[8.0.1, )",
           "Sarif.Sdk": "[4.5.4, )",
-          "StreamJsonRpc": "[2.19.27, )"
+          "StreamJsonRpc": "[2.20.17, )"
         }
       },
       "bicep.cli.unittests": {
