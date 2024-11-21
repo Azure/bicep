@@ -2,18 +2,19 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.IO.FileSystem;
 using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests.Telemetry
 {
+    [TestClass]
     public class TelemetryHelperTests
     {
         [NotNull]
@@ -513,23 +514,6 @@ namespace Bicep.LangServer.UnitTests.Telemetry
         }
 
         private (RootConfiguration, RootConfiguration) GetPreviousAndCurrentRootConfiguration(string prevBicepConfigContents, string curBicepConfigContents)
-        {
-            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
-            var configurationManager = new ConfigurationManager(fileExplorer);
-            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-
-            var prevConfiguration = GetRootConfiguration(testOutputPath, prevBicepConfigContents, configurationManager);
-            var curConfiguration = GetRootConfiguration(testOutputPath, curBicepConfigContents, configurationManager);
-
-            return (prevConfiguration, curConfiguration);
-        }
-
-        private RootConfiguration GetRootConfiguration(string testOutputPath, string bicepConfigContents, ConfigurationManager configurationManager)
-        {
-            var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigContents, testOutputPath);
-            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
-
-            return configurationManager.GetConfiguration(bicepConfigUri.ToUriEncoded());
-        }
+            => (BicepTestConstants.GetConfiguration(prevBicepConfigContents), BicepTestConstants.GetConfiguration(curBicepConfigContents));
     }
 }

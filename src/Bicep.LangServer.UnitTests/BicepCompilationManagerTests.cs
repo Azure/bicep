@@ -724,11 +724,8 @@ module moduleB './moduleB.bicep' = {
     }
   }
 }";
-            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
-            var configurationManager = new ConfigurationManager(fileExplorer);
-            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
-            var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
+            var rootConfiguration = BicepTestConstants.GetConfiguration(bicepConfigFileContents);
 
             var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
 
@@ -777,11 +774,7 @@ module moduleB './moduleB.bicep' = {
     }
   }
 }";
-            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
-            var configurationManager = new ConfigurationManager(fileExplorer);
-            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-
-            var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
+            var rootConfiguration = BicepTestConstants.GetConfiguration(bicepConfigFileContents);
 
             var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
 
@@ -801,11 +794,7 @@ module moduleB './moduleB.bicep' = {
             var compilationManager = CreateBicepCompilationManager();
 
             var bicepConfigFileContents = @"{}";
-            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
-            var configurationManager = new ConfigurationManager(fileExplorer);
-            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-
-            var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
+            var rootConfiguration = BicepTestConstants.GetConfiguration(bicepConfigFileContents);
 
             var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
 
@@ -912,14 +901,6 @@ param location string = 'testLocation'");
             telemetryEvent.Should().NotBeNull();
             telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.BicepParamFileOpen);
             telemetryEvent.Properties.Should().Contain(properties);
-        }
-
-        private RootConfiguration GetRootConfiguration(string testOutputPath, string bicepConfigContents, ConfigurationManager configurationManager)
-        {
-            var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigContents, testOutputPath);
-            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
-
-            return configurationManager.GetConfiguration(bicepConfigUri.ToUriEncoded());
         }
 
         private BicepCompilationManager CreateBicepCompilationManager()
