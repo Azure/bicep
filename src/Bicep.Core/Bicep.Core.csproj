@@ -70,7 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.146" />
-  	<PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="8.0.11" />
+    <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="8.0.11" />
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties configuration_4bicepconfig_1json__JsonSchema="https://appsemble.app/api.json" /></VisualStudio></ProjectExtensions>
 </Project>
