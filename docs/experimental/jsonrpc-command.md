@@ -65,7 +65,7 @@ Runs the JSONRPC interface using stdin & stdout for messages.
 
 See [`ICliJsonRpcProtocol.cs`](../../src/Bicep.Cli/Rpc/ICliJsonRpcProtocol.cs) for the available methods & request/response bodies.
 
-See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/jsonrpc.test.ts) for an example establinging a JSONRPC connection and interacting with Bicep files programmatically using Node.
+See [`jsonrpc.test.ts`](../../src/Bicep.Cli.E2eTests/src/local/jsonrpc.test.ts) for an example establinging a JSONRPC connection and interacting with Bicep files programmatically using Node.
 
 ## Example JSONRPC messages
 
