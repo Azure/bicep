@@ -12,8 +12,14 @@ using System.Threading.Tasks;
 namespace Bicep.IO.Abstraction
 {
     /// <summary>
-    /// A ResourceIdentifier is a RFC3986 URI with absolute path.
+    /// A primitive URI implementation.
     /// </summary>
+    /// <remarks>
+    /// This implementation is intentionally limited to the subset of
+    /// <see href="https://datatracker.ietf.org/doc/html/rfc3986">RFC3986</see> and
+    /// <see href="https://datatracker.ietf.org/doc/html/rfc8089">RFC8089</see>
+    /// to satisfy the functionality requirements of Bicep.
+    /// </remarks>
     public readonly struct ResourceIdentifier : IEquatable<ResourceIdentifier>
     {
         public static class GlobalSettings
@@ -27,14 +33,9 @@ namespace Bicep.IO.Abstraction
 
         public ResourceIdentifier(ResourceIdentifierScheme scheme, string? authority, string path, string? query = null, string? fragment = null)
         {
-            if (!path.StartsWith('/'))
-            {
-                throw new ArgumentException("Path must be absolute.", nameof(path));
-            }
-
             this.Scheme = scheme;
             this.Authority = NormalizeAuthority(scheme, authority);
-            this.Path = CanonicalizePath(path);
+            this.Path = NormalizePath(scheme, authority, path);
             this.Query = query;
             this.Fragment = fragment;
         }
@@ -89,16 +90,41 @@ namespace Bicep.IO.Abstraction
         public override bool Equals(object? @object) => @object is ResourceIdentifier other && this.Equals(other);
 
         public bool Equals(ResourceIdentifier other) =>
-            this.Scheme.Equals(other.Scheme) &&
-            string.Equals(this.Authority, other.Authority, StringComparison.OrdinalIgnoreCase) &&
+            this.SchemeEquals(other) &&
+            this.AuthorityEquals(other) &&
             string.Equals(this.Query, other.Query, StringComparison.Ordinal) &&
             string.Equals(this.Fragment, other.Fragment, StringComparison.Ordinal) &&
             string.Equals(Path, other.Path, this.PathComparison);
 
+        public bool IsBaseOf(ResourceIdentifier other)
+        {
+            if (!this.SchemeEquals(other) || !this.AuthorityEquals(other))
+            {
+                return false;
+            }
+
+            var thisPathSegments = this.PathSegments;
+            var otherPathSegments = other.PathSegments;
+
+            if (thisPathSegments.Length > otherPathSegments.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < thisPathSegments.Length; i++)
+            {
+                if (!thisPathSegments[i].Equals(otherPathSegments[i], this.PathComparison))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public string GetPathRelativeTo(ResourceIdentifier other)
         {
-            if (!this.Scheme.Equals(other.Scheme) ||
-                !string.Equals(this.Authority, other.Authority, StringComparison.OrdinalIgnoreCase))
+            if (!this.Scheme.Equals(other.Scheme) || !string.Equals(this.Authority, other.Authority, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException("Both ResourceIdentifiers must have the same scheme and authority.");
             }
@@ -151,11 +177,29 @@ namespace Bicep.IO.Abstraction
                 }
             }
 
-            return authority;
+            return authority?.ToLowerInvariant();
         }
 
-        private static string CanonicalizePath(string path)
+        private static string NormalizePath(ResourceIdentifierScheme scheme, string? authority, string path)
         {
+            if (authority is not null && !(path.Length == 0 || path.StartsWith('/')))
+            {
+                // https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
+                throw new ArgumentException("Path must be empty or absolute when authority is non-null."); 
+            }
+
+            if (authority is null && path.StartsWith("//"))
+            {
+                // https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
+                throw new ArgumentException("Path cannot start with '//' when authority is null.");
+            }
+
+            if (scheme.IsFile && !path.StartsWith('/'))
+            {
+                // https://datatracker.ietf.org/doc/html/rfc8089#section-2
+                throw new ArgumentException("File path must be absolute."); 
+            }
+
             var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
             var stack = new Stack<string>();
 
@@ -183,5 +227,9 @@ namespace Bicep.IO.Abstraction
 
             return path.EndsWith('/') ? canonicalPath + "/" : canonicalPath;
         }
+
+        private bool SchemeEquals(ResourceIdentifier other) => this.Scheme.Equals(other.Scheme);
+
+        private bool AuthorityEquals(ResourceIdentifier other) => string.Equals(this.Authority, other.Authority, StringComparison.OrdinalIgnoreCase);
     }
 }

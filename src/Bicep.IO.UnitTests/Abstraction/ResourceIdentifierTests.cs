@@ -15,22 +15,6 @@ namespace Bicep.IO.UnitTests.Abstraction
     public class ResourceIdentifierTests
     {
         [DataTestMethod]
-        [DataRow("/a/b/c", "/a/b/c")]
-        [DataRow("/a/b/../c", "/a/c")]
-        [DataRow("/a/./b/c", "/a/b/c")]
-        [DataRow("/a/b/c/", "/a/b/c/")]
-        [DataRow("/a//b/c", "/a/b/c")]
-        [DataRow("/a/b/c/..", "/a/b")]
-        public void ResourceIdentifier_ByDefault_CanolicalizesPath(string inputPath, string expectedPath)
-        {
-            // Arrange & Act.
-            var resourceIdentifier = new ResourceIdentifier("http", "example.com", inputPath);
-
-            // Assert.
-            resourceIdentifier.Path.Should().Be(expectedPath);
-        }
-
-        [DataTestMethod]
         [DataRow("http", "EXAMPLE.COM", "example.com")]
         [DataRow("http", "Example.Com", "example.com")]
         [DataRow("http", "example.com", "example.com")]
@@ -48,7 +32,23 @@ namespace Bicep.IO.UnitTests.Abstraction
             resourceIdentifier.Authority.Should().Be(expectedAuthority);
         }
 
-        [TestMethod]
+        [DataTestMethod]
+        [DataRow("/a/b/c", "/a/b/c")]
+        [DataRow("/a/b/../c", "/a/c")]
+        [DataRow("/a/./b/c", "/a/b/c")]
+        [DataRow("/a/b/c/", "/a/b/c/")]
+        [DataRow("/a//b/c", "/a/b/c")]
+        [DataRow("/a/b/c/..", "/a/b")]
+        public void ResourceIdentifier_ByDefault_NormalizesPath(string inputPath, string expectedPath)
+        {
+            // Arrange & Act.
+            var resourceIdentifier = new ResourceIdentifier("http", "example.com", inputPath);
+
+            // Assert.
+            resourceIdentifier.Path.Should().Be(expectedPath);
+        }
+
+        [DataTestMethod]
         [DataRow("https", "")]
         [DataRow("https", null)]
         [DataRow("http", "")]
@@ -60,11 +60,14 @@ namespace Bicep.IO.UnitTests.Abstraction
                 .Should().Throw<ArgumentException>();
         }
 
-        [TestMethod]
-        public void ResourceIdentifier_InvalidPath_ThrowsArgumentException()
+        [DataTestMethod]
+        [DataRow("http", "example.com", "a/b/c")]
+        [DataRow("http", null, "//a/b/c")]
+        [DataRow("file", null, "a/b/c")]
+        public void ResourceIdentifier_InvalidPath_ThrowsArgumentException(string scheme, string? authorty, string path)
         {
             FluentActions
-                .Invoking(() => new ResourceIdentifier("http", "example.com", "a/b/c"))
+                .Invoking(() => new ResourceIdentifier(scheme, authorty, path))
                 .Should().Throw<ArgumentException>();
         }
 
@@ -175,6 +178,57 @@ namespace Bicep.IO.UnitTests.Abstraction
 
             // Assert.
             act.Should().Throw<InvalidOperationException>();
+        }
+
+        [DataTestMethod]
+        [DataRow("http", "example.com", "/a/b", "/a/b/c", true)]
+        [DataRow("http", "example.com", "/a/b", "/a/b/c/d", true)]
+        [DataRow("http", "example.com", "/a/b", "/a/b", true)]
+        [DataRow("http", "example.com", "/a/b", "/a/c", false)]
+        [DataRow("http", "example.com", "/a/b", "/a/bc", false)]
+        [DataRow("http", "example.com", "/a/b", "/a/bc/d", false)]
+        [DataRow("http", "example.com", "/a/b", "/a/b/../c", false)]
+        [DataRow("http", "example.com", "/a/b", "/a/b/./c", true)]
+        [DataRow("http", "example.com", "/a/b", "/a/b/c/..", true)]
+        public void IsBaseOf_ValidPaths_ReturnsExpectedResult(string scheme, string authority, string basePath, string otherPath, bool expectedResult)
+        {
+            // Arrange.
+            var baseIdentifier = new ResourceIdentifier(scheme, authority, basePath);
+            var otherIdentifier = new ResourceIdentifier(scheme, authority, otherPath);
+
+            // Act.
+            var result = baseIdentifier.IsBaseOf(otherIdentifier);
+
+            // Assert.
+            result.Should().Be(expectedResult);
+        }
+
+        [TestMethod]
+        public void IsBaseOf_DifferentSchemes_ReturnsFalse()
+        {
+            // Arrange.
+            var identifier1 = new ResourceIdentifier("http", "example.com", "/a/b");
+            var identifier2 = new ResourceIdentifier("https", "example.com", "/a/b/c");
+
+            // Act.
+            var result = identifier1.IsBaseOf(identifier2);
+
+            // Assert.
+            result.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void IsBaseOf_DifferentAuthorities_ReturnsFalse()
+        {
+            // Arrange.
+            var identifier1 = new ResourceIdentifier("http", "example.com", "/a/b");
+            var identifier2 = new ResourceIdentifier("http", "example.org", "/a/b/c");
+
+            // Act.
+            var result = identifier1.IsBaseOf(identifier2);
+
+            // Assert.
+            result.Should().BeFalse();
         }
     }
 }
