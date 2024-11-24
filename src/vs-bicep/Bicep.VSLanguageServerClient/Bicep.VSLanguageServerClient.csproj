@@ -22,6 +22,6 @@
     <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
 </Project>
