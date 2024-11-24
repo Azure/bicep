@@ -56,7 +56,7 @@ const extensionConfig: webpack.Configuration = {
           to: path.join(__dirname, "out/deploy-pane"),
           globOptions: {
             ignore: ["**/index.html"],
-          }
+          },
         },
       ],
     }),
