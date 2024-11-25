@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12233551922218996438"
+      "templateHash": "10368826450110315464"
     }
   },
   "parameters": {
@@ -238,8 +238,8 @@
       "dependsOn": [
         "auditSettings",
         "dummyDeployments",
-        "masterDb",
-        "sqlDatabases"
+        "sqlDatabases",
+        "sqlLogicalServerRes"
       ]
     },
     "diagnosticSettings": {
@@ -271,8 +271,8 @@
       },
       "dependsOn": [
         "dummyDeployments",
-        "masterDb",
-        "sqlDatabases"
+        "sqlDatabases",
+        "sqlLogicalServerRes"
       ]
     },
     "sqlFirewallRules": {
