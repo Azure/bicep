@@ -6476,4 +6476,57 @@ param p invalidRecursiveObjectType = {}
             ]
             """);
     }
+
+    [TestMethod]
+    public void Test_Issue15686()
+    {
+        var result = CompilationHelper.Compile("""
+            param eventSubscriptionName string
+            param eventTypes string[]
+            param eventGridTopicName string
+            param backendAppId string
+            param functionAppName string
+            param functionName string
+
+            resource functionApp 'Microsoft.Web/sites@2023-01-01' existing = {
+              name: functionAppName
+            }
+
+            resource eventGridTopic 'Microsoft.EventGrid/topics@2022-06-15' existing = {
+              name: eventGridTopicName
+            }
+
+            resource eventSubscription 'Microsoft.EventGrid/eventSubscriptions@2022-06-15' = {
+              name: eventSubscriptionName
+              scope: eventGridTopic
+              properties: {
+                eventDeliverySchema: 'EventGridSchema'
+                filter: {
+                  enableAdvancedFilteringOnArrays: true
+                  includedEventTypes: eventTypes
+                }
+                destination: {
+                  endpointType: 'WebHook'
+                  properties: {
+                    maxEventsPerBatch: 1
+                    azureActiveDirectoryApplicationIdOrUri: backendAppId
+                    azureActiveDirectoryTenantId: subscription().tenantId
+                    endpointUrl: 'https://${functionApp.properties.defaultHostName}/runtime/webhooks/EventGrid?functionName=${functionName}&code=${listkeys('${functionApp.id}/host/default', '2016-08-01').systemkeys.eventgrid_extension}'
+                  }
+                }
+                retryPolicy: {
+                  eventTimeToLiveInMinutes: 65
+                }
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.resources.eventSubscription.dependsOn", """
+            [
+              "functionApp"
+            ]
+            """);
+    }
 }

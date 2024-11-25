@@ -100,11 +100,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             dependenciesToWalk.EnqueueRange(transitiveDependencies);
                         }
 
-                        if (!dependency.WeakDependency ||
+                        if (!dependency.WeakReference ||
                             dependency.Resource is not ResourceSymbol r ||
                             !r.DeclaringResource.IsExistingResource())
                         {
-                            allDependencies.Add(dependency with { WeakDependency = false });
+                            allDependencies.Add(dependency with { WeakReference = false });
                         }
                     }
 

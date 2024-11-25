@@ -1442,8 +1442,8 @@ public class ExpressionBuilder
     {
         ModuleSymbol => true,
         ResourceSymbol r => !r.DeclaringResource.IsExistingResource() ||
-            // only use an existing resource as the terminus iff the compilation will include existing resources and the dependency is not weak
-            (Context.Settings.EnableSymbolicNames && !dependency.WeakDependency),
+            // only use an existing resource as the terminus iff the compilation will include existing resources and the reference is not weak
+            (Context.Settings.EnableSymbolicNames && !dependency.WeakReference),
         _ => false,
     };
 

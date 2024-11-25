@@ -678,4 +678,27 @@ public class DependencyInferenceTests
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().HaveJsonAtPath("$.resources.sa.dependsOn", """["container"]""");
     }
+
+    [TestMethod]
+    public void Using_an_existing_resource_as_a_scope_does_not_generate_an_explicit_dependency()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)),
+            ("main.bicep", """
+                targetScope = 'subscription'
+
+                resource rg 'Microsoft.Resources/resourceGroups@2024-07-01' existing = {
+                  name: 'rg'
+                }
+
+                module empty 'empty.bicep' = {
+                  scope: rg
+                  name: 'empty'
+                }
+                """),
+            ("empty.bicep", string.Empty));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotHaveValueAtPath("$.resources.empty.dependsOn");
+    }
 }

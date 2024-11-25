@@ -9,5 +9,5 @@ namespace Bicep.Core.Emit;
 public record ResourceDependency(
     DeclaredSymbol Resource,
     SyntaxBase? IndexExpression,
-    // A dependency is considered "weak" if it would not automatically create an implicit dependency in the ARM engine
-    bool WeakDependency = false);
+    // A reference is considered "weak" if it would not automatically create an implicit dependency in the ARM engine
+    bool WeakReference = false);

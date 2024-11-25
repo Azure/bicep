@@ -81,8 +81,8 @@ namespace Bicep.Core.Emit
             HashSet<ResourceDependency> dependencies = new();
             if (model.ResourceAncestors.GetAncestors(resource).LastOrDefault() is { } parent)
             {
-                // Resource ancestors are always weak dependencies.
-                dependencies.Add(new(parent.Resource.Symbol, parent.IndexExpression, WeakDependency: true));
+                // Resource ancestors are always weak references.
+                dependencies.Add(new(parent.Resource.Symbol, parent.IndexExpression, WeakReference: true));
             }
             resourceDependencies[resource.Symbol] = dependencies;
 
@@ -152,7 +152,7 @@ namespace Bicep.Core.Emit
                     return;
 
                 case ResourceSymbol resourceSymbol:
-                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), IsWeakDependency(syntax, resourceSymbol)));
+                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), IsWeakReference(syntax, resourceSymbol)));
                     return;
 
                 case ModuleSymbol moduleSymbol:
@@ -173,9 +173,12 @@ namespace Bicep.Core.Emit
         /// </remarks>
         /// <param name="syntax">The referencing syntax.</param>
         /// <param name="resourceSymbol">The referenced resource.</param>
-        private bool IsWeakDependency(SyntaxBase syntax, ResourceSymbol resourceSymbol)
-            => resourceSymbol.TryGetResourceType()?.IsAzResource() is true &&
-                (IsResourceInfoAccessBase(syntax, resourceSymbol) || IsResourceFunctionCallBase(syntax));
+        private bool IsWeakReference(SyntaxBase syntax, ResourceSymbol resourceSymbol)
+            => resourceSymbol.TryGetResourceType()?.IsAzResource() is true && (
+                IsResourceInfoAccessBase(syntax, resourceSymbol) ||
+                IsResourceFunctionCallBase(syntax) ||
+                IsWithinExplicitParentDeclaration(syntax) ||
+                IsWithinScopeDeclaration(syntax));
 
         private bool IsResourceInfoAccessBase(SyntaxBase syntax, ResourceSymbol resource)
             => model.Binder.GetParent(syntax) switch
@@ -209,6 +212,26 @@ namespace Bicep.Core.Emit
             _ => false,
         };
 
+        private bool IsWithinExplicitParentDeclaration(SyntaxBase syntax)
+            => TryGetCurrentDeclarationTopLevelProperty(LanguageConstants.ResourceParentPropertyName) is { } nonNull &&
+                model.Binder.IsDescendant(syntax, nonNull);
+
+        private bool IsWithinScopeDeclaration(SyntaxBase syntax)
+            => TryGetCurrentDeclarationTopLevelProperty(LanguageConstants.ResourceScopePropertyName) is { } nonNull &&
+                model.Binder.IsDescendant(syntax, nonNull);
+
+        private ObjectPropertySyntax? TryGetCurrentDeclarationTopLevelProperty(string propertyName)
+        {
+            ObjectSyntax? declaringSyntax = this.currentDeclaration switch
+            {
+                ResourceSymbol resourceSymbol => (resourceSymbol.DeclaringSyntax as ResourceDeclarationSyntax)?.TryGetBody(),
+                ModuleSymbol moduleSymbol => (moduleSymbol.DeclaringSyntax as ModuleDeclarationSyntax)?.TryGetBody(),
+                _ => null
+            };
+
+            return declaringSyntax?.TryGetPropertyByName(propertyName);
+        }
+
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {
             if (currentDeclaration is null)
@@ -225,7 +248,7 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case ResourceSymbol resourceSymbol:
-                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), IsWeakDependency(syntax, resourceSymbol)));
+                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), IsWeakReference(syntax, resourceSymbol)));
                     return;
 
                 case ModuleSymbol moduleSymbol:
@@ -275,38 +298,21 @@ namespace Bicep.Core.Emit
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax propertySyntax)
         {
-            if (ShouldSkipProperty(propertySyntax))
+            if (options?.IgnoreExplicitDependsOn == true)
             {
-                return;
+                // Is it a property named "dependsOn"?
+                if (propertySyntax.Key is IdentifierSyntax key && key.NameEquals(LanguageConstants.ResourceDependsOnPropertyName))
+                {
+                    // ... that is the a top-level resource or module property?
+                    if (ReferenceEquals(TryGetCurrentDeclarationTopLevelProperty(key.IdentifierName), propertySyntax))
+                    {
+                        // Yes - don't include dependencies from this property value
+                        return;
+                    }
+                }
             }
 
             base.VisitObjectPropertySyntax(propertySyntax);
-        }
-
-        private bool ShouldSkipProperty(ObjectPropertySyntax propertySyntax) => propertySyntax.TryGetKeyText() switch
-        {
-            // A resource's parent would be added as a dependency based on the resource ancestry graph. No need to
-            // scan the syntax of a parentage declaration
-            LanguageConstants.ResourceParentPropertyName when IsTopLevelPropertyOfCurrentDeclaration(propertySyntax)
-                => true,
-            // if we are ignoring explicit dependencies and this is a top-level resource or module property named
-            // "dependsOn", skip it
-            LanguageConstants.ResourceDependsOnPropertyName when options?.IgnoreExplicitDependsOn is true &&
-                IsTopLevelPropertyOfCurrentDeclaration(propertySyntax) => true,
-            _ => false,
-        };
-
-        private bool IsTopLevelPropertyOfCurrentDeclaration(ObjectPropertySyntax propertySyntax)
-        {
-            SyntaxBase? declaringSyntax = this.currentDeclaration switch
-            {
-                ResourceSymbol resourceSymbol => (resourceSymbol.DeclaringSyntax as ResourceDeclarationSyntax)?.TryGetBody(),
-                ModuleSymbol moduleSymbol => (moduleSymbol.DeclaringSyntax as ModuleDeclarationSyntax)?.TryGetBody(),
-                _ => null
-            };
-            IEnumerable<ObjectPropertySyntax>? currentDeclarationProperties = (declaringSyntax as ObjectSyntax)?.Properties;
-
-            return currentDeclarationProperties?.Contains(propertySyntax) ?? false;
         }
     }
 }
