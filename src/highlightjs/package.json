@@ -3,7 +3,7 @@
   "private": true,
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.14.0",
+    "@eslint/js": "^9.15.0",
     "@types/highlight.js": "^10.1.0",
     "@types/jest": "^28.1.7",
     "@types/node": "^22.9.3",
