@@ -1,14 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+import type { FC } from "react";
+
 import {
   VscodeTable,
   VscodeTableBody,
   VscodeTableCell,
   VscodeTableHeader,
   VscodeTableHeaderCell,
-  VscodeTableRow
+  VscodeTableRow,
 } from "@vscode-elements/react-elements";
-import { FC } from "react";
 import { getPreformattedJson } from "../utils";
 import { FormSection } from "./FormSection";
 
@@ -25,12 +27,8 @@ export const DeploymentOutputsView: FC<DeploymentOutputsViewProps> = ({ outputs 
     <FormSection title="Outputs">
       <VscodeTable>
         <VscodeTableHeader slot="header">
-          <VscodeTableHeaderCell id="1">
-            Name
-          </VscodeTableHeaderCell>
-          <VscodeTableHeaderCell id="2">
-            Value
-          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="1">Name</VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="2">Value</VscodeTableHeaderCell>
         </VscodeTableHeader>
         <VscodeTableBody slot="body">
           {Object.keys(outputs).map((name) => (

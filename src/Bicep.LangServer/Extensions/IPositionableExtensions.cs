@@ -6,8 +6,8 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharpRange = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using OmniSharpPosition = OmniSharp.Extensions.LanguageServer.Protocol.Models.Position;
+using OmniSharpRange = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Extensions
 {

@@ -41,7 +41,8 @@ public static class StringExtensions
         if (input.Length > 0)
         {
             return char.ToUpperInvariant(input[0]) + input[1..];
-        }else
+        }
+        else
         {
             return input;
         }

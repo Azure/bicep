@@ -59,9 +59,8 @@ jobs:
         working-directory: ./src/vscode-bicep-ui
 
       - name: Format vscode-bicep
-        # --install-links is temporary until all vscode React apps are moved to vscode-bicep-ui.
         run: |
-          npm run ci --install-links
+          npm ci
           npm run format
         working-directory: ./src/vscode-bicep
 

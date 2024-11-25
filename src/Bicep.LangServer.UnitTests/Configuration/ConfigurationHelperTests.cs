@@ -35,34 +35,5 @@ namespace Bicep.LangServer.UnitTests.Configuration
 
             ConfigurationHelper.IsBicepConfigFile(documentUri).Should().Be(true);
         }
-
-        [TestMethod]
-        public void TryGetConfiguration_WithValidDocumentUri_ShouldReturnRootConfiguration()
-        {
-            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-
-            var bicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-
-            var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
-            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUriEncoded();
-            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
-
-            bool result = ConfigurationHelper.TryGetConfiguration(new ConfigurationManager(fileExplorer), bicepConfigUri, out RootConfiguration? rootConfiguration);
-
-            result.Should().Be(true);
-            rootConfiguration.Should().NotBeNull();
-        }
     }
 }

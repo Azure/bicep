@@ -1,9 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { AccessToken } from "@azure/identity";
-import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
+
+import type { AccessToken } from "@azure/identity";
+import type { TelemetryProperties } from "@microsoft/vscode-azext-utils";
+import type { LocalDeployResponse, VscodeMessage } from "../../messages";
+import type {
+  DeploymentScope,
+  DeployPaneState,
+  ParametersMetadata,
+  TemplateMetadata,
+  UntypedError,
+} from "../../models";
+
 import { useEffect, useState } from "react";
-import { LocalDeployResponse } from "../../../../../language";
 import {
   createGetAccessTokenMessage,
   createGetDeploymentScopeMessage,
@@ -13,9 +22,7 @@ import {
   createPublishTelemetryMessage,
   createReadyMessage,
   createSaveStateMessage,
-  VscodeMessage,
-} from "../../../messages";
-import { DeploymentScope, DeployPaneState, ParametersMetadata, TemplateMetadata, UntypedError } from "../../../models";
+} from "../../messages";
 import { vscode } from "../../vscode";
 import { parseParametersJson, parseTemplateJson } from "../utils";
 
@@ -49,82 +56,85 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
   const [scope, setScope] = useState<DeploymentScope>();
   const [localDeployResult, setLocalDeployResult] = useState<LocalDeployResponse>();
 
-  const handleMessageEvent = (e: MessageEvent<VscodeMessage>) => {
-    const message = e.data;
-    switch (message.kind) {
-      case "DEPLOYMENT_DATA": {
-        setMessageState({
-          initialized: true,
-          localDeployEnabled: message.localDeployEnabled,
-        });
+  useEffect(() => {
+    const handleMessageEvent = (e: MessageEvent<VscodeMessage>) => {
+      const message = e.data;
+      switch (message.kind) {
+        case "DEPLOYMENT_DATA": {
+          setMessageState({
+            initialized: true,
+            localDeployEnabled: message.localDeployEnabled,
+          });
 
-        if (message.errorMessage || !message.templateJson) {
-          setTemplateMetadata(undefined);
-          setErrorMessage(message.errorMessage ?? "An error occurred compiling the Bicep file.");
+          if (message.errorMessage || !message.templateJson) {
+            setTemplateMetadata(undefined);
+            setErrorMessage(message.errorMessage ?? "An error occurred compiling the Bicep file.");
+            return;
+          }
+
+          const templateMetadata = parseTemplateJson(message.templateJson);
+
+          if (!templateMetadata.scopeType) {
+            setTemplateMetadata(undefined);
+            setErrorMessage("Failed to obtain the deployment scope from compiled Bicep file.");
+            return;
+          }
+
+          setTemplateMetadata(templateMetadata);
+          if (message.parametersJson) {
+            setParamsMetadata({
+              sourceFilePath: message.documentPath.endsWith(".bicep") ? undefined : message.documentPath,
+              parameters: parseParametersJson(message.parametersJson),
+            });
+          }
+          setErrorMessage(undefined);
           return;
         }
-
-        const templateMetadata = parseTemplateJson(message.templateJson);
-
-        if (!templateMetadata.scopeType) {
-          setTemplateMetadata(undefined);
-          setErrorMessage("Failed to obtain the deployment scope from compiled Bicep file.");
+        case "GET_STATE_RESULT": {
+          setPersistedState(message.state);
+          if (!message.state.scope.tenantId || !message.state.scope.portalUrl) {
+            // If state was persisted with an older version of the extension, these properties won't have been set.
+            // Force the user to re-pick the scope to reset them.
+            return;
+          }
+          setScope(message.state.scope);
           return;
         }
-
-        setTemplateMetadata(templateMetadata);
-        if (message.parametersJson) {
+        case "PICK_PARAMS_FILE_RESULT": {
           setParamsMetadata({
-            sourceFilePath: message.documentPath.endsWith(".bicep") ? undefined : message.documentPath,
+            sourceFilePath: message.documentPath,
             parameters: parseParametersJson(message.parametersJson),
           });
-        }
-        setErrorMessage(undefined);
-        return;
-      }
-      case "GET_STATE_RESULT": {
-        setPersistedState(message.state);
-        if (!message.state.scope.tenantId || !message.state.scope.portalUrl) {
-          // If state was persisted with an older version of the extension, these properties won't have been set.
-          // Force the user to re-pick the scope to reset them.
           return;
         }
-        setScope(message.state.scope);
-        return;
-      }
-      case "PICK_PARAMS_FILE_RESULT": {
-        setParamsMetadata({
-          sourceFilePath: message.documentPath,
-          parameters: parseParametersJson(message.parametersJson),
-        });
-        return;
-      }
-      case "GET_ACCESS_TOKEN_RESULT": {
-        if (message.accessToken) {
-          accessTokenResolver.resolve(message.accessToken);
-        } else {
-          accessTokenResolver.reject(message.error ?? "Failed to authenticate with Azure");
+        case "GET_ACCESS_TOKEN_RESULT": {
+          if (message.accessToken) {
+            accessTokenResolver.resolve(message.accessToken);
+          } else {
+            accessTokenResolver.reject(message.error ?? "Failed to authenticate with Azure");
+          }
+          return;
         }
-        return;
+        case "GET_DEPLOYMENT_SCOPE_RESULT": {
+          setScope(message.scope);
+          savePersistedState({ ...persistedState, scope: message.scope });
+          return;
+        }
+        case "LOCAL_DEPLOY_RESULT": {
+          setLocalDeployResult(message);
+          setLocalDeployRunning(false);
+          return;
+        }
       }
-      case "GET_DEPLOYMENT_SCOPE_RESULT": {
-        setScope(message.scope);
-        savePersistedState({ ...persistedState, scope: message.scope });
-        return;
-      }
-      case "LOCAL_DEPLOY_RESULT": {
-        setLocalDeployResult(message);
-        setLocalDeployRunning(false);
-        return;
-      }
-    }
-  };
+    };
 
-  useEffect(() => {
     window.addEventListener("message", handleMessageEvent);
     vscode.postMessage(createReadyMessage());
     vscode.postMessage(createGetStateMessage());
     return () => window.removeEventListener("message", handleMessageEvent);
+    // TODO: This is an anti-pattern. We should refactor this.
+    // We cannot add dependencies to this hook because it will cause infinite loops somehow.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function savePersistedState(state: DeployPaneState) {

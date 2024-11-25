@@ -66,7 +66,7 @@ namespace Bicep.LanguageServer.Handlers
             var fileUri = documentUri.ToUriEncoded();
 
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
-                .FirstOrDefault(x => x.Key.FileUri == fileUri);
+                .FirstOrDefault(x => x.Key.Identifier == fileUri);
 
             if (diagnosticsByFile.Value.Any(x => x.IsError()))
             {

@@ -12,7 +12,7 @@ public static class ExperimentalFeatureWarningProvider
     public static string? TryGetEnabledExperimentalFeatureWarningMessage(SourceFileGrouping sourceFileGrouping, IFeatureProviderFactory featureProviderFactory)
     {
         var experimentalFeaturesEnabled = sourceFileGrouping.SourceFiles
-            .Select(file => featureProviderFactory.GetFeatureProvider(file.FileUri))
+            .Select(file => featureProviderFactory.GetFeatureProvider(file.Identifier))
             .SelectMany(static features => features.EnabledFeatureMetadata.Where(f => f.impactsCompilation).Select(f => f.name))
             .Distinct()
             .ToImmutableArray();

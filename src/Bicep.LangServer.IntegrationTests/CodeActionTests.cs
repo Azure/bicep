@@ -584,7 +584,7 @@ param fo|o {paramType}
         {
             var textEditContainer = await client.TextDocument.RequestDocumentFormatting(new DocumentFormattingParams
             {
-                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                TextDocument = new TextDocumentIdentifier(bicepFile.Identifier),
                 Options = new FormattingOptions
                 {
                     TabSize = 2,
@@ -593,7 +593,7 @@ param fo|o {paramType}
                 },
             });
 
-            return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, textEditContainer!.Single().NewText);
+            return SourceFileFactory.CreateBicepFile(bicepFile.Identifier, textEditContainer!.Single().NewText);
         }
     }
 }

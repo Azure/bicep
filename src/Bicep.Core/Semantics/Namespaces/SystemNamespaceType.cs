@@ -1060,7 +1060,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnResultBuilder((model, diagnostics, call, argumentTypes) =>
                     {
                         var argument = call.Arguments[0].Expression;
-                        if (GetNameOfReturnValue(argument) is not {} returnValue)
+                        if (GetNameOfReturnValue(argument) is not { } returnValue)
                         {
                             return new(ErrorType.Create(DiagnosticBuilder.ForPosition(call.Arguments[0]).NameofInvalidOnUnnamedExpression()));
                         }
@@ -1342,7 +1342,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .IsSuccess(out var result, out var errorDiagnostic))
             {
                 return new(
-                    new StringLiteralType(model.SourceFile.FileUri.MakeRelativeUri(result.FileUri).ToString(), result.Content, TypeSymbolValidationFlags.Default),
+                    new StringLiteralType(model.SourceFile.Identifier.MakeRelativeUri(result.FileUri).ToString(), result.Content, TypeSymbolValidationFlags.Default),
                     new StringLiteralExpression(functionCall, result.Content));
             }
 
@@ -1981,7 +1981,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
                 ResourceAccessSyntax resourceAccess => resourceAccess.ResourceName.IdentifierName,
                 ModuleDeclarationSyntax moduleDeclaration => moduleDeclaration.Name.IdentifierName,
-                ArrayAccessSyntax { IndexExpression: StringSyntax indexExpression } when indexExpression.TryGetLiteralValue() is {} literalValue => literalValue,
+                ArrayAccessSyntax { IndexExpression: StringSyntax indexExpression } when indexExpression.TryGetLiteralValue() is { } literalValue => literalValue,
                 _ => null,
             };
         }

@@ -1,15 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+import type { FC } from "react";
+import type { DeploymentScope } from "../../models";
+
 import {
   VscodeBadge,
   VscodeButton,
   VscodeTable,
   VscodeTableBody,
   VscodeTableCell,
-  VscodeTableRow
+  VscodeTableRow,
 } from "@vscode-elements/react-elements";
-import { FC } from "react";
-import { DeploymentScope } from "../../../models";
 import { FormSection } from "./FormSection";
 
 interface DeploymentScopeInputViewProps {

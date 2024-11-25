@@ -28,7 +28,7 @@ namespace Bicep.Core.Configuration
         public static IConfigurationManager WithStaticConfiguration(RootConfiguration configuration)
             => new ConstantConfigurationManager(configuration);
 
-        protected static readonly JsonElement BuiltInConfigurationElement = GetBuiltInConfigurationElement();
+        static readonly JsonElement BuiltInConfigurationElement = GetBuiltInConfigurationElement();
 
         private static readonly Lazy<RootConfiguration> BuiltInConfigurationLazy =
             new(() => RootConfiguration.Bind(BuiltInConfigurationElement));

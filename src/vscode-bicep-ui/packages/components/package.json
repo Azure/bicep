@@ -16,7 +16,8 @@
     "build": "tsc && vite build",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --fix"
   },
   "peerDependencies": {
     "framer-motion": "^11.3.24",
@@ -25,11 +26,11 @@
     "styled-components": "^6.1.11"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^8.4.2",
-    "@storybook/addon-interactions": "^8.3.5",
+    "@storybook/addon-essentials": "^8.4.5",
+    "@storybook/addon-interactions": "^8.4.5",
     "@storybook/addon-links": "^8.4.2",
     "@storybook/addon-themes": "^8.3.5",
-    "@storybook/blocks": "^8.3.6",
+    "@storybook/blocks": "^8.4.5",
     "@storybook/react": "^8.3.5",
     "@storybook/react-vite": "^8.3.5",
     "@storybook/test": "^8.2.2",
@@ -41,14 +42,12 @@
     "@vitejs/plugin-react": "^4.3.3",
     "@vitest/coverage-v8": "^2.1.3",
     "@vscode/codicons": "^0.0.36",
-    "eslint-plugin-storybook": "^0.9.0",
-    "eslint-plugin-testing-library": "^6.4.0",
-    "happy-dom": "^15.11.0",
+    "happy-dom": "^15.11.6",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "storybook": "^8.3.0",
     "styled-components": "^6.1.13",
     "vite": "^5.4.8",
-    "vite-plugin-dts": "^4.2.3",
+    "vite-plugin-dts": "^4.3.0",
     "vite-plugin-lib-inject-css": "^2.1.1",
     "vite-plugin-svgr": "^4.2.0",
     "vitest": "^2.1.3"

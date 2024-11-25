@@ -23,20 +23,5 @@ namespace Bicep.LanguageServer.Configuration
                 return false;
             }
         }
-
-        public static bool TryGetConfiguration(IConfigurationManager configurationManager, DocumentUri documentUri, [NotNullWhen(true)] out RootConfiguration? rootConfiguration)
-        {
-            try
-            {
-                rootConfiguration = configurationManager.GetConfiguration(documentUri.ToUriEncoded());
-                return true;
-            }
-            catch (Exception e)
-            {
-                rootConfiguration = null;
-                Trace.WriteLine($"Encountered issue while getting configuration: {e.Message}");
-                return false;
-            }
-        }
     }
 }

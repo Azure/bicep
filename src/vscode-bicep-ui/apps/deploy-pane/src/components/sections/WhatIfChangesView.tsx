@@ -1,15 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { WhatIfChange, WhatIfPropertyChange } from "@azure/arm-resources";
+
+import type { WhatIfChange, WhatIfPropertyChange } from "@azure/arm-resources";
+import type { FC } from "react";
+
 import {
   VscodeTable,
   VscodeTableBody,
   VscodeTableCell,
   VscodeTableHeader,
   VscodeTableHeaderCell,
-  VscodeTableRow
+  VscodeTableRow,
 } from "@vscode-elements/react-elements";
-import { FC } from "react";
 import { FormSection } from "./FormSection";
 
 interface WhatIfChangesViewProps {
@@ -26,15 +28,9 @@ export const WhatIfChangesView: FC<WhatIfChangesViewProps> = ({ changes }) => {
     <FormSection title="What-If Changes">
       <VscodeTable>
         <VscodeTableHeader slot="header">
-          <VscodeTableHeaderCell id="1">
-            Resource Id
-          </VscodeTableHeaderCell>
-          <VscodeTableHeaderCell id="2">
-            Change Type
-          </VscodeTableHeaderCell>
-          <VscodeTableHeaderCell id="3">
-            Changes
-          </VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="1">Resource Id</VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="2">Change Type</VscodeTableHeaderCell>
+          <VscodeTableHeaderCell id="3">Changes</VscodeTableHeaderCell>
         </VscodeTableHeader>
         <VscodeTableBody slot="body">
           {filteredChanges.map((change) => (
@@ -59,12 +55,8 @@ function getWhatIfPropertyChanges(changes?: WhatIfPropertyChange[]) {
   return (
     <VscodeTable>
       <VscodeTableHeader slot="header">
-        <VscodeTableHeaderCell id="1">
-          Path
-        </VscodeTableHeaderCell>
-        <VscodeTableHeaderCell id="2">
-          Change Type
-        </VscodeTableHeaderCell>
+        <VscodeTableHeaderCell id="1">Path</VscodeTableHeaderCell>
+        <VscodeTableHeaderCell id="2">Change Type</VscodeTableHeaderCell>
       </VscodeTableHeader>
       {filteredChanges.map((change) => (
         <VscodeTableRow key={change.path}>

@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { DeploymentOperation } from "@azure/arm-resources";
-import { DeploymentScopeType, ParamData, ParamDefinition, TemplateMetadata } from "../../models";
+
+import type { DeploymentOperation } from "@azure/arm-resources";
+import type { DeploymentScopeType, ParamData, ParamDefinition, TemplateMetadata } from "../models";
 
 function getScopeTypeFromSchema(template: Record<string, unknown>): DeploymentScopeType | undefined {
   const lookup: Record<string, DeploymentScopeType> = {

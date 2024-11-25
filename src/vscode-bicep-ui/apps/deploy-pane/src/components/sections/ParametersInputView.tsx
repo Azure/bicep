@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+import type { FC } from "react";
+import type { ParamData, ParamDefinition, ParametersMetadata, TemplateMetadata } from "../../models";
+
 import { VscodeButton, VscodeTextfield } from "@vscode-elements/react-elements";
-import { FC } from "react";
-import { ParamData, ParamDefinition, ParametersMetadata, TemplateMetadata } from "../../../models";
 import { ParamInputBox } from "../ParamInputBox";
 import { FormSection } from "./FormSection";
 

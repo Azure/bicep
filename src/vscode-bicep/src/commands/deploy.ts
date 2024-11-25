@@ -4,6 +4,7 @@
 import assert from "assert";
 import * as path from "path";
 import { AccessToken } from "@azure/identity";
+import { AzureSubscription } from "@microsoft/vscode-azext-azureauth";
 import {
   createSubscriptionContext,
   IActionContext,
@@ -29,11 +30,10 @@ import { AzurePickers } from "../utils/AzurePickers";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 import { localize } from "../utils/localize";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
+import { minutesToMs } from "../utils/time";
 import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
-import { AzureSubscription } from "@microsoft/vscode-azext-azureauth";
 import { Command } from "./types";
-import { minutesToMs } from "../utils/time";
 
 export class DeployCommand implements Command {
   private _none = localize("none", "$(circle-slash) None");
@@ -55,7 +55,7 @@ export class DeployCommand implements Command {
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager,
     private readonly azurePickers: AzurePickers,
-  ) { }
+  ) {}
 
   public async execute(context: IActionContext, documentUri: vscode.Uri | undefined): Promise<void> {
     const deployId = Math.random().toString();

@@ -106,8 +106,8 @@ namespace Bicep.Core.Semantics
             this.ArtifactReferenceFactory,
             this,
             this.SourceFileGrouping,
-            this.ConfigurationManager.GetConfiguration(bicepFile.FileUri),
-            this.FeatureProviderFactory.GetFeatureProvider(bicepFile.FileUri),
+            this.ConfigurationManager.GetConfiguration(bicepFile.Identifier),
+            this.FeatureProviderFactory.GetFeatureProvider(bicepFile.Identifier),
             this.Environment,
             this.FileCache,
             bicepFile);

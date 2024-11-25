@@ -13,7 +13,7 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public static NamespaceType Create(string? aliasName, IResourceTypeProvider resourceTypeProvider, ArtifactReference? artifact)
         {
-            if (resourceTypeProvider is ThirdPartyResourceTypeProvider thirdPartyProvider && 
+            if (resourceTypeProvider is ThirdPartyResourceTypeProvider thirdPartyProvider &&
                 thirdPartyProvider.GetNamespaceConfiguration() is NamespaceConfiguration namespaceConfig)
             {
                 return new NamespaceType(

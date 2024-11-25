@@ -191,10 +191,10 @@ namespace Bicep.Core.SourceCode
             }
 
             var sourceFilesWithArtifactReference =
-                sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.FileUri, out var reference) ? reference : null));
+                sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.Identifier, out var reference) ? reference : null));
 
             var documentLinks = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(sourceFileGrouping);
-            return PackSourcesIntoStream(sourceFileGrouping.EntryPoint.FileUri, cacheRoot, documentLinks, sourceFilesWithArtifactReference.ToArray());
+            return PackSourcesIntoStream(sourceFileGrouping.EntryPoint.Identifier, cacheRoot, documentLinks, sourceFilesWithArtifactReference.ToArray());
         }
 
         public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, params SourceFileWithArtifactReference[] sourceFiles)
@@ -208,7 +208,7 @@ namespace Bicep.Core.SourceCode
             sourceFiles = sourceFiles.Where(sf => sf.SourceFile is not TemplateSpecFile).ToArray();
 
             // Filter out any links where the source or target is not in our list of files to package
-            var sourceFileUris = sourceFiles.Select(sf => sf.SourceFile.FileUri).ToArray();
+            var sourceFileUris = sourceFiles.Select(sf => sf.SourceFile.Identifier).ToArray();
             documentLinks = documentLinks?
                 .Where(kvp => sourceFileUris.Contains(kvp.Key))
                 .Select(uriAndLink => (uriAndLink.Key, uriAndLink.Value.Where(link => sourceFileUris.Contains(link.Target)).ToArray()))
@@ -222,7 +222,7 @@ namespace Bicep.Core.SourceCode
                     var filesMetadata = new List<SourceFileInfoDto>();
                     string? entryPointPath = null;
 
-                    var paths = sourceFiles.Select(f => GetPath(f.SourceFile.FileUri)).ToArray();
+                    var paths = sourceFiles.Select(f => GetPath(f.SourceFile.Identifier)).ToArray();
                     var mapPathToRootPath = SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, paths);
                     var entrypointRootPath = mapPathToRootPath[GetPath(entrypointFileUri)];
                     var mapRootPathToRootNewName = NameRoots(mapPathToRootPath, entrypointRootPath, cacheRoot);
@@ -231,7 +231,7 @@ namespace Bicep.Core.SourceCode
 
                     foreach (var (file, artifactReference) in sourceFiles)
                     {
-                        string source = file.GetOriginalSource();
+                        string source = file.Text;
                         string kind = file switch
                         {
                             BicepFile bicepFile => SourceKind.Bicep,
@@ -243,7 +243,7 @@ namespace Bicep.Core.SourceCode
                         Debug.Assert(artifactReference is null || artifactReference is OciArtifactReference ociArtifactReference && ociArtifactReference.Type == ArtifactType.Module,
                             "Artifact reference must be null or an OCI module reference");
 
-                        var path = GetPath(file.FileUri);
+                        var path = GetPath(file.Identifier);
                         var root = mapPathToRootPath[path];
                         var rootName = mapRootPathToRootNewName[root];
                         var (relativePath, archivePath) = CalculateRelativeAndArchivePaths(path, root, rootName);
@@ -266,7 +266,7 @@ namespace Bicep.Core.SourceCode
                                 kind,
                                 artifactReference?.FullyQualifiedReference));
 
-                        if (PathHelper.PathComparer.Equals(file.FileUri, entrypointFileUri))
+                        if (PathHelper.PathComparer.Equals(file.Identifier, entrypointFileUri))
                         {
                             if (entryPointPath is not null)
                             {
@@ -276,7 +276,7 @@ namespace Bicep.Core.SourceCode
                             entryPointPath = relativePath;
                         }
 
-                        sourceUriToRelativePathMap.Add(file.FileUri, relativePath);
+                        sourceUriToRelativePathMap.Add(file.Identifier, relativePath);
                     }
 
                     if (entryPointPath is null)

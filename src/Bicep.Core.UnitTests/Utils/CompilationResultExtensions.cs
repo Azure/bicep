@@ -47,11 +47,11 @@ public static class ICompilationResultExtensions
         var fix = fixable.Fixes.Single();
         var replacement = fix.Replacements.Single();
 
-        var originalFile = result.SourceFile.GetOriginalSource();
+        var sourceText = result.SourceFile.Text;
 
         return string.Concat(
-            originalFile.AsSpan(0, replacement.Span.Position),
+            sourceText.AsSpan(0, replacement.Span.Position),
             replacement.Text,
-            originalFile.AsSpan(replacement.Span.GetEndPosition()));
+            sourceText.AsSpan(replacement.Span.GetEndPosition()));
     }
 }

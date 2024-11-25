@@ -11,6 +11,5 @@ call npm i
 call npm run build
 popd
 
-rem --install-links must be used when running npm i on this folder or the dependencies from vscode-bicep-ui will be wrong
 @echo %REDBG%Installing vscode-bicep dependencies%NOCOLOR%
-call npm i --install-links
+call npm i

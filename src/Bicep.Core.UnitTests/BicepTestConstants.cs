@@ -95,6 +95,9 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
 
+        public static RootConfiguration GetConfiguration(string contents)
+            => RootConfiguration.Bind(IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(contents)));
+
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configFilePath = null)
         {
             var configurationData = new Dictionary<string, object>

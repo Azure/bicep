@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using Bicep.Core.CodeAction;
-using System.Security.Policy;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System.Collections.Immutable;
+using System.Security.Policy;
+using Bicep.Core.CodeAction;
 using Bicep.LanguageServer.Telemetry;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Model;
 

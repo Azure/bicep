@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new string[] { })]
         [DataRow(
             2, 65, "output o% string = 'o%'",
-            new string[] {})]
+            new string[] { })]
         [DataRow(
             1, 65, "output o% string = 'o%'",
             new string[] { "Too many outputs. Number of outputs is limited to 64." })]

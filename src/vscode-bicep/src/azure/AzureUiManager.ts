@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { AccessToken } from "@azure/identity";
+import { AzureSubscription } from "@microsoft/vscode-azext-azureauth";
 import { createSubscriptionContext, IActionContext, nonNullProp } from "@microsoft/vscode-azext-utils";
 import { AzurePickers } from "../utils/AzurePickers";
 import { DeploymentScope, DeploymentScopeType, IAzureUiManager } from "./types";
-import { AzureSubscription } from "@microsoft/vscode-azext-azureauth";
 
 export class AzureUiManager implements IAzureUiManager {
   public constructor(
     private readonly context: IActionContext,
     private readonly azurePickers: AzurePickers,
-  ) { }
+  ) {}
 
   public async getAccessToken(scope: DeploymentScope): Promise<AccessToken> {
     const subscription = await this.getSubscription(scope);
@@ -25,6 +25,7 @@ export class AzureUiManager implements IAzureUiManager {
 
         return {
           scopeType,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
           portalUrl: subscription.environment.portalUrl,
           tenantId: subscription.tenantId,
           subscriptionId: subscription.subscriptionId,
@@ -36,6 +37,7 @@ export class AzureUiManager implements IAzureUiManager {
         const location = await this.azurePickers.pickLocation(this.context, subscription);
         return {
           scopeType,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
           portalUrl: subscription.environment.portalUrl,
           tenantId: subscription.tenantId,
           subscriptionId: subscription.subscriptionId,
@@ -50,20 +52,22 @@ export class AzureUiManager implements IAzureUiManager {
 
         return {
           scopeType,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
           portalUrl: subscription.environment.portalUrl,
           tenantId: subscription.tenantId,
-          managementGroup: nonNullProp( managementGroup,"name"),
+          managementGroup: nonNullProp(managementGroup, "name"),
           associatedSubscriptionId: subscription.subscriptionId,
           location,
         };
       }
-      
+
       case "tenant": {
         const subscription = await this.azurePickers.pickSubscription(this.context);
         const location = await this.azurePickers.pickLocation(this.context, subscription);
 
         return {
           scopeType,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
           portalUrl: subscription.environment.portalUrl,
           tenantId: subscription.tenantId,
           associatedSubscriptionId: subscription.subscriptionId,

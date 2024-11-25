@@ -297,22 +297,11 @@ namespace Bicep.LanguageServer.Completions
                 return [];
             }
 
-            if (replacementText == "'br/public:'" ||
-                replacementText == $"'br:{PublicMCRRegistry}/bicep/'" ||
-                replacementText == "'br/public:" ||
-                replacementText == $"'br:{PublicMCRRegistry}/bicep/")
-            {
-                return GetPublicModuleCompletions(replacementText, context, sourceFileUri);
-            }
-            else
-            {
-                List<CompletionItem> completions = new();
-
-                completions.AddRange(GetACRPartialPathCompletionsFromBicepConfig(replacementText, context, sourceFileUri));
-                completions.AddRange(GetMCRPathCompletionFromBicepConfig(replacementText, context, sourceFileUri));
-
-                return completions;
-            }
+            return [
+                .. GetPublicModuleCompletions(replacementText, context),
+                .. GetACRPartialPathCompletionsFromBicepConfig(replacementText, context, sourceFileUri),
+                .. GetMCRPathCompletionFromBicepConfig(replacementText, context, sourceFileUri),
+            ];
         }
 
 
@@ -503,16 +492,31 @@ namespace Bicep.LanguageServer.Completions
         //   br/public:<CURSOR>
         // or
         //   br:mcr.microsoft.com/bicep/:<CURSOR>
-        private IEnumerable<CompletionItem> GetPublicModuleCompletions(string replacementText, BicepCompletionContext context, Uri sourceUri)
+        private IEnumerable<CompletionItem> GetPublicModuleCompletions(string replacementText, BicepCompletionContext context)
         {
-            List<CompletionItem> completions = new();
+            var (prefix, suffix) = replacementText switch
+            {
+                { } x when x.StartsWith("'br/public:", StringComparison.Ordinal) => ("'br/public:", x["'br/public:".Length..].TrimEnd('\'')),
+                { } x when x.StartsWith($"'br:{PublicMCRRegistry}/bicep/", StringComparison.Ordinal) => ($"'br:{PublicMCRRegistry}/bicep/", x[$"'br:{PublicMCRRegistry}/bicep/".Length..].TrimEnd('\'')),
+                _ => (null, null),
+            };
 
-            var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
+            if (prefix is null || suffix is null)
+            {
+                return [];
+            }
+
+            List<CompletionItem> completions = new();
 
             var modules = publicRegistryModuleMetadataProvider.GetModulesMetadata();
             foreach (var (moduleName, description, documentationUri) in modules)
             {
-                var insertText = $"{replacementTextWithTrimmedEnd}{moduleName}:$0'";
+                if (!moduleName.StartsWith(suffix, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var insertText = $"{prefix}{moduleName}:$0'";
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, moduleName)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
