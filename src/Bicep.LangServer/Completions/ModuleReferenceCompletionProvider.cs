@@ -494,9 +494,10 @@ namespace Bicep.LanguageServer.Completions
         //   br:mcr.microsoft.com/bicep/:<CURSOR>
         private IEnumerable<CompletionItem> GetPublicModuleCompletions(string replacementText, BicepCompletionContext context)
         {
-            var (prefix, suffix) = replacementText switch {
-                {} x when x.StartsWith("'br/public:", StringComparison.Ordinal) => ("'br/public:", x["'br/public:".Length..].TrimEnd('\'')),
-                {} x when x.StartsWith($"'br:{PublicMCRRegistry}/bicep/", StringComparison.Ordinal) => ($"'br:{PublicMCRRegistry}/bicep/", x[$"'br:{PublicMCRRegistry}/bicep/".Length..].TrimEnd('\'')),
+            var (prefix, suffix) = replacementText switch
+            {
+                { } x when x.StartsWith("'br/public:", StringComparison.Ordinal) => ("'br/public:", x["'br/public:".Length..].TrimEnd('\'')),
+                { } x when x.StartsWith($"'br:{PublicMCRRegistry}/bicep/", StringComparison.Ordinal) => ($"'br:{PublicMCRRegistry}/bicep/", x[$"'br:{PublicMCRRegistry}/bicep/".Length..].TrimEnd('\'')),
                 _ => (null, null),
             };
 
