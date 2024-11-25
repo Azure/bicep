@@ -757,7 +757,7 @@
     "package:local": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net8.0 ./bicepLanguageServer && npm run package"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.14.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@types/cytoscape": "^3.21.7",
