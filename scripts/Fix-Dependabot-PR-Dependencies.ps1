@@ -7,6 +7,10 @@ function getPrLink($prNumber) {
     return "https://github.com/azure/bicep/pull/$($prNumber)"
 }
 
+function getPrState($prNumber) {
+    return (gh pr view $prNumber --json state | jq '.state').Trim('"')
+}
+
 function processPR {
     param (
         [Parameter(Mandatory = $true)]
@@ -17,6 +21,13 @@ function processPR {
         
         [ref]$allPrs  # Use a reference to modify the original array asdfg
     )
+
+    $prState = getPrState($prNumber)
+    if ($prState -ne 'OPEN') {
+        Write-Warning "PR $(getPrLink($prNumber)) is not open. Skipping..."
+        $allPrs.Value = $allPrs.Value | Where-Object { $_.number -ne $prNumber }
+        return
+    }
 
     Write-Host "Running lockfiles-command workflow for PR $(getPrLink($prNumber))"
     if (!$dryRun) {
@@ -89,5 +100,5 @@ foreach ($pr in $prs) {
 Write-Host "All PRs processed."
 
 foreach ($pr in $prs) {
-    Write-Host "$(getPrLink($pr.number)): $(gh pr view $pr.number --json state | jq '.state')"
+    Write-Host "$(getPrLink($pr.number)): $(getPrState($pr.number))"
 }
