@@ -100,8 +100,6 @@ export class DeployCommand implements Command {
         `Scope specified in ${path.basename(documentPath)}: ${deploymentScope}`,
       );
 
-      await this.azurePickers.EnsureSignedIn();
-
       const fileName = path.basename(documentPath, ".bicep");
       const options = {
         title: `Please enter name for deployment`,
@@ -113,6 +111,7 @@ export class DeployCommand implements Command {
 
       let deploymentStartResponse: BicepDeploymentStartResponse | undefined;
 
+      this.azurePickers.EnsureSignedIn(context);
       switch (deploymentScope) {
         case "resourceGroup":
           deploymentStartResponse = await this.handleResourceGroupDeployment(
