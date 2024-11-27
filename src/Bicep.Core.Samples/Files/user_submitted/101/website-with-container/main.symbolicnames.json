@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13381616690819142544"
+      "templateHash": "15571119746721048953"
     }
   },
   "parameters": {
@@ -82,7 +82,6 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('farmName'))]"
       },
       "dependsOn": [
-        "containerRegistry",
         "farm"
       ]
     },

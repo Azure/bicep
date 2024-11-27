@@ -269,7 +269,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(
                @"
-                resource vn 'Microsoft.Network/virtualNetworks@2020-06-01' existing =  {
+                resource vn 'Microsoft.Network/virtualNetworks@2020-06-01' =  {
                   name: 'vn'
 
                   resource subnet1 'subnets@2020-06-01' = {
@@ -305,10 +305,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(
                 """
-                resource otherVn 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-                  name: 'otherVn'
-                }
-
                 resource vn 'Microsoft.Network/virtualNetworks@2020-06-01' existing =  {
                   name: 'vn'
 
@@ -325,15 +321,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                       addressPrefix: '10.0.1.0/24'
                     }
                     dependsOn: [
-                      otherVn
+                      vn
                       subnet1
-                      otherVn
+                      vn
                     ]
                   }
                 }
                 """,
                 OnCompileErrors.IncludeErrors,
-                ["Remove unnecessary dependsOn entry 'otherVn'."]);
+                ["Remove unnecessary dependsOn entry 'vn'."]);
         }
 
         [TestMethod]
@@ -386,7 +382,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void If_UnnecessaryReferenceToParent_FromLoop_ToNonLoopedParent_Should_Fail()
         {
             CompileAndTest(@"
-                resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
+                resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' = {
                   name: 'vn'
                 }
 
@@ -404,6 +400,24 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               ]
             );
         }
+
+        [TestMethod]
+        public void Explicit_dependsOn_on_existing_parent_should_ignore_and_pass() => CompileAndTest(
+            """
+            resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
+              name: 'vn'
+            }
+                
+            resource blobServices 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = [for i in range(0, 3): {
+              name: 'blobs${i}'
+              parent: vn
+              dependsOn: [
+                vn
+              ]
+            }]
+            """,
+            OnCompileErrors.IncludeErrors,
+            []);
 
         [TestMethod]
         public void If_ReferencesResourceByIndex_Simple_Should_IgnoreAndPass()
@@ -648,7 +662,7 @@ resource webApplication 'Microsoft.Web/sites@2018-11-01' = {
 
         [TestMethod]
         public void Codefix_for_If_UnnecessaryReferenceToParent_FromLoop_ToNonLoopedParent() => AssertCodeFix(@"
-resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
+resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' = {
   name: 'vn'
 }
 
@@ -660,7 +674,7 @@ resource blobServices 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = [
   ]
 }]
 ", @"
-resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
+resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' = {
   name: 'vn'
 }
 

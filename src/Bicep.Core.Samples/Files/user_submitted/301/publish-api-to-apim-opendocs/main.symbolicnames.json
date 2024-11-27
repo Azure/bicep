@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6433078083851594853"
+      "templateHash": "15303901391681280108"
     }
   },
   "parameters": {
@@ -93,10 +93,7 @@
         "approvalRequired": "[variables('productsSet')[copyIndex()].isApprovalRequired]",
         "subscriptionsLimit": "[variables('productsSet')[copyIndex()].subscriptionLimit]",
         "state": "[variables('productsSet')[copyIndex()].publishState]"
-      },
-      "dependsOn": [
-        "apiManagementService"
-      ]
+      }
     },
     "functionAPI": {
       "type": "Microsoft.ApiManagement/service/apis",
@@ -106,10 +103,7 @@
         "format": "[parameters('apiFormat')]",
         "value": "[parameters('apiEndPointURL')]",
         "path": "[parameters('apiPath')]"
-      },
-      "dependsOn": [
-        "apiManagementService"
-      ]
+      }
     },
     "attachAPIToProducts": {
       "copy": {

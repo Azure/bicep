@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18313409063500380309"
+      "templateHash": "13154103683186341528"
     }
   },
   "parameters": {
@@ -28,10 +28,7 @@
       "name": "DontDelete",
       "properties": {
         "level": "CanNotDelete"
-      },
-      "dependsOn": [
-        "storageAcc"
-      ]
+      }
     }
   }
 }
