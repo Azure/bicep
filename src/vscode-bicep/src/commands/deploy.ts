@@ -100,7 +100,7 @@ export class DeployCommand implements Command {
         `Scope specified in ${path.basename(documentPath)}: ${deploymentScope}`,
       );
 
-      await this.azurePickers.EnsureSignedIn();
+      await this.azurePickers.EnsureSignedIn(context);
 
       const fileName = path.basename(documentPath, ".bicep");
       const options = {

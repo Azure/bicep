@@ -91,7 +91,7 @@ export class AzureUiManager implements IAzureUiManager {
   }
 
   private async getSubscription(scope: DeploymentScope): Promise<AzureSubscription> {
-    await this.azurePickers.EnsureSignedIn();
+    await this.azurePickers.EnsureSignedIn(this.context);
 
     const subscriptionId = this.getSubscriptionId(scope);
     const subscriptions = await this.azurePickers.getAllSubscriptions();
