@@ -1441,9 +1441,7 @@ public class ExpressionBuilder
     private bool IsDependencyPathTerminus(ResourceDependency dependency) => dependency.Resource switch
     {
         ModuleSymbol => true,
-        ResourceSymbol r => !r.DeclaringResource.IsExistingResource() ||
-            // only use an existing resource as the terminus iff the compilation will include existing resources and the reference is not weak
-            (Context.Settings.EnableSymbolicNames && !dependency.WeakReference),
+        ResourceSymbol r => !r.DeclaringResource.IsExistingResource() || Context.Settings.EnableSymbolicNames,
         _ => false,
     };
 
