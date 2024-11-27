@@ -78,8 +78,9 @@ function processPR {
         return  # Exit the method
     }
 
+    # Set to auto-merge
     Write-Host "All checks for $(getPrLink($prNumber)) have completed successfully."
-    gh pr merge $prNumber --rebase --auto
+    gh pr merge $prNumber --squash --auto
     Write-Host "PR $(getPrLink($prNumber)) has been set to auto-merge.";
 
     $allPrs.Value = $allPrs.Value | Where-Object { $_.number -ne $prNumber }
