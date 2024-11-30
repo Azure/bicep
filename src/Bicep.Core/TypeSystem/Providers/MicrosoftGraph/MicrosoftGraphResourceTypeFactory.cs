@@ -45,6 +45,11 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
         {
             var flags = TypePropertyFlags.None;
 
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.Identifier))
+            {
+                flags |= TypePropertyFlags.ResourceIdentifier;
+                flags |= TypePropertyFlags.LoopVariant;
+            }
             if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.Required))
             {
                 flags |= TypePropertyFlags.Required;
