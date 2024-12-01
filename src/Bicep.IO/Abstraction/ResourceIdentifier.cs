@@ -185,7 +185,7 @@ namespace Bicep.IO.Abstraction
             if (authority is not null && !(path.Length == 0 || path.StartsWith('/')))
             {
                 // https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
-                throw new ArgumentException("Path must be empty or absolute when authority is non-null."); 
+                throw new ArgumentException("Path must be empty or absolute when authority is non-null.");
             }
 
             if (authority is null && path.StartsWith("//"))
@@ -197,7 +197,7 @@ namespace Bicep.IO.Abstraction
             if (scheme.IsFile && !path.StartsWith('/'))
             {
                 // https://datatracker.ietf.org/doc/html/rfc8089#section-2
-                throw new ArgumentException("File path must be absolute."); 
+                throw new ArgumentException("File path must be absolute.");
             }
 
             var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
