@@ -21,7 +21,7 @@
     "tmlanguage-generator": "^0.5.10",
     "ts-jest": "^28.0.8",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3",
+    "typescript": "^5.7.2",
     "vscode-oniguruma": "^2.0.1",
     "vscode-textmate": "^9.1.0"
   },
