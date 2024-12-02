@@ -16,7 +16,7 @@ namespace Bicep.RegistryModuleTool.Extensions
         {
             (int line, int character) = TextCoordinateConverter.GetPosition(file.LineStarts, diagnostic.Span.Position);
             var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
-            var message = $"{file.Identifier.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}";
+            var message = $"{file.Uri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}";
 
             switch (diagnostic.Level)
             {

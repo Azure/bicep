@@ -58,7 +58,7 @@ namespace Bicep.LanguageServer.Handlers
             var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
 
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
-                .FirstOrDefault(x => x.Key.Identifier == fileUri);
+                .FirstOrDefault(x => x.Key.Uri == fileUri);
 
             if (diagnosticsByFile.Value.Any(x => x.IsError()))
             {

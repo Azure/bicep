@@ -42,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
                     diagnostics.Where(d => !IsPermittedMissingTypeDiagnostic(d)),
                     diagnostics =>
                     {
-                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", file.Identifier.LocalPath);
+                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", file.Uri.LocalPath);
                     });
             }
 

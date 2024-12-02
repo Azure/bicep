@@ -7,13 +7,13 @@ namespace Bicep.Core.Workspaces
     {
         public TemplateSpecFile(Uri fileUri, string text, string? templateSpecId, ArmTemplateFile mainTemplateFile)
         {
-            this.Identifier = fileUri;
+            this.Uri = fileUri;
             this.Text = text;
             this.TemplateSpecId = templateSpecId;
             this.MainTemplateFile = mainTemplateFile;
         }
 
-        public Uri Identifier { get; }
+        public Uri Uri { get; }
 
         public string Text { get; }
 

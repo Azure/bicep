@@ -237,7 +237,7 @@ Following metadata was not decompiled:
             if (!object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))
             {
                 hasChanges = true;
-                var newFile = SourceFileFactory.CreateBicepFile(bicepFile.Identifier, newProgramSyntax.ToString());
+                var newFile = SourceFileFactory.CreateBicepFile(bicepFile.Uri, newProgramSyntax.ToString());
                 workspace.UpsertSourceFile(newFile);
 
                 compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true);

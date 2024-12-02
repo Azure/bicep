@@ -33,7 +33,7 @@ namespace Bicep.Core.Semantics
 
         public ArmTemplateSemanticModel(ArmTemplateFile sourceFile)
         {
-            Trace.WriteLine($"Building semantic model for {sourceFile.Identifier}");
+            Trace.WriteLine($"Building semantic model for {sourceFile.Uri}");
 
             this.SourceFile = sourceFile;
 

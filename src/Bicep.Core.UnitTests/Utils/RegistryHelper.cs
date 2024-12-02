@@ -68,7 +68,7 @@ public static class RegistryHelper
             throw new InvalidOperationException($"Module {moduleName} failed to produce a template.");
         }
 
-        var features = featureProviderFactory.GetFeatureProvider(result.BicepFile.Identifier);
+        var features = featureProviderFactory.GetFeatureProvider(result.BicepFile.Uri);
         BinaryData? sourcesStream = publishSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(dispatcher, result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
         await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, documentationUri);
     }

@@ -46,7 +46,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             return await client.RequestCompletion(new CompletionParams
             {
-                TextDocument = new TextDocumentIdentifier(bicepFile.Identifier),
+                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
                 Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
             });
         }
@@ -55,7 +55,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             return await client.RequestReferences(new ReferenceParams
             {
-                TextDocument = new TextDocumentIdentifier(bicepFile.Identifier),
+                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
                 Context = new ReferenceContext
                 {
                     IncludeDeclaration = includeDeclaration
@@ -68,7 +68,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             return await client.RequestDocumentHighlight(new DocumentHighlightParams
             {
-                TextDocument = new TextDocumentIdentifier(bicepFile.Identifier),
+                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
                 Position = PositionHelper.GetPosition(bicepFile.LineStarts, cursor)
             });
         }
@@ -78,7 +78,7 @@ namespace Bicep.LangServer.IntegrationTests
             return await client.RequestRename(new RenameParams
             {
                 NewName = expectedNewText,
-                TextDocument = new TextDocumentIdentifier(bicepFile.Identifier),
+                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
                 Position = PositionHelper.GetPosition(bicepFile.LineStarts, cursor),
             });
         }
@@ -87,14 +87,14 @@ namespace Bicep.LangServer.IntegrationTests
         {
             return await client.RequestCodeLens(new CodeLensParams
             {
-                TextDocument = new TextDocumentIdentifier(bicepFile.Identifier),
+                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
             });
         }
 
         public async Task<SignatureHelp?> RequestSignatureHelp(int cursor, SignatureHelpContext? context = null) =>
             await client.RequestSignatureHelp(new SignatureHelpParams
             {
-                TextDocument = new TextDocumentIdentifier(bicepFile.Identifier),
+                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
                 Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor),
                 Context = context ?? new SignatureHelpContext
                 {
@@ -145,7 +145,7 @@ namespace Bicep.LangServer.IntegrationTests
             var originalFile = bicepFile.ProgramSyntax.ToString();
             var replaced = originalFile.Substring(0, start) + textToInsert + originalFile.Substring(end);
 
-            return SourceFileFactory.CreateBicepFile(bicepFile.Identifier, replaced);
+            return SourceFileFactory.CreateBicepFile(bicepFile.Uri, replaced);
         }
 
         public BicepFile ApplyWorkspaceEdit(WorkspaceEdit? edit)
@@ -155,7 +155,7 @@ namespace Bicep.LangServer.IntegrationTests
             edit.DocumentChanges.Should().BeNull();
             edit.ChangeAnnotations.Should().BeNull();
 
-            var changes = edit.Changes![bicepFile.Identifier];
+            var changes = edit.Changes![bicepFile.Uri];
 
             var replaced = bicepFile.ProgramSyntax.ToString();
             var offset = 0;
@@ -169,14 +169,14 @@ namespace Bicep.LangServer.IntegrationTests
                 offset += change.NewText.Length - (end - start);
             }
 
-            return SourceFileFactory.CreateBicepFile(bicepFile.Identifier, replaced);
+            return SourceFileFactory.CreateBicepFile(bicepFile.Uri, replaced);
         }
 
         public async Task<Hover?> RequestHover(int cursor)
         {
             return await client.RequestHover(new HoverParams
             {
-                TextDocument = new TextDocumentIdentifier(bicepFile.Identifier),
+                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
                 Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
             });
         }
@@ -185,7 +185,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var response = await client.RequestDefinition(new DefinitionParams
             {
-                TextDocument = new TextDocumentIdentifier(bicepFile.Identifier),
+                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
                 Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
             });
 
@@ -210,7 +210,7 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 TextDocument = new TextDocumentIdentifier
                 {
-                    Uri = bicepFile.Identifier
+                    Uri = bicepFile.Uri
                 },
                 Options = new FormattingOptions
                 {

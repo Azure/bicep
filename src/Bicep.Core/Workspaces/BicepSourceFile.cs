@@ -13,7 +13,7 @@ namespace Bicep.Core.Workspaces
         {
             LineStarts = lineStarts;
             ProgramSyntax = programSyntax;
-            Identifier = fileUri;
+            Uri = fileUri;
             Hierarchy = SyntaxHierarchy.Build(ProgramSyntax);
             LexingErrorLookup = lexingErrorLookup;
             ParsingErrorLookup = parsingErrorLookup;
@@ -22,7 +22,7 @@ namespace Bicep.Core.Workspaces
 
         protected BicepSourceFile(BicepSourceFile original)
         {
-            Identifier = original.Identifier;
+            Uri = original.Uri;
             LineStarts = original.LineStarts;
             ProgramSyntax = original.ProgramSyntax;
             Hierarchy = original.Hierarchy;
@@ -35,7 +35,7 @@ namespace Bicep.Core.Workspaces
 
         public ProgramSyntax ProgramSyntax { get; }
 
-        public Uri Identifier { get; }
+        public Uri Uri { get; }
 
         public string Text => ProgramSyntax.ToString();
 

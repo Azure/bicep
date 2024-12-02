@@ -45,21 +45,19 @@ namespace Bicep.IO.Abstraction
 
         private static int GetExtensionStartIndex(string path)
         {
-            int extensionStartIndex = -1;
-
-            for (int i = 0; i < path.Length; i++)
+            for (int i = path.Length - 1; i >= 0; i--)
             {
                 if (path[i] == '.')
                 {
-                    extensionStartIndex = i;
+                    return i;
                 }
                 else if (path[i] == '/')
                 {
-                    return extensionStartIndex;
+                    return -1;
                 }
             }
 
-            return extensionStartIndex;
+            return -1;
         }
     }
 }

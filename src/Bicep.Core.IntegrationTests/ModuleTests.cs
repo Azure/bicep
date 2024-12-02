@@ -652,7 +652,7 @@ resource fake 'Another.Fake/Type@2019-06-01' = {
 
 output storage resource 'Another.Fake/Type@2019-06-01' = fake
 "));
-            var diagnosticsMap = result.Compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Identifier, kvp => kvp.Value);
+            var diagnosticsMap = result.Compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
             using (new AssertionScope())
             {
                 diagnosticsMap[InMemoryFileResolver.GetFileUri("/path/to/module.bicep")].Should().HaveDiagnostics(new[]
@@ -769,7 +769,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
 
         private static (bool success, IDictionary<Uri, ImmutableArray<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
         {
-            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Identifier, kvp => kvp.Value);
+            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
             var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
 
             return (success, diagnosticsByFile);

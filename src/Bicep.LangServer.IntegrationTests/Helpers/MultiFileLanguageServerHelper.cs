@@ -72,7 +72,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         public async Task<PublishDiagnosticsParams> OpenFileOnceAsync(TestContext testContext, BicepSourceFile file)
-            => await OpenFileOnceAsync(testContext, file.ProgramSyntax.ToString(), file.Identifier);
+            => await OpenFileOnceAsync(testContext, file.ProgramSyntax.ToString(), file.Uri);
 
         public async Task<PublishDiagnosticsParams> ChangeFileAsync(TestContext testContext, string text, DocumentUri documentUri, int version)
         {
@@ -109,7 +109,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         public async Task ChangeFileAsync(TestContext testContext, BicepFile file, int version)
-            => await ChangeFileAsync(testContext, file.ProgramSyntax.ToString(), file.Identifier, version);
+            => await ChangeFileAsync(testContext, file.ProgramSyntax.ToString(), file.Uri, version);
 
         public void Dispose()
         {

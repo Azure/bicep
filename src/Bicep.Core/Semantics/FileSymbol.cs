@@ -22,12 +22,12 @@ namespace Bicep.Core.Semantics
             BicepSourceFile sourceFile,
             NamespaceResolver namespaceResolver,
             LocalScope fileScope)
-            : base(sourceFile.Identifier.LocalPath)
+            : base(sourceFile.Uri.LocalPath)
         {
             this.Context = context;
             this.Syntax = sourceFile.ProgramSyntax;
             this.NamespaceResolver = namespaceResolver;
-            this.FileUri = sourceFile.Identifier;
+            this.FileUri = sourceFile.Uri;
             this.FileKind = sourceFile.FileKind;
             this.LocalScopes = fileScope.ChildScopes;
 

@@ -197,7 +197,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var workspace = new Workspace();
             workspace.UpsertSourceFile(bicepFile);
-            var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.Identifier, workspace);
+            var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.Uri, workspace);
 
             bicepFile = RewriterHelper.RewriteMultiple(
                 compiler,

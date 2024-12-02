@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Utils
             SourceFiles[0].Should().BeOfType<BicepFile>("Entrypoint should be a bicep file");
 
             return SourceArchive.PackSourcesIntoStream(
-                EntrypointFile.Identifier,
+                EntrypointFile.Uri,
                 cacheRoot,
                 SourceFiles.Select(x => new SourceFileWithArtifactReference(x, null)).ToArray());
         }

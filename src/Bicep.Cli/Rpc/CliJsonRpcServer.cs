@@ -75,7 +75,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
 
         var workspace = new Workspace();
         workspace.UpsertSourceFile(paramFile);
-        compilation = await compiler.CreateCompilation(paramFile.Identifier, workspace);
+        compilation = await compiler.CreateCompilation(paramFile.Uri, workspace);
         var paramsResult = compilation.Emitter.Parameters();
 
         return new(
@@ -96,7 +96,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         var fileUris = new HashSet<Uri>();
         foreach (var otherModel in compilation.GetAllBicepModels())
         {
-            fileUris.Add(otherModel.SourceFile.Identifier);
+            fileUris.Add(otherModel.SourceFile.Uri);
             fileUris.UnionWith(otherModel.GetAuxiliaryFileReferences());
             if (otherModel.Configuration.ConfigFileUri is { } configFileIdentifier)
             {
@@ -235,7 +235,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         {
             foreach (var diagnostic in diagnostics)
             {
-                yield return new(bicepFile.Identifier.LocalPath, GetRange(bicepFile, diagnostic), diagnostic.Level.ToString(), diagnostic.Code, diagnostic.Message);
+                yield return new(bicepFile.Uri.LocalPath, GetRange(bicepFile, diagnostic), diagnostic.Level.ToString(), diagnostic.Code, diagnostic.Message);
             }
         }
     }

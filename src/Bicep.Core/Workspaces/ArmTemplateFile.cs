@@ -16,13 +16,13 @@ namespace Bicep.Core.Workspaces
                 throw new ArgumentException($"Expected {nameof(template)} and {nameof(templateObject)} to both be non-null or both be null.");
             }
 
-            this.Identifier = fileUri;
+            this.Uri = fileUri;
             this.Text = text;
             this.Template = template;
             this.TemplateObject = templateObject;
         }
 
-        public Uri Identifier { get; }
+        public Uri Uri { get; }
 
         public string Text { get; }
 

@@ -149,7 +149,7 @@ namespace Bicep.LanguageServer.Handlers
                     && context.Compilation.GetEntrypointSemanticModel().GetDeclaredType(stringToken) is { } stringType
                     && stringType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath)
                     && stringToken.TryGetLiteralValue() is { } stringTokenValue
-                    && fileResolver.TryResolveFilePath(context.Compilation.SourceFileGrouping.EntryPoint.Identifier, stringTokenValue) is { } fileUri
+                    && fileResolver.TryResolveFilePath(context.Compilation.SourceFileGrouping.EntryPoint.Uri, stringTokenValue) is { } fileUri
                     && fileResolver.FileExists(fileUri))
                 {
                     return GetFileDefinitionLocation(
@@ -165,7 +165,7 @@ namespace Bicep.LanguageServer.Handlers
                     context.Compilation.SourceFileGrouping.TryGetSourceFile(@using).IsSuccess(out var sourceFile))
                 {
                     return GetFileDefinitionLocation(
-                        sourceFile.Identifier,
+                        sourceFile.Uri,
                         path,
                         context,
                         new() { Start = new(0, 0), End = new(0, 0) });
@@ -192,7 +192,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 // the client doesn't support the bicep-extsrc scheme or we're dealing with a local module
                 // just use the file URI
-                return sourceFile.Identifier;
+                return sourceFile.Uri;
             }
 
             if (reference is OciArtifactReference ociArtifactReference)
@@ -363,7 +363,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var range = PositionHelper.GetNameRange(bicepModel.SourceFile.LineStarts, parameterSymbol.DeclaringSyntax);
-            var documentUri = bicepModel.SourceFile.Identifier;
+            var documentUri = bicepModel.SourceFile.Uri;
 
             return new(new LocationOrLocationLink(new LocationLink
             {
@@ -394,7 +394,7 @@ namespace Bicep.LanguageServer.Handlers
                 return new(new LocationOrLocationLink(new LocationLink
                 {
                     OriginSelectionRange = originSelectionRange,
-                    TargetUri = bicepModel.SourceFile.Identifier,
+                    TargetUri = bicepModel.SourceFile.Uri,
                     TargetRange = targetRange,
                     TargetSelectionRange = targetRange,
                 }));
@@ -477,8 +477,8 @@ namespace Bicep.LanguageServer.Handlers
         private static (Template?, Uri?) GetArmSourceTemplateInfo(CompilationContext context, IArtifactReferenceSyntax foreignTemplateReference)
             => context.Compilation.SourceFileGrouping.TryGetSourceFile(foreignTemplateReference).TryUnwrap() switch
             {
-                TemplateSpecFile templateSpecFile => (templateSpecFile.MainTemplateFile.Template, templateSpecFile.Identifier),
-                ArmTemplateFile armTemplateFile => (armTemplateFile.Template, armTemplateFile.Identifier),
+                TemplateSpecFile templateSpecFile => (templateSpecFile.MainTemplateFile.Template, templateSpecFile.Uri),
+                ArmTemplateFile armTemplateFile => (armTemplateFile.Template, armTemplateFile.Uri),
                 _ => (null, null),
             };
 
@@ -509,7 +509,7 @@ namespace Bicep.LanguageServer.Handlers
                             .FirstOrDefault(d => string.Equals(d.Name, propertyName)) is OutputSymbol outputSymbol)
                         {
                             return GetFileDefinitionLocation(
-                                bicepFile.Identifier,
+                                bicepFile.Uri,
                                 underlinedSyntax,
                                 context,
                                 outputSymbol.DeclaringOutput.Name.ToRange(bicepFile.LineStarts));
@@ -520,7 +520,7 @@ namespace Bicep.LanguageServer.Handlers
                             .FirstOrDefault(d => string.Equals(d.Name, propertyName)) is ParameterSymbol parameterSymbol)
                         {
                             return GetFileDefinitionLocation(
-                                bicepFile.Identifier,
+                                bicepFile.Uri,
                                 underlinedSyntax,
                                 context,
                                 parameterSymbol.DeclaringParameter.Name.ToRange(bicepFile.LineStarts));
