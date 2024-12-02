@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.IO.Abstraction
 {
-    public interface IDirectoryHandle : IResourceHandle
+    public interface IDirectoryHandle : IIOHandle
     {
         void EnsureExists();
 

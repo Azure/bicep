@@ -49,7 +49,7 @@ namespace Bicep.IO.UnitTests.FileSystem
             var parentDirectory = fileHandle.GetParent();
 
             // Assert.
-            parentDirectory.Identifier.GetFileSystemPath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
+            parentDirectory.Uri.GetFileSystemPath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
         }
 
         [TestMethod]

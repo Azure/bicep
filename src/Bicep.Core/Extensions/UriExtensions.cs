@@ -16,7 +16,7 @@ namespace Bicep.Core.Extensions
     // TODO: remove after file abstraction migration is done.
     public static class UriExtensions
     {
-        public static ResourceIdentifier ToFileIdentifier(this Uri uri)
+        public static IOUri ToIOUri(this Uri uri)
         {
             var path = Uri.UnescapeDataString(uri.AbsolutePath);
 
@@ -25,7 +25,7 @@ namespace Bicep.Core.Extensions
                 path = '/' + path;
             }
 
-            return new ResourceIdentifier(uri.Scheme, uri.Authority, path);
+            return new IOUri(uri.Scheme, uri.Authority, path);
         }
     }
 }

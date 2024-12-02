@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.IO.UnitTests.Abstraction
 {
     [TestClass]
-    public class ResourceIdentifierExtensionsTests
+    public class IOUriExtensionsTests
     {
         [DataTestMethod]
         [DataRow("/a/b/c.txt", ".txt")]
@@ -20,7 +20,7 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void GetExtension_ValidPaths_ReturnsCorrectExtension(string path, string expectedExtension)
         {
             // Arrange.
-            var resourceIdentifier = new ResourceIdentifier("file", "", path);
+            var resourceIdentifier = new IOUri("file", "", path);
 
             // Act.
             var extension = resourceIdentifier.GetExtension();
@@ -39,7 +39,7 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void WithExtension_ValidPaths_ReturnsPathWithNewExtension(string path, string newExtension, string expectedPath)
         {
             // Arrange
-            var resourceIdentifier = new ResourceIdentifier("file", "", path);
+            var resourceIdentifier = new IOUri("file", "", path);
 
             // Act
             var newResourceIdentifier = resourceIdentifier.WithExtension(newExtension);

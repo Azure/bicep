@@ -93,7 +93,7 @@ public class NamespaceProvider : INamespaceProvider
     {
         if (extension.Config is null)
         {
-            return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().InvalidExtension_ImplicitExtensionMissingConfig(rootConfig.ConfigFileIdentifier, extension.Name));
+            return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().InvalidExtension_ImplicitExtensionMissingConfig(rootConfig.ConfigFileUri, extension.Name));
         }
 
         return GetNamespaceTypeForConfigManagedExtension(rootConfig, features, sourceFile, targetScope, extension.Artifact, syntax, extension.Name);
@@ -182,7 +182,7 @@ public class NamespaceProvider : INamespaceProvider
             return K8sNamespaceType.Create(aliasName);
         }
 
-        return ErrorType.Create(diagBuilder.InvalidExtension_NotABuiltInExtension(rootConfig.ConfigFileIdentifier, extensionName));
+        return ErrorType.Create(diagBuilder.InvalidExtension_NotABuiltInExtension(rootConfig.ConfigFileUri, extensionName));
     }
 
     private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)

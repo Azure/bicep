@@ -129,7 +129,7 @@ namespace Bicep.Core.UnitTests
                 element = element.SetPropertyByPath(path, value);
             }
 
-            ResourceIdentifier? configFileIdentifier = configFilePath is not null ? new ResourceIdentifier("file", "", configFilePath) : null;
+            IOUri? configFileIdentifier = configFilePath is not null ? new IOUri("file", "", configFilePath) : null;
 
             return RootConfiguration.Bind(element, configFileIdentifier);
         }

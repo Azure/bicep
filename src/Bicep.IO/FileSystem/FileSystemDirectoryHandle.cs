@@ -12,16 +12,16 @@ using Bicep.IO.FileSystem;
 
 namespace Bicep.IO.FileSystem
 {
-    public class FileSystemDirectoryHandle : FileSystemResourceHandle, IDirectoryHandle
+    public class FileSystemDirectoryHandle : FileSystemIOHandle, IDirectoryHandle
     {
         public FileSystemDirectoryHandle(IFileSystem fileSystem, string fileSystemPath)
             : base(fileSystem, EnsureTrailingSlash(fileSystem, fileSystemPath))
         {
         }
 
-        public override bool Exists() => this.FileSystem.Directory.Exists(Identifier.GetFileSystemPath());
+        public override bool Exists() => this.FileSystem.Directory.Exists(Uri.GetFileSystemPath());
 
-        public void EnsureExists() => this.FileSystem.Directory.CreateDirectory(this.Identifier.GetFileSystemPath());
+        public void EnsureExists() => this.FileSystem.Directory.CreateDirectory(this.Uri.GetFileSystemPath());
 
         public IDirectoryHandle GetDirectory(string relativePath)
         {
@@ -39,7 +39,7 @@ namespace Bicep.IO.FileSystem
 
         public IDirectoryHandle? GetParent()
         {
-            var currentPath = Identifier.GetFileSystemPath().TrimEnd(this.FileSystem.Path.DirectorySeparatorChar);
+            var currentPath = Uri.GetFileSystemPath().TrimEnd(this.FileSystem.Path.DirectorySeparatorChar);
             var parentDirectoryPath = this.FileSystem.Path.GetDirectoryName(currentPath);
 
             if (string.IsNullOrEmpty(parentDirectoryPath))
@@ -59,7 +59,7 @@ namespace Bicep.IO.FileSystem
 
             try
             {
-                return this.FileSystem.Path.GetFullPath(relativePath, basePath: Identifier.GetFileSystemPath());
+                return this.FileSystem.Path.GetFullPath(relativePath, basePath: Uri.GetFileSystemPath());
             }
             catch (Exception exception) when (exception is ArgumentException)
             {

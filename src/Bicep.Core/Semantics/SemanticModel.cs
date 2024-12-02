@@ -197,7 +197,7 @@ namespace Bicep.Core.Semantics
                 sb.Append($"Experimental features enabled: {string.Join(',', experimentalFeatures)}. ");
             }
 
-            if (configuration.ConfigFileIdentifier is { } configFileUri)
+            if (configuration.ConfigFileUri is { } configFileUri)
             {
                 sb.Append($"Using bicepConfig from {configFileUri}.");
             }

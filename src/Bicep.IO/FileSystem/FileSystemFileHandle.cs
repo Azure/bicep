@@ -13,18 +13,18 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.IO.FileSystem
 {
-    public sealed class FileSystemFileHandle : FileSystemResourceHandle, IFileHandle
+    public sealed class FileSystemFileHandle : FileSystemIOHandle, IFileHandle
     {
         public FileSystemFileHandle(IFileSystem fileSystem, string path)
             : base(fileSystem, path)
         {
         }
 
-        public override bool Exists() => this.FileSystem.File.Exists(Identifier.GetFileSystemPath());
+        public override bool Exists() => this.FileSystem.File.Exists(Uri.GetFileSystemPath());
 
         public IDirectoryHandle GetParent()
         {
-            var parentDirectoryPath = this.FileSystem.Path.GetDirectoryName(Identifier.GetFileSystemPath());
+            var parentDirectoryPath = this.FileSystem.Path.GetDirectoryName(Uri.GetFileSystemPath());
 
             if (string.IsNullOrEmpty(parentDirectoryPath))
             {
@@ -34,15 +34,15 @@ namespace Bicep.IO.FileSystem
             return new FileSystemDirectoryHandle(this.FileSystem, parentDirectoryPath);
         }
 
-        public Stream OpenRead() => this.FileSystem.File.OpenRead(Identifier.GetFileSystemPath());
+        public Stream OpenRead() => this.FileSystem.File.OpenRead(Uri.GetFileSystemPath());
 
         public Stream OpenWrite()
         {
             this.GetParent().EnsureExists();
 
-            return this.FileSystem.File.OpenWrite(Identifier.GetFileSystemPath());
+            return this.FileSystem.File.OpenWrite(Uri.GetFileSystemPath());
         }
 
-        public IFileLock? TryLock() => FileSystemStreamLock.TryCreate(this.FileSystem, Identifier.GetFileSystemPath());
+        public IFileLock? TryLock() => FileSystemStreamLock.TryCreate(this.FileSystem, Uri.GetFileSystemPath());
     }
 }

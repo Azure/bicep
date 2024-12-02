@@ -23,8 +23,8 @@ namespace Bicep.IO.FileSystem
             this.fileSystem = fileSystem;
         }
 
-        public IDirectoryHandle GetDirectory(ResourceIdentifier identifier) => new FileSystemDirectoryHandle(fileSystem, identifier.GetFileSystemPath());
+        public IDirectoryHandle GetDirectory(IOUri identifier) => new FileSystemDirectoryHandle(fileSystem, identifier.GetFileSystemPath());
 
-        public IFileHandle GetFile(ResourceIdentifier identifier) => new FileSystemFileHandle(this.fileSystem, identifier.GetFileSystemPath());
+        public IFileHandle GetFile(IOUri identifier) => new FileSystemFileHandle(this.fileSystem, identifier.GetFileSystemPath());
     }
 }

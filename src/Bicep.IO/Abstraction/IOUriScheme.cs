@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 
 namespace Bicep.IO.Abstraction
 {
-    public readonly record struct ResourceIdentifierScheme(string Name)
+    public readonly record struct IOUriScheme(string Name)
     {
-        public static readonly ResourceIdentifierScheme Http = new("http");
+        public static readonly IOUriScheme Http = new("http");
 
-        public static readonly ResourceIdentifierScheme Https = new("https");
+        public static readonly IOUriScheme Https = new("https");
 
-        public static readonly ResourceIdentifierScheme File = new("file");
+        public static readonly IOUriScheme File = new("file");
 
         public readonly string Name { get; } = Name.ToLowerInvariant();
 
-        public static implicit operator string(ResourceIdentifierScheme scheme) => scheme.ToString();
+        public static implicit operator string(IOUriScheme scheme) => scheme.ToString();
 
-        public static implicit operator ResourceIdentifierScheme(string name) => new(name);
+        public static implicit operator IOUriScheme(string name) => new(name);
 
         public readonly bool IsHttp => this.Equals(Http);
 

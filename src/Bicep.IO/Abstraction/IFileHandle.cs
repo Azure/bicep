@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.IO.Abstraction
 {
-    public interface IFileHandle : IResourceHandle
+    public interface IFileHandle : IIOHandle
     {
         IDirectoryHandle GetParent();
 

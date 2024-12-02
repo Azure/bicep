@@ -38,7 +38,7 @@ namespace Bicep.Core.Configuration
             string? cacheRootDirectory,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
             FormattingConfiguration formatting,
-            ResourceIdentifier? configFileIdentifier,
+            IOUri? configFileUri,
             IEnumerable<IDiagnostic>? diagnostics)
         {
             this.Cloud = cloud;
@@ -49,14 +49,14 @@ namespace Bicep.Core.Configuration
             this.CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
             this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
             this.Formatting = formatting;
-            this.ConfigFileIdentifier = configFileIdentifier;
+            this.ConfigFileUri = configFileUri;
             this.Diagnostics = diagnostics?.ToImmutableArray() ?? [];
         }
 
-        public static RootConfiguration Bind(JsonElement element, ResourceIdentifier? configFileIdentifier = null)
+        public static RootConfiguration Bind(JsonElement element, IOUri? configFileUri = null)
         {
             var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey));
-            var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileIdentifier);
+            var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileUri);
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
             var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
@@ -65,7 +65,7 @@ namespace Bicep.Core.Configuration
             var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
             var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
 
-            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configFileIdentifier, null);
+            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configFileUri, null);
         }
 
         public CloudConfiguration Cloud { get; }
@@ -84,11 +84,11 @@ namespace Bicep.Core.Configuration
 
         public FormattingConfiguration Formatting { get; }
 
-        public ResourceIdentifier? ConfigFileIdentifier { get; }
+        public IOUri? ConfigFileUri { get; }
 
         public ImmutableArray<IDiagnostic> Diagnostics { get; }
 
-        public bool IsBuiltIn => ConfigFileIdentifier is null;
+        public bool IsBuiltIn => ConfigFileUri is null;
 
         public RootConfiguration With(
             CloudConfiguration? cloud = null,
@@ -99,7 +99,7 @@ namespace Bicep.Core.Configuration
             string? cacheRootDirectory = null,
             ExperimentalFeaturesEnabled? experimentalFeaturesEnabled = null,
             FormattingConfiguration? formatting = null,
-            ResourceIdentifier? configFileIdentifier = null,
+            IOUri? configFileIdentifier = null,
             IEnumerable<IDiagnostic>? diagnostics = null)
         {
             return new RootConfiguration(
@@ -111,7 +111,7 @@ namespace Bicep.Core.Configuration
                 cacheRootDirectory ?? this.CacheRootDirectory,
                 experimentalFeaturesEnabled ?? this.ExperimentalFeaturesEnabled,
                 formatting ?? this.Formatting,
-                configFileIdentifier ?? this.ConfigFileIdentifier,
+                configFileIdentifier ?? this.ConfigFileUri,
                 diagnostics ?? this.Diagnostics);
         }
 

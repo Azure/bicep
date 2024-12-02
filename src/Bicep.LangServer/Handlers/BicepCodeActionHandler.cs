@@ -111,7 +111,7 @@ namespace Bicep.LanguageServer.Handlers
                         analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
                         (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
                     .Where(x => x.Source == DiagnosticSource.CoreLinter)
-                    .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, semanticModel.Configuration.ConfigFileIdentifier));
+                    .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, semanticModel.Configuration.ConfigFileUri));
                 commandOrCodeActions.AddRange(editLinterRuleActions);
             }
 
@@ -195,7 +195,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        private static CommandOrCodeAction CreateEditLinterRuleAction(DocumentUri documentUri, string ruleName, ResourceIdentifier? configFileIdentifier)
+        private static CommandOrCodeAction CreateEditLinterRuleAction(DocumentUri documentUri, string ruleName, IOUri? configFileIdentifier)
         {
             return new CodeAction
             {

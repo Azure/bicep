@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Bicep.IO.Abstraction
 {
-    public static class ResourceIdentifierExtensions
+    public static class IOUriExtensions
     {
-        public static ReadOnlySpan<char> GetExtension(this ResourceIdentifier identifier)
+        public static ReadOnlySpan<char> GetExtension(this IOUri identifier)
         {
             int lastDotIndex = GetExtensionStartIndex(identifier.Path);
 
@@ -23,7 +23,7 @@ namespace Bicep.IO.Abstraction
             return identifier.Path.AsSpan()[lastDotIndex..];
         }
 
-        public static ResourceIdentifier WithExtension(this ResourceIdentifier identifier, string extension)
+        public static IOUri WithExtension(this IOUri identifier, string extension)
         {
             if (!extension.StartsWith('.'))
             {
@@ -35,7 +35,7 @@ namespace Bicep.IO.Abstraction
                 ? identifier.Path + extension
                 : string.Concat(identifier.Path.AsSpan(0, extensionStartIndex), extension);
 
-            return new ResourceIdentifier(
+            return new IOUri(
                 identifier.Scheme,
                 identifier.Authority,
                 newPath,
@@ -55,7 +55,7 @@ namespace Bicep.IO.Abstraction
                 }
                 else if (path[i] == '/')
                 {
-                    extensionStartIndex = -1;
+                    return extensionStartIndex;
                 }
             }
 
