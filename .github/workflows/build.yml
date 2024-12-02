@@ -272,7 +272,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           flags: typescript
           directory: ./src/vscode-bicep/coverage
@@ -657,7 +657,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           flags: dotnet
 
