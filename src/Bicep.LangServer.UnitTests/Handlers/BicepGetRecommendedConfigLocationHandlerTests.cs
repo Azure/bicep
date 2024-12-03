@@ -108,6 +108,26 @@ namespace Bicep.LangServer.UnitTests.Handlers
             // Folders partially match
             yield return new object[] { new string[] { "/workspace" }, "/workspace1/bicepconfig.json", "/workspace1" };
             yield return new object[] { new string[] { "/workspace1" }, "/workspace/bicepconfig.json", "/workspace" };
+#elif OSX_BUILD
+            // Bicep file is in a workspace folder - return the first one that matches, or else the bicep file's folder
+            yield return new object[] { new string[] { "/workspace1" }, "/workspace1/bicepconfig.json", "/workspace1" };
+            yield return new object[] { new string[] { "/workspace1" }, "/workspace1/two/bicepconfig.json", "/workspace1" };
+            yield return new object[] { new string[] { "/workspace1" }, "/workspace1/two/three/bicepconfig.json", "/workspace1" };
+            yield return new object[] { new string[] { "/workspace1/two" }, "/workspace1/two/three/bicepconfig.json", "/workspace1/two" };
+            yield return new object[] { new string[] { "/workspace1/two/three" }, "/workspace1/two/three/bicepconfig.json", "/workspace1/two/three" };
+            yield return new object[] { new string[] { "/workspace1/two/three" }, "/workspace1/two/three/four/bicepconfig.json", "/workspace1/two/three" };
+            yield return new object[] { new string[] { "/workspace1", "/workspace2" }, "/workspace1/bicepconfig.json", "/workspace1" };
+            yield return new object[] { new string[] { "/workspace2", "/workspace1" }, "/workspace1/bicepconfig.json", "/workspace1" };
+            yield return new object[] { new string[] { "/workspace1/two/three\four", "/workspace1/two/three", "/workspace1/two", "/workspace1" }, "/workspace1/two/three/five/bicepconfig.json", "/workspace1/two/three" };
+            // Bicep file not in any workspace folder - return bicep file's folder
+            yield return new object[] { new string[] { "/workspace1" }, "/workspace2/bicepconfig.json", "/workspace2" };
+            yield return new object[] { new string[] { "/workspace1/two/three" }, "/workspace1/two/bicepconfig.json", "/workspace1/two" };
+            // Case sensitive
+            yield return new object[] { new string[] { "/Workspace1" }, "/workspace1/bicepconfig.json", "/Workspace1" };
+            yield return new object[] { new string[] { "/workspace1" }, "/workspace1/bicepconfig.json", "/workspace1" };
+            // Folders partially match
+            yield return new object[] { new string[] { "/workspace" }, "/workspace1/bicepconfig.json", "/workspace1" };
+            yield return new object[] { new string[] { "/workspace1" }, "/workspace/bicepconfig.json", "/workspace" };
 #else
             // Bicep file is in a workspace folder - return the first one that matches, or else the bicep file's folder
             yield return new object[] { new string[] { "c:\\workspace1" }, "c:\\workspace1\\bicepconfig.json", "c:\\workspace1" };
