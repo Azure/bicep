@@ -6339,4 +6339,195 @@ param p invalidRecursiveObjectType = {}
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Test_Issue15513()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true)),
+            """
+            #disable-next-line BCP407
+            extension microsoftGraph
+
+            param entraGroup object = {
+              name: 'ExampleGroup2'
+              type: 'Security'
+              members: [
+                {
+                  name: '{application name}'
+                  type: 'Application'
+                }
+              ]
+              owners: [
+                {
+                  name: '{user identity name}'
+                  resourceGroup: '{resource group name}'
+                  type: 'UserAssignedManagedIdentity'
+                }
+              ]
+            }
+
+            var defaultMember = {
+              subscriptionId: subscription().subscriptionId
+              resourceGroup: ''
+              name: ''
+              appId: ''
+            }
+
+            resource memberManagedIdentities 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-preview' existing = [
+              for (member, i) in entraGroup.members: if (member.type =~ 'UserAssignedManagedIdentity') {
+                //https://github.com/Azure/bicep/issues/13937
+                name: empty(union(defaultMember, member).name) ? 'dummy${i}' : member.name
+                scope: resourceGroup(union(defaultMember, member).subscriptionId, union(defaultMember, member).resourceGroup)
+              }
+            ]
+
+            resource memberApplications 'Microsoft.Graph/applications@v1.0' existing = [
+              for (member, i) in entraGroup.members: if (member.type =~ 'Application') {
+                //https://github.com/Azure/bicep/issues/13937
+                uniqueName: empty(union(defaultMember, member).name) ? 'dummy${i}' : member.name
+              }
+            ]
+
+            resource memberServicePrincipals 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
+              for (member, i) in entraGroup.members: if (member.type =~ 'Application') {
+                appId: memberApplications[i].appId
+              }
+            ]
+
+            resource memberServicePrincipalsStandalone 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
+              for (member, i) in entraGroup.members: if (member.type =~ 'ServicePrincipal') {
+                //https://github.com/Azure/bicep/issues/13937
+                appId: empty(union(defaultMember, member).appId) ? 'dummy${i}' : member.appId
+              }
+            ]
+
+            resource memberGroups 'Microsoft.Graph/groups@v1.0' existing = [
+              for (member, i) in entraGroup.members: if (member.type =~ 'Group') {
+                //https://github.com/Azure/bicep/issues/13937
+                uniqueName: empty(union(defaultMember, member).name) ? 'dummy${i}' : member.name
+              }
+            ]
+
+            resource ownerManagedIdentities 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-preview' existing = [
+              for (owner, i) in entraGroup.owners: if (owner.type =~ 'UserAssignedManagedIdentity') {
+                //https://github.com/Azure/bicep/issues/13937
+                name: empty(union(defaultMember, owner).name) ? 'dummy${i}' : owner.name
+                scope: resourceGroup(union(defaultMember, owner).subscriptionId, union(defaultMember, owner).resourceGroup)
+              }
+            ]
+
+            resource ownerApplications 'Microsoft.Graph/applications@v1.0' existing = [
+              for (owner, i) in entraGroup.owners: if (owner.type =~ 'Application') {
+                //https://github.com/Azure/bicep/issues/13937
+                uniqueName: empty(union(defaultMember, owner).name) ? 'dummy${i}' : owner.name
+              }
+            ]
+
+            resource ownerServicePrincipals 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
+              for (owner, i) in entraGroup.owners: if (owner.type =~ 'Application') {
+                appId: ownerApplications[i].appId
+              }
+            ]
+
+            resource ownerServicePrincipalsStandalone 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
+              for (owner, i) in entraGroup.owners: if (owner.type =~ 'ServicePrincipal') {
+                //https://github.com/Azure/bicep/issues/13937
+                appId: empty(union(defaultMember, owner).appId) ? 'dummy${i}' : owner.appId
+              }
+            ]
+
+            resource entraGroupRes 'Microsoft.Graph/groups@v1.0' = {
+              uniqueName: entraGroup.name
+              displayName: entraGroup.name
+              mailEnabled: false
+              mailNickname: entraGroup.name
+              securityEnabled: true
+              members: [
+                for (member, i) in entraGroup.members: member.type =~ 'UserAssignedManagedIdentity'
+                  ? memberManagedIdentities[i].properties.principalId
+                  : member.type =~ 'Application'
+                      ? memberServicePrincipals[i].id
+                      : member.type =~ 'ServicePrincipal'
+                          ? memberServicePrincipalsStandalone[i].id
+                          : member.type =~ 'Group' ? memberGroups[i].id : member.type =~ 'PrincipalId' ? member.principalId : ''
+              ]
+              owners: [
+                for (owner, i) in entraGroup.owners: owner.type =~ 'UserAssignedManagedIdentity'
+                  ? ownerManagedIdentities[i].properties.principalId
+                  : owner.type =~ 'Application'
+                      ? ownerServicePrincipals[i].id
+                      : owner.type =~ 'ServicePrincipal' ? ownerServicePrincipalsStandalone[i].id : owner.type =~ 'PrincipalId' ? owner.principalId : ''
+              ]
+            }
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.resources.entraGroupRes.dependsOn", """
+            [
+              "memberGroups",
+              "memberManagedIdentities",
+              "memberServicePrincipals",
+              "memberServicePrincipalsStandalone",
+              "ownerManagedIdentities",
+              "ownerServicePrincipals",
+              "ownerServicePrincipalsStandalone"
+            ]
+            """);
+    }
+
+    [TestMethod]
+    public void Test_Issue15686_repro()
+    {
+        var result = CompilationHelper.Compile("""
+            param eventSubscriptionName string
+            param eventTypes string[]
+            param eventGridTopicName string
+            param backendAppId string
+            param functionAppName string
+            param functionName string
+
+            resource functionApp 'Microsoft.Web/sites@2023-01-01' existing = {
+              name: functionAppName
+            }
+
+            resource eventGridTopic 'Microsoft.EventGrid/topics@2022-06-15' existing = {
+              name: eventGridTopicName
+            }
+
+            resource eventSubscription 'Microsoft.EventGrid/eventSubscriptions@2022-06-15' = {
+              name: eventSubscriptionName
+              scope: eventGridTopic
+              properties: {
+                eventDeliverySchema: 'EventGridSchema'
+                filter: {
+                  enableAdvancedFilteringOnArrays: true
+                  includedEventTypes: eventTypes
+                }
+                destination: {
+                  endpointType: 'WebHook'
+                  properties: {
+                    maxEventsPerBatch: 1
+                    azureActiveDirectoryApplicationIdOrUri: backendAppId
+                    azureActiveDirectoryTenantId: subscription().tenantId
+                    endpointUrl: 'https://${functionApp.properties.defaultHostName}/runtime/webhooks/EventGrid?functionName=${functionName}&code=${listkeys('${functionApp.id}/host/default', '2016-08-01').systemkeys.eventgrid_extension}'
+                  }
+                }
+                retryPolicy: {
+                  eventTimeToLiveInMinutes: 65
+                }
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.resources.eventSubscription.dependsOn", """
+            [
+              "eventGridTopic",
+              "functionApp"
+            ]
+            """);
+    }
 }

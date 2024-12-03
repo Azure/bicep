@@ -301,6 +301,42 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
+        public void If_DuplicateEntries_WhereOneValid_ShouldFailForLast()
+        {
+            CompileAndTest(
+                """
+                resource otherVn 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+                  name: 'otherVn'
+                }
+
+                resource vn 'Microsoft.Network/virtualNetworks@2020-06-01' existing =  {
+                  name: 'vn'
+
+                  resource subnet1 'subnets@2020-06-01' = {
+                    name: 'subnet1'
+                    properties: {
+                      addressPrefix: '10.0.1.0/24'
+                    }
+                  }
+
+                  resource subnet2 'subnets@2020-06-01' = {
+                    name: 'subnet2'
+                    properties: {
+                      addressPrefix: '10.0.1.0/24'
+                    }
+                    dependsOn: [
+                      otherVn
+                      subnet1
+                      otherVn
+                    ]
+                  }
+                }
+                """,
+                OnCompileErrors.IncludeErrors,
+                ["Remove unnecessary dependsOn entry 'otherVn'."]);
+        }
+
+        [TestMethod]
         public void If_Explicit_DependsOn_ToParent_FromGrandChild_UsingColonNotation_ShouldFail()
         {
             CompileAndTest(
@@ -452,29 +488,28 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
           );
         }
 
-        // TODO: We don't currently support analyzing dependencies to modules
-        //[TestMethod]
-        //public void If_Unnecessary_DependsOn_ForModule_Should_Fail()
-        //{
-        //    CompileAndTest(@"
-        //        module m1 'module.bicep' = {
-        //          name: 'm1'
-        //          dependsOn: []
-        //        }
+        [TestMethod]
+        public void If_Unnecessary_DependsOn_ForModule_Should_Fail()
+        {
+            CompileAndTest(@"
+                module m1 'module.bicep' = {
+                  name: 'm1'
+                  dependsOn: []
+                }
 
-        //        resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' = [for i in range(0, 1): {
-        //          name: '${m1.name}${i}'
-        //          dependsOn: [
-        //            m1 // fails
-        //          ]
-        //        }]
-        //    ",
-        //    OnCompileErrors.Ignore, // Will get an error about not finding the module
-        //    new string[] {
-        //        "Remove unnecessary dependsOn entry 'm1'."
-        //    }
-        //  );
-        //}
+                resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' = [for i in range(0, 1): {
+                  name: '${m1.name}${i}'
+                  dependsOn: [
+                    m1 // fails
+                  ]
+                }]
+            ",
+            OnCompileErrors.Ignore, // Will get an error about not finding the module
+            [
+                "Remove unnecessary dependsOn entry 'm1'."
+            ]
+          );
+        }
 
         [TestMethod]
         public void TolerantOfSyntaxErrors_1()

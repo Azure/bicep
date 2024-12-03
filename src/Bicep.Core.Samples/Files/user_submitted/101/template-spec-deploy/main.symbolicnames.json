@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15369804211876997670"
+      "templateHash": "1118487364434069107"
     }
   },
   "parameters": {
@@ -57,7 +57,7 @@
         "parameters": {}
       },
       "dependsOn": [
-        "ts"
+        "ts::tsVersion"
       ]
     }
   }

@@ -617,12 +617,6 @@ public class ExpressionBuilder
                 GetBatchSize(syntax));
         }
 
-        var dependencies = Context.ResourceDependencies[symbol]
-            .Where(ShouldGenerateDependsOn)
-            .OrderBy(x => x.Resource.Name) // order to generate a deterministic template
-            .Select(x => ToDependencyExpression(x, body))
-            .ToImmutableArray();
-
         return new DeclaredModuleExpression(
             syntax,
             symbol,
@@ -630,8 +624,19 @@ public class ExpressionBuilder
             body,
             bodyExpression,
             parameters is not null ? ConvertWithoutLowering(parameters.Value) : null,
-            dependencies);
+            BuildDependencyExpressions(symbol, body));
     }
+
+    private ImmutableArray<ResourceDependencyExpression> BuildDependencyExpressions(DeclaredSymbol dependent, SyntaxBase body)
+        => Context.ResourceDependencies[dependent]
+            .SelectMany(dd => ToDependencyExpressions(dd, body, Context.ResourceDependencies))
+            .GroupBy(t => t.Target.Resource)
+            .SelectMany(g => g.FirstOrDefault(t => t.Target.IndexExpression is null) is { } dependencyOnCollection
+                ? dependencyOnCollection.AsEnumerable()
+                : g.Distinct(t => t.Target))
+            .OrderBy(t => t.Target.Resource.Name)  // order to generate a deterministic template
+            .Select(t => t.Expression)
+            .ToImmutableArray();
 
     private DeclaredResourceExpression ConvertResource(ResourceDeclarationSyntax syntax)
     {
@@ -725,19 +730,13 @@ public class ExpressionBuilder
                 GetBatchSize(syntax));
         }
 
-        var dependencies = Context.ResourceDependencies[resource.Symbol]
-            .Where(ShouldGenerateDependsOn)
-            .OrderBy(x => x.Resource.Name) // order to generate a deterministic template
-            .Select(x => ToDependencyExpression(x, body))
-            .ToImmutableArray();
-
         return new DeclaredResourceExpression(
             syntax,
             resource,
             Context.ResourceScopeData[resource],
             body,
             bodyExpression,
-            dependencies);
+            BuildDependencyExpressions(resource.Symbol, body));
     }
 
     private Expression ConvertArray(ArraySyntax array)
@@ -1303,50 +1302,148 @@ public class ExpressionBuilder
         return null;
     }
 
-    private bool ShouldGenerateDependsOn(ResourceDependency dependency)
-    {
-        if (dependency.Kind == ResourceDependencyKind.Transitive)
-        {
-            // transitive dependencies do not have to be emitted
-            return false;
-        }
+    private record DependencyExpression(
+        ResourceDependency Target,
+        ResourceDependencyExpression Expression);
 
-        return dependency.Resource switch
+    private IEnumerable<DependencyExpression> ToDependencyExpressions(
+        ResourceDependency dependency,
+        SyntaxBase newContext,
+        ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> dependencies)
+    {
+        foreach (var path in GatherDependencyPaths([dependency], dependencies))
         {
-            // 'existing' resources are only represented in the JSON if using symbolic names.
-            ResourceSymbol resource => Context.Settings.EnableSymbolicNames || !resource.DeclaringResource.IsExistingResource(),
-            ModuleSymbol => true,
-            _ => throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}"),
-        };
+            Expression reference;
+            ResourceDependency target;
+            var localReplacements = this.localReplacements;
+            var allNodesInPathAccessCopyIndex = true;
+
+            int i = 0;
+            do
+            {
+                target = path[i];
+                var targetContext = i == 0 ? newContext : path[i - 1].Resource.DeclaringSyntax;
+                IndexReplacementContext? indexContext = null;
+
+                switch (target.Resource)
+                {
+                    case ResourceSymbol resource:
+                        {
+                            var metadata = Context.SemanticModel.ResourceMetadata.TryLookup(resource.DeclaringSyntax) as DeclaredResourceMetadata
+                                ?? throw new InvalidOperationException("Failed to find resource in cache");
+
+                            indexContext = (resource.IsCollection && target.IndexExpression is null)
+                                ? null
+                                : new ExpressionBuilder(Context, localReplacements)
+                                    .TryGetReplacementContext(metadata, target.IndexExpression, targetContext);
+                            reference = new ResourceReferenceExpression(null, metadata, indexContext);
+                            break;
+                        }
+                    case ModuleSymbol module:
+                        {
+                            indexContext = (module.IsCollection && target.IndexExpression is null)
+                                ? null
+                                : new ExpressionBuilder(Context, localReplacements)
+                                    .TryGetReplacementContext(module, target.IndexExpression, targetContext);
+                            reference = new ModuleReferenceExpression(null, module, indexContext);
+                            break;
+                        }
+                    case VariableSymbol variable:
+                        {
+                            indexContext = (variable.IsCopyVariable && target.IndexExpression is null)
+                                ? null
+                                : new ExpressionBuilder(Context, localReplacements)
+                                    .TryGetReplacementContext(variable.DeclaringVariable.GetBody(), target.IndexExpression, targetContext);
+                            reference = new VariableReferenceExpression(null, variable);
+                            break;
+                        }
+                    default:
+                        throw new InvalidOperationException($"Found dependency '{target.Resource.Name}' of unexpected type {target.Resource.GetType()}");
+                }
+
+                localReplacements = indexContext?.LocalReplacements ?? localReplacements;
+                var copyIndexAccesses = indexContext is not null
+                    ? CopyIndexExpressionCollector.FindContainedCopyIndexExpressions(indexContext.Index)
+                    : [];
+
+                if (copyIndexAccesses.Length > 0 && !allNodesInPathAccessCopyIndex)
+                {
+                    target = target with { IndexExpression = null };
+                    reference = reference switch
+                    {
+                        ModuleReferenceExpression modRef => modRef with { IndexContext = null },
+                        ResourceReferenceExpression resourceRef => resourceRef with { IndexContext = null },
+                        _ => reference,
+                    };
+                }
+
+                allNodesInPathAccessCopyIndex = allNodesInPathAccessCopyIndex && copyIndexAccesses.Length > 0;
+            } while (++i < path.Length);
+
+            yield return new(target, new(null, reference));
+        }
     }
 
-    private ResourceDependencyExpression ToDependencyExpression(ResourceDependency dependency, SyntaxBase newContext)
+    private class CopyIndexExpressionCollector : ExpressionVisitor
     {
-        switch (dependency.Resource)
+        private readonly ImmutableArray<CopyIndexExpression>.Builder copyIndexExpressions
+            = ImmutableArray.CreateBuilder<CopyIndexExpression>();
+
+        private CopyIndexExpressionCollector() { }
+
+        public static ImmutableArray<CopyIndexExpression> FindContainedCopyIndexExpressions(Expression? expression)
         {
-            case ResourceSymbol resource:
-                {
-                    var metadata = Context.SemanticModel.ResourceMetadata.TryLookup(resource.DeclaringSyntax) as DeclaredResourceMetadata
-                        ?? throw new InvalidOperationException("Failed to find resource in cache");
+            if (expression is null)
+            {
+#pragma warning disable IDE0301 // Using a simplified collection initialization results in an allocation, whereas using ImmutableArray<T>.Empty does not
+                return ImmutableArray<CopyIndexExpression>.Empty;
+#pragma warning restore IDE0301
+            }
 
-                    var indexContext = (resource.IsCollection && dependency.IndexExpression is null) ? null :
-                        TryGetReplacementContext(metadata, dependency.IndexExpression, newContext);
+            var visitor = new CopyIndexExpressionCollector();
+            expression.Accept(visitor);
 
-                    var reference = new ResourceReferenceExpression(null, metadata, indexContext);
-                    return new ResourceDependencyExpression(null, reference);
-                }
-            case ModuleSymbol module:
-                {
-                    var indexContext = (module.IsCollection && dependency.IndexExpression is null) ? null :
-                        TryGetReplacementContext(module, dependency.IndexExpression, newContext);
+            return visitor.copyIndexExpressions.ToImmutable();
+        }
 
-                    var reference = new ModuleReferenceExpression(null, module, indexContext);
-                    return new ResourceDependencyExpression(null, reference);
-                }
-            default:
-                throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
+        public override void VisitCopyIndexExpression(CopyIndexExpression expression)
+        {
+            copyIndexExpressions.Add(expression);
         }
     }
+
+    private IEnumerable<ImmutableArray<ResourceDependency>> GatherDependencyPaths(
+        ImmutableArray<ResourceDependency> currentPath,
+        ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> dependencies)
+    {
+        if (IsDependencyPathTerminus(currentPath[^1]))
+        {
+            yield return currentPath;
+            yield break;
+        }
+
+        foreach (var transitiveDependency in dependencies[currentPath[^1].Resource])
+        {
+            if (currentPath.Contains(transitiveDependency))
+            {
+                // We've got a cycle. This should have been caught and blocked earlier
+                throw new InvalidOperationException("Dependency cycle detected: "
+                    + string.Join(" -> ", currentPath.Select(d => d.Resource.Name)));
+            }
+
+            foreach (var transitivePath in GatherDependencyPaths(currentPath.Add(transitiveDependency), dependencies))
+            {
+                yield return transitivePath;
+            }
+        }
+    }
+
+    private bool IsDependencyPathTerminus(ResourceDependency dependency) => dependency.Resource switch
+    {
+        ModuleSymbol => true,
+        ResourceSymbol r => !r.DeclaringResource.IsExistingResource() || Context.Settings.EnableSymbolicNames,
+        _ => false,
+    };
 
     /// <summary>
     /// Returns a collection of name segment expressions for the specified resource. Local variable replacements

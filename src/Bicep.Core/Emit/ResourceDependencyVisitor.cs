@@ -7,6 +7,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Emit
 {
@@ -17,12 +18,10 @@ namespace Bicep.Core.Emit
         private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
         private DeclaredSymbol? currentDeclaration;
 
-
         public struct Options
         {
             // If true, only inferred dependencies will be returned, not those declared explicitly by dependsOn entries
             public bool? IgnoreExplicitDependsOn;
-            public bool? IncludeExisting;
         }
 
         /// <summary>
@@ -35,24 +34,28 @@ namespace Bicep.Core.Emit
             var visitor = new ResourceDependencyVisitor(model, options);
             visitor.Visit(model.Root.Syntax);
 
-            var output = new Dictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
-            foreach (var kvp in visitor.resourceDependencies)
+            Queue<VariableSymbol> nonInlinedVariables = new(visitor.resourceDependencies
+                .Where(kvp => kvp.Value.Count == 0)
+                .Select(kvp => kvp.Key)
+                .OfType<VariableSymbol>());
+
+            while (nonInlinedVariables.TryDequeue(out var nonInlinedVariable))
             {
-                if (kvp.Key is ResourceSymbol || kvp.Key is ModuleSymbol)
+                foreach (var kvp in visitor.resourceDependencies)
                 {
-                    output[kvp.Key] = OptimizeDependencies(kvp.Value);
+                    if (kvp.Value.RemoveWhere(d => ReferenceEquals(nonInlinedVariable, d.Resource)) > 0 &&
+                        kvp.Value.Count == 0 &&
+                        kvp.Key is VariableSymbol variable)
+                    {
+                        nonInlinedVariables.Enqueue(variable);
+                    }
                 }
             }
-            return output.ToImmutableDictionary();
-        }
 
-        private static ImmutableHashSet<ResourceDependency> OptimizeDependencies(HashSet<ResourceDependency> dependencies) =>
-            dependencies
-                .GroupBy(dep => dep.Resource)
-                .SelectMany(group => @group.FirstOrDefault(dep => dep.IndexExpression == null) is { } dependencyWithoutIndex
-                    ? dependencyWithoutIndex.AsEnumerable()
-                    : @group)
-                .ToImmutableHashSet();
+            return visitor.resourceDependencies.ToImmutableDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.ToImmutableHashSet());
+        }
 
         private ResourceDependencyVisitor(SemanticModel model, Options? options)
         {
@@ -64,36 +67,23 @@ namespace Bicep.Core.Emit
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            int GetIndexOfAncestor(ImmutableArray<ResourceAncestorGraph.ResourceAncestor> ancestors)
-            {
-                for (int i = ancestors.Length - 1; i >= 0; i--)
-                {
-                    if (!ancestors[i].Resource.IsExistingResource || options?.IncludeExisting == true)
-                    {
-                        // we found the non-existing resource - we're done
-                        return i;
-                    }
-                }
-
-                // no non-existing resources are found in the ancestors list
-                return -1;
-            }
-
             if (model.ResourceMetadata.TryLookup(syntax) is not DeclaredResourceMetadata resource)
             {
                 // When invoked by BicepDeploymentGraphHandler, it's possible that the declaration is unbound.
                 return;
             }
 
-            // Resource ancestors are always dependencies.
-            var ancestors = this.model.ResourceAncestors.GetAncestors(resource);
-            var lastAncestorIndex = GetIndexOfAncestor(ancestors);
+            HashSet<ResourceDependency> dependencies = new();
+            if (model.ResourceAncestors.GetAncestors(resource).LastOrDefault() is { } parent)
+            {
+                dependencies.Add(new(parent.Resource.Symbol, parent.IndexExpression));
+            }
+            resourceDependencies[resource.Symbol] = dependencies;
 
             // save previous declaration as we may call this recursively
             var prevDeclaration = this.currentDeclaration;
-
             this.currentDeclaration = resource.Symbol;
-            this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select((a, i) => new ResourceDependency(a.Resource.Symbol, a.IndexExpression, i == lastAncestorIndex ? ResourceDependencyKind.Primary : ResourceDependencyKind.Transitive)));
+
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore previous declaration
@@ -136,22 +126,6 @@ namespace Bicep.Core.Emit
             this.currentDeclaration = prevDeclaration;
         }
 
-        private IEnumerable<ResourceDependency> GetResourceDependencies(DeclaredSymbol declaredSymbol)
-        {
-            if (!resourceDependencies.TryGetValue(declaredSymbol, out var dependencies))
-            {
-                // recursively visit dependent variables
-                this.Visit(declaredSymbol.DeclaringSyntax);
-
-                if (!resourceDependencies.TryGetValue(declaredSymbol, out dependencies))
-                {
-                    return [];
-                }
-            }
-
-            return dependencies;
-        }
-
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
             if (currentDeclaration is null)
@@ -168,27 +142,29 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case VariableSymbol variableSymbol:
-                    var varDependencies = GetResourceDependencies(variableSymbol);
-
-                    currentResourceDependencies.UnionWith(varDependencies);
+                    currentResourceDependencies.Add(new(variableSymbol, GetIndexExpression(syntax, variableSymbol.IsCopyVariable)));
                     return;
 
                 case ResourceSymbol resourceSymbol:
-                    if (resourceSymbol.DeclaringResource.IsExistingResource() && options?.IncludeExisting != true)
-                    {
-                        var existingDependencies = GetResourceDependencies(resourceSymbol);
-
-                        currentResourceDependencies.UnionWith(existingDependencies);
-                        return;
-                    }
-
-                    currentResourceDependencies.Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), ResourceDependencyKind.Primary));
+                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
                     return;
 
                 case ModuleSymbol moduleSymbol:
-                    currentResourceDependencies.Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection), ResourceDependencyKind.Primary));
+                    currentResourceDependencies.Add(new(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection)));
                     return;
             }
+        }
+
+        private ObjectPropertySyntax? TryGetCurrentDeclarationTopLevelProperty(string propertyName)
+        {
+            ObjectSyntax? declaringSyntax = this.currentDeclaration switch
+            {
+                ResourceSymbol resourceSymbol => (resourceSymbol.DeclaringSyntax as ResourceDeclarationSyntax)?.TryGetBody(),
+                ModuleSymbol moduleSymbol => (moduleSymbol.DeclaringSyntax as ModuleDeclarationSyntax)?.TryGetBody(),
+                _ => null
+            };
+
+            return declaringSyntax?.TryGetPropertyByName(propertyName);
         }
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
@@ -207,19 +183,11 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case ResourceSymbol resourceSymbol:
-                    if (resourceSymbol.DeclaringResource.IsExistingResource())
-                    {
-                        var existingDependencies = GetResourceDependencies(resourceSymbol);
-
-                        currentResourceDependencies.UnionWith(existingDependencies);
-                        return;
-                    }
-
-                    currentResourceDependencies.Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), ResourceDependencyKind.Primary));
+                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
                     return;
 
                 case ModuleSymbol moduleSymbol:
-                    currentResourceDependencies.Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection), ResourceDependencyKind.Primary));
+                    currentResourceDependencies.Add(new(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection)));
                     return;
             }
         }
@@ -247,7 +215,7 @@ namespace Bicep.Core.Emit
             {
                 ResourceSymbol resourceSymbol => resourceSymbol.DeclaringResource.GetBody(),
                 ModuleSymbol moduleSymbol => moduleSymbol.DeclaringModule.GetBody(),
-                VariableSymbol variableSymbol => variableSymbol.DeclaringVariable.Value,
+                VariableSymbol variableSymbol => variableSymbol.DeclaringVariable.GetBody(),
                 _ => throw new NotImplementedException($"Unexpected current declaration type '{this.currentDeclaration?.GetType().Name}'.")
             };
 
@@ -271,7 +239,7 @@ namespace Bicep.Core.Emit
                 if (propertySyntax.Key is IdentifierSyntax key && key.NameEquals(LanguageConstants.ResourceDependsOnPropertyName))
                 {
                     // ... that is the a top-level resource or module property?
-                    if (this.IsTopLevelPropertyOfCurrentDeclaration(propertySyntax))
+                    if (ReferenceEquals(TryGetCurrentDeclarationTopLevelProperty(key.IdentifierName), propertySyntax))
                     {
                         // Yes - don't include dependencies from this property value
                         return;
@@ -280,19 +248,6 @@ namespace Bicep.Core.Emit
             }
 
             base.VisitObjectPropertySyntax(propertySyntax);
-        }
-
-        private bool IsTopLevelPropertyOfCurrentDeclaration(ObjectPropertySyntax propertySyntax)
-        {
-            SyntaxBase? declaringSyntax = this.currentDeclaration switch
-            {
-                ResourceSymbol resourceSymbol => (resourceSymbol.DeclaringSyntax as ResourceDeclarationSyntax)?.TryGetBody(),
-                ModuleSymbol moduleSymbol => (moduleSymbol.DeclaringSyntax as ModuleDeclarationSyntax)?.TryGetBody(),
-                _ => null
-            };
-            IEnumerable<ObjectPropertySyntax>? currentDeclarationProperties = (declaringSyntax as ObjectSyntax)?.Properties;
-
-            return currentDeclarationProperties?.Contains(propertySyntax) ?? false;
         }
     }
 }

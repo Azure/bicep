@@ -20,7 +20,7 @@ namespace Bicep.Core.Emit
             SemanticModel = semanticModel;
             DataFlowAnalyzer = new(semanticModel);
             VariablesToInline = InlineDependencyVisitor.GetVariablesToInline(semanticModel);
-            ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel, new() { IncludeExisting = Settings.EnableSymbolicNames });
+            ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
             FunctionVariables = FunctionVariableGeneratorVisitor.GetFunctionVariables(semanticModel);
             importClosureInfoLazy = new(() => ImportClosureInfo.Calculate(semanticModel), LazyThreadSafetyMode.PublicationOnly);
         }

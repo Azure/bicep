@@ -8,5 +8,4 @@ namespace Bicep.Core.Emit;
 
 public record ResourceDependency(
     DeclaredSymbol Resource,
-    SyntaxBase? IndexExpression,
-    ResourceDependencyKind Kind);
+    SyntaxBase? IndexExpression);
