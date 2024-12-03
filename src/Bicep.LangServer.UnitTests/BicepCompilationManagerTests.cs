@@ -113,7 +113,7 @@ namespace Bicep.LangServer.UnitTests
 
             // The workspace should be refreshed.
             updatedFile.Should().NotBeNull();
-            updatedFile!.Identifier.Should().Be(originalFile.Identifier);
+            updatedFile!.Uri.Should().Be(originalFile.Uri);
             updatedFile.Should().NotBeSameAs(originalFile);
 
             document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);

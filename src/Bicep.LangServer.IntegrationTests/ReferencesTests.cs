@@ -53,7 +53,7 @@ var blah = '${test}'
         var locations = await file.RequestReferences(cursor, includeDeclaration: true);
 
         // all URIs should be the same in the results
-        locations!.Select(r => r.Uri.ToUriEncoded()).Should().AllBeEquivalentTo(file.Source.Identifier);
+        locations!.Select(r => r.Uri.ToUriEncoded()).Should().AllBeEquivalentTo(file.Source.Uri);
 
         AnnotateWithLocations(file, locations).Should().EqualIgnoringTrailingWhitespace(outputAnnotated);
     }
@@ -80,7 +80,7 @@ var blah = '${test}'
         var locations = await file.RequestReferences(cursor, includeDeclaration: false);
 
         // all URIs should be the same in the results
-        locations!.Select(r => r.Uri.ToUriEncoded()).Should().AllBeEquivalentTo(file.Source.Identifier);
+        locations!.Select(r => r.Uri.ToUriEncoded()).Should().AllBeEquivalentTo(file.Source.Uri);
 
         AnnotateWithLocations(file, locations).Should().EqualIgnoringTrailingWhitespace(outputAnnotated);
     }

@@ -35,8 +35,8 @@ namespace Bicep.Core.Configuration
                 return GetDefaultConfiguration();
             }
 
-            var sourceFileIdentifier = sourceFileUri.ToFileIdentifier();
-            var sourceDirectory = this.fileExplorer.GetFile(sourceFileIdentifier).GetParent();
+            var sourceFileIOUri = sourceFileUri.ToIOUri();
+            var sourceDirectory = this.fileExplorer.GetFile(sourceFileIOUri).GetParent();
 
             if (!configFileLookupCache.GetOrAdd(sourceDirectory, LookupConfigurationFile).IsSuccess(out var configFileHandle, out var lookupDiagnostic))
             {
@@ -64,7 +64,7 @@ namespace Bicep.Core.Configuration
 
         public void PurgeLookupCache() => configFileLookupCache.Clear();
 
-        public (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(ResourceIdentifier configFileIdentifier)
+        public (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(IOUri configFileIdentifier)
         {
             (RootConfiguration, RootConfiguration)? returnVal = null;
             var configFileHandle = this.fileExplorer.GetFile(configFileIdentifier);
@@ -81,7 +81,7 @@ namespace Bicep.Core.Configuration
             return returnVal;
         }
 
-        public void RemoveConfigCacheEntry(ResourceIdentifier identifier)
+        public void RemoveConfigCacheEntry(IOUri identifier)
         {
             var configFileHandle = this.fileExplorer.GetFile(identifier);
             if (loadedConfigCache.TryRemove(configFileHandle, out _))
@@ -100,19 +100,19 @@ namespace Bicep.Core.Configuration
                 using var stream = configFileHandle.OpenRead();
                 var element = IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElementFromStream(stream));
 
-                return RootConfiguration.Bind(element, configFileHandle.Identifier);
+                return RootConfiguration.Bind(element, configFileHandle.Uri);
             }
             catch (ConfigurationException exception)
             {
-                return new(ConfigDiagnosticBuilder.InvalidBicepConfigFile(configFileHandle.Identifier, exception.Message));
+                return new(ConfigDiagnosticBuilder.InvalidBicepConfigFile(configFileHandle.Uri, exception.Message));
             }
             catch (JsonException exception)
             {
-                return new(ConfigDiagnosticBuilder.UnparsableBicepConfigFile(configFileHandle.Identifier, exception.Message));
+                return new(ConfigDiagnosticBuilder.UnparsableBicepConfigFile(configFileHandle.Uri, exception.Message));
             }
             catch (Exception exception)
             {
-                return new(ConfigDiagnosticBuilder.UnloadableBicepConfigFile(configFileHandle.Identifier, exception.Message));
+                return new(ConfigDiagnosticBuilder.UnloadableBicepConfigFile(configFileHandle.Uri, exception.Message));
             }
         }
 
@@ -134,7 +134,7 @@ namespace Bicep.Core.Configuration
             }
             catch (IOException exception)
             {
-                return new(ConfigDiagnosticBuilder.PotentialConfigDirectoryCouldNotBeScanned(directoryToLookup?.Identifier, exception.Message));
+                return new(ConfigDiagnosticBuilder.PotentialConfigDirectoryCouldNotBeScanned(directoryToLookup?.Uri, exception.Message));
             }
 
             return new((IFileHandle?)null);

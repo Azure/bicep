@@ -71,7 +71,7 @@ public class DiagnosticLogger
                 // build a a code description link if the Uri is assigned
                 var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
 
-                var message = $"{bicepFile.Identifier.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}";
+                var message = $"{bicepFile.Uri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}";
 
                 logger.Log(ToLogLevel(diagnostic.Level), message);
             }
@@ -136,7 +136,7 @@ public class DiagnosticLogger
                     {
                         ArtifactLocation = new ArtifactLocation
                         {
-                            Uri = sourceFile.Identifier,
+                            Uri = sourceFile.Uri,
                         },
                         Region = new Region
                         {

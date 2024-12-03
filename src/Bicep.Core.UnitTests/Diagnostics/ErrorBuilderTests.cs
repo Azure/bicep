@@ -216,9 +216,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return ArtifactType.Module;
             }
 
-            if (parameter.ParameterType == typeof(ResourceIdentifier) || parameter.ParameterType == typeof(ResourceIdentifier?))
+            if (parameter.ParameterType == typeof(IOUri) || parameter.ParameterType == typeof(IOUri?))
             {
-                return new ResourceIdentifier("file", "", "/foo");
+                return new IOUri("file", "", "/foo");
             }
 
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");

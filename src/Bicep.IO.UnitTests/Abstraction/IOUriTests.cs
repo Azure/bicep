@@ -12,7 +12,7 @@ using FluentAssertions;
 namespace Bicep.IO.UnitTests.Abstraction
 {
     [TestClass]
-    public class ResourceIdentifierTests
+    public class IOUriTests
     {
         [DataTestMethod]
         [DataRow("http", "EXAMPLE.COM", "example.com")]
@@ -23,10 +23,10 @@ namespace Bicep.IO.UnitTests.Abstraction
         [DataRow("file", "localhost", "")]
         [DataRow("file", "", "")]
         [DataRow("file", null, "")]
-        public void ResourceIdentifier_ByDefault_NormalizesAuthority(string scheme, string? authority, string expectedAuthority)
+        public void IOUri_ByDefault_NormalizesAuthority(string scheme, string? authority, string expectedAuthority)
         {
             // Arrange & Act.
-            var resourceIdentifier = new ResourceIdentifier(scheme, authority, "/a/b/c");
+            var resourceIdentifier = new IOUri(scheme, authority, "/a/b/c");
 
             // Assert.
             resourceIdentifier.Authority.Should().Be(expectedAuthority);
@@ -39,10 +39,10 @@ namespace Bicep.IO.UnitTests.Abstraction
         [DataRow("/a/b/c/", "/a/b/c/")]
         [DataRow("/a//b/c", "/a/b/c")]
         [DataRow("/a/b/c/..", "/a/b")]
-        public void ResourceIdentifier_ByDefault_NormalizesPath(string inputPath, string expectedPath)
+        public void IOUri_ByDefault_NormalizesPath(string inputPath, string expectedPath)
         {
             // Arrange & Act.
-            var resourceIdentifier = new ResourceIdentifier("http", "example.com", inputPath);
+            var resourceIdentifier = new IOUri("http", "example.com", inputPath);
 
             // Assert.
             resourceIdentifier.Path.Should().Be(expectedPath);
@@ -53,10 +53,10 @@ namespace Bicep.IO.UnitTests.Abstraction
         [DataRow("https", null)]
         [DataRow("http", "")]
         [DataRow("http", null)]
-        public void ResourceIdentifier_NullOrEmptyHttpOrHttpsAuthority_ThrowsArgumentException(string scheme, string? authority)
+        public void IOUri_NullOrEmptyHttpOrHttpsAuthority_ThrowsArgumentException(string scheme, string? authority)
         {
             FluentActions
-                .Invoking(() => new ResourceIdentifier(scheme, authority, "/a/b/c"))
+                .Invoking(() => new IOUri(scheme, authority, "/a/b/c"))
                 .Should().Throw<ArgumentException>();
         }
 
@@ -64,10 +64,10 @@ namespace Bicep.IO.UnitTests.Abstraction
         [DataRow("http", "example.com", "a/b/c")]
         [DataRow("http", null, "//a/b/c")]
         [DataRow("file", null, "a/b/c")]
-        public void ResourceIdentifier_InvalidPath_ThrowsArgumentException(string scheme, string? authorty, string path)
+        public void IOUri_InvalidPath_ThrowsArgumentException(string scheme, string? authorty, string path)
         {
             FluentActions
-                .Invoking(() => new ResourceIdentifier(scheme, authorty, path))
+                .Invoking(() => new IOUri(scheme, authorty, path))
                 .Should().Throw<ArgumentException>();
         }
 
@@ -78,7 +78,7 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void ToString_ByDefault_ReturnsUriOrLocalFilePath(string scheme, string authority, string path, string expectedOutput)
         {
             // Arrange & Act.
-            var resourceIdentifier = new ResourceIdentifier(scheme, authority, path);
+            var resourceIdentifier = new IOUri(scheme, authority, path);
 
             // Assert
             resourceIdentifier.ToString().Should().Be(expectedOutput);
@@ -88,8 +88,8 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void Equals_IdenticalIdentifiers_ReturnsTrue()
         {
             // Arrange
-            var identifier1 = new ResourceIdentifier("http", "example.com", "/a/b/c");
-            var identifier2 = new ResourceIdentifier("http", "example.com", "/a/b/c");
+            var identifier1 = new IOUri("http", "example.com", "/a/b/c");
+            var identifier2 = new IOUri("http", "example.com", "/a/b/c");
 
             // Act & Assert
             identifier1.Equals(identifier2).Should().BeTrue();
@@ -101,8 +101,8 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void Equals_DifferentIdentifiers_ReturnsFalse()
         {
             // Arrange
-            var identifier1 = new ResourceIdentifier("http", "example.com", "/a/b/c");
-            var identifier2 = new ResourceIdentifier("http", "example.com", "/a/b/d");
+            var identifier1 = new IOUri("http", "example.com", "/a/b/c");
+            var identifier2 = new IOUri("http", "example.com", "/a/b/d");
 
             // Act & Assert
             identifier1.Equals(identifier2).Should().BeFalse();
@@ -114,8 +114,8 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void GetHashCode_IdenticalIdentifiers_ReturnsConsistentHashCode()
         {
             // Arrange
-            var identifier1 = new ResourceIdentifier("http", "example.com", "/a/b/c");
-            var identifier2 = new ResourceIdentifier("http", "example.com", "/a/b/c");
+            var identifier1 = new IOUri("http", "example.com", "/a/b/c");
+            var identifier2 = new IOUri("http", "example.com", "/a/b/c");
 
             // Act & Assert
             identifier1.GetHashCode().Should().Be(identifier2.GetHashCode());
@@ -125,8 +125,8 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void GetHashCode_DifferentIdentifiers_ReturnsDifferentHashCodes()
         {
             // Arrange
-            var identifier1 = new ResourceIdentifier("http", "example.com", "/a/b/c");
-            var identifier2 = new ResourceIdentifier("http", "example.com", "/a/b/d");
+            var identifier1 = new IOUri("http", "example.com", "/a/b/c");
+            var identifier2 = new IOUri("http", "example.com", "/a/b/d");
 
             // Act & Assert
             identifier1.GetHashCode().Should().NotBe(identifier2.GetHashCode());
@@ -142,8 +142,8 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void GetPathRelativeTo_ValidPaths_ReturnsCorrectRelativePath(string scheme, string authority, string path, string otherPath, string expectedRelativePath)
         {
             // Arrange.
-            var identifier = new ResourceIdentifier(scheme, authority, path);
-            var otherIdentifier = new ResourceIdentifier(scheme, authority, otherPath);
+            var identifier = new IOUri(scheme, authority, path);
+            var otherIdentifier = new IOUri(scheme, authority, otherPath);
 
             // Act.
             var relativePath = identifier.GetPathRelativeTo(otherIdentifier);
@@ -156,8 +156,8 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void GetPathRelativeTo_DifferentSchemes_ThrowsInvalidOperationException()
         {
             // Arrange.
-            var identifier1 = new ResourceIdentifier("http", "example.com", "/a/b/c");
-            var identifier2 = new ResourceIdentifier("https", "example.com", "/a/b/c");
+            var identifier1 = new IOUri("http", "example.com", "/a/b/c");
+            var identifier2 = new IOUri("https", "example.com", "/a/b/c");
 
             // Act.
             Action act = () => identifier1.GetPathRelativeTo(identifier2);
@@ -170,8 +170,8 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void GetPathRelativeTo_DifferentAuthorities_ThrowsInvalidOperationException()
         {
             // Arrange.
-            var identifier1 = new ResourceIdentifier("http", "example.com", "/a/b/c");
-            var identifier2 = new ResourceIdentifier("http", "example.org", "/a/b/c");
+            var identifier1 = new IOUri("http", "example.com", "/a/b/c");
+            var identifier2 = new IOUri("http", "example.org", "/a/b/c");
 
             // Act.
             Action act = () => identifier1.GetPathRelativeTo(identifier2);
@@ -193,8 +193,8 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void IsBaseOf_ValidPaths_ReturnsExpectedResult(string scheme, string authority, string basePath, string otherPath, bool expectedResult)
         {
             // Arrange.
-            var baseIdentifier = new ResourceIdentifier(scheme, authority, basePath);
-            var otherIdentifier = new ResourceIdentifier(scheme, authority, otherPath);
+            var baseIdentifier = new IOUri(scheme, authority, basePath);
+            var otherIdentifier = new IOUri(scheme, authority, otherPath);
 
             // Act.
             var result = baseIdentifier.IsBaseOf(otherIdentifier);
@@ -207,8 +207,8 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void IsBaseOf_DifferentSchemes_ReturnsFalse()
         {
             // Arrange.
-            var identifier1 = new ResourceIdentifier("http", "example.com", "/a/b");
-            var identifier2 = new ResourceIdentifier("https", "example.com", "/a/b/c");
+            var identifier1 = new IOUri("http", "example.com", "/a/b");
+            var identifier2 = new IOUri("https", "example.com", "/a/b/c");
 
             // Act.
             var result = identifier1.IsBaseOf(identifier2);
@@ -221,8 +221,8 @@ namespace Bicep.IO.UnitTests.Abstraction
         public void IsBaseOf_DifferentAuthorities_ReturnsFalse()
         {
             // Arrange.
-            var identifier1 = new ResourceIdentifier("http", "example.com", "/a/b");
-            var identifier2 = new ResourceIdentifier("http", "example.org", "/a/b/c");
+            var identifier1 = new IOUri("http", "example.com", "/a/b");
+            var identifier2 = new IOUri("http", "example.org", "/a/b/c");
 
             // Act.
             var result = identifier1.IsBaseOf(identifier2);

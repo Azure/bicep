@@ -11,8 +11,8 @@ namespace Bicep.IO.Abstraction
 {
     public interface IFileExplorer
     {
-        IDirectoryHandle GetDirectory(ResourceIdentifier identifier);
+        IDirectoryHandle GetDirectory(IOUri uri);
 
-        IFileHandle GetFile(ResourceIdentifier identifier);
+        IFileHandle GetFile(IOUri uri);
     }
 }

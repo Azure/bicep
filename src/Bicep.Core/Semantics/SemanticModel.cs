@@ -190,14 +190,14 @@ namespace Bicep.Core.Semantics
         {
             var sb = new StringBuilder();
 
-            sb.Append($"Building semantic model for {sourceFile.Identifier} ({sourceFile.FileKind}). ");
+            sb.Append($"Building semantic model for {sourceFile.Uri} ({sourceFile.FileKind}). ");
             var experimentalFeatures = features.EnabledFeatureMetadata.Select(x => x.name).ToArray();
             if (experimentalFeatures.Any())
             {
                 sb.Append($"Experimental features enabled: {string.Join(',', experimentalFeatures)}. ");
             }
 
-            if (configuration.ConfigFileIdentifier is { } configFileUri)
+            if (configuration.ConfigFileUri is { } configFileUri)
             {
                 sb.Append($"Using bicepConfig from {configFileUri}.");
             }

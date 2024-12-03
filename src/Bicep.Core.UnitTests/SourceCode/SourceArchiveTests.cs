@@ -177,7 +177,7 @@ public class SourceArchiveTests
 
 
         using var stream = SourceArchive.PackSourcesIntoStream(
-            mainBicep.SourceFile.Identifier,
+            mainBicep.SourceFile.Uri,
             CacheRoot, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, templateSpecMainJson2, externalModuleJson);
         stream.Length.Should().BeGreaterThan(0);
 
@@ -252,7 +252,7 @@ public class SourceArchiveTests
                 }
             },
         };
-        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.SourceFile.Identifier, CacheRoot, linksInput, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, localModuleBicep, externalModuleJson);
+        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.SourceFile.Uri, CacheRoot, linksInput, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, localModuleBicep, externalModuleJson);
         stream.Length.Should().BeGreaterThan(0);
 
         SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).TryUnwrap();
@@ -433,7 +433,7 @@ public class SourceArchiveTests
         }
         var files = inputPaths.Select(path => CreateSourceFile(fs, path, SourceArchive.SourceKind.Bicep, $"// {path}")).ToArray();
 
-        using var stream = SourceArchive.PackSourcesIntoStream(files[0].SourceFile.Identifier, CacheRoot, files);
+        using var stream = SourceArchive.PackSourcesIntoStream(files[0].SourceFile.Uri, CacheRoot, files);
         SourceArchive sourceArchive = SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
 
         sourceArchive.EntrypointRelativePath.Should().Be(expectedPaths[0], "entrypoint path should be correct");
@@ -495,8 +495,8 @@ public class SourceArchiveTests
         var sutFile3 = inputBicepPath3 is null ? null : CreateSourceFile(fs, rootBicepFolder, inputBicepPath3, SourceArchive.SourceKind.Bicep, SecondaryDotBicepSource);
 
         using var stream = sutFile3 is null ?
-            SourceArchive.PackSourcesIntoStream(entrypointFile.SourceFile.Identifier, CacheRoot, entrypointFile, sutFile1, sutFile2) :
-            SourceArchive.PackSourcesIntoStream(entrypointFile.SourceFile.Identifier, CacheRoot, entrypointFile, sutFile1, sutFile2, sutFile3);
+            SourceArchive.PackSourcesIntoStream(entrypointFile.SourceFile.Uri, CacheRoot, entrypointFile, sutFile1, sutFile2) :
+            SourceArchive.PackSourcesIntoStream(entrypointFile.SourceFile.Uri, CacheRoot, entrypointFile, sutFile1, sutFile2, sutFile3);
 
         SourceArchive sourceArchive = SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
 

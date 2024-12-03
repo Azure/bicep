@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Bicep.IO.Abstraction
 {
-    public interface IResourceHandle : IEquatable<IResourceHandle>
+    public interface IIOHandle : IEquatable<IIOHandle>
     {
-        ResourceIdentifier Identifier { get; }
+        IOUri Uri { get; }
 
         bool Exists();
     }

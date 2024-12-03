@@ -1342,7 +1342,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .IsSuccess(out var result, out var errorDiagnostic))
             {
                 return new(
-                    new StringLiteralType(model.SourceFile.Identifier.MakeRelativeUri(result.FileUri).ToString(), result.Content, TypeSymbolValidationFlags.Default),
+                    new StringLiteralType(model.SourceFile.Uri.MakeRelativeUri(result.FileUri).ToString(), result.Content, TypeSymbolValidationFlags.Default),
                     new StringLiteralExpression(functionCall, result.Content));
             }
 

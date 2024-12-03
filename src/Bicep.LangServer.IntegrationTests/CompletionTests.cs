@@ -367,7 +367,7 @@ resource service 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier
+                bicepFile.Uri
             );
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
@@ -659,7 +659,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Identifier);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -691,7 +691,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Identifier);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -926,7 +926,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Identifier);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -976,7 +976,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Identifier);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -1028,7 +1028,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Identifier);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -1664,7 +1664,7 @@ module bar2 'test.bicep' = [for item in list: |  ]
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Identifier, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -2147,7 +2147,7 @@ module a '|' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Identifier, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletion(cursor);
@@ -2199,7 +2199,7 @@ var modOut = m.outputs.inputTi|
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier,
+                bicepFile.Uri,
                 services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
@@ -3307,7 +3307,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier,
+                bicepFile.Uri,
                 services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
             );
 
@@ -3517,7 +3517,7 @@ module aModule 'mod.bicep' = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier,
+                bicepFile.Uri,
                 services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
             );
 
@@ -3576,7 +3576,7 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier,
+                bicepFile.Uri,
                 services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
             );
             var file = new FileRequestHelper(helper.Client, bicepFile);
@@ -4408,7 +4408,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletion(cursors[0]);
@@ -4488,7 +4488,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4532,7 +4532,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4580,7 +4580,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4642,7 +4642,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4709,7 +4709,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4763,7 +4763,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4819,7 +4819,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.Identifier);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 

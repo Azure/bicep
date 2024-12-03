@@ -31,7 +31,7 @@ namespace Bicep.Core.Workspaces
 
             foreach (var newFile in files)
             {
-                if (activeFiles.TryGetValue(newFile.Identifier, out var oldFile))
+                if (activeFiles.TryGetValue(newFile.Uri, out var oldFile))
                 {
                     if (oldFile == newFile)
                     {
@@ -43,7 +43,7 @@ namespace Bicep.Core.Workspaces
 
                 added.Add(newFile);
 
-                activeFiles[newFile.Identifier] = newFile;
+                activeFiles[newFile.Uri] = newFile;
             }
 
             return (added.ToImmutableArray(), removed.ToImmutableArray());
@@ -53,9 +53,9 @@ namespace Bicep.Core.Workspaces
         {
             foreach (var file in files)
             {
-                if (activeFiles.TryGetValue(file.Identifier, out var treeToRemove) && treeToRemove == file)
+                if (activeFiles.TryGetValue(file.Uri, out var treeToRemove) && treeToRemove == file)
                 {
-                    activeFiles.Remove(file.Identifier);
+                    activeFiles.Remove(file.Uri);
                 }
             }
         }

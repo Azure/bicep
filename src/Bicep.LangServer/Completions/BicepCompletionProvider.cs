@@ -90,7 +90,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetAssertValueCompletions(model, context))
                 .Concat(GetTypeArgumentCompletions(model, context))
-                .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.Identifier, context, cancellationToken));
+                .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.Uri, context, cancellationToken));
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
@@ -631,7 +631,7 @@ namespace Bicep.LanguageServer.Completions
             try
             {
                 // These should only fail if we're not able to resolve cwd path or the entered string
-                if (TryGetFilesForPathCompletions(model.SourceFile.Identifier, entered) is not { } fileCompletionInfo)
+                if (TryGetFilesForPathCompletions(model.SourceFile.Uri, entered) is not { } fileCompletionInfo)
                 {
                     return [];
                 }
@@ -643,14 +643,14 @@ namespace Bicep.LanguageServer.Completions
 
                 if (context.Kind.HasFlag(BicepCompletionContextKind.ExtendsFilePath))
                 {
-                    var bicepParamFileItems = CreateFileCompletionItems(model.SourceFile.Identifier, replacementRange, fileCompletionInfo, IsBicepParamFile, CompletionPriority.High);
+                    var bicepParamFileItems = CreateFileCompletionItems(model.SourceFile.Uri, replacementRange, fileCompletionInfo, IsBicepParamFile, CompletionPriority.High);
 
                     return bicepParamFileItems.Concat(dirItems);
                 }
 
                 // Prioritize .bicep files higher than other files.
-                var bicepFileItems = CreateFileCompletionItems(model.SourceFile.Identifier, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
-                var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.Identifier, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
+                var bicepFileItems = CreateFileCompletionItems(model.SourceFile.Uri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
+                var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.Uri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
 
                 if (model.Features.ExtendableParamFilesEnabled && context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
                 {
@@ -685,7 +685,7 @@ namespace Bicep.LanguageServer.Completions
 
                 if (model.SourceFileGrouping.SourceFiles.Any(sourceFile =>
                         sourceFile is ArmTemplateFile &&
-                        sourceFile.Identifier.LocalPath.Equals(fileUri.LocalPath, PathHelper.PathComparison)))
+                        sourceFile.Uri.LocalPath.Equals(fileUri.LocalPath, PathHelper.PathComparison)))
                 {
                     return true;
                 }
@@ -1412,7 +1412,7 @@ namespace Bicep.LanguageServer.Completions
             var entered = (functionArgument.Syntax.Arguments.ElementAtOrDefault(functionArgument.ArgumentIndex)?.Expression as StringSyntax)?.TryGetLiteralValue() ?? string.Empty;
 
             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (TryGetFilesForPathCompletions(model.SourceFile.Identifier, entered) is not { } fileCompletionInfo)
+            if (TryGetFilesForPathCompletions(model.SourceFile.Uri, entered) is not { } fileCompletionInfo)
             {
                 return [];
             }
@@ -1421,20 +1421,20 @@ namespace Bicep.LanguageServer.Completions
             if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringJsonFilePath))
             {
                 // Prioritize .json or .jsonc files higher than other files.
-                var jsonItems = CreateFileCompletionItems(model.SourceFile.Identifier, context.ReplacementRange, fileCompletionInfo, (file) => PathHelper.HasExtension(file, "json") || PathHelper.HasExtension(file, "jsonc"), CompletionPriority.High);
-                var nonJsonItems = CreateFileCompletionItems(model.SourceFile.Identifier, context.ReplacementRange, fileCompletionInfo, (file) => !PathHelper.HasExtension(file, "json") && !PathHelper.HasExtension(file, "jsonc"), CompletionPriority.Medium);
+                var jsonItems = CreateFileCompletionItems(model.SourceFile.Uri, context.ReplacementRange, fileCompletionInfo, (file) => PathHelper.HasExtension(file, "json") || PathHelper.HasExtension(file, "jsonc"), CompletionPriority.High);
+                var nonJsonItems = CreateFileCompletionItems(model.SourceFile.Uri, context.ReplacementRange, fileCompletionInfo, (file) => !PathHelper.HasExtension(file, "json") && !PathHelper.HasExtension(file, "jsonc"), CompletionPriority.Medium);
                 fileItems = jsonItems.Concat(nonJsonItems);
             }
             else if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringYamlFilePath))
             {
                 // Prioritize .yaml or .yml files higher than other files.
-                var yamlItems = CreateFileCompletionItems(model.SourceFile.Identifier, context.ReplacementRange, fileCompletionInfo, (file) => PathHelper.HasExtension(file, "yaml") || PathHelper.HasExtension(file, "yml"), CompletionPriority.High);
-                var nonYamlItems = CreateFileCompletionItems(model.SourceFile.Identifier, context.ReplacementRange, fileCompletionInfo, (file) => !PathHelper.HasExtension(file, "yaml") && !PathHelper.HasExtension(file, "yml"), CompletionPriority.Medium);
+                var yamlItems = CreateFileCompletionItems(model.SourceFile.Uri, context.ReplacementRange, fileCompletionInfo, (file) => PathHelper.HasExtension(file, "yaml") || PathHelper.HasExtension(file, "yml"), CompletionPriority.High);
+                var nonYamlItems = CreateFileCompletionItems(model.SourceFile.Uri, context.ReplacementRange, fileCompletionInfo, (file) => !PathHelper.HasExtension(file, "yaml") && !PathHelper.HasExtension(file, "yml"), CompletionPriority.Medium);
                 fileItems = yamlItems.Concat(nonYamlItems);
             }
             else
             {
-                fileItems = CreateFileCompletionItems(model.SourceFile.Identifier, context.ReplacementRange, fileCompletionInfo, (_) => true, CompletionPriority.High);
+                fileItems = CreateFileCompletionItems(model.SourceFile.Uri, context.ReplacementRange, fileCompletionInfo, (_) => true, CompletionPriority.High);
             }
 
             var dirItems = CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo, CompletionPriority.Medium);

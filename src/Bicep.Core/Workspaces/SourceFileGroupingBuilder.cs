@@ -91,7 +91,7 @@ namespace Bicep.Core.Workspaces
                 .SelectMany(current.GetFilesDependingOn)
                 .ToImmutableHashSet();
 
-            return builder.Build(current.EntryPoint.Identifier, featuresFactory, configurationManager, sourcefileExplorerbuild);
+            return builder.Build(current.EntryPoint.Uri, featuresFactory, configurationManager, sourcefileExplorerbuild);
         }
 
         private SourceFileGrouping Build(Uri entryFileUri, IFeatureProviderFactory featuresFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild = null)
@@ -107,7 +107,7 @@ namespace Bicep.Core.Workspaces
 
             if (entryFile is not BicepSourceFile bicepSourceFile)
             {
-                throw new InvalidOperationException($"Unexpected entry source file {entryFile.Identifier}");
+                throw new InvalidOperationException($"Unexpected entry source file {entryFile.Uri}");
             }
 
             var sourceFileGraph = this.ReportFailuresForCycles();
@@ -162,7 +162,7 @@ namespace Bicep.Core.Workspaces
 
         private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild)
         {
-            var config = configurationManager.GetConfiguration(file.Identifier);
+            var config = configurationManager.GetConfiguration(file.Uri);
             implicitExtensions[file] = [];
 
             // process "implicit" extensions (extensions defined in bicepconfig.json)
@@ -231,7 +231,7 @@ namespace Bicep.Core.Workspaces
                 return new(extensionName, extensionEntry, null);
             }
 
-            if (!dispatcher.TryGetArtifactReference(ArtifactType.Extension, extensionEntry.Value, file.Identifier).IsSuccess(out var artifactReference, out errorBuilder))
+            if (!dispatcher.TryGetArtifactReference(ArtifactType.Extension, extensionEntry.Value, file.Uri).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 // reference is not valid
                 return new(extensionName, extensionEntry, new(file, null, null, new(errorBuilder), RequiresRestore: false));
@@ -243,7 +243,7 @@ namespace Bicep.Core.Workspaces
 
         private ArtifactResolutionInfo GetArtifactRestoreResult(BicepSourceFile sourceFile, IArtifactReferenceSyntax referenceSyntax)
         {
-            if (!dispatcher.TryGetArtifactReference(referenceSyntax, sourceFile.Identifier).IsSuccess(out var artifactReference, out var errorBuilder))
+            if (!dispatcher.TryGetArtifactReference(referenceSyntax, sourceFile.Uri).IsSuccess(out var artifactReference, out var errorBuilder))
             {
                 // artifact reference is not valid
                 return new(sourceFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
@@ -313,7 +313,7 @@ namespace Bicep.Core.Workspaces
                         { Length: 1 } when cycle[0] is BicepParamFile paramFile => new(x => x.CyclicParametersSelfReference()),
                         { Length: 1 } => new(x => x.CyclicModuleSelfReference()),
                         // the error message is generic so it should work for either bicep module or params
-                        _ => new(x => x.CyclicFile(cycle.Select(u => u.Identifier.LocalPath))),
+                        _ => new(x => x.CyclicFile(cycle.Select(u => u.Uri.LocalPath))),
                     };
 
                     // overwrite to add the cycle error

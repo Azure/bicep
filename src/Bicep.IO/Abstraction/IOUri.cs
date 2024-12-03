@@ -20,7 +20,7 @@ namespace Bicep.IO.Abstraction
     /// <see href="https://datatracker.ietf.org/doc/html/rfc8089">RFC8089</see>
     /// to satisfy the functionality requirements of Bicep.
     /// </remarks>
-    public readonly struct ResourceIdentifier : IEquatable<ResourceIdentifier>
+    public readonly struct IOUri : IEquatable<IOUri>
     {
         public static class GlobalSettings
         {
@@ -31,7 +31,7 @@ namespace Bicep.IO.Abstraction
             public static StringComparison LocalFilePathComparison => LocalFilePathCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
         }
 
-        public ResourceIdentifier(ResourceIdentifierScheme scheme, string? authority, string path, string? query = null, string? fragment = null)
+        public IOUri(IOUriScheme scheme, string? authority, string path, string? query = null, string? fragment = null)
         {
             this.Scheme = scheme;
             this.Authority = NormalizeAuthority(scheme, authority);
@@ -40,7 +40,7 @@ namespace Bicep.IO.Abstraction
             this.Fragment = fragment;
         }
 
-        public ResourceIdentifierScheme Scheme { get; }
+        public IOUriScheme Scheme { get; }
 
         public string? Authority { get; }
 
@@ -58,7 +58,7 @@ namespace Bicep.IO.Abstraction
 
         public StringComparer PathComparer => this.IsLocalFile ? GlobalSettings.LocalFilePathComparer : StringComparer.Ordinal;
 
-        public static implicit operator string(ResourceIdentifier identifier) => identifier.ToString();
+        public static implicit operator string(IOUri identifier) => identifier.ToString();
 
         public override string ToString() => this.TryGetLocalFilePath() ?? this.ToUriString();
 
@@ -69,9 +69,9 @@ namespace Bicep.IO.Abstraction
         // See: Uniform Resource Identifier (URI): Generic Syntax (https://datatracker.ietf.org/doc/html/rfc3986).
         public string ToUriString() => this.Authority is null ? $"{Scheme}:{Path}" : $"{Scheme}://{Authority}{Path}";
 
-        public static bool operator ==(ResourceIdentifier left, ResourceIdentifier right) => left.Equals(right);
+        public static bool operator ==(IOUri left, IOUri right) => left.Equals(right);
 
-        public static bool operator !=(ResourceIdentifier left, ResourceIdentifier right) => !(left == right);
+        public static bool operator !=(IOUri left, IOUri right) => !(left == right);
 
         public override int GetHashCode()
         {
@@ -87,16 +87,16 @@ namespace Bicep.IO.Abstraction
             return hash.ToHashCode();
         }
 
-        public override bool Equals(object? @object) => @object is ResourceIdentifier other && this.Equals(other);
+        public override bool Equals(object? @object) => @object is IOUri other && this.Equals(other);
 
-        public bool Equals(ResourceIdentifier other) =>
+        public bool Equals(IOUri other) =>
             this.SchemeEquals(other) &&
             this.AuthorityEquals(other) &&
             string.Equals(this.Query, other.Query, StringComparison.Ordinal) &&
             string.Equals(this.Fragment, other.Fragment, StringComparison.Ordinal) &&
             string.Equals(Path, other.Path, this.PathComparison);
 
-        public bool IsBaseOf(ResourceIdentifier other)
+        public bool IsBaseOf(IOUri other)
         {
             if (!this.SchemeEquals(other) || !this.AuthorityEquals(other))
             {
@@ -122,7 +122,7 @@ namespace Bicep.IO.Abstraction
             return true;
         }
 
-        public string GetPathRelativeTo(ResourceIdentifier other)
+        public string GetPathRelativeTo(IOUri other)
         {
             if (!this.Scheme.Equals(other.Scheme) || !string.Equals(this.Authority, other.Authority, StringComparison.OrdinalIgnoreCase))
             {
@@ -158,7 +158,7 @@ namespace Bicep.IO.Abstraction
             return this.Path.EndsWith('/') ? relativePath + '/' : relativePath;
         }
 
-        private static string? NormalizeAuthority(ResourceIdentifierScheme scheme, string? authority)
+        private static string? NormalizeAuthority(IOUriScheme scheme, string? authority)
         {
             if (scheme.IsHttp || scheme.IsHttps)
             {
@@ -180,7 +180,7 @@ namespace Bicep.IO.Abstraction
             return authority?.ToLowerInvariant();
         }
 
-        private static string NormalizePath(ResourceIdentifierScheme scheme, string? authority, string path)
+        private static string NormalizePath(IOUriScheme scheme, string? authority, string path)
         {
             if (authority is not null && !(path.Length == 0 || path.StartsWith('/')))
             {
@@ -228,8 +228,8 @@ namespace Bicep.IO.Abstraction
             return path.EndsWith('/') ? canonicalPath + "/" : canonicalPath;
         }
 
-        private bool SchemeEquals(ResourceIdentifier other) => this.Scheme.Equals(other.Scheme);
+        private bool SchemeEquals(IOUri other) => this.Scheme.Equals(other.Scheme);
 
-        private bool AuthorityEquals(ResourceIdentifier other) => string.Equals(this.Authority, other.Authority, StringComparison.OrdinalIgnoreCase);
+        private bool AuthorityEquals(IOUri other) => string.Equals(this.Authority, other.Authority, StringComparison.OrdinalIgnoreCase);
     }
 }

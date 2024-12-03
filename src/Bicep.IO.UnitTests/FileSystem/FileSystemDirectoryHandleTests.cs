@@ -64,7 +64,7 @@ namespace Bicep.IO.UnitTests.FileSystem
             var childDirectory = directoryHandle.GetDirectory("child");
 
             // Assert.
-            childDirectory.Identifier.GetFileSystemPath().Should().Be(fileSystem.Path.GetFullPath("/dir/child/"));
+            childDirectory.Uri.GetFileSystemPath().Should().Be(fileSystem.Path.GetFullPath("/dir/child/"));
         }
 
         [TestMethod]
@@ -92,7 +92,7 @@ namespace Bicep.IO.UnitTests.FileSystem
             var childFile = directoryHandle.GetFile("child.txt");
 
             // Assert.
-            childFile.Identifier.GetFileSystemPath().Should().Be(fileSystem.Path.GetFullPath("/dir/child.txt"));
+            childFile.Uri.GetFileSystemPath().Should().Be(fileSystem.Path.GetFullPath("/dir/child.txt"));
         }
 
         [TestMethod]
@@ -121,7 +121,7 @@ namespace Bicep.IO.UnitTests.FileSystem
 
             // Assert.
             parentDirectory.Should().NotBeNull();
-            parentDirectory!.Identifier.GetFileSystemPath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
+            parentDirectory!.Uri.GetFileSystemPath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
         }
 
         [TestMethod]

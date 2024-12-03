@@ -14,40 +14,40 @@ using Bicep.IO.FileSystem;
 
 namespace Bicep.IO.FileSystem
 {
-    public abstract class FileSystemResourceHandle : IResourceHandle
+    public abstract class FileSystemIOHandle : IIOHandle
     {
-        protected FileSystemResourceHandle(IFileSystem fileSystem, string fileSystemPath)
+        protected FileSystemIOHandle(IFileSystem fileSystem, string fileSystemPath)
             : this(fileSystem, CreateIdentifier(fileSystem, fileSystemPath))
         {
         }
 
-        private FileSystemResourceHandle(IFileSystem fileSystem, ResourceIdentifier identifier)
+        private FileSystemIOHandle(IFileSystem fileSystem, IOUri identifier)
         {
             FileSystem = fileSystem;
-            Identifier = identifier;
+            Uri = identifier;
         }
 
         protected IFileSystem FileSystem { get; }
 
-        public ResourceIdentifier Identifier { get; }
+        public IOUri Uri { get; }
 
         public abstract bool Exists();
 
-        public override int GetHashCode() => HashCode.Combine(this.GetType(), Identifier);
+        public override int GetHashCode() => HashCode.Combine(this.GetType(), Uri);
 
-        public override bool Equals(object? @object) => Equals(@object as FileSystemResourceHandle);
+        public override bool Equals(object? @object) => Equals(@object as FileSystemIOHandle);
 
-        public bool Equals(IResourceHandle? other)
+        public bool Equals(IIOHandle? other)
         {
             if (other is null)
             {
                 return false;
             }
 
-            return this.GetType() == other.GetType() && Identifier == other.Identifier;
+            return this.GetType() == other.GetType() && Uri == other.Uri;
         }
 
-        private static ResourceIdentifier CreateIdentifier(IFileSystem fileSystem, string fileSystemPath)
+        private static IOUri CreateIdentifier(IFileSystem fileSystem, string fileSystemPath)
         {
             FileSystemPathException.ThrowIfWhiteSpace(fileSystemPath);
             FileSystemPathException.ThrowIfUnsupportedWindowsDosDevicePath(fileSystemPath);
@@ -65,7 +65,7 @@ namespace Bicep.IO.FileSystem
                     fileSystemPath = "/" + fileSystemPath.Replace('\\', '/');
                 }
 
-                return new ResourceIdentifier("file", "", fileSystemPath);
+                return new IOUri("file", "", fileSystemPath);
             }
             catch (Exception exception) when (exception is ArgumentException or SecurityException or PathTooLongException)
             {

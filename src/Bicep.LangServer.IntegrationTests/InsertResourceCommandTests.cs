@@ -93,12 +93,12 @@ namespace Bicep.LangServer.IntegrationTests
             var (fileContents, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursor, '|');
             var file = SourceFileFactory.CreateBicepFile(fileUri, fileContents);
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(file.Identifier, fileContents, 0));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(file.Uri, fileContents, 0));
             await listeners.Diagnostics.WaitNext();
 
             var result = await client.SendRequest(new InsertResourceParams
             {
-                TextDocument = DocumentUri.From(file.Identifier),
+                TextDocument = DocumentUri.From(file.Uri),
                 Position = PositionHelper.GetPosition(file.LineStarts, cursor),
                 ResourceId = resourceId,
             }, default);

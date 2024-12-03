@@ -83,8 +83,8 @@ namespace Bicep.Core.Diagnostics
                 ? $"The Template Spec reference \"{referenceValue}\" after resolving alias \"{aliasName}\" is not valid."
                 : $"The specified Template Spec reference \"{referenceValue}\" is not valid.";
 
-            private static string BuildBicepConfigurationClause(ResourceIdentifier? configFileIdentifier) => configFileIdentifier is not null
-                ? $"Bicep configuration \"{configFileIdentifier}\""
+            private static string BuildBicepConfigurationClause(IOUri? configFileUri) => configFileUri is not null
+                ? $"Bicep configuration \"{configFileUri}\""
                 : $"built-in Bicep configuration";
 
             public Diagnostic UnrecognizedToken(string token) => CoreError(
@@ -1088,25 +1088,25 @@ namespace Bicep.Core.Diagnostics
                 "BCP211",
                 $"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public Diagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, ResourceIdentifier? configFileIdentifier) => CoreError(
+            public Diagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP212",
-                $"The Template Spec module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileIdentifier)}.");
+                $"The Template Spec module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
-            public Diagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, ResourceIdentifier? configFileIdentifier) => CoreError(
+            public Diagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP213",
-                $"The OCI artifact module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileIdentifier)}.");
+                $"The OCI artifact module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
-            public Diagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, ResourceIdentifier? configFileIdentifier) => CoreError(
+            public Diagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP214",
-                $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileIdentifier)} is in valid. The \"subscription\" property cannot be null or undefined.");
+                $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is in valid. The \"subscription\" property cannot be null or undefined.");
 
-            public Diagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, ResourceIdentifier? configFileIdentifier) => CoreError(
+            public Diagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP215",
-                $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileIdentifier)} is in valid. The \"resourceGroup\" property cannot be null or undefined.");
+                $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is in valid. The \"resourceGroup\" property cannot be null or undefined.");
 
-            public Diagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, ResourceIdentifier? configFileIdentifier) => CoreError(
+            public Diagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP216",
-                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileIdentifier)} is invalid. The \"registry\" property cannot be null or undefined.");
+                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
             public Diagnostic InvalidTemplateSpecReferenceInvalidSubscriptionId(string? aliasName, string subscriptionId, string referenceValue) => CoreError(
                 "BCP217",
@@ -1312,19 +1312,19 @@ namespace Bicep.Core.Diagnostics
                 "BCP269",
                 $"Function \"{functionName}\" cannot be used as a metadata decorator.");
 
-            public Diagnostic UnparsableBicepConfigFile(ResourceIdentifier configFileIdentifier, string parsingErrorMessage) => CoreError(
+            public Diagnostic UnparsableBicepConfigFile(IOUri configFileUri, string parsingErrorMessage) => CoreError(
                 "BCP271",
-                $"Failed to parse the contents of the Bicep configuration file \"{configFileIdentifier}\" as valid JSON: {parsingErrorMessage.TrimEnd('.')}.");
+                $"Failed to parse the contents of the Bicep configuration file \"{configFileUri}\" as valid JSON: {parsingErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic UnloadableBicepConfigFile(ResourceIdentifier configFileIdentifier, string loadErrorMessage) => CoreError(
+            public Diagnostic UnloadableBicepConfigFile(IOUri configFileUri, string loadErrorMessage) => CoreError(
                 "BCP272",
-                $"Could not load the Bicep configuration file \"{configFileIdentifier}\": {loadErrorMessage.TrimEnd('.')}.");
+                $"Could not load the Bicep configuration file \"{configFileUri}\": {loadErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic InvalidBicepConfigFile(ResourceIdentifier configFileIdentifier, string parsingErrorMessage) => CoreError(
+            public Diagnostic InvalidBicepConfigFile(IOUri configFileUri, string parsingErrorMessage) => CoreError(
                 "BCP273",
-                $"Failed to parse the contents of the Bicep configuration file \"{configFileIdentifier}\": {parsingErrorMessage.TrimEnd('.')}.");
+                $"Failed to parse the contents of the Bicep configuration file \"{configFileUri}\": {parsingErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(ResourceIdentifier? directoryIdentifier, string scanErrorMessage) => CoreDiagnostic(
+            public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(IOUri? directoryIdentifier, string scanErrorMessage) => CoreDiagnostic(
                 DiagnosticLevel.Info, // should this be a warning instead?
                 "BCP274",
                 $"Error scanning \"{directoryIdentifier}\" for bicep configuration: {scanErrorMessage.TrimEnd('.')}.");
@@ -1717,13 +1717,13 @@ namespace Bicep.Core.Diagnostics
                 "BCP377",
                 $"The extension alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public Diagnostic InvalidOciArtifactExtensionAliasRegistryNullOrUndefined(string aliasName, ResourceIdentifier? configFileIdentifier) => CoreError(
+            public Diagnostic InvalidOciArtifactExtensionAliasRegistryNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP378",
-                $"The OCI artifact extension alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileIdentifier)} is invalid. The \"registry\" property cannot be null or undefined.");
+                $"The OCI artifact extension alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
-            public Diagnostic OciArtifactExtensionAliasNameDoesNotExistInConfiguration(string aliasName, ResourceIdentifier? configFileIdentifier) => CoreError(
+            public Diagnostic OciArtifactExtensionAliasNameDoesNotExistInConfiguration(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP379",
-                $"The OCI artifact extension alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileIdentifier)}.");
+                $"The OCI artifact extension alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
             public Diagnostic UnsupportedArtifactType(ArtifactType artifactType) => CoreError(
                 "BCP380",
@@ -1797,13 +1797,13 @@ namespace Bicep.Core.Diagnostics
                 "BCP396",
                 "The referenced extension types artifact has been published with malformed content.");
 
-            public Diagnostic InvalidExtension_ImplicitExtensionMissingConfig(ResourceIdentifier? configFileIdentifier, string name) => CoreError(
+            public Diagnostic InvalidExtension_ImplicitExtensionMissingConfig(IOUri? configFileUri, string name) => CoreError(
                 "BCP397",
-                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileIdentifier)}. It is referenced in the "{RootConfiguration.ImplicitExtensionsKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ExtensionsKey}" section.""");
+                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{RootConfiguration.ImplicitExtensionsKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ExtensionsKey}" section.""");
 
-            public Diagnostic InvalidExtension_NotABuiltInExtension(ResourceIdentifier? configFileIdentifier, string name) => CoreError(
+            public Diagnostic InvalidExtension_NotABuiltInExtension(IOUri? configFileUri, string name) => CoreError(
                 "BCP398",
-                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileIdentifier)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
+                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
 
             public Diagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => CoreError(
                 "BCP401",
