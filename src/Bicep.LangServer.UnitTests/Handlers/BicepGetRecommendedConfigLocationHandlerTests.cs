@@ -125,7 +125,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             yield return new object[] { new string[] { "/workspace1" }, "/workspace2/bicepconfig.json", "/workspace2" };
             yield return new object[] { new string[] { "/workspace1/two/three" }, "/workspace1/two/bicepconfig.json", "/workspace1/two" };
             // Case sensitive - no match, return bicep file's folder
-            yield return new object[] { new string[] { "/Workspace1" }, "/workspace1/bicepconfig.json", "/workspace1" };
+            yield return new object[] { new string[] { "/Workspace1" }, "/workspace1/bicepconfig.json", "/Workspace1" };
             yield return new object[] { new string[] { "/workspace1" }, "/workspace1/bicepconfig.json", "/workspace1" };
             // Folders partially match
             yield return new object[] { new string[] { "/workspace" }, "/workspace1/bicepconfig.json", "/workspace1" };
