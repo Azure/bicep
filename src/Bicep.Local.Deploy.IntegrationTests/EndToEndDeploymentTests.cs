@@ -111,6 +111,8 @@ param coords = {
         extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
+                req.Type.Should().Be("request");
+                req.ApiVersion.Should().Be("v1");
                 req.Properties["body"] = """
 {
   "properties": {
@@ -126,6 +128,8 @@ param coords = {
         extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
+                req.Type.Should().Be("request");
+                req.ApiVersion.Should().Be("v1");
                 req.Properties["body"] = """
 {
   "properties": {
