@@ -11,6 +11,22 @@ function getPrState($prNumber) {
     return (gh pr view $prNumber --json state | jq '.state').Trim('"')
 }
 
+function getPrHasConflicts($prNumber) {
+    return (gh pr view $prNumber --json mergeable | jq '.mergeable').Trim('"') -eq 'CONFLICTING'
+}
+
+function waitForPrRecreate($prNumber) {
+    while ($true) {
+        $lastComment = gh pr view $prNumber --json comments --jq '.comments[-1].body'
+        if ($lastComment -notlike '*@dependabot recreate*') {
+            return
+        }
+
+        Start-Sleep -Seconds 15
+    }
+}
+
+# returns true if the PR should be removed from the list, otherwise false
 function processPR {
     param (
         [Parameter(Mandatory = $true)]
@@ -19,14 +35,22 @@ function processPR {
         [Parameter(Mandatory = $true)]
         [string]$prRef,
         
-        [ref]$allPrs  # Use a reference to modify the original array asdfg
+        [ref]$prs  # Use a reference to modify the original array asdfg
     )
 
     $prState = getPrState($prNumber)
     if ($prState -ne 'OPEN') {
         Write-Warning "PR $(getPrLink($prNumber)) is not open. Skipping..."
-        $allPrs.Value = $allPrs.Value | Where-Object { $_.number -ne $prNumber }
-        return
+        return $true
+    }
+
+    if (getPrHasConflicts($prNumber)) {
+        Write-Warning "PR $(getPrLink($prNumber)) has conflicts. Recreating PR."
+        if (!$dryRun) {
+            gh pr comment $prNumber --body "@dependabot recreate"
+            waitForPrRecreate $prNumber
+        }
+        return $false
     }
 
     Write-Host "Running lockfiles-command workflow for PR $(getPrLink($prNumber))"
@@ -45,8 +69,7 @@ function processPR {
 
         if (!$running) {
             Write-Warning "No lockfiles-command workflows found for PR $(getPrLink($prNumber))"
-            $allPrs.Value = $allPrs.Value | Where-Object { $_.number -ne $prNumber }
-            return  # Exit the method
+            return $true
         }
 
         $inProgress = $running | Where-Object { $_.status -eq "in_progress" -or $_.status -eq "queued" }
@@ -75,7 +98,7 @@ function processPR {
     gh pr checks $prNumber --watch --fail-fast
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Checks for $(getPrLink($prNumber)) have failed."
-        return  # Exit the method
+        return $true
     }
 
     # Set to auto-merge
@@ -83,7 +106,7 @@ function processPR {
     gh pr merge $prNumber --squash --auto
     Write-Host "PR $(getPrLink($prNumber)) has been set to auto-merge.";
 
-    $allPrs.Value = $allPrs.Value | Where-Object { $_.number -ne $prNumber }
+    return $true
 }
 
 Write-Host "Getting list of matching PRs..."
@@ -94,8 +117,17 @@ $allPrs = $prsJson | ConvertFrom-Json
 $prs = $allPrs
 write-host "Processing $($prs.Count) PRs...$($prs | ForEach-Object { "`n$($_.number): $($_.title)" })"
 
-foreach ($pr in $prs) { 
-    processPR -prNumber $pr.number -prRef $pr.headRefName -allPrs ([ref]$allPrs)
+while ($prs) {
+    $pr = $prs[0]
+    $prs = $prs[1..$prs.Length]
+
+    $processed = processPR -prNumber $pr.number -prRef $pr.headRefName -prs ([ref]$prs)
+    if ($processed) {
+        Write-Host "PR $(getPrLink($pr.number)) has been processed."
+    }else {
+        Write-Host "PR $(getPrLink($pr.number)) is still being processed."
+        $prs = $prs + $pr # Put at the end of the list
+    }
 }
 
 Write-Host "All PRs processed."
