@@ -20,24 +20,27 @@ function waitForPrRecreate($prNumber) {
         return
     }
 
-    Write-Host "PR $(getPrLink($prNumber)) has conflicts. Waiting for it to be recreated..."
+    Write-Host -NoNewline "PR $(getPrLink($prNumber)) has conflicts. Waiting for it to be recreated..."
     
     while ($true) {
         $lastComment = gh pr view $prNumber --json comments --jq '.comments[-1].body'
         if ($lastComment -notlike '*@dependabot recreate*') {
+            Write-Host ""
             write-warning "PR $(getPrLink($prNumber)) last comment: $lastComment"
             return
         }
 
         if (prHasConflicts($prNumber)) {
-            Write-Host "PR $(getPrLink($prNumber)) still has conflicts. Waiting for PR to be recreated..."
+            Write-Host -NoNewline "."
         } else {
-            Write-Host "PR $(getPrLink($prNumber)) has been recreated."
+            Write-Host "`nPR $(getPrLink($prNumber)) has been recreated."
             return
         }
 
         Start-Sleep -Seconds 60
     }
+
+    Write-Host ""
 }
 
 # returns true if the PR should be removed from the list, otherwise false
@@ -98,6 +101,7 @@ function processPR {
         $running = $runningOutput | ConvertFrom-Json | Where-Object { $_.headBranch -eq $prRef }
 
         if (!$running) {
+            write-host ""
             Write-Warning "No lockfiles-command workflows found for PR $(getPrLink($prNumber))"
             $prStatus[$prNumber] = "No lockfiles-command workflows found"
             return $true
@@ -107,7 +111,7 @@ function processPR {
         if ($inProgress) {
             Write-Host -NoNewline "."
         } else {
-            Write-Host "lockfiles-command for $(getPrLink($prNumber)) has completed."
+            Write-Host "`nlockfiles-command for $(getPrLink($prNumber)) has completed."
             break
         }
 
@@ -126,7 +130,7 @@ function processPR {
     }
 
     # Use gh checks wait with --fail-fast to exit on the first failure
-    gh pr checks $prNumber --watch --fail-fast
+    gh pr checks $prNumber --watch --fail-fast --required
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Checks for $(getPrLink($prNumber)) have failed."
         $prStatus[$prNumber] = "Checks failed"
@@ -177,6 +181,7 @@ while ($prs) {
 }
 
 Write-Host "All PRs processed."
+showStatus $prStatus
 
 foreach ($pr in $prs) {
     Write-Host "$(getPrLink($pr.number)): $(getPrState($pr.number))"
