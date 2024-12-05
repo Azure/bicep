@@ -65,10 +65,17 @@ function processPR {
         Write-Host "Waiting for PR $(getPrLink($prNumber)) with conflicts to be recreated..."
         waitForPrRecreate $prNumber
         $prStatus[$prNumber] = "Recreated"
+
+        $prState = getPrState($prNumber)
+        if ($prState -ne 'OPEN') {
+            Write-Warning "PR $(getPrLink($prNumber)) was closed during @dependabot recreate."
+            $prStatus[$prNumber] = "Closed after @dependabot recreate"
+            return $true
+        }
     }
 
     if (prHasConflicts($prNumber)) {
-        Write-Host "PR $(getPrLink($prNumber)) has conflicts. Recreating PR."
+        Write-Host "PR $(getPrLink($prNumber)) has conflicts. Recreating PR and putting at the end of the list."
         if (!$dryRun) {
             gh pr comment $prNumber --body "@dependabot recreate"
         }
