@@ -44,20 +44,27 @@ function processPR {
         [ref]$prs  # Use a reference to modify the original array asdfg
     )
 
-    Write-Warning "`n====================== Processing PR $prNumber... ======================`n"
+    Write-Host "`n====================== Processing PR $prNumber ======================`n"
 
     $prState = getPrState($prNumber)
     if ($prState -ne 'OPEN') {
         Write-Warning "PR $(getPrLink($prNumber)) is not open. Skipping..."
+        $prStatus[$prNumber] = "Unexpected closed"
         return $true
     }
 
+    if ($prStatus[$prNumber] -eq "Conflicts") {
+        Write-Host "Waiting for PR $(getPrLink($prNumber)) with conflicts to be recreated..."
+        waitForPrRecreate $prNumber
+        $prStatus[$prNumber] = "Recreated"
+    }
+
     if (getPrHasConflicts($prNumber)) {
-        Write-Warning "PR $(getPrLink($prNumber)) has conflicts. Recreating PR."
+        Write-Host "PR $(getPrLink($prNumber)) has conflicts. Recreating PR."
         if (!$dryRun) {
             gh pr comment $prNumber --body "@dependabot recreate"
-            waitForPrRecreate $prNumber
         }
+        $prStatus[$prNumber] = "Conflicts"
         return $false
     }
 
@@ -77,6 +84,7 @@ function processPR {
 
         if (!$running) {
             Write-Warning "No lockfiles-command workflows found for PR $(getPrLink($prNumber))"
+            $prStatus[$prNumber] = "No lockfiles-command workflows found"
             return $true
         }
 
@@ -106,35 +114,50 @@ function processPR {
     gh pr checks $prNumber --watch --fail-fast
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Checks for $(getPrLink($prNumber)) have failed."
+        $prStatus[$prNumber] = "Checks failed"
         return $true
     }
 
     # Set to auto-merge
     Write-Host "All checks for $(getPrLink($prNumber)) have completed successfully."
     gh pr merge $prNumber --squash --auto
-    Write-Host "PR $(getPrLink($prNumber)) has been set to auto-merge.";
+    Write-Host "PR $(getPrLink($prNumber)) has been set to auto-merge."
+    $prStatus[$prNumber] = "Auto-merged"
 
     return $true
 }
 
+function showStatus($prStatus) {
+    Write-Host "`nStatus:"
+    foreach ($pr in $prs) {
+        Write-Host "$(getPrLink($pr.number)): $($prStatus[$pr.number]) ($(getPrState($pr.number)))"
+    }
+    Write-Host "`n"
+}
 Write-Host "Getting list of matching PRs..."
 $prsJson = gh pr list --label dependencies --limit $maxPRs --json title,number,headRefName,state,author --jq '.[] | select(.title | startswith("Bump")) | select(.author.login == "app/dependabot")'
 $allPrs = $prsJson | ConvertFrom-Json
+$prStatus = @{}
+$allPrs | ForEach-Object { $prStatus[$_.number] = "Not yet processed" }
 
 # Loop through each PR one at a time
 $prs = $allPrs
 write-host "Processing $($prs.Count) PRs...$($prs | ForEach-Object { "`n$(getPrLink($_.number)): $($_.title)" })"
 
 while ($prs) {
+    showStatus $prStatus
+
     $pr = $prs[0]
     $prs = $prs[1..$prs.Length]
 
     $processed = processPR -prNumber $pr.number -prRef $pr.headRefName -prs ([ref]$prs)
-    if ($processed) {
+    if ($processed[-1] -eq $true) {
         Write-Host "PR $(getPrLink($pr.number)) has been processed."
-    }else {
+    } elseif ($processed[-1] -eq $false) {
         Write-Host "PR $(getPrLink($pr.number)) is still being processed."
         $prs = $prs + $pr # Put at the end of the list
+    } else {
+        Write-Error "Unexpected return value from processPR: $processed"
     }
 }
 
