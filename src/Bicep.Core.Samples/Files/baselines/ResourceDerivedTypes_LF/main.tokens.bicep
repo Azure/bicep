@@ -1,225 +1,225 @@
-type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
-//@[00:04) Identifier |type|
-//@[05:08) Identifier |foo|
-//@[09:10) Assignment |=|
-//@[11:19) Identifier |resource|
-//@[19:20) LeftChevron |<|
-//@[20:66) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
-//@[66:67) RightChevron |>|
-//@[67:68) Dot |.|
-//@[68:72) Identifier |name|
-//@[72:74) NewLine |\n\n|
+type foo = resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[000:004) Identifier |type|
+//@[005:008) Identifier |foo|
+//@[009:010) Assignment |=|
+//@[011:024) Identifier |resourceInput|
+//@[024:025) LeftChevron |<|
+//@[025:071) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[071:072) RightChevron |>|
+//@[072:073) Dot |.|
+//@[073:077) Identifier |name|
+//@[077:079) NewLine |\n\n|
 
 type test = {
-//@[00:04) Identifier |type|
-//@[05:09) Identifier |test|
-//@[10:11) Assignment |=|
-//@[12:13) LeftBrace |{|
-//@[13:14) NewLine |\n|
-  resA: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
-//@[02:06) Identifier |resA|
-//@[06:07) Colon |:|
-//@[08:16) Identifier |resource|
-//@[16:17) LeftChevron |<|
-//@[17:63) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
-//@[63:64) RightChevron |>|
-//@[64:65) Dot |.|
-//@[65:69) Identifier |name|
-//@[69:70) NewLine |\n|
-  resB: sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
-//@[02:06) Identifier |resB|
-//@[06:07) Colon |:|
-//@[08:11) Identifier |sys|
-//@[11:12) Dot |.|
-//@[12:20) Identifier |resource|
-//@[20:21) LeftChevron |<|
-//@[21:67) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
-//@[67:68) RightChevron |>|
-//@[68:69) Dot |.|
-//@[69:73) Identifier |name|
-//@[73:74) NewLine |\n|
+//@[000:004) Identifier |type|
+//@[005:009) Identifier |test|
+//@[010:011) Assignment |=|
+//@[012:013) LeftBrace |{|
+//@[013:014) NewLine |\n|
+  resA: resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[002:006) Identifier |resA|
+//@[006:007) Colon |:|
+//@[008:021) Identifier |resourceInput|
+//@[021:022) LeftChevron |<|
+//@[022:068) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[068:069) RightChevron |>|
+//@[069:070) Dot |.|
+//@[070:074) Identifier |name|
+//@[074:075) NewLine |\n|
+  resB: sys.resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+//@[002:006) Identifier |resB|
+//@[006:007) Colon |:|
+//@[008:011) Identifier |sys|
+//@[011:012) Dot |.|
+//@[012:025) Identifier |resourceInput|
+//@[025:026) LeftChevron |<|
+//@[026:072) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[072:073) RightChevron |>|
+//@[073:074) Dot |.|
+//@[074:078) Identifier |name|
+//@[078:079) NewLine |\n|
   resC: sys.array
-//@[02:06) Identifier |resC|
-//@[06:07) Colon |:|
-//@[08:11) Identifier |sys|
-//@[11:12) Dot |.|
-//@[12:17) Identifier |array|
-//@[17:18) NewLine |\n|
-  resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
-//@[02:06) Identifier |resD|
-//@[06:07) Colon |:|
-//@[08:11) Identifier |sys|
-//@[11:12) Dot |.|
-//@[12:20) Identifier |resource|
-//@[20:21) LeftChevron |<|
-//@[21:70) StringComplete |'az:Microsoft.Storage/storageAccounts@2022-09-01'|
-//@[70:71) RightChevron |>|
-//@[71:72) Dot |.|
-//@[72:76) Identifier |name|
-//@[76:77) NewLine |\n|
+//@[002:006) Identifier |resC|
+//@[006:007) Colon |:|
+//@[008:011) Identifier |sys|
+//@[011:012) Dot |.|
+//@[012:017) Identifier |array|
+//@[017:018) NewLine |\n|
+  resD: sys.resourceInput<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
+//@[002:006) Identifier |resD|
+//@[006:007) Colon |:|
+//@[008:011) Identifier |sys|
+//@[011:012) Dot |.|
+//@[012:025) Identifier |resourceInput|
+//@[025:026) LeftChevron |<|
+//@[026:075) StringComplete |'az:Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[075:076) RightChevron |>|
+//@[076:077) Dot |.|
+//@[077:081) Identifier |name|
+//@[081:082) NewLine |\n|
 }
-//@[00:01) RightBrace |}|
-//@[01:03) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 type strangeFormatting = {
-//@[00:04) Identifier |type|
-//@[05:22) Identifier |strangeFormatting|
-//@[23:24) Assignment |=|
-//@[25:26) LeftBrace |{|
-//@[26:27) NewLine |\n|
-  test: resource<
-//@[02:06) Identifier |test|
-//@[06:07) Colon |:|
-//@[08:16) Identifier |resource|
-//@[16:17) LeftChevron |<|
-//@[17:19) NewLine |\n\n|
+//@[000:004) Identifier |type|
+//@[005:022) Identifier |strangeFormatting|
+//@[023:024) Assignment |=|
+//@[025:026) LeftBrace |{|
+//@[026:027) NewLine |\n|
+  test: resourceInput<
+//@[002:006) Identifier |test|
+//@[006:007) Colon |:|
+//@[008:021) Identifier |resourceInput|
+//@[021:022) LeftChevron |<|
+//@[022:024) NewLine |\n\n|
 
   'Astronomer.Astro/organizations@2023-08-01-preview'
-//@[02:53) StringComplete |'Astronomer.Astro/organizations@2023-08-01-preview'|
-//@[53:55) NewLine |\n\n|
+//@[002:053) StringComplete |'Astronomer.Astro/organizations@2023-08-01-preview'|
+//@[053:055) NewLine |\n\n|
 
 >.name
-//@[00:01) RightChevron |>|
-//@[01:02) Dot |.|
-//@[02:06) Identifier |name|
-//@[06:07) NewLine |\n|
-  test2: resource    <'Microsoft.Storage/storageAccounts@2023-01-01'>.name
-//@[02:07) Identifier |test2|
-//@[07:08) Colon |:|
-//@[09:17) Identifier |resource|
-//@[21:22) LeftChevron |<|
-//@[22:68) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
-//@[68:69) RightChevron |>|
-//@[69:70) Dot |.|
-//@[70:74) Identifier |name|
-//@[74:75) NewLine |\n|
-  test3: resource</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>.name
-//@[02:07) Identifier |test3|
-//@[07:08) Colon |:|
-//@[09:17) Identifier |resource|
-//@[17:18) LeftChevron |<|
-//@[26:72) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
-//@[81:82) RightChevron |>|
-//@[82:83) Dot |.|
-//@[83:87) Identifier |name|
-//@[87:88) NewLine |\n|
+//@[000:001) RightChevron |>|
+//@[001:002) Dot |.|
+//@[002:006) Identifier |name|
+//@[006:007) NewLine |\n|
+  test2: resourceInput    <'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[002:007) Identifier |test2|
+//@[007:008) Colon |:|
+//@[009:022) Identifier |resourceInput|
+//@[026:027) LeftChevron |<|
+//@[027:073) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[073:074) RightChevron |>|
+//@[074:075) Dot |.|
+//@[075:079) Identifier |name|
+//@[079:080) NewLine |\n|
+  test3: resourceInput</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>.name
+//@[002:007) Identifier |test3|
+//@[007:008) Colon |:|
+//@[009:022) Identifier |resourceInput|
+//@[022:023) LeftChevron |<|
+//@[031:077) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[086:087) RightChevron |>|
+//@[087:088) Dot |.|
+//@[088:092) Identifier |name|
+//@[092:093) NewLine |\n|
 }
-//@[00:01) RightBrace |}|
-//@[01:03) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 @description('I love space(s)')
-//@[00:01) At |@|
-//@[01:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:30) StringComplete |'I love space(s)'|
-//@[30:31) RightParen |)|
-//@[31:32) NewLine |\n|
-type test2 = resource<
-//@[00:04) Identifier |type|
-//@[05:10) Identifier |test2|
-//@[11:12) Assignment |=|
-//@[13:21) Identifier |resource|
-//@[21:22) LeftChevron |<|
-//@[22:24) NewLine |\n\n|
+//@[000:001) At |@|
+//@[001:012) Identifier |description|
+//@[012:013) LeftParen |(|
+//@[013:030) StringComplete |'I love space(s)'|
+//@[030:031) RightParen |)|
+//@[031:032) NewLine |\n|
+type test2 = resourceInput<
+//@[000:004) Identifier |type|
+//@[005:010) Identifier |test2|
+//@[011:012) Assignment |=|
+//@[013:026) Identifier |resourceInput|
+//@[026:027) LeftChevron |<|
+//@[027:029) NewLine |\n\n|
 
      'Astronomer.Astro/organizations@2023-08-01-preview'
-//@[05:56) StringComplete |'Astronomer.Astro/organizations@2023-08-01-preview'|
-//@[56:58) NewLine |\n\n|
+//@[005:056) StringComplete |'Astronomer.Astro/organizations@2023-08-01-preview'|
+//@[056:058) NewLine |\n\n|
 
 >.name
-//@[00:01) RightChevron |>|
-//@[01:02) Dot |.|
-//@[02:06) Identifier |name|
-//@[06:08) NewLine |\n\n|
+//@[000:001) RightChevron |>|
+//@[001:002) Dot |.|
+//@[002:006) Identifier |name|
+//@[006:008) NewLine |\n\n|
 
-param bar resource<'Microsoft.Resources/tags@2022-09-01'>.properties = {
-//@[00:05) Identifier |param|
-//@[06:09) Identifier |bar|
-//@[10:18) Identifier |resource|
-//@[18:19) LeftChevron |<|
-//@[19:56) StringComplete |'Microsoft.Resources/tags@2022-09-01'|
-//@[56:57) RightChevron |>|
-//@[57:58) Dot |.|
-//@[58:68) Identifier |properties|
-//@[69:70) Assignment |=|
-//@[71:72) LeftBrace |{|
-//@[72:73) NewLine |\n|
+param bar resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties = {
+//@[000:005) Identifier |param|
+//@[006:009) Identifier |bar|
+//@[010:023) Identifier |resourceInput|
+//@[023:024) LeftChevron |<|
+//@[024:061) StringComplete |'Microsoft.Resources/tags@2022-09-01'|
+//@[061:062) RightChevron |>|
+//@[062:063) Dot |.|
+//@[063:073) Identifier |properties|
+//@[074:075) Assignment |=|
+//@[076:077) LeftBrace |{|
+//@[077:078) NewLine |\n|
   tags: {
-//@[02:06) Identifier |tags|
-//@[06:07) Colon |:|
-//@[08:09) LeftBrace |{|
-//@[09:10) NewLine |\n|
+//@[002:006) Identifier |tags|
+//@[006:007) Colon |:|
+//@[008:009) LeftBrace |{|
+//@[009:010) NewLine |\n|
     fizz: 'buzz'
-//@[04:08) Identifier |fizz|
-//@[08:09) Colon |:|
-//@[10:16) StringComplete |'buzz'|
-//@[16:17) NewLine |\n|
+//@[004:008) Identifier |fizz|
+//@[008:009) Colon |:|
+//@[010:016) StringComplete |'buzz'|
+//@[016:017) NewLine |\n|
     snap: 'crackle'
-//@[04:08) Identifier |snap|
-//@[08:09) Colon |:|
-//@[10:19) StringComplete |'crackle'|
-//@[19:20) NewLine |\n|
+//@[004:008) Identifier |snap|
+//@[008:009) Colon |:|
+//@[010:019) StringComplete |'crackle'|
+//@[019:020) NewLine |\n|
   }
-//@[02:03) RightBrace |}|
-//@[03:04) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }
-//@[00:01) RightBrace |}|
-//@[01:03) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
-output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'>.name = 'myId'
-//@[00:06) Identifier |output|
-//@[07:10) Identifier |baz|
-//@[11:19) Identifier |resource|
-//@[19:20) LeftChevron |<|
-//@[20:81) StringComplete |'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'|
-//@[81:82) RightChevron |>|
-//@[82:83) Dot |.|
-//@[83:87) Identifier |name|
-//@[88:89) Assignment |=|
-//@[90:96) StringComplete |'myId'|
-//@[96:98) NewLine |\n\n|
+output baz resourceInput<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'>.name = 'myId'
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |baz|
+//@[011:024) Identifier |resourceInput|
+//@[024:025) LeftChevron |<|
+//@[025:086) StringComplete |'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'|
+//@[086:087) RightChevron |>|
+//@[087:088) Dot |.|
+//@[088:092) Identifier |name|
+//@[093:094) Assignment |=|
+//@[095:101) StringComplete |'myId'|
+//@[101:103) NewLine |\n\n|
 
-type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
-//@[00:04) Identifier |type|
-//@[05:23) Identifier |storageAccountName|
-//@[24:25) Assignment |=|
-//@[26:34) Identifier |resource|
-//@[34:35) LeftChevron |<|
-//@[35:81) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
-//@[81:82) RightChevron |>|
-//@[82:83) Dot |.|
-//@[83:87) Identifier |name|
-//@[87:88) NewLine |\n|
-type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
-//@[00:04) Identifier |type|
-//@[05:17) Identifier |accessPolicy|
-//@[18:19) Assignment |=|
-//@[20:28) Identifier |resource|
-//@[28:29) LeftChevron |<|
-//@[29:67) StringComplete |'Microsoft.KeyVault/vaults@2022-07-01'|
-//@[67:68) RightChevron |>|
-//@[68:69) Dot |.|
-//@[69:79) Identifier |properties|
-//@[79:80) Dot |.|
-//@[80:94) Identifier |accessPolicies|
-//@[94:95) LeftSquare |[|
-//@[95:96) Asterisk |*|
-//@[96:97) RightSquare |]|
-//@[97:98) NewLine |\n|
-type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
-//@[00:04) Identifier |type|
-//@[05:08) Identifier |tag|
-//@[09:10) Assignment |=|
-//@[11:19) Identifier |resource|
-//@[19:20) LeftChevron |<|
-//@[20:57) StringComplete |'Microsoft.Resources/tags@2022-09-01'|
-//@[57:58) RightChevron |>|
-//@[58:59) Dot |.|
-//@[59:69) Identifier |properties|
-//@[69:70) Dot |.|
-//@[70:74) Identifier |tags|
-//@[74:75) Dot |.|
-//@[75:76) Asterisk |*|
-//@[76:77) NewLine |\n|
+type storageAccountName = resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[000:004) Identifier |type|
+//@[005:023) Identifier |storageAccountName|
+//@[024:025) Assignment |=|
+//@[026:039) Identifier |resourceInput|
+//@[039:040) LeftChevron |<|
+//@[040:086) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[086:087) RightChevron |>|
+//@[087:088) Dot |.|
+//@[088:092) Identifier |name|
+//@[092:093) NewLine |\n|
+type accessPolicy = resourceInput<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+//@[000:004) Identifier |type|
+//@[005:017) Identifier |accessPolicy|
+//@[018:019) Assignment |=|
+//@[020:033) Identifier |resourceInput|
+//@[033:034) LeftChevron |<|
+//@[034:072) StringComplete |'Microsoft.KeyVault/vaults@2022-07-01'|
+//@[072:073) RightChevron |>|
+//@[073:074) Dot |.|
+//@[074:084) Identifier |properties|
+//@[084:085) Dot |.|
+//@[085:099) Identifier |accessPolicies|
+//@[099:100) LeftSquare |[|
+//@[100:101) Asterisk |*|
+//@[101:102) RightSquare |]|
+//@[102:103) NewLine |\n|
+type tag = resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+//@[000:004) Identifier |type|
+//@[005:008) Identifier |tag|
+//@[009:010) Assignment |=|
+//@[011:024) Identifier |resourceInput|
+//@[024:025) LeftChevron |<|
+//@[025:062) StringComplete |'Microsoft.Resources/tags@2022-09-01'|
+//@[062:063) RightChevron |>|
+//@[063:064) Dot |.|
+//@[064:074) Identifier |properties|
+//@[074:075) Dot |.|
+//@[075:079) Identifier |tags|
+//@[079:080) Dot |.|
+//@[080:081) Asterisk |*|
+//@[081:082) NewLine |\n|
 
-//@[00:00) EndOfFile ||
+//@[000:000) EndOfFile ||
