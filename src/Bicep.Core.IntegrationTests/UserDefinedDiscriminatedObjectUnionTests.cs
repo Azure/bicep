@@ -704,7 +704,7 @@ namespace Bicep.Core.IntegrationTests
                 new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
                 """
                 @discriminator('computeType')
-                type taggedUnion = resource<'Microsoft.MachineLearningServices/workspaces/computes@2020-04-01'>.properties
+                type taggedUnion = resourceInput<'Microsoft.MachineLearningServices/workspaces/computes@2020-04-01'>.properties
                   | { computeType: 'foo', bar: string }
                 """);
 

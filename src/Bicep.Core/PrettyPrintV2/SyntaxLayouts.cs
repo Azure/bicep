@@ -576,8 +576,8 @@ namespace Bicep.Core.PrettyPrintV2
 
             if (tail is GroupDocument)
             {
-                // ParameterizedTypeInstantiationSyntax is only applied to resource derived types (resource<'xxx'>).
-                // It is more readable to print resource<'xxx'> on a single line, even if it's longer than the max line width.
+                // ParameterizedTypeInstantiationSyntax is only applied to resource derived types (resourceInput<'xxx'>).
+                // It is more readable to print resourceInput<'xxx'> on a single line, even if it's longer than the max line width.
                 // We may need to revisit this if we introduce generic types later at some point.
                 tail = tail.Flatten().Glue();
             }
@@ -597,8 +597,8 @@ namespace Bicep.Core.PrettyPrintV2
 
             if (tail is GroupDocument)
             {
-                // InstanceParameterizedTypeInstantiationSyntax is only applied to resource derived types (resource<'xxx'>).
-                // It is more readable to print resource<'xxx'> on a single line, even if it's longer than the max line width.
+                // InstanceParameterizedTypeInstantiationSyntax is only applied to resource derived types (resourceInput<'xxx'>).
+                // It is more readable to print resourceInput<'xxx'> on a single line, even if it's longer than the max line width.
                 // We may need to revisit this if we introduce generic types later at some point.
                 tail = tail.Flatten().Glue();
             }

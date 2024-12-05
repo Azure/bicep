@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
@@ -184,6 +185,12 @@ namespace Bicep.Core
         public const string TypeNameModule = "module";
         public const string TypeNameTest = "test";
         public const string TypeNameResource = "resource";
+        public const string TypeNameResourceInput = "resourceInput";
+        public static readonly FrozenSet<string> ResourceDerivedTypeNames = new[]
+        {
+            TypeNameResource,
+            TypeNameResourceInput,
+        }.ToFrozenSet(IdentifierComparer);
 
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;

@@ -666,7 +666,7 @@ public class TypeStringifierTests
               typeHandlerVersion: string?
             }?
             """,
-        "type resourceDerived = resource<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties",
+        "type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties",
         DisplayName = "virtual machine extensions properties property")]
     [DataRow(
         """
@@ -710,7 +710,7 @@ public class TypeStringifierTests
             }?
             """,
         "IGNORE",
-        "type resourceDerived = resource<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties",
+        "type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties",
         DisplayName = "if")]
     [DataRow(
         """
@@ -755,7 +755,7 @@ public class TypeStringifierTests
             }?
             """,
         "IGNORE",
-        "type resourceDerived = resource<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties",
+        "type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties",
         DisplayName = "for")]
     [DataRow(
         """
@@ -821,7 +821,7 @@ public class TypeStringifierTests
         "IGNORE",
         "IGNORE",
         "IGNORE",
-        "type resourceDerived = resource<'Microsoft.Network/applicationGateways@2020-11-01'>.properties.gatewayIPConfigurations[*].properties",
+        "type resourceDerived = resourceInput<'Microsoft.Network/applicationGateways@2020-11-01'>.properties.gatewayIPConfigurations[*].properties",
         DisplayName = "Array 1")]
     [DataRow(
         """
@@ -869,7 +869,7 @@ public class TypeStringifierTests
         "IGNORE",
         "IGNORE",
         "IGNORE",
-        "type resourceDerived = resource<'Microsoft.Network/applicationGateways@2020-11-01'>.properties.gatewayIPConfigurations[*].properties.subnet",
+        "type resourceDerived = resourceInput<'Microsoft.Network/applicationGateways@2020-11-01'>.properties.gatewayIPConfigurations[*].properties.subnet",
         DisplayName = "custom object inside an array")]
     [DataRow(
         """
@@ -882,7 +882,7 @@ public class TypeStringifierTests
         "IGNORE",
         "IGNORE",
         "IGNORE",
-        "type resourceDerived = resource<'Microsoft.Network/applicationGateways@2020-11-01'>.dependsOn",
+        "type resourceDerived = resourceInput<'Microsoft.Network/applicationGateways@2020-11-01'>.dependsOn",
         DisplayName = "dependsOn")]
     [DataRow(
         """
@@ -915,7 +915,7 @@ public class TypeStringifierTests
         "type medium = object?",
         "type strict = object?",
         null,
-        DisplayName = "custom object type with zero writable properties (resource<'Microsoft.Network/applicationGateways@2020-11-01'>.identity.userAssignedIdentities)")]
+        DisplayName = "custom object type with zero writable properties (resourceInput<'Microsoft.Network/applicationGateways@2020-11-01'>.identity.userAssignedIdentities)")]
     [DataRow(
         """
             resource testResource 'Microsoft.Network/applicationGateways@2020-11-01' = {
@@ -933,7 +933,7 @@ public class TypeStringifierTests
         "type loose = array?",
         "type medium = (string /* 'TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA' | 'TLS_DHE_DSS_WITH_AES_128_CBC_SHA' | 'TLS_DHE_DSS_WITH_AES_128_CBC_SHA256' | 'TLS_DHE_DSS_WITH_AES_256_CBC_SHA' | 'TLS_DHE_DSS_WITH_AES_256_CBC_SHA256' | 'TLS_DHE_RSA_WITH_AES_128_CBC_SHA' | 'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256' | 'TLS_DHE_RSA_WITH_AES_256_CBC_SHA' | 'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384' | 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA' | 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256' | 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256' | 'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA' | 'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384' | 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384' | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA' | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256' | 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256' | 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA' | 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384' | 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384' | 'TLS_RSA_WITH_3DES_EDE_CBC_SHA' | 'TLS_RSA_WITH_AES_128_CBC_SHA' | 'TLS_RSA_WITH_AES_128_CBC_SHA256' | 'TLS_RSA_WITH_AES_128_GCM_SHA256' | 'TLS_RSA_WITH_AES_256_CBC_SHA' | 'TLS_RSA_WITH_AES_256_CBC_SHA256' | 'TLS_RSA_WITH_AES_256_GCM_SHA384' | string */)[]?",
         "type strict = (string /* 'TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA' | 'TLS_DHE_DSS_WITH_AES_128_CBC_SHA' | 'TLS_DHE_DSS_WITH_AES_128_CBC_SHA256' | 'TLS_DHE_DSS_WITH_AES_256_CBC_SHA' | 'TLS_DHE_DSS_WITH_AES_256_CBC_SHA256' | 'TLS_DHE_RSA_WITH_AES_128_CBC_SHA' | 'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256' | 'TLS_DHE_RSA_WITH_AES_256_CBC_SHA' | 'TLS_DHE_RSA_WITH_AES_256_GCM_SHA384' | 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA' | 'TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256' | 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256' | 'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA' | 'TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384' | 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384' | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA' | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256' | 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256' | 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA' | 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384' | 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384' | 'TLS_RSA_WITH_3DES_EDE_CBC_SHA' | 'TLS_RSA_WITH_AES_128_CBC_SHA' | 'TLS_RSA_WITH_AES_128_CBC_SHA256' | 'TLS_RSA_WITH_AES_128_GCM_SHA256' | 'TLS_RSA_WITH_AES_256_CBC_SHA' | 'TLS_RSA_WITH_AES_256_CBC_SHA256' | 'TLS_RSA_WITH_AES_256_GCM_SHA384' | string */)[]?",
-        "type resourceDerived = resource<'Microsoft.Network/applicationGateways@2020-11-01'>.properties.sslPolicy.cipherSuites",
+        "type resourceDerived = resourceInput<'Microsoft.Network/applicationGateways@2020-11-01'>.properties.sslPolicy.cipherSuites",
         DisplayName = "typed array")]
     [DataRow(
         """
@@ -965,7 +965,7 @@ public class TypeStringifierTests
         "type loose = object?",
         "type medium = { id: string? }?",
         "type strict = { id: string? }?",
-        "type resourceDerived = resource<'Microsoft.Network/applicationGateways@2020-11-01'>.properties.urlPathMaps[*].properties.pathRules[*].properties.backendAddressPool",
+        "type resourceDerived = resourceInput<'Microsoft.Network/applicationGateways@2020-11-01'>.properties.urlPathMaps[*].properties.pathRules[*].properties.backendAddressPool",
         DisplayName = "nested typed arrays")]
     [DataRow(
         """

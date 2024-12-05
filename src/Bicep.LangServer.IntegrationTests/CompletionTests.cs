@@ -4885,18 +4885,41 @@ When a wildcard is used, that needs to be the only value.  " + @"
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletion(cursors[0]);
 
-            var updated = file.ApplyCompletion(completions, "resource");
+            var updated = file.ApplyCompletion(completions, "resourceInput");
             updated.Should().HaveSourceText("""
-                type acct = resource<'|'>
+                type acct = resourceInput<'|'>
                 """);
+        }
+
+        [TestMethod]
+        public async Task Legacy_resource_utility_type_offered_not_as_completion_if_enabled()
+        {
+            var mainContent = """
+                type acct = |
+                """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                text,
+                mainUri,
+                services => services.WithFeatureOverrides(new(ResourceDerivedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletion(cursors[0]);
+
+            completions.Should().NotContain(completion => completion.Label == LanguageConstants.TypeNameResource);
         }
 
         [TestMethod]
         public async Task Resource_types_offered_as_completion_for_single_argument_to_resource_utility_type()
         {
             var mainContent = """
-                type acct = resource<stor|>
-                type fullyQualified = sys.resource<stor|>
+                type acct = resourceInput<stor|>
+                type fullyQualified = sys.resourceInput<stor|>
                 """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
@@ -4914,15 +4937,15 @@ When a wildcard is used, that needs to be the only value.  " + @"
             var completions = await file.RequestCompletion(cursors[0]);
             var updated = file.ApplyCompletion(completions, "'Microsoft.Storage/storageAccounts'");
             updated.Should().HaveSourceText("""
-                type acct = resource<'Microsoft.Storage/storageAccounts@|'>
-                type fullyQualified = sys.resource<stor>
+                type acct = resourceInput<'Microsoft.Storage/storageAccounts@|'>
+                type fullyQualified = sys.resourceInput<stor>
                 """);
 
             completions = await file.RequestCompletion(cursors[1]);
             updated = file.ApplyCompletion(completions, "'Microsoft.Storage/storageAccounts'");
             updated.Should().HaveSourceText("""
-                type acct = resource<stor>
-                type fullyQualified = sys.resource<'Microsoft.Storage/storageAccounts@|'>
+                type acct = resourceInput<stor>
+                type fullyQualified = sys.resourceInput<'Microsoft.Storage/storageAccounts@|'>
                 """);
         }
 
@@ -4930,8 +4953,8 @@ When a wildcard is used, that needs to be the only value.  " + @"
         public async Task Resource_api_versions_offered_as_completion_for_single_argument_to_resource_utility_type_with_resource_type_name_already_filled_in()
         {
             var mainContent = """
-                type acct = resource<'Microsoft.Storage/storageAccounts@|'>
-                type fullyQualified = sys.resource<'Microsoft.Storage/storageAccounts@|'>
+                type acct = resourceInput<'Microsoft.Storage/storageAccounts@|'>
+                type fullyQualified = sys.resourceInput<'Microsoft.Storage/storageAccounts@|'>
                 """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
@@ -4949,15 +4972,15 @@ When a wildcard is used, that needs to be the only value.  " + @"
             var completions = await file.RequestCompletion(cursors[0]);
             var updated = file.ApplyCompletion(completions, "2022-09-01");
             updated.Should().HaveSourceText("""
-                type acct = resource<'Microsoft.Storage/storageAccounts@2022-09-01'|>
-                type fullyQualified = sys.resource<'Microsoft.Storage/storageAccounts@'>
+                type acct = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'|>
+                type fullyQualified = sys.resourceInput<'Microsoft.Storage/storageAccounts@'>
                 """);
 
             completions = await file.RequestCompletion(cursors[1]);
             updated = file.ApplyCompletion(completions, "2022-09-01");
             updated.Should().HaveSourceText("""
-                type acct = resource<'Microsoft.Storage/storageAccounts@'>
-                type fullyQualified = sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'|>
+                type acct = resourceInput<'Microsoft.Storage/storageAccounts@'>
+                type fullyQualified = sys.resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'|>
                 """);
         }
 
