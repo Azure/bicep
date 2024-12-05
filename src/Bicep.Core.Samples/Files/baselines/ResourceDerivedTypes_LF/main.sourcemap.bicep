@@ -1,4 +1,4 @@
-type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+type foo = resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
 //@    "foo": {
 //@      "type": "string",
 //@      "metadata": {
@@ -18,12 +18,12 @@ type test = {
 //@        }
 //@      }
 //@    },
-  resA: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+  resA: resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
 //@          }
-  resB: sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+  resB: sys.resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
@@ -32,7 +32,7 @@ type test = {
 //@        "resC": {
 //@          "type": "array"
 //@        },
-  resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
+  resD: sys.resourceInput<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
@@ -51,7 +51,7 @@ type strangeFormatting = {
 //@        }
 //@      }
 //@    },
-  test: resource<
+  test: resourceInput<
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview#properties/name"
@@ -60,12 +60,12 @@ type strangeFormatting = {
   'Astronomer.Astro/organizations@2023-08-01-preview'
 
 >.name
-  test2: resource    <'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+  test2: resourceInput    <'Microsoft.Storage/storageAccounts@2023-01-01'>.name
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
 //@          }
-  test3: resource</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>.name
+  test3: resourceInput</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>.name
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
@@ -74,7 +74,7 @@ type strangeFormatting = {
 
 @description('I love space(s)')
 //@        "description": "I love space(s)"
-type test2 = resource<
+type test2 = resourceInput<
 //@    "test2": {
 //@      "type": "string",
 //@      "metadata": {
@@ -86,7 +86,7 @@ type test2 = resource<
 
 >.name
 
-param bar resource<'Microsoft.Resources/tags@2022-09-01'>.properties = {
+param bar resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties = {
 //@    "bar": {
 //@      "type": "object",
 //@      "metadata": {
@@ -105,7 +105,7 @@ param bar resource<'Microsoft.Resources/tags@2022-09-01'>.properties = {
   }
 }
 
-output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'>.name = 'myId'
+output baz resourceInput<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'>.name = 'myId'
 //@    "baz": {
 //@      "type": "string",
 //@      "metadata": {
@@ -114,21 +114,21 @@ output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31
 //@      "value": "myId"
 //@    }
 
-type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+type storageAccountName = resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
 //@    "storageAccountName": {
 //@      "type": "string",
 //@      "metadata": {
 //@        "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
 //@      }
 //@    },
-type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+type accessPolicy = resourceInput<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
 //@    "accessPolicy": {
 //@      "type": "object",
 //@      "metadata": {
 //@        "__bicep_resource_derived_type!": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items"
 //@      }
 //@    },
-type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+type tag = resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
 //@    "tag": {
 //@      "type": "string",
 //@      "metadata": {

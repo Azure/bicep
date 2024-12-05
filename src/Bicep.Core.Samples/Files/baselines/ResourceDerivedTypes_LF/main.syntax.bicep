@@ -1,369 +1,369 @@
-type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
-//@[00:1214) ProgramSyntax
-//@[00:0072) ├─TypeDeclarationSyntax
-//@[00:0004) | ├─Token(Identifier) |type|
-//@[05:0008) | ├─IdentifierSyntax
-//@[05:0008) | | └─Token(Identifier) |foo|
-//@[09:0010) | ├─Token(Assignment) |=|
-//@[11:0072) | └─TypePropertyAccessSyntax
-//@[11:0067) |   ├─ParameterizedTypeInstantiationSyntax
-//@[11:0019) |   | ├─IdentifierSyntax
-//@[11:0019) |   | | └─Token(Identifier) |resource|
-//@[19:0020) |   | ├─Token(LeftChevron) |<|
-//@[20:0066) |   | ├─ParameterizedTypeArgumentSyntax
-//@[20:0066) |   | | └─StringTypeLiteralSyntax
-//@[20:0066) |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
-//@[66:0067) |   | └─Token(RightChevron) |>|
-//@[67:0068) |   ├─Token(Dot) |.|
-//@[68:0072) |   └─IdentifierSyntax
-//@[68:0072) |     └─Token(Identifier) |name|
-//@[72:0074) ├─Token(NewLine) |\n\n|
+type foo = resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[000:1279) ProgramSyntax
+//@[000:0077) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0008) | ├─IdentifierSyntax
+//@[005:0008) | | └─Token(Identifier) |foo|
+//@[009:0010) | ├─Token(Assignment) |=|
+//@[011:0077) | └─TypePropertyAccessSyntax
+//@[011:0072) |   ├─ParameterizedTypeInstantiationSyntax
+//@[011:0024) |   | ├─IdentifierSyntax
+//@[011:0024) |   | | └─Token(Identifier) |resourceInput|
+//@[024:0025) |   | ├─Token(LeftChevron) |<|
+//@[025:0071) |   | ├─ParameterizedTypeArgumentSyntax
+//@[025:0071) |   | | └─StringTypeLiteralSyntax
+//@[025:0071) |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[071:0072) |   | └─Token(RightChevron) |>|
+//@[072:0073) |   ├─Token(Dot) |.|
+//@[073:0077) |   └─IdentifierSyntax
+//@[073:0077) |     └─Token(Identifier) |name|
+//@[077:0079) ├─Token(NewLine) |\n\n|
 
 type test = {
-//@[00:0254) ├─TypeDeclarationSyntax
-//@[00:0004) | ├─Token(Identifier) |type|
-//@[05:0009) | ├─IdentifierSyntax
-//@[05:0009) | | └─Token(Identifier) |test|
-//@[10:0011) | ├─Token(Assignment) |=|
-//@[12:0254) | └─ObjectTypeSyntax
-//@[12:0013) |   ├─Token(LeftBrace) |{|
-//@[13:0014) |   ├─Token(NewLine) |\n|
-  resA: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
-//@[02:0069) |   ├─ObjectTypePropertySyntax
-//@[02:0006) |   | ├─IdentifierSyntax
-//@[02:0006) |   | | └─Token(Identifier) |resA|
-//@[06:0007) |   | ├─Token(Colon) |:|
-//@[08:0069) |   | └─TypePropertyAccessSyntax
-//@[08:0064) |   |   ├─ParameterizedTypeInstantiationSyntax
-//@[08:0016) |   |   | ├─IdentifierSyntax
-//@[08:0016) |   |   | | └─Token(Identifier) |resource|
-//@[16:0017) |   |   | ├─Token(LeftChevron) |<|
-//@[17:0063) |   |   | ├─ParameterizedTypeArgumentSyntax
-//@[17:0063) |   |   | | └─StringTypeLiteralSyntax
-//@[17:0063) |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
-//@[63:0064) |   |   | └─Token(RightChevron) |>|
-//@[64:0065) |   |   ├─Token(Dot) |.|
-//@[65:0069) |   |   └─IdentifierSyntax
-//@[65:0069) |   |     └─Token(Identifier) |name|
-//@[69:0070) |   ├─Token(NewLine) |\n|
-  resB: sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
-//@[02:0073) |   ├─ObjectTypePropertySyntax
-//@[02:0006) |   | ├─IdentifierSyntax
-//@[02:0006) |   | | └─Token(Identifier) |resB|
-//@[06:0007) |   | ├─Token(Colon) |:|
-//@[08:0073) |   | └─TypePropertyAccessSyntax
-//@[08:0068) |   |   ├─InstanceParameterizedTypeInstantiationSyntax
-//@[08:0011) |   |   | ├─TypeVariableAccessSyntax
-//@[08:0011) |   |   | | └─IdentifierSyntax
-//@[08:0011) |   |   | |   └─Token(Identifier) |sys|
-//@[11:0012) |   |   | ├─Token(Dot) |.|
-//@[12:0020) |   |   | ├─IdentifierSyntax
-//@[12:0020) |   |   | | └─Token(Identifier) |resource|
-//@[20:0021) |   |   | ├─Token(LeftChevron) |<|
-//@[21:0067) |   |   | ├─ParameterizedTypeArgumentSyntax
-//@[21:0067) |   |   | | └─StringTypeLiteralSyntax
-//@[21:0067) |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
-//@[67:0068) |   |   | └─Token(RightChevron) |>|
-//@[68:0069) |   |   ├─Token(Dot) |.|
-//@[69:0073) |   |   └─IdentifierSyntax
-//@[69:0073) |   |     └─Token(Identifier) |name|
-//@[73:0074) |   ├─Token(NewLine) |\n|
+//@[000:0269) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0009) | ├─IdentifierSyntax
+//@[005:0009) | | └─Token(Identifier) |test|
+//@[010:0011) | ├─Token(Assignment) |=|
+//@[012:0269) | └─ObjectTypeSyntax
+//@[012:0013) |   ├─Token(LeftBrace) |{|
+//@[013:0014) |   ├─Token(NewLine) |\n|
+  resA: resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[002:0074) |   ├─ObjectTypePropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |resA|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0074) |   | └─TypePropertyAccessSyntax
+//@[008:0069) |   |   ├─ParameterizedTypeInstantiationSyntax
+//@[008:0021) |   |   | ├─IdentifierSyntax
+//@[008:0021) |   |   | | └─Token(Identifier) |resourceInput|
+//@[021:0022) |   |   | ├─Token(LeftChevron) |<|
+//@[022:0068) |   |   | ├─ParameterizedTypeArgumentSyntax
+//@[022:0068) |   |   | | └─StringTypeLiteralSyntax
+//@[022:0068) |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[068:0069) |   |   | └─Token(RightChevron) |>|
+//@[069:0070) |   |   ├─Token(Dot) |.|
+//@[070:0074) |   |   └─IdentifierSyntax
+//@[070:0074) |   |     └─Token(Identifier) |name|
+//@[074:0075) |   ├─Token(NewLine) |\n|
+  resB: sys.resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+//@[002:0078) |   ├─ObjectTypePropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |resB|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0078) |   | └─TypePropertyAccessSyntax
+//@[008:0073) |   |   ├─InstanceParameterizedTypeInstantiationSyntax
+//@[008:0011) |   |   | ├─TypeVariableAccessSyntax
+//@[008:0011) |   |   | | └─IdentifierSyntax
+//@[008:0011) |   |   | |   └─Token(Identifier) |sys|
+//@[011:0012) |   |   | ├─Token(Dot) |.|
+//@[012:0025) |   |   | ├─IdentifierSyntax
+//@[012:0025) |   |   | | └─Token(Identifier) |resourceInput|
+//@[025:0026) |   |   | ├─Token(LeftChevron) |<|
+//@[026:0072) |   |   | ├─ParameterizedTypeArgumentSyntax
+//@[026:0072) |   |   | | └─StringTypeLiteralSyntax
+//@[026:0072) |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[072:0073) |   |   | └─Token(RightChevron) |>|
+//@[073:0074) |   |   ├─Token(Dot) |.|
+//@[074:0078) |   |   └─IdentifierSyntax
+//@[074:0078) |   |     └─Token(Identifier) |name|
+//@[078:0079) |   ├─Token(NewLine) |\n|
   resC: sys.array
-//@[02:0017) |   ├─ObjectTypePropertySyntax
-//@[02:0006) |   | ├─IdentifierSyntax
-//@[02:0006) |   | | └─Token(Identifier) |resC|
-//@[06:0007) |   | ├─Token(Colon) |:|
-//@[08:0017) |   | └─TypePropertyAccessSyntax
-//@[08:0011) |   |   ├─TypeVariableAccessSyntax
-//@[08:0011) |   |   | └─IdentifierSyntax
-//@[08:0011) |   |   |   └─Token(Identifier) |sys|
-//@[11:0012) |   |   ├─Token(Dot) |.|
-//@[12:0017) |   |   └─IdentifierSyntax
-//@[12:0017) |   |     └─Token(Identifier) |array|
-//@[17:0018) |   ├─Token(NewLine) |\n|
-  resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
-//@[02:0076) |   ├─ObjectTypePropertySyntax
-//@[02:0006) |   | ├─IdentifierSyntax
-//@[02:0006) |   | | └─Token(Identifier) |resD|
-//@[06:0007) |   | ├─Token(Colon) |:|
-//@[08:0076) |   | └─TypePropertyAccessSyntax
-//@[08:0071) |   |   ├─InstanceParameterizedTypeInstantiationSyntax
-//@[08:0011) |   |   | ├─TypeVariableAccessSyntax
-//@[08:0011) |   |   | | └─IdentifierSyntax
-//@[08:0011) |   |   | |   └─Token(Identifier) |sys|
-//@[11:0012) |   |   | ├─Token(Dot) |.|
-//@[12:0020) |   |   | ├─IdentifierSyntax
-//@[12:0020) |   |   | | └─Token(Identifier) |resource|
-//@[20:0021) |   |   | ├─Token(LeftChevron) |<|
-//@[21:0070) |   |   | ├─ParameterizedTypeArgumentSyntax
-//@[21:0070) |   |   | | └─StringTypeLiteralSyntax
-//@[21:0070) |   |   | |   └─Token(StringComplete) |'az:Microsoft.Storage/storageAccounts@2022-09-01'|
-//@[70:0071) |   |   | └─Token(RightChevron) |>|
-//@[71:0072) |   |   ├─Token(Dot) |.|
-//@[72:0076) |   |   └─IdentifierSyntax
-//@[72:0076) |   |     └─Token(Identifier) |name|
-//@[76:0077) |   ├─Token(NewLine) |\n|
+//@[002:0017) |   ├─ObjectTypePropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |resC|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0017) |   | └─TypePropertyAccessSyntax
+//@[008:0011) |   |   ├─TypeVariableAccessSyntax
+//@[008:0011) |   |   | └─IdentifierSyntax
+//@[008:0011) |   |   |   └─Token(Identifier) |sys|
+//@[011:0012) |   |   ├─Token(Dot) |.|
+//@[012:0017) |   |   └─IdentifierSyntax
+//@[012:0017) |   |     └─Token(Identifier) |array|
+//@[017:0018) |   ├─Token(NewLine) |\n|
+  resD: sys.resourceInput<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
+//@[002:0081) |   ├─ObjectTypePropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |resD|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0081) |   | └─TypePropertyAccessSyntax
+//@[008:0076) |   |   ├─InstanceParameterizedTypeInstantiationSyntax
+//@[008:0011) |   |   | ├─TypeVariableAccessSyntax
+//@[008:0011) |   |   | | └─IdentifierSyntax
+//@[008:0011) |   |   | |   └─Token(Identifier) |sys|
+//@[011:0012) |   |   | ├─Token(Dot) |.|
+//@[012:0025) |   |   | ├─IdentifierSyntax
+//@[012:0025) |   |   | | └─Token(Identifier) |resourceInput|
+//@[025:0026) |   |   | ├─Token(LeftChevron) |<|
+//@[026:0075) |   |   | ├─ParameterizedTypeArgumentSyntax
+//@[026:0075) |   |   | | └─StringTypeLiteralSyntax
+//@[026:0075) |   |   | |   └─Token(StringComplete) |'az:Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[075:0076) |   |   | └─Token(RightChevron) |>|
+//@[076:0077) |   |   ├─Token(Dot) |.|
+//@[077:0081) |   |   └─IdentifierSyntax
+//@[077:0081) |   |     └─Token(Identifier) |name|
+//@[081:0082) |   ├─Token(NewLine) |\n|
 }
-//@[00:0001) |   └─Token(RightBrace) |}|
-//@[01:0003) ├─Token(NewLine) |\n\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
 
 type strangeFormatting = {
-//@[00:0272) ├─TypeDeclarationSyntax
-//@[00:0004) | ├─Token(Identifier) |type|
-//@[05:0022) | ├─IdentifierSyntax
-//@[05:0022) | | └─Token(Identifier) |strangeFormatting|
-//@[23:0024) | ├─Token(Assignment) |=|
-//@[25:0272) | └─ObjectTypeSyntax
-//@[25:0026) |   ├─Token(LeftBrace) |{|
-//@[26:0027) |   ├─Token(NewLine) |\n|
-  test: resource<
-//@[02:0080) |   ├─ObjectTypePropertySyntax
-//@[02:0006) |   | ├─IdentifierSyntax
-//@[02:0006) |   | | └─Token(Identifier) |test|
-//@[06:0007) |   | ├─Token(Colon) |:|
-//@[08:0080) |   | └─TypePropertyAccessSyntax
-//@[08:0075) |   |   ├─ParameterizedTypeInstantiationSyntax
-//@[08:0016) |   |   | ├─IdentifierSyntax
-//@[08:0016) |   |   | | └─Token(Identifier) |resource|
-//@[16:0017) |   |   | ├─Token(LeftChevron) |<|
-//@[17:0019) |   |   | ├─Token(NewLine) |\n\n|
+//@[000:0287) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0022) | ├─IdentifierSyntax
+//@[005:0022) | | └─Token(Identifier) |strangeFormatting|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0287) | └─ObjectTypeSyntax
+//@[025:0026) |   ├─Token(LeftBrace) |{|
+//@[026:0027) |   ├─Token(NewLine) |\n|
+  test: resourceInput<
+//@[002:0085) |   ├─ObjectTypePropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |test|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0085) |   | └─TypePropertyAccessSyntax
+//@[008:0080) |   |   ├─ParameterizedTypeInstantiationSyntax
+//@[008:0021) |   |   | ├─IdentifierSyntax
+//@[008:0021) |   |   | | └─Token(Identifier) |resourceInput|
+//@[021:0022) |   |   | ├─Token(LeftChevron) |<|
+//@[022:0024) |   |   | ├─Token(NewLine) |\n\n|
 
   'Astronomer.Astro/organizations@2023-08-01-preview'
-//@[02:0053) |   |   | ├─ParameterizedTypeArgumentSyntax
-//@[02:0053) |   |   | | └─StringTypeLiteralSyntax
-//@[02:0053) |   |   | |   └─Token(StringComplete) |'Astronomer.Astro/organizations@2023-08-01-preview'|
-//@[53:0055) |   |   | ├─Token(NewLine) |\n\n|
+//@[002:0053) |   |   | ├─ParameterizedTypeArgumentSyntax
+//@[002:0053) |   |   | | └─StringTypeLiteralSyntax
+//@[002:0053) |   |   | |   └─Token(StringComplete) |'Astronomer.Astro/organizations@2023-08-01-preview'|
+//@[053:0055) |   |   | ├─Token(NewLine) |\n\n|
 
 >.name
-//@[00:0001) |   |   | └─Token(RightChevron) |>|
-//@[01:0002) |   |   ├─Token(Dot) |.|
-//@[02:0006) |   |   └─IdentifierSyntax
-//@[02:0006) |   |     └─Token(Identifier) |name|
-//@[06:0007) |   ├─Token(NewLine) |\n|
-  test2: resource    <'Microsoft.Storage/storageAccounts@2023-01-01'>.name
-//@[02:0074) |   ├─ObjectTypePropertySyntax
-//@[02:0007) |   | ├─IdentifierSyntax
-//@[02:0007) |   | | └─Token(Identifier) |test2|
-//@[07:0008) |   | ├─Token(Colon) |:|
-//@[09:0074) |   | └─TypePropertyAccessSyntax
-//@[09:0069) |   |   ├─ParameterizedTypeInstantiationSyntax
-//@[09:0017) |   |   | ├─IdentifierSyntax
-//@[09:0017) |   |   | | └─Token(Identifier) |resource|
-//@[21:0022) |   |   | ├─Token(LeftChevron) |<|
-//@[22:0068) |   |   | ├─ParameterizedTypeArgumentSyntax
-//@[22:0068) |   |   | | └─StringTypeLiteralSyntax
-//@[22:0068) |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
-//@[68:0069) |   |   | └─Token(RightChevron) |>|
-//@[69:0070) |   |   ├─Token(Dot) |.|
-//@[70:0074) |   |   └─IdentifierSyntax
-//@[70:0074) |   |     └─Token(Identifier) |name|
-//@[74:0075) |   ├─Token(NewLine) |\n|
-  test3: resource</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>.name
-//@[02:0087) |   ├─ObjectTypePropertySyntax
-//@[02:0007) |   | ├─IdentifierSyntax
-//@[02:0007) |   | | └─Token(Identifier) |test3|
-//@[07:0008) |   | ├─Token(Colon) |:|
-//@[09:0087) |   | └─TypePropertyAccessSyntax
-//@[09:0082) |   |   ├─ParameterizedTypeInstantiationSyntax
-//@[09:0017) |   |   | ├─IdentifierSyntax
-//@[09:0017) |   |   | | └─Token(Identifier) |resource|
-//@[17:0018) |   |   | ├─Token(LeftChevron) |<|
-//@[26:0072) |   |   | ├─ParameterizedTypeArgumentSyntax
-//@[26:0072) |   |   | | └─StringTypeLiteralSyntax
-//@[26:0072) |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
-//@[81:0082) |   |   | └─Token(RightChevron) |>|
-//@[82:0083) |   |   ├─Token(Dot) |.|
-//@[83:0087) |   |   └─IdentifierSyntax
-//@[83:0087) |   |     └─Token(Identifier) |name|
-//@[87:0088) |   ├─Token(NewLine) |\n|
+//@[000:0001) |   |   | └─Token(RightChevron) |>|
+//@[001:0002) |   |   ├─Token(Dot) |.|
+//@[002:0006) |   |   └─IdentifierSyntax
+//@[002:0006) |   |     └─Token(Identifier) |name|
+//@[006:0007) |   ├─Token(NewLine) |\n|
+  test2: resourceInput    <'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[002:0079) |   ├─ObjectTypePropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |test2|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0079) |   | └─TypePropertyAccessSyntax
+//@[009:0074) |   |   ├─ParameterizedTypeInstantiationSyntax
+//@[009:0022) |   |   | ├─IdentifierSyntax
+//@[009:0022) |   |   | | └─Token(Identifier) |resourceInput|
+//@[026:0027) |   |   | ├─Token(LeftChevron) |<|
+//@[027:0073) |   |   | ├─ParameterizedTypeArgumentSyntax
+//@[027:0073) |   |   | | └─StringTypeLiteralSyntax
+//@[027:0073) |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[073:0074) |   |   | └─Token(RightChevron) |>|
+//@[074:0075) |   |   ├─Token(Dot) |.|
+//@[075:0079) |   |   └─IdentifierSyntax
+//@[075:0079) |   |     └─Token(Identifier) |name|
+//@[079:0080) |   ├─Token(NewLine) |\n|
+  test3: resourceInput</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>.name
+//@[002:0092) |   ├─ObjectTypePropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |test3|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0092) |   | └─TypePropertyAccessSyntax
+//@[009:0087) |   |   ├─ParameterizedTypeInstantiationSyntax
+//@[009:0022) |   |   | ├─IdentifierSyntax
+//@[009:0022) |   |   | | └─Token(Identifier) |resourceInput|
+//@[022:0023) |   |   | ├─Token(LeftChevron) |<|
+//@[031:0077) |   |   | ├─ParameterizedTypeArgumentSyntax
+//@[031:0077) |   |   | | └─StringTypeLiteralSyntax
+//@[031:0077) |   |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[086:0087) |   |   | └─Token(RightChevron) |>|
+//@[087:0088) |   |   ├─Token(Dot) |.|
+//@[088:0092) |   |   └─IdentifierSyntax
+//@[088:0092) |   |     └─Token(Identifier) |name|
+//@[092:0093) |   ├─Token(NewLine) |\n|
 }
-//@[00:0001) |   └─Token(RightBrace) |}|
-//@[01:0003) ├─Token(NewLine) |\n\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
 
 @description('I love space(s)')
-//@[00:0120) ├─TypeDeclarationSyntax
-//@[00:0031) | ├─DecoratorSyntax
-//@[00:0001) | | ├─Token(At) |@|
-//@[01:0031) | | └─FunctionCallSyntax
-//@[01:0012) | |   ├─IdentifierSyntax
-//@[01:0012) | |   | └─Token(Identifier) |description|
-//@[12:0013) | |   ├─Token(LeftParen) |(|
-//@[13:0030) | |   ├─FunctionArgumentSyntax
-//@[13:0030) | |   | └─StringSyntax
-//@[13:0030) | |   |   └─Token(StringComplete) |'I love space(s)'|
-//@[30:0031) | |   └─Token(RightParen) |)|
-//@[31:0032) | ├─Token(NewLine) |\n|
-type test2 = resource<
-//@[00:0004) | ├─Token(Identifier) |type|
-//@[05:0010) | ├─IdentifierSyntax
-//@[05:0010) | | └─Token(Identifier) |test2|
-//@[11:0012) | ├─Token(Assignment) |=|
-//@[13:0088) | └─TypePropertyAccessSyntax
-//@[13:0083) |   ├─ParameterizedTypeInstantiationSyntax
-//@[13:0021) |   | ├─IdentifierSyntax
-//@[13:0021) |   | | └─Token(Identifier) |resource|
-//@[21:0022) |   | ├─Token(LeftChevron) |<|
-//@[22:0024) |   | ├─Token(NewLine) |\n\n|
+//@[000:0125) ├─TypeDeclarationSyntax
+//@[000:0031) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0031) | | └─FunctionCallSyntax
+//@[001:0012) | |   ├─IdentifierSyntax
+//@[001:0012) | |   | └─Token(Identifier) |description|
+//@[012:0013) | |   ├─Token(LeftParen) |(|
+//@[013:0030) | |   ├─FunctionArgumentSyntax
+//@[013:0030) | |   | └─StringSyntax
+//@[013:0030) | |   |   └─Token(StringComplete) |'I love space(s)'|
+//@[030:0031) | |   └─Token(RightParen) |)|
+//@[031:0032) | ├─Token(NewLine) |\n|
+type test2 = resourceInput<
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0010) | ├─IdentifierSyntax
+//@[005:0010) | | └─Token(Identifier) |test2|
+//@[011:0012) | ├─Token(Assignment) |=|
+//@[013:0093) | └─TypePropertyAccessSyntax
+//@[013:0088) |   ├─ParameterizedTypeInstantiationSyntax
+//@[013:0026) |   | ├─IdentifierSyntax
+//@[013:0026) |   | | └─Token(Identifier) |resourceInput|
+//@[026:0027) |   | ├─Token(LeftChevron) |<|
+//@[027:0029) |   | ├─Token(NewLine) |\n\n|
 
      'Astronomer.Astro/organizations@2023-08-01-preview'
-//@[05:0056) |   | ├─ParameterizedTypeArgumentSyntax
-//@[05:0056) |   | | └─StringTypeLiteralSyntax
-//@[05:0056) |   | |   └─Token(StringComplete) |'Astronomer.Astro/organizations@2023-08-01-preview'|
-//@[56:0058) |   | ├─Token(NewLine) |\n\n|
+//@[005:0056) |   | ├─ParameterizedTypeArgumentSyntax
+//@[005:0056) |   | | └─StringTypeLiteralSyntax
+//@[005:0056) |   | |   └─Token(StringComplete) |'Astronomer.Astro/organizations@2023-08-01-preview'|
+//@[056:0058) |   | ├─Token(NewLine) |\n\n|
 
 >.name
-//@[00:0001) |   | └─Token(RightChevron) |>|
-//@[01:0002) |   ├─Token(Dot) |.|
-//@[02:0006) |   └─IdentifierSyntax
-//@[02:0006) |     └─Token(Identifier) |name|
-//@[06:0008) ├─Token(NewLine) |\n\n|
+//@[000:0001) |   | └─Token(RightChevron) |>|
+//@[001:0002) |   ├─Token(Dot) |.|
+//@[002:0006) |   └─IdentifierSyntax
+//@[002:0006) |     └─Token(Identifier) |name|
+//@[006:0008) ├─Token(NewLine) |\n\n|
 
-param bar resource<'Microsoft.Resources/tags@2022-09-01'>.properties = {
-//@[00:0125) ├─ParameterDeclarationSyntax
-//@[00:0005) | ├─Token(Identifier) |param|
-//@[06:0009) | ├─IdentifierSyntax
-//@[06:0009) | | └─Token(Identifier) |bar|
-//@[10:0068) | ├─TypePropertyAccessSyntax
-//@[10:0057) | | ├─ParameterizedTypeInstantiationSyntax
-//@[10:0018) | | | ├─IdentifierSyntax
-//@[10:0018) | | | | └─Token(Identifier) |resource|
-//@[18:0019) | | | ├─Token(LeftChevron) |<|
-//@[19:0056) | | | ├─ParameterizedTypeArgumentSyntax
-//@[19:0056) | | | | └─StringTypeLiteralSyntax
-//@[19:0056) | | | |   └─Token(StringComplete) |'Microsoft.Resources/tags@2022-09-01'|
-//@[56:0057) | | | └─Token(RightChevron) |>|
-//@[57:0058) | | ├─Token(Dot) |.|
-//@[58:0068) | | └─IdentifierSyntax
-//@[58:0068) | |   └─Token(Identifier) |properties|
-//@[69:0125) | └─ParameterDefaultValueSyntax
-//@[69:0070) |   ├─Token(Assignment) |=|
-//@[71:0125) |   └─ObjectSyntax
-//@[71:0072) |     ├─Token(LeftBrace) |{|
-//@[72:0073) |     ├─Token(NewLine) |\n|
+param bar resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties = {
+//@[000:0130) ├─ParameterDeclarationSyntax
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0009) | ├─IdentifierSyntax
+//@[006:0009) | | └─Token(Identifier) |bar|
+//@[010:0073) | ├─TypePropertyAccessSyntax
+//@[010:0062) | | ├─ParameterizedTypeInstantiationSyntax
+//@[010:0023) | | | ├─IdentifierSyntax
+//@[010:0023) | | | | └─Token(Identifier) |resourceInput|
+//@[023:0024) | | | ├─Token(LeftChevron) |<|
+//@[024:0061) | | | ├─ParameterizedTypeArgumentSyntax
+//@[024:0061) | | | | └─StringTypeLiteralSyntax
+//@[024:0061) | | | |   └─Token(StringComplete) |'Microsoft.Resources/tags@2022-09-01'|
+//@[061:0062) | | | └─Token(RightChevron) |>|
+//@[062:0063) | | ├─Token(Dot) |.|
+//@[063:0073) | | └─IdentifierSyntax
+//@[063:0073) | |   └─Token(Identifier) |properties|
+//@[074:0130) | └─ParameterDefaultValueSyntax
+//@[074:0075) |   ├─Token(Assignment) |=|
+//@[076:0130) |   └─ObjectSyntax
+//@[076:0077) |     ├─Token(LeftBrace) |{|
+//@[077:0078) |     ├─Token(NewLine) |\n|
   tags: {
-//@[02:0050) |     ├─ObjectPropertySyntax
-//@[02:0006) |     | ├─IdentifierSyntax
-//@[02:0006) |     | | └─Token(Identifier) |tags|
-//@[06:0007) |     | ├─Token(Colon) |:|
-//@[08:0050) |     | └─ObjectSyntax
-//@[08:0009) |     |   ├─Token(LeftBrace) |{|
-//@[09:0010) |     |   ├─Token(NewLine) |\n|
+//@[002:0050) |     ├─ObjectPropertySyntax
+//@[002:0006) |     | ├─IdentifierSyntax
+//@[002:0006) |     | | └─Token(Identifier) |tags|
+//@[006:0007) |     | ├─Token(Colon) |:|
+//@[008:0050) |     | └─ObjectSyntax
+//@[008:0009) |     |   ├─Token(LeftBrace) |{|
+//@[009:0010) |     |   ├─Token(NewLine) |\n|
     fizz: 'buzz'
-//@[04:0016) |     |   ├─ObjectPropertySyntax
-//@[04:0008) |     |   | ├─IdentifierSyntax
-//@[04:0008) |     |   | | └─Token(Identifier) |fizz|
-//@[08:0009) |     |   | ├─Token(Colon) |:|
-//@[10:0016) |     |   | └─StringSyntax
-//@[10:0016) |     |   |   └─Token(StringComplete) |'buzz'|
-//@[16:0017) |     |   ├─Token(NewLine) |\n|
+//@[004:0016) |     |   ├─ObjectPropertySyntax
+//@[004:0008) |     |   | ├─IdentifierSyntax
+//@[004:0008) |     |   | | └─Token(Identifier) |fizz|
+//@[008:0009) |     |   | ├─Token(Colon) |:|
+//@[010:0016) |     |   | └─StringSyntax
+//@[010:0016) |     |   |   └─Token(StringComplete) |'buzz'|
+//@[016:0017) |     |   ├─Token(NewLine) |\n|
     snap: 'crackle'
-//@[04:0019) |     |   ├─ObjectPropertySyntax
-//@[04:0008) |     |   | ├─IdentifierSyntax
-//@[04:0008) |     |   | | └─Token(Identifier) |snap|
-//@[08:0009) |     |   | ├─Token(Colon) |:|
-//@[10:0019) |     |   | └─StringSyntax
-//@[10:0019) |     |   |   └─Token(StringComplete) |'crackle'|
-//@[19:0020) |     |   ├─Token(NewLine) |\n|
+//@[004:0019) |     |   ├─ObjectPropertySyntax
+//@[004:0008) |     |   | ├─IdentifierSyntax
+//@[004:0008) |     |   | | └─Token(Identifier) |snap|
+//@[008:0009) |     |   | ├─Token(Colon) |:|
+//@[010:0019) |     |   | └─StringSyntax
+//@[010:0019) |     |   |   └─Token(StringComplete) |'crackle'|
+//@[019:0020) |     |   ├─Token(NewLine) |\n|
   }
-//@[02:0003) |     |   └─Token(RightBrace) |}|
-//@[03:0004) |     ├─Token(NewLine) |\n|
+//@[002:0003) |     |   └─Token(RightBrace) |}|
+//@[003:0004) |     ├─Token(NewLine) |\n|
 }
-//@[00:0001) |     └─Token(RightBrace) |}|
-//@[01:0003) ├─Token(NewLine) |\n\n|
+//@[000:0001) |     └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
 
-output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'>.name = 'myId'
-//@[00:0096) ├─OutputDeclarationSyntax
-//@[00:0006) | ├─Token(Identifier) |output|
-//@[07:0010) | ├─IdentifierSyntax
-//@[07:0010) | | └─Token(Identifier) |baz|
-//@[11:0087) | ├─TypePropertyAccessSyntax
-//@[11:0082) | | ├─ParameterizedTypeInstantiationSyntax
-//@[11:0019) | | | ├─IdentifierSyntax
-//@[11:0019) | | | | └─Token(Identifier) |resource|
-//@[19:0020) | | | ├─Token(LeftChevron) |<|
-//@[20:0081) | | | ├─ParameterizedTypeArgumentSyntax
-//@[20:0081) | | | | └─StringTypeLiteralSyntax
-//@[20:0081) | | | |   └─Token(StringComplete) |'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'|
-//@[81:0082) | | | └─Token(RightChevron) |>|
-//@[82:0083) | | ├─Token(Dot) |.|
-//@[83:0087) | | └─IdentifierSyntax
-//@[83:0087) | |   └─Token(Identifier) |name|
-//@[88:0089) | ├─Token(Assignment) |=|
-//@[90:0096) | └─StringSyntax
-//@[90:0096) |   └─Token(StringComplete) |'myId'|
-//@[96:0098) ├─Token(NewLine) |\n\n|
+output baz resourceInput<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'>.name = 'myId'
+//@[000:0101) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |baz|
+//@[011:0092) | ├─TypePropertyAccessSyntax
+//@[011:0087) | | ├─ParameterizedTypeInstantiationSyntax
+//@[011:0024) | | | ├─IdentifierSyntax
+//@[011:0024) | | | | └─Token(Identifier) |resourceInput|
+//@[024:0025) | | | ├─Token(LeftChevron) |<|
+//@[025:0086) | | | ├─ParameterizedTypeArgumentSyntax
+//@[025:0086) | | | | └─StringTypeLiteralSyntax
+//@[025:0086) | | | |   └─Token(StringComplete) |'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'|
+//@[086:0087) | | | └─Token(RightChevron) |>|
+//@[087:0088) | | ├─Token(Dot) |.|
+//@[088:0092) | | └─IdentifierSyntax
+//@[088:0092) | |   └─Token(Identifier) |name|
+//@[093:0094) | ├─Token(Assignment) |=|
+//@[095:0101) | └─StringSyntax
+//@[095:0101) |   └─Token(StringComplete) |'myId'|
+//@[101:0103) ├─Token(NewLine) |\n\n|
 
-type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
-//@[00:0087) ├─TypeDeclarationSyntax
-//@[00:0004) | ├─Token(Identifier) |type|
-//@[05:0023) | ├─IdentifierSyntax
-//@[05:0023) | | └─Token(Identifier) |storageAccountName|
-//@[24:0025) | ├─Token(Assignment) |=|
-//@[26:0087) | └─TypePropertyAccessSyntax
-//@[26:0082) |   ├─ParameterizedTypeInstantiationSyntax
-//@[26:0034) |   | ├─IdentifierSyntax
-//@[26:0034) |   | | └─Token(Identifier) |resource|
-//@[34:0035) |   | ├─Token(LeftChevron) |<|
-//@[35:0081) |   | ├─ParameterizedTypeArgumentSyntax
-//@[35:0081) |   | | └─StringTypeLiteralSyntax
-//@[35:0081) |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
-//@[81:0082) |   | └─Token(RightChevron) |>|
-//@[82:0083) |   ├─Token(Dot) |.|
-//@[83:0087) |   └─IdentifierSyntax
-//@[83:0087) |     └─Token(Identifier) |name|
-//@[87:0088) ├─Token(NewLine) |\n|
-type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
-//@[00:0097) ├─TypeDeclarationSyntax
-//@[00:0004) | ├─Token(Identifier) |type|
-//@[05:0017) | ├─IdentifierSyntax
-//@[05:0017) | | └─Token(Identifier) |accessPolicy|
-//@[18:0019) | ├─Token(Assignment) |=|
-//@[20:0097) | └─TypeItemsAccessSyntax
-//@[20:0094) |   ├─TypePropertyAccessSyntax
-//@[20:0079) |   | ├─TypePropertyAccessSyntax
-//@[20:0068) |   | | ├─ParameterizedTypeInstantiationSyntax
-//@[20:0028) |   | | | ├─IdentifierSyntax
-//@[20:0028) |   | | | | └─Token(Identifier) |resource|
-//@[28:0029) |   | | | ├─Token(LeftChevron) |<|
-//@[29:0067) |   | | | ├─ParameterizedTypeArgumentSyntax
-//@[29:0067) |   | | | | └─StringTypeLiteralSyntax
-//@[29:0067) |   | | | |   └─Token(StringComplete) |'Microsoft.KeyVault/vaults@2022-07-01'|
-//@[67:0068) |   | | | └─Token(RightChevron) |>|
-//@[68:0069) |   | | ├─Token(Dot) |.|
-//@[69:0079) |   | | └─IdentifierSyntax
-//@[69:0079) |   | |   └─Token(Identifier) |properties|
-//@[79:0080) |   | ├─Token(Dot) |.|
-//@[80:0094) |   | └─IdentifierSyntax
-//@[80:0094) |   |   └─Token(Identifier) |accessPolicies|
-//@[94:0095) |   ├─Token(LeftSquare) |[|
-//@[95:0096) |   ├─Token(Asterisk) |*|
-//@[96:0097) |   └─Token(RightSquare) |]|
-//@[97:0098) ├─Token(NewLine) |\n|
-type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
-//@[00:0076) ├─TypeDeclarationSyntax
-//@[00:0004) | ├─Token(Identifier) |type|
-//@[05:0008) | ├─IdentifierSyntax
-//@[05:0008) | | └─Token(Identifier) |tag|
-//@[09:0010) | ├─Token(Assignment) |=|
-//@[11:0076) | └─TypeAdditionalPropertiesAccessSyntax
-//@[11:0074) |   ├─TypePropertyAccessSyntax
-//@[11:0069) |   | ├─TypePropertyAccessSyntax
-//@[11:0058) |   | | ├─ParameterizedTypeInstantiationSyntax
-//@[11:0019) |   | | | ├─IdentifierSyntax
-//@[11:0019) |   | | | | └─Token(Identifier) |resource|
-//@[19:0020) |   | | | ├─Token(LeftChevron) |<|
-//@[20:0057) |   | | | ├─ParameterizedTypeArgumentSyntax
-//@[20:0057) |   | | | | └─StringTypeLiteralSyntax
-//@[20:0057) |   | | | |   └─Token(StringComplete) |'Microsoft.Resources/tags@2022-09-01'|
-//@[57:0058) |   | | | └─Token(RightChevron) |>|
-//@[58:0059) |   | | ├─Token(Dot) |.|
-//@[59:0069) |   | | └─IdentifierSyntax
-//@[59:0069) |   | |   └─Token(Identifier) |properties|
-//@[69:0070) |   | ├─Token(Dot) |.|
-//@[70:0074) |   | └─IdentifierSyntax
-//@[70:0074) |   |   └─Token(Identifier) |tags|
-//@[74:0075) |   ├─Token(Dot) |.|
-//@[75:0076) |   └─Token(Asterisk) |*|
-//@[76:0077) ├─Token(NewLine) |\n|
+type storageAccountName = resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[000:0092) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0023) | ├─IdentifierSyntax
+//@[005:0023) | | └─Token(Identifier) |storageAccountName|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0092) | └─TypePropertyAccessSyntax
+//@[026:0087) |   ├─ParameterizedTypeInstantiationSyntax
+//@[026:0039) |   | ├─IdentifierSyntax
+//@[026:0039) |   | | └─Token(Identifier) |resourceInput|
+//@[039:0040) |   | ├─Token(LeftChevron) |<|
+//@[040:0086) |   | ├─ParameterizedTypeArgumentSyntax
+//@[040:0086) |   | | └─StringTypeLiteralSyntax
+//@[040:0086) |   | |   └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[086:0087) |   | └─Token(RightChevron) |>|
+//@[087:0088) |   ├─Token(Dot) |.|
+//@[088:0092) |   └─IdentifierSyntax
+//@[088:0092) |     └─Token(Identifier) |name|
+//@[092:0093) ├─Token(NewLine) |\n|
+type accessPolicy = resourceInput<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+//@[000:0102) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0017) | ├─IdentifierSyntax
+//@[005:0017) | | └─Token(Identifier) |accessPolicy|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0102) | └─TypeItemsAccessSyntax
+//@[020:0099) |   ├─TypePropertyAccessSyntax
+//@[020:0084) |   | ├─TypePropertyAccessSyntax
+//@[020:0073) |   | | ├─ParameterizedTypeInstantiationSyntax
+//@[020:0033) |   | | | ├─IdentifierSyntax
+//@[020:0033) |   | | | | └─Token(Identifier) |resourceInput|
+//@[033:0034) |   | | | ├─Token(LeftChevron) |<|
+//@[034:0072) |   | | | ├─ParameterizedTypeArgumentSyntax
+//@[034:0072) |   | | | | └─StringTypeLiteralSyntax
+//@[034:0072) |   | | | |   └─Token(StringComplete) |'Microsoft.KeyVault/vaults@2022-07-01'|
+//@[072:0073) |   | | | └─Token(RightChevron) |>|
+//@[073:0074) |   | | ├─Token(Dot) |.|
+//@[074:0084) |   | | └─IdentifierSyntax
+//@[074:0084) |   | |   └─Token(Identifier) |properties|
+//@[084:0085) |   | ├─Token(Dot) |.|
+//@[085:0099) |   | └─IdentifierSyntax
+//@[085:0099) |   |   └─Token(Identifier) |accessPolicies|
+//@[099:0100) |   ├─Token(LeftSquare) |[|
+//@[100:0101) |   ├─Token(Asterisk) |*|
+//@[101:0102) |   └─Token(RightSquare) |]|
+//@[102:0103) ├─Token(NewLine) |\n|
+type tag = resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+//@[000:0081) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0008) | ├─IdentifierSyntax
+//@[005:0008) | | └─Token(Identifier) |tag|
+//@[009:0010) | ├─Token(Assignment) |=|
+//@[011:0081) | └─TypeAdditionalPropertiesAccessSyntax
+//@[011:0079) |   ├─TypePropertyAccessSyntax
+//@[011:0074) |   | ├─TypePropertyAccessSyntax
+//@[011:0063) |   | | ├─ParameterizedTypeInstantiationSyntax
+//@[011:0024) |   | | | ├─IdentifierSyntax
+//@[011:0024) |   | | | | └─Token(Identifier) |resourceInput|
+//@[024:0025) |   | | | ├─Token(LeftChevron) |<|
+//@[025:0062) |   | | | ├─ParameterizedTypeArgumentSyntax
+//@[025:0062) |   | | | | └─StringTypeLiteralSyntax
+//@[025:0062) |   | | | |   └─Token(StringComplete) |'Microsoft.Resources/tags@2022-09-01'|
+//@[062:0063) |   | | | └─Token(RightChevron) |>|
+//@[063:0064) |   | | ├─Token(Dot) |.|
+//@[064:0074) |   | | └─IdentifierSyntax
+//@[064:0074) |   | |   └─Token(Identifier) |properties|
+//@[074:0075) |   | ├─Token(Dot) |.|
+//@[075:0079) |   | └─IdentifierSyntax
+//@[075:0079) |   |   └─Token(Identifier) |tags|
+//@[079:0080) |   ├─Token(Dot) |.|
+//@[080:0081) |   └─Token(Asterisk) |*|
+//@[081:0082) ├─Token(NewLine) |\n|
 
-//@[00:0000) └─Token(EndOfFile) ||
+//@[000:0000) └─Token(EndOfFile) ||
