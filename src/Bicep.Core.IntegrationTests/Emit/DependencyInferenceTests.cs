@@ -240,7 +240,7 @@ public class DependencyInferenceTests
             """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveJsonAtPath("$.resources.newSa.dependsOn", """["existingSa"]""");
+        result.Template.Should().HaveJsonAtPath("$.resources.newSa.dependsOn", """["deployedSa"]""");
         result.Template.Should().HaveJsonAtPath("$.resources.existingSa.dependsOn", """["deployedSa"]""");
     }
 
@@ -279,7 +279,7 @@ public class DependencyInferenceTests
             """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveJsonAtPath("$.resources.newSa.dependsOn", """["[format('existingSa[{0}]', 0)]"]""");
+        result.Template.Should().HaveJsonAtPath("$.resources.newSa.dependsOn", """["deployedSa"]""");
         result.Template.Should().HaveJsonAtPath("$.resources.existingSa.dependsOn", """["deployedSa"]""");
     }
 
@@ -316,7 +316,7 @@ public class DependencyInferenceTests
             """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveJsonAtPath("$.resources.newSa.dependsOn", """["existingSa"]""");
+        result.Template.Should().HaveJsonAtPath("$.resources.newSa.dependsOn", """["deployedSa"]""");
         result.Template.Should().HaveJsonAtPath("$.resources.existingSa.dependsOn", """["deployedSa"]""");
     }
 
@@ -353,7 +353,7 @@ public class DependencyInferenceTests
             """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveJsonAtPath("$.resources.newSa.dependsOn", """["[format('existingSa[{0}]', 0)]"]""");
+        result.Template.Should().HaveJsonAtPath("$.resources.newSa.dependsOn", """["deployedSa"]""");
         result.Template.Should().HaveJsonAtPath("$.resources.existingSa.dependsOn", """["deployedSa"]""");
     }
 
@@ -394,7 +394,7 @@ public class DependencyInferenceTests
             """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveJsonAtPath("$.resources.sa.dependsOn", """["subnet"]""");
+        result.Template.Should().NotHaveValueAtPath("$.resources.sa.dependsOn");
     }
 
     [DataTestMethod]
@@ -436,7 +436,7 @@ public class DependencyInferenceTests
 
         if (useSymbolicNameCodegen)
         {
-            result.Template.Should().HaveJsonAtPath("$.resources.vault.dependsOn", """["subnets"]""");
+            result.Template.Should().HaveJsonAtPath("$.resources.vault.dependsOn", """["vnets"]""");
         }
         else
         {
@@ -485,7 +485,7 @@ public class DependencyInferenceTests
         {
             result.Template.Should().HaveJsonAtPath(
                 "$.resources.vault.dependsOn",
-                """["[format('subnets[{0}]', sub(range(10, 10)[copyIndex()], 10))]"]""");
+                """["[format('vnets[{0}]', mod(range(0, 10)[sub(range(10, 10)[copyIndex()], 10)], 2))]"]""");
         }
         else
         {
@@ -538,7 +538,7 @@ public class DependencyInferenceTests
         {
             result.Template.Should().HaveJsonAtPath(
                 "$.resources.vault.dependsOn",
-                """["[format('subnets[{0}]', sub(range(20, 10)[sub(range(10, 10)[copyIndex()], 10)], 20))]"]""");
+                """["[format('vnets[{0}]', mod(range(0, 10)[sub(range(20, 10)[sub(range(10, 10)[copyIndex()], 10)], 20)], 2))]"]""");
         }
         else
         {
@@ -587,7 +587,7 @@ public class DependencyInferenceTests
 
         if (useSymbolicNameCodegen)
         {
-            result.Template.Should().HaveJsonAtPath("$.resources.vault.dependsOn", """["[format('subnets[{0}]', sub(range(10, 10)[copyIndex()], 10))]"]""");
+            result.Template.Should().HaveJsonAtPath("$.resources.vault.dependsOn", """["[format('vnets[{0}]', 0)]"]""");
         }
         else
         {
@@ -636,7 +636,7 @@ public class DependencyInferenceTests
 
         if (useSymbolicNameCodegen)
         {
-            result.Template.Should().HaveJsonAtPath("$.resources.vault.dependsOn", """["[format('subnets[{0}]', 0)]"]""");
+            result.Template.Should().HaveJsonAtPath("$.resources.vault.dependsOn", """["[format('vnets[{0}]', mod(range(0, 10)[0], 2))]"]""");
         }
         else
         {
@@ -699,6 +699,6 @@ public class DependencyInferenceTests
             ("empty.bicep", string.Empty));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveJsonAtPath("$.resources.empty.dependsOn", """["rg"]""");
+        result.Template.Should().NotHaveValueAtPath("$.resources.empty.dependsOn");
     }
 }

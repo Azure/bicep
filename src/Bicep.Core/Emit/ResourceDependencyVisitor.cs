@@ -1,18 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Emit
 {
     public class ResourceDependencyVisitor : AstVisitor
     {
+        private static readonly FrozenSet<string> ResourceInfoProperties
+            = new[] { "id", "name", "type", "apiVersion" }.ToFrozenSet();
         private readonly SemanticModel model;
         private Options? options;
         private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
@@ -76,7 +81,8 @@ namespace Bicep.Core.Emit
             HashSet<ResourceDependency> dependencies = new();
             if (model.ResourceAncestors.GetAncestors(resource).LastOrDefault() is { } parent)
             {
-                dependencies.Add(new(parent.Resource.Symbol, parent.IndexExpression));
+                // Resource ancestors are always weak references.
+                dependencies.Add(new(parent.Resource.Symbol, parent.IndexExpression, WeakReference: true));
             }
             resourceDependencies[resource.Symbol] = dependencies;
 
@@ -146,7 +152,7 @@ namespace Bicep.Core.Emit
                     return;
 
                 case ResourceSymbol resourceSymbol:
-                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
+                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), IsWeakReference(syntax, resourceSymbol)));
                     return;
 
                 case ModuleSymbol moduleSymbol:
@@ -154,6 +160,65 @@ namespace Bicep.Core.Emit
                     return;
             }
         }
+
+        /// <summary>
+        /// Determines whether a reference to a resource is weak.
+        /// </summary>
+        /// <remarks>
+        /// A reference is "weak" if it will not read from the body of a resource. For ARM resources, that means that
+        /// the reference is only used to read one of the referent's identifiers (id, name, type, apiVersion) or to
+        /// call a function. (<code>list*()</code> functions will generate an implicit dependency in the ARM engine,
+        /// but any functions that are resolved at compile time (such as <code>keyVault.getSecret()</code>) will not
+        /// need to access the resource's body.
+        /// </remarks>
+        /// <param name="syntax">The referencing syntax.</param>
+        /// <param name="resourceSymbol">The referenced resource.</param>
+        private bool IsWeakReference(SyntaxBase syntax, ResourceSymbol resourceSymbol)
+            => resourceSymbol.TryGetResourceType()?.IsAzResource() is true && (
+                IsResourceInfoAccessBase(syntax, resourceSymbol) ||
+                IsResourceFunctionCallBase(syntax) ||
+                IsWithinExplicitParentDeclaration(syntax) ||
+                IsWithinScopeDeclaration(syntax));
+
+        private bool IsResourceInfoAccessBase(SyntaxBase syntax, ResourceSymbol resource)
+            => model.Binder.GetParent(syntax) switch
+            {
+                PropertyAccessSyntax propertyAccess 
+                    => IsResourceInfoAccessBase(resource, propertyAccess.PropertyName.IdentifierName),
+                ArrayAccessSyntax arrayAccess => model.GetTypeInfo(arrayAccess.IndexExpression) switch
+                {
+                    // array access can be used to dereference properties, e.g., resourceSymbolicRef['id']
+                    StringLiteralType indexStr => IsResourceInfoAccessBase(resource, indexStr.RawStringValue),
+                    // it can also dereference a member of a resource collection, e.g., resourceSymbolicRef[0].id
+                    var t when resource.IsCollection && TypeValidator.AreTypesAssignable(t, LanguageConstants.Int)
+                        => IsResourceInfoAccessBase(arrayAccess, resource),
+                    _ => false,
+                },
+                _ => false,
+            };
+
+        private static bool IsResourceInfoAccessBase(ResourceSymbol resource, string propertyName)
+            // if specific top-level properties of an ARM resource are accessed, the compiler will migrate syntax from
+            // the resource declaration or emit a `resourceInfo()` function
+            => ResourceInfoProperties.Contains(propertyName);
+
+        private bool IsResourceFunctionCallBase(SyntaxBase syntax) => model.Binder.GetParent(syntax) switch
+        {
+            InstanceFunctionCallSyntax => true,
+            ArrayAccessSyntax arrayAccess when model.GetSymbolInfo(arrayAccess.BaseExpression) is ResourceSymbol r &&
+                r.IsCollection &&
+                TypeValidator.AreTypesAssignable(model.GetTypeInfo(arrayAccess.IndexExpression), LanguageConstants.Int)
+                => IsResourceFunctionCallBase(arrayAccess),
+            _ => false,
+        };
+
+        private bool IsWithinExplicitParentDeclaration(SyntaxBase syntax)
+            => TryGetCurrentDeclarationTopLevelProperty(LanguageConstants.ResourceParentPropertyName) is { } nonNull &&
+                model.Binder.IsDescendant(syntax, nonNull);
+
+        private bool IsWithinScopeDeclaration(SyntaxBase syntax)
+            => TryGetCurrentDeclarationTopLevelProperty(LanguageConstants.ResourceScopePropertyName) is { } nonNull &&
+                model.Binder.IsDescendant(syntax, nonNull);
 
         private ObjectPropertySyntax? TryGetCurrentDeclarationTopLevelProperty(string propertyName)
         {
@@ -183,7 +248,7 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case ResourceSymbol resourceSymbol:
-                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
+                    currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), IsWeakReference(syntax, resourceSymbol)));
                     return;
 
                 case ModuleSymbol moduleSymbol:

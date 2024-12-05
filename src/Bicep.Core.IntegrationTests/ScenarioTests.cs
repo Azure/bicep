@@ -5066,7 +5066,7 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 "));
 
         var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
-        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo2"));
+        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo1"));
     }
 
     // https://github.com/Azure/bicep/issues/11292
@@ -6316,7 +6316,7 @@ param p invalidRecursiveObjectType = {}
 
         if (enableSymbolicNameCodegen)
         {
-            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["sa"]""");
+            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["mod"]""");
         }
         else
         {
@@ -6478,7 +6478,7 @@ param p invalidRecursiveObjectType = {}
     }
 
     [TestMethod]
-    public void Test_Issue15686_repro()
+    public void Test_Issue15686()
     {
         var result = CompilationHelper.Compile("""
             param eventSubscriptionName string
@@ -6525,7 +6525,6 @@ param p invalidRecursiveObjectType = {}
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveJsonAtPath("$.resources.eventSubscription.dependsOn", """
             [
-              "eventGridTopic",
               "functionApp"
             ]
             """);

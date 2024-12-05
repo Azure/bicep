@@ -100,7 +100,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             dependenciesToWalk.EnqueueRange(transitiveDependencies);
                         }
 
-                        allDependencies.Add(dependency);
+                        if (!dependency.WeakReference ||
+                            dependency.Resource is not ResourceSymbol r ||
+                            !r.DeclaringResource.IsExistingResource())
+                        {
+                            allDependencies.Add(dependency with { WeakReference = false });
+                        }
                     }
 
                     builder[kvp.Key] = allDependencies.ToImmutable();
