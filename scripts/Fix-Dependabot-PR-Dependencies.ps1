@@ -11,12 +11,12 @@ function getPrState($prNumber) {
     return (gh pr view $prNumber --json state | jq '.state').Trim('"')
 }
 
-function getPrHasConflicts($prNumber) {
+function prHasConflicts($prNumber) {
     return (gh pr view $prNumber --json mergeable | jq '.mergeable').Trim('"') -eq 'CONFLICTING'
 }
 
 function waitForPrRecreate($prNumber) {
-    if (!getPrHasConflicts($prNumber)) {
+    if (-not (prHasConflicts($prNumber))) {
         return
     }
 
@@ -29,7 +29,7 @@ function waitForPrRecreate($prNumber) {
             return
         }
 
-        if (getPrHasConflicts($prNumber)) {
+        if (prHasConflicts($prNumber)) {
             Write-Host "PR $(getPrLink($prNumber)) still has conflicts. Waiting for PR to be recreated..."
         } else {
             Write-Host "PR $(getPrLink($prNumber)) has been recreated."
@@ -67,7 +67,7 @@ function processPR {
         $prStatus[$prNumber] = "Recreated"
     }
 
-    if (getPrHasConflicts($prNumber)) {
+    if (prHasConflicts($prNumber)) {
         Write-Host "PR $(getPrLink($prNumber)) has conflicts. Recreating PR."
         if (!$dryRun) {
             gh pr comment $prNumber --body "@dependabot recreate"
