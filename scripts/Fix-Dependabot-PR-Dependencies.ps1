@@ -21,6 +21,12 @@ function waitForPrRecreate($prNumber) {
         if ($lastComment -notlike '*@dependabot recreate*') {
             return
         }
+        if (getPrHasConflicts($prNumber)) {
+            Write-Warning "PR $(getPrLink($prNumber)) still has conflicts. Waiting for conflicts to be resolved..."
+        } else {
+            Write-Host "PR $(getPrLink($prNumber)) has been recreated."
+            return
+        }
 
         Start-Sleep -Seconds 15
     }
