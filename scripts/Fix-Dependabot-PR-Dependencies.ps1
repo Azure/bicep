@@ -16,19 +16,27 @@ function getPrHasConflicts($prNumber) {
 }
 
 function waitForPrRecreate($prNumber) {
+    if (!getPrHasConflicts($prNumber)) {
+        return
+    }
+
+    Write-Host "PR $(getPrLink($prNumber)) has conflicts. Waiting for it to be recreated..."
+    
     while ($true) {
         $lastComment = gh pr view $prNumber --json comments --jq '.comments[-1].body'
         if ($lastComment -notlike '*@dependabot recreate*') {
+            write-warning "PR $(getPrLink($prNumber)) last comment: $lastComment"
             return
         }
+
         if (getPrHasConflicts($prNumber)) {
-            Write-Host "PR $(getPrLink($prNumber)) still has conflicts. Waiting for conflicts to be resolved..."
+            Write-Host "PR $(getPrLink($prNumber)) still has conflicts. Waiting for PR to be recreated..."
         } else {
             Write-Host "PR $(getPrLink($prNumber)) has been recreated."
             return
         }
 
-        Start-Sleep -Seconds 15
+        Start-Sleep -Seconds 60
     }
 }
 
