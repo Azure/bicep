@@ -22,7 +22,7 @@ function waitForPrRecreate($prNumber) {
             return
         }
         if (getPrHasConflicts($prNumber)) {
-            Write-Warning "PR $(getPrLink($prNumber)) still has conflicts. Waiting for conflicts to be resolved..."
+            Write-Host "PR $(getPrLink($prNumber)) still has conflicts. Waiting for conflicts to be resolved..."
         } else {
             Write-Host "PR $(getPrLink($prNumber)) has been recreated."
             return
@@ -43,6 +43,8 @@ function processPR {
         
         [ref]$prs  # Use a reference to modify the original array asdfg
     )
+
+    Write-Warning "`n====================== Processing PR $prNumber... ======================`n"
 
     $prState = getPrState($prNumber)
     if ($prState -ne 'OPEN') {
@@ -121,7 +123,7 @@ $allPrs = $prsJson | ConvertFrom-Json
 
 # Loop through each PR one at a time
 $prs = $allPrs
-write-host "Processing $($prs.Count) PRs...$($prs | ForEach-Object { "`n$($_.number): $($_.title)" })"
+write-host "Processing $($prs.Count) PRs...$($prs | ForEach-Object { "`n$(getPrLink($_.number)): $($_.title)" })"
 
 while ($prs) {
     $pr = $prs[0]
