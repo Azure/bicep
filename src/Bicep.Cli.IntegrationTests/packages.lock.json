@@ -10,11 +10,11 @@
       },
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[6.12.2, )",
-        "resolved": "6.12.2",
-        "contentHash": "8YE+xJmT8wgzEpFuzJ4S62oFhEL/AKouMz1RWPEMEUhy9H11aRQlGIWcHurH5BEy7tbF6gb0CJrs0wOw/AtDcQ==",
+        "requested": "[7.0.0, )",
+        "resolved": "7.0.0",
+        "contentHash": "mTLbcU991EQ1SEmNbVBaGGGJy0YFzvGd1sYJGNZ07nlPKuyHSn1I22aeKzqQXgEiaKyRO6MSCto9eN9VxMwBdA==",
         "dependencies": {
-          "System.Configuration.ConfigurationManager": "4.4.0"
+          "System.Configuration.ConfigurationManager": "6.0.0"
         }
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
@@ -1651,7 +1651,7 @@
       "bicep.cli.unittests": {
         "type": "Project",
         "dependencies": {
-          "FluentAssertions": "[6.12.2, )",
+          "FluentAssertions": "[7.0.0, )",
           "MSTest.TestAdapter": "[3.6.3, )",
           "MSTest.TestFramework": "[3.6.3, )",
           "Microsoft.NET.Test.Sdk": "[17.11.1, )",
@@ -1663,7 +1663,7 @@
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
           "Bicep.Core.UnitTests": "[1.0.0, )",
-          "FluentAssertions": "[6.12.2, )",
+          "FluentAssertions": "[7.0.0, )",
           "MSTest.TestAdapter": "[3.6.3, )",
           "MSTest.TestFramework": "[3.6.3, )",
           "Microsoft.NET.Test.Sdk": "[17.11.1, )"
@@ -1675,7 +1675,7 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "Bicep.LangServer": "[1.0.0, )",
           "DiffPlex": "[1.7.2, )",
-          "FluentAssertions": "[6.12.2, )",
+          "FluentAssertions": "[7.0.0, )",
           "JsonDiffPatch.Net": "[2.3.0, )",
           "MSTest.TestAdapter": "[3.6.3, )",
           "MSTest.TestFramework": "[3.6.3, )",
