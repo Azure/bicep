@@ -879,6 +879,26 @@ param myParam string
     {
         var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             """
+            type myType = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+            """);
+
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
+            {
+                "myType": {
+                    "type": "string",
+                    "metadata": {
+                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+                    }
+                }
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Legacy_resource_derived_type_should_compile_successfully()
+    {
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            """
             type myType = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
             """);
 
@@ -900,7 +920,7 @@ param myParam string
         var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             """
             var resource = 'foo'
-            type myType = sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+            type myType = sys.resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
             """);
 
         result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
@@ -1207,7 +1227,7 @@ param myParam string
         var result = CompilationHelper.Compile(
             new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("main.bicep", """
-                type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+                type storageAccountName = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
@@ -1229,7 +1249,7 @@ param myParam string
                 @export()
                 type myObject = {
                   quux: int
-                  saSku: resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.sku
+                  saSku: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.sku
                 }
                 """),
             ("main.bicep", """
@@ -1379,7 +1399,7 @@ param myParam string
         var result = CompilationHelper.Compile(
             new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("main.bicep", """
-                type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+                type tag = resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
@@ -1399,7 +1419,7 @@ param myParam string
         var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("types.bicep", """
                 type tagsDict = {
-                  *: resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags
+                  *: resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties.tags
                 }
 
                 @export()
@@ -1485,7 +1505,7 @@ param myParam string
         var result = CompilationHelper.Compile(
             new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("main.bicep", """
-                type storageAccountName = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+                type storageAccountName = resourceInput<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
@@ -1505,7 +1525,7 @@ param myParam string
         var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("types.bicep", """
                 @export()
-                type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+                type accessPolicy = resourceInput<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
 
                 @export()
                 type strings = string[]
@@ -1513,7 +1533,7 @@ param myParam string
             ("main.bicep", """
                 import * as types from 'types.bicep'
 
-                type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+                type accessPolicy = resourceInput<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
 
                 type test = types.strings[]
 
@@ -1553,7 +1573,7 @@ param myParam string
     {
         var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("main.bicep", """
-                param subnets resource<'Microsoft.Network/virtualNetworks/subnets@2023-09-01'>[]
+                param subnets resourceInput<'Microsoft.Network/virtualNetworks/subnets@2023-09-01'>[]
                 """));
 
         result.Template.Should().BeNull();
@@ -1599,7 +1619,7 @@ param myParam string
         var result = CompilationHelper.Compile(
             new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("main.bicep", """
-                param container resource<'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15'>.properties.resource.indexingPolicy
+                param container resourceInput<'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15'>.properties.resource.indexingPolicy
 
                 resource sa 'Microsoft.Storage/storageAccounts@2023-05-01'  = {
                   location: resourceGroup().location
@@ -1623,5 +1643,17 @@ param myParam string
             ("BCP037", DiagnosticLevel.Warning, """The property "indexingMode" is not allowed on objects of type "AzureFilesIdentityBasedAuthentication". Permissible properties include "activeDirectoryProperties", "defaultSharePermission", "directoryServiceOptions". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
             ("BCP037", DiagnosticLevel.Warning, """The property "spatialIndexes" is not allowed on objects of type "AzureFilesIdentityBasedAuthentication". Permissible properties include "activeDirectoryProperties", "defaultSharePermission", "directoryServiceOptions". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
         });
+    }
+
+    [TestMethod]
+    public void Parameterized_types_should_require_parameterization()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            """type t = resourceInput""");
+
+        result.Should().HaveDiagnostics([
+            ("BCP384", DiagnosticLevel.Error, """The "resourceInput<ResourceTypeIdentifier>" type requires 1 argument(s)."""),
+        ]);
     }
 }

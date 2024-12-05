@@ -334,6 +334,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetImportedTypeCompletions(model, context));
 
         private static IEnumerable<CompletionItem> GetAmbientTypeCompletions(SemanticModel model, BicepCompletionContext context) => model.Binder.NamespaceResolver.GetKnownTypes()
+            .Where(ambientType => !ambientType.Flags.HasFlag(TypePropertyFlags.FallbackProperty))
             .ToLookup(ambientType => ambientType.Name)
             .SelectMany(grouping => grouping.Count() > 1 || model.Binder.FileSymbol.Declarations.Any(decl => LanguageConstants.IdentifierComparer.Equals(grouping.Key, decl.Name))
                 ? grouping.Select(ambientType => ($"{ambientType.DeclaringNamespace.Name}.{ambientType.Name}", ambientType))

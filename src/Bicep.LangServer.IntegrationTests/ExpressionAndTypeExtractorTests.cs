@@ -663,7 +663,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             param _artifactsLocation string
             param  _artifactsLocationSasToken string
             @description('Describes the properties of a Virtual Machine Extension.')
-            param properties resource<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties = {
+            param properties resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties = {
               // Entire properties object selected
               publisher: 'Microsoft.Compute'
               type: 'CustomScriptExtension'
@@ -1798,7 +1798,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
         """
             // My comment here
             @description('A key-value pair of options to be applied for the request. This corresponds to the headers sent with the request.')
-            param options resource<'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15'>.properties.options = {}
+            param options resourceInput<'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15'>.properties.options = {}
 
             resource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {
                 name: 'testResource/cassandraKeyspace'
@@ -2889,7 +2889,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
             @description('Properties of the network security group.')
-            param properties resource<'Microsoft.Network/networkSecurityGroups@2023-09-01'>.properties = {
+            param properties resourceInput<'Microsoft.Network/networkSecurityGroups@2023-09-01'>.properties = {
               securityRules: [
                 {
                   id: 'id1'
@@ -2961,7 +2961,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
         """
            @description('Backend address pool resource of URL path map path rule.')
-           param backendAddressPool resource<'Microsoft.Network/applicationGateways@2020-11-01'>.properties.urlPathMaps[*].properties.pathRules[*].properties.backendAddressPool = {
+           param backendAddressPool resourceInput<'Microsoft.Network/applicationGateways@2020-11-01'>.properties.urlPathMaps[*].properties.pathRules[*].properties.backendAddressPool = {
              id: 'id'
            }
 
@@ -3435,7 +3435,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                 }
             }
 
-            var resourceDerivedFix = extractedParamFixes.Where(fix => fix.Title.Contains("resource<")).SingleOrDefault();
+            var resourceDerivedFix = extractedParamFixes.Where(fix => fix.Title.Contains("resourceInput<")).SingleOrDefault();
             if (expectedResourceDerivedText == null)
             {
                 resourceDerivedFix.Should().BeNull("expected no code actions to extract parameter with resource-derived type");

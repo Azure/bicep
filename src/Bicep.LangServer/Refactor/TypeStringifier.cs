@@ -56,7 +56,7 @@ public static class TypeStringifier
             {
                 // Found the resource itself
                 var resourceTypeName = (resourceDeclarationSyntax.Type as StringSyntax)?.TryGetLiteralValue();
-                return $"resource<'{resourceTypeName}'>{propertyAccessDotNotation}";
+                return $"resourceInput<'{resourceTypeName}'>{propertyAccessDotNotation}";
             }
             else if (current is ObjectPropertySyntax objectPropertySyntax)
             {

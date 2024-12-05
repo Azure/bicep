@@ -1803,7 +1803,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             case AccessExpressionSyntax accessExpression when binder.GetSymbolInfo(accessExpression.BaseExpression) is not BuiltInNamespaceSymbol:
                                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
                                 break;
-                            case ParameterizedTypeInstantiationSyntaxBase parameterized when LanguageConstants.IdentifierComparer.Equals(parameterized.Name.IdentifierName, LanguageConstants.TypeNameResource):
+                            case ParameterizedTypeInstantiationSyntaxBase parameterized when LanguageConstants.ResourceDerivedTypeNames.Contains(parameterized.Name.IdentifierName):
                                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetResourceDerivedType(decoratorName));
                                 break;
                             case ObjectTypeSyntax @object when @object.AdditionalProperties is not null:
@@ -1933,33 +1933,41 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static IEnumerable<TypeProperty> GetResourceDerivedTypesTypeProperties()
             {
+                ImmutableArray<TypeParameter> resourceInputParameters = [new TypeParameter(
+                    "ResourceTypeIdentifier",
+                    "A string of the format `<type-name>@<api-version>` that identifies the kind of resource whose body type definition is to be used.",
+                    LanguageConstants.StringResourceIdentifier)];
+
+                static ResultWithDiagnostic<TypeExpression> resourceInputInstantiator(IBinder binder, ParameterizedTypeInstantiationSyntaxBase syntax, ImmutableArray<TypeSymbol> argumentTypes)
+                {
+                    if (syntax.Arguments.FirstOrDefault()?.Expression is not StringTypeLiteralSyntax stringArg || stringArg.SegmentValues.Length > 1)
+                    {
+                        return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
+                    }
+
+                    if (!TypeHelper.GetResourceTypeFromString(binder, stringArg.SegmentValues[0], ResourceTypeGenerationFlags.None, parentResourceType: null)
+                        .IsSuccess(out var resourceType, out var errorBuilder))
+                    {
+                        return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
+                    }
+
+                    return new(new ResourceDerivedTypeExpression(syntax, resourceType));
+                }
+
+                var resourceInputDescription = """
+                    Use the type definition of the body of a specific resource rather than a user-defined type.
+
+                    NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.
+                    """;
+
                 yield return new(LanguageConstants.TypeNameResource,
-                    new TypeTemplate(LanguageConstants.TypeNameResource,
-                        [
-                            new TypeParameter("ResourceTypeIdentifier",
-                                        "A string of the format `<type-name>@<api-version>` that identifies the kind of resource whose body type definition is to be used.",
-                                        LanguageConstants.StringResourceIdentifier),
-                        ],
-                        (binder, syntax, argumentTypes) =>
-                        {
-                            if (syntax.Arguments.FirstOrDefault()?.Expression is not StringTypeLiteralSyntax stringArg || stringArg.SegmentValues.Length > 1)
-                            {
-                                return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
-                            }
+                    new TypeTemplate(LanguageConstants.TypeNameResource, resourceInputParameters, resourceInputInstantiator),
+                    flags: TypePropertyFlags.FallbackProperty,
+                    description: resourceInputDescription);
 
-                            if (!TypeHelper.GetResourceTypeFromString(binder, stringArg.SegmentValues[0], ResourceTypeGenerationFlags.None, parentResourceType: null)
-                                .IsSuccess(out var resourceType, out var errorBuilder))
-                            {
-                                return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
-                            }
-
-                            return new(new ResourceDerivedTypeExpression(syntax, resourceType));
-                        }),
-                    description: """
-                        Use the type definition of the body of a specific resource rather than a user-defined type.
-
-                        NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.
-                        """);
+                yield return new(LanguageConstants.TypeNameResourceInput,
+                    new TypeTemplate(LanguageConstants.TypeNameResourceInput, resourceInputParameters, resourceInputInstantiator),
+                    description: resourceInputDescription);
             }
 
             foreach (var typeProp in GetArmPrimitiveTypes())
