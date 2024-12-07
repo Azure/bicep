@@ -5,6 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
+using Bicep.Core.Configuration;
+using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
@@ -15,6 +17,8 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.UnitTests.Mocks;
@@ -38,13 +42,24 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private MockFileSystem MockFileSystem = new();
+        private readonly MockFileSystem MockFileSystem;
 
-        private string CacheRootPath => BicepTestConstants.FeatureProviderFactory.GetFeatureProvider(new Uri("file:///no-file")).CacheRootDirectory;
+        private readonly IDirectoryHandle CacheRootDirectory;
+
+        public BicepExternalSourceDocumentLinkHandlerTests()
+        {
+            this.MockFileSystem = new();
+
+            var mockFileExplorer = new FileSystemFileExplorer(this.MockFileSystem);
+            var mockConfigurationManager = new ConfigurationManager(mockFileExplorer);
+            var featureProviderFactory = new FeatureProviderFactory(mockConfigurationManager, mockFileExplorer);
+
+            this.CacheRootDirectory = featureProviderFactory.GetFeatureProvider(new Uri("file:///no-file")).CacheRootDirectory;
+        }
 
         private void ResetModuleCache()
         {
-            MockFileSystem.Directory.Delete(CacheRootPath, true);
+            this.CacheRootDirectory.Delete();
         }
 
         private ServiceBuilder GetServices(IContainerRegistryClientFactory clientFactory)
@@ -54,7 +69,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 .WithContainerRegistryClientFactory(clientFactory)
                 .WithFileSystem(MockFileSystem)
                 .WithFeatureProviderFactory(
-                    BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: CacheRootPath, OptionalModuleNamesEnabled: true))
+                    BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: CacheRootDirectory, OptionalModuleNamesEnabled: true))
                 )
                 .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
                 ;
@@ -119,7 +134,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private (string registry, string repo, string tag)[] GetCachedModules()
         {
-            var cachedModules = CachedModules.GetCachedRegistryModules(MockFileSystem, CacheRootPath);
+            var cachedModules = CachedModules.GetCachedRegistryModules(MockFileSystem, CacheRootDirectory);
             return cachedModules.Select(x => (x.Registry, x.Repository, x.Tag)).ToArray();
         }
 

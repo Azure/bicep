@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Features;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.UnitTests.Features;
 
@@ -18,7 +19,7 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public string AssemblyVersion => overrides.AssemblyVersion ?? features.AssemblyVersion;
 
-    public string CacheRootDirectory => overrides.CacheRootDirectory ?? features.CacheRootDirectory;
+    public IDirectoryHandle CacheRootDirectory => overrides.CacheRootDirectory ?? features.CacheRootDirectory;
 
     public bool SymbolicNameCodegenEnabled => overrides.SymbolicNameCodegenEnabled ?? features.SymbolicNameCodegenEnabled;
 

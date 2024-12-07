@@ -15,6 +15,7 @@ using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,12 +34,12 @@ namespace Bicep.Core.IntegrationTests
         #region Helpers
 
         [NotNull]
-        private string? CacheRoot { get; set; }
+        private IDirectoryHandle? CacheRoot { get; set; }
 
         [TestInitialize]
         public void TestInitialize()
         {
-            CacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
+            CacheRoot = FileHelper.GetCacheRootDirectory(TestContext);
             MockFileSystem = new(MockFiles);
         }
 

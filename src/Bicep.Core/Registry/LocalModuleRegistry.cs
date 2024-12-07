@@ -13,6 +13,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
 {
@@ -179,7 +180,7 @@ namespace Bicep.Core.Registry
             this.FileResolver.Write(typesUri, entity.Package.Types.ToStream());
         }
 
-        private string? TryGetArtifactDirectoryPath(LocalModuleReference reference)
+        private IDirectoryHandle? TryGetArtifactDirectory(LocalModuleReference reference)
         {
             if (TryReadContent(reference) is not { } binaryData)
             {
@@ -190,20 +191,17 @@ namespace Bicep.Core.Registry
             // We must use '_' as a separator here because Windows does not allow ':' in file paths.
             var digest = OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, binaryData, separator: '_');
 
-            return FileSystem.Path.Combine(
-                this.featureProvider.CacheRootDirectory,
-                "local",
-                digest);
+            return this.featureProvider.CacheRootDirectory.GetDirectory($"local/{digest}");
         }
 
-        protected override string GetArtifactDirectoryPath(LocalModuleReference reference)
+        protected override IDirectoryHandle GetArtifactDirectory(LocalModuleReference reference)
         {
-            if (TryGetArtifactDirectoryPath(reference) is not { } path)
+            if (TryGetArtifactDirectory(reference) is not { } directory)
             {
                 throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
             }
 
-            return path;
+            return directory;
         }
 
         private BinaryData? TryReadContent(LocalModuleReference reference)
@@ -223,14 +221,14 @@ namespace Bicep.Core.Registry
 
         private Uri GetExtensionBinaryUri(LocalModuleReference reference) => GetFileUri(reference, "extension.bin");
 
-        protected override Uri GetArtifactLockFileUri(LocalModuleReference reference) => GetFileUri(reference, "lock");
+        protected override IFileHandle GetArtifactLockFile(LocalModuleReference reference) =>
+            this.TryGetArtifactDirectory(reference)?.GetFile("lock") ?? throw new InvalidOperationException("Failed to get artifact lock file.");
 
         private Uri GetFileUri(LocalModuleReference reference, string path)
             => TryGetFileUri(reference, path) ?? throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
 
-        private Uri? TryGetFileUri(LocalModuleReference reference, string path)
-            => TryGetArtifactDirectoryPath(reference) is { } directoryPath ?
-            new(FileSystem.Path.Combine(directoryPath, path), UriKind.Absolute) :
-            null;
+        private Uri? TryGetFileUri(LocalModuleReference reference, string path) => TryGetArtifactDirectory(reference) is { } directory
+            ? directory.GetFile(path).Uri.ToUri()
+            : null;
     }
 }

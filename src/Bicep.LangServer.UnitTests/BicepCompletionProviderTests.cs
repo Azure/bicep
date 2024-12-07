@@ -424,7 +424,7 @@ output length int =
             var serviceWithGraph = new ServiceBuilder().WithFeatureOverrides(featureOverrides);
 
             var compilationWithMSGraph = serviceWithGraph.BuildCompilation(contents);
-            var features = new OverriddenFeatureProvider(new FeatureProvider(BicepTestConstants.BuiltInConfiguration), featureOverrides);
+            var features = new OverriddenFeatureProvider(new FeatureProvider(BicepTestConstants.BuiltInConfiguration, BicepTestConstants.FileExplorer), featureOverrides);
             var completionsWithMSGraph = await completionProvider.GetFilteredCompletions(compilationWithMSGraph, BicepCompletionContext.Create(features, compilationWithMSGraph, cursor), CancellationToken.None);
 
             completionsWithMSGraph.Should().Contain(c => c.Label.Contains("microsoftGraph"));

@@ -11,6 +11,8 @@ using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -23,7 +25,7 @@ public class SourceArchiveTests
 {
     public TestContext? TestContext { get; set; }
 
-    string CacheRoot = $"{ROOT}Users/username/.bicep";
+    private readonly static IOUri CacheRootUri = IOUri.FromLocalFilePath($"{ROOT}Users/username/.bicep");
 
 #if WINDOWS_BUILD
     private const string ROOT = "c:\\";
@@ -172,13 +174,15 @@ public class SourceArchiveTests
         var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "Template spec 1.json", SourceArchive.SourceKind.TemplateSpec, TemplateSpecJsonSource);
         var localModuleJson = CreateSourceFile(fs, projectFolder, "localModule.json", SourceArchive.SourceKind.ArmTemplate, LocalModuleDotJsonSource);
         var templateSpecMainJson2 = CreateSourceFile(fs, projectFolder, "folder/template spec 2.json", SourceArchive.SourceKind.TemplateSpec, TemplateSpecJsonSource);
-        var externalModuleJson = CreateSourceFile(fs, $"{CacheRoot}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
+        var externalModuleJson = CreateSourceFile(fs, $"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
                 SourceArchive.SourceKind.ArmTemplate /* the actual source archived is the compiled JSON */, ExternalModuleDotJsonSource, "mcr.microsoft.com/bicep/storage/storage-account:1.0.1");
 
 
+        var fileExplorer = new FileSystemFileExplorer(fs);
+        var cacheRootDirectory = fileExplorer.GetDirectory(CacheRootUri);
         using var stream = SourceArchive.PackSourcesIntoStream(
             mainBicep.SourceFile.Uri,
-            CacheRoot, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, templateSpecMainJson2, externalModuleJson);
+            cacheRootDirectory, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, templateSpecMainJson2, externalModuleJson);
         stream.Length.Should().BeGreaterThan(0);
 
         SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
@@ -210,7 +214,7 @@ public class SourceArchiveTests
         var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "cache/wherever/template spec 1.json", SourceArchive.SourceKind.TemplateSpec, TemplateSpecJsonSource);
         var localModuleJson = CreateSourceFile(fs, projectFolder, "modules/localJsonModule.json", SourceArchive.SourceKind.ArmTemplate, LocalModuleDotJsonSource);
         var localModuleBicep = CreateSourceFile(fs, projectFolder, "modules/localBicepModule.bicep", SourceArchive.SourceKind.ArmTemplate, LocalModuleDotJsonSource);
-        var externalModuleJson = CreateSourceFile(fs, $"{CacheRoot}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
+        var externalModuleJson = CreateSourceFile(fs, $"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
             SourceArchive.SourceKind.ArmTemplate, ExternalModuleDotJsonSource, "mcr.microsoft.com/bicep/storage/storage-account:1.0.1");
 
         var linksInput = new Dictionary<Uri, SourceCodeDocumentUriLink[]>()
@@ -221,7 +225,7 @@ public class SourceArchiveTests
                 {
                     new(new SourceCodeRange(1, 2, 1, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
                     new(new SourceCodeRange(11, 2, 11, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localBicepModule.bicep")),
-                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRoot}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
+                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
                 }
             },
             {
@@ -234,7 +238,7 @@ public class SourceArchiveTests
                     new(new SourceCodeRange(1234, 4567, 2345, 5678), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json")),
                     new(new SourceCodeRange(345, 2, 345, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
                     new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json")),
-                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRoot}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
+                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
                 }
             },
             {
@@ -248,11 +252,14 @@ public class SourceArchiveTests
                     new(new SourceCodeRange(1234, 4567, 2345, 5678), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/cache/wherever/template spec 1.json")),
                     new(new SourceCodeRange(345, 2, 345, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
                     new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/cache/wherever/template spec 1.json")),
-                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRoot}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
+                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
                 }
             },
         };
-        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.SourceFile.Uri, CacheRoot, linksInput, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, localModuleBicep, externalModuleJson);
+
+        var fileExplorer = new FileSystemFileExplorer(fs);
+        var cacheRootDirectory = fileExplorer.GetDirectory(CacheRootUri);
+        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.SourceFile.Uri, cacheRootDirectory, linksInput, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, localModuleBicep, externalModuleJson);
         stream.Length.Should().BeGreaterThan(0);
 
         SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).TryUnwrap();
@@ -433,7 +440,9 @@ public class SourceArchiveTests
         }
         var files = inputPaths.Select(path => CreateSourceFile(fs, path, SourceArchive.SourceKind.Bicep, $"// {path}")).ToArray();
 
-        using var stream = SourceArchive.PackSourcesIntoStream(files[0].SourceFile.Uri, CacheRoot, files);
+        var fileExplorer = new FileSystemFileExplorer(fs);
+        var cacheRootDirectory = fileExplorer.GetDirectory(CacheRootUri);
+        using var stream = SourceArchive.PackSourcesIntoStream(files[0].SourceFile.Uri, cacheRootDirectory, files);
         SourceArchive sourceArchive = SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
 
         sourceArchive.EntrypointRelativePath.Should().Be(expectedPaths[0], "entrypoint path should be correct");
@@ -494,9 +503,11 @@ public class SourceArchiveTests
         var sutFile2 = CreateSourceFile(fs, rootBicepFolder, inputBicepPath2, SourceArchive.SourceKind.Bicep, SecondaryDotBicepSource);
         var sutFile3 = inputBicepPath3 is null ? null : CreateSourceFile(fs, rootBicepFolder, inputBicepPath3, SourceArchive.SourceKind.Bicep, SecondaryDotBicepSource);
 
+        var fileExplorer = new FileSystemFileExplorer(fs);
+        var cacheRootDirectory = fileExplorer.GetDirectory(CacheRootUri);
         using var stream = sutFile3 is null ?
-            SourceArchive.PackSourcesIntoStream(entrypointFile.SourceFile.Uri, CacheRoot, entrypointFile, sutFile1, sutFile2) :
-            SourceArchive.PackSourcesIntoStream(entrypointFile.SourceFile.Uri, CacheRoot, entrypointFile, sutFile1, sutFile2, sutFile3);
+            SourceArchive.PackSourcesIntoStream(entrypointFile.SourceFile.Uri, cacheRootDirectory, entrypointFile, sutFile1, sutFile2) :
+            SourceArchive.PackSourcesIntoStream(entrypointFile.SourceFile.Uri, cacheRootDirectory, entrypointFile, sutFile1, sutFile2, sutFile3);
 
         SourceArchive sourceArchive = SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
 
