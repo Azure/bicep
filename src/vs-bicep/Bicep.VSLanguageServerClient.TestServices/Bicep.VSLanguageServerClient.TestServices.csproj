@@ -11,7 +11,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.IO.Redist" Version="6.1.0" />
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.11.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.12.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.11.35222.181" />
     <PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.12.18" />
