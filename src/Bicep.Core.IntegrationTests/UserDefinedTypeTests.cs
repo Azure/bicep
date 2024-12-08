@@ -1676,4 +1676,35 @@ param myParam string
             ("BCP384", DiagnosticLevel.Error, """The "resourceInput<ResourceTypeIdentifier>" type requires 1 argument(s)."""),
         ]);
     }
+
+    [TestMethod]
+    public void Resource_input_type_should_raise_no_diagnostic_when_resource_writeOnly_property_accessed()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            """
+                param orderProperties resourceInput<'Microsoft.Capacity/reservationOrders@2022-11-01'>.properties
+
+                output orderScopeType string = orderProperties.appliedScopeType
+                """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Legacy_resource_type_should_raise_diagnostic_when_resource_writeOnly_property_accessed()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            """
+                param orderProperties resource<'Microsoft.Capacity/reservationOrders@2022-11-01'>.properties
+
+                output orderScopeType string = orderProperties.appliedScopeType
+                """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP077", DiagnosticLevel.Warning, """The property "appliedScopeType" on type "PurchaseRequestPropertiesOrReservationOrderProperties" is write-only. Write-only properties cannot be accessed."""),
+        });
+    }
 }

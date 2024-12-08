@@ -97,7 +97,11 @@ public class ResourceDerivedTypeResolver
                 return unresolved.FallbackType;
             }
 
-            return current;
+            return unresolved.Variant switch
+            {
+                ResourceDerivedTypeVariant.Input => TypeHelper.RemovePropertyFlagsRecursively(current, TypePropertyFlags.WriteOnly),
+                _ => current,
+            };
         }
 
         return unresolved.FallbackType;

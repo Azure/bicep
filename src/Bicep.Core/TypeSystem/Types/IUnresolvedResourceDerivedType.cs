@@ -21,4 +21,6 @@ public interface IUnresolvedResourceDerivedType
     public ImmutableArray<string> PointerSegments { get; }
 
     public TypeSymbol FallbackType { get; }
+
+    public ResourceDerivedTypeVariant Variant { get; }
 }
