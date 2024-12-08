@@ -693,5 +693,15 @@ namespace Bicep.Core.TypeSystem
 
         public static ObjectType MakeRequiredPropertiesOptional(ObjectType input)
             => TransformProperties(input, p => p.With(p.Flags & ~TypePropertyFlags.Required));
+
+        public static TypeSymbol RemovePropertyFlagsRecursively(TypeSymbol type, TypePropertyFlags flagsToRemove) => type switch
+        {
+            ObjectType @object => TransformProperties(@object, property => new(
+                property.Name,
+                new DeferredTypeReference(() => RemovePropertyFlagsRecursively(property.TypeReference.Type, flagsToRemove)),
+                property.Flags & ~flagsToRemove,
+                property.Description)),
+            _ => type,
+        };
     }
 }

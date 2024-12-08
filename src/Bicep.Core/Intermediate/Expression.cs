@@ -950,8 +950,15 @@ public record ParameterKeyVaultReferenceExpression(
 
 public record ResourceDerivedTypeExpression(
     SyntaxBase? SourceSyntax,
-    ResourceType RootResourceType
-) : TypeExpression(SourceSyntax, RootResourceType.Body.Type)
+    ResourceType RootResourceType,
+    ResourceDerivedTypeVariant Variant) : TypeExpression(
+        SourceSyntax,
+        Variant switch
+        {
+            ResourceDerivedTypeVariant.Input
+                => TypeHelper.RemovePropertyFlagsRecursively(RootResourceType.Body.Type, TypePropertyFlags.WriteOnly),
+            _ => RootResourceType.Body.Type,
+        })
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitResourceDerivedTypeExpression(this);
