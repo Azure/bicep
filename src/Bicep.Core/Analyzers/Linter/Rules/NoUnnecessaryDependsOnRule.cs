@@ -75,7 +75,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 var directDependencyGraph = ResourceDependencyVisitor.GetResourceDependencies(
                     model,
-                    new() { IgnoreExplicitDependsOn =  true });
+                    new() { IgnoreExplicitDependsOn = true });
                 var builder = ImmutableDictionary.CreateBuilder<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
 
                 foreach (var kvp in directDependencyGraph)

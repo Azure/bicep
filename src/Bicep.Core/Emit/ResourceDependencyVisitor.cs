@@ -183,7 +183,7 @@ namespace Bicep.Core.Emit
         private bool IsResourceInfoAccessBase(SyntaxBase syntax, ResourceSymbol resource)
             => model.Binder.GetParent(syntax) switch
             {
-                PropertyAccessSyntax propertyAccess 
+                PropertyAccessSyntax propertyAccess
                     => IsResourceInfoAccessBase(resource, propertyAccess.PropertyName.IdentifierName),
                 ArrayAccessSyntax arrayAccess => model.GetTypeInfo(arrayAccess.IndexExpression) switch
                 {
