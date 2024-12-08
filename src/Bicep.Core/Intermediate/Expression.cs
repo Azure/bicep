@@ -957,6 +957,8 @@ public record ResourceDerivedTypeExpression(
         {
             ResourceDerivedTypeVariant.Input
                 => TypeHelper.RemovePropertyFlagsRecursively(RootResourceType.Body.Type, TypePropertyFlags.WriteOnly),
+            ResourceDerivedTypeVariant.Output
+                => TypeHelper.RemovePropertyFlagsRecursively(RootResourceType.Body.Type, TypePropertyFlags.ReadOnly),
             _ => RootResourceType.Body.Type,
         })
 {

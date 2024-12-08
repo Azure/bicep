@@ -71,7 +71,9 @@ public static class ArmTemplateTypeLoader
             if (resourceType.GetProperty(LanguageConstants.MetadataResourceDerivedTypePointerPropertyName)
                 ?.TryGetStringValue() is string pointerPropVal)
             {
-                variant = ResourceDerivedTypeVariant.Input;
+                variant = resourceType.TryGetProperty<bool>(LanguageConstants.MetadataResourceDerivedTypeOutputFlagName)
+                    ? ResourceDerivedTypeVariant.Output
+                    : ResourceDerivedTypeVariant.Input;
                 resourceTypeString = pointerPropVal;
             }
             // The legacy representation uses a string (the type pointer), not an object

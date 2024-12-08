@@ -154,7 +154,7 @@ namespace Bicep.Core
         public const string MetadataResourceTypePropertyName = "resourceType";
         public const string MetadataResourceDerivedTypePropertyName = "__bicep_resource_derived_type!";
         public const string MetadataResourceDerivedTypePointerPropertyName = "source";
-        public const string MetadataResourceInputDerivedTypePropertyName = "__bicep_resource_input_derived_type!";
+        public const string MetadataResourceDerivedTypeOutputFlagName = "output";
         public const string MetadataExportedPropertyName = "__bicep_export!";
         public const string MetadataImportedFromPropertyName = "__bicep_imported_from!";
         public const string TemplateMetadataExportedVariablesName = "__bicep_exported_variables!";
@@ -188,10 +188,12 @@ namespace Bicep.Core
         public const string TypeNameTest = "test";
         public const string TypeNameResource = "resource";
         public const string TypeNameResourceInput = "resourceInput";
+        public const string TypeNameResourceOutput = "resourceOutput";
         public static readonly FrozenSet<string> ResourceDerivedTypeNames = new[]
         {
             TypeNameResource,
             TypeNameResourceInput,
+            TypeNameResourceOutput,
         }.ToFrozenSet(IdentifierComparer);
 
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;

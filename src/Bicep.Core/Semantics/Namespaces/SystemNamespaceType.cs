@@ -1955,26 +1955,45 @@ namespace Bicep.Core.Semantics.Namespaces
                         return new(new ResourceDerivedTypeExpression(syntax, resourceType, derivedTypeVariant));
                     };
 
-                var resourceInputDescription = """
-                    Use the type definition of the body of a specific resource rather than a user-defined type.
+                var resourceDerivedTypeNotaBene = "NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.";
 
-                    NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.
-                    """;
-
-                yield return new(LanguageConstants.TypeNameResource,
+                yield return new(
+                    LanguageConstants.TypeNameResource,
                     new TypeTemplate(
                         LanguageConstants.TypeNameResource,
                         resourceInputParameters,
                         GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.None)),
                     flags: TypePropertyFlags.FallbackProperty,
-                    description: resourceInputDescription);
+                    description: $"""
+                        Use the type definition of the body of a specific resource rather than a user-defined type.
 
-                yield return new(LanguageConstants.TypeNameResourceInput,
+                        {resourceDerivedTypeNotaBene}
+                        """);
+
+                yield return new(
+                    LanguageConstants.TypeNameResourceInput,
                     new TypeTemplate(
                         LanguageConstants.TypeNameResourceInput,
                         resourceInputParameters,
                         GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.Input)),
-                    description: resourceInputDescription);
+                    description: $"""
+                        Use the type definition of the input for a specific resource rather than a user-defined type.
+
+                        {resourceDerivedTypeNotaBene}
+                        """);
+
+                yield return new(
+                    LanguageConstants.TypeNameResourceOutput,
+                    new TypeTemplate(
+                        LanguageConstants.TypeNameResourceOutput,
+                        resourceInputParameters,
+                        GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.Output)),
+                    description: $"""
+                        Use the type definition of the return value of a specific resource rather than a user-defined type.
+
+                        {resourceDerivedTypeNotaBene}
+                        """);
+
             }
 
             foreach (var typeProp in GetArmPrimitiveTypes())

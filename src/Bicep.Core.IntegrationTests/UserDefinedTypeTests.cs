@@ -1707,4 +1707,94 @@ param myParam string
             ("BCP077", DiagnosticLevel.Warning, """The property "appliedScopeType" on type "PurchaseRequestPropertiesOrReservationOrderProperties" is write-only. Write-only properties cannot be accessed."""),
         });
     }
+
+    [TestMethod]
+    public void Assignment_to_readOnly_property_diagnostic_should_be_raised_when_resource_output_is_assigned_to_resource_input()
+    {
+        var result = CompilationHelper.Compile("""
+            param siteProperties object
+
+            resource appService1 'Microsoft.Web/sites@2022-09-01' = {
+              name: 'name'
+              location: resourceGroup().location
+              properties: siteProperties
+            }
+
+            resource appService2 'Microsoft.Web/sites@2022-09-01' = {
+              name: 'name2'
+              location: resourceGroup().location
+              properties: appService1.properties
+            }
+            """);
+
+        result.Diagnostics.Should().NotBeNullOrEmpty();
+        result.Diagnostics.Should().ContainDiagnostic(
+            "BCP073",
+            DiagnosticLevel.Warning,
+            """The property "availabilityState" is read-only. Expressions cannot be assigned to read-only properties. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""
+        );
+    }
+
+    [TestMethod]
+    public void Assignment_to_readOnly_property_diagnostic_should_not_be_raised_when_resourceInput_typed_param_is_assigned_to_resource_input()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            """
+                param siteProperties resourceInput<'Microsoft.Web/sites@2022-09-01'>.properties
+
+                resource appService 'Microsoft.Web/sites@2022-09-01' = {
+                  name: 'name'
+                  location: resourceGroup().location
+                  properties: siteProperties
+                }
+                """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Assignment_to_readOnly_property_diagnostic_should_not_be_raised_when_resource_output_is_assigned_to_resourceOutput_typed_target()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            """
+                param siteProperties resourceInput<'Microsoft.Web/sites@2022-09-01'>.properties
+
+                resource appService 'Microsoft.Web/sites@2022-09-01' = {
+                  name: 'name'
+                  location: resourceGroup().location
+                  properties: siteProperties
+                }
+
+                output siteProperties resourceOutput<'Microsoft.Web/sites@2022-09-01'>.properties = appService.properties
+                """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Assignment_to_readOnly_property_diagnostic_should_be_raised_when_resource_output_is_assigned_to_resourceInput_typed_target()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            """
+                param siteProperties resourceInput<'Microsoft.Web/sites@2022-09-01'>.properties
+
+                resource appService 'Microsoft.Web/sites@2022-09-01' = {
+                  name: 'name'
+                  location: resourceGroup().location
+                  properties: siteProperties
+                }
+
+                output siteProperties resourceInput<'Microsoft.Web/sites@2022-09-01'>.properties = appService.properties
+                """);
+
+        result.Diagnostics.Should().NotBeNullOrEmpty();
+        result.Diagnostics.Should().ContainDiagnostic(
+            "BCP073",
+            DiagnosticLevel.Warning,
+            """The property "availabilityState" is read-only. Expressions cannot be assigned to read-only properties."""
+        );
+    }
 }

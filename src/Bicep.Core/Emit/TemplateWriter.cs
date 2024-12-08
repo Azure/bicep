@@ -484,7 +484,14 @@ namespace Bicep.Core.Emit
                         string.Join('/', PointerSegments.Select(StringExtensions.Rfc6901Encode)))));
                 var metadataValue = Variant switch
                 {
-                    ResourceDerivedTypeVariant.Input = ExpressionFactory.CreateObject(typePointerProperty.AsEnumerable()),
+                    ResourceDerivedTypeVariant.Input => ExpressionFactory.CreateObject(typePointerProperty.AsEnumerable()),
+                    ResourceDerivedTypeVariant.Output => ExpressionFactory.CreateObject(new[]
+                    {
+                        typePointerProperty,
+                        ExpressionFactory.CreateObjectProperty(
+                            LanguageConstants.MetadataResourceDerivedTypeOutputFlagName,
+                            ExpressionFactory.CreateBooleanLiteral(true))
+                    }),
                     // The legacy representation uses a string (the type pointer), not an object
                     _ => typePointerProperty.Value,
                 };

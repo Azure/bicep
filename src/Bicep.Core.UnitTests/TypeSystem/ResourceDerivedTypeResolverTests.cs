@@ -317,4 +317,29 @@ public class ResourceDerivedTypeResolverTests
         boundObject.Properties.TryGetValue("property", out var property).Should().BeTrue();
         property!.Flags.Should().NotHaveFlag(TypePropertyFlags.WriteOnly);
     }
+
+    [TestMethod]
+    public void Output_variant_strips_ReadOnly_flags()
+    {
+        var hydrated = new ObjectType(
+            "object",
+            TypeSymbolValidationFlags.Default,
+            ImmutableArray.Create(new TypeProperty(
+                "property",
+                LanguageConstants.String,
+                TypePropertyFlags.ReadOnly)),
+            null);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
+
+        UnresolvedResourceDerivedType unresolved = new(
+            unhydratedTypeRef,
+            [],
+            LanguageConstants.Any,
+            ResourceDerivedTypeVariant.Output);
+
+        var bound = sut.ResolveResourceDerivedTypes(unresolved);
+        var boundObject = bound.Should().BeAssignableTo<ObjectType>().Subject;
+        boundObject.Properties.TryGetValue("property", out var property).Should().BeTrue();
+        property!.Flags.Should().NotHaveFlag(TypePropertyFlags.ReadOnly);
+    }
 }
