@@ -7,4 +7,5 @@ public enum ResourceDerivedTypeVariant
 {
     None,
     Input,
+    Output,
 }

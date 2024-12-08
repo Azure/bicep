@@ -100,6 +100,7 @@ public class ResourceDerivedTypeResolver
             return unresolved.Variant switch
             {
                 ResourceDerivedTypeVariant.Input => TypeHelper.RemovePropertyFlagsRecursively(current, TypePropertyFlags.WriteOnly),
+                ResourceDerivedTypeVariant.Output => TypeHelper.RemovePropertyFlagsRecursively(current, TypePropertyFlags.ReadOnly),
                 _ => current,
             };
         }
