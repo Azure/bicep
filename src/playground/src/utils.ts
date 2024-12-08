@@ -19,14 +19,9 @@ export function handleShareLink(onContents: (contents : string | null) => void):
 }
 
 export function copyShareLinkToClipboard(content: string): void {
-  document.addEventListener('copy', function onCopy(e: ClipboardEvent) {
-    const contentHash = encodeHash(content);
-    e.clipboardData.setData('text/plain', `https://aka.ms/bicepdemo#${contentHash}`);
-    e.preventDefault();
-    document.removeEventListener('copy', onCopy, true);
-  });
-
-  document.execCommand('copy');
+  const contentHash = encodeHash(content);
+  const shareLink = `https://aka.ms/bicepdemo#${contentHash}`;
+  navigator.clipboard.writeText(shareLink);
 }
 
 function encodeHash(content: string): string {
