@@ -1227,7 +1227,9 @@ namespace Bicep.Core.Emit
                     }
                 }
 
-                if (metadata.IsAzResource)
+                if (metadata.IsAzResource ||
+                    this.Context.SemanticModel.Features.LocalDeployEnabled ||
+                    this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());
                     if (metadata.TypeReference.ApiVersion is not null)

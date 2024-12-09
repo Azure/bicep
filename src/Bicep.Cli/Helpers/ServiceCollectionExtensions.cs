@@ -16,9 +16,11 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Environment = Bicep.Core.Utils.Environment;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Cli.Helpers;
 
@@ -67,7 +69,8 @@ public static class ServiceCollectionExtensions
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
         .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IEnvironment, Environment>()
-        .AddSingleton<IFileSystem, IOFileSystem>()
+        .AddSingleton<IFileSystem, LocalFileSystem>()
+        .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
         .AddSingleton<IConfigurationManager, ConfigurationManager>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()

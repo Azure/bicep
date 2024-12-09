@@ -75,7 +75,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
 
         var workspace = new Workspace();
         workspace.UpsertSourceFile(paramFile);
-        compilation = await compiler.CreateCompilation(paramFile.FileUri, workspace);
+        compilation = await compiler.CreateCompilation(paramFile.Uri, workspace);
         var paramsResult = compilation.Emitter.Parameters();
 
         return new(
@@ -96,11 +96,18 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         var fileUris = new HashSet<Uri>();
         foreach (var otherModel in compilation.GetAllBicepModels())
         {
-            fileUris.Add(otherModel.SourceFile.FileUri);
+            fileUris.Add(otherModel.SourceFile.Uri);
             fileUris.UnionWith(otherModel.GetAuxiliaryFileReferences());
-            if (otherModel.Configuration.ConfigFileUri is { } configFileUri)
+            if (otherModel.Configuration.ConfigFileUri is { } configFileIdentifier)
             {
-                fileUris.Add(configFileUri);
+                var uri = new UriBuilder
+                {
+                    Scheme = configFileIdentifier.Scheme,
+                    Host = configFileIdentifier.Authority,
+                    Path = configFileIdentifier.Path,
+                }.Uri;
+
+                fileUris.Add(uri);
             }
         }
 
@@ -168,7 +175,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
     {
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
-        var dependenciesBySymbol = ResourceDependencyVisitor.GetResourceDependencies(model, new() { IncludeExisting = true })
+        var dependenciesBySymbol = ResourceDependencyVisitor.GetResourceDependencies(model)
             .Where(x => !x.Key.Type.IsError())
             .ToImmutableDictionary(x => x.Key, x => x.Value);
 
@@ -193,7 +200,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         foreach (var (symbol, dependencies) in dependenciesBySymbol)
         {
             var source = nodesBySymbol.TryGetValue(symbol);
-            foreach (var dependency in dependencies.Where(d => d.Kind == ResourceDependencyKind.Primary))
+            foreach (var dependency in dependencies)
             {
                 var target = nodesBySymbol.TryGetValue(dependency.Resource);
                 if (source is { } && target is { })
@@ -228,7 +235,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         {
             foreach (var diagnostic in diagnostics)
             {
-                yield return new(bicepFile.FileUri.LocalPath, GetRange(bicepFile, diagnostic), diagnostic.Level.ToString(), diagnostic.Code, diagnostic.Message);
+                yield return new(bicepFile.Uri.LocalPath, GetRange(bicepFile, diagnostic), diagnostic.Level.ToString(), diagnostic.Code, diagnostic.Message);
             }
         }
     }

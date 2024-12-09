@@ -6,6 +6,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -25,11 +26,13 @@ public class FeatureProviderTests
             [CreatePath("repo")] = new MockDirectoryData(),
             [CreatePath("repo/bicepconfig.json")] = @"{""experimentalFeaturesEnabled"": {}}",
         });
-        var configManager = new ConfigurationManager(fileSystem);
+
+        var fileExplorer = new FileSystemFileExplorer(fileSystem);
+        var configManager = new ConfigurationManager(fileExplorer);
         var configuration = configManager.GetConfiguration(new Uri(this.CreatePath("repo/main.bicep")));
         var fpm = new FeatureProviderFactory(configManager);
 
-        var control = fpm.GetFeatureProvider(new Uri("inmemory:///main.bicp"));
+        var control = fpm.GetFeatureProvider(new Uri("file:///main.bicep"));
         var sut = fpm.GetFeatureProvider(new Uri(this.CreatePath("repo/main.bicep")));
         sut.ExtensibilityEnabled.Should().Be(control.ExtensibilityEnabled);
     }
@@ -44,11 +47,12 @@ public class FeatureProviderTests
             [CreatePath("repo/subdir")] = new MockDirectoryData(),
             [CreatePath("repo/subdir/bicepconfig.json")] = @"{""experimentalFeaturesEnabled"": {""extensibility"": true}}",
         });
-        var configManager = new ConfigurationManager(fileSystem);
+        var fileExplorer = new FileSystemFileExplorer(fileSystem);
+        var configManager = new ConfigurationManager(fileExplorer);
         var configuration = configManager.GetConfiguration(new Uri(this.CreatePath("repo/main.bicep")));
         var fpm = new FeatureProviderFactory(configManager);
 
-        var control = fpm.GetFeatureProvider(new Uri("inmemory:///main.bicp"));
+        var control = fpm.GetFeatureProvider(new Uri("file:///main.bicep"));
         control.ExtensibilityEnabled.Should().BeFalse();
         var mainDirFeatures = fpm.GetFeatureProvider(new Uri(this.CreatePath("repo/main.bicep")));
         mainDirFeatures.ExtensibilityEnabled.Should().BeFalse();

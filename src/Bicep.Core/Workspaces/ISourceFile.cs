@@ -5,7 +5,8 @@ namespace Bicep.Core.Workspaces
 {
     public interface ISourceFile
     {
-        Uri FileUri { get; }
-        string GetOriginalSource();
+        Uri Uri { get; }
+
+        string Text { get; }
     }
 }

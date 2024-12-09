@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12953345672979673276"
+      "templateHash": "5924434758202725836"
     }
   },
   "parameters": {
@@ -407,7 +407,7 @@
       "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
       "name": "existing2",
       "dependsOn": [
-        "existing1"
+        "extension1"
       ]
     },
     "extension3": {
@@ -416,7 +416,7 @@
       "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
       "name": "extension3",
       "dependsOn": [
-        "existing1"
+        "extension1"
       ]
     },
     "storageResources": {
@@ -665,10 +665,7 @@
     "p3_child1": {
       "type": "Microsoft.Rp1/resource1/child1",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}', 'res1', 'child1')]",
-      "dependsOn": [
-        "p3_res1"
-      ]
+      "name": "[format('{0}/{1}', 'res1', 'child1')]"
     },
     "p4_res1": {
       "existing": true,
@@ -682,10 +679,7 @@
       "type": "Microsoft.Rp1/resource1/child1",
       "apiVersion": "2020-06-01",
       "scope": "/",
-      "name": "[format('{0}/{1}', 'res1', 'child1')]",
-      "dependsOn": [
-        "p4_res1"
-      ]
+      "name": "[format('{0}/{1}', 'res1', 'child1')]"
     },
     "sqlServer": {
       "type": "Microsoft.Sql/servers",

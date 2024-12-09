@@ -131,15 +131,16 @@ namespace Bicep.Core.Analyzers.Linter
             level,
             DiagnosticSource.CoreLinter,
             Code,
-            GetMessage(values)) {
-                Uri = Uri,
-                Styling = DiagnosticStyling
-            };
+            GetMessage(values))
+        {
+            Uri = Uri,
+            Styling = DiagnosticStyling
+        };
 
         protected virtual Diagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix fix, params object[] values) =>
             CreateFixableDiagnosticForSpan(level, span, [fix], values);
 
-        protected virtual Diagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix[] fixes, params object[] values) => 
+        protected virtual Diagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix[] fixes, params object[] values) =>
             CreateDiagnosticForSpan(level, span, values) with { Fixes = [.. fixes] };
 
         public static DiagnosticLevel GetDefaultDiagosticLevelForCategory(LinterRuleCategory category) =>

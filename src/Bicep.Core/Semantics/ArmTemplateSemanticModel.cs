@@ -33,7 +33,7 @@ namespace Bicep.Core.Semantics
 
         public ArmTemplateSemanticModel(ArmTemplateFile sourceFile)
         {
-            Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
+            Trace.WriteLine($"Building semantic model for {sourceFile.Uri}");
 
             this.SourceFile = sourceFile;
 
@@ -191,6 +191,11 @@ namespace Bicep.Core.Semantics
         {
             try
             {
+                if (SourceFile.Template is null)
+                {
+                    return null;
+                }
+
                 return TemplateEngine.ResolveSchemaReferences(SourceFile.Template, schemaNode).Metadata?.Value;
             }
             catch (TemplateValidationException)

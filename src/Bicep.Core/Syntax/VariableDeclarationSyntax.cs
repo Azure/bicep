@@ -29,6 +29,19 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Value { get; }
 
+        public SyntaxBase? TryGetBody() => UnwrapBody(Value);
+
+        private static SyntaxBase? UnwrapBody(SyntaxBase body) => body switch
+        {
+            SkippedTriviaSyntax => null,
+            ForSyntax @for => @for.Body,
+            ParenthesizedExpressionSyntax parenthesized => UnwrapBody(parenthesized.Expression),
+            var otherwise => otherwise,
+        };
+
+        public SyntaxBase GetBody() => TryGetBody() ??
+            throw new InvalidOperationException($"A valid body is not available on this variable due to errors. Use {nameof(TryGetBody)}() instead.");
+
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitVariableDeclarationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? Keyword, Value);

@@ -203,10 +203,10 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataTestMethod]
         [DataRow("myRegistry", "path/to/module:v1", null, "BCP213", "The OCI artifact module alias name \"myRegistry\" does not exist in the built-in Bicep configuration.")]
-        [DataRow("myModulePath", "myModule:v2", "bicepconfig.json", "BCP213", "The OCI artifact module alias name \"myModulePath\" does not exist in the Bicep configuration \"/bicepconfig.json\".")]
+        [DataRow("myModulePath", "myModule:v2", "/bicepconfig.json", "BCP213", "The OCI artifact module alias name \"myModulePath\" does not exist in the Bicep configuration \"/bicepconfig.json\".")]
         public void TryParse_AliasNotInConfiguration_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
         {
-            var configuration = BicepTestConstants.CreateMockConfiguration(configFileUri: configurationPath is { } ? new Uri($"file:///{configurationPath}") : null);
+            var configuration = BicepTestConstants.CreateMockConfiguration(configFilePath: configurationPath);
 
             OciArtifactReference.TryParse(ArtifactType.Module, aliasName, referenceValue, configuration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
@@ -283,7 +283,7 @@ namespace Bicep.Core.UnitTests.Modules
                     {
                         ["moduleAliases.br.myModulePath2.modulePath"] = "path2",
                     },
-                    new Uri("file:///bicepconfig.json")),
+                    "/bicepconfig.json"),
                 "BCP216",
                 "The OCI artifact module alias \"myModulePath2\" in the Bicep configuration \"/bicepconfig.json\" is invalid. The \"registry\" property cannot be null or undefined.",
             };
@@ -314,7 +314,7 @@ namespace Bicep.Core.UnitTests.Modules
                         ["moduleAliases.br.myModulePath2.registry"] = "localhost:8000",
                         ["moduleAliases.br.myModulePath2.modulePath"] = "root/parent",
                     },
-                    new Uri("file:///bicepconfig.json")),
+                    "/bicepconfig.json"),
             };
         }
 

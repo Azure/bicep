@@ -107,7 +107,7 @@ var reduceStringConcatEven = reduce(['abc', 'def', 'ghi'], '', (cur, next, i) =>
 //@[064:067) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 64, length: 3
 //@[069:073) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 69, length: 4
 //@[075:076) Local i. Type: int. Declaration start char: 75, length: 1
-//@[004:026) Variable reduceStringConcatEven. Type: 'abc' | 'def' | 'ghi' | string. Declaration start char: 0, length: 117
+//@[004:026) Variable reduceStringConcatEven. Type: string. Declaration start char: 0, length: 117
 var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
 //@[046:049) Local cur. Type: int. Declaration start char: 46, length: 3
 //@[051:055) Local next. Type: int. Declaration start char: 51, length: 4

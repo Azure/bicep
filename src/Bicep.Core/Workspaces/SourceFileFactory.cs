@@ -100,7 +100,7 @@ namespace Bicep.Core.Workspaces
 
         public static TemplateSpecFile CreateTemplateSpecFile(Uri fileUri, string fileContents)
         {
-            TemplateSpecFile CreateErrorFile() => new(fileUri, null, new ArmTemplateFile(InMemoryMainTemplateUri, fileContents, null, null));
+            TemplateSpecFile CreateErrorFile() => new(fileUri, fileContents, null, new ArmTemplateFile(InMemoryMainTemplateUri, fileContents, null, null));
 
             try
             {
@@ -114,7 +114,7 @@ namespace Bicep.Core.Workspaces
 
                 var mainTemplateFile = CreateArmTemplateFile(new Uri("inmemory:///main.json"), mainTemplateObject.ToString());
 
-                return new(fileUri, templateSpecId, mainTemplateFile);
+                return new(fileUri, fileContents, templateSpecId, mainTemplateFile);
             }
             catch (Exception)
             {

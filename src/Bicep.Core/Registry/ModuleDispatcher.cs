@@ -96,7 +96,9 @@ namespace Bicep.Core.Registry
                     return new(pathFailureBuilder);
                 }
 
-                var sourceUri = result.ConfigSource?.ConfigFileUri ?? parentModuleUri;
+                var sourceUri = result.ConfigSource?.ConfigFileUri is { } configFileIdentifier
+                    ? new UriBuilder { Scheme = configFileIdentifier.Scheme, Host = configFileIdentifier.Authority ?? "", Path = configFileIdentifier.Path }.Uri
+                    : parentModuleUri;
                 return this.TryGetArtifactReference(artifactReferenceSyntax.GetArtifactType(), result.PathValue, sourceUri);
             }
 

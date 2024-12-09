@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16972434704035043060"
+      "templateHash": "15846782372928243436"
     }
   },
   "parameters": {
@@ -36,7 +36,8 @@
         "style": "[reference('basicParent::basicChild').style]"
       },
       "dependsOn": [
-        "basicParent::basicChild"
+        "basicParent::basicChild",
+        "basicParent"
       ]
     },
     "basicParent::basicChild": {
@@ -73,17 +74,15 @@
         "style": "[reference('existingParent::existingChild').style]"
       },
       "dependsOn": [
-        "existingParent::existingChild"
+        "existingParent::existingChild",
+        "existingParent"
       ]
     },
     "existingParent::existingChild": {
       "existing": true,
       "type": "My.Rp/parentType/childType",
       "apiVersion": "2020-12-01",
-      "name": "[format('{0}/{1}', 'existingParent', 'existingChild')]",
-      "dependsOn": [
-        "existingParent"
-      ]
+      "name": "[format('{0}/{1}', 'existingParent', 'existingChild')]"
     },
     "conditionParent::conditionChild::conditionGrandchild": {
       "condition": "[and(and(parameters('createParent'), parameters('createChild')), parameters('createGrandchild'))]",
@@ -95,7 +94,8 @@
         "style": "[reference('conditionParent::conditionChild').style]"
       },
       "dependsOn": [
-        "conditionParent::conditionChild"
+        "conditionParent::conditionChild",
+        "conditionParent"
       ]
     },
     "conditionParent::conditionChild": {

@@ -21,6 +21,7 @@ using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Extension;
 using FluentAssertions;
+using Json.Pointer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
@@ -110,6 +111,8 @@ param coords = {
         extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
+                req.Type.Should().Be("request");
+                req.ApiVersion.Should().Be("v1");
                 req.Properties["body"] = """
 {
   "properties": {
@@ -125,6 +128,8 @@ param coords = {
         extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
+                req.Type.Should().Be("request");
+                req.ApiVersion.Should().Be("v1");
                 req.Properties["body"] = """
 {
   "properties": {
@@ -439,18 +444,9 @@ param coords = {
 
         var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
         extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
-            .Returns<ResourceSpecification, CancellationToken>((req, _) =>
+            .Returns<ResourceSpecification, CancellationToken>((_, _) =>
             {
-                req.Properties["body"] = """
-{
-  "properties": {
-    "gridId": "SEW",
-    "gridX": "131",
-    "gridY": "68"
-  }
-}
-""";
-                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
+                return Task.FromResult(new LocalExtensibilityOperationResponse(null, new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
             });
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
@@ -464,7 +460,7 @@ param coords = {
 
         localDeployResult.Deployment.Properties.Error.Code.Should().Be("DeploymentFailed");
         localDeployResult.Deployment.Properties.Error.Details.Should().NotBeNullOrEmpty();
-        localDeployResult.Deployment.Properties.Error.Details[0].Code.Should().Be("ResourceDeploymentFailure");
-        localDeployResult.Deployment.Properties.Error.Details[0].Target.Should().Be("/resources/gridpointsReq", because: $"Expect a failure when mocking a response for \"/resources/gridpointsReq\" because extension returned '{nameof(ErrorData)}' to indicate a failure.");
+        localDeployResult.Deployment.Properties.Error.Details[0].Code.Should().Be("Code");
+        localDeployResult.Deployment.Properties.Error.Details[0].Message.Should().Be("Error message");
     }
 }

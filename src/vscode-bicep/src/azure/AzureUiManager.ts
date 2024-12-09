@@ -1,89 +1,105 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { AccessToken } from "@azure/identity";
-import { IActionContext } from "@microsoft/vscode-azext-utils";
-import { TreeManager } from "../tree/TreeManager";
+import { AzureSubscription } from "@microsoft/vscode-azext-azureauth";
+import { createSubscriptionContext, IActionContext, nonNullProp } from "@microsoft/vscode-azext-utils";
+import { AzurePickers } from "../utils/AzurePickers";
 import { DeploymentScope, DeploymentScopeType, IAzureUiManager } from "./types";
-
-function getSubscriptionId(scope: DeploymentScope) {
-  switch (scope.scopeType) {
-    case "resourceGroup":
-      return scope.subscriptionId;
-    case "subscription":
-      return scope.subscriptionId;
-    case "managementGroup":
-      return scope.associatedSubscriptionId;
-    case "tenant":
-      return scope.associatedSubscriptionId;
-  }
-}
 
 export class AzureUiManager implements IAzureUiManager {
   public constructor(
     private readonly context: IActionContext,
-    private readonly treeManager: TreeManager,
+    private readonly azurePickers: AzurePickers,
   ) {}
 
   public async getAccessToken(scope: DeploymentScope): Promise<AccessToken> {
-    const subscriptionId = getSubscriptionId(scope);
-
-    const scopeId = `/subscriptions/${subscriptionId}`;
-    const treeItem = await this.treeManager.azLocationTree.findTreeItem(scopeId, this.context);
-
-    if (!treeItem) {
-      throw `Failed to authenticate with Azure for subscription ${subscriptionId}. Are you signed in to the Azure VSCode extension under the correct account?`;
-    }
-
-    return treeItem.subscription.credentials.getToken();
+    const subscription = await this.getSubscription(scope);
+    return createSubscriptionContext(subscription).credentials.getToken();
   }
 
   public async pickScope(scopeType: DeploymentScopeType): Promise<DeploymentScope> {
     switch (scopeType) {
       case "resourceGroup": {
-        const treeItem = await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker("", this.context);
+        const subscription = await this.azurePickers.pickSubscription(this.context);
+        const resourceGroup = await this.azurePickers.pickResourceGroup(this.context, subscription);
 
         return {
           scopeType,
-          portalUrl: treeItem.subscription.environment.portalUrl,
-          tenantId: treeItem.subscription.tenantId,
-          subscriptionId: treeItem.subscription.subscriptionId,
-          resourceGroup: treeItem.label,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
+          portalUrl: subscription.environment.portalUrl,
+          tenantId: subscription.tenantId,
+          subscriptionId: subscription.subscriptionId,
+          resourceGroup: nonNullProp(resourceGroup, "name"),
         };
       }
       case "subscription": {
-        const treeItem = await this.treeManager.azLocationTree.showTreeItemPicker("", this.context);
+        const subscription = await this.azurePickers.pickSubscription(this.context);
+        const location = await this.azurePickers.pickLocation(this.context, subscription);
         return {
           scopeType,
-          portalUrl: treeItem.subscription.environment.portalUrl,
-          tenantId: treeItem.subscription.tenantId,
-          subscriptionId: treeItem.subscription.subscriptionId,
-          location: treeItem.label,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
+          portalUrl: subscription.environment.portalUrl,
+          tenantId: subscription.tenantId,
+          subscriptionId: subscription.subscriptionId,
+          location: location,
         };
       }
+
       case "managementGroup": {
-        const locationItem = await this.treeManager.azLocationTree.showTreeItemPicker("", this.context);
-        const treeItem = await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker("", this.context);
+        const subscription = await this.azurePickers.pickSubscription(this.context);
+        const managementGroup = await this.azurePickers.pickManagementGroup(this.context);
+        const location = await this.azurePickers.pickLocation(this.context, subscription);
 
         return {
           scopeType,
-          portalUrl: locationItem.subscription.environment.portalUrl,
-          tenantId: treeItem.subscription.tenantId,
-          managementGroup: treeItem.label,
-          associatedSubscriptionId: locationItem.subscription.subscriptionId,
-          location: locationItem.label,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
+          portalUrl: subscription.environment.portalUrl,
+          tenantId: subscription.tenantId,
+          managementGroup: nonNullProp(managementGroup, "name"),
+          associatedSubscriptionId: subscription.subscriptionId,
+          location,
         };
       }
+
       case "tenant": {
-        const locationItem = await this.treeManager.azLocationTree.showTreeItemPicker("", this.context);
+        const subscription = await this.azurePickers.pickSubscription(this.context);
+        const location = await this.azurePickers.pickLocation(this.context, subscription);
 
         return {
           scopeType,
-          portalUrl: locationItem.subscription.environment.portalUrl,
-          tenantId: locationItem.subscription.tenantId,
-          associatedSubscriptionId: locationItem.subscription.subscriptionId,
-          location: locationItem.label,
+          armUrl: subscription.environment.resourceManagerEndpointUrl,
+          portalUrl: subscription.environment.portalUrl,
+          tenantId: subscription.tenantId,
+          associatedSubscriptionId: subscription.subscriptionId,
+          location,
         };
       }
     }
+  }
+
+  private getSubscriptionId(scope: DeploymentScope): string {
+    switch (scope.scopeType) {
+      case "resourceGroup":
+        return scope.subscriptionId;
+      case "subscription":
+        return scope.subscriptionId;
+      case "managementGroup":
+        return scope.associatedSubscriptionId;
+      case "tenant":
+        return scope.associatedSubscriptionId;
+    }
+  }
+
+  private async getSubscription(scope: DeploymentScope): Promise<AzureSubscription> {
+    await this.azurePickers.EnsureSignedIn();
+
+    const subscriptionId = this.getSubscriptionId(scope);
+    const subscriptions = await this.azurePickers.getAllSubscriptions();
+    const subscription = subscriptions.find((s) => s.subscriptionId === subscriptionId);
+    if (!subscription) {
+      throw new Error(`Subscription with ID "${subscriptionId}" not found.`);
+    }
+
+    return subscription;
   }
 }

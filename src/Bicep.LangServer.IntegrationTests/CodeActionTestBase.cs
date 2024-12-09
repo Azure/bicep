@@ -8,12 +8,14 @@ using System.Threading;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.PrettyPrintV2;
 using Bicep.Core.UnitTests.Serialization;
 using Bicep.Core.UnitTests.Utils;
@@ -39,7 +41,9 @@ namespace Bicep.LangServer.IntegrationTests
         private static SemaphoreSlim initialize = new(1);
         private static bool isInitialized = false;
 
-        protected static ServiceBuilder Services => new();
+        private static FeatureProviderOverrides FeatureProviderOverrides => new() { ResourceDerivedTypesEnabled = true, ResourceTypedParamsAndOutputsEnabled = true };
+
+        protected static ServiceBuilder Services => new ServiceBuilder().WithFeatureOverrides(FeatureProviderOverrides);
 
         protected static readonly SharedLanguageHelperManager DefaultServer = new();
 
@@ -61,10 +65,10 @@ namespace Bicep.LangServer.IntegrationTests
                 if (!isInitialized)
                 {
                     isInitialized = true;
-                    DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
-                    ServerWithFileResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
-                    ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BuiltInTestTypes.Create())));
-                    ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BicepTestConstants.NamespaceProvider)));
+                    DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithFeatureOverrides(FeatureProviderOverrides)));
+                    ServerWithFileResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithFeatureOverrides(FeatureProviderOverrides)));
+                    ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFeatureOverrides(FeatureProviderOverrides)));
+                    ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BicepTestConstants.NamespaceProvider).WithFeatureOverrides(FeatureProviderOverrides)));
                 }
             }
             finally
@@ -87,10 +91,10 @@ namespace Bicep.LangServer.IntegrationTests
             Trace.WriteLine("Input bicep:\n" + fileWithCursors + "\n");
 
             var (file, selection) = ParserHelper.GetFileWithSingleSelection(fileWithCursors, emptyCursor.ToString(), escapedCursor);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
 
             server ??= await DefaultServer.GetAsync();
-            await server.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+            await server.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
 
             var codeActions = await RequestCodeActions(server.Client, bicepFile, selection);
             return (codeActions.ToArray(), bicepFile);
@@ -126,7 +130,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var result = await client.RequestCodeAction(new CodeActionParams
             {
-                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
                 Range = new Range(startPosition, endPosition),
             });
 
@@ -138,10 +142,10 @@ namespace Bicep.LangServer.IntegrationTests
             // only support a small subset of possible edits for now - can always expand this later on
             codeAction.Edit!.Changes.Should().NotBeNull();
             codeAction.Edit.Changes.Should().HaveCount(1);
-            codeAction.Edit.Changes.Should().ContainKey(bicepFile.FileUri);
+            codeAction.Edit.Changes.Should().ContainKey(bicepFile.Uri);
 
             var bicepText = bicepFile.ProgramSyntax.ToString();
-            var changes = codeAction.Edit.Changes![bicepFile.FileUri].ToArray();
+            var changes = codeAction.Edit.Changes![bicepFile.Uri].ToArray();
 
             for (int i = 0; i < changes.Length; ++i)
             {
@@ -200,7 +204,7 @@ namespace Bicep.LangServer.IntegrationTests
                     "Rename should be positioned on the new identifier right after 'var ' or 'param ' or 'type '");
             }
 
-            return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, bicepText);
+            return SourceFileFactory.CreateBicepFile(bicepFile.Uri, bicepText);
         }
     }
 }

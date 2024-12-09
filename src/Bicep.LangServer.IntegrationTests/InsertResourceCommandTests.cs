@@ -93,12 +93,12 @@ namespace Bicep.LangServer.IntegrationTests
             var (fileContents, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursor, '|');
             var file = SourceFileFactory.CreateBicepFile(fileUri, fileContents);
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(file.FileUri, fileContents, 0));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(file.Uri, fileContents, 0));
             await listeners.Diagnostics.WaitNext();
 
             var result = await client.SendRequest(new InsertResourceParams
             {
-                TextDocument = DocumentUri.From(file.FileUri),
+                TextDocument = DocumentUri.From(file.Uri),
                 Position = PositionHelper.GetPosition(file.LineStarts, cursor),
                 ResourceId = resourceId,
             }, default);
@@ -166,7 +166,6 @@ namespace Bicep.LangServer.IntegrationTests
                 resource myName 'My.Rp/myTypes@2020-01-01' = {
                   name: 'myName'
                   properties: {
-                    readOnlyProp: 'abc'
                     readWriteProp: 'def'
                     writeOnlyProp: 'ghi'
                     int64Prop: 9223372036854775807
@@ -286,7 +285,6 @@ namespace Bicep.LangServer.IntegrationTests
                 resource myRg 'Microsoft.Resources/resourceGroups@2020-01-01' = {
                   name: 'myRg'
                   properties: {
-                    readOnlyProp: 'abc'
                     readWriteProp: 'def'
                     writeOnlyProp: 'ghi'
                   }
@@ -359,7 +357,6 @@ namespace Bicep.LangServer.IntegrationTests
                 resource childName 'My.Rp/myTypes/childType@2020-01-01' = {
                   name: 'myName/childName'
                   properties: {
-                    readOnlyProp: 'abc'
                     readWriteProp: 'def'
                     writeOnlyProp: 'ghi'
                   }
@@ -512,7 +509,6 @@ output myOutput string = 'myOutput'
                 resource myName 'My.Rp/myTypes@2020-01-01' = {
                   name: 'myName'
                   properties: {
-                    readOnlyProp: 'abc'
                     readWriteProp: 'def'
                     writeOnlyProp: 'ghi'
                   }

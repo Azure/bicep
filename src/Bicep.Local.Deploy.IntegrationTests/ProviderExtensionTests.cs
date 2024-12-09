@@ -65,6 +65,18 @@ public class ProviderExtensionTests : TestBase
             }, cts.Token));
     }
 
+    private async Task RunExtensionTest(Func<Mock<IGenericResourceHandler>, BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
+    {
+        var socketPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.tmp");
+        var mockHandler = StrictMock.Of<IGenericResourceHandler>();
+
+        await RunExtensionTest(
+            ["--socket", socketPath],
+            () => GrpcChannelHelper.CreateDomainSocketChannel(socketPath),
+            builder => builder.AddGenericHandler(mockHandler.Object),
+            (client, token) => testFunc(mockHandler, client, token));
+    }
+
     private static IEnumerable<object[]> GetDataSets()
     {
         yield return new object[] { ChannelMode.UnixDomainSocket };
@@ -105,12 +117,9 @@ public class ProviderExtensionTests : TestBase
 
         var handlerMock = StrictMock.Of<IResourceHandler>();
         handlerMock.SetupGet(x => x.ResourceType).Returns("apps/Deployment");
-
-        handlerMock.Setup(x => x.CreateOrUpdate(It.IsAny<Protocol.ResourceSpecification>(), It.IsAny<CancellationToken>()))
-            .Returns<Protocol.ResourceSpecification, CancellationToken>((req, _) =>
-                Task.FromResult(new Protocol.LocalExtensibilityOperationResponse(
-                    new Protocol.Resource(req.Type, req.ApiVersion, "Succeeded", identifiers, req.Config, req.Properties),
-                    null)));
+        handlerMock.SetupCreateOrUpdate(req => new(
+                new(req.Type, req.ApiVersion, "Succeeded", identifiers, req.Config, req.Properties),
+                null));
 
         await RunExtensionTest(
             processArgs,
@@ -185,4 +194,27 @@ public class ProviderExtensionTests : TestBase
                 responseIdentifiers["namespace"]!.GetValue<string>().Should().Be(identifiers["namespace"]!.GetValue<string>());
             });
     }
+
+    [TestMethod]
+    public Task Error_details_and_inner_error_can_be_null() => RunExtensionTest(async (handlerMock, client, token) =>
+    {
+        Protocol.Error error = new("SomeErrorCode", "SomeTarget", "SomeMessage", null, null);
+        handlerMock.SetupCreateOrUpdate(req => new(null, new(error)));
+
+        var response = await client.CreateOrUpdateAsync(new()
+        {
+            Type = "mockResource",
+            Properties = """
+{}
+""",
+        }, cancellationToken: token);
+
+        response.Should().NotBeNull();
+        response.ErrorData.Should().NotBeNull();
+        response.ErrorData.Error.Code.Should().Be(error.Code);
+        response.ErrorData.Error.Target.Should().Be(error.Target);
+        response.ErrorData.Error.Message.Should().Be(error.Message);
+        response.ErrorData.Error.Details.Should().BeNullOrEmpty();
+        response.ErrorData.Error.InnerError.Should().BeNullOrEmpty();
+    });
 }

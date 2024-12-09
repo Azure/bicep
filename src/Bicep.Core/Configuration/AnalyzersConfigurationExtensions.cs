@@ -47,7 +47,7 @@ namespace Bicep.Core.Configuration
                 current.ExperimentalFeaturesEnabled,
                 current.Formatting,
                 current.ConfigFileUri,
-                current.DiagnosticBuilders);
+                current.Diagnostics);
 
         public static RootConfiguration WithAllAnalyzersDisabled(this RootConfiguration current) =>
             current.WithAnalyzersConfiguration(current.Analyzers.WithAllAnalyzersDisabled());

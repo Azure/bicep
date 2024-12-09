@@ -16,7 +16,7 @@ namespace Bicep.Core.Configuration
                 featuresEnabled,
                 current.Formatting,
                 current.ConfigFileUri,
-                current.DiagnosticBuilders);
+                current.Diagnostics);
 
         public static RootConfiguration WithExperimentalFeaturesEnabled(this RootConfiguration current, ExperimentalFeaturesEnabled configuration) =>
             current.WithExperimentalFeaturesConfiguration(configuration);

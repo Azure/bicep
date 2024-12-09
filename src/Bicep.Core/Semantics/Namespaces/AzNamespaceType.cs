@@ -155,7 +155,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 new TypeProperty("namespace", LanguageConstants.String),
                 new TypeProperty("resourceTypes", new TypedArrayType(GetProvidersSingleResourceReturnType(), TypeSymbolValidationFlags.Default)),
-                }, null);
+            }, null);
         }
 
         private static ObjectType GetEnvironmentReturnType()
@@ -224,6 +224,17 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             return new ObjectType("deployment", TypeSymbolValidationFlags.Default, properties, null);
+        }
+
+        private static ObjectType GetDeployerReturnType()
+        {
+            IEnumerable<TypeProperty> properties = new[]
+            {
+                new TypeProperty("objectId", LanguageConstants.String),
+                new TypeProperty("tenantId", LanguageConstants.String),
+            };
+
+            return new ObjectType("deployer", TypeSymbolValidationFlags.Default, properties, null);
         }
 
         private static IEnumerable<(FunctionOverload functionOverload, ResourceScope allowedScopes)> GetScopeFunctions()
@@ -314,6 +325,13 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Returns information about the current deployment operation.")
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription);
+
+            yield return (
+                new FunctionOverloadBuilder("deployer")
+                    .WithReturnType(GetDeployerReturnType())
+                    .WithGenericDescription("Returns information about the current deployment principal.")
+                    .Build(),
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
         }
 
         private static IEnumerable<NamespaceValue<FunctionOverload>> GetAzOverloads()

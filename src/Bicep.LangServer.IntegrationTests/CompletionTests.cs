@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
 using System.Text;
 using Bicep.Core;
@@ -37,7 +38,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
@@ -366,7 +367,7 @@ resource service 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri
+                bicepFile.Uri
             );
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
@@ -658,7 +659,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -690,7 +691,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -925,7 +926,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -975,7 +976,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -1027,7 +1028,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -1663,7 +1664,7 @@ module bar2 'test.bicep' = [for item in list: |  ]
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -2146,7 +2147,7 @@ module a '|' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletion(cursor);
@@ -2198,7 +2199,7 @@ var modOut = m.outputs.inputTi|
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
+                bicepFile.Uri,
                 services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
@@ -3306,7 +3307,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
+                bicepFile.Uri,
                 services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
             );
 
@@ -3516,7 +3517,7 @@ module aModule 'mod.bicep' = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
+                bicepFile.Uri,
                 services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
             );
 
@@ -3575,7 +3576,7 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
+                bicepFile.Uri,
                 services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
             );
             var file = new FileRequestHelper(helper.Client, bicepFile);
@@ -4077,7 +4078,7 @@ var file = " + functionName + @"(templ|)
                 TestContext,
                 services => services
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new IOFileSystem())));
+                .WithFileResolver(new FileResolver(new LocalFileSystem())));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
@@ -4106,7 +4107,7 @@ var file = " + functionName + @"(templ|)
                 TestContext,
                 services => services
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new IOFileSystem())));
+                .WithFileResolver(new FileResolver(new LocalFileSystem())));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
@@ -4127,34 +4128,23 @@ var file = " + functionName + @"(templ|)
         [DataRow("using 'br/public:|", BicepSourceFileKind.ParamsFile)]
         public async Task ModuleRegistryReferenceCompletions_GetPathCompletions(string inputWithCursors, BicepSourceFileKind kind)
         {
-            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
-
-            var fileName = kind switch
-            {
-                BicepSourceFileKind.BicepFile => "main.bicep",
-                BicepSourceFileKind.ParamsFile => "main.bicepparam",
-                _ => throw new InvalidOperationException(),
-            };
-            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, fileName, text, testOutputPath);
-            var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
-
-            FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
+            var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
+            var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
+            var fileUri = new Uri($"file:///{Guid.NewGuid():D}/{TestContext.TestName}/main.{extension}");
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()).Returns([new("app/dapr-containerapp", "d1", "contoso.com/help1"), new("app/dapr-containerapp-env", "d2", "contoso.com/help2")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-containerapp", "d1", "contoso.com/help1"), new("app/dapr-containerapp-env", "d2", "contoso.com/help2")]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                .AddSingleton<IPublicRegistryModuleMetadataProvider>(publicRegistryModuleMetadataProvider.Object)
-                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new IOFileSystem())));
+                .AddSingleton(publicRegistryModuleMetadataProvider.Object)
+                .AddSingleton(settingsProvider.Object));
 
-            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
@@ -4173,37 +4163,65 @@ var file = " + functionName + @"(templ|)
         [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
         public async Task ModuleRegistryReferenceCompletions_GetVersionCompletions(string inputWithCursors, BicepSourceFileKind kind)
         {
-            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
-
-            var fileName = kind switch
-            {
-                BicepSourceFileKind.BicepFile => "main.bicep",
-                BicepSourceFileKind.ParamsFile => "main.bicepparam",
-                _ => throw new InvalidOperationException(),
-            };
-            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, fileName, text, testOutputPath);
-            var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
+            var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
+            var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
+            var fileUri = new Uri($"file:///{Guid.NewGuid():D}/{TestContext.TestName}/main.{extension}");
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-containerapp", "d1", "contoso.com/help1")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                .AddSingleton<IPublicRegistryModuleMetadataProvider>(publicRegistryModuleMetadataProvider.Object)
-                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new IOFileSystem())));
+                .AddSingleton(publicRegistryModuleMetadataProvider.Object)
+                .AddSingleton(settingsProvider.Object));
 
-            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
-            completions.Should().Contain(x => x.Label == "1.0.1" && x.SortText == "1_1.0.1" && x.Kind == CompletionItemKind.Snippet && x.Detail == null && x.Documentation == null);
-            completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0_1.0.2" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d1" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help1)");
+            completions.Should().Contain(x => x.Label == "1.0.1" && x.SortText == "0001" && x.Kind == CompletionItemKind.Snippet && x.Detail == null && x.Documentation == null);
+            completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0000" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d1" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help1)");
+        }
+
+        [TestMethod]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/foo|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/foo|", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:foo|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:foo|", BicepSourceFileKind.BicepFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/foo|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/foo|", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br/public:foo|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br/public:foo|", BicepSourceFileKind.ParamsFile)]
+        public async Task Public_registry_completions_support_prefix_matching(string text, BicepSourceFileKind kind)
+        {
+            var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
+            var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
+            var fileUri = new Uri($"file:///{Guid.NewGuid():D}/{TestContext.TestName}/main.{extension}");
+
+            var settingsProvider = StrictMock.Of<ISettingsProvider>();
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("foo/bar", "d1", "contoso.com/help1"), new("food/bar", "d2", "contoso.com/help2"), new("bar/bar", "d2", "contoso.com/help2")]);
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                services => services
+                .AddSingleton(publicRegistryModuleMetadataProvider.Object)
+                .AddSingleton(settingsProvider.Object));
+
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
+            var completions = await file.RequestCompletion(cursor);
+
+            completions.Count().Should().Be(2);
+            completions.Should().Contain(x => x.Label == "foo/bar");
+            completions.Should().Contain(x => x.Label == "food/bar");
         }
 
         [DataTestMethod]
@@ -4390,7 +4408,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletion(cursors[0]);
@@ -4470,7 +4488,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4514,7 +4532,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4562,7 +4580,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4624,7 +4642,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4691,7 +4709,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4745,7 +4763,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4801,7 +4819,7 @@ param p validRecursiveObjectType = {
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri);
+                bicepFile.Uri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -5133,6 +5151,34 @@ var items = [
 
 output foo string[] = [for item in items: item.bar|]
 """);
+        }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/15569
+        public async Task String_literal_union_with_object_value_should_not_cause_stack_overflow()
+        {
+            var serverHelper = new ServerRequestHelper(TestContext, DefaultServer);
+
+            // single parameter of string literal union type
+            var moduleText = "param foo 'foo' | 'bar'";
+            var moduleFile = await serverHelper.OpenFile("/mod.bicep", moduleText);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+targetScope = 'resourceGroup'
+
+module mod 'mod.bicep' = {
+  name: ''
+  params: {
+    foo: {
+      |
+    } 
+  }
+}
+""");
+            var mainFile = await serverHelper.OpenFile("/main.bicep", text);
+
+            var completions = await mainFile.RequestCompletion(cursor);
+            completions.Should().BeEmpty();
         }
     }
 }

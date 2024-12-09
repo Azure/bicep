@@ -12,6 +12,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.FileSystem;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
@@ -22,7 +23,7 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -112,7 +113,7 @@ namespace Bicep.LangServer.UnitTests
 
             // The workspace should be refreshed.
             updatedFile.Should().NotBeNull();
-            updatedFile!.FileUri.Should().Be(originalFile.FileUri);
+            updatedFile!.Uri.Should().Be(originalFile.Uri);
             updatedFile.Should().NotBeSameAs(originalFile);
 
             document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
@@ -723,10 +724,8 @@ module moduleB './moduleB.bicep' = {
     }
   }
 }";
-            var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
-            var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
+            var rootConfiguration = BicepTestConstants.GetConfiguration(bicepConfigFileContents);
 
             var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
 
@@ -775,10 +774,7 @@ module moduleB './moduleB.bicep' = {
     }
   }
 }";
-            var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-
-            var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
+            var rootConfiguration = BicepTestConstants.GetConfiguration(bicepConfigFileContents);
 
             var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
 
@@ -798,10 +794,7 @@ module moduleB './moduleB.bicep' = {
             var compilationManager = CreateBicepCompilationManager();
 
             var bicepConfigFileContents = @"{}";
-            var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-
-            var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
+            var rootConfiguration = BicepTestConstants.GetConfiguration(bicepConfigFileContents);
 
             var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
 
@@ -908,14 +901,6 @@ param location string = 'testLocation'");
             telemetryEvent.Should().NotBeNull();
             telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.BicepParamFileOpen);
             telemetryEvent.Properties.Should().Contain(properties);
-        }
-
-        private RootConfiguration GetRootConfiguration(string testOutputPath, string bicepConfigContents, ConfigurationManager configurationManager)
-        {
-            var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigContents, testOutputPath);
-            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
-
-            return configurationManager.GetConfiguration(bicepConfigUri.ToUriEncoded());
         }
 
         private BicepCompilationManager CreateBicepCompilationManager()

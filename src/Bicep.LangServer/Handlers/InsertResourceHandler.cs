@@ -197,7 +197,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var workspace = new Workspace();
             workspace.UpsertSourceFile(bicepFile);
-            var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.FileUri, workspace);
+            var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.Uri, workspace);
 
             bicepFile = RewriterHelper.RewriteMultiple(
                 compiler,
@@ -208,7 +208,7 @@ namespace Bicep.LanguageServer.Handlers
                 model => new ReadOnlyPropertyRemovalRewriter(model));
 
             var printerOptions = configuration.Formatting.Data;
-            var printed = PrettyPrinterV2.PrintValid(program, printerOptions);
+            var printed = PrettyPrinterV2.PrintValid(bicepFile.ProgramSyntax, printerOptions);
 
             var newline = printerOptions.NewlineKind.ToEscapeSequence();
             var newlineCharacters = newline.ToCharArray();

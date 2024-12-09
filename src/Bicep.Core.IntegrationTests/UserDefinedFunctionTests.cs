@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.IntegrationTests;
@@ -23,7 +24,7 @@ output foo string = buildUrl(true, 'google.com', 'search')
 ");
 
         result.Should().NotHaveAnyDiagnostics();
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['foo'].value", "https://google.com/search");
     }
@@ -59,7 +60,7 @@ output outputFoo string = greet('userName')
 ")]);
 
         result.Should().NotHaveAnyDiagnostics();
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['outputFoo'].value", "Hello userName!");
     }
@@ -80,7 +81,7 @@ output outputFoo string = testFunc('def')
 ");
 
         result.Should().NotHaveAnyDiagnostics();
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['outputBool'].value", true);
         evaluated.Should().HaveValueAtPath("$.outputs['outputFoo'].value", "abc-def-baz");
@@ -118,7 +119,7 @@ output outputFoo string = returnFoo()
 ");
 
         result.Should().NotHaveAnyDiagnostics();
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['outputFoo'].value", "foo");
     }

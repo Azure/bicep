@@ -1,0 +1,93 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#webview-body {
+  max-width: 1024px;
+  min-width: 500px;
+  overflow: auto;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-section .form-title {
+  display: flex;
+  user-select: none;
+  cursor: pointer;
+}
+
+.form-title h3 {
+  margin: 0;
+  text-transform: uppercase;
+  font-size: 13px;
+  min-width: 3ch;
+}
+
+.form-section .form-content {
+  display: grid;
+  grid-auto-flow: row;
+  grid-row-gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.alert-error {
+  color: var(--vscode-statusBarItem-errorForeground);
+  background-color: var(--vscode-statusBarItem-errorBackground);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  align-self: center;
+}
+
+.input-row {
+  display: grid;
+  grid-auto-flow: row;
+}
+
+vscode-badge {
+  white-space: nowrap;
+}
+
+vscode-button {
+  width: fit-content;
+  margin-right: 0.5rem;
+}
+
+.dropdown-container {
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.dropdown-container label {
+  display: block;
+  color: var(--vscode-foreground);
+  cursor: pointer;
+  font-size: var(--vscode-font-size);
+  line-height: normal;
+  margin-bottom: 2px;
+}
+
+.code-textarea-container {
+  width: auto;
+}
+
+.code-textarea-container textarea {
+  white-space: pre;
+  font-family: monospace;
+  width: auto;
+}
+
+.code-wrapped {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto;
+}
+
+vscode-table-cell {
+  text-wrap: wrap;
+}

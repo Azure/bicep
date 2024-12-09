@@ -16,6 +16,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -42,7 +43,8 @@ namespace Bicep.Core.Diagnostics
                 level,
                 DiagnosticSource.Compiler,
                 code,
-                message) { Uri = new($"https://aka.ms/bicep/core-diagnostics#{code}") };
+                message)
+            { Uri = new($"https://aka.ms/bicep/core-diagnostics#{code}") };
 
             private Diagnostic CoreError(string code, string message) => CoreDiagnostic(
                 DiagnosticLevel.Error,
@@ -81,8 +83,8 @@ namespace Bicep.Core.Diagnostics
                 ? $"The Template Spec reference \"{referenceValue}\" after resolving alias \"{aliasName}\" is not valid."
                 : $"The specified Template Spec reference \"{referenceValue}\" is not valid.";
 
-            private static string BuildBicepConfigurationClause(Uri? configFileUri) => configFileUri is not null
-                ? $"Bicep configuration \"{configFileUri.LocalPath}\""
+            private static string BuildBicepConfigurationClause(IOUri? configFileUri) => configFileUri is not null
+                ? $"Bicep configuration \"{configFileUri}\""
                 : $"built-in Bicep configuration";
 
             public Diagnostic UnrecognizedToken(string token) => CoreError(
@@ -240,7 +242,8 @@ namespace Bicep.Core.Diagnostics
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP035",
                     $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}")
-                    with { Fixes = [codeFix] };
+                    with
+                { Fixes = [codeFix] };
             }
 
             public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol expectedType, TypeSymbol actualType, bool showTypeInaccuracy = false)
@@ -487,17 +490,23 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => CoreError(
                 "BCP082",
                 $"The name \"{name}\" does not exist in the current context. Did you mean \"{suggestedName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
-                ]};
+                ]
+            };
 
             public Diagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP083",
                 $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty))
-                ]};
+                ]
+            };
 
             public Diagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => CoreError(
                 "BCP084",
@@ -519,17 +528,23 @@ namespace Bicep.Core.Diagnostics
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP088",
                 $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualStringLiteral}\". Did you mean \"{suggestedStringLiteral}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{actualStringLiteral}\" to \"{suggestedStringLiteral}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedStringLiteral))
-                ]};
+                ]
+            };
 
             public Diagnostic DisallowedPropertyWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol type, string suggestedProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP089",
                 $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty))
-                ]};
+                ]
+            };
 
             public Diagnostic ModulePathHasNotBeenSpecified() => CoreError(
                 "BCP090",
@@ -606,9 +621,12 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceType, string name, string suggestedName) => CoreError(
                 "BCP108",
                 $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\". Did you mean \"{suggestedName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
-                ]};                
+                ]
+            };
 
             public Diagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => CoreError(
                 "BCP109",
@@ -617,9 +635,12 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FunctionDoesNotExistOnObjectWithSuggestion(TypeSymbol type, string name, string suggestedName) => CoreError(
                 "BCP110",
                 $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
-                ]};
+                ]
+            };
 
             public Diagnostic FilePathContainsControlChars() => CoreError(
                 "BCP111",
@@ -1067,23 +1088,23 @@ namespace Bicep.Core.Diagnostics
                 "BCP211",
                 $"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public Diagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP212",
                 $"The Template Spec module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
-            public Diagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP213",
                 $"The OCI artifact module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
-            public Diagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP214",
                 $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is in valid. The \"subscription\" property cannot be null or undefined.");
 
-            public Diagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP215",
                 $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is in valid. The \"resourceGroup\" property cannot be null or undefined.");
 
-            public Diagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP216",
                 $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
@@ -1183,7 +1204,8 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic DeprecatedProvidersFunction(string functionName) => CoreWarning(
                 "BCP241",
                 $"The \"{functionName}\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow.")
-                with { Styling = DiagnosticStyling.ShowCodeDeprecated };
+                with
+            { Styling = DiagnosticStyling.ShowCodeDeprecated };
 
             public Diagnostic LambdaFunctionsOnlyValidInFunctionArguments() => CoreError(
                 "BCP242",
@@ -1237,7 +1259,8 @@ namespace Bicep.Core.Diagnostics
             public IDiagnostic MissingParameterAssignment(IEnumerable<string> identifiers, CodeFix insertMissingCodefix) => CoreError(
                 "BCP258",
                 $"The following parameters are declared in the Bicep file but are missing an assignment in the params file: {ToQuotedString(identifiers)}.")
-                with { Fixes = [insertMissingCodefix] };
+                with
+            { Fixes = [insertMissingCodefix] };
 
             public Diagnostic MissingParameterDeclaration(string? identifier) => CoreError(
                 "BCP259",
@@ -1266,9 +1289,12 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SymbolicNameShadowsAKnownFunction(string name, string knownFunctionNamespace, string knownFunctionName) => CoreError(
                 "BCP265",
                 $"The name \"{name}\" is not a function. Did you mean \"{knownFunctionNamespace}.{knownFunctionName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{knownFunctionNamespace}.{knownFunctionName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, $"{knownFunctionNamespace}.{knownFunctionName}"))
-                ]};
+                ]
+            };
 
             public Diagnostic ExpectedMetadataIdentifier() => CoreError(
                 "BCP266",
@@ -1286,22 +1312,22 @@ namespace Bicep.Core.Diagnostics
                 "BCP269",
                 $"Function \"{functionName}\" cannot be used as a metadata decorator.");
 
-            public Diagnostic UnparsableBicepConfigFile(string configurationPath, string parsingErrorMessage) => CoreError(
+            public Diagnostic UnparsableBicepConfigFile(IOUri configFileUri, string parsingErrorMessage) => CoreError(
                 "BCP271",
-                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: {parsingErrorMessage.TrimEnd('.')}.");
+                $"Failed to parse the contents of the Bicep configuration file \"{configFileUri}\" as valid JSON: {parsingErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic UnloadableBicepConfigFile(string configurationPath, string loadErrorMessage) => CoreError(
+            public Diagnostic UnloadableBicepConfigFile(IOUri configFileUri, string loadErrorMessage) => CoreError(
                 "BCP272",
-                $"Could not load the Bicep configuration file \"{configurationPath}\": {loadErrorMessage.TrimEnd('.')}.");
+                $"Could not load the Bicep configuration file \"{configFileUri}\": {loadErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic InvalidBicepConfigFile(string configurationPath, string parsingErrorMessage) => CoreError(
+            public Diagnostic InvalidBicepConfigFile(IOUri configFileUri, string parsingErrorMessage) => CoreError(
                 "BCP273",
-                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {parsingErrorMessage.TrimEnd('.')}.");
+                $"Failed to parse the contents of the Bicep configuration file \"{configFileUri}\": {parsingErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(string? directoryPath, string scanErrorMessage) => CoreDiagnostic(
+            public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(IOUri? directoryIdentifier, string scanErrorMessage) => CoreDiagnostic(
                 DiagnosticLevel.Info, // should this be a warning instead?
                 "BCP274",
-                $"Error scanning \"{directoryPath}\" for bicep configuration: {scanErrorMessage.TrimEnd('.')}.");
+                $"Error scanning \"{directoryIdentifier}\" for bicep configuration: {scanErrorMessage.TrimEnd('.')}.");
 
             public Diagnostic FoundDirectoryInsteadOfFile(string directoryPath) => CoreError(
                 "BCP275",
@@ -1454,14 +1480,17 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, AccessExpressionSyntax accessExpression) => CoreWarning(
                 "BCP318",
                 $@"The value of type ""{possiblyNullType}"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new(
                         "If you do not know whether the value will be null and the template would handle a null value for the overall expression, use a `.?` (safe dereference) operator to short-circuit the access expression if the base expression's value is null",
                         true,
                         CodeFixKind.QuickFix,
                         new(accessExpression.Span, accessExpression.AsSafeAccess().ToString())),
                     AsNonNullable(accessExpression.BaseExpression),
-                ]};
+                ]
+            };
 
             private static CodeFix AsNonNullable(SyntaxBase expression) => new(
                 "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
@@ -1480,7 +1509,8 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => CoreWarning(
                 "BCP321",
                 $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".")
-                with { Fixes = [AsNonNullable(expression)] };
+                with
+            { Fixes = [AsNonNullable(expression)] };
 
             public Diagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => CoreError(
                 "BCP322",
@@ -1687,11 +1717,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP377",
                 $"The extension alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public Diagnostic InvalidOciArtifactExtensionAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic InvalidOciArtifactExtensionAliasRegistryNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP378",
                 $"The OCI artifact extension alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
-            public Diagnostic OciArtifactExtensionAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic OciArtifactExtensionAliasNameDoesNotExistInConfiguration(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP379",
                 $"The OCI artifact extension alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
@@ -1711,7 +1741,8 @@ namespace Bicep.Core.Diagnostics
                 return CoreWarning(
                     "BCP381",
                     @$"Declaring extension with the ""{syntax.Keyword.Text}"" keyword has been deprecated. Please use the ""extension"" keyword instead. Please see https://github.com/Azure/bicep/issues/14374 for more information.")
-                    with { Fixes = [codeFix] };
+                    with
+                { Fixes = [codeFix] };
             }
 
             public Diagnostic TypeIsNotParameterizable(string typeName) => CoreError(
@@ -1766,11 +1797,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP396",
                 "The referenced extension types artifact has been published with malformed content.");
 
-            public Diagnostic InvalidExtension_ImplicitExtensionMissingConfig(Uri? configFileUri, string name) => CoreError(
+            public Diagnostic InvalidExtension_ImplicitExtensionMissingConfig(IOUri? configFileUri, string name) => CoreError(
                 "BCP397",
                 $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{RootConfiguration.ImplicitExtensionsKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ExtensionsKey}" section.""");
 
-            public Diagnostic InvalidExtension_NotABuiltInExtension(Uri? configFileUri, string name) => CoreError(
+            public Diagnostic InvalidExtension_NotABuiltInExtension(IOUri? configFileUri, string name) => CoreError(
                 "BCP398",
                 $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
 

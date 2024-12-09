@@ -38,7 +38,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
 
     public static ImportClosureInfo Calculate(SemanticModel model)
     {
-        IntraTemplateSymbolicReferenceFactory referenceFactory = new(model.SourceFile.FileUri);
+        IntraTemplateSymbolicReferenceFactory referenceFactory = new(model.SourceFile.Uri);
         var closure = CalculateImportClosure(model, referenceFactory);
         var closureMetadata = CalculateImportedSymbolNames(model, closure);
 
@@ -205,7 +205,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
                 if (!targetModel.Exports.TryGetValue(name, out var exportMetadata))
                 {
                     throw new InvalidOperationException($"No export named {name} found in {TemplateIdentifier(
-                        model.SourceFile.FileUri,
+                        model.SourceFile.Uri,
                         targetModel,
                         importedSymbolReference.ImportTarget)}");
                 }
@@ -441,9 +441,9 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
 
     private static Uri GetSourceFileUri(ISemanticModel model) => model switch
     {
-        SemanticModel bicepModel => bicepModel.SourceFile.FileUri,
-        ArmTemplateSemanticModel armTemplate => armTemplate.SourceFile.FileUri,
-        TemplateSpecSemanticModel templateSpec => templateSpec.SourceFile.FileUri,
+        SemanticModel bicepModel => bicepModel.SourceFile.Uri,
+        ArmTemplateSemanticModel armTemplate => armTemplate.SourceFile.Uri,
+        TemplateSpecSemanticModel templateSpec => templateSpec.SourceFile.Uri,
         _ => throw new InvalidOperationException($"Unrecognized module type {model.GetType().Name} encountered"),
     };
 

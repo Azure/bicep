@@ -13,4 +13,4 @@ popd
 
 # Install dependencies for the current folder with correct links
 echo "Installing vscode-bicep dependencies"
-npm install
+npm i

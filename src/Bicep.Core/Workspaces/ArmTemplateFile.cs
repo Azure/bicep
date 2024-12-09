@@ -8,9 +8,7 @@ namespace Bicep.Core.Workspaces
 {
     public class ArmTemplateFile : ISourceFile
     {
-        private readonly string originalSource;
-
-        public ArmTemplateFile(Uri fileUri, string originalSource, Template? template, JObject? templateObject)
+        public ArmTemplateFile(Uri fileUri, string text, Template? template, JObject? templateObject)
         {
             if ((template is null && templateObject is not null) ||
                 (template is not null && templateObject is null))
@@ -18,15 +16,15 @@ namespace Bicep.Core.Workspaces
                 throw new ArgumentException($"Expected {nameof(template)} and {nameof(templateObject)} to both be non-null or both be null.");
             }
 
-            this.FileUri = fileUri;
+            this.Uri = fileUri;
+            this.Text = text;
             this.Template = template;
             this.TemplateObject = templateObject;
-            this.originalSource = originalSource;
         }
 
-        public Uri FileUri { get; }
+        public Uri Uri { get; }
 
-        public string GetOriginalSource() => originalSource;
+        public string Text { get; }
 
         public Template? Template { get; }
 

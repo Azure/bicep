@@ -13,9 +13,11 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests;
@@ -1293,7 +1295,7 @@ output badArray array = [for (name, i) in jsonArrayBad : {
 ");
 
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         var expectedOutput = new JArray
         {
             new JObject {["element"] = "one"},
@@ -1345,7 +1347,7 @@ output providerOutput object = {
             {
                 ["providers"] = JToken.FromObject(providersMetadata),
             }
-        });
+        }).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['providerOutput'].value.thing", new JObject
         {
@@ -1412,7 +1414,7 @@ output providersLocationFirst string = providers('Test.Rp', 'fakeResource').loca
             {
                 ["providers"] = JToken.FromObject(providersMetadata),
             }
-        });
+        }).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['providersNamespace'].value", "Test.Rp");
         evaluated.Should().HaveValueAtPath("$.outputs['providersResources'].value", new JArray
@@ -1519,8 +1521,8 @@ resource mg 'Microsoft.Management/managementGroups@2020-05-01' = {
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Template.Should().HaveValueAtPath("$.resources[0].properties.details.parent", "[managementGroup()]");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
-        evaluated.Should().HaveValueAtPath("$.resources[0].properties.details.parent.id", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f");
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveValueAtPath("$.resources[0].properties.details.parent.id", $"/providers/Microsoft.Management/managementGroups/{Guid.Empty}");
     }
 
     [TestMethod]
@@ -1594,10 +1596,10 @@ output tdeId string = transparentDataEncryption.id
 ");
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.resources[0].name", "myServer/myDb/current");
-        evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/current");
+        evaluated.Should().HaveValueAtPath("$.outputs['tdeId'].value", $"/subscriptions/{Guid.Empty}/resourceGroups/DummyResourceGroup/providers/Microsoft.Sql/servers/myServer/databases/myDb/transparentDataEncryption/current");
     }
 
     [TestMethod]
@@ -1985,10 +1987,11 @@ var primaryLocation = locations[0]
     // https://github.com/Azure/bicep/issues/2248
     public void Test_Issue2248_UnionTypeInArrayAccessBaseExpression_NegativeCase()
     {
-        var result = CompilationHelper.Compile(@"
-var foos = true ? true : []
-var primaryFoo = foos[0]
-");
+        var result = CompilationHelper.Compile("""
+            param condition bool
+            var foos = condition ? true : []
+            var primaryFoo = foos[0]
+            """);
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP076", DiagnosticLevel.Error, "Cannot index over expression of type \"<empty array> | true\". Arrays or objects are required.")
@@ -2009,7 +2012,7 @@ var default = {
 
 var chosenOne = which ? input : default
 
-var p = chosenOne.foo
+var p = chosenOne.?foo
 ");
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
@@ -2355,7 +2358,7 @@ output one string = map['1']
 
         result.Template.Should().HaveValueAtPath("$.outputs.one.value", "[variables('map')['1']]");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs.one.value", "hello");
     }
 
@@ -2565,7 +2568,7 @@ output test string = '${port}'
 
         result.Template.Should().HaveValueAtPath("$.outputs['test'].value", "[format('{0}', variables('port'))]");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['test'].value", "1234", "the evaluated output should be of type string");
     }
 
@@ -2610,8 +2613,8 @@ resource initiative 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = 
 
         result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'Allowed locations')]");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
-        evaluated.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f/providers/Microsoft.Authorization/policyDefinitions/Allowed locations");
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", $"/providers/Microsoft.Management/managementGroups/{Guid.Empty}/providers/Microsoft.Authorization/policyDefinitions/Allowed locations");
     }
 
     // https://github.com/Azure/bicep/issues/4850
@@ -3341,8 +3344,8 @@ output valueMap object = toObject(
 """);
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
-            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => (1 | 2)" is not assignable to parameter of type "any => string"."""),
-            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => (2 | 3)" is not assignable to parameter of type "any => string"."""),
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => int" is not assignable to parameter of type "any => string"."""),
+            ("BCP070", DiagnosticLevel.Error, """Argument of type "(object | object) => int" is not assignable to parameter of type "any => string"."""),
         ]);
     }
 
@@ -4164,8 +4167,8 @@ var _subnets = {
 output aksRouteTable string = _subnets.aksPoolSys.routeTable
 "));
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
-        evaluated.Should().HaveValueAtPath("$.outputs['aksRouteTable'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Network/routeTables/aksRouteTable");
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveValueAtPath("$.outputs['aksRouteTable'].value", $"/subscriptions/{Guid.Empty}/resourceGroups/DummyResourceGroup/providers/Microsoft.Network/routeTables/aksRouteTable");
     }
 
     // https://github.com/Azure/bicep/issues/9285
@@ -4436,7 +4439,7 @@ output vaultId string = CertificateVault.id
 
         result.Should().GenerateATemplate();
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['vaultId'].value", "/subscriptions/mySub/resourceGroups/myRg/providers/Microsoft.KeyVault/vaults/myKv");
     }
 
@@ -5062,8 +5065,8 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }
 "));
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
-        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo2"));
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo1"));
     }
 
     // https://github.com/Azure/bicep/issues/11292
@@ -5488,7 +5491,7 @@ func test4() string => loadFileAsBase64('./repro-data.json')
 """));
 
         result.Should().NotHaveAnyDiagnostics();
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.functions[0].members['test'].output.value", new JObject());
         evaluated.Should().HaveValueAtPath("$.functions[0].members['test2'].output.value", "{}");
         evaluated.Should().HaveValueAtPath("$.functions[0].members['test3'].output.value", new JObject());
@@ -5519,7 +5522,7 @@ func MyFunction(name string) string => '${loadJsonContent('./test-mapping.json')
 """));
 
         result.Should().NotHaveAnyDiagnostics();
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['foo'].value", "bar");
     }
 
@@ -6046,7 +6049,7 @@ output moduleTags object = moduleTags
 """),
             ("compiled.json", moduleResult.Template!.ToString()));
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['moduleTags'].value", new JObject
         {
@@ -6211,7 +6214,7 @@ output foo string[] = [for item in items: item.foo]
 ");
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
-            ("BCP053", DiagnosticLevel.Error, """The type "object" does not contain property "foo". Available properties include "bar"."""),
+            ("BCP053", DiagnosticLevel.Error, """The type "object | object" does not contain property "foo". Available properties include "bar"."""),
         ]);
     }
 
@@ -6229,6 +6232,26 @@ var items = [
 
 output foo string[] = [for item in items: item.foo]
 ");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP187", DiagnosticLevel.Warning, """The property "foo" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+        ]);
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/14839
+    public void Test_Issue14839_3()
+    {
+        var result = CompilationHelper.Compile("""
+            param firstItem object
+
+            var items = [
+              firstItem
+              { bar: 'def' }
+            ]
+
+            output foo string[] = [for item in items: item.?foo]
+            """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
@@ -6257,5 +6280,253 @@ param p invalidRecursiveObjectType = {}
             ("BCP298", DiagnosticLevel.Error, """This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."""),
             ("BCP062", DiagnosticLevel.Error, """The referenced declaration with name "invalidRecursiveObjectType" is not valid."""),
         ]);
+    }
+
+    [DataTestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    // https://github.com/azure/bicep/issues/13596
+    public void Test_Issue13596(bool enableSymbolicNameCodegen)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(SymbolicNameCodegenEnabled: enableSymbolicNameCodegen)),
+            ("main.bicep", """
+                module mod 'empty.bicep' = {
+                  name: 'mod'
+                }
+
+                resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+                  name: 'account'
+                  dependsOn: [
+                    mod
+                  ]
+                }
+
+                resource secret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+                  name: 'vault/secret'
+                  properties: {
+                    value: sa.listKeys().keys[0].value
+                  }
+                }
+                """),
+            ("empty.bicep", string.Empty));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+
+        if (enableSymbolicNameCodegen)
+        {
+            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["mod"]""");
+        }
+        else
+        {
+            result.Template.Should().HaveJsonAtPath("$.resources[?(@.name=='vault/secret')].dependsOn", """["[resourceId('Microsoft.Resources/deployments', 'mod')]"]""");
+        }
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/15517
+    public void Test_Issue15517()
+    {
+        var result = CompilationHelper.Compile("""
+            param condition bool
+
+            resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+              name: 'account'
+              scope: condition ? resourceGroup('a') : resourceGroup('b')
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue15513()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true)),
+            """
+            #disable-next-line BCP407
+            extension microsoftGraph
+
+            param entraGroup object = {
+              name: 'ExampleGroup2'
+              type: 'Security'
+              members: [
+                {
+                  name: '{application name}'
+                  type: 'Application'
+                }
+              ]
+              owners: [
+                {
+                  name: '{user identity name}'
+                  resourceGroup: '{resource group name}'
+                  type: 'UserAssignedManagedIdentity'
+                }
+              ]
+            }
+
+            var defaultMember = {
+              subscriptionId: subscription().subscriptionId
+              resourceGroup: ''
+              name: ''
+              appId: ''
+            }
+
+            resource memberManagedIdentities 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-preview' existing = [
+              for (member, i) in entraGroup.members: if (member.type =~ 'UserAssignedManagedIdentity') {
+                //https://github.com/Azure/bicep/issues/13937
+                name: empty(union(defaultMember, member).name) ? 'dummy${i}' : member.name
+                scope: resourceGroup(union(defaultMember, member).subscriptionId, union(defaultMember, member).resourceGroup)
+              }
+            ]
+
+            resource memberApplications 'Microsoft.Graph/applications@v1.0' existing = [
+              for (member, i) in entraGroup.members: if (member.type =~ 'Application') {
+                //https://github.com/Azure/bicep/issues/13937
+                uniqueName: empty(union(defaultMember, member).name) ? 'dummy${i}' : member.name
+              }
+            ]
+
+            resource memberServicePrincipals 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
+              for (member, i) in entraGroup.members: if (member.type =~ 'Application') {
+                appId: memberApplications[i].appId
+              }
+            ]
+
+            resource memberServicePrincipalsStandalone 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
+              for (member, i) in entraGroup.members: if (member.type =~ 'ServicePrincipal') {
+                //https://github.com/Azure/bicep/issues/13937
+                appId: empty(union(defaultMember, member).appId) ? 'dummy${i}' : member.appId
+              }
+            ]
+
+            resource memberGroups 'Microsoft.Graph/groups@v1.0' existing = [
+              for (member, i) in entraGroup.members: if (member.type =~ 'Group') {
+                //https://github.com/Azure/bicep/issues/13937
+                uniqueName: empty(union(defaultMember, member).name) ? 'dummy${i}' : member.name
+              }
+            ]
+
+            resource ownerManagedIdentities 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-preview' existing = [
+              for (owner, i) in entraGroup.owners: if (owner.type =~ 'UserAssignedManagedIdentity') {
+                //https://github.com/Azure/bicep/issues/13937
+                name: empty(union(defaultMember, owner).name) ? 'dummy${i}' : owner.name
+                scope: resourceGroup(union(defaultMember, owner).subscriptionId, union(defaultMember, owner).resourceGroup)
+              }
+            ]
+
+            resource ownerApplications 'Microsoft.Graph/applications@v1.0' existing = [
+              for (owner, i) in entraGroup.owners: if (owner.type =~ 'Application') {
+                //https://github.com/Azure/bicep/issues/13937
+                uniqueName: empty(union(defaultMember, owner).name) ? 'dummy${i}' : owner.name
+              }
+            ]
+
+            resource ownerServicePrincipals 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
+              for (owner, i) in entraGroup.owners: if (owner.type =~ 'Application') {
+                appId: ownerApplications[i].appId
+              }
+            ]
+
+            resource ownerServicePrincipalsStandalone 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
+              for (owner, i) in entraGroup.owners: if (owner.type =~ 'ServicePrincipal') {
+                //https://github.com/Azure/bicep/issues/13937
+                appId: empty(union(defaultMember, owner).appId) ? 'dummy${i}' : owner.appId
+              }
+            ]
+
+            resource entraGroupRes 'Microsoft.Graph/groups@v1.0' = {
+              uniqueName: entraGroup.name
+              displayName: entraGroup.name
+              mailEnabled: false
+              mailNickname: entraGroup.name
+              securityEnabled: true
+              members: [
+                for (member, i) in entraGroup.members: member.type =~ 'UserAssignedManagedIdentity'
+                  ? memberManagedIdentities[i].properties.principalId
+                  : member.type =~ 'Application'
+                      ? memberServicePrincipals[i].id
+                      : member.type =~ 'ServicePrincipal'
+                          ? memberServicePrincipalsStandalone[i].id
+                          : member.type =~ 'Group' ? memberGroups[i].id : member.type =~ 'PrincipalId' ? member.principalId : ''
+              ]
+              owners: [
+                for (owner, i) in entraGroup.owners: owner.type =~ 'UserAssignedManagedIdentity'
+                  ? ownerManagedIdentities[i].properties.principalId
+                  : owner.type =~ 'Application'
+                      ? ownerServicePrincipals[i].id
+                      : owner.type =~ 'ServicePrincipal' ? ownerServicePrincipalsStandalone[i].id : owner.type =~ 'PrincipalId' ? owner.principalId : ''
+              ]
+            }
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.resources.entraGroupRes.dependsOn", """
+            [
+              "memberGroups",
+              "memberManagedIdentities",
+              "memberServicePrincipals",
+              "memberServicePrincipalsStandalone",
+              "ownerManagedIdentities",
+              "ownerServicePrincipals",
+              "ownerServicePrincipalsStandalone"
+            ]
+            """);
+    }
+
+    [TestMethod]
+    public void Test_Issue15686()
+    {
+        var result = CompilationHelper.Compile("""
+            param eventSubscriptionName string
+            param eventTypes string[]
+            param eventGridTopicName string
+            param backendAppId string
+            param functionAppName string
+            param functionName string
+
+            resource functionApp 'Microsoft.Web/sites@2023-01-01' existing = {
+              name: functionAppName
+            }
+
+            resource eventGridTopic 'Microsoft.EventGrid/topics@2022-06-15' existing = {
+              name: eventGridTopicName
+            }
+
+            resource eventSubscription 'Microsoft.EventGrid/eventSubscriptions@2022-06-15' = {
+              name: eventSubscriptionName
+              scope: eventGridTopic
+              properties: {
+                eventDeliverySchema: 'EventGridSchema'
+                filter: {
+                  enableAdvancedFilteringOnArrays: true
+                  includedEventTypes: eventTypes
+                }
+                destination: {
+                  endpointType: 'WebHook'
+                  properties: {
+                    maxEventsPerBatch: 1
+                    azureActiveDirectoryApplicationIdOrUri: backendAppId
+                    azureActiveDirectoryTenantId: subscription().tenantId
+                    endpointUrl: 'https://${functionApp.properties.defaultHostName}/runtime/webhooks/EventGrid?functionName=${functionName}&code=${listkeys('${functionApp.id}/host/default', '2016-08-01').systemkeys.eventgrid_extension}'
+                  }
+                }
+                retryPolicy: {
+                  eventTimeToLiveInMinutes: 65
+                }
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.resources.eventSubscription.dependsOn", """
+            [
+              "functionApp"
+            ]
+            """);
     }
 }

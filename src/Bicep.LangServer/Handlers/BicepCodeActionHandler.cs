@@ -12,6 +12,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
@@ -110,7 +111,7 @@ namespace Bicep.LanguageServer.Handlers
                         analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
                         (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
                     .Where(x => x.Source == DiagnosticSource.CoreLinter)
-                    .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, semanticModel.Configuration.ConfigFileUri?.LocalPath));
+                    .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, semanticModel.Configuration.ConfigFileUri));
                 commandOrCodeActions.AddRange(editLinterRuleActions);
             }
 
@@ -194,7 +195,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        private static CommandOrCodeAction CreateEditLinterRuleAction(DocumentUri documentUri, string ruleName, string? bicepConfigFilePath)
+        private static CommandOrCodeAction CreateEditLinterRuleAction(DocumentUri documentUri, string ruleName, IOUri? configFileIdentifier)
         {
             return new CodeAction
             {
@@ -203,7 +204,7 @@ namespace Bicep.LanguageServer.Handlers
                 (
                     title: "edit linter rule code action",
                     name: LangServerConstants.EditLinterRuleCommandName,
-                    args: JArray.FromObject(new List<object> { documentUri, ruleName, bicepConfigFilePath ?? string.Empty /* (passing null not allowed) */ })
+                    args: JArray.FromObject(new List<object> { documentUri, ruleName, configFileIdentifier?.ToString() ?? string.Empty /* (passing null not allowed) */ })
                 )
             };
         }

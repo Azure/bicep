@@ -42,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
                     diagnostics.Where(d => !IsPermittedMissingTypeDiagnostic(d)),
                     diagnostics =>
                     {
-                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", file.FileUri.LocalPath);
+                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", file.Uri.LocalPath);
                     });
             }
 
@@ -60,7 +60,7 @@ namespace Bicep.Core.IntegrationTests
                     jsonFile.ShouldHaveExpectedJsonValue();
 
                     // validate that the template is parseable by the deployment engine
-                    TemplateHelper.TemplateShouldBeValid(stringWriter.ToString());
+                    UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(stringWriter.ToString());
                 }
             }
         }

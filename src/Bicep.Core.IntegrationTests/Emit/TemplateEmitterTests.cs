@@ -75,7 +75,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 actualLocation: compiledFilePath);
 
             // validate that the template is parseable by the deployment engine
-            TemplateHelper.TemplateShouldBeValid(outputFile);
+            UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(outputFile);
         }
 
         [DataTestMethod]
@@ -100,7 +100,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 actualLocation: compiledFilePath);
 
             // validate that the template is parseable by the deployment engine
-            TemplateHelper.TemplateShouldBeValid(outputFile);
+            UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(outputFile);
         }
 
         [DataTestMethod]
