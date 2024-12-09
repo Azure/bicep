@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
@@ -444,8 +445,10 @@ param stringParam =  /*TODO*/
                 param foo string
               "));
 
+            var path = PathHelper.ResolveAndNormalizePath("/path/to/does-not-exists.bicepparam");
+
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find file '/path/to/does-not-exists.bicepparam'."),
+                ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{path}'."),
             });
         }
 
