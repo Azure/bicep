@@ -916,6 +916,31 @@ param myParam string
             """));
     }
 
+    [DataTestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public void Legacy_resource_derived_type_should_propmt_a_deprecation_warning_with_proposed_code_fixes(bool fullyQualified)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            $"type myType = {(fullyQualified ? "sys." : "")}resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name");
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP409", DiagnosticLevel.Warning, "The 'resource<>' parameterized type has been deprecated. Please specify whether you want this type to correspond to the resource input or the resource output."),
+        });
+
+        var quickFix = result.Diagnostics.Single().Should().BeAssignableTo<IFixable>().Subject;
+        quickFix.Fixes.Should().HaveCount(2);
+        quickFix.Fixes.Where(f => f.IsPreferred).Should().HaveCount(1);
+
+        result.ApplyCodeFix(quickFix.Fixes.Where(f => f.IsPreferred).Single())
+            .Should().Be($"type myType = {(fullyQualified ? "sys." : "")}resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name");
+
+        result.ApplyCodeFix(quickFix.Fixes.Where(f => !f.IsPreferred).Single())
+            .Should().Be($"type myType = {(fullyQualified ? "sys." : "")}resourceOutput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name");
+    }
+
     [TestMethod]
     public void Resource_derived_type_should_compile_successfully_with_namespace_qualified_syntax()
     {
@@ -1704,6 +1729,7 @@ param myParam string
 
         result.Should().HaveDiagnostics(new[]
         {
+            ("BCP409", DiagnosticLevel.Warning, "The 'resource<>' parameterized type has been deprecated. Please specify whether you want this type to correspond to the resource input or the resource output."),
             ("BCP077", DiagnosticLevel.Warning, """The property "appliedScopeType" on type "PurchaseRequestPropertiesOrReservationOrderProperties" is write-only. Write-only properties cannot be accessed."""),
         });
     }

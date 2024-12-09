@@ -729,6 +729,12 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax)
+            => VisitParameterizedTypeInstantiationSyntaxBase(syntax);
+
+        public override void VisitInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax)
+            => VisitParameterizedTypeInstantiationSyntaxBase(syntax);
+
+        private void VisitParameterizedTypeInstantiationSyntaxBase(ParameterizedTypeInstantiationSyntaxBase syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = typeManager.TryGetReifiedType(syntax)?.ExpressedType;
@@ -738,6 +744,12 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+
+                // resource<> is deprecated
+                if (syntax.Name.IdentifierName.Equals(LanguageConstants.TypeNameResource))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name).ResourceParameterizedTypeIsDeprecated(syntax));
+                }
 
                 return declaredType;
             });
