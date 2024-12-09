@@ -1307,7 +1307,12 @@ namespace Bicep.Core.TypeSystem
                             {
                                 // we've found a declared object type for the containing object, with a matching property name definition.
                                 // preserve the type property details (name, descriptions etc.), and update the assigned type.
-                                namedProperties[name] = new TypeProperty(property.Name, resolvedType, property.Flags, property.Description);
+                                // Since this type corresponds to a value that is being supplied, make sure it has the `Required` flag and does not have the `.ReadOnly` flag
+                                namedProperties[name] = new TypeProperty(
+                                    property.Name,
+                                    resolvedType,
+                                    (property.Flags | TypePropertyFlags.Required) & ~TypePropertyFlags.ReadOnly,
+                                    property.Description);
                             }
                             else
                             {
