@@ -93,7 +93,7 @@ public class ResourceDerivedTypeResolverTests
             "property",
             new ITypeReference[]
             {
-                new UnresolvedResourceDerivedPartialObjectType(unhydratedTypeRef, [], ResourceDerivedTypeVariant.Input, "property", "foo"),
+                new UnresolvedResourceDerivedPartialObjectType(unhydratedTypeRef, [], ResourceDerivedTypeVariant.None, "property", "foo"),
                 new ObjectType("bar",
                     TypeSymbolValidationFlags.Default,
                     new TypeProperty("property", TypeFactory.CreateStringLiteralType("bar")).AsEnumerable(),

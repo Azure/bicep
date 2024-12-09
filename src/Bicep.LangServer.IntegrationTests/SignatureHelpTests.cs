@@ -173,7 +173,7 @@ var test = isTrue(|)
 
             signature.Label.Should().Be("resourceInput<ResourceTypeIdentifier: string>");
             signature.Documentation!.MarkupContent!.Value.Should().Be("""
-                Use the type definition of the body of a specific resource rather than a user-defined type.
+                Use the type definition of the input for a specific resource rather than a user-defined type.
 
                 NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.
                 """);
