@@ -24,7 +24,7 @@ namespace Bicep.IO.Abstraction
     {
         public static class GlobalSettings
         {
-            public static bool LocalFilePathCaseSensitive { get; set; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+            public static bool LocalFilePathCaseSensitive { get; set; } = OperatingSystem.IsLinux();
 
             public static StringComparer LocalFilePathComparer => LocalFilePathCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 

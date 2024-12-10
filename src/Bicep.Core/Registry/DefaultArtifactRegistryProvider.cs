@@ -14,17 +14,15 @@ namespace Bicep.Core.Registry
     public class DefaultArtifactRegistryProvider : IArtifactRegistryProvider
     {
         private readonly IFileResolver fileResolver;
-        private readonly IFileSystem fileSystem;
         private readonly IContainerRegistryClientFactory clientFactory;
         private readonly ITemplateSpecRepositoryFactory templateSpecRepositoryFactory;
         private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IConfigurationManager configurationManager;
         private readonly IServiceProvider serviceProvider;
 
-        public DefaultArtifactRegistryProvider(IServiceProvider serviceProvider, IFileResolver fileResolver, IFileSystem fileSystem, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager)
+        public DefaultArtifactRegistryProvider(IServiceProvider serviceProvider, IFileResolver fileResolver, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager)
         {
             this.fileResolver = fileResolver;
-            this.fileSystem = fileSystem;
             this.clientFactory = clientFactory;
             this.templateSpecRepositoryFactory = templateSpecRepositoryFactory;
             this.featureProviderFactory = featureProviderFactory;
@@ -45,9 +43,9 @@ namespace Bicep.Core.Registry
             var builder = ImmutableArray.CreateBuilder<IArtifactRegistry>();
 
             // Using IServiceProvider instead of constructor injection due to a dependency cycle
-            builder.Add(new LocalModuleRegistry(fileResolver, fileSystem, features, templateUri));
-            builder.Add(new OciArtifactRegistry(this.fileResolver, this.fileSystem, this.clientFactory, features, configuration, serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>(), templateUri));
-            builder.Add(new TemplateSpecModuleRegistry(this.fileResolver, this.fileSystem, this.templateSpecRepositoryFactory, features, configuration, templateUri));
+            builder.Add(new LocalModuleRegistry(fileResolver, features, templateUri));
+            builder.Add(new OciArtifactRegistry(this.fileResolver, this.clientFactory, features, configuration, serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>(), templateUri));
+            builder.Add(new TemplateSpecModuleRegistry(this.fileResolver, this.templateSpecRepositoryFactory, features, configuration, templateUri));
 
             return builder.ToImmutableArray();
         }

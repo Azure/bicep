@@ -24,14 +24,9 @@ namespace Bicep.Core.UnitTests.Assertions
 
         protected override string Identifier => "OciArtifactRegistry";
 
-        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModulesWithSources()
-            => HaveValidCachedModules(withSource: true);
-        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModulesWithoutSources()
-            => HaveValidCachedModules(withSource: false);
-
-        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModules(bool? withSource = null)
+        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModules(IFileSystem fileSystem, bool? withSource = null)
         {
-            ShouldHaveValidCachedModules(Subject.FileSystem, Subject.CacheRootDirectory, withSource);
+            ShouldHaveValidCachedModules(fileSystem, Subject.CacheRootDirectory, withSource);
             return new(this);
         }
 

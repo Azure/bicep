@@ -55,8 +55,13 @@ namespace Bicep.IO.FileSystem
 
         public void Delete() => this.FileSystem.File.Delete(this.Uri.GetFileSystemPath());
 
-        [UnsupportedOSPlatform("windows")]
-        public void SetUnixFileMode(UnixFileMode fileMode) => this.FileSystem.File.SetUnixFileMode(this.Uri.GetFileSystemPath(), fileMode);
+        public void MakeExecutable()
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                this.FileSystem.File.SetUnixFileMode(this.Uri.GetFileSystemPath(), UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+            }
+        }
 
         public IFileLock? TryLock() => FileSystemStreamLock.TryCreate(this.FileSystem, this.Uri.GetFileSystemPath());
     }

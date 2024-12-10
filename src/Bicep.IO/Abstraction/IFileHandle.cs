@@ -22,8 +22,7 @@ namespace Bicep.IO.Abstraction
 
         void Delete();
 
-        [UnsupportedOSPlatform("windows")]
-        void SetUnixFileMode(UnixFileMode fileMode);
+        void MakeExecutable();
 
         IFileLock? TryLock();
     }

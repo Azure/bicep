@@ -680,7 +680,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             await RestoreModule(ociRegistry, moduleReference);
 
-            ociRegistry.Should().HaveValidCachedModules(withSource: publishSource);
+            ociRegistry.Should().HaveValidCachedModules(BicepTestConstants.FileSystem, withSource: publishSource);
             var actualSourceResult = ociRegistry.TryGetSource(moduleReference);
 
             if (sources is { })

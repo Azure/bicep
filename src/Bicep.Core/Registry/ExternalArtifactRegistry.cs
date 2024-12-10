@@ -19,12 +19,9 @@ namespace Bicep.Core.Registry
         // interval at which we will retry acquiring the lock on the artifact directory in the cache
         private static readonly TimeSpan ArtifactDirectoryContentionRetryInterval = TimeSpan.FromMilliseconds(300);
 
-        public IFileSystem FileSystem { get; }
-
-        protected ExternalArtifactRegistry(IFileResolver fileResolver, IFileSystem fileSystem)
+        protected ExternalArtifactRegistry(IFileResolver fileResolver)
         {
             this.FileResolver = fileResolver;
-            this.FileSystem = fileSystem;
         }
 
         protected IFileResolver FileResolver { get; }

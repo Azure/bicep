@@ -27,8 +27,8 @@ namespace Bicep.Core.Registry
 
         private readonly Uri parentModuleUri;
 
-        public TemplateSpecModuleRegistry(IFileResolver fileResolver, IFileSystem fileSystem, ITemplateSpecRepositoryFactory repositoryFactory, IFeatureProvider featureProvider, RootConfiguration configuration, Uri parentModuleUri)
-            : base(fileResolver, fileSystem)
+        public TemplateSpecModuleRegistry(IFileResolver fileResolver, ITemplateSpecRepositoryFactory repositoryFactory, IFeatureProvider featureProvider, RootConfiguration configuration, Uri parentModuleUri)
+            : base(fileResolver)
         {
             this.repositoryFactory = repositoryFactory;
             this.featureProvider = featureProvider;

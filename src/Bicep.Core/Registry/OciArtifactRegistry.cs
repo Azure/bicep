@@ -39,13 +39,12 @@ namespace Bicep.Core.Registry
 
         public OciArtifactRegistry(
             IFileResolver FileResolver,
-            IFileSystem fileSystem,
             IContainerRegistryClientFactory clientFactory,
             IFeatureProvider features,
             RootConfiguration configuration,
             IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
             Uri parentModuleUri)
-            : base(FileResolver, fileSystem)
+            : base(FileResolver)
         {
             this.cacheDirectory = features.CacheRootDirectory.GetDirectory(ArtifactReferenceSchemes.Oci);
             this.client = new AzureContainerRegistryManager(clientFactory);
@@ -434,11 +433,7 @@ namespace Bicep.Core.Registry
 
                     var file = this.GetArtifactFile(reference, ArtifactFileType.ExtensionBinary);
                     sourceData.WriteTo(file);
-
-                    if (!OperatingSystem.IsWindows())
-                    {
-                        file.SetUnixFileMode(UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
-                    }
+                    file.MakeExecutable();
                 }
             }
 

@@ -24,8 +24,8 @@ namespace Bicep.Core.Registry
         private readonly IFeatureProvider featureProvider;
         private readonly Uri parentModuleUri;
 
-        public LocalModuleRegistry(IFileResolver fileResolver, IFileSystem fileSystem, IFeatureProvider featureProvider, Uri parentModuleUri)
-            : base(fileResolver, fileSystem)
+        public LocalModuleRegistry(IFileResolver fileResolver, IFeatureProvider featureProvider, Uri parentModuleUri)
+            : base(fileResolver)
         {
             this.featureProvider = featureProvider;
             this.parentModuleUri = parentModuleUri;
@@ -67,12 +67,12 @@ namespace Bicep.Core.Registry
 
             if (reference.ArtifactType == ArtifactType.Extension)
             {
-                if (TryGetTypesTgzUri(reference) is null)
+                if (this.TryGetTypesTgzFile(reference) is not { } tgzFile)
                 {
                     return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ParentModuleUri.LocalPath));
                 }
 
-                return new(GetTypesTgzUri(reference));
+                return new(tgzFile.Uri.ToUri());
             }
 
             return new(localUri);
@@ -100,23 +100,14 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<LocalModuleReference> references)
-        {
-            return await base.InvalidateArtifactsCacheInternal(references);
-        }
+        public override Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<LocalModuleReference> references) =>
+            base.InvalidateArtifactsCacheInternal(references);
 
-        public override bool IsArtifactRestoreRequired(LocalModuleReference reference)
-        {
-            if (reference.ArtifactType != ArtifactType.Extension)
-            {
-                return false;
-            }
+        public override bool IsArtifactRestoreRequired(LocalModuleReference reference) =>
+            reference.ArtifactType == ArtifactType.Extension && !this.GetTypesTgzFile(reference).Exists();
 
-            return !this.FileResolver.FileExists(this.GetTypesTgzUri(reference));
-        }
-
-        public override Task PublishModule(LocalModuleReference moduleReference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, string? description)
-            => throw new NotSupportedException("Local modules cannot be published.");
+        public override Task PublishModule(LocalModuleReference moduleReference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, string? description) =>
+            throw new NotSupportedException("Local modules cannot be published.");
 
         public override async Task PublishExtension(LocalModuleReference reference, ExtensionPackage package)
         {
@@ -151,8 +142,7 @@ namespace Bicep.Core.Registry
             return new(new SourceNotAvailableException());
         }
 
-        public override Uri? TryGetExtensionBinary(LocalModuleReference reference)
-            => GetExtensionBinaryUri(reference);
+        public override Uri? TryGetExtensionBinary(LocalModuleReference reference) => GetExtensionBinaryFile(reference).Uri.ToUri();
 
         protected override void WriteArtifactContentToCache(LocalModuleReference reference, LocalModuleEntity entity)
         {
@@ -168,16 +158,14 @@ namespace Bicep.Core.Registry
                     throw new InvalidOperationException($"The extension \"{reference}\" does not support architecture {architecture.Name}.");
                 }
 
-                var binaryUri = GetExtensionBinaryUri(reference);
-                this.FileResolver.Write(binaryUri, binary.Data.ToStream());
-                if (!OperatingSystem.IsWindows())
-                {
-                    this.FileSystem.File.SetUnixFileMode(binaryUri.LocalPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
-                }
+                var binaryFile = GetExtensionBinaryFile(reference);
+
+                binary.Data.WriteTo(binaryFile);
+                binaryFile.MakeExecutable();
             }
 
-            var typesUri = this.GetTypesTgzUri(reference);
-            this.FileResolver.Write(typesUri, entity.Package.Types.ToStream());
+            var typesTgzFile = this.GetTypesTgzFile(reference);
+            entity.Package.Types.WriteTo(typesTgzFile);
         }
 
         private IDirectoryHandle? TryGetArtifactDirectory(LocalModuleReference reference)
@@ -215,20 +203,18 @@ namespace Bicep.Core.Registry
             return binaryData;
         }
 
-        private Uri GetTypesTgzUri(LocalModuleReference reference) => GetFileUri(reference, "types.tgz");
+        private IFileHandle GetTypesTgzFile(LocalModuleReference reference) => this.GetFile(reference, "types.tgz");
 
-        private Uri? TryGetTypesTgzUri(LocalModuleReference reference) => TryGetFileUri(reference, "types.tgz");
+        private IFileHandle? TryGetTypesTgzFile(LocalModuleReference reference) => this.TryGetFile(reference, "types.tgz");
 
-        private Uri GetExtensionBinaryUri(LocalModuleReference reference) => GetFileUri(reference, "extension.bin");
+        private IFileHandle GetExtensionBinaryFile(LocalModuleReference reference) => this.GetFile(reference, "extension.bin");
 
-        protected override IFileHandle GetArtifactLockFile(LocalModuleReference reference) =>
-            this.TryGetArtifactDirectory(reference)?.GetFile("lock") ?? throw new InvalidOperationException("Failed to get artifact lock file.");
+        protected override IFileHandle GetArtifactLockFile(LocalModuleReference reference) => this.GetFile(reference, "lock");
 
-        private Uri GetFileUri(LocalModuleReference reference, string path)
-            => TryGetFileUri(reference, path) ?? throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
+        private IFileHandle GetFile(LocalModuleReference reference, string path) =>
+            this.TryGetFile(reference, path) ??
+            throw new InvalidOperationException($"Failed to resolve file for {reference.FullyQualifiedReference}.");
 
-        private Uri? TryGetFileUri(LocalModuleReference reference, string path) => TryGetArtifactDirectory(reference) is { } directory
-            ? directory.GetFile(path).Uri.ToUri()
-            : null;
+        private IFileHandle? TryGetFile(LocalModuleReference reference, string path) => this.TryGetArtifactDirectory(reference)?.GetFile(path);
     }
 }
