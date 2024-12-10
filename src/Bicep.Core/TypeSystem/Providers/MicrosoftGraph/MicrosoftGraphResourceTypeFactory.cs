@@ -152,14 +152,15 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
 
         private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType)
         {
+            var flags = TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch;
             if (isResourceBodyType)
             {
                 // strict validation on top-level resource properties, as 'custom' top-level properties are not supported by the platform
-                return TypeSymbolValidationFlags.Default;
+                return flags | TypeSymbolValidationFlags.Default;
             }
 
             // in all other places, we should allow some wiggle room so that we don't block compilation if there are any swagger inaccuracies
-            return TypeSymbolValidationFlags.WarnOnTypeMismatch;
+            return flags | TypeSymbolValidationFlags.WarnOnTypeMismatch;
         }
 
         private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceFlags input)
