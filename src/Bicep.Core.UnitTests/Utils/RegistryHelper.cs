@@ -4,8 +4,10 @@
 using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.Linq;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Extensions;
@@ -13,6 +15,7 @@ using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Registry;
+using Bicep.IO.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.UnitTests.Utils;
@@ -48,7 +51,9 @@ public static class RegistryHelper
         bool publishSource,
         string? documentationUri = null)
     {
-        var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides());
+        var fileExplorer = new FileSystemFileExplorer(fileSystem);
+        var configurationManager = new ConfigurationManager(fileExplorer);
+        var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
         var services = new ServiceBuilder()
             .WithDisabledAnalyzersConfiguration()
@@ -111,7 +116,7 @@ public static class RegistryHelper
             }
         }
 
-        var clientFactory = CreateMockRegistryClients(repos.ToArray()).factoryMock;
+        var clientFactory = CreateMockRegistryClients([.. repos]).factoryMock;
 
         foreach (var module in modules)
         {

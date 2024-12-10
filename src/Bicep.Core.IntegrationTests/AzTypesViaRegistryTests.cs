@@ -40,9 +40,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", EmptyIndexJson);
 
-            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
-            Directory.CreateDirectory(cacheRoot);
-
+            var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
                 .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzExtension());
@@ -62,8 +60,7 @@ namespace Bicep.Core.IntegrationTests
             var manifest = BicepTestConstants.GetBicepExtensionManifest(blobResult.Value, configResult.Value);
             await client.SetManifestAsync(manifest, artifactRegistryAddress.ExtensionVersion);
 
-            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
-            Directory.CreateDirectory(cacheRoot);
+            var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
             return new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))

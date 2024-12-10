@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.IO.Abstraction;
+
 namespace Bicep.Core.Features;
 
 public interface IFeatureProvider
 {
     string AssemblyVersion { get; }
 
-    string CacheRootDirectory { get; }
+    IDirectoryHandle CacheRootDirectory { get; }
 
     bool SymbolicNameCodegenEnabled { get; }
 

@@ -5,6 +5,8 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
 using System.Text;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -78,7 +80,13 @@ namespace Bicep.Core.UnitTests.Utils
             return outputDirectory;
         }
 
-        public static string GetCacheRootPath(TestContext testContext) => GetUniqueTestOutputPath(testContext);
+        public static IDirectoryHandle GetCacheRootDirectory(TestContext testContext)
+        {
+            var path = GetUniqueTestOutputPath(testContext);
+            var uri = IOUri.FromLocalFilePath(path);
+
+            return BicepTestConstants.FileExplorer.GetDirectory(uri);
+        }
 
         public static ImmutableDictionary<string, string> BuildEmbeddedFileDictionary(Assembly containingAssembly, string streamNamePrefix)
         {
