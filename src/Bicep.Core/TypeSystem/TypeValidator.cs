@@ -1116,10 +1116,10 @@ namespace Bicep.Core.TypeSystem
                             {
                                 diagnosticWriter.Write(diagnosticTarget, x => x.CannotUsePropertyInExistingResource(declaredProperty.Name));
                             }
-                            else
+                            else if (!expressionTypeProperty.Flags.HasFlag(TypePropertyFlags.ReadOnly))
                             {
                                 var resourceTypeInaccuracy = !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty) && config.IsResourceDeclaration;
-                                diagnosticWriter.Write(diagnosticTarget, x => x.CannotAssignToReadOnlyProperty(resourceTypeInaccuracy || ShouldWarn(targetType), declaredProperty.Name, resourceTypeInaccuracy));
+                                diagnosticWriter.Write(diagnosticTarget, x => x.CannotAssignToReadOnlyProperty(resourceTypeInaccuracy || ShouldWarnForPropertyMismatch(targetType), declaredProperty.Name, resourceTypeInaccuracy));
                             }
 
                             narrowedProperties.Add(new TypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));
@@ -1236,7 +1236,11 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                return new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver.CopyToObject);
+                var narrowedObject = new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver.CopyToObject);
+
+                return config.IsResourceDeclaration
+                    ? TypeHelper.RemovePropertyFlagsRecursively(narrowedObject, TypePropertyFlags.ReadOnly)
+                    : narrowedObject;
             }
 
             return null;

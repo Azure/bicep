@@ -62,7 +62,7 @@ public class ResourceDerivedTypeResolverTests
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnresolved = TypeFactory.CreateArrayType(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any));
+        var containsUnresolved = TypeFactory.CreateArrayType(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input));
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<TypedArrayType>()
             .Subject.Item.Should().BeSameAs(hydrated);
     }
@@ -73,7 +73,7 @@ public class ResourceDerivedTypeResolverTests
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnresolved = new TupleType([new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any)],
+        var containsUnresolved = new TupleType([new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input)],
             TypeSymbolValidationFlags.Default);
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<TupleType>()
             .Subject.Items.First().Should().BeSameAs(hydrated);
@@ -93,7 +93,7 @@ public class ResourceDerivedTypeResolverTests
             "property",
             new ITypeReference[]
             {
-                new UnresolvedResourceDerivedPartialObjectType(unhydratedTypeRef, [], "property", "foo"),
+                new UnresolvedResourceDerivedPartialObjectType(unhydratedTypeRef, [], ResourceDerivedTypeVariant.None, "property", "foo"),
                 new ObjectType("bar",
                     TypeSymbolValidationFlags.Default,
                     new TypeProperty("property", TypeFactory.CreateStringLiteralType("bar")).AsEnumerable(),
@@ -112,7 +112,7 @@ public class ResourceDerivedTypeResolverTests
 
         var containsUnresolved = new ObjectType("object",
             TypeSymbolValidationFlags.Default,
-            new TypeProperty("property", new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any)).AsEnumerable(),
+            new TypeProperty("property", new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input)).AsEnumerable(),
             null);
 
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<ObjectType>()
@@ -128,7 +128,7 @@ public class ResourceDerivedTypeResolverTests
         var containsUnresolved = new ObjectType("object",
             TypeSymbolValidationFlags.Default,
             ImmutableArray<TypeProperty>.Empty,
-            new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any));
+            new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input));
 
         var hydratedContainer = sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<ObjectType>().Subject;
         hydratedContainer.AdditionalPropertiesType.Should().NotBeNull();
@@ -142,7 +142,7 @@ public class ResourceDerivedTypeResolverTests
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
         var containsUnresolved = TypeHelper.CreateTypeUnion(LanguageConstants.String,
-            new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any));
+            new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input));
 
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<UnionType>()
             .Subject.Members.Should().Contain(hydrated);
@@ -154,7 +154,7 @@ public class ResourceDerivedTypeResolverTests
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnresolved = new TypeType(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any));
+        var containsUnresolved = new TypeType(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input));
 
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<TypeType>()
             .Subject.Unwrapped.Should().BeSameAs(hydrated);
@@ -168,11 +168,11 @@ public class ResourceDerivedTypeResolverTests
 
         var containsUnresolved = new LambdaType(
             [
-                TypeFactory.CreateArrayType(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any)),
-                new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any),
+                TypeFactory.CreateArrayType(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input)),
+                new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input),
             ],
             [],
-            new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any));
+            new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input));
 
         var bound = sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<LambdaType>().Subject;
         bound.ArgumentTypes.Should().SatisfyRespectively(
@@ -238,7 +238,7 @@ public class ResourceDerivedTypeResolverTests
         ResourceDerivedTypeResolver sut = new(binderMock.Object);
         var fallbackType = LanguageConstants.SecureString;
 
-        sut.ResolveResourceDerivedTypes(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], fallbackType)).Should().BeSameAs(fallbackType);
+        sut.ResolveResourceDerivedTypes(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], fallbackType, ResourceDerivedTypeVariant.Input)).Should().BeSameAs(fallbackType);
 
         resourceTypeProviderMock.Verify(x => x.TryGetDefinedType(stubbedNamespaceType, unhydratedTypeRef, ResourceTypeGenerationFlags.None), Times.Once());
         resourceTypeProviderMock.Verify(x => x.TryGenerateFallbackType(stubbedNamespaceType, unhydratedTypeRef, ResourceTypeGenerationFlags.None), Times.Once());
@@ -248,40 +248,98 @@ public class ResourceDerivedTypeResolverTests
     public void Supports_pointers_to_partial_resource_body_types()
     {
         var targetType = TypeFactory.CreateBooleanLiteralType(false);
-        var hydrated = new ObjectType("object",
+        var hydrated = new ObjectType(
+            "object",
             TypeSymbolValidationFlags.Default,
-            ImmutableArray.Create(new TypeProperty("property",
+            ImmutableArray.Create(new TypeProperty(
+                "property",
                 new TupleType(
-                    [
-                        new ObjectType("dictionary",
-                                        TypeSymbolValidationFlags.Default,
-                                        ImmutableArray<TypeProperty>.Empty,
-                                        TypeFactory.CreateArrayType(new DiscriminatedObjectType("taggedUnion",
-                                            TypeSymbolValidationFlags.Default,
-                                            "type",
-                                            ImmutableArray.Create<ITypeReference>(
-                                                new ObjectType("fooVariant",
-                                                    TypeSymbolValidationFlags.Default,
-                                                    ImmutableArray.Create(
-                                                        new TypeProperty("type", TypeFactory.CreateStringLiteralType("foo")),
-                                                        new TypeProperty("property", LanguageConstants.Int)),
-                                                    null),
-                                                new ObjectType("barVariant",
-                                                    TypeSymbolValidationFlags.Default,
-                                                    ImmutableArray.Create(
-                                                        new TypeProperty("type", TypeFactory.CreateStringLiteralType("bar")),
-                                                        new TypeProperty("property", targetType)),
-                                                    null))))),
-                    ],
-                    TypeSymbolValidationFlags.Default))),
+                [
+                    new ObjectType(
+                        "dictionary",
+                        TypeSymbolValidationFlags.Default,
+                        ImmutableArray<TypeProperty>.Empty,
+                        TypeFactory.CreateArrayType(new DiscriminatedObjectType(
+                            "taggedUnion",
+                            TypeSymbolValidationFlags.Default,
+                            "type",
+                            ImmutableArray.Create<ITypeReference>(
+                                new ObjectType(
+                                    "fooVariant",
+                                    TypeSymbolValidationFlags.Default,
+                                    ImmutableArray.Create(
+                                        new TypeProperty("type", TypeFactory.CreateStringLiteralType("foo")),
+                                        new TypeProperty("property", LanguageConstants.Int)),
+                                    null),
+                                new ObjectType(
+                                    "barVariant",
+                                    TypeSymbolValidationFlags.Default,
+                                    ImmutableArray.Create(
+                                        new TypeProperty("type", TypeFactory.CreateStringLiteralType("bar")),
+                                        new TypeProperty("property", targetType)),
+                                    null))))),
+                ],
+                TypeSymbolValidationFlags.Default))),
             null);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        UnresolvedResourceDerivedType unresolved = new(unhydratedTypeRef,
+        UnresolvedResourceDerivedType unresolved = new(
+            unhydratedTypeRef,
             ["properties", "property", "prefixItems", "0", "additionalProperties", "items", "discriminator", "mapping", "bar", "properties", "property"],
-            LanguageConstants.Any);
+            LanguageConstants.Any,
+            ResourceDerivedTypeVariant.Input);
 
         var bound = sut.ResolveResourceDerivedTypes(unresolved);
         bound.Should().BeSameAs(targetType);
+    }
+
+    [TestMethod]
+    public void Input_variant_strips_WriteOnly_flags()
+    {
+        var hydrated = new ObjectType(
+            "object",
+            TypeSymbolValidationFlags.Default,
+            ImmutableArray.Create(new TypeProperty(
+                "property",
+                LanguageConstants.String,
+                TypePropertyFlags.WriteOnly)),
+            null);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
+
+        UnresolvedResourceDerivedType unresolved = new(
+            unhydratedTypeRef,
+            [],
+            LanguageConstants.Any,
+            ResourceDerivedTypeVariant.Input);
+
+        var bound = sut.ResolveResourceDerivedTypes(unresolved);
+        var boundObject = bound.Should().BeAssignableTo<ObjectType>().Subject;
+        boundObject.Properties.TryGetValue("property", out var property).Should().BeTrue();
+        property!.Flags.Should().NotHaveFlag(TypePropertyFlags.WriteOnly);
+    }
+
+    [TestMethod]
+    public void Output_variant_strips_ReadOnly_flags()
+    {
+        var hydrated = new ObjectType(
+            "object",
+            TypeSymbolValidationFlags.Default,
+            ImmutableArray.Create(new TypeProperty(
+                "property",
+                LanguageConstants.String,
+                TypePropertyFlags.ReadOnly)),
+            null);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
+
+        UnresolvedResourceDerivedType unresolved = new(
+            unhydratedTypeRef,
+            [],
+            LanguageConstants.Any,
+            ResourceDerivedTypeVariant.Output);
+
+        var bound = sut.ResolveResourceDerivedTypes(unresolved);
+        var boundObject = bound.Should().BeAssignableTo<ObjectType>().Subject;
+        boundObject.Properties.TryGetValue("property", out var property).Should().BeTrue();
+        property!.Flags.Should().NotHaveFlag(TypePropertyFlags.ReadOnly);
     }
 }

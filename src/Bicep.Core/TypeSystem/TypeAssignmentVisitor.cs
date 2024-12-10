@@ -729,6 +729,12 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax)
+            => VisitParameterizedTypeInstantiationSyntaxBase(syntax);
+
+        public override void VisitInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax)
+            => VisitParameterizedTypeInstantiationSyntaxBase(syntax);
+
+        private void VisitParameterizedTypeInstantiationSyntaxBase(ParameterizedTypeInstantiationSyntaxBase syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = typeManager.TryGetReifiedType(syntax)?.ExpressedType;
@@ -738,6 +744,12 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+
+                // resource<> is deprecated
+                if (syntax.Name.IdentifierName.Equals(LanguageConstants.TypeNameResource))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name).ResourceParameterizedTypeIsDeprecated(syntax));
+                }
 
                 return declaredType;
             });
@@ -1307,7 +1319,12 @@ namespace Bicep.Core.TypeSystem
                             {
                                 // we've found a declared object type for the containing object, with a matching property name definition.
                                 // preserve the type property details (name, descriptions etc.), and update the assigned type.
-                                namedProperties[name] = new TypeProperty(property.Name, resolvedType, property.Flags, property.Description);
+                                // Since this type corresponds to a value that is being supplied, make sure it has the `Required` flag and does not have the `.ReadOnly` flag
+                                namedProperties[name] = new TypeProperty(
+                                    property.Name,
+                                    resolvedType,
+                                    (property.Flags | TypePropertyFlags.Required) & ~TypePropertyFlags.ReadOnly,
+                                    property.Description);
                             }
                             else
                             {

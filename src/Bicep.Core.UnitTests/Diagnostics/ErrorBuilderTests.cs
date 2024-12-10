@@ -201,6 +201,15 @@ namespace Bicep.Core.UnitTests.Diagnostics
                     TestSyntaxFactory.CreateVariableAccess("identifier"));
             }
 
+            if (parameter.ParameterType == typeof(ParameterizedTypeInstantiationSyntaxBase))
+            {
+                return new ParameterizedTypeInstantiationSyntax(
+                    TestSyntaxFactory.CreateIdentifier("foo"),
+                    SyntaxFactory.CreateToken(TokenType.LeftChevron),
+                    TestSyntaxFactory.CreateString("RP.Namespace/widgets@v1").AsEnumerable(),
+                    SyntaxFactory.CreateToken(TokenType.RightChevron));
+            }
+
             if (parameter.ParameterType == typeof(ExportMetadataKind))
             {
                 return ExportMetadataKind.Error;
