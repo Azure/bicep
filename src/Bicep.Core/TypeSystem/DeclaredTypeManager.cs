@@ -294,7 +294,7 @@ namespace Bicep.Core.TypeSystem
         };
 
         private TypeSymbol GetTypePropertyType(ObjectTypePropertySyntax syntax, TypeSymbol typeSymbol)
-            => ApplyTypeModifyingDecorators(DisallowNamespaceTypes(UnwrapType(syntax.Value, typeSymbol), syntax.Value), syntax);
+            => ApplyTypeModifyingDecorators(DisallowNamespaceTypes(UnwrapType(typeSymbol), syntax.Value), syntax);
 
         private TypeSymbol GetInstantiatedType(ParameterizedTypeInstantiationSyntaxBase syntax)
             => GetReifiedTypeResult(syntax).IsSuccess(out var typeExpression, out var error)
@@ -554,9 +554,9 @@ namespace Bicep.Core.TypeSystem
                 BuiltInNamespaceSymbol builtInNamespace => builtInNamespace.Type,
                 ExtensionNamespaceSymbol extensionNamespace => extensionNamespace.Type,
                 WildcardImportSymbol wildcardImport => wildcardImport.Type,
-                AmbientTypeSymbol ambientType => UnwrapType(syntax, ambientType.Type),
-                ImportedTypeSymbol importedType => UnwrapType(syntax, importedType.Type),
-                TypeAliasSymbol declaredType => TypeRefToType(syntax, declaredType),
+                AmbientTypeSymbol ambientType => EnsureNonParameterizedType(syntax, UnwrapType(ambientType.Type)),
+                ImportedTypeSymbol importedType => EnsureNonParameterizedType(syntax, UnwrapType(importedType.Type)),
+                TypeAliasSymbol declaredType => EnsureNonParameterizedType(syntax, TypeRefToType(syntax, declaredType)),
                 DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
             };
@@ -588,7 +588,7 @@ namespace Bicep.Core.TypeSystem
         private ResultWithDiagnostic<TypeExpression> InstantiateType(InstanceParameterizedTypeInstantiationSyntax syntax)
         {
             var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression).Type;
-            var propertyType = FinalizeTypePropertyType(baseType, syntax.PropertyName.IdentifierName, syntax.PropertyName);
+            var propertyType = GetTypePropertyType(baseType, syntax.PropertyName.IdentifierName, syntax.PropertyName);
 
             return InstantiateType(syntax, $"{baseType.Name}.{syntax.PropertyName.IdentifierName}", propertyType);
         }
@@ -961,15 +961,18 @@ namespace Bicep.Core.TypeSystem
             ParameterizedTypeInstantiationSyntax parameterized
                 when binder.GetSymbolInfo(parameterized) is AmbientTypeSymbol ambient &&
                 ambient.DeclaringNamespace.ExtensionNameEquals(SystemNamespaceType.BuiltInName) &&
-                LanguageConstants.IdentifierComparer.Equals(ambient.Name, LanguageConstants.TypeNameResource) => true,
+                LanguageConstants.ResourceDerivedTypeNames.Contains(ambient.Name) => true,
             InstanceParameterizedTypeInstantiationSyntax parameterized
                 when binder.GetSymbolInfo(parameterized.BaseExpression) is BuiltInNamespaceSymbol ns &&
                 ns.TryGetNamespaceType()?.ExtensionNameEquals(SystemNamespaceType.BuiltInName) is true &&
-                LanguageConstants.IdentifierComparer.Equals(parameterized.Name.IdentifierName, LanguageConstants.TypeNameResource) => true,
+                LanguageConstants.ResourceDerivedTypeNames.Contains(parameterized.Name.IdentifierName) => true,
             _ => false,
         };
 
         private static TypeSymbol FinalizeTypePropertyType(ITypeReference baseExpressionType, string propertyName, SyntaxBase propertyNameSyntax)
+            => EnsureNonParameterizedType(propertyNameSyntax, GetTypePropertyType(baseExpressionType, propertyName, propertyNameSyntax));
+
+        private static TypeSymbol GetTypePropertyType(ITypeReference baseExpressionType, string propertyName, SyntaxBase propertyNameSyntax)
         {
             var baseType = baseExpressionType.Type;
 
@@ -995,7 +998,7 @@ namespace Bicep.Core.TypeSystem
                         .Invoke(DiagnosticBuilder.ForPosition(propertyNameSyntax)));
             }
 
-            return UnwrapType(propertyNameSyntax, typeProperty.TypeReference.Type);
+            return UnwrapType(typeProperty.TypeReference.Type);
         }
 
         private ITypeReference ConvertTypeExpressionToType(TypeArrayAccessSyntax syntax, ulong index)
@@ -1037,7 +1040,7 @@ namespace Bicep.Core.TypeSystem
                     .IndexOutOfBounds(baseType.Name, tupleType.Items.Length, index <= long.MaxValue ? (long)index : long.MaxValue));
             }
 
-            return UnwrapType(syntax.IndexExpression, tupleType.Items[(int)index].Type);
+            return EnsureNonParameterizedType(syntax.IndexExpression, UnwrapType(tupleType.Items[(int)index].Type));
         }
 
         private ITypeReference ConvertTypeExpressionToType(TypeAdditionalPropertiesAccessSyntax syntax)
@@ -1073,7 +1076,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Asterisk).ExplicitAdditionalPropertiesTypeRequiredForAccessThereto(baseType));
             }
 
-            return UnwrapType(syntax.Asterisk, @object.AdditionalPropertiesType.Type);
+            return EnsureNonParameterizedType(syntax.Asterisk, UnwrapType(@object.AdditionalPropertiesType.Type));
         }
 
         private ITypeReference ConvertTypeExpressionToType(TypeItemsAccessSyntax syntax)
@@ -1109,7 +1112,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare)).ExplicitItemsTypeRequiredForAccessThereto());
             }
 
-            return UnwrapType(syntax.Asterisk, @array.Item.Type);
+            return EnsureNonParameterizedType(syntax.Asterisk, UnwrapType(@array.Item.Type));
         }
 
         private static TypeSymbol EnsureNonParameterizedType(SyntaxBase syntax, TypeSymbol type) => type switch
@@ -1118,16 +1121,22 @@ namespace Bicep.Core.TypeSystem
             _ => type,
         };
 
-        private static TypeSymbol UnwrapType(SyntaxBase syntax, TypeSymbol type) => EnsureNonParameterizedType(syntax, type) switch
+        private static ITypeReference EnsureNonParameterizedType(SyntaxBase syntax, ITypeReference type) => type switch
+        {
+            DeferredTypeReference => new DeferredTypeReference(() => EnsureNonParameterizedType(syntax, type.Type)),
+            _ => EnsureNonParameterizedType(syntax, type.Type),
+        };
+
+        private static TypeSymbol UnwrapType(TypeSymbol type) => type switch
         {
             TypeType tt => tt.Unwrapped,
             _ => type,
         };
 
-        private static ITypeReference UnwrapType(SyntaxBase syntax, ITypeReference typeReference) => typeReference switch
+        private static ITypeReference UnwrapType(ITypeReference typeReference) => typeReference switch
         {
-            DeferredTypeReference => new DeferredTypeReference(() => UnwrapType(syntax, typeReference.Type)),
-            _ => UnwrapType(syntax, typeReference.Type),
+            DeferredTypeReference => new DeferredTypeReference(() => UnwrapType(typeReference.Type)),
+            _ => UnwrapType(typeReference.Type),
         };
 
         private ITypeReference ConvertTypeExpressionToType(NullableTypeSyntax syntax)

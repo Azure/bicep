@@ -1851,6 +1851,28 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic NameofInvalidOnUnnamedExpression() => CoreError(
                 "BCP408",
                 $"The \"{LanguageConstants.NameofFunctionName}\" function can only be used with an expression which has a name.");
+
+            public Diagnostic ResourceParameterizedTypeIsDeprecated(ParameterizedTypeInstantiationSyntaxBase syntax)
+            {
+                var fixToResourceInput = new CodeFix(
+                    $"Replace the 'resource<>' parameterized type with the 'resourceInput<>' parameterized type (for values that will be used in the right-hand side of a `resource` statement)",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax.Name.Span, LanguageConstants.TypeNameResourceInput));
+
+                var fixToResourceOutput = new CodeFix(
+                    $"Replace the 'resource<>' parameterized type with the 'resourceOutput<>' parameterized type (for values that should match the value of a `resource` symbol after it has been declared)",
+                    // we've encouraged users to adopt resource-derived types for when values will be passed to resource statements. Few if any existing usages should align with `resourceOutput<>`
+                    isPreferred: false,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax.Name.Span, LanguageConstants.TypeNameResourceOutput));
+
+                return CoreWarning(
+                    "BCP409",
+                    "The 'resource<>' parameterized type has been deprecated. Please specify whether you want this type to correspond to the resource input or the resource output.")
+                    with
+                { Fixes = [fixToResourceInput, fixToResourceOutput] };
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

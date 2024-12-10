@@ -6,14 +6,16 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3374352344527551547"
+      "templateHash": "16997408782622068406"
     }
   },
   "definitions": {
     "foo": {
       "type": "string",
       "metadata": {
-        "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+        "__bicep_resource_derived_type!": {
+          "source": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+        }
       }
     },
     "test": {
@@ -22,13 +24,17 @@
         "resA": {
           "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+            "__bicep_resource_derived_type!": {
+              "source": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+            }
           }
         },
         "resB": {
           "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+            "__bicep_resource_derived_type!": {
+              "source": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+            }
           }
         },
         "resC": {
@@ -37,7 +43,9 @@
         "resD": {
           "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+            "__bicep_resource_derived_type!": {
+              "source": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+            }
           }
         }
       }
@@ -48,19 +56,25 @@
         "test": {
           "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview#properties/name"
+            "__bicep_resource_derived_type!": {
+              "source": "Astronomer.Astro/organizations@2023-08-01-preview#properties/name"
+            }
           }
         },
         "test2": {
           "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+            "__bicep_resource_derived_type!": {
+              "source": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+            }
           }
         },
         "test3": {
           "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+            "__bicep_resource_derived_type!": {
+              "source": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+            }
           }
         }
       }
@@ -68,26 +82,34 @@
     "test2": {
       "type": "string",
       "metadata": {
-        "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview#properties/name",
+        "__bicep_resource_derived_type!": {
+          "source": "Astronomer.Astro/organizations@2023-08-01-preview#properties/name"
+        },
         "description": "I love space(s)"
       }
     },
     "storageAccountName": {
       "type": "string",
       "metadata": {
-        "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+        "__bicep_resource_derived_type!": {
+          "source": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+        }
       }
     },
     "accessPolicy": {
       "type": "object",
       "metadata": {
-        "__bicep_resource_derived_type!": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items"
+        "__bicep_resource_derived_type!": {
+          "source": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items"
+        }
       }
     },
     "tag": {
       "type": "string",
       "metadata": {
-        "__bicep_resource_derived_type!": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
+        "__bicep_resource_derived_type!": {
+          "source": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
+        }
       }
     }
   },
@@ -95,7 +117,9 @@
     "bar": {
       "type": "object",
       "metadata": {
-        "__bicep_resource_derived_type!": "Microsoft.Resources/tags@2022-09-01#properties/properties"
+        "__bicep_resource_derived_type!": {
+          "source": "Microsoft.Resources/tags@2022-09-01#properties/properties"
+        }
       },
       "defaultValue": {
         "tags": {
@@ -110,7 +134,9 @@
     "baz": {
       "type": "string",
       "metadata": {
-        "__bicep_resource_derived_type!": "Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31#properties/name"
+        "__bicep_resource_derived_type!": {
+          "source": "Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31#properties/name"
+        }
       },
       "value": "myId"
     }

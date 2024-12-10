@@ -12,6 +12,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem;
@@ -62,10 +63,29 @@ public static class ArmTemplateTypeLoader
     private static ITypeReference? TryGetResourceDerivedType(SchemaValidationContext context, ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags flags)
     {
         if (schemaNode.Metadata?.Value is JObject metadataObject &&
-            metadataObject.TryGetValue(LanguageConstants.MetadataResourceDerivedTypePropertyName, out var resourceType) &&
-            resourceType is JValue { Value: string resourceTypeString })
+            metadataObject.TryGetValue(LanguageConstants.MetadataResourceDerivedTypePropertyName, out var resourceType))
         {
             var fallbackType = ToTypeReference(context, new SansMetadata(schemaNode), flags).Type;
+            var variant = ResourceDerivedTypeVariant.None;
+            string? resourceTypeString = null;
+            if (resourceType.GetProperty(LanguageConstants.MetadataResourceDerivedTypePointerPropertyName)
+                ?.TryGetStringValue() is string pointerPropVal)
+            {
+                variant = resourceType.TryGetProperty<bool>(LanguageConstants.MetadataResourceDerivedTypeOutputFlagName)
+                    ? ResourceDerivedTypeVariant.Output
+                    : ResourceDerivedTypeVariant.Input;
+                resourceTypeString = pointerPropVal;
+            }
+            // The legacy representation uses a string (the type pointer), not an object
+            else if (resourceType.TryGetStringValue() is string strVal)
+            {
+                resourceTypeString = strVal;
+            }
+
+            if (resourceTypeString is null)
+            {
+                return new UnparsableResourceDerivedType(resourceType.ToString(), fallbackType);
+            }
 
             var resourceTypeStringParts = resourceTypeString.Split('#', 2);
             var resourceTypeIdentifier = resourceTypeStringParts[0];
@@ -74,7 +94,7 @@ public static class ArmTemplateTypeLoader
                 : [];
 
             return ResourceTypeReference.TryParse(resourceTypeIdentifier) is ResourceTypeReference resourceTypeReference
-                ? new UnresolvedResourceDerivedType(resourceTypeReference, internalPointerSegments, fallbackType)
+                ? new UnresolvedResourceDerivedType(resourceTypeReference, internalPointerSegments, fallbackType, variant)
                 : new UnparsableResourceDerivedType(resourceTypeIdentifier, fallbackType);
         }
 
@@ -231,6 +251,7 @@ public static class ArmTemplateTypeLoader
                 variants.Add(TryGetResourceDerivedType(context, variant, flags) is UnresolvedResourceDerivedType resourceDerivedObject
                     ? new UnresolvedResourceDerivedPartialObjectType(resourceDerivedObject.TypeReference,
                         resourceDerivedObject.PointerSegments,
+                        resourceDerivedObject.Variant,
                         discriminator.PropertyName.Value,
                         mappingEntry.Key)
                     : GetObjectType(

@@ -71,7 +71,7 @@ namespace Bicep.Core.Semantics.Namespaces
         /// </summary>
         public IEnumerable<AmbientTypeSymbol> ResolveUnqualifiedTypeSymbol(IdentifierSyntax identifierSyntax) => this.namespaceTypes.Values
             .Select(@namespace => @namespace.Properties.TryGetValue(identifierSyntax.IdentifierName, out var found)
-                ? new AmbientTypeSymbol(identifierSyntax.IdentifierName, found.TypeReference.Type, @namespace, found.Description)
+                ? new AmbientTypeSymbol(identifierSyntax.IdentifierName, found.TypeReference.Type, @namespace, found.Flags, found.Description)
                 : null)
             .WhereNotNull();
 
@@ -90,7 +90,7 @@ namespace Bicep.Core.Semantics.Namespaces
             => this.namespaceTypes.Values.SelectMany(type => type.Properties.Keys);
 
         public IEnumerable<AmbientTypeSymbol> GetKnownTypes() => this.namespaceTypes.Values
-            .SelectMany(@namespace => @namespace.Properties.Select(p => new AmbientTypeSymbol(p.Key, p.Value.TypeReference.Type, @namespace, p.Value.Description)));
+            .SelectMany(@namespace => @namespace.Properties.Select(p => new AmbientTypeSymbol(p.Key, p.Value.TypeReference.Type, @namespace, p.Value.Flags, p.Value.Description)));
 
         public IEnumerable<string> GetNamespaceNames()
             => this.namespaceTypes.Keys;

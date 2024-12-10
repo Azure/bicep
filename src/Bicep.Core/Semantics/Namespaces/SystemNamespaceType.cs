@@ -1803,7 +1803,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             case AccessExpressionSyntax accessExpression when binder.GetSymbolInfo(accessExpression.BaseExpression) is not BuiltInNamespaceSymbol:
                                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
                                 break;
-                            case ParameterizedTypeInstantiationSyntaxBase parameterized when LanguageConstants.IdentifierComparer.Equals(parameterized.Name.IdentifierName, LanguageConstants.TypeNameResource):
+                            case ParameterizedTypeInstantiationSyntaxBase parameterized when LanguageConstants.ResourceDerivedTypeNames.Contains(parameterized.Name.IdentifierName):
                                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetResourceDerivedType(decoratorName));
                                 break;
                             case ObjectTypeSyntax @object when @object.AdditionalProperties is not null:
@@ -1933,33 +1933,67 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static IEnumerable<TypeProperty> GetResourceDerivedTypesTypeProperties()
             {
-                yield return new(LanguageConstants.TypeNameResource,
-                    new TypeTemplate(LanguageConstants.TypeNameResource,
-                        [
-                            new TypeParameter("ResourceTypeIdentifier",
-                                        "A string of the format `<type-name>@<api-version>` that identifies the kind of resource whose body type definition is to be used.",
-                                        LanguageConstants.StringResourceIdentifier),
-                        ],
-                        (binder, syntax, argumentTypes) =>
+                ImmutableArray<TypeParameter> resourceInputParameters = [new TypeParameter(
+                    "ResourceTypeIdentifier",
+                    "A string of the format `<type-name>@<api-version>` that identifies the kind of resource whose body type definition is to be used.",
+                    LanguageConstants.StringResourceIdentifier)];
+
+                static TypeTemplate.InstantiatorDelegate GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant derivedTypeVariant)
+                    => (binder, syntax, argumentTypes) =>
+                    {
+                        if (syntax.Arguments.FirstOrDefault()?.Expression is not StringTypeLiteralSyntax stringArg || stringArg.SegmentValues.Length > 1)
                         {
-                            if (syntax.Arguments.FirstOrDefault()?.Expression is not StringTypeLiteralSyntax stringArg || stringArg.SegmentValues.Length > 1)
-                            {
-                                return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
-                            }
+                            return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
+                        }
 
-                            if (!TypeHelper.GetResourceTypeFromString(binder, stringArg.SegmentValues[0], ResourceTypeGenerationFlags.None, parentResourceType: null)
-                                .IsSuccess(out var resourceType, out var errorBuilder))
-                            {
-                                return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
-                            }
+                        if (!TypeHelper.GetResourceTypeFromString(binder, stringArg.SegmentValues[0], ResourceTypeGenerationFlags.None, parentResourceType: null)
+                            .IsSuccess(out var resourceType, out var errorBuilder))
+                        {
+                            return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
+                        }
 
-                            return new(new ResourceDerivedTypeExpression(syntax, resourceType));
-                        }),
-                    description: """
+                        return new(new ResourceDerivedTypeExpression(syntax, resourceType, derivedTypeVariant));
+                    };
+
+                var resourceDerivedTypeNotaBene = "NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.";
+
+                yield return new(
+                    LanguageConstants.TypeNameResource,
+                    new TypeTemplate(
+                        LanguageConstants.TypeNameResource,
+                        resourceInputParameters,
+                        GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.None)),
+                    flags: TypePropertyFlags.FallbackProperty,
+                    description: $"""
                         Use the type definition of the body of a specific resource rather than a user-defined type.
 
-                        NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.
+                        {resourceDerivedTypeNotaBene}
                         """);
+
+                yield return new(
+                    LanguageConstants.TypeNameResourceInput,
+                    new TypeTemplate(
+                        LanguageConstants.TypeNameResourceInput,
+                        resourceInputParameters,
+                        GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.Input)),
+                    description: $"""
+                        Use the type definition of the input for a specific resource rather than a user-defined type.
+
+                        {resourceDerivedTypeNotaBene}
+                        """);
+
+                yield return new(
+                    LanguageConstants.TypeNameResourceOutput,
+                    new TypeTemplate(
+                        LanguageConstants.TypeNameResourceOutput,
+                        resourceInputParameters,
+                        GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.Output)),
+                    description: $"""
+                        Use the type definition of the return value of a specific resource rather than a user-defined type.
+
+                        {resourceDerivedTypeNotaBene}
+                        """);
+
             }
 
             foreach (var typeProp in GetArmPrimitiveTypes())

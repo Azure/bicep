@@ -465,27 +465,50 @@ namespace Bicep.Core.Emit
                 => PointerSegments.AddRange("discriminator", "mapping", discriminatorValue);
         }
 
-        private record ResourceDerivedTypeResolution(ResourceTypeReference RootResourceTypeReference, ImmutableArray<string> PointerSegments, TypeSymbol DerivedType) : ITypeReferenceExpressionResolution
+        private record ResourceDerivedTypeResolution(
+            ResourceTypeReference RootResourceTypeReference,
+            ImmutableArray<string> PointerSegments,
+            TypeSymbol DerivedType,
+            ResourceDerivedTypeVariant Variant) : ITypeReferenceExpressionResolution
         {
             internal ResourceDerivedTypeResolution(ResourceDerivedTypeExpression expression)
-                : this(expression.RootResourceType.TypeReference, [], expression.RootResourceType.Body.Type) { }
+                : this(expression.RootResourceType.TypeReference, [], expression.ExpressedType, expression.Variant) { }
 
             public ObjectExpression GetTypePropertiesForResolvedReferenceExpression(SyntaxBase? sourceSyntax)
-                => ExpressionFactory.CreateObject(new[]
+            {
+                var typePointerProperty = ExpressionFactory.CreateObjectProperty(
+                    LanguageConstants.MetadataResourceDerivedTypePointerPropertyName,
+                    ExpressionFactory.CreateStringLiteral(string.Concat(
+                        RootResourceTypeReference.FormatName(),
+                        PointerSegments.IsEmpty ? string.Empty : '#',
+                        string.Join('/', PointerSegments.Select(StringExtensions.Rfc6901Encode)))));
+                var metadataValue = Variant switch
+                {
+                    ResourceDerivedTypeVariant.Input => ExpressionFactory.CreateObject(typePointerProperty.AsEnumerable()),
+                    ResourceDerivedTypeVariant.Output => ExpressionFactory.CreateObject(new[]
+                    {
+                        typePointerProperty,
+                        ExpressionFactory.CreateObjectProperty(
+                            LanguageConstants.MetadataResourceDerivedTypeOutputFlagName,
+                            ExpressionFactory.CreateBooleanLiteral(true))
+                    }),
+                    // The legacy representation uses a string (the type pointer), not an object
+                    _ => typePointerProperty.Value,
+                };
+
+                return ExpressionFactory.CreateObject(new[]
                 {
                     TypeProperty(GetNonLiteralTypeName(DerivedType), sourceSyntax),
                     ExpressionFactory.CreateObjectProperty(LanguageConstants.ParameterMetadataPropertyName,
                         ExpressionFactory.CreateObject(
-                            ExpressionFactory.CreateObjectProperty(LanguageConstants.MetadataResourceDerivedTypePropertyName,
-                                ExpressionFactory.CreateStringLiteral(
-                                    PointerSegments.IsEmpty
-                                        ? RootResourceTypeReference.FormatName()
-                                        : $"{RootResourceTypeReference.FormatName()}#{string.Join('/', PointerSegments.Select(StringExtensions.Rfc6901Encode))}",
-                                    sourceSyntax),
+                            ExpressionFactory.CreateObjectProperty(
+                                LanguageConstants.MetadataResourceDerivedTypePropertyName,
+                                metadataValue,
                                 sourceSyntax).AsEnumerable(),
                             sourceSyntax),
                         sourceSyntax),
                 });
+            }
         }
 
         private record ResolvedInternalReference(ImmutableArray<string> PointerSegments, TypeExpression Declaration) : ITypeReferenceExpressionResolution
@@ -566,7 +589,8 @@ namespace Bicep.Core.Emit
                 return new ResourceDerivedTypeResolution(
                     resourceDerived.RootResourceTypeReference,
                     resolution.SegmentsForProperty(propertyAccess.PropertyName),
-                    propertyAccess.ExpressedType);
+                    propertyAccess.ExpressedType,
+                    resourceDerived.Variant);
             }
 
             throw new ArgumentException($"Unable to handle resolution of type {resolution.GetType().Name}.");
@@ -595,7 +619,8 @@ namespace Bicep.Core.Emit
                 return new ResourceDerivedTypeResolution(
                     resourceDerived.RootResourceTypeReference,
                     resolution.SegmentsForAdditionalProperties(),
-                    additionalPropertiesAccess.ExpressedType);
+                    additionalPropertiesAccess.ExpressedType,
+                    resourceDerived.Variant);
             }
 
             throw new ArgumentException($"Unable to handle resolution of type {resolution.GetType().Name}.");
@@ -639,7 +664,8 @@ namespace Bicep.Core.Emit
                 return new ResourceDerivedTypeResolution(
                     resourceDerived.RootResourceTypeReference,
                     currentResolution.SegmentsForIndex(indexAccess.Index),
-                    indexAccess.ExpressedType);
+                    indexAccess.ExpressedType,
+                    resourceDerived.Variant);
             }
 
             throw new ArgumentException($"Unable to handle resolution of type {currentResolution.GetType().Name}.");
@@ -667,7 +693,8 @@ namespace Bicep.Core.Emit
                 return new ResourceDerivedTypeResolution(
                     resourceDerived.RootResourceTypeReference,
                     currentResolution.SegmentsForItems(),
-                    itemsAccess.ExpressedType);
+                    itemsAccess.ExpressedType,
+                    resourceDerived.Variant);
             }
 
             throw new ArgumentException($"Unable to handle resolution of type {currentResolution.GetType().Name}.");
@@ -910,7 +937,8 @@ namespace Bicep.Core.Emit
                     var variantResolution = new ResourceDerivedTypeResolution(
                         resolution.RootResourceTypeReference,
                         (resolution as ITypeReferenceExpressionResolution).SegmentsForVariant(discriminatorValue),
-                        variant);
+                        variant,
+                        resolution.Variant);
 
                     yield return ExpressionFactory.CreateObjectProperty(
                         discriminatorValue,
