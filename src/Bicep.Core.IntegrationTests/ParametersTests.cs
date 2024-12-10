@@ -9,6 +9,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -445,7 +446,7 @@ param stringParam =  /*TODO*/
                 param foo string
               "));
 
-            var path = PathHelper.ResolveAndNormalizePath("/path/to/does-not-exists.bicepparam");
+            var path = InMemoryFileResolver.GetFileUri("/path/to/does-not-exists.bicepparam").LocalPath;
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{path}'."),
