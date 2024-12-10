@@ -74,11 +74,11 @@ param foo: string
                 source,
                 publishSource: false);
 
-        var cacheRootPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext);
         var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
             TestContext,
             services => services
-                .WithFeatureOverrides(new(CacheRootDirectory: cacheRootPath))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot))
                 .WithContainerRegistryClientFactory(clientFactory)
                 .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>());
 

@@ -30,7 +30,7 @@ public class FeatureProviderTests
         var fileExplorer = new FileSystemFileExplorer(fileSystem);
         var configManager = new ConfigurationManager(fileExplorer);
         var configuration = configManager.GetConfiguration(new Uri(this.CreatePath("repo/main.bicep")));
-        var fpm = new FeatureProviderFactory(configManager);
+        var fpm = new FeatureProviderFactory(configManager, fileExplorer);
 
         var control = fpm.GetFeatureProvider(new Uri("file:///main.bicep"));
         var sut = fpm.GetFeatureProvider(new Uri(this.CreatePath("repo/main.bicep")));
@@ -50,7 +50,7 @@ public class FeatureProviderTests
         var fileExplorer = new FileSystemFileExplorer(fileSystem);
         var configManager = new ConfigurationManager(fileExplorer);
         var configuration = configManager.GetConfiguration(new Uri(this.CreatePath("repo/main.bicep")));
-        var fpm = new FeatureProviderFactory(configManager);
+        var fpm = new FeatureProviderFactory(configManager, fileExplorer);
 
         var control = fpm.GetFeatureProvider(new Uri("file:///main.bicep"));
         control.ExtensibilityEnabled.Should().BeFalse();

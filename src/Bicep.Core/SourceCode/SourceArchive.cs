@@ -17,6 +17,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.SourceCode
@@ -171,7 +172,7 @@ namespace Bicep.Core.SourceCode
         /// in JSON form) into an archive (as a stream)
         /// </summary>
         /// <returns>A .tgz file as a binary stream</returns>
-        public static Stream PackSourcesIntoStream(IModuleDispatcher moduleDispatcher, SourceFileGrouping sourceFileGrouping, string? cacheRoot)
+        public static Stream PackSourcesIntoStream(IModuleDispatcher moduleDispatcher, SourceFileGrouping sourceFileGrouping, IDirectoryHandle? cacheRoot)
         {
             // Find the artifact reference for each source file of an external module that was published with sources
             Dictionary<Uri, OciArtifactReference> uriToArtifactReference = new();
@@ -197,12 +198,12 @@ namespace Bicep.Core.SourceCode
             return PackSourcesIntoStream(sourceFileGrouping.EntryPoint.Uri, cacheRoot, documentLinks, sourceFilesWithArtifactReference.ToArray());
         }
 
-        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, params SourceFileWithArtifactReference[] sourceFiles)
+        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, IDirectoryHandle? cacheRoot, params SourceFileWithArtifactReference[] sourceFiles)
         {
             return PackSourcesIntoStream(entrypointFileUri, cacheRoot, documentLinks: null, sourceFiles);
         }
 
-        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params SourceFileWithArtifactReference[] sourceFiles)
+        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, IDirectoryHandle? cacheRoot, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params SourceFileWithArtifactReference[] sourceFiles)
         {
             // Don't package template spec files - they don't appear in the compiled JSON so we shouldn't expose them
             sourceFiles = sourceFiles.Where(sf => sf.SourceFile is not TemplateSpecFile).ToArray();
@@ -223,9 +224,9 @@ namespace Bicep.Core.SourceCode
                     string? entryPointPath = null;
 
                     var paths = sourceFiles.Select(f => GetPath(f.SourceFile.Uri)).ToArray();
-                    var mapPathToRootPath = SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, paths);
+                    var mapPathToRootPath = SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot?.Uri.TryGetLocalFilePath(), paths);
                     var entrypointRootPath = mapPathToRootPath[GetPath(entrypointFileUri)];
-                    var mapRootPathToRootNewName = NameRoots(mapPathToRootPath, entrypointRootPath, cacheRoot);
+                    var mapRootPathToRootNewName = NameRoots(mapPathToRootPath, entrypointRootPath, cacheRoot?.Uri.TryGetLocalFilePath());
 
                     var sourceUriToRelativePathMap = new Dictionary<Uri, string>();
 

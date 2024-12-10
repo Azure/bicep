@@ -9,6 +9,7 @@ using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -770,9 +771,10 @@ namespace Bicep.Core.UnitTests.Registry
             return (OciArtifactRegistry, OciArtifactReference);
         }
 
-        private IFeatureProvider GetFeatures(string cacheRootDirectory)
+        private IFeatureProvider GetFeatures(string cacheRootDirectoryPath)
         {
             var features = StrictMock.Of<IFeatureProvider>();
+            var cacheRootDirectory = BicepTestConstants.FileExplorer.GetDirectory(IOUri.FromLocalFilePath(cacheRootDirectoryPath));
 
             features.Setup(m => m.CacheRootDirectory).Returns(cacheRootDirectory);
 

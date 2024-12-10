@@ -16,12 +16,6 @@ namespace Bicep.Core.FileSystem
             this.fileSystem = fileSystem;
         }
 
-        public IDisposable? TryAcquireFileLock(Uri fileUri)
-        {
-            RequireFileUri(fileUri);
-            return FileLock.TryAcquire(fileSystem, fileUri.LocalPath);
-        }
-
         public ResultWithDiagnosticBuilder<string> TryRead(Uri fileUri)
             => TryReadInternal<string>(fileUri, 0, stream =>
             {
