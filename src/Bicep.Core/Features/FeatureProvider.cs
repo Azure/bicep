@@ -67,7 +67,7 @@ namespace Bicep.Core.Features
 
         private IDirectoryHandle GetCacheRootDirectory(string? customPath) =>
             this.GetCacheRootDirectoryFromLocalPath(string.IsNullOrWhiteSpace(customPath)
-                ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+                ? $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.bicep"
                 : customPath);
 
         private IDirectoryHandle GetCacheRootDirectoryFromLocalPath(string localPath) =>
