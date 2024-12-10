@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
@@ -399,6 +400,84 @@ param objectParam =  /*TODO*/
 param stringParam =  /*TODO*/
 
 """);
+        }
+
+        [TestMethod]
+        public void Valid_extends_should_not_fail()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              "),
+              ("shared.bicepparam", @"
+                using none
+              "),
+              ("main.bicep", @"
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Invalid_extends_reference_does_not_exist_should_fail()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'does-not-exists.bicepparam'
+                param foo = ''
+              "),
+              ("main.bicep", @"
+                param foo string
+              "));
+
+            var path = PathHelper.ResolveAndNormalizePath("/path/to/does-not-exists.bicepparam");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{path}'."),
+            });
+        }
+
+        [TestMethod]
+        public void Invalid_extends_reference_file_type_should_fail()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.json", @"
+                { ""foo"": ""bar"" }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'parameters.json'
+                param foo = ''
+              "),
+              ("main.bicep", @"
+                param foo string
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP404", DiagnosticLevel.Error, "The \"extends\" declaration is missing a bicepparam file path reference"),
+            });
         }
 
         [TestMethod]
