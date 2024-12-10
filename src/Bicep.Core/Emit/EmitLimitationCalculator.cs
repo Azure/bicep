@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -505,10 +507,19 @@ namespace Bicep.Core.Emit
 
             foreach (var extendsDeclaration in extendsDeclarations)
             {
-                if (model.TryGetReferencedModel(extendsDeclaration).IsSuccess(out var extendedModel) &&
-                    extendedModel is SemanticModel extendedSemanticModel)
+                var result = extendsDeclaration.TryGetReferencedModel(model.SourceFileGrouping, model.ModelLookup, b => b.ExtendsPathHasNotBeenSpecified());
+
+                if (result.IsSuccess(out var extendedModel, out var failure))
                 {
+                    if (extendedModel is not SemanticModel extendedSemanticModel)
+                    {
+                        throw new UnreachableException("We have already verified this is a .bicepparam file");
+                    }
                     generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ParameterAssignments);
+                }
+                else
+                {
+                    diagnostics.Write(failure);
                 }
             }
 
