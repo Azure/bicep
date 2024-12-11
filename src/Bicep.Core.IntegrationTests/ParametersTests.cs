@@ -595,7 +595,7 @@ param stringParam =  /*TODO*/
                 ""contentVersion"": ""1.0.0.0"",
                 ""parameters"": {
                     ""foo"": {
-                        ""value"": ""bar""
+                        ""value"": ""foo""
                     },
                     ""bar"": {
                         ""value"": {
