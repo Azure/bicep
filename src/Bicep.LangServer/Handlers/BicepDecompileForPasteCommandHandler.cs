@@ -27,7 +27,8 @@ namespace Bicep.LanguageServer.Handlers
         int rangeOffset,
         int rangeLength,
         string jsonContent,
-        bool queryCanPaste  // True if client is testing clipboard text for menu enabling only, false if the user actually requested a paste
+        bool queryCanPaste,  // True if client is testing clipboard text for menu enabling only, false if the user actually requested a paste,
+        string languageId
     );
 
     public record BicepDecompileForPasteCommandResult
@@ -65,6 +66,22 @@ namespace Bicep.LanguageServer.Handlers
             String, // Pasting inside of a string
         }
 
+        public enum LanguageId
+        {
+            Bicep,
+            BicepParams,
+        }
+
+        private static LanguageId GetLanguageId(string languageId)
+        {
+            return languageId switch
+            {
+                "bicep" => LanguageId.Bicep,
+                "bicep-params" => LanguageId.BicepParams,
+                _ => throw new ArgumentException($"Unexpected languageId value {languageId}"),
+            };
+        }
+
         private record ResultAndTelemetry(BicepDecompileForPasteCommandResult Result, BicepTelemetryEvent? SuccessTelemetry);
 
         public BicepDecompileForPasteCommandHandler(
@@ -88,7 +105,8 @@ namespace Bicep.LanguageServer.Handlers
                     parameters.rangeOffset,
                     parameters.rangeLength,
                     parameters.jsonContent,
-                    parameters.queryCanPaste);
+                    parameters.queryCanPaste,
+                    GetLanguageId(parameters.languageId));
                 return (result, successTelemetry);
             }));
         }
@@ -150,10 +168,10 @@ namespace Bicep.LanguageServer.Handlers
             Trace.TraceInformation(message);
         }
 
-        private async Task<ResultAndTelemetry> TryDecompileForPaste(string bicepContents, int rangeOffset, int rangeLength, string json, bool queryCanPaste)
+        private async Task<ResultAndTelemetry> TryDecompileForPaste(string bicepContents, int rangeOffset, int rangeLength, string json, bool queryCanPaste, LanguageId languageId)
         {
             StringBuilder output = new();
-            string decompileId = Guid.NewGuid().ToString();
+            var decompileId = Guid.NewGuid().ToString();
             var pasteContext = GetPasteContext(bicepContents, rangeOffset, rangeLength);
 
             if (pasteContext == PasteContext.String)
@@ -166,26 +184,32 @@ namespace Bicep.LanguageServer.Handlers
                     GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType: null, bicep: null));
             }
 
-            if (!string.IsNullOrWhiteSpace(json))
+            if (string.IsNullOrWhiteSpace(json))
             {
-                var (pasteType, constructedJsonTemplate) = TryConstructFullJsonTemplate(json);
-                if (pasteType is null)
+                return new ResultAndTelemetry(
+                    new BicepDecompileForPasteCommandResult(
+                        decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteType: null, ErrorMessage: null,
+                        Bicep: null, Disclaimer: null),
+                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType: null, bicep: null));
+            }
+
+            var (pasteType, constructedJsonTemplate) = languageId == LanguageId.Bicep ? TryConstructFullJsonTemplate(json) : (null, null);
+            if (pasteType is null)
+            {
+                // It's not a template or resource.  Try treating it as a JSON value.
+                var resultAndTelemetry = TryConvertFromJsonValue(output, json, decompileId, pasteContext, queryCanPaste);
+                if (resultAndTelemetry is not null)
                 {
-                    // It's not a template or resource.  Try treating it as a JSON value.
-                    var resultAndTelemetry = TryConvertFromJsonValue(output, json, decompileId, pasteContext, queryCanPaste);
-                    if (resultAndTelemetry is not null)
-                    {
-                        return resultAndTelemetry;
-                    }
+                    return resultAndTelemetry;
                 }
-                else
+            }
+            else
+            {
+                // It's a full or partial template and we have converted it into a full template to parse
+                var result = await TryConvertFromConstructedTemplate(output, json, decompileId, pasteContext, pasteType, queryCanPaste, constructedJsonTemplate);
+                if (result is not null)
                 {
-                    // It's a full or partial template and we have converted it into a full template to parse
-                    var result = await TryConvertFromConstructedTemplate(output, json, decompileId, pasteContext, pasteType, queryCanPaste, constructedJsonTemplate);
-                    if (result is not null)
-                    {
-                        return result;
-                    }
+                    return result;
                 }
             }
 

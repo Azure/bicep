@@ -250,6 +250,7 @@ export interface BicepDecompileForPasteCommandParams {
   rangeLength: number;
   jsonContent: string;
   queryCanPaste: boolean;
+  languageId: string;
 }
 
 export interface BicepDecompileForPasteCommandResult {

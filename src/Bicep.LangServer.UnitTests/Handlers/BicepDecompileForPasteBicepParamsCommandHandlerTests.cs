@@ -17,7 +17,7 @@ using static Bicep.LanguageServer.Handlers.BicepDecompileForPasteCommandHandler;
 namespace Bicep.LangServer.UnitTests.Handlers
 {
     [TestClass]
-    public class BicepDecompileForPasteCommandHandlerTests
+    public class BicepDecompileForPasteBicepParamsCommandHandlerTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -33,7 +33,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             return builder.Construct<BicepDecompileForPasteCommandHandler>();
         }
-
+        
         public enum PasteType
         {
             None,
@@ -82,14 +82,14 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var handler = CreateHandler(server);
 
 
-            var result = await handler.Handle(new BicepDecompileForPasteCommandParams(editorContentsWithPastedJson, cursorOffset, options.pastedJson.Length, options.pastedJson, queryCanPaste: false), CancellationToken.None);
+            var result = await handler.Handle(new(editorContentsWithPastedJson, cursorOffset, options.pastedJson.Length, options.pastedJson, queryCanPaste: false, "bicep-params"), CancellationToken.None);
 
             result.ErrorMessage.Should().Be(options.expectedErrorMessage);
 
             if (!options.ignoreGeneratedBicep)
             {
                 var expectedBicep = options.expectedBicep?.Trim('\n');
-                string? actualBicep = result.Bicep?.Trim('\n');
+                var actualBicep = result.Bicep?.Trim('\n');
                 actualBicep.Should().EqualTrimmedLines(expectedBicep);
             }
 
@@ -102,12 +102,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             result.PasteType.Should().Be(options.expectedPasteType switch
             {
-                PasteType.None => BicepDecompileForPasteCommandHandler.PasteType_None,
-                PasteType.FullTemplate => BicepDecompileForPasteCommandHandler.PasteType_FullTemplate,
-                PasteType.SingleResource => BicepDecompileForPasteCommandHandler.PasteType_SingleResource,
-                PasteType.ResourceList => BicepDecompileForPasteCommandHandler.PasteType_ResourceList,
-                PasteType.JsonValue => BicepDecompileForPasteCommandHandler.PasteType_JsonValue,
-                PasteType.BicepValue => BicepDecompileForPasteCommandHandler.PasteType_BicepValue,
+                PasteType.None => PasteType_None,
+                PasteType.FullTemplate => PasteType_FullTemplate,
+                PasteType.SingleResource => PasteType_SingleResource,
+                PasteType.ResourceList => PasteType_ResourceList,
+                PasteType.JsonValue => PasteType_JsonValue,
+                PasteType.BicepValue => PasteType_BicepValue,
                 _ => throw new NotImplementedException(),
             });
         }
