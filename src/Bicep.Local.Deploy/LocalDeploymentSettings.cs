@@ -266,6 +266,12 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public IReadOnlyDictionary<string, Uri> ExtensibilityHostUriOverridesBySubscriptionId => ImmutableDictionary<string, Uri>.Empty;
 
+    public int ExportTemplateTrackedResourcesLimit => int.MaxValue;
+
+    public int ExportTemplateMaximumExportedResourcesCount => int.MaxValue;
+
+    public bool EnforceAntiSSRF => false;
+
     IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledTenantDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
 
     IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledSubscriptionDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
