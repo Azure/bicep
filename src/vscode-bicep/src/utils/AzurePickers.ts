@@ -4,7 +4,7 @@
 import { ManagementGroupInfo, ManagementGroupsAPI } from "@azure/arm-managementgroups";
 import { ResourceGroup, ResourceManagementClient } from "@azure/arm-resources";
 import { DefaultAzureCredential } from "@azure/identity";
-import { AzureSubscription, VSCodeAzureSubscriptionProvider } from "@microsoft/vscode-azext-azureauth";
+import { AzureSubscription, signInToTenant, VSCodeAzureSubscriptionProvider } from "@microsoft/vscode-azext-azureauth";
 import {
   IResourceGroupWizardContext,
   LocationListStep,
@@ -20,7 +20,7 @@ import {
   IActionContext,
   IAzureQuickPickItem,
   nonNullProp,
-  parseError,
+  parseError
 } from "@microsoft/vscode-azext-utils";
 import { createResourceManagementClient, createSubscriptionClient } from "../azure/azureClients";
 import { Disposable } from "./disposable";
@@ -37,20 +37,35 @@ export class AzurePickers extends Disposable {
     return await this.vsCodeAzureSubscriptionProvider.getSubscriptions(false);
   }
 
-  public async EnsureSignedIn(): Promise<void> {
-    if (await this.vsCodeAzureSubscriptionProvider.isSignedIn()) {
-      return;
+  // Call this before calling any of the pickers or getAll* functions
+  // Throws if user cancels asdfg?
+  public async EnsureSignedIn(context: IActionContext): Promise<void> {
+    if (!await this.vsCodeAzureSubscriptionProvider.isSignedIn()) {
+      await this.vsCodeAzureSubscriptionProvider.signIn();
     }
 
-    await this.vsCodeAzureSubscriptionProvider.signIn();
+    if ((await this.getAllSubscriptions()).length === 0) {
+      // No subscriptions found, user may need to sign in to a specific tenant
+      context.telemetry.properties.requestTenantSignIn = "true";
+      this.outputChannelManager.appendToOutputChannel(`No currently-accessible subscriptions found, you may need to sign in to a specific tenant. ${await this.getTenantInfo()}`);
+
+      await signInToTenant(this.vsCodeAzureSubscriptionProvider);
+
+      // TODO: optimize calls to getAllSubscriptions
+      const hasSubscriptions = (await this.getAllSubscriptions()).length > 0;
+      context.telemetry.properties.tenantSignInAddedSubs = String(hasSubscriptions);
+      if (!hasSubscriptions) {
+        this.outputChannelManager.appendToOutputChannel(`No currently-accessible subscriptions found. ${await this.getTenantInfo()}`);
+        throw new Error(`No currently-accessible subscriptions found. ${await this.getTenantInfo()}`);
+      }
+    }
   }
 
+  // Throws if user cancels
   public async pickSubscription(context: IActionContext): Promise<AzureSubscription> {
-    await this.EnsureSignedIn();
-
     const subscriptions = await this.getAllSubscriptions();
     if (subscriptions.length === 0) {
-      throw new Error(`No subscriptions found. ${await this.getTenantInfo()}`);
+      throw new Error(`No currently-accessible subscriptions found. ${await this.getTenantInfo()}`);
     }
 
     subscriptions.sort((a, b) => a.name.localeCompare(b.name));
@@ -66,9 +81,8 @@ export class AzurePickers extends Disposable {
     return (await context.ui.showQuickPick(picks, { placeHolder: "Select subscription" })).data;
   }
 
+  // Throws if user cancels
   public async pickResourceGroup(context: IActionContext, subscription: AzureSubscription): Promise<ResourceGroup> {
-    await this.EnsureSignedIn();
-
     const subscriptionContext = createSubscriptionContext(subscription);
     const client: ResourceManagementClient = await createResourceManagementClient([context, subscriptionContext]);
     const rgs: ResourceGroup[] = await uiUtils.listAllIterator(client.resourceGroups.list());
@@ -105,9 +119,8 @@ export class AzurePickers extends Disposable {
     }
   }
 
+  // Throws if user cancels
   public async pickLocation(context: IActionContext, subscription: AzureSubscription): Promise<string> {
-    await this.EnsureSignedIn();
-
     const client = await createSubscriptionClient([context, createSubscriptionContext(subscription)]);
     const locations = (
       await uiUtils.listAllIterator(client.subscriptions.listLocations(subscription.subscriptionId))
@@ -125,9 +138,8 @@ export class AzurePickers extends Disposable {
     return (await context.ui.showQuickPick(picks, { placeHolder: "Select location" })).data;
   }
 
+  // Throws if user cancels
   public async pickManagementGroup(context: IActionContext): Promise<ManagementGroupInfo> {
-    await this.EnsureSignedIn();
-
     const managementGroupsAPI = new ManagementGroupsAPI(new DefaultAzureCredential());
     let managementGroups: ManagementGroupInfo[];
     try {
@@ -198,13 +210,13 @@ export class AzurePickers extends Disposable {
       const tenants = await this.vsCodeAzureSubscriptionProvider.getTenants();
       const signInStatusPromises = tenants.map(async (tenant) => {
         const isSignedIn = await this.vsCodeAzureSubscriptionProvider.isSignedIn(tenant.tenantId);
-        return `${tenant.tenantId} (${isSignedIn ? "signed in" : "signed out"})`;
+        return `${tenant.tenantId} (${tenant.displayName}, ${isSignedIn ? "signed in" : "signed out"})`;
       });
       const signInStatus = await Promise.all(signInStatusPromises);
       return ` Available tenants: ${signInStatus.join(", ")}`;
     } catch (err) {
       this.outputChannelManager.appendToOutputChannel(parseError(err).message);
-      return "Unable to retrieve available tenant information.";
+      return "Unable to retrieve available signed-in tenant information.";
     }
   }
 }

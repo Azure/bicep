@@ -18,6 +18,8 @@ export class AzureUiManager implements IAzureUiManager {
   }
 
   public async pickScope(scopeType: DeploymentScopeType): Promise<DeploymentScope> {
+    await this.azurePickers.EnsureSignedIn(this.context);
+
     switch (scopeType) {
       case "resourceGroup": {
         const subscription = await this.azurePickers.pickSubscription(this.context);
@@ -91,7 +93,7 @@ export class AzureUiManager implements IAzureUiManager {
   }
 
   private async getSubscription(scope: DeploymentScope): Promise<AzureSubscription> {
-    await this.azurePickers.EnsureSignedIn();
+    await this.azurePickers.EnsureSignedIn(this.context); // CONSIDER can this be skipped?
 
     const subscriptionId = this.getSubscriptionId(scope);
     const subscriptions = await this.azurePickers.getAllSubscriptions();
