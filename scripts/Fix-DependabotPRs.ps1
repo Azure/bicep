@@ -2,7 +2,7 @@
 # If you don't want specific PRs to be affected, add a prefix to the title (e.g. "Needs manual intervention: ").  This script ignores any PRs that don't start directly with "Bump"
 
 $maxPRs = 100
-$dryRun = $false
+$dryRun = $true
 
 function getPrLink($prNumber) {
     return "https://github.com/azure/bicep/pull/$($prNumber)"
@@ -147,13 +147,14 @@ function processPR {
     return $true
 }
 
-function showStatus($prStatus) {
+function showStatus($prs, $prStatus) {
     Write-Host "`nStatus:"
     foreach ($pr in $prs) {
         Write-Host "$(getPrLink($pr.number)): $($prStatus[$pr.number]) ($(getPrState($pr.number)))"
     }
     Write-Host "`n"
 }
+
 Write-Host "Getting list of matching PRs..."
 $prsJson = gh pr list --label dependencies --limit $maxPRs --json title,number,headRefName,state,author --jq '.[] | select(.title | startswith("Bump")) | select(.author.login == "app/dependabot")'
 $allPrs = $prsJson | ConvertFrom-Json
@@ -165,7 +166,7 @@ $prs = $allPrs
 write-host "Processing $($prs.Count) PRs...$($prs | ForEach-Object { "`n$(getPrLink($_.number)): $($_.title)" })"
 
 while ($prs) {
-    showStatus $prStatus
+    showStatus $prs $prStatus
 
     $pr = $prs[0]
     $prs = $prs[1..$prs.Length]
@@ -182,8 +183,8 @@ while ($prs) {
 }
 
 Write-Host "All PRs processed."
-showStatus $prStatus
+showStatus $allPrs $prStatus
 
-foreach ($pr in $prs) {
+foreach ($pr in $allPrs) {
     Write-Host "$(getPrLink($pr.number)): $(getPrState($pr.number))"
 }
