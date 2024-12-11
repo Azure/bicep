@@ -32,6 +32,51 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
+        public void WaitUntilDecorator_MissingDeclaration_ExpectedResourceDeclaration()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            @waitUntil(x => x.ProvisionStatus == 'Succeeded', 'PT20S')
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void WaitUntilDecorator_MissingParameters_ExpectedTwoParameters()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            @waitUntil(x => x.ProvisionStatus == 'Succeeded')
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void RetryOnDecorator_MissingDeclaration_ExpectedResourceDeclaration()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            @retryOn(['ResourceNotFound'], 5)
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
+                });
+            }
+        }
+
+        [TestMethod]
         public void ParameterDecorator_AttachedToOtherKindsOfDeclarations_CannotBeUsedAsDecoratorSpecificToTheDeclarations()
         {
             var mainUri = new Uri("file:///main.bicep");

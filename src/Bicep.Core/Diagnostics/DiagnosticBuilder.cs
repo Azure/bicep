@@ -1873,6 +1873,7 @@ namespace Bicep.Core.Diagnostics
                     with
                 { Fixes = [fixToResourceInput, fixToResourceOutput] };
             }
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
