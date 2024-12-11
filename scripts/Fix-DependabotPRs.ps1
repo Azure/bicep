@@ -2,7 +2,7 @@
 # If you don't want specific PRs to be affected, add a prefix to the title (e.g. "Needs manual intervention: ").  This script ignores any PRs that don't start directly with "Bump"
 
 $maxPRs = 100
-$dryRun = $true
+$dryRun = $false
 
 function getPrLink($prNumber) {
     return "https://github.com/azure/bicep/pull/$($prNumber)"
