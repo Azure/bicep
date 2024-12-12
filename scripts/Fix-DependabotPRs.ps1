@@ -131,8 +131,12 @@ function processPR {
     # Use gh checks wait with --fail-fast to exit on the first failure
     gh pr checks $prNumber --watch --fail-fast --required
     if ($LASTEXITCODE -ne 0) {
-        Write-Error "Checks for $(getPrLink($prNumber)) have failed."
-        $prStatus[$prNumber] = "Checks failed"
+        $failedChecks = gh pr checks $prNumber --required --json name,state --jq '.[] | select(.state == "FAILURE") | .name'
+        $failedChecksArray = $failedChecks -split "`n"
+        $failedChecksCount = $failedChecksArray.Count
+        $failedChecksString = "$failedChecksCount failed checks: $($failedChecksArray -join ", ")"
+        Write-Warning $failedChecksString
+        $prStatus[$prNumber] = $failedChecksString
         return $true
     }
 
