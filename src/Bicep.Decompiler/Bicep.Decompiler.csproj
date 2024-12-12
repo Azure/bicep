@@ -34,7 +34,5 @@
 
   <ItemGroup>
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.146" />
-    <!-- Indirect reference temporarily needed to pick specific version -->
-    <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="8.0.11" />
   </ItemGroup>
 </Project>
