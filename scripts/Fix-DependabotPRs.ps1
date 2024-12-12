@@ -51,9 +51,7 @@ function processPR {
         [int]$prNumber,
         
         [Parameter(Mandatory = $true)]
-        [string]$prRef,
-        
-        [ref]$prs  # Use a reference to modify the original array asdfg
+        [string]$prRef
     )
 
     Write-Host "`n====================== Processing PR $prNumber ======================`n"
@@ -122,7 +120,7 @@ function processPR {
     Write-Host "Closing and reopening $(getPrLink($prNumber)) to force a rebuild..."
     if (!$dryRun) {
         gh pr close $prNumber
-        gh pr reopen $prNumber -c "Forcing rebuild"
+        gh pr reopen $prNumber -c "Fix-DependabotPRs.ps1: Forcing rebuild"
     }
 
     Write-Host "Waiting for the required checks to complete for $(getPrLink($prNumber))"
@@ -140,51 +138,51 @@ function processPR {
 
     # Set to auto-merge
     Write-Host "All checks for $(getPrLink($prNumber)) have completed successfully."
+    gh pr comment $prNumber --body "Fix-DependabotPRs.ps1: All checks have passed. Setting to auto-merge."
     gh pr merge $prNumber --squash --auto
     Write-Host "PR $(getPrLink($prNumber)) has been set to auto-merge."
-    $prStatus[$prNumber] = "Auto-merged"
+    $prStatus[$prNumber] = "Set to auto merge"
 
     return $true
 }
 
-function showStatus($prs, $prStatus) {
-    Write-Host "`nStatus:"
+function showStatus($prs) {
     foreach ($pr in $prs) {
-        Write-Host "$(getPrLink($pr.number)): $($prStatus[$pr.number]) ($(getPrState($pr.number)))"
+        Write-Host "$(getPrLink($pr.number)): $($prStatus[[int]$pr.number]) ($(getPrState($pr.number)))"
     }
-    Write-Host "`n"
 }
 
 Write-Host "Getting list of matching PRs..."
 $prsJson = gh pr list --label dependencies --limit $maxPRs --json title,number,headRefName,state,author --jq '.[] | select(.title | startswith("Bump")) | select(.author.login == "app/dependabot")'
 $allPrs = $prsJson | ConvertFrom-Json
 $prStatus = @{}
-$allPrs | ForEach-Object { $prStatus[$_.number] = "Not yet processed" }
+$allPrs | ForEach-Object { $prStatus[$_.number] = "" }
 
 # Loop through each PR one at a time
-$prs = $allPrs
-write-host "Processing $($prs.Count) PRs...$($prs | ForEach-Object { "`n$(getPrLink($_.number)): $($_.title)" })"
+$prsToBeProcessed = $allPrs
+write-host "Processing $($prsToBeProcessed.Count) PRs...$($prsToBeProcessed | ForEach-Object { "`n$(getPrLink($_.number)): $($_.title)" })"
 
-while ($prs) {
-    showStatus $prs $prStatus
+while ($prsToBeProcessed) {
+    Write-Host "`nStatus:"
+    showStatus $allPrs
+    Write-Host "Still in queue:"
+    showStatus $prsToBeProcessed
 
-    $pr = $prs[0]
-    $prs = $prs[1..$prs.Length]
+    $pr = $prsToBeProcessed[0]
+    $prNumber = [int]$pr.number
 
-    $processed = processPR -prNumber $pr.number -prRef $pr.headRefName -prs ([ref]$prs)
+    $processed = processPR -prNumber $prNumber -prRef $pr.headRefName
     if ($processed[-1] -eq $true) {
-        Write-Host "PR $(getPrLink($pr.number)) has been processed."
+        Write-Host "PR $(getPrLink($prNumber)) has been processed."
+        $prsToBeProcessed = $prsToBeProcessed[1..$prsToBeProcessed.Length]
     } elseif ($processed[-1] -eq $false) {
-        Write-Host "PR $(getPrLink($pr.number)) is still being processed."
-        $prs = $prs + $pr # Put at the end of the list
+        Write-Host "PR $(getPrLink($prNumber)) is still being processed."
+        $prsToBeProcessed = $prsToBeProcessed[1..$prsToBeProcessed.Length] + $pr # Put at the end of the list
+        $prStatus[$prNumber] = $prStatus[$prNumber] + " (sent to back of queue)"
     } else {
         Write-Error "Unexpected return value from processPR: $processed"
     }
 }
 
-Write-Host "All PRs processed."
-showStatus $allPrs $prStatus
-
-foreach ($pr in $allPrs) {
-    Write-Host "$(getPrLink($pr.number)): $(getPrState($pr.number))"
-}
+Write-Host "`nAll PRs processed."
+showStatus $allPrs
