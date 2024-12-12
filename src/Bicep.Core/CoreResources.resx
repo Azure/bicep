@@ -512,13 +512,16 @@
     <value>Resource-derived types</value>
   </data>
   <data name="UseSafeAccessRule_Description" xml:space="preserve">
-    <value>Use the safe access (.?) operator instead of checking object contents with the 'contains' function.</value>
+    <value>Use the safe access (.?) operator.</value>
   </data>
   <data name="UseSafeAccessRule_CodeFix" xml:space="preserve">
     <value>Use the safe access (.?) operator</value>
   </data>
-  <data name="UseSafeAccessRule_MessageFormat" xml:space="preserve">
+  <data name="UseSafeAccessRule_ContainsReplacement_MessageFormat" xml:space="preserve">
     <value>The syntax can be simplified by using the safe access (.?) operator.</value>
+  </data>
+  <data name="UseSafeAccessRule_NullCheckReplacement_MessageFormat" xml:space="preserve">
+    <value>The property being accessed may be null. Use the (.?) operator to handle this safely.</value>
   </data>
   <data name="WhatIfShortCircuitingRuleDescription" xml:space="preserve">
     <value>Runtime values should not be used to determine resource IDs</value>

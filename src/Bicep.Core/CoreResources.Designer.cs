@@ -1069,7 +1069,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use the safe access (.?) operator instead of checking object contents with the &apos;contains&apos; function..
+        ///   Looks up a localized string similar to Use the safe access (.?) operator..
         /// </summary>
         internal static string UseSafeAccessRule_Description {
             get {
@@ -1080,9 +1080,18 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to The syntax can be simplified by using the safe access (.?) operator..
         /// </summary>
-        internal static string UseSafeAccessRule_MessageFormat {
+        internal static string UseSafeAccessRule_ContainsReplacement_MessageFormat {
             get {
-                return ResourceManager.GetString("UseSafeAccessRule_MessageFormat", resourceCulture);
+                return ResourceManager.GetString("UseSafeAccessRule_ContainsReplacement_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The property being accessed may be null. Use the (.?) operator to handle this safely..
+        /// </summary>
+        internal static string UseSafeAccessRule_NullCheckReplacement_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseSafeAccessRule_NullCheckReplacement_MessageFormat", resourceCulture);
             }
         }
         
