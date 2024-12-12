@@ -10,6 +10,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
+using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -87,7 +88,6 @@ namespace Bicep.Core.UnitTests.Utils
 
             var registry = new OciArtifactRegistry(
                 BicepTestConstants.FileResolver,
-                BicepTestConstants.FileSystem,
                 clientFactory.Object,
                 featureProvider,
                 BicepTestConstants.BuiltInConfiguration,
@@ -97,22 +97,16 @@ namespace Bicep.Core.UnitTests.Utils
             return (registry, blobClient);
         }
 
-        public static async Task<(MockRegistryBlobClient, Mock<IContainerRegistryClientFactory>)> PublishArtifactLayersToMockClient(string tempDirectory, string registry, Uri registryUri, string repository, string? mediaType, string? artifactType, string? configContents, IEnumerable<(string mediaType, string contents)> layers)
+        public static async Task<(MockRegistryBlobClient, Mock<IContainerRegistryClientFactory>)> PublishArtifactLayersToMockClient(string registry, Uri registryUri, string repository, string? mediaType, string? artifactType, string? configContents, IEnumerable<(string mediaType, string contents)> layers)
         {
             var client = new MockRegistryBlobClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
 
-            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
-
-            Directory.CreateDirectory(tempDirectory);
-
             var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object);
+            var configurationManager = new ConfigurationManager(BicepTestConstants.FileExplorer);
 
-            var fs = new MockFileSystem();
-            var fileExplorer = new FileSystemFileExplorer(fs);
-            var configurationManager = new ConfigurationManager(fileExplorer);
             var parentUri = new Uri("http://test.bicep", UriKind.Absolute);
             var configuration = configurationManager.GetConfiguration(parentUri);
 

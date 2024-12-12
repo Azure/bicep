@@ -8,6 +8,8 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 
 namespace Bicep.Core.UnitTests.Registry;
@@ -17,9 +19,9 @@ namespace Bicep.Core.UnitTests.Registry;
 public static class CachedModules
 {
     // Get all cached modules from the local on-disk registry cache
-    public static ImmutableArray<CachedModule> GetCachedRegistryModules(IFileSystem fileSystem, string cacheRootDirectory)
+    public static ImmutableArray<CachedModule> GetCachedRegistryModules(IFileSystem fileSystem, IDirectoryHandle cacheRootDirectory)
     {
-        var cacheDir = fileSystem.DirectoryInfo.New(cacheRootDirectory);
+        var cacheDir = fileSystem.DirectoryInfo.New(cacheRootDirectory.Uri.GetFileSystemPath());
         if (!cacheDir.Exists)
         {
             return [];

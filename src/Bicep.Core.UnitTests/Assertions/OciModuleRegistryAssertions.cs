@@ -4,6 +4,8 @@
 using System.IO.Abstractions;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests.Registry;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 
@@ -22,26 +24,13 @@ namespace Bicep.Core.UnitTests.Assertions
 
         protected override string Identifier => "OciArtifactRegistry";
 
-        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModulesWithSources()
-            => HaveValidCachedModules(withSource: true);
-        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModulesWithoutSources()
-            => HaveValidCachedModules(withSource: false);
-
-        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModules(bool? withSource = null)
+        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModules(IFileSystem fileSystem, bool? withSource = null)
         {
-            ShouldHaveValidCachedModules(Subject.FileSystem, Subject.CacheRootDirectory, withSource);
+            ShouldHaveValidCachedModules(fileSystem, Subject.CacheRootDirectory, withSource);
             return new(this);
         }
 
-        public static void ShouldOnlyHaveValidModules(IFileSystem fileSystem, string cacheRootDirectory)
-        {
-            foreach (var module in CachedModules.GetCachedRegistryModules(fileSystem, cacheRootDirectory))
-            {
-                module.Should().BeValid();
-            }
-        }
-
-        private static void ShouldHaveValidCachedModules(IFileSystem fileSystem, string cacheRootDirectory, bool? withSource = null)
+        private static void ShouldHaveValidCachedModules(IFileSystem fileSystem, IDirectoryHandle cacheRootDirectory, bool? withSource = null)
         {
             var modules = CachedModules.GetCachedRegistryModules(fileSystem, cacheRootDirectory);
             modules.Should().HaveCountGreaterThan(0);

@@ -15,6 +15,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
@@ -82,8 +83,8 @@ namespace Bicep.Cli.IntegrationTests
             {
                 // ensure something got restored
 
-                Directory.Exists(settings.FeatureOverrides!.CacheRootDirectory).Should().BeTrue();
-                Directory.EnumerateFiles(settings.FeatureOverrides.CacheRootDirectory!, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
+                settings.FeatureOverrides!.CacheRootDirectory!.Exists().Should().BeTrue();
+                Directory.EnumerateFiles(settings.FeatureOverrides.CacheRootDirectory!.Uri.GetFileSystemPath(), "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);

@@ -24,7 +24,7 @@ namespace Bicep.IO.Abstraction
     {
         public static class GlobalSettings
         {
-            public static bool LocalFilePathCaseSensitive { get; set; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+            public static bool LocalFilePathCaseSensitive { get; set; } = OperatingSystem.IsLinux();
 
             public static StringComparer LocalFilePathComparer => LocalFilePathCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 
@@ -60,6 +60,19 @@ namespace Bicep.IO.Abstraction
 
         public static implicit operator string(IOUri identifier) => identifier.ToString();
 
+        public static IOUri FromLocalFilePath(string localFilePath)
+        {
+            var fileUri = new Uri(new Uri("file://"), localFilePath);
+            var path = Uri.UnescapeDataString(fileUri.AbsolutePath);
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !fileUri.AbsolutePath.StartsWith('/'))
+            {
+                path = "/" + path;
+            }
+
+            return new IOUri(IOUriScheme.File, "", path);
+        }
+
         public override string ToString() => this.TryGetLocalFilePath() ?? this.ToUriString();
 
         // See: The "file" URI Scheme (https://datatracker.ietf.org/doc/html/rfc8089).
@@ -67,7 +80,16 @@ namespace Bicep.IO.Abstraction
         public string? TryGetLocalFilePath() => this.IsLocalFile ? new UriBuilder { Scheme = this.Scheme, Host = "", Path = Path }.Uri.LocalPath : null;
 
         // See: Uniform Resource Identifier (URI): Generic Syntax (https://datatracker.ietf.org/doc/html/rfc3986).
-        public string ToUriString() => this.Authority is null ? $"{Scheme}:{Path}" : $"{Scheme}://{Authority}{Path}";
+        public string ToUriString()
+        {
+            var escapedSegments = Path.Split('/').Select(Uri.EscapeDataString);
+            var excapedPath = string.Join('/', escapedSegments);
+
+            return this.Authority is null ? $"{Scheme}:{Uri.EscapeDataString(Path)}" : $"{Scheme}://{Authority}{Path}";
+        }
+
+        // TODO: Remove after file abstractio migration is complete.
+        public Uri ToUri() => new UriBuilder { Scheme = this.Scheme, Host = "", Path = Path }.Uri;
 
         public static bool operator ==(IOUri left, IOUri right) => left.Equals(right);
 

@@ -17,7 +17,7 @@ namespace Bicep.IO.FileSystem
     public abstract class FileSystemIOHandle : IIOHandle
     {
         protected FileSystemIOHandle(IFileSystem fileSystem, string fileSystemPath)
-            : this(fileSystem, CreateIdentifier(fileSystem, fileSystemPath))
+            : this(fileSystem, CreateUri(fileSystem, fileSystemPath))
         {
         }
 
@@ -47,7 +47,7 @@ namespace Bicep.IO.FileSystem
             return this.GetType() == other.GetType() && Uri == other.Uri;
         }
 
-        private static IOUri CreateIdentifier(IFileSystem fileSystem, string fileSystemPath)
+        private static IOUri CreateUri(IFileSystem fileSystem, string fileSystemPath)
         {
             FileSystemPathException.ThrowIfWhiteSpace(fileSystemPath);
             FileSystemPathException.ThrowIfUnsupportedWindowsDosDevicePath(fileSystemPath);

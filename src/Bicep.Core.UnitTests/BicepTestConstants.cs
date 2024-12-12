@@ -44,13 +44,13 @@ namespace Bicep.Core.UnitTests
 
         public static readonly FileResolver FileResolver = new(FileSystem);
 
-        public static readonly IFileExplorer fileExplorer = new FileSystemFileExplorer(FileSystem);
+        public static readonly IFileExplorer FileExplorer = new FileSystemFileExplorer(FileSystem);
 
         public static readonly FeatureProviderOverrides FeatureOverrides = new();
 
         public static readonly ConfigurationManager ConfigurationManager = CreateFilesystemConfigurationManager();
 
-        public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager), FeatureOverrides);
+        public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager, FileExplorer), FeatureOverrides);
 
         public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory(FileSystem);
 
@@ -73,12 +73,12 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
 
-        public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration), FeatureOverrides);
+        public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration, FileExplorer), FeatureOverrides);
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
         public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services) =>
-            new DefaultArtifactRegistryProvider(services, FileResolver, FileSystem, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
+            new DefaultArtifactRegistryProvider(services, FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
 
         public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) =>
             new ModuleDispatcher(CreateRegistryProvider(services), IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
@@ -137,7 +137,7 @@ namespace Bicep.Core.UnitTests
         public static ConfigurationManager CreateFilesystemConfigurationManager() => new(new FileSystemFileExplorer(new OnDiskFileSystem()));
 
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
-            => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager()), featureOverrides);
+            => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager(), FileExplorer), featureOverrides);
 
         private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
         {

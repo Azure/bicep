@@ -17,6 +17,8 @@ using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -167,10 +169,9 @@ namespace Bicep.Cli.IntegrationTests
             var registry = "example.com";
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
-            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var cacheRootDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
             var (client, clientFactory) = await OciRegistryHelper.PublishArtifactLayersToMockClient(
-                tempDirectory,
                 registry,
                 registryUri,
                 repository,
@@ -191,12 +192,13 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 }}
 ";
 
-            var restoreBicepFilePath = Path.Combine(tempDirectory, "restored.bicep");
-            File.WriteAllText(restoreBicepFilePath, bicep);
+            var restoredFile = cacheRootDirectory.GetFile("restored.bicep");
+            restoredFile.WriteAllText(bicep);
 
+            var restoredFilePath = restoredFile.Uri.GetFileSystemPath();
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
-            var (output, error, result) = await Bicep(settings, "restore", restoreBicepFilePath);
+            var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
             using (new AssertionScope())
             {
                 output.Should().BeEmpty();
@@ -248,10 +250,9 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
             var dataSet = DataSets.Empty;
-            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var cacheRootDirectory = FileHelper.GetCacheRootDirectory(TestContext);
 
             var (client, clientFactory) = await OciRegistryHelper.PublishArtifactLayersToMockClient(
-                tempDirectory,
                 registry,
                 registryUri,
                 repository,
@@ -271,12 +272,14 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             }}
             ";
 
-            var restoreBicepFilePath = Path.Combine(tempDirectory, "restored.bicep");
-            File.WriteAllText(restoreBicepFilePath, bicep);
+            var restoredFile = cacheRootDirectory.GetFile("restored.bicep");
+            restoredFile.WriteAllText(bicep);
+
+            var restoredFilePath = restoredFile.Uri.GetFileSystemPath();
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
-            var (output, error, result) = await Bicep(settings, "restore", restoreBicepFilePath);
+            var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
             using (new AssertionScope())
             {
                 output.Should().BeEmpty();
