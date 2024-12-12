@@ -16,53 +16,58 @@ namespace Bicep.IO.FileSystem
 {
     public sealed class FileSystemFileHandle : FileSystemIOHandle, IFileHandle
     {
-        public FileSystemFileHandle(IFileSystem fileSystem, string path)
-            : base(fileSystem, path)
+        public FileSystemFileHandle(IFileSystem fileSystem, IOUri uri)
+            : base(fileSystem, EnsureNoTrailingSlash(uri))
         {
         }
 
-        public override bool Exists() => this.FileSystem.File.Exists(this.Uri.GetFileSystemPath());
+        public override bool Exists() => this.FileSystem.File.Exists(this.FilePath);
 
         public IFileHandle EnsureExists()
         {
-            using (this.FileSystem.File.Open(this.Uri.GetFileSystemPath(), FileMode.Append, FileAccess.Write))
+            using (this.FileSystem.File.Open(this.FilePath, FileMode.Append, FileAccess.Write))
             {
             }
 
             return this;
         }
 
-        public IDirectoryHandle GetParent()
-        {
-            var parentDirectoryPath = this.FileSystem.Path.GetDirectoryName(this.Uri.GetFileSystemPath());
-
-            if (string.IsNullOrEmpty(parentDirectoryPath))
-            {
-                throw new UnreachableException("The file must have a parent directory.");
-            }
-
-            return new FileSystemDirectoryHandle(this.FileSystem, parentDirectoryPath);
-        }
-
-        public Stream OpenRead() => this.FileSystem.File.OpenRead(this.Uri.GetFileSystemPath());
+        public Stream OpenRead() => this.FileSystem.File.OpenRead(this.FilePath);
 
         public Stream OpenWrite()
         {
             this.GetParent().EnsureExists();
 
-            return this.FileSystem.File.OpenWrite(this.Uri.GetFileSystemPath());
+            return this.FileSystem.File.OpenWrite(this.FilePath);
         }
 
-        public void Delete() => this.FileSystem.File.Delete(this.Uri.GetFileSystemPath());
+        public void Delete() => this.FileSystem.File.Delete(this.FilePath);
 
         public void MakeExecutable()
         {
             if (!OperatingSystem.IsWindows())
             {
-                this.FileSystem.File.SetUnixFileMode(this.Uri.GetFileSystemPath(), UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+                this.FileSystem.File.SetUnixFileMode(this.FilePath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
             }
         }
 
-        public IFileLock? TryLock() => FileSystemStreamLock.TryCreate(this.FileSystem, this.Uri.GetFileSystemPath());
+        public IDirectoryHandle GetParent()
+        {
+            var parentUri = this.Uri.Resolve(".");
+
+            return new FileSystemDirectoryHandle(this.FileSystem, parentUri);
+        }
+
+        public IFileLock? TryLock() => FileSystemStreamLock.TryCreate(this.FileSystem, this.FilePath);
+
+        private static IOUri EnsureNoTrailingSlash(IOUri uri)
+        {
+            if (uri.Path.EndsWith('/'))
+            {
+                throw new ArgumentException("File path must not end with a slash.", nameof(uri));
+            }
+
+            return uri;
+        }
     }
 }

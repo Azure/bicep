@@ -195,7 +195,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var restoredFile = cacheRootDirectory.GetFile("restored.bicep");
             restoredFile.WriteAllText(bicep);
 
-            var restoredFilePath = restoredFile.Uri.GetFileSystemPath();
+            var restoredFilePath = restoredFile.Uri.GetLocalFilePath();
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
@@ -275,7 +275,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var restoredFile = cacheRootDirectory.GetFile("restored.bicep");
             restoredFile.WriteAllText(bicep);
 
-            var restoredFilePath = restoredFile.Uri.GetFileSystemPath();
+            var restoredFilePath = restoredFile.Uri.GetLocalFilePath();
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
