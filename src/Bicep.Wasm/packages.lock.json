@@ -1063,7 +1063,6 @@
           "Microsoft.Extensions.DependencyInjection": "[9.0.0, )",
           "Microsoft.Extensions.Http": "[8.0.1, )",
           "Microsoft.Graph.Bicep.Types": "[0.1.7-preview, )",
-          "Microsoft.NET.ILLink.Tasks": "[8.0.11, )",
           "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2076, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "Semver": "[3.0.0, )",
@@ -1075,8 +1074,7 @@
       "Azure.Bicep.Decompiler": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Core": "[1.0.0, )",
-          "Microsoft.NET.ILLink.Tasks": "[8.0.11, )"
+          "Azure.Bicep.Core": "[1.0.0, )"
         }
       },
       "bicep.io": {
