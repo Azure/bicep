@@ -1078,6 +1078,15 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Use user-defined types instead of &quot;object&quot; or &quot;array&quot;..
+        /// </summary>
+        internal static string UseUserDefinedTypesRule_Description {
+            get {
+                return ResourceManager.GetString("UseUserDefinedTypesRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The syntax can be simplified by using the safe access (.?) operator..
         /// </summary>
         internal static string UseSafeAccessRule_ContainsReplacement_MessageFormat {
