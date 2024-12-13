@@ -133,7 +133,7 @@ module storage '${storageRef}' = {
   }
 }
 
-module mcrModule 'br/public:samples/hello-world:1.0.1' = {
+module mcrModule 'br/public:samples/hello-world:100.0.1' = {
   name: 'mcrModule'
   params: {
     name: 'BicepE2E'
