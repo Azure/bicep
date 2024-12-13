@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+foo
 import { beforeEach, describe, it } from "vitest";
 import { BicepRegistryReferenceBuilder, expectBrModuleStructure, publishModule } from "../utils/br";
 import { invokingBicepCommand } from "../utils/command";
