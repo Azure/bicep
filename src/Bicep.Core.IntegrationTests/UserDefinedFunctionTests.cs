@@ -151,4 +151,49 @@ func useRuntimeFunction() string => reference('foo').bar
             ("BCP341", DiagnosticLevel.Error, "This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment."),
         });
     }
+
+    [TestMethod]
+    public void Function_parameter_types_are_validated()
+    {
+        var result = CompilationHelper.Compile("""
+            type environmentType = 'AzureCloud' | 'AzureChinaCloud' | 'AzureUSGovernment'
+
+            @export()
+            @description('Get the graph endpoint for the given environment')
+            func getGraphEndpoint(environment environmentType | string) string =>
+                {
+                AzureCloud: 'https://graph.windows.net'
+                AzureChinaCloud: 'https://graph.chinacloudapi.cn'
+                AzureUSGovernment: 'https://graph.windows.net'
+                }[environment]
+
+            @export()
+            @description('Get the Portal URL for the given environment')
+            func getPortalUrl(environment environmentType | string) string =>
+                {
+                AzureCloud: 'https://portal.azure.com'
+                AzureChinaCloud: 'https://portal.azure.cn'
+                AzureUSGovernment: 'https://portal.azure.us'
+                }[environment]
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values."),
+            ("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values."),
+        });
+    }
+
+    [TestMethod]
+    public void Function_return_types_are_validated()
+    {
+        var result = CompilationHelper.Compile("""
+            func foo() 'bar' | 'baz' | string => 'bar'
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values."),
+        });
+    }
 }
