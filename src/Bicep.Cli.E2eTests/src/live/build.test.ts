@@ -42,6 +42,10 @@ module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
   });
 
   it("should build file with external modules", () => {
+    if (Math.random() < 0.5) {
+      console.log("Failing... asdfg");
+      throw "asdfg";
+    }
     const builder = new BicepRegistryReferenceBuilder(environment.registryUri, testArea);
 
     const storageRef = builder.getBicepReference("storage", "v1");
