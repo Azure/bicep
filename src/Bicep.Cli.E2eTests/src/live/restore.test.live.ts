@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-foo
 import { beforeEach, describe, it } from "vitest";
 import { BicepRegistryReferenceBuilder, expectBrModuleStructure, publishModule } from "../utils/br";
 import { invokingBicepCommand } from "../utils/command";
@@ -61,7 +60,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
     expectFileExists(
       pathToCachedTsModuleFile(
         `${environment.templateSpecSubscriptionId}/bicep-ci/storageaccountspec-${environment.resourceSuffix}/v1`,
-        "main.json",
+        "main2.json",
       ),
     );
 
