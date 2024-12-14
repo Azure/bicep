@@ -796,7 +796,7 @@ jobs:
 
       - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
         id: live-tests
-        continue-on-error: true
+        #continue-on-error: true
         run: npm ci && npm run test:live:${{ matrix.environment }}
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
