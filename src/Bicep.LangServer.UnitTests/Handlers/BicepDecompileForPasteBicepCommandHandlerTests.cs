@@ -102,12 +102,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             result.PasteType.Should().Be(options.expectedPasteType switch
             {
-                PasteType.None => PasteType_None,
-                PasteType.FullTemplate => PasteType_FullTemplate,
-                PasteType.SingleResource => PasteType_SingleResource,
-                PasteType.ResourceList => PasteType_ResourceList,
-                PasteType.JsonValue => PasteType_JsonValue,
-                PasteType.BicepValue => PasteType_BicepValue,
+                PasteType.None => "none",
+                PasteType.FullTemplate => "fullTemplate",
+                PasteType.SingleResource => "singleResource",
+                PasteType.ResourceList => "resourceList",
+                PasteType.JsonValue => "jsonValue",
+                PasteType.BicepValue => "bicepValue",
                 _ => throw new NotImplementedException(),
             });
         }
