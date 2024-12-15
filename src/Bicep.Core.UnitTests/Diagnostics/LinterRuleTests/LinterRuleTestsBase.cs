@@ -132,7 +132,7 @@ public class LinterRuleTestsBase
     {
         supportingFiles ??= [];
         var (file, cursor) = ParserHelper.GetFileWithSingleCursor(inputFile, '|');
-        var result = CompilationHelper.Compile([..supportingFiles, new("main.bicep", file)]);
+        var result = CompilationHelper.Compile([.. supportingFiles, new("main.bicep", file)]);
 
         using (new AssertionScope().WithVisualCursor(result.Compilation.GetEntrypointSemanticModel().SourceFile, cursor))
         {

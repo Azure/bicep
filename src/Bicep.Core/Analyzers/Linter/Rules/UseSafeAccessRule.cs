@@ -101,7 +101,7 @@ public sealed class UseSafeAccessRule : LinterRuleBase
                     isPreferred: true,
                     CodeFixKind.QuickFix,
                     new CodeReplacement(access.Span, replacement.ToString())),
-                CoreResources.UseSafeAccessRule_NullCheckReplacement_MessageFormat);            
+                CoreResources.UseSafeAccessRule_NullCheckReplacement_MessageFormat);
         }
     }
 }
