@@ -51,9 +51,9 @@
       },
       "MSTest.TestAdapter": {
         "type": "Direct",
-        "requested": "[3.6.3, )",
-        "resolved": "3.6.3",
-        "contentHash": "i3KbdAjLO0W9xlvbhZa9u0wh6X+VZ1yTBsUVlVKtx8B9CXa4rFXPcx3yPysB9gbALmhgAjFza4RRoNyXY9IoXQ==",
+        "requested": "[3.6.4, )",
+        "resolved": "3.6.4",
+        "contentHash": "YdwseRA+nDhRqD2oPHjCE4KzLEN5B10A61lOslE3N3OvUwHJ6ezyZZjYWf7mrZ8jckCcx/UlBclTzgWUpMpPQw==",
         "dependencies": {
           "Microsoft.Testing.Extensions.VSTestBridge": "1.4.3",
           "Microsoft.Testing.Platform.MSBuild": "1.4.3"
@@ -1645,7 +1645,7 @@
         "type": "Project",
         "dependencies": {
           "FluentAssertions": "[7.0.0, )",
-          "MSTest.TestAdapter": "[3.6.3, )",
+          "MSTest.TestAdapter": "[3.6.4, )",
           "MSTest.TestFramework": "[3.6.4, )",
           "Microsoft.NET.Test.Sdk": "[17.12.0, )",
           "bicep": "[1.0.0, )"
@@ -1657,7 +1657,7 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "Bicep.Core.UnitTests": "[1.0.0, )",
           "FluentAssertions": "[7.0.0, )",
-          "MSTest.TestAdapter": "[3.6.3, )",
+          "MSTest.TestAdapter": "[3.6.4, )",
           "MSTest.TestFramework": "[3.6.4, )",
           "Microsoft.NET.Test.Sdk": "[17.12.0, )"
         }
@@ -1670,7 +1670,7 @@
           "DiffPlex": "[1.7.2, )",
           "FluentAssertions": "[7.0.0, )",
           "JsonDiffPatch.Net": "[2.3.0, )",
-          "MSTest.TestAdapter": "[3.6.3, )",
+          "MSTest.TestAdapter": "[3.6.4, )",
           "MSTest.TestFramework": "[3.6.4, )",
           "Microsoft.NET.Test.Sdk": "[17.12.0, )",
           "Moq": "[4.20.72, )",
