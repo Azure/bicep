@@ -413,7 +413,7 @@ param stringParam =  /*TODO*/
                         ""extendableParamFiles"": true
                     }
                 }
-              "),("parameters.bicepparam", @"
+              "), ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
               "),
