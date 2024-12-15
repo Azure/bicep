@@ -192,9 +192,9 @@
       },
       "Microsoft.PowerPlatform.ResourceStack": {
         "type": "Direct",
-        "requested": "[7.0.0.2076, )",
-        "resolved": "7.0.0.2076",
-        "contentHash": "cHxgIBObOuu8I/agdelslgYCTXHreXto/V+gdxL0nE1BZgPv5XNtM1BaUzCtueWKlHnW8evZBKn5Q3V0SNapNg==",
+        "requested": "[7.0.0.2080, )",
+        "resolved": "7.0.0.2080",
+        "contentHash": "bLRHhlEEhoycPX8hd6lafUakNBWpGFm6zPdnrsiW6PFAiIBnrWLICLA2cc61jLq6GFJTvtTHR4MAbJXcXC9itA==",
         "dependencies": {
           "Microsoft.Windows.Compatibility": "8.0.10",
           "Newtonsoft.Json": "13.0.3"
