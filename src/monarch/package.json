@@ -16,7 +16,7 @@
     "html-escaper": "^3.0.3",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "monaco-editor-core": "^0.52.0",
+    "monaco-editor-core": "^0.52.2",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
