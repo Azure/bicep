@@ -12,7 +12,6 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.JsonRpc;
-using static Bicep.LanguageServer.Handlers.BicepDecompileForPasteCommandHandler;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -116,33 +115,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         #region JSON/Bicep Constants
 
-        //private const string jsonFullArmTemplateMembers = """
-        //                                             "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-        //                                             "contentVersion": "1.0.0.0",
-        //                                             "parameters": {
-        //                                               "location": {
-        //                                                 "type": "string",
-        //                                                 "defaultValue": "[resourceGroup().location]"
-        //                                               }
-        //                                             },
-        //                                             "resources": [
-        //                                               {
-        //                                                 "type": "Microsoft.Storage/storageAccounts",
-        //                                                 "apiVersion": "2021-02-01",
-        //                                                 "name": "name",
-        //                                                 "location": "[parameters('location')]",
-        //                                                 "kind": "StorageV2",
-        //                                                 "sku": {
-        //                                                   "name": "Premium_LRS"
-        //                                                 }
-        //                                               }
-        //                                             ]
-        //                                             """;
-        //private const string jsonFullArmTemplate = $$"""
-        //                                          {
-        //                                          {{jsonFullArmTemplateMembers}}
-        //                                          }
-        //                                          """;
         private const string jsonFullParamsTemplateMembers = """
                                                         "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
                                                         "contentVersion": "1.0.0.0",
