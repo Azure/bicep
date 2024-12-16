@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Data;
 using System.Diagnostics;
 using System.Text;
 using Bicep.Core;
@@ -13,7 +12,6 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Decompiler;
 using Bicep.LanguageServer.Telemetry;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -42,37 +40,41 @@ namespace Bicep.LanguageServer.Handlers
         string? Disclaimer
     );
 
-    public enum PasteType
-    {
-        None,
-        FullTemplate,  // Full template
-        SingleResource, // Single resource
-        ResourceList,// List of multiple resources
-        JsonValue, // Single JSON value (number, object, array etc)
-        BicepValue, // JSON value that is also valid Bicep (e.g. "[1, {}]")
-        FullParams
-    }
-
     /// <summary>
     /// Handles a request from the client to analyze/decompile a JSON fragment for possible conversion into Bicep (for pasting into a Bicep file)
     /// </summary>
-    public class BicepDecompileForPasteCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileForPasteCommandParams, BicepDecompileForPasteCommandResult>
+    public class BicepDecompileForPasteCommandHandler(
+        ISerializer serializer,
+        ILanguageServerFacade server,
+        ITelemetryProvider telemetryProvider,
+        BicepCompiler bicepCompiler)
+        : ExecuteTypedResponseCommandHandlerBase<BicepDecompileForPasteCommandParams, BicepDecompileForPasteCommandResult>(LangServerConstants.DecompileForPasteCommand, serializer)
     {
-        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileForPasteCommandResult> telemetryHelper;
-        private readonly BicepCompiler bicepCompiler;
+        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileForPasteCommandResult> telemetryHelper = new(server.Window, telemetryProvider);
 
         private static readonly Uri JsonDummyUri = new("file:///from-clipboard.json", UriKind.Absolute);
         private static readonly Uri BicepDummyUri = PathHelper.ChangeToBicepExtension(JsonDummyUri);
         private static readonly Uri BicepParamsDummyUri = PathHelper.ChangeToBicepparamExtension(JsonDummyUri);
 
-        public enum PasteContext
+        private enum PasteType
         {
             None,
-            String, // Pasting inside of a string
+            FullTemplate,  // Full template
+            SingleResource, // Single resource
+            ResourceList,// List of multiple resources
+            JsonValue, // Single JSON value (number, object, array etc)
+            BicepValue, // JSON value that is also valid Bicep (e.g. "[1, {}]")
+            FullParams // Full parameters file
+        }
+        private enum PasteContext
+        {
+            None,
+            String, // Pasting inside a string
+            ParamsWithUsingDeclaration, // Pasting inside a parameters file with an existing using declaration
         }
 
 
-        public enum LanguageId
+        private enum LanguageId
         {
             Bicep,
             BicepParams,
@@ -91,18 +93,6 @@ namespace Bicep.LanguageServer.Handlers
 
         private record ResultAndTelemetry(BicepDecompileForPasteCommandResult Result, BicepTelemetryEvent? SuccessTelemetry);
 
-        public BicepDecompileForPasteCommandHandler(
-            ISerializer serializer,
-            ILanguageServerFacade server,
-            ITelemetryProvider telemetryProvider,
-            BicepCompiler bicepCompiler
-        )
-            : base(LangServerConstants.DecompileForPasteCommand, serializer)
-        {
-            this.telemetryHelper = new(server.Window, telemetryProvider);
-            this.bicepCompiler = bicepCompiler;
-        }
-
         public override Task<BicepDecompileForPasteCommandResult> Handle(BicepDecompileForPasteCommandParams parameters, CancellationToken cancellationToken)
         {
             return telemetryHelper.ExecuteWithTelemetryAndErrorHandling((Func<Task<(BicepDecompileForPasteCommandResult result, BicepTelemetryEvent? successTelemetry)>>)(async () =>
@@ -118,54 +108,67 @@ namespace Bicep.LanguageServer.Handlers
             }));
         }
 
-        private static PasteContext GetPasteContext(string bicepContents, int offset, int length)
+        private static PasteContext GetPasteContext(string bicepContents, int offset, int length, LanguageId languageId)
         {
-            var contents = bicepContents;
-            var newContents = string.Concat(contents.AsSpan()[..offset], contents.AsSpan(offset + length));
-            var parser = new Parser(newContents);
+            var newContents = string.Concat(bicepContents.AsSpan()[..offset], bicepContents.AsSpan(offset + length));
+            BaseParser parser = languageId switch
+            {
+                LanguageId.Bicep => new Parser(newContents),
+                LanguageId.BicepParams => new ParamsParser(newContents),
+                _ => throw new ArgumentException($"Unexpected languageId value {languageId}"),
+            };
             var program = parser.Program();
 
             // Find the innermost string that contains the given offset, and which isn't inside an interpolation hole.
             // Note that a hole can contain nested strings which may contain holes...
             var stringSyntax = (StringSyntax?)program.TryFindMostSpecificNodeInclusive(offset, syntax =>
             {
-                if (syntax is StringSyntax stringSyntax)
+                if (syntax is not StringSyntax stringSyntax)
                 {
-                    // The inclusive version of this function does not quite match what we want (and exclusive misses some valid offsets)...
+                    return false;
+                }
+
+                // The inclusive version of this function does not quite match what we want (and exclusive misses some valid offsets)...
+                //
+                // Example: 'str' (the syntax span includes the quotes)
+                //   Span start is on the first "'", span end (exclusive) is after the last "'"
+                //   An insertion with the cursor on the beginning "'" will end up before the string, not inside it.
+                //   An insertion with the cursor on the ending "'" will end up in the string
+                if (offset <= syntax.Span.Position || offset >= syntax.GetEndPosition())
+                {
+                    // Ignore this node
+                    return false;
+                }
+
+                foreach (var interpolation in stringSyntax.Expressions)
+                {
+                    // Remove expression holes from consideration (if they contain strings that will be caught in the next iteration)
                     //
-                    // Example: 'str' (the syntax span includes the quotes)
-                    //   Span start is on the first "'", span end (exclusive) is after the last "'"
-                    //   An insertion with the cursor on the beginning "'" will end up before the string, not inside it.
-                    //   An insertion with the cursor on the ending "'" will end up in the string
-                    if (offset <= syntax.Span.Position || offset >= syntax.GetEndPosition())
+                    // Example: 'str${v1}', the expression node 'v1' does *not* include the ${ and } delimiters
+                    //   Span start is on the 'v', span end (exclusive) is on the '}'
+                    //   An insertion with the cursor on the v, 1 or '{' will end up inside the expression hole
+                    if (offset >= interpolation.Span.Position && offset <= interpolation.GetEndPosition())
                     {
                         // Ignore this node
                         return false;
                     }
-
-                    foreach (var interpolation in stringSyntax.Expressions)
-                    {
-                        // Remove expression holes from consideration (if they contain strings that will be caught in the next iteration)
-                        //
-                        // Example: 'str${v1}', the expression node 'v1' does *not* include the ${ and } delimiters
-                        //   Span start is on the 'v', span end (exclusive) is on the '}'
-                        //   An insertion with the cursor on the v, 1 or '{' will end up inside the expression hole
-                        if (offset >= interpolation.Span.Position && offset <= interpolation.GetEndPosition())
-                        {
-                            // Ignore this node
-                            return false;
-                        }
-                    }
-
-                    return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return true;
+
             });
 
-            return stringSyntax is null ? PasteContext.None : PasteContext.String;
+            if (stringSyntax is not null)
+            {
+                return PasteContext.String;
+            }
+
+            if (languageId == LanguageId.BicepParams && program.TryFindMostSpecificNodeInclusive(0, syntax => syntax is UsingDeclarationSyntax) is not null)
+            {
+                return PasteContext.ParamsWithUsingDeclaration;
+            }
+
+            return PasteContext.None;
         }
         private static string DisclaimerMessage => BicepDecompiler.DecompilerDisclaimerMessage;
 
@@ -179,7 +182,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             StringBuilder output = new();
             var decompileId = Guid.NewGuid().ToString();
-            var pasteContext = GetPasteContext(bicepContents, rangeOffset, rangeLength);
+            var pasteContext = GetPasteContext(bicepContents, rangeOffset, rangeLength, languageId);
 
             if (pasteContext == PasteContext.String)
             {
@@ -205,38 +208,38 @@ namespace Bicep.LanguageServer.Handlers
             switch (pasteType)
             {
                 case PasteType.None:
-                {
-                    // It's not a template or resource.  Try treating it as a JSON value.
-                    var resultAndTelemetry = TryConvertFromJsonValue(output, json, decompileId, pasteContext, queryCanPaste);
-                    if (resultAndTelemetry is not null)
                     {
-                        return resultAndTelemetry;
-                    }
+                        // It's not a template or resource.  Try treating it as a JSON value.
+                        var resultAndTelemetry = TryConvertFromJsonValue(output, json, decompileId, pasteContext, queryCanPaste);
+                        if (resultAndTelemetry is not null)
+                        {
+                            return resultAndTelemetry;
+                        }
 
-                    break;
-                }
+                        break;
+                    }
                 case PasteType.FullParams:
-                {
-                    // It's a full parameters file
-                    var result = TryConvertFromConstructedParameters(output, json, decompileId, pasteContext, pasteType, queryCanPaste, constructedJsonTemplate);
-                    if (result is not null)
                     {
-                        return result;
-                    }
+                        // It's a full parameters file
+                        var result = TryConvertFromConstructedParameters(output, json, decompileId, pasteContext, pasteType, queryCanPaste, constructedJsonTemplate);
+                        if (result is not null)
+                        {
+                            return result;
+                        }
 
-                    break;
-                }
+                        break;
+                    }
                 default:
-                {
-                    // It's a full or partial template and we have converted it into a full template to parse
-                    var result = await TryConvertFromConstructedTemplate(output, json, decompileId, pasteContext, pasteType, queryCanPaste, constructedJsonTemplate);
-                    if (result is not null)
                     {
-                        return result;
-                    }
+                        // It's a full or partial template and we have converted it into a full template to parse
+                        var result = await TryConvertFromConstructedTemplate(output, json, decompileId, pasteContext, pasteType, queryCanPaste, constructedJsonTemplate);
+                        if (result is not null)
+                        {
+                            return result;
+                        }
 
-                    break;
-                }
+                        break;
+                    }
             }
 
             // It's not anything we know how to convert to Bicep
@@ -254,9 +257,9 @@ namespace Bicep.LanguageServer.Handlers
             {
                 // Decompile the full template
                 Debug.Assert(constructedJsonTemplate is not null);
-                Log(output, String.Format(LangServerResources.Decompile_DecompilationStartMsg, "clipboard text"));
+                Log(output, string.Format(LangServerResources.Decompile_DecompilationStartMsg, "clipboard text"));
 
-                var decompiler = new BicepDecompiler(this.bicepCompiler);
+                var decompiler = new BicepDecompiler(bicepCompiler);
                 var options = GetDecompileOptions(pasteType);
                 (_, filesToSave) = await decompiler.Decompile(BicepDummyUri, constructedJsonTemplate, options: options);
             }
@@ -268,12 +271,12 @@ namespace Bicep.LanguageServer.Handlers
                 var message = ex.Message;
                 Log(output, $"Decompilation failed: {message}");
 
-                return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), pasteType.ConvertToString(), message, Bicep: null, Disclaimer: null),
-                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType.ConvertToString(), bicep: null));
+                return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteTypeAsString(pasteType), message, Bicep: null, Disclaimer: null),
+                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicep: null));
             }
 
             // Get Bicep output from the main file (all others are currently ignored)
-            string bicepOutput = filesToSave.Single(kvp => BicepDummyUri.Equals(kvp.Key)).Value;
+            var bicepOutput = filesToSave.Single(kvp => BicepDummyUri.Equals(kvp.Key)).Value;
 
             if (string.IsNullOrWhiteSpace(bicepOutput))
             {
@@ -285,8 +288,8 @@ namespace Bicep.LanguageServer.Handlers
 
             // Show disclaimer and return result
             Log(output, DisclaimerMessage);
-            return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), pasteType.ConvertToString(), null, bicepOutput, DisclaimerMessage),
-                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType.ConvertToString(), bicepOutput));
+            return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteTypeAsString(pasteType), null, bicepOutput, DisclaimerMessage),
+                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicepOutput));
         }
 
         private ResultAndTelemetry? TryConvertFromConstructedParameters(StringBuilder output, string json, string decompileId, PasteContext pasteContext, PasteType pasteType, bool queryCanPaste, string? constructedJsonTemplate)
@@ -298,8 +301,11 @@ namespace Bicep.LanguageServer.Handlers
                 Debug.Assert(constructedJsonTemplate is not null);
                 Log(output, string.Format(LangServerResources.Decompile_DecompilationStartMsg, "clipboard text"));
 
-                var decompiler = new BicepDecompiler(this.bicepCompiler);
-                (_, filesToSave) = decompiler.DecompileParameters(constructedJsonTemplate, BicepParamsDummyUri, null);
+                var decompiler = new BicepDecompiler(bicepCompiler);
+                (_, filesToSave) = decompiler.DecompileParameters(constructedJsonTemplate, BicepParamsDummyUri, null, new()
+                {
+                    IncludeUsingDeclaration = pasteContext != PasteContext.ParamsWithUsingDeclaration
+                });
             }
             catch (Exception ex)
             {
@@ -309,8 +315,8 @@ namespace Bicep.LanguageServer.Handlers
                 var message = ex.Message;
                 Log(output, $"Decompilation failed: {message}");
 
-                return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), pasteType.ConvertToString(), message, Bicep: null, Disclaimer: null),
-                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType.ConvertToString(), bicep: null));
+                return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteTypeAsString(pasteType), message, Bicep: null, Disclaimer: null),
+                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicep: null));
             }
 
             // Get Bicep output from the main file (all others are currently ignored)
@@ -326,8 +332,8 @@ namespace Bicep.LanguageServer.Handlers
 
             // Show disclaimer and return result
             Log(output, DisclaimerMessage);
-            return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), pasteType.ConvertToString(), null, bicepOutput, DisclaimerMessage),
-                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType.ConvertToString(), bicepOutput));
+            return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteTypeAsString(pasteType), null, bicepOutput, DisclaimerMessage),
+                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicepOutput));
         }
 
         private static string PasteContextAsString(PasteContext pasteContext)
@@ -336,6 +342,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 PasteContext.None => "none",
                 PasteContext.String => "string",
+                PasteContext.ParamsWithUsingDeclaration => "none",
                 _ => throw new($"Unexpected pasteContext value {pasteContext}"),
             };
         }
@@ -406,9 +413,9 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), pasteType.ConvertToString(),
+            return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteTypeAsString(pasteType),
                     ErrorMessage: null, bicep, Disclaimer: null),
-                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType.ConvertToString(), bicep));
+                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicep));
 
         }
 
@@ -543,7 +550,7 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     return null;
                 }
-                else if (reader.TokenType == JsonToken.None)
+                if (reader.TokenType == JsonToken.None)
                 {
                     return null;
                 }
@@ -601,11 +608,8 @@ namespace Bicep.LanguageServer.Handlers
             return (PasteType.None, null);
 
         }
-    }
 
-    public static class BicepDecompileForPasteCommandHandlerExtensions
-    {
-        public static string? ConvertToString(this PasteType pasteType) => pasteType switch
+        private static string? PasteTypeAsString(PasteType pasteType) => pasteType switch
         {
             PasteType.None => null,
             PasteType.FullTemplate => "fullTemplate",

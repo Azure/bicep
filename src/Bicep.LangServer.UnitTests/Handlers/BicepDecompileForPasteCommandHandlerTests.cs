@@ -17,7 +17,7 @@ using static Bicep.LanguageServer.Handlers.BicepDecompileForPasteCommandHandler;
 namespace Bicep.LangServer.UnitTests.Handlers
 {
     [TestClass]
-    public class BicepDecompileForPasteBicepCommandHandlerTests
+    public class BicepDecompileForPasteCommandHandlerTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -33,7 +33,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             return builder.Construct<BicepDecompileForPasteCommandHandler>();
         }
-        
+
         public enum PasteType
         {
             None,
@@ -42,6 +42,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ResourceList,
             JsonValue,
             BicepValue,
+        }
+        public enum PasteContext
+        {
+            None,
+            String
         }
 
         record Options(
@@ -60,7 +65,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             string? expectedErrorMessage = null,
             string? editorContentsWithCursor = null)
         {
-            await TestDecompileForPaste(new(
+            await TestDecompileForPaste(new Options(
                 json,
                 expectedPasteType,
                 PasteContext.None,
@@ -82,14 +87,14 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var handler = CreateHandler(server);
 
 
-            var result = await handler.Handle(new(editorContentsWithPastedJson, cursorOffset, options.pastedJson.Length, options.pastedJson, queryCanPaste: false, "bicep"), CancellationToken.None);
+            var result = await handler.Handle(new BicepDecompileForPasteCommandParams(editorContentsWithPastedJson, cursorOffset, options.pastedJson.Length, options.pastedJson, queryCanPaste: false, "bicep"), CancellationToken.None);
 
             result.ErrorMessage.Should().Be(options.expectedErrorMessage);
 
             if (!options.ignoreGeneratedBicep)
             {
                 var expectedBicep = options.expectedBicep?.Trim('\n');
-                var actualBicep = result.Bicep?.Trim('\n');
+                string? actualBicep = result.Bicep?.Trim('\n');
                 actualBicep.Should().EqualTrimmedLines(expectedBicep);
             }
 
@@ -102,9 +107,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             result.PasteType.Should().Be(options.expectedPasteType switch
             {
-                PasteType.None => "none",
+                PasteType.None => null,
                 PasteType.FullTemplate => "fullTemplate",
-                PasteType.SingleResource => "singleResource",
+                PasteType.SingleResource => "resource",
                 PasteType.ResourceList => "resourceList",
                 PasteType.JsonValue => "jsonValue",
                 PasteType.BicepValue => "bicepValue",
@@ -437,7 +442,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task JustString_WithNoQuotes_CantConvert()
         {
-            var json = @"just a string";
+            string json = @"just a string";
             await TestDecompileForPaste(
                     json: json,
                     PasteType.None,
@@ -448,7 +453,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task NonResourceObject_WrongPropertyType_Object_PastesAsSimpleObject()
         {
-            var json = @$"
+            string json = @$"
                 {Resource1Json.Replace("\"2021-02-01\"", "{}")}
             ";
             await TestDecompileForPaste(
@@ -471,7 +476,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task NonResourceObject_WrongPropertyType_Number_PastesAsSimpleObject()
         {
-            var json = @$"
+            string json = @$"
                 {Resource1Json.Replace("\"2021-02-01\"", "1234")}
             ";
             await TestDecompileForPaste(
@@ -494,7 +499,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MissingParametersAndVars()
         {
-            var json = @"
+            string json = @"
                 {
                         ""type"": ""Microsoft.Storage/storageAccounts"",
                         ""apiVersion"": ""2021-02-01"",
@@ -506,7 +511,7 @@ name: 'Premium_LRS'
                         }
                 }
             ";
-            var expected = @"resource name 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+            string expected = @"resource name 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   name: 'name'
   location: location
   kind: storageKind
@@ -524,18 +529,18 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MissingParametersAndVars_Conflict()
         {
-            var json = """
-                       {
-                           "type": "Microsoft.Storage/storageAccounts",
-                           "apiVersion": "2021-02-01",
-                           "name": "name",
-                           "location": "[concat(parameters('location'), variables('location'), parameters('location_var'), variables('location_var'), parameters('location_param'), variables('location_param'))]",
-                           "kind": "[variables('location')]",
-                           "sku": {
-                             "name": "Premium_LRS"
-                           }
-                       }
-                       """;
+            string json = """
+                {
+                    "type": "Microsoft.Storage/storageAccounts",
+                    "apiVersion": "2021-02-01",
+                    "name": "name",
+                    "location": "[concat(parameters('location'), variables('location'), parameters('location_var'), variables('location_var'), parameters('location_param'), variables('location_param'))]",
+                    "kind": "[variables('location')]",
+                    "sku": {
+                      "name": "Premium_LRS"
+                    }
+                }
+                """;
 
             await TestDecompileForPaste(
                     json: json,
@@ -556,7 +561,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task SingleResourceObject_ShouldSucceed()
         {
-            var json = @"
+            string json = @"
                     {
                       ""type"": ""Microsoft.Storage/storageAccounts"",
                       ""apiVersion"": ""2021-02-01"",
@@ -567,7 +572,7 @@ name: 'Premium_LRS'
                         ""name"": ""Premium_LRS""
                       }
                     }";
-            var expected = @"
+            string expected = @"
                 resource name 'Microsoft.Storage/storageAccounts@2021-02-01' = {
                   name: 'name'
                   location: 'eastus'
@@ -587,7 +592,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MultipleResourceObjects_ShouldSucceed()
         {
-            var json = @"
+            string json = @"
                     {
                       ""type"": ""Microsoft.Storage/storageAccounts"",
                       ""apiVersion"": ""2021-02-01"",
@@ -619,7 +624,7 @@ name: 'Premium_LRS'
                         ""name"": ""Premium_LRS""
                       }
                     }";
-            var expected = @"
+            string expected = @"
                 resource name1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
                   name: 'name1'
                   location: 'eastus'
@@ -657,7 +662,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MultipleResourceObjects_SkipTrivia_ShouldSucceed()
         {
-            var json = $@"
+            string json = $@"
 
                     // This is a comment
                     // So is this
@@ -680,7 +685,7 @@ name: 'Premium_LRS'
                     /* And this
                     also */";
             ;
-            var expected = $@"
+            string expected = $@"
                 {Resource1Bicep}
 
                 {Resource2Bicep}";
@@ -695,7 +700,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MultipleResourceObjects_NoComma_ShouldSucceed()
         {
-            var json = @"
+            string json = @"
                     {
                       ""type"": ""Microsoft.Storage/storageAccounts"",
                       ""apiVersion"": ""2021-02-01"",
@@ -717,7 +722,7 @@ name: 'Premium_LRS'
                         ""name"": ""Premium_LRS""
                       }
                     }";
-            var expected = @"
+            string expected = @"
                 resource name1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
                   name: 'name1'
                   location: 'eastus'
@@ -853,7 +858,7 @@ name: 'Premium_LRS'
                 ]
             }";
 
-            var expected = @"
+            string expected = @"
                 module nestedDeploymentInner './nested_nestedDeploymentInner.bicep' = {
                   name: 'nestedDeploymentInner'
                   params: {}
@@ -973,7 +978,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MultipleResourceObjects_ExtraBraceAfterwards_ShouldSucceed()
         {
-            var json = @$"
+            string json = @$"
                     {Resource1Json}
                     {Resource2Json}
                 }}}} // extra";
@@ -991,7 +996,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MultipleResourceObjects_ExtraOpenBraceAfterwards_ShouldSucceed()
         {
-            var json = @$"
+            string json = @$"
                     {Resource1Json}
                     {Resource2Json}
                 {{ // extra";
@@ -1009,7 +1014,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MultipleResourceObjects_ExtraEmptyObjectAfterwards_ShouldSucceed()
         {
-            var json = @$"
+            string json = @$"
                     {Resource1Json}
                     {Resource2Json}
                 {{}} // extra";
@@ -1027,7 +1032,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MultipleResourceObjects_NameConflict_ShouldAllowPaste_ButGiveError()
         {
-            var json = @$"
+            string json = @$"
                     {Resource1Json}
                     {Resource1Json}
                     {Resource1Json}";
@@ -1042,7 +1047,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MultipleResourceObjects_RandomCharactersAfterwards_ShouldSucceed_AndIgnoreRemaining()
         {
-            var json = @$"
+            string json = @$"
                     {Resource1Json}
                     {Resource2Json}
                 something else {{ // extra";
@@ -1061,7 +1066,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MultipleResourceObjects_NonResourceInMiddle_ShouldSucceed_AndIgnoreNonResources()
         {
-            var json = @$"
+            string json = @$"
                     {Resource1Json}
                     {{
                         ""notAResource"": ""honest""
@@ -1083,11 +1088,11 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MultipleResourceObjects_ExtraCommaAtEnd_ShouldSucceed()
         {
-            var json = @$"
+            string json = @$"
                 {Resource1Json}
                 {Resource2Json}
                 ,,, // extra";
-            var expected = @$"
+            string expected = @$"
                 {Resource1Bicep}
 
                 {Resource2Bicep}";
@@ -1102,7 +1107,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MissingVariable_UsedMultipleTimes_ShouldSucceed()
         {
-            var json = @" {
+            string json = @" {
                       ""type"": ""Microsoft.Storage/storageAccounts"",
                       ""apiVersion"": ""2021-02-01"",
                       ""name"": ""name1"",
@@ -1131,7 +1136,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MissingVariable_UsedMultipleTimes_CasedDifferently_ShouldSucceed()
         {
-            var json = @" {
+            string json = @" {
                       ""type"": ""Microsoft.Storage/storageAccounts"",
                       ""apiVersion"": ""2021-02-01"",
                       ""name"": ""name1"",
@@ -1160,7 +1165,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MissingParameter_UsedMultipleTimes_ShouldSucceed()
         {
-            var json = @"{
+            string json = @"{
                       ""type"": ""Microsoft.Storage/storageAccounts"",
                       ""apiVersion"": ""2021-02-01"",
                       ""name"": ""name1"",
@@ -1189,7 +1194,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MissingParameter_UsedMultipleTimes_CasedDifferently_ShouldSucceed()
         {
-            var json = @" {
+            string json = @" {
                       ""type"": ""Microsoft.Storage/storageAccounts"",
                       ""apiVersion"": ""2021-02-01"",
                       ""name"": ""name1"",
@@ -1218,7 +1223,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MissingParameterVariable_CollidesWithResourceName_ShouldSucceed()
         {
-            var json = @" {
+            string json = @" {
                       ""type"": ""Microsoft.Storage/storageAccounts"",
                       ""apiVersion"": ""2021-02-01"",
                       ""name"": ""v1"",
@@ -1247,7 +1252,7 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MultilineStrings_ShouldSucceed()
         {
-            var json = @"{
+            string json = @"{
   ""type"": ""Microsoft.Compute/virtualMachines"",
   ""apiVersion"": ""2018-10-01"",
   ""name"": ""[variables('vmName')]"", // to customize name, change it in variables
@@ -1833,7 +1838,7 @@ name: 'Premium_LRS'
         )]
         public async Task DontPasteIntoStrings(string editorContentsWithCursor, PasteContext expectedPasteContext)
         {
-            await TestDecompileForPaste(new(
+            await TestDecompileForPaste(new Options(
                 "\"json string\"",
                 expectedPasteContext == PasteContext.String ? PasteType.None : PasteType.JsonValue,
                 expectedPasteContext,
@@ -1842,7 +1847,7 @@ name: 'Premium_LRS'
                 editorContentsWithCursor: editorContentsWithCursor
             ));
 
-            await TestDecompileForPaste(new(
+            await TestDecompileForPaste(new Options(
                 @"{
                   ""type"": ""Microsoft.Resources/resourceGroups"",
                   ""apiVersion"": ""2022-09-01"",
