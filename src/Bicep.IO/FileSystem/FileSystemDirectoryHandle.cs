@@ -21,7 +21,14 @@ namespace Bicep.IO.FileSystem
 
         public override bool Exists() => this.FileSystem.Directory.Exists(Uri.GetFileSystemPath());
 
-        public void EnsureExists() => this.FileSystem.Directory.CreateDirectory(this.Uri.GetFileSystemPath());
+        public IDirectoryHandle EnsureExists()
+        {
+            this.FileSystem.Directory.CreateDirectory(this.Uri.GetFileSystemPath());
+
+            return this;
+        }
+
+        public void Delete() => this.FileSystem.Directory.Delete(this.Uri.GetFileSystemPath(), recursive: true);
 
         public IDirectoryHandle GetDirectory(string relativePath)
         {

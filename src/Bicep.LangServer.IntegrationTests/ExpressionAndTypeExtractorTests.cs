@@ -35,9 +35,9 @@ namespace Bicep.LangServer.IntegrationTests;
 [TestClass]
 public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 {
-    private const string ExtractToVariableTitle = "[Preview] Extract variable";
-    private const string ExtractToParameterTitle = "[Preview] Extract parameter";
-    private const string ExtractToTypeTitle = "[Preview] Create user-defined type for ";
+    private const string ExtractToVariableTitle = "Extract variable";
+    private const string ExtractToParameterTitle = "Extract parameter";
+    private const string ExtractToTypeTitle = "Create user-defined type for ";
     private const string PostExtractionCommandName = "bicep.internal.postExtraction";
     private const string Tab = "\t";
 
@@ -3012,7 +3012,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                   }
                 ]
               }
-            }            
+            }
             """,
         null // Just a simple string property
         )]

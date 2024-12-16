@@ -162,4 +162,9 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
 
     public override IResourceTypeMetadataProvider GetResourceTypeMetadataProvider()
         => throw new NotImplementedException();
+
+    public override void ValidateNetworkAddress(Uri uri)
+    {
+        return;
+    }
 }

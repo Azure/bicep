@@ -11,7 +11,9 @@ namespace Bicep.IO.Abstraction
 {
     public interface IDirectoryHandle : IIOHandle
     {
-        void EnsureExists();
+        IDirectoryHandle EnsureExists();
+
+        void Delete();
 
         IDirectoryHandle? GetParent();
 

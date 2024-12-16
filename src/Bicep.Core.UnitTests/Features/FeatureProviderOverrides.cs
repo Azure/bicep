@@ -2,12 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Features;
 
 public record FeatureProviderOverrides(
-    string? CacheRootDirectory = null,
+    IDirectoryHandle? CacheRootDirectory = null,
     bool? RegistryEnabled = default,
     bool? SymbolicNameCodegenEnabled = default,
     bool? ExtensibilityEnabled = default,
@@ -44,7 +45,7 @@ public record FeatureProviderOverrides(
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ExtensibilityV2EmittingEnabled = default
     ) : this(
-        FileHelper.GetCacheRootPath(testContext),
+        FileHelper.GetCacheRootDirectory(testContext),
         RegistryEnabled,
         SymbolicNameCodegenEnabled,
         ExtensibilityEnabled,

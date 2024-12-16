@@ -2397,4 +2397,123 @@ INVALID FILE
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Imports_that_enclose_type_fragments_are_supported()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import * as foo from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "2.0",
+                    "definitions": {
+                      "exported": {
+                        "metadata": {
+                          "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                        },
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "$ref": "#/definitions/notExported/properties/prop"
+                          }
+                        ],
+                        "items": false
+                      },
+                      "notExported": {
+                        "type": "object",
+                        "properties": {
+                          "prop": {
+                            "type": "object",
+                            "properties": {
+                              "foo": {
+                                "$ref": "#/parameters/param/additionalProperties"
+                              },
+                              "bar": {
+                                "$ref": "#/outputs/out/items"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "parameters": {
+                      "param": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "int"
+                        }
+                      }
+                    },
+                    "outputs": {
+                      "out": {
+                        "type": "array",
+                        "items": {
+                          "type": "bool"
+                        },
+                        "value": [true]
+                      }
+                    },
+                    "resources": {}
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
+            {
+              "_1._2": {
+                "type": "object",
+                "properties": {
+                  "foo": {
+                    "$ref": "#/definitions/_1._4"
+                  },
+                  "bar": {
+                    "$ref": "#/definitions/_1._3"
+                  }
+                },
+                "metadata": {
+                  "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                    "sourceTemplate": "mod.json",
+                    "originalIdentifier": "#/definitions/notExported/properties/prop"
+                  }
+                }
+              },
+              "_1._3": {
+                "type": "bool",
+                "metadata": {
+                  "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                    "sourceTemplate": "mod.json",
+                    "originalIdentifier": "#/outputs/out/items"
+                  }
+                }
+              },
+              "_1._4": {
+                "type": "int",
+                "metadata": {
+                  "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                    "sourceTemplate": "mod.json",
+                    "originalIdentifier": "#/parameters/param/additionalProperties"
+                  }
+                }
+              },
+              "_1.exported": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "$ref": "#/definitions/_1._2"
+                  }
+                ],
+                "items": false,
+                "metadata": {
+                  "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                    "sourceTemplate": "mod.json"
+                  }
+                }
+              }
+            }
+            """));
+    }
 }

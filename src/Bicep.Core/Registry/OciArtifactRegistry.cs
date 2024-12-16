@@ -18,6 +18,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Core.Registry
@@ -26,7 +27,7 @@ namespace Bicep.Core.Registry
     {
         private readonly AzureContainerRegistryManager client;
 
-        private readonly string cachePath;
+        private readonly IDirectoryHandle cacheDirectory;
 
         private readonly RootConfiguration configuration;
 
@@ -38,15 +39,14 @@ namespace Bicep.Core.Registry
 
         public OciArtifactRegistry(
             IFileResolver FileResolver,
-            IFileSystem fileSystem,
             IContainerRegistryClientFactory clientFactory,
             IFeatureProvider features,
             RootConfiguration configuration,
             IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
             Uri parentModuleUri)
-            : base(FileResolver, fileSystem)
+            : base(FileResolver)
         {
-            this.cachePath = FileSystem.Path.Combine(features.CacheRootDirectory, ArtifactReferenceSchemes.Oci);
+            this.cacheDirectory = features.CacheRootDirectory.GetDirectory(ArtifactReferenceSchemes.Oci);
             this.client = new AzureContainerRegistryManager(clientFactory);
             this.configuration = configuration;
             this.features = features;
@@ -56,7 +56,7 @@ namespace Bicep.Core.Registry
 
         public override string Scheme => ArtifactReferenceSchemes.Oci;
 
-        public string CacheRootDirectory => this.features.CacheRootDirectory;
+        public IDirectoryHandle CacheRootDirectory => this.features.CacheRootDirectory;
 
         public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, OciArtifactReference reference)
         {
@@ -90,14 +90,14 @@ namespace Bicep.Core.Registry
 
             var artifactFilesNotFound = reference.Type switch
             {
-                ArtifactType.Module => !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.ModuleMain)),
-                ArtifactType.Extension => !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Extension)),
+                ArtifactType.Module => !this.GetArtifactFile(reference, ArtifactFileType.ModuleMain).Exists(),
+                ArtifactType.Extension => !this.GetArtifactFile(reference, ArtifactFileType.Extension).Exists(),
                 _ => throw new UnreachableException()
             };
 
             return artifactFilesNotFound ||
-                !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Manifest)) ||
-                !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Metadata));
+                !this.GetArtifactFile(reference, ArtifactFileType.Manifest).Exists() ||
+                !this.GetArtifactFile(reference, ArtifactFileType.Metadata).Exists();
         }
 
         public override async Task<bool> CheckArtifactExists(ArtifactType artifactType, OciArtifactReference reference)
@@ -146,8 +146,8 @@ namespace Bicep.Core.Registry
                 _ => throw new UnreachableException()
             };
 
-            var localUri = this.GetArtifactFileUri(reference, artifactFileType);
-            return new(localUri);
+            var file = this.GetArtifactFile(reference, artifactFileType);
+            return new(file.Uri.ToUri());
         }
 
         public override string? TryGetDocumentationUri(OciArtifactReference ociArtifactModuleReference)
@@ -189,17 +189,18 @@ namespace Bicep.Core.Registry
 
         private OciManifest GetCachedManifest(OciArtifactReference ociArtifactModuleReference)
         {
-            string manifestFilePath = this.GetArtifactFilePath(ociArtifactModuleReference, ArtifactFileType.Manifest);
+            var manifestFile = this.GetArtifactFile(ociArtifactModuleReference, ArtifactFileType.Manifest);
 
             try
             {
-                string manifestFileContents = FileSystem.File.ReadAllText(manifestFilePath);
-                var manifest = JsonSerializer.Deserialize(manifestFileContents, OciManifestSerializationContext.Default.OciManifest);
-                return manifest ?? throw new Exception($"Deserialization of cached manifest \"{manifestFilePath}\" failed");
+                using var manifestFileStream = manifestFile.OpenRead();
+                var manifest = JsonSerializer.Deserialize(manifestFileStream, OciManifestSerializationContext.Default.OciManifest);
+
+                return manifest ?? throw new Exception($"Deserialization of cached manifest \"{manifestFile.Uri}\" failed");
             }
             catch (Exception ex)
             {
-                throw new ExternalArtifactException($"Could not retrieve artifact manifest from \"{manifestFilePath}\"", ex);
+                throw new ExternalArtifactException($"Could not retrieve artifact manifest from \"{manifestFile.Uri}\"", ex);
             }
         }
 
@@ -229,7 +230,7 @@ namespace Bicep.Core.Registry
             // CONSIDER: Run these in parallel
             foreach (var reference in referencesEvaluated)
             {
-                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectoryPath(reference)}");
+                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference)}");
                 var (result, errorMessage) = await this.TryRestoreArtifactAsync(configuration, reference);
 
                 if (result is null)
@@ -373,9 +374,8 @@ namespace Bicep.Core.Registry
             // write manifest
             // it's important to write the original stream here rather than serialize the manifest object
             // this way we guarantee the manifest hash will match
-            var manifestFileUri = this.GetArtifactFileUri(reference, ArtifactFileType.Manifest);
-            using var manifestStream = result.ToStream();
-            this.FileResolver.Write(manifestFileUri, manifestStream);
+            var manifestFile = this.GetArtifactFile(reference, ArtifactFileType.Manifest);
+            result.ManifestData.WriteTo(manifestFile);
 
             // write data file
             var mainLayer = result.GetMainLayer();
@@ -392,8 +392,7 @@ namespace Bicep.Core.Registry
                 _ => throw new InvalidOperationException($"Unexpected artifact type \"{result.GetType().Name}\"."),
             };
 
-            using var dataStream = mainLayer.Data.ToStream();
-            this.FileResolver.Write(this.GetArtifactFileUri(reference, moduleFileType), dataStream);
+            mainLayer.Data.WriteTo(this.GetArtifactFile(reference, moduleFileType));
 
             if (result is OciModuleArtifactResult moduleArtifact)
             {
@@ -407,7 +406,7 @@ namespace Bicep.Core.Registry
                     //   info on disk and can handle the layer data as they want to.
                     // The manifest can be used to determine what's in each layer file.
                     //  (https://github.com/Azure/bicep/issues/11900)
-                    this.FileResolver.Write(this.GetArtifactFileUri(reference, ArtifactFileType.Source), sourceData.ToStream());
+                    sourceData.WriteTo(this.GetArtifactFile(reference, ArtifactFileType.Source));
                 }
             }
 
@@ -432,13 +431,9 @@ namespace Bicep.Core.Registry
                         throw new InvalidOperationException($"The extension \"{reference}\" does not support architecture {architecture.Name}.");
                     }
 
-                    using var binaryStream = sourceData.ToStream();
-                    var binaryUri = this.GetArtifactFileUri(reference, ArtifactFileType.ExtensionBinary);
-                    this.FileResolver.Write(binaryUri, binaryStream);
-                    if (!OperatingSystem.IsWindows())
-                    {
-                        this.FileSystem.File.SetUnixFileMode(binaryUri.LocalPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
-                    }
+                    var file = this.GetArtifactFile(reference, ArtifactFileType.ExtensionBinary);
+                    sourceData.WriteTo(file);
+                    file.MakeExecutable();
                 }
             }
 
@@ -447,10 +442,11 @@ namespace Bicep.Core.Registry
             using var metadataStream = new MemoryStream();
             OciSerialization.Serialize(metadataStream, metadata);
             metadataStream.Position = 0;
-            this.FileResolver.Write(this.GetArtifactFileUri(reference, ArtifactFileType.Metadata), metadataStream);
+
+            metadataStream.WriteTo(this.GetArtifactFile(reference, ArtifactFileType.Metadata));
         }
 
-        protected override string GetArtifactDirectoryPath(OciArtifactReference reference)
+        protected override IDirectoryHandle GetArtifactDirectory(OciArtifactReference reference)
         {
             // cachePath is already set to %userprofile%\.bicep\br or ~/.bicep/br by default depending on OS
             // we need to split each component of the reference into a sub directory to fit within the max file name length limit on linux and mac
@@ -487,10 +483,10 @@ namespace Bicep.Core.Registry
                 throw new InvalidOperationException("Module reference is missing both tag and digest.");
             }
 
-            return FileSystem.Path.Combine(this.cachePath, registry, repository, tagOrDigest);
+            return this.cacheDirectory.GetDirectory($"{registry}/{repository}/{tagOrDigest}");
         }
 
-        protected override Uri GetArtifactLockFileUri(OciArtifactReference reference) => this.GetArtifactFileUri(reference, ArtifactFileType.Lock);
+        protected override IFileHandle GetArtifactLockFile(OciArtifactReference reference) => this.GetArtifactFile(reference, ArtifactFileType.Lock);
 
         private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(RootConfiguration configuration, OciArtifactReference reference)
         {
@@ -527,18 +523,7 @@ namespace Bicep.Core.Registry
         private static bool CheckAllInnerExceptionsAreRequestFailures(AggregateException exception) =>
             exception.InnerExceptions.All(inner => inner is RequestFailedException);
 
-        private Uri GetArtifactFileUri(OciArtifactReference reference, ArtifactFileType fileType)
-        {
-            string localFilePath = this.GetArtifactFilePath(reference, fileType);
-            if (Uri.TryCreate(localFilePath, UriKind.Absolute, out var uri))
-            {
-                return uri;
-            }
-
-            throw new NotImplementedException($"Local artifact file path is malformed: \"{localFilePath}\"");
-        }
-
-        private string GetArtifactFilePath(OciArtifactReference reference, ArtifactFileType fileType)
+        private IFileHandle GetArtifactFile(OciArtifactReference reference, ArtifactFileType fileType)
         {
             var fileName = fileType switch
             {
@@ -552,15 +537,17 @@ namespace Bicep.Core.Registry
                 _ => throw new NotImplementedException($"Unexpected artifact file type '{fileType}'.")
             };
 
-            return FileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), fileName);
+            return this.GetArtifactDirectory(reference).GetFile(fileName);
         }
 
         public override ResultWithException<SourceArchive> TryGetSource(OciArtifactReference reference)
         {
-            var zipPath = GetArtifactFilePath(reference, ArtifactFileType.Source);
-            if (FileSystem.File.Exists(zipPath))
+            var sourceFile = GetArtifactFile(reference, ArtifactFileType.Source);
+            if (sourceFile.Exists())
             {
-                return SourceArchive.UnpackFromStream(FileSystem.File.OpenRead(zipPath));
+                using var sourceStream = sourceFile.OpenRead();
+
+                return SourceArchive.UnpackFromStream(sourceStream);
             }
 
             // No sources available (presumably they weren't published)
@@ -568,7 +555,7 @@ namespace Bicep.Core.Registry
         }
 
         public override Uri? TryGetExtensionBinary(OciArtifactReference reference)
-            => GetArtifactFileUri(reference, ArtifactFileType.ExtensionBinary);
+            => GetArtifactFile(reference, ArtifactFileType.ExtensionBinary).Uri.ToUri();
 
         private enum ArtifactFileType
         {

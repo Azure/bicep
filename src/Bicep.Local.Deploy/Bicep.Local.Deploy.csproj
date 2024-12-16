@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Azure.Bicep.Local.Deploy</AssemblyName>
     <RootNamespace>Bicep.Local.Deploy</RootNamespace>
@@ -12,14 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Deployments.Engine" Version="1.195.0" />
+    <PackageReference Include="Azure.Deployments.Engine" Version="1.224.0" />
     <PackageReference Include="Azure.Deployments.Extensibility.Core" Version="0.1.55" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.146" />
-    <!-- Indirect reference temporarily needed to pick specific version -->
-    <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="8.0.11" />
   </ItemGroup>
 </Project>

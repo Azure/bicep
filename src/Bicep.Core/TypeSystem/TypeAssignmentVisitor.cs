@@ -223,6 +223,8 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
+                base.VisitTypedLocalVariableSyntax(syntax);
+
                 return declaredType;
             });
 
@@ -1947,6 +1949,8 @@ namespace Bicep.Core.TypeSystem
                 {
                     return declaredType ?? ErrorType.Empty();
                 }
+
+                base.VisitTypedLambdaSyntax(syntax);
 
                 var errors = new List<IDiagnostic>();
                 foreach (var argumentType in declaredLambdaType.ArgumentTypes.Concat(declaredLambdaType.OptionalArgumentTypes))

@@ -78,8 +78,7 @@ output joke string = dadJoke.body.joke
     [TestMethod]
     public async Task Extensions_published_to_filesystem_can_be_compiled()
     {
-        var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
-        Directory.CreateDirectory(cacheDirectory);
+        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
         var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory, ExtensibilityEnabled: true));
 
         var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();

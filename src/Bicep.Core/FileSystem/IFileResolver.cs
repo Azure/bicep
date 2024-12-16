@@ -12,12 +12,6 @@ public record FileWithEncoding(
 public interface IFileResolver
 {
     /// <summary>
-    /// Attempts to acquire a cross-process lock via a zero-length lock file. The lock file should not be used to store any content. Returns null if lock was not taken.
-    /// </summary>
-    /// <param name="fileUri">The URI of the lock file</param>
-    IDisposable? TryAcquireFileLock(Uri fileUri);
-
-    /// <summary>
     /// Tries to read a file contents to string. If an exception is encountered, returns null and sets a non-null failureMessage.
     /// </summary>
     /// <param name="fileUri">The file URI to read.</param>

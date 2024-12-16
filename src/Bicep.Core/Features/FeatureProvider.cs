@@ -3,6 +3,7 @@
 
 using Bicep.Core.Configuration;
 using Bicep.Core.Intermediate;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Features
 {
@@ -10,12 +11,15 @@ namespace Bicep.Core.Features
     {
         private readonly RootConfiguration configuration;
 
-        public FeatureProvider(RootConfiguration configuration)
+        private readonly IFileExplorer fileExplorer;
+
+        public FeatureProvider(RootConfiguration configuration, IFileExplorer fileExplorer)
         {
             this.configuration = configuration;
+            this.fileExplorer = fileExplorer;
         }
 
-        public string CacheRootDirectory => GetCacheRootDirectory(this.configuration.CacheRootDirectory);
+        public IDirectoryHandle CacheRootDirectory => GetCacheRootDirectory(this.configuration.CacheRootDirectory);
 
         public bool SymbolicNameCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.SymbolicNameCodegen;
 
@@ -61,21 +65,12 @@ namespace Bicep.Core.Features
             return Enum.TryParse<T>(str, true, out var value) ? value : defaultValue;
         }
 
-        private static string GetDefaultCachePath()
-        {
-            string basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        private IDirectoryHandle GetCacheRootDirectory(string? customPath) =>
+            this.GetCacheRootDirectoryFromLocalPath(string.IsNullOrWhiteSpace(customPath)
+                ? $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.bicep"
+                : customPath);
 
-            return Path.Combine(basePath, ".bicep");
-        }
-
-        private static string GetCacheRootDirectory(string? customPath)
-        {
-            if (string.IsNullOrWhiteSpace(customPath))
-            {
-                return GetDefaultCachePath();
-            }
-
-            return customPath;
-        }
+        private IDirectoryHandle GetCacheRootDirectoryFromLocalPath(string localPath) =>
+            this.fileExplorer.GetDirectory(IOUri.FromLocalFilePath(localPath));
     }
 }

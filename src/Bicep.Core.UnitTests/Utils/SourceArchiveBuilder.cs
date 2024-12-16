@@ -19,18 +19,10 @@ namespace Bicep.Core.UnitTests.Utils
         private static string Rooted(string path) => $"/{path}";
 #endif
 
-        private string? cacheRoot = null;
-
         // First will be entrypoint, must be a bicep file
         private List<ISourceFile> SourceFiles = new();
 
         private ISourceFile EntrypointFile => SourceFiles[0];
-
-        public SourceArchiveBuilder WithCacheRoot(string cacheRoot)
-        {
-            this.cacheRoot = cacheRoot;
-            return this;
-        }
 
         public SourceArchiveBuilder WithBicepFile(Uri fileUri, string contents)
         {
@@ -62,7 +54,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             return SourceArchive.PackSourcesIntoStream(
                 EntrypointFile.Uri,
-                cacheRoot,
+                null,
                 SourceFiles.Select(x => new SourceFileWithArtifactReference(x, null)).ToArray());
         }
 
