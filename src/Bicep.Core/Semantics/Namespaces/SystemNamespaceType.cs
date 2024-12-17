@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Text;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Identity;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -1791,17 +1792,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 
                 yield return new DecoratorBuilder(LanguageConstants.WaitUntilPropertyName)
                     .WithDescription("Causes the resource deployment to wait until the given condition is satisfied")
-                    .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Bool), "The predicate applied to the resource.")
+                    .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Object, LanguageConstants.Object), "The predicate applied to the resource.")
                     .WithRequiredParameter("max wait time", LanguageConstants.String, "Maximum time used to wait until the predicate is true. Please be cautious as max wait time adds to total deployment time. It cannot be a negative value. Use [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations).")
                     .WithFlags(FunctionFlags.ResourceDecorator)
-                    // the decorator is constrained to resources
-                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, _, diagnosticWriter) =>
-                    {
-                        //TODO: validate max wait time value
-                    })
                     .Build();
 
-                    yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
+                yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
                     .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
                     .WithRequiredParameter("list of exceptions", LanguageConstants.Array, "List of exceptions.")
                     .WithOptionalParameter("retry count", LanguageConstants.Int, "Maximum number if retries on the exception.")

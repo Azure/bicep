@@ -57,6 +57,8 @@ namespace Bicep.Core.IntegrationTests
                 template.Should().NotHaveValue();
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
+                    ("BCP071", DiagnosticLevel.Error, "Expected 2 arguments, but got 1."),
+
                 });
             }
         }
