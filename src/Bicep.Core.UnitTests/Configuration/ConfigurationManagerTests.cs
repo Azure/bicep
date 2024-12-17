@@ -502,15 +502,13 @@ namespace Bicep.Core.UnitTests.Configuration
 
             var fileExplorer = new FileSystemFileExplorer(fileSystemMock.Object);
             var sut = new ConfigurationManager(fileExplorer);
-            var configurationPath = CreatePath("path/to/main.bicep");
-            var sourceFileUri = new Uri(configurationPath);
-            var configuration = sut.GetConfiguration(sourceFileUri);
+            var configuration = sut.GetConfiguration(new Uri("file:///foo/bar/main.bicep"));
 
             // Act & Assert.
             var diagnostics = configuration.Diagnostics;
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Info);
-            diagnostics[0].Message.Should().Be("Error scanning \"/foo/bar\" for bicep configuration: Oops.");
+            diagnostics[0].Message.Should().Be("Error scanning \"/foo/bar/\" for bicep configuration: Oops.");
             configuration.ToUtf8Json().Should().Be(IConfigurationManager.GetBuiltInConfiguration().ToUtf8Json());
         }
 

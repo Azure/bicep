@@ -20,5 +20,9 @@ namespace Bicep.IO.Abstraction
         IDirectoryHandle GetDirectory(string relativePath);
 
         IFileHandle GetFile(string relativePath);
+
+        IEnumerable<IDirectoryHandle> EnumerateDirectories(string searchPattern = "");
+
+        IEnumerable<IFileHandle> EnumerateFiles(string searchPattern = "");
     }
 }
