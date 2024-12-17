@@ -90,6 +90,7 @@ namespace Bicep.IO.Abstraction
 
             // System.Uri is RFC compliant when it comes to handle file URIs.
             // It handles all sorts of OS specific edge cases and normalizes path separators.
+            filePath = filePath.Replace("%", "%25");
             var fileUri = new UriBuilder { Scheme = IOUriScheme.File, Host = "", Path = filePath }.Uri;
 
             if (fileUri.IsUnc)
@@ -125,7 +126,7 @@ namespace Bicep.IO.Abstraction
         }
 
         // TODO: Remove after file abstractio migration is complete.
-        public Uri ToUri() => new UriBuilder { Scheme = this.Scheme, Host = "", Path = Path }.Uri;
+        public Uri ToUri() => new UriBuilder { Scheme = this.Scheme, Host = "", Path = Path.Replace("%", "%25") }.Uri;
 
         public static bool operator ==(IOUri left, IOUri right) => left.Equals(right);
 

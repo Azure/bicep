@@ -22,6 +22,7 @@ using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
@@ -44,14 +45,16 @@ namespace Bicep.LanguageServer.Completions
 
         private static readonly ResourceTypeSearchKeywords ResourceTypeSearchKeywords = new();
 
-        private readonly IFileResolver FileResolver;
-        public readonly IModuleReferenceCompletionProvider moduleReferenceCompletionProvider;
-        private readonly ISnippetsProvider SnippetsProvider;
+        private readonly IFileResolver fileResolver;
+        private readonly IFileExplorer fileExplorer;
+        private readonly IModuleReferenceCompletionProvider moduleReferenceCompletionProvider;
+        private readonly ISnippetsProvider snippetsProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, IModuleReferenceCompletionProvider moduleReferenceCompletionProvider)
+        public BicepCompletionProvider(IFileResolver fileResolver, IFileExplorer fileExplorer, ISnippetsProvider snippetsProvider, IModuleReferenceCompletionProvider moduleReferenceCompletionProvider)
         {
-            this.FileResolver = fileResolver;
-            this.SnippetsProvider = snippetsProvider;
+            this.fileResolver = fileResolver;
+            this.fileExplorer = fileExplorer;
+            this.snippetsProvider = snippetsProvider;
             this.moduleReferenceCompletionProvider = moduleReferenceCompletionProvider;
         }
 
@@ -169,7 +172,7 @@ namespace Bicep.LanguageServer.Completions
                             yield return CreateKeywordCompletion(LanguageConstants.AssertKeyword, "Assert keyword", context.ReplacementRange);
                         }
 
-                        foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
+                        foreach (Snippet resourceSnippet in snippetsProvider.GetTopLevelNamedDeclarationSnippets())
                         {
                             string prefix = resourceSnippet.Prefix;
                             BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTopLevelDeclarationSnippetInsertion(prefix);
@@ -215,7 +218,7 @@ namespace Bicep.LanguageServer.Completions
                 if (model.GetSymbolInfo(resourceDeclarationSyntax) is ResourceSymbol parentSymbol &&
                     parentSymbol.TryGetResourceTypeReference() is ResourceTypeReference parentTypeReference)
                 {
-                    foreach (Snippet snippet in SnippetsProvider.GetNestedResourceDeclarationSnippets(parentTypeReference))
+                    foreach (Snippet snippet in snippetsProvider.GetNestedResourceDeclarationSnippets(parentTypeReference))
                     {
                         string prefix = snippet.Prefix;
                         BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateNestedResourceDeclarationSnippetInsertion(prefix);
@@ -520,40 +523,45 @@ namespace Bicep.LanguageServer.Completions
             ImmutableArray<Uri> Files,
             ImmutableArray<Uri> Directories);
 
-        private FileCompletionInfo? TryGetFilesForPathCompletions(Uri baseUri, string entered)
+        private FileCompletionInfo? TryGetFilesForPathCompletions(Uri currentFileUri, string entered)
         {
-            var files = new List<Uri>();
-            var dirs = new List<Uri>();
+            try
+            {
+                var files = new List<Uri>();
+                var dirs = new List<Uri>();
 
-            if (FileResolver.TryResolveFilePath(baseUri, ".") is not { } cwdUri
-                || FileResolver.TryResolveFilePath(cwdUri, entered) is not { } query)
+                var currentFileIOUri = currentFileUri.ToIOUri();
+                var currentDirectory = this.fileExplorer.GetFile(currentFileIOUri).GetParent();
+                var searchDirectory = currentDirectory.GetDirectory(entered);
+
+                if (!searchDirectory.Exists() && !string.IsNullOrEmpty(entered))
+                {
+                    searchDirectory = currentDirectory.GetFile(entered).GetParent();
+                }
+
+                if (searchDirectory.Exists())
+                {
+                    files = searchDirectory.EnumerateFiles().Select(x => x.Uri.ToUri()).ToList();
+                    dirs = searchDirectory.EnumerateDirectories().Select(x => x.Uri.ToUri()).ToList();
+
+                    // include the parent folder as a completion if we're not at the file system root
+                    if (searchDirectory.GetParent() is { } parentSearchDirectory)
+                    {
+                        dirs.Add(parentSearchDirectory.Uri.ToUri());
+                    }
+                }
+
+                return new(
+                    BicepFileParentUri: currentDirectory.Uri.ToUri(),
+                    EnteredParentUri: searchDirectory.Uri.ToUri(),
+                    ShowCwdPrefix: entered.StartsWith("./"),
+                    Files: [.. files],
+                    Directories: [.. dirs]);
+            }
+            catch (IOException)
             {
                 return null;
             }
-
-            // technically bicep files do not have to follow the bicep extension, so
-            // we are not enforcing *.bicep get files command
-            var queryParent = (FileResolver.DirExists(query) ? query : FileResolver.TryResolveFilePath(query, "."));
-
-            if (queryParent is not null)
-            {
-                files = FileResolver.GetFiles(queryParent, string.Empty).ToList();
-                dirs = FileResolver.GetDirectories(queryParent, string.Empty).ToList();
-
-                // include the parent folder as a completion if we're not at the file system root
-                if (FileResolver.TryResolveFilePath(queryParent, "..") is { } parentDir &&
-                    parentDir != queryParent)
-                {
-                    dirs.Add(parentDir);
-                }
-            }
-
-            return new(
-                BicepFileParentUri: cwdUri,
-                EnteredParentUri: query,
-                ShowCwdPrefix: entered.StartsWith("./"),
-                Files: [.. files],
-                Directories: [.. dirs]);
         }
 
         private IEnumerable<CompletionItem> CreateFileCompletionItems(Uri mainFileUri, Range replacementRange, FileCompletionInfo info, Predicate<Uri> predicate, CompletionPriority priority)
@@ -697,7 +705,7 @@ namespace Bicep.LanguageServer.Completions
                     return false;
                 }
 
-                if (FileResolver.TryReadAtMostNCharacters(fileUri, Encoding.UTF8, 2000).IsSuccess(out var fileContents) &&
+                if (fileResolver.TryReadAtMostNCharacters(fileUri, Encoding.UTF8, 2000).IsSuccess(out var fileContents) &&
                     LanguageConstants.ArmTemplateSchemaRegex.IsMatch(fileContents))
                 {
                     return true;
@@ -814,7 +822,7 @@ namespace Bicep.LanguageServer.Completions
             if (model.GetDeclaredType(resourceDeclarationSyntax)?.UnwrapArrayType() is ResourceType resourceType)
             {
                 var isResourceNested = model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(resourceDeclarationSyntax) is { };
-                var snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(resourceType, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
+                var snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
 
                 foreach (Snippet snippet in snippets)
                 {
@@ -841,7 +849,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> CreateModuleBodyCompletions(SemanticModel model, BicepCompletionContext context, ModuleDeclarationSyntax moduleDeclarationSyntax)
         {
             TypeSymbol typeSymbol = model.GetTypeInfo(moduleDeclarationSyntax);
-            IEnumerable<Snippet> snippets = SnippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol.UnwrapArrayType());
+            IEnumerable<Snippet> snippets = snippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol.UnwrapArrayType());
 
             foreach (Snippet snippet in snippets)
             {
@@ -866,7 +874,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> CreateTestBodyCompletions(SemanticModel model, BicepCompletionContext context, TestDeclarationSyntax testDeclarationSyntax)
         {
             TypeSymbol typeSymbol = model.GetTypeInfo(testDeclarationSyntax);
-            IEnumerable<Snippet> snippets = SnippetsProvider.GetTestBodyCompletionSnippets(typeSymbol.UnwrapArrayType());
+            IEnumerable<Snippet> snippets = snippetsProvider.GetTestBodyCompletionSnippets(typeSymbol.UnwrapArrayType());
 
             foreach (Snippet snippet in snippets)
             {
@@ -1555,7 +1563,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetObjectBodyCompletions(TypeSymbol typeSymbol, Range replacementRange)
         {
-            IEnumerable<Snippet> snippets = SnippetsProvider.GetObjectBodyCompletionSnippets(typeSymbol);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetObjectBodyCompletionSnippets(typeSymbol);
 
             foreach (Snippet snippet in snippets)
             {

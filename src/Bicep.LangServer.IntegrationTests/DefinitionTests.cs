@@ -16,6 +16,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Extensions;
@@ -800,8 +801,9 @@ param |foo| string
 
             var server = new SharedLanguageHelperManager();
             var fileResolver = new InMemoryFileResolver(additionalFiles.ToDictionary(x => new Uri($"file:///{testContext.TestName}/path/to/{x.fileName}"), x => x.fileBody));
+            var fileExplorer = new FileSystemFileExplorer(fileResolver.MockFileSystem);
             server.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services =>
-                services.WithFileResolver(fileResolver)));
+                services.WithFileResolver(fileResolver).WithFileExplorer(fileExplorer)));
 
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(testContext, file, bicepFile.Uri);

@@ -5,6 +5,7 @@ using Bicep.Core.Tracing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Options;
@@ -79,6 +80,7 @@ namespace Bicep.LangServer.IntegrationTests
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
             var fileResolver = new InMemoryFileResolver(fileContentsByUri);
+            var fileExplorer = new FileSystemFileExplorer(fileResolver.MockFileSystem);
             var helper = await LanguageServerHelper.StartServer(
                 testContext,
                 options => options.OnPublishDiagnostics(diagnosticsListener.AddMessage),
@@ -86,6 +88,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     onRegisterServices?.Invoke(services);
                     services.WithFileResolver(fileResolver);
+                    services.WithFileExplorer(fileExplorer);
                 });
 
             // send open document notification
