@@ -23,7 +23,7 @@ export const Playground : React.FC<Props> = (props) => {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [filterText, setFilterText] = useState('');
-  const uploadInputRef = useRef<HTMLInputElement>();
+  const uploadInputRef = useRef<HTMLInputElement>(undefined);
 
   async function withLoader(action: () => Promise<void>) {
     try {
