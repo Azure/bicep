@@ -2405,28 +2405,41 @@ namespace Bicep.Core.TypeSystem
             return diagnosticWriter.GetDiagnostics();
         }
 
-        private static IEnumerable<IDiagnostic> ValidateTypeAssignability(SyntaxBase typeSyntax, TypeSymbol assignedType)
+        private IEnumerable<IDiagnostic> ValidateTypeAssignability(SyntaxBase typeSyntax, TypeSymbol assignedType)
         {
-            if (assignedType is not ErrorType && TryGetArmPrimitiveType(assignedType) is null)
+            if (typeSyntax is not SkippedTriviaSyntax &&
+                assignedType is not ErrorType &&
+                TryGetArmPrimitiveType(assignedType, typeSyntax) is null)
             {
                 yield return DiagnosticBuilder.ForPosition(typeSyntax)
                     .TypeExpressionResolvesToUnassignableType(assignedType);
             }
         }
 
-        private static TypeSymbol? TryGetArmPrimitiveType(TypeSymbol type) => type switch
+        private TypeSymbol? TryGetArmPrimitiveType(TypeSymbol type, SyntaxBase syntax) => type switch
         {
             BooleanLiteralType or BooleanType => LanguageConstants.Bool,
             IntegerLiteralType or IntegerType => LanguageConstants.Int,
             StringLiteralType or StringType => LanguageConstants.String,
+            ResourceType when features.ResourceTypedParamsAndOutputsEnabled => LanguageConstants.String,
             ObjectType or DiscriminatedObjectType => LanguageConstants.Object,
             TupleType or ArrayType => LanguageConstants.Array,
-            UnionType when TypeHelper.TryRemoveNullability(type) is { } nonNull => TryGetArmPrimitiveType(nonNull),
-            UnionType union when union.Members.Select(m => TryGetArmPrimitiveType(m.Type)).ToArray() is { } mTypes &&
+            UnionType when TypeHelper.TryRemoveNullability(type) is { } nonNull => TryGetArmPrimitiveType(nonNull, syntax),
+            UnionType when IsExplicitUnion(syntax) => LanguageConstants.Any,
+            UnionType union when union.Members.Select(m => TryGetArmPrimitiveType(m.Type, syntax)).ToArray() is { } mTypes &&
                 !mTypes.Any(t => t is null) &&
                 mTypes.ToHashSet() is { } mUniqueTypes &&
                 mUniqueTypes.Count == 1 => mUniqueTypes.Single(),
             _ => null,
+        };
+
+        private static bool IsExplicitUnion(SyntaxBase syntax) => syntax switch
+        {
+            UnionTypeSyntax => true,
+            ParenthesizedTypeSyntax parenthesized => IsExplicitUnion(parenthesized.Expression),
+            NonNullableTypeSyntax nonNullable => IsExplicitUnion(nonNullable.Base),
+            NullableTypeSyntax nullable => IsExplicitUnion(nullable.Base),
+            _ => false,
         };
 
         private IEnumerable<IDiagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
