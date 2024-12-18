@@ -167,6 +167,18 @@ namespace Bicep.Core.TypeSystem
             base.VisitFunctionCallSyntax(syntax);
         }
 
+        public override void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax)
+        {
+            if (!currentDeclarations.TryPeek(out var currentDeclaration))
+            {
+                // we're not inside a declaration, so there should be no risk of a cycle
+                return;
+            }
+
+            declarationAccessDict[currentDeclaration].Add(syntax);
+            base.VisitParameterizedTypeInstantiationSyntax(syntax);
+        }
+
         public override void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax)
             => WithSelfReferencePermitted(() => base.VisitArrayTypeMemberSyntax(syntax), selfReferencePermitted: true);
 
