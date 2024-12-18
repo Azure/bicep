@@ -1519,6 +1519,11 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
+            static FunctionArgumentSyntax? GetArgumentByPosition(DecoratorSyntax decoratorSyntax, int position)
+            {
+                return decoratorSyntax.Arguments.ElementAtOrDefault(position);
+            }
+
             static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
             {
                 // if integerLiteralSyntax.Value is within the 64 bit integer range, negate it after casting to a long type
@@ -1805,7 +1810,22 @@ namespace Bicep.Core.Semantics.Namespaces
                     // the decorator is constrained to resources
                     .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, _, diagnosticWriter) =>
                     {
-                        //TODO: retry count
+                        //validate retry count
+                        var retryCountSyntax = GetArgumentByPosition(decoratorSyntax, 1);
+                        if (retryCountSyntax != null)
+                        {
+                            if (retryCountSyntax.Expression is not IntegerLiteralSyntax)
+                            {
+                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(retryCountSyntax).NegativeRetryCount());
+                            }
+
+                            const long minimumRetryLimit = 1;
+                            long? retryCount = TryGetIntegerLiteralValue(retryCountSyntax.Expression);
+                            if (retryCount is not null and < minimumRetryLimit)
+                            {
+                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(retryCountSyntax).InvalidRetryCount(retryCount.Value, minimumRetryLimit));
+                            }
+                        }
                         //TODO: validate list of exceptions are string value
                     })
                     .Build();

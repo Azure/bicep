@@ -64,7 +64,22 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public void RetryOnDecorator_MissingDeclaration_ExpectedResourceDeclaration()
+        public void RetryOnDecorator_ExpectedResourceDeclaration()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            @retryOn(['ResourceNotFound'])
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void RetryOnDecorator_WithRetryCountOptionalParameter_ExpectedResourceDeclaration()
         {
             var (template, diagnostics, _) = CompilationHelper.Compile(@"
             @retryOn(['ResourceNotFound'], 5)
@@ -74,6 +89,45 @@ namespace Bicep.Core.IntegrationTests
                 template.Should().NotHaveValue();
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void RetryOnDecorator_InvalidRetryCount()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            @retryOn(['ResourceNotFound'], 0)
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+                name: 'sql-server-name'
+                location: 'polandcentral'
+            }
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP411", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"0\"."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void RetryOnDecorator_NegativeRetryCount()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            @retryOn(['ResourceNotFound'], -5)
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+                name: 'sql-server-name'
+                location: 'polandcentral'
+            }
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP410", DiagnosticLevel.Error, "Invalid retry count. It must be a non-negative integer."),
+                    ("BCP411", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"-5\".")
                 });
             }
         }

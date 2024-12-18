@@ -1874,6 +1874,14 @@ namespace Bicep.Core.Diagnostics
                 { Fixes = [fixToResourceInput, fixToResourceOutput] };
             }
 
+            public Diagnostic NegativeRetryCount() => CoreError(
+                   "BCP410",
+                   $"Invalid retry count. It must be a non-negative integer.");
+
+            public Diagnostic InvalidRetryCount(long value, long limit) => CoreError(
+                "BCP411",
+                $"Expected a retry count of at least {limit} but the specified value was \"{value}\".");
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
