@@ -79,6 +79,30 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
+        public void RetryOnDecorator_WithModuleDeclaration_ShouldFail()
+        {
+            var moduleUri = new Uri("file:///module.bicep");
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            @retryOn(['ResourceNotFound'])
+            module myModule 'module.bicep' = {
+            name: 'moduleb'
+             params: {
+                inputa: 'foo'
+                inputb: 'bar'
+                }
+            }
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP128", DiagnosticLevel.Error, "Function \"retryOn\" cannot be used as a module decorator."),
+                    ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find file 'C:\\path\\to\\module.bicep'.")
+                });
+            }
+        }
+
+        [TestMethod]
         public void RetryOnDecorator_WithRetryCountOptionalParameter_ExpectedResourceDeclaration()
         {
             var (template, diagnostics, _) = CompilationHelper.Compile(@"
