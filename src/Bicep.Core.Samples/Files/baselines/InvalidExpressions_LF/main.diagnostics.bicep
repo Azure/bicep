@@ -295,6 +295,7 @@ param funcvarparam bool = concat
 //@[06:18) [no-unused-params (Warning)] Parameter "funcvarparam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |funcvarparam|
 //@[26:32) [BCP063 (Error)] The name "concat" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |concat|
 output funcvarout array = padLeft
+//@[18:23) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
 //@[26:33) [BCP063 (Error)] The name "padLeft" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |padLeft|
 
 // non-existent function

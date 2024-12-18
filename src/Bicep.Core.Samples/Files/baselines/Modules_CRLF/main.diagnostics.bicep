@@ -137,8 +137,11 @@ resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 output stringOutputA string = modATest.outputs.stringOutputA
 output stringOutputB string = modATest.outputs.stringOutputB
 output objOutput object = modATest.outputs.objOutput
+//@[17:23) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 output arrayOutput array = modATest.outputs.arrayOutput
+//@[19:24) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
 output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputObj
+//@[31:37) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 
 /*
   valid loop cases

@@ -40,6 +40,7 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 })
 param foo object = {
 //@[06:009) [no-unused-params (Warning)] Parameter "foo" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |foo|
+//@[10:016) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
   enabled: true
   name: 'this is my object'
   priority: 3
@@ -65,6 +66,7 @@ param foo object = {
 // array default value
 param myArrayParam array = [
 //@[06:018) [no-unused-params (Warning)] Parameter "myArrayParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |myArrayParam|
+//@[19:024) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
   'a'
   'b'
   'c'
@@ -79,6 +81,7 @@ param password string
 @secure()
 param secretObject object
 //@[06:018) [no-unused-params (Warning)] Parameter "secretObject" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |secretObject|
+//@[19:025) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 
 // enum parameter
 @allowed([
@@ -107,6 +110,7 @@ param storageName string
 @maxLength(24)
 param someArray array
 //@[06:015) [no-unused-params (Warning)] Parameter "someArray" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |someArray|
+//@[16:021) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
 
 // empty metadata
 @metadata({})
@@ -209,6 +213,7 @@ param decoratedBool bool = /* comment1 */ /* comment2*/      /* comment3 */ /* c
 @secure()
 param decoratedObject object = {
 //@[06:021) [no-unused-params (Warning)] Parameter "decoratedObject" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |decoratedObject|
+//@[22:028) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 //@[29:244) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults (except for empty or newGuid()). (bicep core linter https://aka.ms/bicep/linter/secure-parameter-default) |= {\n  enabled: true\n  name: 'this is my object'\n  priority: 3\n  info: {\n    a: 'b'\n  }\n  empty: {\n  }\n  array: [\n    'string item'\n    12\n    true\n    [\n      'inner'\n      false\n    ]\n    {\n      a: 'b'\n    }\n  ]\n}|
   enabled: true
   name: 'this is my object'
@@ -239,6 +244,7 @@ param decoratedObject object = {
 @sys.maxLength(20)
 @sys.description('An array.')
 param decoratedArray array = [
+//@[21:026) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
     utcNow()
     newGuid()
 ]

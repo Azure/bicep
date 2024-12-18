@@ -128,6 +128,7 @@ type typeC = {
 type typeD = {
   type: 'd'
   value: object
+//@[09:015) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 }
 
 type typeE = {
@@ -192,6 +193,7 @@ type discriminatorDuplicatedMember1 = typeA | typeA
 @discriminator('type')
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 //@[46:075) [BCP365 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP365) |{ type: 'a', config: object }|
+//@[67:073) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 
 @discriminator('type')
 type discriminatorOnlyOneNonNullMember1 = typeA | null
@@ -305,6 +307,7 @@ output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP363) |@discriminator('type')|
 output discriminatorOutputBadType2 object = { prop: 'value' }
+//@[35:041) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 
 type strings = string[]
 

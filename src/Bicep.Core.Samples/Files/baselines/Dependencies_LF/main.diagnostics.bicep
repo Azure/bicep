@@ -67,4 +67,5 @@ resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 }
 
 output resourceCProperties object = resC.properties
+//@[27:33) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 

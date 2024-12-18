@@ -1,5 +1,6 @@
 param name string
 param accounts array
+//@[15:020) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
 param index int
 
 // single resource
@@ -81,9 +82,11 @@ output indexedCollectionVersion string = storageAccounts[index].apiVersion
 
 // general case property access
 output indexedCollectionIdentity object = storageAccounts[index].identity
+//@[33:039) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 
 // indexed access of two properties
 output indexedEndpointPair object = {
+//@[27:033) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
   primary: storageAccounts[index].properties.primaryEndpoints.blob
   secondary: storageAccounts[index + 1].properties.secondaryEndpoints.blob
 }

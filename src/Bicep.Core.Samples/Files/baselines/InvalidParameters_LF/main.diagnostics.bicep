@@ -98,11 +98,13 @@ param boolCompletions bool =
 // #completionTest(30,31) -> arrayPlusSymbols
 param arrayCompletions array = 
 //@[06:022) [no-unused-params (Warning)] Parameter "arrayCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |arrayCompletions|
+//@[23:028) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
 //@[31:031) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 
 // #completionTest(32,33) -> objectPlusSymbols
 param objectCompletions object = 
 //@[06:023) [no-unused-params (Warning)] Parameter "objectCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |objectCompletions|
+//@[24:030) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 //@[33:033) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 
 // badly escaped string
@@ -464,6 +466,7 @@ param invalidLength string
 ])
 param invalidPermutation array = [
 //@[06:024) [no-unused-params (Warning)] Parameter "invalidPermutation" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |invalidPermutation|
+//@[25:030) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
 	'foobar'
 //@[01:009) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "'foobar'". (bicep https://aka.ms/bicep/core-diagnostics#BCP034) |'foobar'|
 	true
@@ -484,6 +487,7 @@ param invalidPermutation array = [
 ])
 param invalidDefaultWithAllowedArrayDecorator array = true
 //@[06:045) [no-unused-params (Warning)] Parameter "invalidDefaultWithAllowedArrayDecorator" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |invalidDefaultWithAllowedArrayDecorator|
+//@[46:051) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
 //@[54:058) [BCP033 (Error)] Expected a value of type "['Microsoft.AnalysisServices/servers', 'Microsoft.ApiManagement/service'] | ['Microsoft.Network/applicationGateways', 'Microsoft.Automation/automationAccounts']" but the provided value is of type "true". (bicep https://aka.ms/bicep/core-diagnostics#BCP033) |true|
 
 // unterminated multi-line comment

@@ -12,13 +12,16 @@ output myOtherBool bool = true
 
 @sys.description('object array description')
 output suchEmpty array = [
+//@[17:22) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
 ]
 
 output suchEmpty2 object = {
+//@[18:24) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 }
 
 @sys.description('object output description')
 output obj object = {
+//@[11:17) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
   a: 'a'
   b: 12
   c: true
@@ -39,6 +42,7 @@ output obj object = {
 }
 
 output myArr array = [
+//@[13:18) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
   'pirates'
   'say'
    false ? 'arr2' : 'arr'
@@ -71,4 +75,5 @@ output paramWithOverlappingOutput string = paramWithOverlappingOutput
 
 // top-level output loops are supported
 output generatedArray array = [for i in range(0,10): i]
+//@[22:27) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
 

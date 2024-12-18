@@ -122,6 +122,7 @@ type typeC = {
 type typeD = {
   type: 'd'
   value: object
+//@[09:15) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 }
 
 type typeE = {
@@ -222,6 +223,7 @@ type discriminatedUnionTuple1 = [
 type discriminatedUnionInlineTuple1 = [
   @discriminator('type')
   typeA | typeB | { type: 'c', value: object }
+//@[38:44) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
   string
 ]
 
