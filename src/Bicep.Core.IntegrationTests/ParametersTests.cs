@@ -546,5 +546,74 @@ param stringParam =  /*TODO*/
             }
             }"));
         }
+
+        [TestMethod]
+        public void Using_variables_objects_arrays_in_base_parameters_file_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              "),
+              ("shared.bicepparam", @"
+                using none
+
+                var var_foo = 'foo'
+                param foo = var_foo
+
+                var var_bar = {
+                    a: 'a'
+                    b: 'b'
+                }
+
+                param bar = var_bar
+
+                var var_baz = [
+                    var_foo
+                    var_bar
+                ]
+
+                param baz = var_baz
+              "),
+              ("main.bicep", @"
+                param foo string = ''
+                param bar object = {}
+                param baz array = []
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Parameters.Should().DeepEqual(JToken.Parse(@"{
+                ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+                ""contentVersion"": ""1.0.0.0"",
+                ""parameters"": {
+                    ""foo"": {
+                        ""value"": ""foo""
+                    },
+                    ""bar"": {
+                        ""value"": {
+                            ""a"": ""a"",
+                            ""b"": ""b""
+                        }
+                    },
+                    ""baz"": {
+                        ""value"": [
+                            ""foo"",
+                            {
+                                ""a"": ""a"",
+                                ""b"": ""b""
+                            }
+                        ]
+                    }
+                }
+            }"));
+        }
     }
 }
