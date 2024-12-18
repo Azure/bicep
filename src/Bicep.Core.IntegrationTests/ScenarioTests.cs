@@ -6529,4 +6529,21 @@ param p invalidRecursiveObjectType = {}
             ]
             """);
     }
+
+    [TestMethod]
+    public void Test_Issue15898()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import {someType} from 'nameClash.bicep'
+                """),
+            ("nameClash.bicep", """
+                @export()
+                type someType = {}
+
+                output someType someType = {}
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
