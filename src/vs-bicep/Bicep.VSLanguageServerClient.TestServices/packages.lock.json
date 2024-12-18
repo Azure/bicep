@@ -39,6 +39,15 @@
           "Microsoft.CodeCoverage": "17.12.0"
         }
       },
+      "Microsoft.NETFramework.ReferenceAssemblies": {
+        "type": "Direct",
+        "requested": "[1.0.3, )",
+        "resolved": "1.0.3",
+        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
+        "dependencies": {
+          "Microsoft.NETFramework.ReferenceAssemblies.net472": "1.0.3"
+        }
+      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[8.0.0, )",
@@ -239,15 +248,16 @@
       },
       "Microsoft.VisualStudio.Workspace": {
         "type": "Direct",
-        "requested": "[17.1.11-preview-0002, )",
-        "resolved": "17.1.11-preview-0002",
-        "contentHash": "a1Ig/wC8eT5lF7+naSAyvO3vdeuvwHf+1wZwfViIA0iqxkBe7h1NoiX7fonuTB89TuUoPlClSB6SFYK8Hu89cQ==",
+        "requested": "[17.12.19, )",
+        "resolved": "17.12.19",
+        "contentHash": "9Qnqjr9W2TEnhuob5y0tqJT572QYBv/gNn3Z41TG8amAokZHMmGPtZenga6VYIPzWpOGT+7lMMF71Ugf1r9Mqw==",
         "dependencies": {
-          "Microsoft.IO.Redist": "4.7.1",
-          "Microsoft.VisualStudio.Composition": "16.4.11",
-          "Microsoft.VisualStudio.Threading": "17.1.42-alpha",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.1.42-alpha",
-          "System.Collections.Immutable": "5.0.0"
+          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
+          "Microsoft.IO.Redist": "6.0.1",
+          "Microsoft.VisualStudio.Composition": "17.10.39",
+          "Microsoft.VisualStudio.Threading": "17.11.20",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.11.20",
+          "System.Collections.Immutable": "8.0.0"
         }
       },
       "Microsoft.VisualStudio.Workspace.VSIntegration": {
@@ -458,6 +468,11 @@
         "type": "Transitive",
         "resolved": "1.1.3",
         "contentHash": "3Wrmi0kJDzClwAC+iBdUBpEKmEle8FQNsCs77fkiOIw/9oYA07bL1EZNX0kQ2OMN3xpwvl0vAtOCYY3ndDNlhQ=="
+      },
+      "Microsoft.NETFramework.ReferenceAssemblies.net472": {
+        "type": "Transitive",
+        "resolved": "1.0.3",
+        "contentHash": "0E7evZXHXaDYYiLRfpyXvCh+yzM2rNTyuZDI+ZO7UUqSc6GfjePiXTdqJGtgIKUwdI81tzQKmaWprnUiPj9hAw=="
       },
       "Microsoft.ServiceHub.Analyzers": {
         "type": "Transitive",
@@ -1245,7 +1260,7 @@
           "Microsoft.VisualStudio.Shell.Framework": "[17.12.40391, )",
           "Microsoft.VisualStudio.Shell.Interop": "[17.12.40391, )",
           "Microsoft.VisualStudio.Utilities": "[17.12.40391, )",
-          "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
+          "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.12.18, )",
           "Microsoft.Visualstudio.Telemetry": "[17.12.48, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.9, )",
           "System.Text.Json": "[9.0.0, )"
