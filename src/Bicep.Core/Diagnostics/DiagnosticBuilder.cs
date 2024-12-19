@@ -1873,6 +1873,10 @@ namespace Bicep.Core.Diagnostics
                     with
                 { Fixes = [fixToResourceInput, fixToResourceOutput] };
             }
+
+            public Diagnostic TypeExpressionResolvesToUnassignableType(TypeSymbol type) => CoreError(
+                "BCP410",
+                $"The type \"{type}\" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object).{TypeInaccuracyClause}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
