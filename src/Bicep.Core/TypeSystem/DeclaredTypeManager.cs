@@ -259,9 +259,6 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetUserDefinedTypeType(TypeAliasSymbol symbol)
         {
-            // Even if the declared type is invalid because of a illegal cycle, we still want to visit (and cache the type of) nested elements.
-            var declaredType = GetTypeFromTypeSyntax(symbol.DeclaringType.Value);
-
             if (binder.TryGetCycle(symbol) is { } cycle)
             {
                 var builder = DiagnosticBuilder.ForPosition(symbol.DeclaringType.Name);
@@ -272,7 +269,9 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostic);
             }
 
-            return ApplyTypeModifyingDecorators(DisallowNamespaceTypes(declaredType.Type, symbol.DeclaringType.Value), symbol.DeclaringType);
+            return ApplyTypeModifyingDecorators(
+                DisallowNamespaceTypes(GetTypeFromTypeSyntax(symbol.DeclaringType.Value).Type, symbol.DeclaringType.Value),
+                symbol.DeclaringType);
         }
 
         private static ITypeReference DisallowNamespaceTypes(ITypeReference typeReference, SyntaxBase syntax) => typeReference switch
