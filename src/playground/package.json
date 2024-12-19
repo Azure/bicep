@@ -18,7 +18,7 @@
     "@eslint/js": "^9.17.0",
     "@types/node": "^22.10.1",
     "@types/pako": "^2.0.3",
-    "@types/react": "^18.3.12",
+    "@types/react": "^19.0.1",
     "@types/react-dom": "^18.3.1",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
@@ -45,8 +45,8 @@
     "bootstrap": "^5.3.3",
     "monaco-editor": "^0.52.0",
     "pako": "^2.1.0",
-    "react": "^18.3.1",
+    "react": "^19.0.0",
     "react-bootstrap": "^2.10.6",
-    "react-dom": "^18.3.1"
+    "react-dom": "^19.0.0"
   }
 }
