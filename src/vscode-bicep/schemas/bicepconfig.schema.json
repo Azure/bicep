@@ -751,6 +751,16 @@
                     }
                   ]
                 },
+                "use-user-defined-types": {
+                  "allOf": [
+                    {
+                      "description": "Use user-defined types instead of 'object' or 'array'. Defaults to 'Off'. See https://aka.ms/bicep/linter/use-user-defined-types"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
                 "what-if-short-circuiting": {
                   "allOf": [
                     {
