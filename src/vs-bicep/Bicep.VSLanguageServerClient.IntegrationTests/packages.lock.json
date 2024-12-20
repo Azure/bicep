@@ -275,11 +275,11 @@
       },
       "MessagePack": {
         "type": "Transitive",
-        "resolved": "3.0.308",
-        "contentHash": "88zw/8RB2WU5UQR9qTbXpxG0gTvsdG/ue991kifYLILxDDr1ZpM1PIwbCMRUlh+E1GoqE/d159dARj1j9TTuSw==",
+        "resolved": "3.1.0",
+        "contentHash": "hxj7V0A7cBWLSXxNGwkMRtN9IcF/rO0ZT3kTCneH6N4l1upZfpnL2dcuY/gqEG6+NXEE5qiFIp/GV1lJWEaICw==",
         "dependencies": {
-          "MessagePack.Annotations": "3.0.308",
-          "MessagePackAnalyzer": "3.0.308",
+          "MessagePack.Annotations": "3.1.0",
+          "MessagePackAnalyzer": "3.1.0",
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.NET.StringTools": "17.11.4",
           "System.Collections.Immutable": "8.0.0",
@@ -290,13 +290,13 @@
       },
       "MessagePack.Annotations": {
         "type": "Transitive",
-        "resolved": "3.0.308",
-        "contentHash": "gATDsU/BzxjYOiQ6AIy0OwXC+24YLiGP9Hb6WSpJp6uuJtPALMBK+prMVHtThHkNseRzfYoF7MyQ6LURNbplmQ=="
+        "resolved": "3.1.0",
+        "contentHash": "mAHg+d+eMF0p4grdJS04vUt3ECxj6hfSEr+Xvb1JcW48S/Vz2wahXU64O9ST+PAGw/icnANksXX+ceSaH/mv2A=="
       },
       "MessagePackAnalyzer": {
         "type": "Transitive",
-        "resolved": "3.0.308",
-        "contentHash": "lEqNxGuLsmeuAdA1ZGmdBEGbXnWwqIVK/HAQ6/XgBI9g8a++Cz9EDZX2v/heM+BmE0Xi6euFB+63dMo+osvD5A=="
+        "resolved": "3.1.0",
+        "contentHash": "SRpt29jXfDgH20dyjXdAWRnRaDS+LpjQkORD+IDI96XNDH+u++9JTgKbH2VG0pNyMjOO1IoPPRteSOTx1yv2Vw=="
       },
       "Microsoft.ApplicationInsights": {
         "type": "Transitive",
@@ -1308,7 +1308,7 @@
       "bicep.vslanguageserverclient": {
         "type": "Project",
         "dependencies": {
-          "MessagePack": "[3.0.308, )",
+          "MessagePack": "[3.1.0, )",
           "Microsoft.IO.Redist": "[6.1.0, )",
           "Microsoft.VisualStudio.LanguageServer.Client": "[17.12.48, )",
           "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",
