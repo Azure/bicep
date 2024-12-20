@@ -1,13 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#pragma warning disable IDE0051 // Remove unused private members asdfg remove
+
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Syntax;
@@ -30,6 +34,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
+        //asdfg private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
 
         private enum ModuleCompletionPriority
         {
@@ -51,12 +56,14 @@ namespace Bicep.LanguageServer.Completions
 
         public ModuleReferenceCompletionProvider(
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
+            //asdfg IContainerRegistryClientFactory containerRegistryClientFactory,
             IConfigurationManager configurationManager,
             IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
             ISettingsProvider settingsProvider,
             ITelemetryProvider telemetryProvider)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
+            //asdfg this.containerRegistryClientFactory = containerRegistryClientFactory;
             this.configurationManager = configurationManager;
             this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
             this.settingsProvider = settingsProvider;
@@ -83,7 +90,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetTopLevelCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
-                !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
+                !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath)) //asdfg?
             {
                 return [];
             }
@@ -283,7 +290,7 @@ namespace Bicep.LanguageServer.Completions
             return null;
         }
 
-        private ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetOciArtifactModuleAliases(Uri sourceFileUri)
+        private ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(Uri sourceFileUri)
         {
             var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
             return rootConfiguration.ModuleAliases.GetOciArtifactModuleAliases();
@@ -298,11 +305,124 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return [
-                .. GetPublicModuleCompletions(replacementText, context),
-                .. GetACRPartialPathCompletionsFromBicepConfig(replacementText, context, sourceFileUri),
+                .. GetModuleCompletions(replacementText, context),
+                .. GetACRPartialPathCompletionsFromModuleAliases(replacementText, context, sourceFileUri),
                 .. GetMCRPathCompletionFromBicepConfig(replacementText, context, sourceFileUri),
             ];
         }
+
+
+
+
+
+
+
+
+#if false
+            if (replacementText == "'br/public:'" ||
+                replacementText == $"'br:{PublicMCRRegistry}/bicep/'" ||
+                replacementText == "'br/public:" ||
+                replacementText == $"'br:{PublicMCRRegistry}/bicep/")
+            {
+                return await GetPublicMCRPathCompletions(replacementText, context, sourceFileUri);
+            }
+            else
+            {
+                List<CompletionItem> completions = new();
+
+                completions.AddRange(GetACRPartialPathCompletionsFromBicepConfig(replacementText, context, sourceFileUri));
+                completions.AddRange(await GetMCRPathCompletionFromBicepConfig(replacementText, context, sourceFileUri));
+
+                var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
+                foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri)/*asdfg non-aliased*/)
+                {
+                    var registry = kvp.Value.Registry;
+
+                    if (registry is not null && !registry.Equals(PublicMCRRegistry, StringComparison.Ordinal)/*asdfg?*/)
+                    {
+                        AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
+                        var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
+                        var catalog = await acrManager.GetCatalogAsync(rootConfiguration, registry); //asdfg cache
+
+                        //asdfg?if (!aliases.TryGetValue(label, out _))
+                        //{
+                        //asdfg
+                            var replacementTextWithoutQuotes = replacementText.Trim('\''); // e.g. replacementText = "'br/demo/spaces:"
+                        foreach (var module in catalog)
+                        {
+                            var label = module;
+                            var insertText = $"'{replacementTextWithoutQuotes}{module}:$0'";
+                            var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+                            .WithFilterText(insertText)
+                            .WithSnippetEdit(context.ReplacementRange, insertText)
+                            //asdfg .WithSortText(GetSortText(registry))
+                            .WithFollowupCompletion("private module path completion asdfg")
+                            .Build();
+                            completions.Add(completionItem);
+                        }
+
+                        //asdfg aliases.Add(label );
+                        //}
+                    }
+                }
+
+                return completions;
+            }
+        }
+
+
+private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
+        {
+            Trace.WriteLine($"Retrieving list of public registry modules...");
+
+            try
+            {
+                var catalogEndpoint = $"https://{loginServer}/v2/_catalog";
+                var metadata = await this.httpClient.GetFromJsonAsync<string[]>(catalogEndpoint, JsonSerializerOptions);
+
+                if (metadata is not null)
+                {
+                    return metadata.ToImmutableArray();
+                }
+                else
+                {
+                    throw new Exception($"asdfgList of MCR modules at {LiveDataEndpoint} was empty");
+                }
+            }
+            catch (Exception e)
+            {
+                Trace.TraceError(string.Format("asdfgError retrieving MCR modules metadata: {0}", e.Message));
+                return null;
+            }
+        }
+#endif
+
+
+        // private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
+        // {
+        //     Trace.WriteLine($"Retrieving list of public registry modules...");
+
+        //     try
+        //     {
+        //         var catalogEndpoint = $"https://{loginServer}/v2/_catalog";
+        //         var metadata = await this.httpClient.GetFromJsonAsync<string[]>(catalogEndpoint, JsonSerializerOptions);
+
+        //         if (metadata is not null)
+        //         {
+        //             return metadata.ToImmutableArray();
+        //         }
+        //         else
+        //         {
+        //             throw new Exception($"asdfgList of MCR modules at {LiveDataEndpoint} was empty");
+        //         }
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Trace.TraceError(string.Format("asdfgError retrieving MCR modules metadata: {0}", e.Message));
+        //         return null;
+        //     }
+        // }
+
 
 
         // Handles path completions for case where user has specified an alias in bicepconfig.json with registry set to "mcr.microsoft.com".
@@ -317,11 +437,11 @@ namespace Bicep.LanguageServer.Completions
                 return completions;
             }
 
-            foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri))
+            foreach (var kvp in GetModuleAliases(sourceFileUri))
             {
                 if (kvp.Value.Registry is string registry)
                 {
-                    // We currently don't support path completion for ACR, but we'll go ahead and log telemetry to track usage.
+                    // We currently don't support path completion for ACR, but we'll go ahead and log telemetry to track usage. asdfg
                     if (!registry.Equals(PublicMCRRegistry, StringComparison.Ordinal) &&
                         replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:"))
                     {
@@ -450,8 +570,45 @@ namespace Bicep.LanguageServer.Completions
             return !registry.Equals(PublicMCRRegistry, StringComparison.Ordinal);
         }
 
+        /// <summary>
+        /// True if a direct reference to a private ACR registry (i.e. not pointing to the Microsoft public bicep registry)
+        /// Example:
+        ///   "'br:privateacr.azurecr.io/" => true    asdfg don't like that it matches against the first single quote
+        /// </summary>
+        /// <param name="replacementTextWithTrimmedEnd"></param>
+        /// <param name="registry">Won't be null with true return value, but could be empty asdfg</param>
+        /// <returns></returns>
+        private bool IsRegistryReference(string replacementTextWithTrimmedEnd, [NotNullWhen(true)] out string? registry)//asdfg
+        {
+            registry = null;
+
+            var matches = ModuleWithFullPath.Matches(replacementTextWithTrimmedEnd);
+            if (!matches.Any())
+            {
+                return false;
+            }
+
+            registry = matches[0].Groups["registry"].Value;
+            return true;
+        }
+
         // We only support partial path completions for ACR using module paths listed in bicepconfig.json
-        private IEnumerable<CompletionItem> GetACRPartialPathCompletionsFromBicepConfig(string replacementText, BicepCompletionContext context, Uri sourceFileUri)
+
+        // Handles ACR path completions for full paths, but only for the case where the user has configured an alias in bicepconfig.json.
+        // Example:
+        //   bicepconfig.json:
+        //   {
+        //     "moduleAliases": {
+        //       "br": {
+        //         "whatever": {
+        //           "registry": "privateacr.azurecr.io",
+        //           "modulePath": "bicep/app"
+        //    ...
+        //
+        //   br:privateacr.azurecr.io/<CURSOR>
+        //      =>
+        //   br:privateacr.azurecr.io/bicep/app:<CURSOR>
+        private IEnumerable<CompletionItem> GetACRPartialPathCompletionsFromModuleAliases(string replacementText, BicepCompletionContext context, Uri sourceFileUri)
         {
             List<CompletionItem> completions = new();
 
@@ -462,8 +619,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
-
-            foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri))
+            foreach (var kvp in GetModuleAliases(sourceFileUri))
             {
                 if (registry.Equals(kvp.Value.Registry, StringComparison.Ordinal))
                 {
@@ -492,7 +648,7 @@ namespace Bicep.LanguageServer.Completions
         //   br/public:<CURSOR>
         // or
         //   br:mcr.microsoft.com/bicep/:<CURSOR>
-        private IEnumerable<CompletionItem> GetPublicModuleCompletions(string replacementText, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetModuleCompletions(string replacementText, BicepCompletionContext context)
         {
             var (prefix, suffix) = replacementText switch
             {
@@ -503,7 +659,15 @@ namespace Bicep.LanguageServer.Completions
 
             if (prefix is null || suffix is null)
             {
-                return [];
+                if (IsPrivateAcrRegistryReference/*asdfg?*/(replacementText, out string? registry))
+                {
+                    prefix = $"'br:{registry}/";
+                    suffix = replacementText[prefix.Length..].TrimEnd('\'');
+                }
+                else
+                {
+                    return [];
+                }
             }
 
             List<CompletionItem> completions = new();
@@ -511,6 +675,7 @@ namespace Bicep.LanguageServer.Completions
             var modules = publicRegistryModuleMetadataProvider.GetModulesMetadata();
             foreach (var (moduleName, description, documentationUri) in modules)
             {
+                //asdfg remove?
                 if (!moduleName.StartsWith(suffix, StringComparison.Ordinal))
                 {
                     continue;
@@ -552,7 +717,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (replacementTextWithTrimmedEnd == "'br/")
             {
-                foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri))
+                foreach (var kvp in GetModuleAliases(sourceFileUri))
                 {
                     var alias = kvp.Key;
                     var insertText = $"{replacementTextWithTrimmedEnd}{alias}:$0'";
@@ -639,7 +804,7 @@ namespace Bicep.LanguageServer.Completions
             List<CompletionItem> completions = new();
             HashSet<string> aliases = new();
 
-            foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri))
+            foreach (var kvp in GetModuleAliases(sourceFileUri))
             {
                 var label = kvp.Value.Registry;
 
@@ -674,3 +839,88 @@ namespace Bicep.LanguageServer.Completions
         }
     }
 }
+
+
+
+
+
+
+
+
+
+#if false
+
+        private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
+        {
+            Trace.WriteLine($"Retrieving list of public registry modules...");
+
+            try
+            {
+                var catalogEndpoint = $"https://{loginServer}/v2/_catalog";
+                var metadata = await this.httpClient.GetFromJsonAsync<string[]>(catalogEndpoint, JsonSerializerOptions);
+
+                if (metadata is not null)
+                {
+                    return metadata.ToImmutableArray();
+                }
+                else
+                {
+                    throw new Exception($"asdfgList of MCR modules at {LiveDataEndpoint} was empty");
+                }
+            }
+            catch (Exception e)
+            {
+                Trace.TraceError(string.Format("asdfgError retrieving MCR modules metadata: {0}", e.Message));
+                return null;
+            }
+        }
+
+        private async Task<ImmutableArray<ModuleMetadata>?> TryGetModulesLive()
+        {
+            Trace.WriteLine($"Retrieving list of public registry modules...");
+            var asdfg = await TryGetCatalog("sawbiceppublic.azurecr.io");
+
+
+
+
+
+                completions.AddRange(GetACRPartialPathCompletionsFromBicepConfig(replacementText, context, sourceFileUri));
+                completions.AddRange(await GetMCRPathCompletionFromBicepConfig(replacementText, context, sourceFileUri));
+
+                var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
+                foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri)/*asdfg non-aliased*/)
+                {
+                    var registry = kvp.Value.Registry;
+
+                    if (registry is not null && !registry.Equals(PublicMCRRegistry, StringComparison.Ordinal)/*asdfg?*/)
+                    {
+                        AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
+                        var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
+                        var catalog = await acrManager.GetCatalogAsync(rootConfiguration, registry); //asdfg cache
+
+                        //asdfg?if (!aliases.TryGetValue(label, out _))
+                        //{
+                        //asdfg
+                            var replacementTextWithoutQuotes = replacementText.Trim('\''); // e.g. replacementText = "'br/demo/spaces:"
+                        foreach (var module in catalog)
+                        {
+                            var label = module;
+                            var insertText = $"'{replacementTextWithoutQuotes}{module}:$0'";
+                            var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+                            .WithFilterText(insertText)
+                            .WithSnippetEdit(context.ReplacementRange, insertText)
+                            //asdfg .WithSortText(GetSortText(registry))
+                            .WithFollowupCompletion("private module path completion asdfg")
+                            .Build();
+                            completions.Add(completionItem);
+                        }
+
+                        //asdfg aliases.Add(label );
+                        //}
+                    }
+                }
+
+                return completions;
+            }
+        }
+#endif
