@@ -15,7 +15,7 @@ using RichardSzalay.MockHttp;
 namespace Bicep.Core.UnitTests.Registry.PublicRegistry
 {
     [TestClass]
-    public class PublicRegistryModuleMetadataProviderTests
+    public class PublicRegistryModuleMetadataProviderTests //asdfgasdfg existing core tests
     {
         private IServiceProvider GetServiceProvider()
         {
