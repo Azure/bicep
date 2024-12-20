@@ -6546,4 +6546,33 @@ param p invalidRecursiveObjectType = {}
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Test_Issue1410()
+    {
+        var result = CompilationHelper.Compile("""
+            param createMode 'GeoRestore' | 'Replica' = 'GeoRestore'
+
+            resource postgres 'microsoft.dbforpostgresql/servers@2017-12-01' = if (createMode == 'GeoRestore') {
+              name: 'foo'
+              location: 'eastus'
+              properties: {
+                createMode: 'GeoRestore'
+                sourceServerId: '<ID>'
+
+              }
+            }
+
+            resource postgres2 'microsoft.dbforpostgresql/servers@2017-12-01' = if (createMode == 'Replica') {
+              name: 'foo'
+              location: 'eastus'
+              properties: {
+                createMode: 'Replica'
+                sourceServerId: '<ID>'
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
