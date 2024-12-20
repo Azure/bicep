@@ -1164,7 +1164,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   resource sqlDatabases 'databases' = [for db in dbs: {
 //@    {
 //@      "copy": {
-//@        "name": "sqlDatabases",
+//@        "name": "sqlServer::sqlDatabases",
 //@        "count": "[length(variables('dbs'))]",
 //@        "mode": "serial",
 //@        "batchSize": 1
