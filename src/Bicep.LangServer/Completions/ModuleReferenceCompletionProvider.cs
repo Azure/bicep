@@ -285,7 +285,7 @@ namespace Bicep.LanguageServer.Completions
 
                             if (modulePath is not null)
                             {
-                                if (modulePath.StartsWith("bicep/"))
+                                if (modulePath.StartsWith("bicep/")) //asdfg
                                 {
                                     modulePath = modulePath.Substring("bicep/".Length);
                                     return $"{modulePath}/{subpath}";
@@ -295,7 +295,7 @@ namespace Bicep.LanguageServer.Completions
                             {
                                 if (subpath.StartsWith("bicep/"))
                                 {
-                                    return subpath.Substring("bicep/".Length);
+                                    return subpath.Substring("bicep/".Length); //asdfg
                                 }
                             }
                         }
@@ -590,16 +590,17 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
         /// <summary>
         /// True if a direct reference to a private ACR registry (i.e. not pointing to the Microsoft public bicep registry)
         /// Example:
-        ///   "'br:privateacr.azurecr.io/" => true    asdfg don't like that it matches against the first single quote
+        ///   "br:privateacr.contoso.io/" => true, registry="privateacr.contoso.io"
         /// </summary>
-        /// <param name="replacementTextWithTrimmedEnd"></param>
-        /// <param name="registry">Won't be null with true return value, but could be empty asdfg</param>
+        /// <param name="text"></param>
+        /// <param name="registry">Won't be null with true return value, but could be empty</param>
         /// <returns></returns>
-        private bool IsRegistryReference(string replacementTextWithTrimmedEnd, [NotNullWhen(true)] out string? registry)//asdfg
+        private bool IsModuleWithFullPath(string text, [NotNullWhen(true)] out string? registry, out string? module)//asdfg
         {
             registry = null;
+            module = null;
 
-            var matches = ModuleWithFullPath.Matches(replacementTextWithTrimmedEnd);
+            var matches = ModulePrefixWithFullPath.Matches(text);
             if (!matches.Any())
             {
                 return false;
@@ -664,21 +665,22 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
         //   br/public:<CURSOR>
         // or
         //   br:mcr.microsoft.com/bicep/:<CURSOR>
-        private IEnumerable<CompletionItem> GetModuleCompletions(string replacementText, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetModuleCompletions(string trimmedText, BicepCompletionContext context)
         {
-            var (prefix, suffix) = trimmedText switch
-            {
-                { } x when x.StartsWith("br/public:", StringComparison.Ordinal) => ("br/public:", x["br/public:".Length..]),
-                { } x when x.StartsWith($"br:{PublicMCRRegistry}/bicep/", StringComparison.Ordinal) => ($"br:{PublicMCRRegistry}/bicep/", x[$"br:{PublicMCRRegistry}/bicep/".Length..]),
-                _ => (null, null),
+
+            var (prefix, suffix, registry, path, alias) = trimmedText switch //asdfg shouldn't have to have specific code for "br" or PublicMCRRegistry
+            {//asdfg
+                { } x when x.StartsWith("br/public:", StringComparison.Ordinal) => ("br/public:", x["br/public:".Length..], PublicMCRRegistry, "bicep/" + x["br/public:".Length..], "public"),
+                { } x when x.StartsWith($"br:{PublicMCRRegistry}/bicep/", StringComparison.Ordinal) => ($"br:{PublicMCRRegistry}/bicep/", x[$"br:{PublicMCRRegistry}/".Length..], PublicMCRRegistry, x[$"br:{PublicMCRRegistry}/bicep/".Length..], null),
+                _ => (null, null, null, null, null),
             };
 
-            if (prefix is null || suffix is null)
+            if (prefix is null || suffix is null/*asdfg*/)
             {
-                if (IsPrivateAcrRegistryReference/*asdfg?*/(replacementText, out string? registry))
+                if (IsPrivateRegistryReference/*asdfg?*/(trimmedText, out registry))
                 {
                     prefix = $"'br:{registry}/";
-                    suffix = replacementText[prefix.Length..].TrimEnd('\'');
+                    suffix = trimmedText[prefix.Length..].TrimEnd('\'');
                 }
                 else
                 {
@@ -692,7 +694,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
             foreach (var (moduleName, description, documentationUri) in modules)
             {
                 //asdfg remove?
-                if (!moduleName.StartsWith(suffix, StringComparison.Ordinal))
+                if (!moduleName.StartsWith(suffix, StringComparison.Ordinal)) //asdfg case-insensitive
                 {
                     continue;
                 }
