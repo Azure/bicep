@@ -17,7 +17,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
 		<PackageReference Include="Moq" Version="4.20.72" />
 		<PackageReference Include="MSTest.TestAdapter" Version="3.6.4" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.6.3" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.6.4" />
 	</ItemGroup>
 
 	<ItemGroup>
