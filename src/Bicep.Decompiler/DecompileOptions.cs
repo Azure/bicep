@@ -8,3 +8,8 @@ public record DecompileOptions(
     bool AllowMissingParamsAndVarsInNestedTemplates = false,
     bool IgnoreTrailingInput = true
 );
+
+public record DecompileParamOptions(
+    bool IgnoreTrailingInput = true,
+    bool IncludeUsingDeclaration = true
+);
