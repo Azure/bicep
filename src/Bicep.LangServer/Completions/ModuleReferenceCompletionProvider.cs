@@ -43,13 +43,13 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Regex ModulePrefixWithFullPath = new(@"^br:(?<registry>(.*?))/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         // Aliased reference to a registry via br/alias:path
-        private static readonly Regex ModuleWithAliasAndVersionSeparator = new(@"^br/(.*):(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex ModuleWithAliasAndVersionSeparator = new(@"^br/(.*):(?<path>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         // Direct reference to the MCR (public) registry via br:mcr.microsoft.com/bicep/path
-        private static readonly Regex PublicModuleWithFullPathAndVersionSeparator = new($"^br:{PublicMCRRegistry}/bicep/(?<filePath>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex PublicModuleWithFullPathAndVersionSeparator = new($"^br:{PublicMCRRegistry}/bicep/(?<path>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         // Aliased reference to the MCR (public) registry via br/public:
-        private static readonly Regex PublicModuleWithAliasAndVersionSeparator = new(@"^br/public:(?<filePath>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex PublicModuleWithAliasAndVersionSeparator = new(@"^br/public:(?<path>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         private const string PublicMCRRegistry = LanguageConstants.BicepPublicMcrRegistry; // "mcr.microsoft.com"
 
@@ -208,16 +208,16 @@ namespace Bicep.LanguageServer.Completions
             if (PublicModuleWithAliasAndVersionSeparator.IsMatch(trimmedText))
             {
                 var matches = PublicModuleWithAliasAndVersionSeparator.Matches(trimmedText);
-                modulePath = matches[0].Groups["filePath"].Value;
+                modulePath = matches[0].Groups["path"].Value;
             }
             else if (PublicModuleWithFullPathAndVersionSeparator.IsMatch(trimmedText))
             {
                 var matches = PublicModuleWithFullPathAndVersionSeparator.Matches(trimmedText);
-                modulePath = matches[0].Groups["filePath"].Value;
+                modulePath = matches[0].Groups["path"].Value;
             }
             else
             {
-                modulePath = GetAliasedMCRFilePath(trimmedText, sourceFileUri);
+                modulePath = GetAliasedMCRModulePath(trimmedText, sourceFileUri);
             }
 
             if (modulePath is null)
@@ -250,7 +250,7 @@ namespace Bicep.LanguageServer.Completions
             return completions;
 
             // Handles scenario where the user has configured an alias for MCR in bicepconfig.json.
-            string? GetAliasedMCRFilePath(string trimmedText, Uri sourceFileUri)
+            string? GetAliasedMCRModulePath(string trimmedText, Uri sourceFileUri)
             {
                 foreach (var kvp in GetModuleAliases(sourceFileUri))
                 {
@@ -268,9 +268,9 @@ namespace Bicep.LanguageServer.Completions
                                 continue;
                             }
 
-                            string filePath = matches[0].Groups["filePath"].Value;
+                            string subpath = matches[0].Groups["path"].Value;
 
-                            if (filePath is null)
+                            if (subpath is null)
                             {
                                 continue;
                             }
@@ -282,14 +282,14 @@ namespace Bicep.LanguageServer.Completions
                                 if (modulePath.StartsWith("bicep/"))
                                 {
                                     modulePath = modulePath.Substring("bicep/".Length);
-                                    return $"{modulePath}/{filePath}";
+                                    return $"{modulePath}/{subpath}";
                                 }
                             }
                             else
                             {
-                                if (filePath.StartsWith("bicep/"))
+                                if (subpath.StartsWith("bicep/"))
                                 {
-                                    return filePath.Substring("bicep/".Length);
+                                    return subpath.Substring("bicep/".Length);
                                 }
                             }
                         }
