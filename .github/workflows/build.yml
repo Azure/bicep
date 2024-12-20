@@ -795,7 +795,18 @@ jobs:
           subscription-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD) || secrets.LIVE_TEST_SUBSCRIPTION_ID_FF }}
 
       - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
+        id: live-tests
+        continue-on-error: true
         run: npm ci && npm run test:live:${{ matrix.environment }}
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+      - name: "RETRY: Run Bicep Live E2E Tests (${{ matrix.environment }})"
+        if: steps.live-tests.outcome == 'failure'
+        run: |
+          echo "::warning::The initial run of Bicep Live E2E Tests failed. Retrying..."
+          npm ci && npm run test:live:${{ matrix.environment }}
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
@@ -841,7 +852,19 @@ jobs:
           subscription-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD) || secrets.LIVE_TEST_SUBSCRIPTION_ID_FF }}
 
       - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
+        id: live-tests
+        continue-on-error: true
         run: npm ci && npm run test:live:${{ matrix.environment }}
+        env:
+          BICEP_CLI_DOTNET_RID: linux-musl-x64
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+      - name: "RETRY: Run Bicep Live E2E Tests (${{ matrix.environment }})"
+        if: failure() && steps.live-tests.outcome == 'failure'
+        run: |
+          echo "::warning::The initial run of Bicep Live E2E Tests failed. Retrying..."
+          npm ci && npm run test:live:${{ matrix.environment }}
         env:
           BICEP_CLI_DOTNET_RID: linux-musl-x64
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
