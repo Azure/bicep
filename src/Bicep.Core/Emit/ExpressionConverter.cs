@@ -614,7 +614,7 @@ namespace Bicep.Core.Emit
                 DeclaredResourceMetadata declared when context.Settings.EnableSymbolicNames =>
                     GenerateSymbolicReference(declared, indexContext),
                 DeclaredResourceMetadata declared => declared.Symbol.IsCollection && indexContext == null
-                    ? new JTokenExpression(declared.Symbol.Name) // this is the copy name
+                    ? new JTokenExpression(GetSymbolicName(declared)) // this is the copy name
                     : GetFullyQualifiedResourceId(resource),
 
                 _ => throw new InvalidOperationException($"Unexpected resource metadata type: {resource.GetType()}"),
@@ -815,8 +815,11 @@ namespace Bicep.Core.Emit
         }
 
         public string GetSymbolicName(DeclaredResourceMetadata resource)
+            => GetSymbolicName(context.SemanticModel.ResourceAncestors, resource);
+
+        public static string GetSymbolicName(ResourceAncestorGraph resourceAncestorGraph, DeclaredResourceMetadata resource)
         {
-            var nestedHierarchy = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource)
+            var nestedHierarchy = resourceAncestorGraph.GetAncestors(resource)
                 .Reverse()
                 .TakeWhile(x => x.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested)
                 .Select(x => x.Resource)

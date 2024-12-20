@@ -691,7 +691,10 @@ public class ExpressionBuilder
             if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
                 ancestor.Resource.Symbol.DeclaringResource.Value is ForSyntax ancestorFor)
             {
-                AddLoop(new(ancestor.Resource.Symbol.Name, ancestorFor, ConvertWithoutLowering(ancestorFor.Expression)));
+                AddLoop(new(
+                    ExpressionConverter.GetSymbolicName(Context.SemanticModel.ResourceAncestors, ancestor.Resource),
+                    ancestorFor,
+                    ConvertWithoutLowering(ancestorFor.Expression)));
             }
         }
 
@@ -699,7 +702,10 @@ public class ExpressionBuilder
         var body = resource.Symbol.DeclaringResource.Value;
         if (body is ForSyntax @for)
         {
-            AddLoop(new(resource.Symbol.Name, @for, ConvertWithoutLowering(@for.Expression)));
+            AddLoop(new(
+                ExpressionConverter.GetSymbolicName(Context.SemanticModel.ResourceAncestors, resource),
+                @for,
+                ConvertWithoutLowering(@for.Expression)));
             body = @for.Body;
         }
 
