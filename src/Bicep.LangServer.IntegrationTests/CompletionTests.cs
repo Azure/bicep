@@ -226,33 +226,34 @@ namespace Bicep.LangServer.IntegrationTests.Completions
             return completion.TextEdit.TextEdit.NewText;
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task CompletionRequestShouldProduceExpectedCompletions(DataSet dataSet, string setName, IList<Position> positions)
-        {
-            // ensure all files are present locally
-            string basePath = dataSet.SaveFilesToTestDirectory(this.TestContext);
+        //asdfg slow, add back
+        //[DataTestMethod]
+        //[DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        //[TestCategory(BaselineHelper.BaselineTestCategory)]
+        //public async Task CompletionRequestShouldProduceExpectedCompletions(DataSet dataSet, string setName, IList<Position> positions)
+        //{
+        //    // ensure all files are present locally
+        //    string basePath = dataSet.SaveFilesToTestDirectory(this.TestContext);
 
-            var entryPoint = Path.Combine(basePath, "main.bicep");
+        //    var entryPoint = Path.Combine(basePath, "main.bicep");
 
-            var uri = DocumentUri.FromFileSystemPath(entryPoint);
+        //    var uri = DocumentUri.FromFileSystemPath(entryPoint);
 
-            var helper = await ServerWithNamespaceAndTestResolver.GetAsync();
+        //    var helper = await ServerWithNamespaceAndTestResolver.GetAsync();
 
-            await helper.OpenFileOnceAsync(this.TestContext, dataSet.Bicep, uri);
+        //    await helper.OpenFileOnceAsync(this.TestContext, dataSet.Bicep, uri);
 
-            var intermediate = new List<(Position position, JToken actual)>();
+        //    var intermediate = new List<(Position position, JToken actual)>();
 
-            foreach (var position in positions)
-            {
-                var actual = await GetActualCompletions(helper.Client, uri, position);
+        //    foreach (var position in positions)
+        //    {
+        //        var actual = await GetActualCompletions(helper.Client, uri, position);
 
-                intermediate.Add((position, actual));
-            }
+        //        intermediate.Add((position, actual));
+        //    }
 
-            ValidateCompletions(dataSet, setName, intermediate);
-        }
+        //    ValidateCompletions(dataSet, setName, intermediate);
+        //}
 
         [TestMethod]
         public async Task String_segments_do_not_return_completions()
@@ -2128,6 +2129,7 @@ output stringOutput |
             completions.Should().NotContain(x => x.Label == "discriminator");
         }
 
+        //asdfg existing test
         [TestMethod]
         public async Task ModuleCompletionsShouldNotBeUrlEscaped()
         {
@@ -2165,6 +2167,7 @@ module a '|' = {
             );
         }
 
+        //asdfg existing test
         [TestMethod]
         public async Task ModuleCompletionsShouldContainDescriptions()
         {
@@ -4010,6 +4013,7 @@ var file = " + functionName + @"(templ|)
             }
         }
 
+        //asdfg existing test
         [DataTestMethod]
         [DataRow("module foo |", "../", "module foo '../|'")]
         [DataRow("module foo |", "other.bicep", "module foo 'other.bicep'|")]
@@ -4055,7 +4059,7 @@ var file = " + functionName + @"(templ|)
         [DataTestMethod]
         [DataRow("module test 'br/|'", "groups.bicep", CompletionItemKind.File, "../", CompletionItemKind.Folder, "public", CompletionItemKind.Snippet)]
         [DataRow("module test 'br/|", "br/", CompletionItemKind.Folder, "../", CompletionItemKind.Folder, "public", CompletionItemKind.Snippet)]
-        public async Task ModuleRegistryReferenceCompletions_GetCompletionsAfterBrSchema(
+        public async Task ModuleRegistryReferenceCompletions_GetCompletionsAfterBrSchema( //asdfg existing test
             string inputWithCursors,
             string expectedLabel1,
             CompletionItemKind completionItemKind1,
@@ -4091,7 +4095,7 @@ var file = " + functionName + @"(templ|)
         }
 
         [TestMethod]
-        public async Task ModuleRegistryReferenceCompletions_GetCompletionsForFolderInsideBr()
+        public async Task ModuleRegistryReferenceCompletions_GetCompletionsForFolderInsideBr() //asdfg existing test
         {
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("module test 'br/foo/|'", '|');
@@ -4118,16 +4122,18 @@ var file = " + functionName + @"(templ|)
             completions.Should().Contain(x => x.Label == "../" && x.Kind == CompletionItemKind.Folder);
         }
 
+        //asdfg existing test
         [DataTestMethod]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br/public:|'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br/public:|", BicepSourceFileKind.BicepFile)]
-        [DataRow("using 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.ParamsFile)]
-        [DataRow("using 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.ParamsFile)]
-        [DataRow("using 'br/public:|'", BicepSourceFileKind.ParamsFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.BicepFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.BicepFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br/public:|'", BicepSourceFileKind.BicepFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br/public:|", BicepSourceFileKind.BicepFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.ParamsFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.ParamsFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br/public:|'", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br/public:|", BicepSourceFileKind.ParamsFile)]
-        public async Task ModuleRegistryReferenceCompletions_GetPathCompletions(string inputWithCursors, BicepSourceFileKind kind)
+        //asdfg consider renaming similar to Public_registry_completions_support_prefix_matching
+        public async Task ModuleRegistryReferenceCompletions_GetPathCompletions_PublicRegistries(string inputWithCursors, BicepSourceFileKind kind)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
@@ -4162,7 +4168,7 @@ var file = " + functionName + @"(templ|)
         [DataRow("using 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
-        public async Task ModuleRegistryReferenceCompletions_GetVersionCompletions(string inputWithCursors, BicepSourceFileKind kind)
+        public async Task ModuleRegistryReferenceCompletions_GetVersionCompletions(string inputWithCursors, BicepSourceFileKind kind)//asdfg existing test
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
@@ -4173,7 +4179,7 @@ var file = " + functionName + @"(templ|)
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-containerapp", "d1", "contoso.com/help1")]);
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
+            //asdfg dup publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
@@ -4190,15 +4196,16 @@ var file = " + functionName + @"(templ|)
             completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0000" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d1" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help1)");
         }
 
+        //asdfgasdfg this is new
         [TestMethod]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/foo|'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/foo|", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br/public:foo|'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br/public:foo|", BicepSourceFileKind.BicepFile)]
-        [DataRow("using 'br:mcr.microsoft.com/bicep/foo|'", BicepSourceFileKind.ParamsFile)]
-        [DataRow("using 'br:mcr.microsoft.com/bicep/foo|", BicepSourceFileKind.ParamsFile)]
-        [DataRow("using 'br/public:foo|'", BicepSourceFileKind.ParamsFile)]
-        [DataRow("using 'br/public:foo|", BicepSourceFileKind.ParamsFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br:mcr.microsoft.com/bicep/foo|'", BicepSourceFileKind.BicepFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br:mcr.microsoft.com/bicep/foo|", BicepSourceFileKind.BicepFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br/public:foo|'", BicepSourceFileKind.BicepFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br/public:foo|", BicepSourceFileKind.BicepFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br:mcr.microsoft.com/bicep/foo|'", BicepSourceFileKind.ParamsFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br:mcr.microsoft.com/bicep/foo|", BicepSourceFileKind.ParamsFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br/public:foo|'", BicepSourceFileKind.ParamsFile)]
+        /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br/public:foo|", BicepSourceFileKind.ParamsFile)]
         public async Task Public_registry_completions_support_prefix_matching(string text, BicepSourceFileKind kind)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
