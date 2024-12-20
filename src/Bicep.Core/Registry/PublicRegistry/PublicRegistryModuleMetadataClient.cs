@@ -26,7 +26,7 @@ public class PublicRegistryModuleMetadataClient(HttpClient httpClient) : IPublic
 
     private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)  //asdfg
         {
-            Trace.WriteLine($"Retrieving list of public registry modules...");
+            Trace.WriteLine($"asdfg Retrieving list of public registry modules...");
 
             try
             {
@@ -40,7 +40,7 @@ public class PublicRegistryModuleMetadataClient(HttpClient httpClient) : IPublic
                 }
                 else
                 {
-                    throw new Exception($"asdfgList of MCR modules at {LiveDataEndpoint} was empty");
+                    throw new Exception($"asdfg List of MCR modules at {LiveDataEndpoint} was empty");
                 }
             }
             catch (Exception e)
@@ -55,7 +55,6 @@ public class PublicRegistryModuleMetadataClient(HttpClient httpClient) : IPublic
     {
         Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataClient)}: Retrieving list of public registry modules...");
    var asdfg = await TryGetCatalog("sawbiceppublic.azurecr.io");
-
 
         try
         {

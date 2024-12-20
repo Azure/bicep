@@ -460,12 +460,12 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        //asdfg GetPublicModuleCompletions [DataTestMethod]
-        //asdfg GetPublicModuleCompletions [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 41)]
-        //asdfg GetPublicModuleCompletions [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 40)]
-        //asdfg GetPublicModuleCompletions [DataRow("module test 'br/public:|'", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 24)]
-        //asdfg GetPublicModuleCompletions [DataRow("module test 'br/public:|", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 23)]
-        public async Task GetFilteredCompletions_WithPublicMcrModuleRegistryCompletionContext_ReturnsCompletionItems(
+        /*asdfg GetPublicModuleCompletions*/ [DataTestMethod]
+        /*asdfg GetPublicModuleCompletions*/ [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 41)]
+        /*asdfg GetPublicModuleCompletions*/ [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 40)]
+        /*asdfg GetPublicModuleCompletions*/ [DataRow("module test 'br/public:|'", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 24)]
+        /*asdfg GetPublicModuleCompletions*/ [DataRow("module test 'br/public:|", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 23)]
+        public async Task GetFilteredCompletions_WithPublicMcrModuleRegistryCompletionContext_ReturnsCompletionItems( //asdfgasdfg use this one instead?
             string inputWithCursors,
             string expectedLabel1,
             string expectedCompletionText1,
@@ -517,8 +517,11 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        //asdfg GetACRPartialPathCompletionsFromBicepConfig [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
-        //asdfg GetACRPartialPathCompletionsFromBicepConfig [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
+        [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
+        [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
+        //[DataRow("module test 'br:testacr2.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
+        //[DataRow("module test 'br:testacr2.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
+        //asdfg existing test
         public async Task GetFilteredCompletions_WithPathCompletionContext_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel,
@@ -562,9 +565,11 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
-        [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
-        public async Task asdfgasdfg_GetFilteredCompletions_WithPathCompletionContext_ReturnsCompletionItems(
+        //asdfg todo [DataRow("module test 'br:testacr1.contoso.io/|'", "bicep/modules/module1", "'br:testacr1.contoso.io/bicep/modules/module1:$0'", 0, 12, 0, 37)]
+        //asdfg todo [DataRow("module test 'br:testacr1.contoso.io/|", "bicep/modules/module1", "'br:testacr1.azurecr.io/bicep/modules/module1:$0'", 0, 12, 0, 36)]
+        [DataRow("module test 'br:testacr2.contoso.io/|'", "bicep/modules/module1", "'br:testacr2.contoso.io/bicep/modules/module1:$0'", 0, 12, 0, 37)]
+        //asdfg todo[DataRow("module test 'br:testacr2.contoso.io/|", "bicep/modules/module1", "'br:testacr2.contoso.io/bicep/modules/module1:$0'", 0, 12, 0, 36)]
+        public async Task asdfgasdfgasdfg_GetFilteredCompletions_WithPathCompletionContext_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel,
             string expectedCompletionText,
@@ -577,20 +582,29 @@ namespace Bicep.LangServer.UnitTests.Completions
   ""moduleAliases"": {
     ""br"": {
       ""test1"": {
-        ""registry"": ""testacr1.azurecr.io"",
+        ""registry"": ""testacr1.contoso.io"",
         ""modulePath"": ""bicep/modules""
       },
       ""test2"": {
-        ""registry"": ""testacr2.azurecr.io""
+        ""registry"": ""testacr2.contoso.io""
       }
     }
   }
 }";
+
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([
+                new() {
+                    Name = "testacr1.contoso.io",
+                    Description = "testacr1 description",
+                }]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.1", null, null), new("1.0.2", null, null)]);
+
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
                 configMgr,
-                publicRegistryModuleMetadataProvider,
+                publicRegistryModuleMetadataProvider.Object,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUriEncoded(), completionContext, CancellationToken.None);
@@ -696,7 +710,8 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        /*asdfg GetACRPartialPathCompletionsFromBicepConfig*/ [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
+        /*asdfg GetACRPartialPathCompletionsFromBicepConfig*/
+        [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
         /*asdfg GetACRPartialPathCompletionsFromBicepConfig*/ [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
         public async Task GetFilteredCompletions_WithPublicAliasOverriddenInBicepConfigAndPathCompletionContext_ReturnsCompletionItems(
             string inputWithCursors,
