@@ -122,22 +122,14 @@ namespace Bicep.Core.Emit
         {
             foreach (var resource in semanticModel.DeclaredResources)
             {
-                if (resource.IsExistingResource)
-                {
-                    // 'existing' resources are not being deployed so duplicates are allowed
-                    continue;
-                }
-
-                if (!resource.IsAzResource)
-                {
+                if (
                     // comparison checks currently blocked for non-ARM resources
-                    continue;
-                }
-
-                if (resource.TryGetNameSyntax() is not { } resourceName ||
-                    resourceName is not StringSyntax resourceNameString)
+                    !resource.IsAzResource ||
+                    // the resource may not be deployed -- ARM only blocks duplicates if all have a `true` condition
+                    resource.Symbol.DeclaringResource.HasCondition() ||
+                    // the resource doesn't have a name set
+                    resource.TryGetNameSyntax() is not { } resourceName)
                 {
-                    // the resource doesn't have a name set, or it's not a string and thus difficult to analyze
                     continue;
                 }
 
@@ -152,7 +144,12 @@ namespace Bicep.Core.Emit
                     resourceScope = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault()?.Resource;
                 }
 
-                yield return new ResourceDefinition(resource.Symbol.Name, resourceScope, resource.TypeReference.FormatType(), resourceNameString);
+                yield return new ResourceDefinition(
+                    resource.Symbol.Name,
+                    resourceScope,
+                    resource.TypeReference.FormatType(),
+                    resourceName,
+                    semanticModel.GetTypeInfo(resourceName));
             }
         }
 
