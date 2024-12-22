@@ -23,7 +23,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "vscode-oniguruma": "^2.0.1",
-    "vscode-textmate": "^9.1.0"
+    "vscode-textmate": "^9.2.0"
   },
   "engines": {
     "node": ">=14.0.0"
