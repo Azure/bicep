@@ -49,7 +49,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
