@@ -3097,11 +3097,11 @@ resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 }
 
 resource existingStg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
-  name: newStg.name
+  name: uniqueString(newStg.name)
 }
 
 resource newStg2 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: existingStg.name
+  name: uniqueString(existingStg.name)
   kind: 'BlobStorage'
   location: resourceGroup().location
   sku: {
@@ -3110,7 +3110,7 @@ resource newStg2 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 }
 ");
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveValueAtPath("$.resources[?(@.kind == 'BlobStorage')].name", "test");
+        result.Template.Should().HaveValueAtPath("$.resources[?(@.kind == 'BlobStorage')].name", "[uniqueString(uniqueString('test'))]");
     }
 
     /// <summary>
