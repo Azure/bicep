@@ -1,5 +1,5 @@
 
-//@[000:14055) ProgramExpression
+//@[000:14067) ProgramExpression
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -490,15 +490,15 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 }
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[000:00092) ├─DeclaredResourceExpression
-//@[052:00092) | ├─ObjectExpression
-  name: '${resourceA.name}/myName'
+//@[000:00095) ├─DeclaredResourceExpression
+//@[052:00095) | ├─ObjectExpression
+  name: '${resourceA.name}/resourceB'
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[000:00269) ├─DeclaredResourceExpression
-//@[052:00269) | ├─ObjectExpression
-  name: '${resourceA.name}/myName'
+//@[000:00272) ├─DeclaredResourceExpression
+//@[052:00272) | ├─ObjectExpression
+  name: '${resourceA.name}/resourceC'
   properties: {
 //@[002:00175) | | └─ObjectPropertyExpression
 //@[002:00012) | |   ├─StringLiteralExpression { Value = properties }
@@ -1215,9 +1215,9 @@ output p1_subnet1id string = p1_subnet1.id
 
 // parent property with extension resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[000:00076) ├─DeclaredResourceExpression
-//@[056:00076) | └─ObjectExpression
-  name: 'res1'
+//@[000:00078) ├─DeclaredResourceExpression
+//@[056:00078) | └─ObjectExpression
+  name: 'p2res1'
 }
 
 resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -1266,9 +1266,9 @@ output p2_res2childid string = p2_res2child.id
 
 // parent property with 'existing' resource
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[000:00085) ├─DeclaredResourceExpression
-//@[065:00085) | └─ObjectExpression
-  name: 'res1'
+//@[000:00087) ├─DeclaredResourceExpression
+//@[065:00087) | └─ObjectExpression
+  name: 'p3res1'
 }
 
 resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -1303,10 +1303,10 @@ output p3_res1childid string = p3_child1.id
 
 // parent & child with 'existing'
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[000:00104) ├─DeclaredResourceExpression
-//@[065:00104) | └─ObjectExpression
+//@[000:00106) ├─DeclaredResourceExpression
+//@[065:00106) | └─ObjectExpression
   scope: tenant()
-  name: 'res1'
+  name: 'p4res1'
 }
 
 resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
