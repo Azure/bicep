@@ -6595,8 +6595,9 @@ param p invalidRecursiveObjectType = {}
         result.Template.Should().HaveValueAtPath("$.resources.aksWorkloadIdentityApp2::federation.copy.name", "aksWorkloadIdentityApp2::federation");
     }
 
+    // https://github.com/azure/bicep/issues/1410
     [TestMethod]
-    public void Test_Issue1410()
+    public void Mutually_exclusive_but_duplicative_resources_are_permitted()
     {
         var result = CompilationHelper.Compile("""
             param createMode 'GeoRestore' | 'Replica' = 'GeoRestore'
@@ -6620,6 +6621,119 @@ param p invalidRecursiveObjectType = {}
               }
             }
             """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/azure/bicep/issues/1410
+    [TestMethod]
+    public void Resources_with_the_same_name_but_different_types_are_permitted()
+    {
+        var result = CompilationHelper.Compile("""
+            resource postgres 'microsoft.dbforpostgresql/servers@2017-12-01' = {
+              name: 'foo'
+              location: 'eastus'
+              properties: {
+                createMode: 'GeoRestore'
+                sourceServerId: '<ID>'
+
+              }
+            }
+
+            resource postgres2 'microsoft.dbforpostgresql/flexibleServers@2021-06-01' = {
+              name: 'foo'
+              location: 'eastus'
+              properties: {
+                createMode: 'Replica'
+                sourceServerResourceId: '<ID>'
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/azure/bicep/issues/1410
+    [TestMethod]
+    public void Resources_with_the_same_name_but_different_scopes_are_permitted()
+    {
+        var result = CompilationHelper.Compile("""
+            resource postgres 'microsoft.dbforpostgresql/servers@2017-12-01' existing = {
+              name: 'foo'
+              scope: resourceGroup('otherRg')
+            }
+
+            resource postgres2 'microsoft.dbforpostgresql/servers@2017-12-01' = {
+              name: 'foo'
+              location: 'eastus'
+              properties: {
+                createMode: 'Replica'
+                sourceServerId: '<ID>'
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/azure/bicep/issues/1410
+    [TestMethod]
+    public void Modules_with_the_same_name_are_not_permitted()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module foo1 'empty.bicep' = {
+                  name: 'foo'
+                }
+
+                module foo2 'empty.bicep' = {
+                  name: 'foo'
+                }
+                """),
+            ("empty.bicep", string.Empty));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP122", DiagnosticLevel.Error, "Modules: \"foo1\", \"foo2\" are defined with this same name and this same scope in a file. Rename them or split into different modules."),
+            ("BCP122", DiagnosticLevel.Error, "Modules: \"foo1\", \"foo2\" are defined with this same name and this same scope in a file. Rename them or split into different modules."),
+        });
+    }
+
+    // https://github.com/azure/bicep/issues/1410
+    [TestMethod]
+    public void Mutually_exclusive_but_duplicative_modules_are_permitted()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                param condition bool
+
+                module foo1 'empty.bicep' = if (condition) {
+                  name: 'foo'
+                }
+
+                module foo2 'empty.bicep' = if (!condition) {
+                  name: 'foo'
+                }
+                """),
+            ("empty.bicep", string.Empty));
+    }
+
+    // https://github.com/azure/bicep/issues/1410
+    [TestMethod]
+    public void Modules_with_the_same_name_but_different_scopes_are_permitted()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module foo1 'empty.bicep' = {
+                  name: 'foo'
+                }
+
+                module foo2 'empty.bicep' = {
+                  name: 'foo'
+                  scope: resourceGroup('otherRg')
+                }
+                """),
+            ("empty.bicep", string.Empty));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
