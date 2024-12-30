@@ -34,22 +34,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             return builder.Construct<BicepDecompileForPasteCommandHandler>();
         }
 
-        public enum PasteType
-        {
-            None,
-            FullTemplate,
-            SingleResource,
-            ResourceList,
-            JsonValue,
-            BicepValue,
-        }
-        public enum PasteContext
-        {
-            None,
-            String
-        }
-
-        record Options(
+        private record Options(
             string pastedJson,
             PasteType? expectedPasteType = null,
             PasteContext expectedPasteContext = PasteContext.None,
@@ -65,7 +50,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             string? expectedErrorMessage = null,
             string? editorContentsWithCursor = null)
         {
-            await TestDecompileForPaste(new Options(
+            await TestDecompileForPaste(new(
                 json,
                 expectedPasteType,
                 PasteContext.None,

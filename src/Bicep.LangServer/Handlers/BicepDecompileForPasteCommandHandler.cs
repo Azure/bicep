@@ -56,17 +56,17 @@ namespace Bicep.LanguageServer.Handlers
         private static readonly Uri BicepDummyUri = PathHelper.ChangeToBicepExtension(JsonDummyUri);
         private static readonly Uri BicepParamsDummyUri = PathHelper.ChangeToBicepparamExtension(JsonDummyUri);
 
-        private enum PasteType
+        public enum PasteType
         {
-            None,
-            FullTemplate,  // Full template
-            SingleResource, // Single resource
-            ResourceList,// List of multiple resources
-            JsonValue, // Single JSON value (number, object, array etc)
-            BicepValue, // JSON value that is also valid Bicep (e.g. "[1, {}]")
-            FullParams // Full parameters file
+            None = 0,
+            FullTemplate = 1,  // Full template
+            SingleResource = 2, // Single resource
+            ResourceList = 3,// List of multiple resources
+            JsonValue = 4, // Single JSON value (number, object, array etc)
+            BicepValue = 5, // JSON value that is also valid Bicep (e.g. "[1, {}]")
+            FullParams = 6 // Full parameters file
         }
-        private enum PasteContext
+        public enum PasteContext
         {
             None,
             String, // Pasting inside a string

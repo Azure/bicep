@@ -12,6 +12,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.JsonRpc;
+using static Bicep.LanguageServer.Handlers.BicepDecompileForPasteCommandHandler;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -31,19 +32,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 );
 
             return builder.Construct<BicepDecompileForPasteCommandHandler>();
-        }
-
-        public enum PasteType
-        {
-            None,
-            JsonValue,
-            BicepValue,
-            FullParams
-        }
-        public enum PasteContext
-        {
-            None,
-            String
         }
 
         private record Options(
