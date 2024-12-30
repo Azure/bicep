@@ -1748,6 +1748,7 @@ var directRefViaVar = premiumStorages
 //@[004:019) [no-unused-vars (Warning)] Variable "directRefViaVar" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |directRefViaVar|
 //@[022:037) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |premiumStorages|
 output directRefViaOutput array = union(premiumStorages, stuffs)
+//@[026:031) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
 //@[040:055) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |premiumStorages|
 //@[057:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |stuffs|
 
@@ -2199,7 +2200,9 @@ var issue3000stgManagedByExtended = issue3000stg.managedByExtended
 //@[049:066) [BCP187 (Warning)] The property "managedByExtended" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP187) |managedByExtended|
 
 param dataCollectionRule object
+//@[025:031) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 param tags object
+//@[011:017) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 
 var defaultLogAnalyticsWorkspace = {
   subscriptionId: subscription().subscriptionId
@@ -2257,8 +2260,10 @@ resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-
 param issue4668_kind string = 'AzureCLI'
 @description('The identity that will be used to execute the Deployment Script.')
 param issue4668_identity object
+//@[025:031) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 @description('The properties of the Deployment Script.')
 param issue4668_properties object
+//@[027:033) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'testscript'
   location: 'westeurope'

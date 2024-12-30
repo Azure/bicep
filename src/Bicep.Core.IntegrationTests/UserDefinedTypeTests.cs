@@ -1823,4 +1823,19 @@ param myParam string
             """The property "availabilityState" is read-only. Expressions cannot be assigned to read-only properties."""
         );
     }
+
+    [DataTestMethod]
+    [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>")] // should be caught at syntax level
+    [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>.properties")] // should be caught by type manager
+    public void Parameterized_type_recursion_raises_diagnostic(string template)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            template);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+        });
+    }
 }

@@ -213,7 +213,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
                 IntraTemplateSymbolicReference target = targetModel switch
                 {
                     SemanticModel targetBicepModel => referenceFactory.SymbolFor(
-                        FindSymbolNamed(name, targetBicepModel),
+                        FindExportedSymbol(exportMetadata, targetBicepModel),
                         targetBicepModel,
                         importedSymbolReference),
                     ArmTemplateSemanticModel targetArmModel => ReferenceForArmTarget(
@@ -361,8 +361,18 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
     ) => model.Exports.Values.Select<ExportMetadata, (string, IntraTemplateSymbolicReference)>(
         md => (md.Name, ReferenceForArmTarget(md, templateFile, model, referrer, referenceFactory)));
 
-    private static DeclaredSymbol FindSymbolNamed(string nameOfSymbolSought, SemanticModel model)
-        => model.Root.Declarations.Where(t => LanguageConstants.IdentifierComparer.Equals(t.Name, nameOfSymbolSought)).Single();
+    private static DeclaredSymbol FindExportedSymbol(ExportMetadata target, SemanticModel model)
+    {
+        var source = target.Kind switch
+        {
+            ExportMetadataKind.Type => model.Root.TypeDeclarations,
+            ExportMetadataKind.Variable => model.Root.VariableDeclarations,
+            ExportMetadataKind.Function => model.Root.FunctionDeclarations,
+            _ => model.Root.Declarations.Where(s => s is not OutputSymbol),
+        };
+
+        return source.Where(t => LanguageConstants.IdentifierComparer.Equals(t.Name, target.Name)).Single();
+    }
 
     private static IntraTemplateSymbolicReference ReferenceForArmTarget(
         ExportMetadata targetMetadata,

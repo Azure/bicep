@@ -514,6 +514,9 @@
   <data name="UseSafeAccessRule_Description" xml:space="preserve">
     <value>Use the safe access (.?) operator.</value>
   </data>
+  <data name="UseUserDefinedTypesRule_Description" xml:space="preserve">
+    <value>Use user-defined types instead of 'object' or 'array'.</value>
+  </data>
   <data name="UseSafeAccessRule_CodeFix" xml:space="preserve">
     <value>Use the safe access (.?) operator</value>
   </data>

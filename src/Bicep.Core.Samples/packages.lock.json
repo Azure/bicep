@@ -51,9 +51,9 @@
       },
       "MSTest.TestAdapter": {
         "type": "Direct",
-        "requested": "[3.6.3, )",
-        "resolved": "3.6.3",
-        "contentHash": "i3KbdAjLO0W9xlvbhZa9u0wh6X+VZ1yTBsUVlVKtx8B9CXa4rFXPcx3yPysB9gbALmhgAjFza4RRoNyXY9IoXQ==",
+        "requested": "[3.6.4, )",
+        "resolved": "3.6.4",
+        "contentHash": "YdwseRA+nDhRqD2oPHjCE4KzLEN5B10A61lOslE3N3OvUwHJ6ezyZZjYWf7mrZ8jckCcx/UlBclTzgWUpMpPQw==",
         "dependencies": {
           "Microsoft.Testing.Extensions.VSTestBridge": "1.4.3",
           "Microsoft.Testing.Platform.MSBuild": "1.4.3"
@@ -67,9 +67,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.6.146, )",
-        "resolved": "3.6.146",
-        "contentHash": "W1eQ8hD9Y/cZ2+ilgxECl003xr1hybpN3fMxoTlMqg++BixETBMWzS4y9s08oHJKXgKtudsoxhITNOEf1OR66w=="
+        "requested": "[3.7.112, )",
+        "resolved": "3.7.112",
+        "contentHash": "j0jcfnTjvhytRanVR34Gaj6RFKk8EDmVhRW7929nWjCo8tzBxsa3XmFmbSGDA6nWXGhfehTixWhPgGWAbz+NQA=="
       },
       "Azure.Bicep.Types": {
         "type": "Transitive",
@@ -284,8 +284,8 @@
       },
       "Google.Protobuf": {
         "type": "Transitive",
-        "resolved": "3.28.3",
-        "contentHash": "OewySX3aQCdKfMJsj2DzBMXQJPI+lm0CBzamU9ViFu3CU9tXYrQWqJ1CZ+/UWtkwOjUeIzbXmoOjRc7B8pbMrA=="
+        "resolved": "3.29.1",
+        "contentHash": "kDFLP72bPu4GwquVN7HtFnfqxhQs4CLbUEyOc/0yV48HB0Pxf7tDK7zIx6ifaQwGp+RSoLY1sz1CXqoAEAu+AQ=="
       },
       "Grpc.Core.Api": {
         "type": "Transitive",
@@ -628,8 +628,8 @@
       },
       "Microsoft.PowerPlatform.ResourceStack": {
         "type": "Transitive",
-        "resolved": "7.0.0.2076",
-        "contentHash": "cHxgIBObOuu8I/agdelslgYCTXHreXto/V+gdxL0nE1BZgPv5XNtM1BaUzCtueWKlHnW8evZBKn5Q3V0SNapNg==",
+        "resolved": "7.0.0.2080",
+        "contentHash": "bLRHhlEEhoycPX8hd6lafUakNBWpGFm6zPdnrsiW6PFAiIBnrWLICLA2cc61jLq6GFJTvtTHR4MAbJXcXC9itA==",
         "dependencies": {
           "Microsoft.Windows.Compatibility": "8.0.10",
           "Newtonsoft.Json": "13.0.3"
@@ -1118,11 +1118,11 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "21.1.3",
-        "contentHash": "WgLx25YHAepNu5Wym1kBqYLqYMo/lmGakWILFYtpEtuxAVoeWvAj2U6oVfqmikPXVYit19tTGWnfbZhVUNjkrg==",
+        "resolved": "21.1.7",
+        "contentHash": "Zr81yQIKGi4D8DomTChuv0NlJwiZhyNGaPactEMYsqybQAoa1peV+ywyMUDT6RiRhRGNMhpTopz7W9E1HTmTow==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.1.3",
-          "TestableIO.System.IO.Abstractions.Wrappers": "21.1.3"
+          "TestableIO.System.IO.Abstractions": "21.1.7",
+          "TestableIO.System.IO.Abstractions.Wrappers": "21.1.7"
         }
       },
       "System.IO.Abstractions.TestingHelpers": {
@@ -1517,11 +1517,11 @@
           "Microsoft.Extensions.DependencyInjection": "[9.0.0, )",
           "Microsoft.Extensions.Http": "[8.0.1, )",
           "Microsoft.Graph.Bicep.Types": "[0.1.7-preview, )",
-          "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2076, )",
+          "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2080, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "Semver": "[3.0.0, )",
           "SharpYaml": "[2.1.1, )",
-          "System.IO.Abstractions": "[21.1.3, )",
+          "System.IO.Abstractions": "[21.1.7, )",
           "System.Private.Uri": "[4.3.2, )"
         }
       },
@@ -1545,7 +1545,7 @@
         "type": "Project",
         "dependencies": {
           "CommandLineParser": "[2.9.1, )",
-          "Google.Protobuf": "[3.28.3, )",
+          "Google.Protobuf": "[3.29.1, )",
           "Grpc.Net.Client": "[2.66.0, )"
         }
       },
@@ -1557,7 +1557,7 @@
           "DiffPlex": "[1.7.2, )",
           "FluentAssertions": "[7.0.0, )",
           "JsonDiffPatch.Net": "[2.3.0, )",
-          "MSTest.TestAdapter": "[3.6.3, )",
+          "MSTest.TestAdapter": "[3.6.4, )",
           "MSTest.TestFramework": "[3.6.4, )",
           "Microsoft.NET.Test.Sdk": "[17.12.0, )",
           "Moq": "[4.20.72, )",
@@ -1569,7 +1569,7 @@
       "bicep.io": {
         "type": "Project",
         "dependencies": {
-          "System.IO.Abstractions": "[21.1.3, )",
+          "System.IO.Abstractions": "[21.1.7, )",
           "System.Memory.Data": "[6.0.0, )"
         }
       },

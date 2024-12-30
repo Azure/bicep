@@ -3,11 +3,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO.Enumeration;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+
+// We are only using the following System.IO.Path methods that do not access the
+// file system for handling local file path in a cross-platform manner, which ensures
+// that the IOUri is not coupled with any concret file system implementation:
+// - System.IO.Path.IsPathFullyQualified
+// - System.IO.Path.IsPathRooted
+// - System.IO.Path.Join
+using LocalFilePath = System.IO.Path;
 
 namespace Bicep.IO.Abstraction
 {
@@ -35,7 +45,7 @@ namespace Bicep.IO.Abstraction
         {
             this.Scheme = scheme;
             this.Authority = NormalizeAuthority(scheme, authority);
-            this.Path = NormalizePath(scheme, authority, path);
+            this.Path = NormalizePath(scheme, this.Authority, path);
             this.Query = query;
             this.Fragment = fragment;
         }
@@ -60,17 +70,42 @@ namespace Bicep.IO.Abstraction
 
         public static implicit operator string(IOUri identifier) => identifier.ToString();
 
-        public static IOUri FromLocalFilePath(string localFilePath)
+        public static IOUri FromLocalFilePath(string filePath)
         {
-            var fileUri = new Uri(new Uri("file://"), localFilePath);
-            var path = Uri.UnescapeDataString(fileUri.AbsolutePath);
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !fileUri.AbsolutePath.StartsWith('/'))
+            if (!LocalFilePath.IsPathFullyQualified(filePath) && !(filePath.StartsWith('/') || filePath.StartsWith('\\')))
             {
-                path = "/" + path;
+                // Technically speaking, /foo/bar is not a fully qualified file path on Windows. However, our tests use MockFileSystem,
+                // which normalizes it to C:\foo\bar, so we allow it in this context. In non-test scenarios, file I/O with such paths
+                // on Windows will fail during read/write operations.
+                throw new IOException("File path must be absolute.");
             }
 
-            return new IOUri(IOUriScheme.File, "", path);
+            if (OperatingSystem.IsWindows())
+            {
+                if (WindowsFilePathFacts.IsWindowsDosDevicePath(filePath))
+                {
+                    throw new IOException("Unsupported Windows DOS device path.");
+                }
+            }
+
+            // System.Uri is RFC compliant when it comes to handle file URIs.
+            // It handles all sorts of OS specific edge cases and normalizes path separators.
+            filePath = filePath.Replace("%", "%25");
+            var fileUri = new UriBuilder { Scheme = IOUriScheme.File, Host = "", Path = filePath }.Uri;
+
+            if (fileUri.IsUnc)
+            {
+                throw new IOException("Unsupported UNC path.");
+            }
+
+            var uriPath = Uri.UnescapeDataString(fileUri.AbsolutePath);
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !uriPath.StartsWith('/'))
+            {
+                uriPath = "/" + uriPath;
+            }
+
+            return new IOUri(IOUriScheme.File, "", uriPath);
         }
 
         public override string ToString() => this.TryGetLocalFilePath() ?? this.ToUriString();
@@ -79,17 +114,19 @@ namespace Bicep.IO.Abstraction
         // Note that we don't handle user info and the case where the host IP resolves to the local machine.
         public string? TryGetLocalFilePath() => this.IsLocalFile ? new UriBuilder { Scheme = this.Scheme, Host = "", Path = Path }.Uri.LocalPath : null;
 
+        public string GetLocalFilePath() => TryGetLocalFilePath() ?? throw new InvalidOperationException("The URI is not a local file path.");
+
         // See: Uniform Resource Identifier (URI): Generic Syntax (https://datatracker.ietf.org/doc/html/rfc3986).
         public string ToUriString()
         {
             var escapedSegments = Path.Split('/').Select(Uri.EscapeDataString);
             var excapedPath = string.Join('/', escapedSegments);
 
-            return this.Authority is null ? $"{Scheme}:{Uri.EscapeDataString(Path)}" : $"{Scheme}://{Authority}{Path}";
+            return this.Authority is null ? $"{Scheme}:{Path}" : $"{Scheme}://{Authority}{Path}";
         }
 
         // TODO: Remove after file abstractio migration is complete.
-        public Uri ToUri() => new UriBuilder { Scheme = this.Scheme, Host = "", Path = Path }.Uri;
+        public Uri ToUri() => new UriBuilder { Scheme = this.Scheme, Host = "", Path = Path.Replace("%", "%25") }.Uri;
 
         public static bool operator ==(IOUri left, IOUri right) => left.Equals(right);
 
@@ -180,6 +217,17 @@ namespace Bicep.IO.Abstraction
             return this.Path.EndsWith('/') ? relativePath + '/' : relativePath;
         }
 
+        public IOUri Resolve(string path)
+        {
+            if (!path.StartsWith('/'))
+            {
+                // Relative path.
+                path = this.Path.EndsWith('/') ? this.Path + path : this.Path + "/../" + path;
+            }
+
+            return this.IsLocalFile ? FromLocalFilePath(path) : new IOUri(this.Scheme, this.Authority, path, this.Query, this.Fragment);
+        }
+
         private static string? NormalizeAuthority(IOUriScheme scheme, string? authority)
         {
             if (scheme.IsHttp || scheme.IsHttps)
@@ -222,11 +270,19 @@ namespace Bicep.IO.Abstraction
                 throw new ArgumentException("File path must be absolute.");
             }
 
+            if (path.Length == 1 && path[0] == '/')
+            {
+                return path;
+            }
+
+            var isLocalFile = scheme.IsFile && authority == "";
             var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
             var stack = new Stack<string>();
 
-            foreach (var segment in segments)
+            for (int i = 0; i < segments.Length; i++)
             {
+                var segment = segments[i];
+
                 if (segment == ".")
                 {
                     continue;
@@ -241,13 +297,38 @@ namespace Bicep.IO.Abstraction
                 }
                 else
                 {
+                    if (isLocalFile && OperatingSystem.IsWindows())
+                    {
+                        var fileName = segment;
+
+                        if (i == segments.Length - 1 && fileName.LastIndexOf('.') is var extensionStartIndex && extensionStartIndex >= 0)
+                        {
+                            fileName = fileName[..extensionStartIndex];
+                        }
+
+                        if (WindowsFilePathFacts.IsWindowsReservedFileName(fileName))
+                        {
+                            throw new IOException("The specified path contains unsupported Windows reserved file name.");
+                        }
+                    }
+
                     stack.Push(segment);
                 }
             }
 
-            var canonicalPath = '/' + string.Join("/", stack.Reverse());
+            var normalizedPath = string.Join("/", stack.Reverse());
 
-            return path.EndsWith('/') ? canonicalPath + "/" : canonicalPath;
+            if (path.StartsWith('/'))
+            {
+                normalizedPath = '/' + normalizedPath;
+            }
+
+            if (path.EndsWith('/'))
+            {
+                normalizedPath += '/';
+            }
+
+            return normalizedPath;
         }
 
         private bool SchemeEquals(IOUri other) => this.Scheme.Equals(other.Scheme);

@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15846782372928243436"
+      "templateHash": "1582162446949403796"
     }
   },
   "parameters": {
@@ -109,7 +109,7 @@
     },
     "loopParent::loopChild": {
       "copy": {
-        "name": "loopChild",
+        "name": "loopParent::loopChild",
         "count": "[length(variables('items'))]"
       },
       "type": "My.Rp/parentType/childType",

@@ -71,7 +71,7 @@ namespace Bicep.Core.FileSystem
 
             try
             {
-                if (DirExists(fileUri))
+                if (this.fileSystem.Directory.Exists(fileUri.LocalPath))
                 {
                     return new(x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath));
                 }
@@ -109,28 +109,6 @@ namespace Bicep.Core.FileSystem
 
         public Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)
             => PathHelper.TryResolveFilePath(parentFileUri, childFilePath);
-
-        public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
-        {
-            if (!fileUri.IsFile)
-            {
-                return [];
-            }
-            return fileSystem.Directory.GetDirectories(fileUri.LocalPath, pattern).Select(s => new Uri(s + "/"));
-        }
-
-        public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern)
-        {
-            if (!fileUri.IsFile)
-            {
-                return [];
-            }
-            return fileSystem.Directory.GetFiles(fileUri.LocalPath, pattern).Select(s => new Uri(s));
-        }
-
-        public bool DirExists(Uri fileUri) => fileUri.IsFile && fileSystem.Directory.Exists(fileUri.LocalPath);
-
-        public bool FileExists(Uri uri) => uri.IsFile && fileSystem.File.Exists(uri.LocalPath);
 
         private static void RequireFileUri(Uri uri)
         {

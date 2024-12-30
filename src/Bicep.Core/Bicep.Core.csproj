@@ -36,7 +36,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
     <PackageReference Include="Microsoft.Graph.Bicep.Types" Version="0.1.7-preview" />
-    <PackageReference Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2076" />
+    <PackageReference Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2080" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Semver" Version="3.0.0" />
     <PackageReference Include="SharpYaml" Version="2.1.1" />
@@ -44,7 +44,7 @@
     <PackageReference Include="Azure.Bicep.Types" Version="0.5.110" />
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.727" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
-    <PackageReference Include="System.IO.Abstractions" Version="21.1.3" />
+    <PackageReference Include="System.IO.Abstractions" Version="21.1.7" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.45" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
@@ -69,7 +69,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.146" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties configuration_4bicepconfig_1json__JsonSchema="https://appsemble.app/api.json" /></VisualStudio></ProjectExtensions>
 </Project>

@@ -6529,4 +6529,69 @@ param p invalidRecursiveObjectType = {}
             ]
             """);
     }
+
+    [TestMethod]
+    public void Test_Issue15898()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import {someType} from 'nameClash.bicep'
+                """),
+            ("nameClash.bicep", """
+                @export()
+                type someType = {}
+
+                output someType someType = {}
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Nested_copy_resources_should_be_assigned_a_fully_qualified_copy_loop_name()
+    {
+        var result = CompilationHelper.Compile("""
+            param location string = resourceGroup().location
+            param _resourceName string
+            param serviceAccountsApp1 string[]
+            param serviceAccountsApp2 string[]
+            param _aksOidcIssuerProfileURL string
+            param configAks { namespace: string }
+
+            resource aksWorkloadIdentityApp1 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+              name: '${_resourceName}-id-app1'
+              location: location
+
+              @batchSize(1)
+              resource federation 'federatedIdentityCredentials' = [for item in serviceAccountsApp1: {
+                name: 'federated-credentials-${item}'
+                properties: {
+                  audiences: [ 'api://AzureADTokenExchange' ]
+                  issuer: _aksOidcIssuerProfileURL
+                  subject: 'system:serviceaccount:${configAks.namespace}:${item}'
+                }
+              }]
+            }
+
+            resource aksWorkloadIdentityApp2 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+              name: '${_resourceName}-id-app2'
+              location: location
+
+              @batchSize(1)
+              resource federation 'federatedIdentityCredentials' = [for item in serviceAccountsApp2: {
+                name: 'federated-credentials-${item}'
+                properties: {
+                  audiences: [ 'api://AzureADTokenExchange' ]
+                  issuer: _aksOidcIssuerProfileURL
+                  subject: 'system:serviceaccount:${configAks.namespace}:${item}'
+                }
+              }]
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.resources.aksWorkloadIdentityApp1::federation.copy.name", "aksWorkloadIdentityApp1::federation");
+        result.Template.Should().HaveValueAtPath("$.resources.aksWorkloadIdentityApp2::federation.copy.name", "aksWorkloadIdentityApp2::federation");
+    }
 }
