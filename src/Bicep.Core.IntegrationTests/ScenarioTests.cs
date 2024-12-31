@@ -6594,4 +6594,41 @@ param p invalidRecursiveObjectType = {}
         result.Template.Should().HaveValueAtPath("$.resources.aksWorkloadIdentityApp1::federation.copy.name", "aksWorkloadIdentityApp1::federation");
         result.Template.Should().HaveValueAtPath("$.resources.aksWorkloadIdentityApp2::federation.copy.name", "aksWorkloadIdentityApp2::federation");
     }
+
+    [TestMethod]
+    // https://github.com/Azure/bicep/issues/15402
+    public void Test_Issue15402()
+    {
+        var result = CompilationHelper.Compile(
+"""
+param vNetAddress string = '192.168.1.0/24'
+param subnetPrefixLength int = 29
+
+resource vNet 'Microsoft.Network/virtualNetworks@2023-04-01' = {
+  name: 'myVNet'
+  location: 'westus'
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        vNetAddress
+      ]
+    }
+    subnets: [
+      {
+        name: 'mySubnet'
+        properties: {
+          addressPrefix: cidrSubnet(vNetAddress, subnetPrefixLength, 0)
+        }
+      }
+    ]
+  }
+}
+
+var subnetId = vNet::subnets[0].id
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP159", DiagnosticLevel.Error, "The resource \"vNet\" does not contain a nested resource named \"subnets\"."),
+        ]);
+    }
 }
