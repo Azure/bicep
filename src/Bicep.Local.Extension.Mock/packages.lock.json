@@ -1050,7 +1050,7 @@
         "dependencies": {
           "CommandLineParser": "[2.9.1, )",
           "Google.Protobuf": "[3.29.1, )",
-          "Grpc.Net.Client": "[2.66.0, )"
+          "Grpc.Net.Client": "[2.67.0, )"
         }
       },
       "bicep.io": {

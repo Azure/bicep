@@ -312,10 +312,10 @@
       },
       "Grpc.Net.Client": {
         "type": "Transitive",
-        "resolved": "2.66.0",
-        "contentHash": "GwkSsssXFgN9+M2U+UQWdErf61sn1iqgP+2NRBlDXATcP9vlxda0wySxd/eIL8U522+SnyFNUXlvQ5tAzGk9cA==",
+        "resolved": "2.67.0",
+        "contentHash": "ofTjJQfegWkVlk5R4k/LlwpcucpsBzntygd4iAeuKd/eLMkmBWoXN+xcjYJ5IibAahRpIJU461jABZvT6E9dwA==",
         "dependencies": {
-          "Grpc.Net.Common": "2.66.0",
+          "Grpc.Net.Common": "2.67.0",
           "Microsoft.Extensions.Logging.Abstractions": "6.0.0"
         }
       },
@@ -1556,7 +1556,7 @@
         "dependencies": {
           "CommandLineParser": "[2.9.1, )",
           "Google.Protobuf": "[3.29.1, )",
-          "Grpc.Net.Client": "[2.66.0, )"
+          "Grpc.Net.Client": "[2.67.0, )"
         }
       },
       "bicep.core.unittests": {
