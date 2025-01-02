@@ -226,6 +226,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                             bodyObjectType.Properties.SetItem(ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags | TypePropertyFlags.SystemProperty)).Values,
                             bodyObjectType.AdditionalPropertiesType,
                             bodyObjectType.AdditionalPropertiesFlags,
+                            bodyObjectType.AdditionalPropertiesDescription,
                             bodyObjectType.MethodResolver.CopyToObject);
 
                         bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
@@ -367,6 +368,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
                 objectType.AdditionalPropertiesType,
                 isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
+                objectType.AdditionalPropertiesDescription,
                 functions);
         }
 

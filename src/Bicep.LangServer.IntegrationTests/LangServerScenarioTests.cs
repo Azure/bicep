@@ -5,7 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Assertions;
+using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Registry;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -116,5 +118,42 @@ param foo = 'abc'
         // the diagnostics being empty indicates that compilation succeeded (e.g. we picked up the new changes)
         diags = await helper.WaitForDiagnostics(paramsFileUri);
         diags.Diagnostics.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public async Task Test_Issue13893() // https://github.com/Azure/bicep/issues/13893
+    {
+        var bicepText = @"
+type fooType = {
+  @description('Description of foo')
+  *: string
+}
+param foo fooType
+";
+
+            var bicepparamText = @"
+using 'test.bicep'
+param foo = {
+  n|ame: 'test1'
+}
+";
+        var (bicepContent, _) = ParserHelper.GetFileWithCursors(bicepText);
+        var (bicepparamContent, bicepparamCursor) = ParserHelper.GetFileWithSingleCursor(bicepparamText);
+
+        using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
+        var helper = new ServerRequestHelper(TestContext, server);
+
+        await helper.OpenFile("/test.bicep", bicepContent);
+        var file = await helper.OpenFile("/main.bicepparam", bicepparamContent);
+
+        var hover = await file.RequestHover(bicepparamCursor);
+
+        hover!.Contents.MarkupContent!.Value.Should().Be("""
+```bicep
+*: string
+```  
+Description of foo  
+
+""");
     }
 }
