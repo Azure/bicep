@@ -220,7 +220,7 @@ public class ResourceDerivedTypeResolver
         }
 
         return hasChanges
-            ? new(unresolved.Name, unresolved.ValidationFlags, resolvedProperties.ToImmutable(), addlPropertiesType, unresolved.AdditionalPropertiesFlags)
+            ? new(unresolved.Name, unresolved.ValidationFlags, resolvedProperties.ToImmutable(), addlPropertiesType, unresolved.AdditionalPropertiesFlags, unresolved.AdditionalPropertiesDescription)
             : unresolved;
     }
 

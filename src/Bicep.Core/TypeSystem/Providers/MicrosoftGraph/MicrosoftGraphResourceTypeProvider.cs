@@ -62,6 +62,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
                             bodyObjectType.Properties.SetItem(UniqueNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
                             bodyObjectType.AdditionalPropertiesType,
                             bodyObjectType.AdditionalPropertiesFlags,
+                            bodyObjectType.AdditionalPropertiesDescription,
                             bodyObjectType.MethodResolver.CopyToObject);
 
                         bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
@@ -125,6 +126,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
                 objectType.AdditionalPropertiesType,
                 isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
+                objectType.AdditionalPropertiesDescription,
                 functions: null);
         }
 
