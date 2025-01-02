@@ -35,14 +35,14 @@ namespace Bicep.Core.Registry
 
         private readonly IFeatureProvider features;
 
-        private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
+        private readonly IRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
 
         public OciArtifactRegistry(
             IFileResolver FileResolver,
             IContainerRegistryClientFactory clientFactory,
             IFeatureProvider features,
             RootConfiguration configuration,
-            IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
+            IRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
             Uri parentModuleUri)
             : base(FileResolver)
         {

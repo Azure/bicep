@@ -15,7 +15,7 @@ using RichardSzalay.MockHttp;
 namespace Bicep.Core.UnitTests.Registry.PublicRegistry
 {
     [TestClass]
-    public class PublicRegistryModuleMetadataProviderTests
+    public class PublicRegistryModuleMetadataProviderTests //asdfgasdfg existing core tests
     {
         private IServiceProvider GetServiceProvider()
         {
@@ -1186,7 +1186,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = provider.GetModulesMetadata();
-            var m = modules.Should().Contain(m => m.Name == "samples/hello-world")
+            var m = modules.Should().Contain(m => m.ModuleName == "samples/hello-world")
                 .Which;
             m.Description.Should().Be("A \"שָׁלוֹם עוֹלָם\" sample Bicep registry module");
             m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/samples/hello-world/1.0.4/modules/samples/hello-world/README.md");
@@ -1198,7 +1198,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = provider.GetModulesMetadata();
-            var m = modules.Should().Contain(m => m.Name == "lz/sub-vending")
+            var m = modules.Should().Contain(m => m.ModuleName == "lz/sub-vending")
                 .Which;
             m.Description.Should().Be("This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.");
             m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.2/modules/lz/sub-vending/README.md");

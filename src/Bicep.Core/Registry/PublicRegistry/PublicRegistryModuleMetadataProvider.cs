@@ -15,7 +15,7 @@ public static class PublicRegistryModuleMetadataProviderExtensions
 {
     public static IServiceCollection AddPublicRegistryModuleMetadataProviderServices(this IServiceCollection services)
     {
-        services.AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
+        services.AddSingleton<IRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
 
         // using type based registration for Http clients so dependencies can be injected automatically
         // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
@@ -34,8 +34,10 @@ public static class PublicRegistryModuleMetadataProviderExtensions
 /// <summary>
 /// Provider to get modules metadata that we store at a public endpoint.
 /// </summary>
-public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadataProvider
+public class PublicRegistryModuleMetadataProvider : IRegistryModuleMetadataProvider
 {
+    private const string Registry = $"{LanguageConstants.BicepPublicMcrRegistry}";
+    private const string BasePath = "bicep/";
     private readonly IServiceProvider serviceProvider;
 
     private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
@@ -82,15 +84,18 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
         }
     }
 
+    public static RegistryModuleMetadata GetPublicRegistryModuleMetadata(string modulePath, string? description, string? documentationUri)
+        => new(Registry, $"{BasePath}/{modulePath}", description, documentationUri);
+
     // If cache has not yet successfully been updated, returns empty
-    public ImmutableArray<PublicRegistryModuleMetadata> GetModulesMetadata()
+    public ImmutableArray<RegistryModuleMetadata> GetModulesMetadata()
     {
         StartCacheUpdateInBackgroundIfNeeded();
 
-        return [.. this.cachedIndex.Select(x => new PublicRegistryModuleMetadata(x.ModulePath, x.GetDescription(), x.GetDocumentationUri()))];
+        return [.. this.cachedIndex.Select(x => GetPublicRegistryModuleMetadata(x.ModulePath, x.GetDescription(), x.GetDocumentationUri()))];
     }
 
-    public ImmutableArray<PublicRegistryModuleVersionMetadata> GetModuleVersionsMetadata(string modulePath)
+    public ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersionsMetadata(string modulePath)
     {
         StartCacheUpdateInBackgroundIfNeeded();
 
@@ -101,7 +106,7 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
             return [];
         }
 
-        return [.. entry.Versions.Select(version => new PublicRegistryModuleVersionMetadata(version, entry.GetDescription(version), entry.GetDocumentationUri(version)))];
+        return [.. entry.Versions.Select(version => new RegistryModuleVersionMetadata(version, entry.GetDescription(version), entry.GetDocumentationUri(version)))];
     }
 
     private void StartCacheUpdateInBackgroundIfNeeded(bool initialDelay = false)

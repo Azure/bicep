@@ -24,10 +24,37 @@ public class PublicRegistryModuleMetadataClient(HttpClient httpClient) : IPublic
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
+    private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)  //asdfg
+        {
+            Trace.WriteLine($"asdfg Retrieving list of public registry modules...");
+
+            try
+            {
+                var catalogEndpoint = $"https://{loginServer}/v2/_catalog";
+#pragma warning disable IL2026 // asdfg Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
+            var metadata = await httpClient.GetFromJsonAsync<string[]>(catalogEndpoint, JsonSerializerOptions);
+
+            if (metadata is not null)
+                {
+                    return metadata.ToImmutableArray();
+                }
+                else
+                {
+                    throw new Exception($"asdfg List of MCR modules at {LiveDataEndpoint} was empty");
+                }
+            }
+            catch (Exception e)
+            {
+                Trace.TraceError(string.Format("asdfgError retrieving MCR modules metadata: {0}", e.Message));
+                return null;
+            }
+        }
+
     [SuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Relying on references to required properties of the generic type elsewhere in the codebase.")]
     public async Task<ImmutableArray<PublicRegistryModuleIndexEntry>> GetModuleIndexAsync()
     {
         Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataClient)}: Retrieving list of public registry modules...");
+   var asdfg = await TryGetCatalog("sawbiceppublic.azurecr.io");
 
         try
         {

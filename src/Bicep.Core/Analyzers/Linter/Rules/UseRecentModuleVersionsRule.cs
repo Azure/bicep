@@ -67,7 +67,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static IEnumerable<Failure> GetFailures(SemanticModel model, IServiceProvider serviceProvider, DiagnosticLevel diagnosticLevel)
         {
-            var publicRegistryModuleMetadataProvider = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
+            var publicRegistryModuleMetadataProvider = serviceProvider.GetRequiredService<IRegistryModuleMetadataProvider>();
             var hasShownDownloadWarning = false;
 
             foreach (var (syntax, artifactResolutionInfo) in model.SourceFileGrouping.ArtifactLookup
@@ -116,7 +116,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             yield break;
         }
 
-        private static IEnumerable<Failure> AnalyzeBicepModule(IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
+        private static IEnumerable<Failure> AnalyzeBicepModule(IRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
         {
             var availableVersions = publicRegistryModuleMetadataProvider.GetModuleVersionsMetadata(publicModulePath)
                 .Select(v => v.Version)

@@ -43,14 +43,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string[] availableVersions, // for simplicity, mock returns these same versions for all available modules
             string? downloadError = null)
         {
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata())
-                .Returns(availableModules.Select(m => new PublicRegistryModuleMetadata(m, null, null)).ToImmutableArray());
+                .Returns([.. availableModules.Select(m => PublicRegistryModuleMetadataProvider.GetPublicRegistryModuleMetadata(m, null, null))]); // asdfg extend to private?
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata(It.IsAny<string>()))
                 .Returns((string module) =>
                 {
                     return availableModules.Contains(module) ?
-                        availableVersions.Select(v => new PublicRegistryModuleVersionMetadata(v, null, null)).ToImmutableArray() :
+                        [.. availableVersions.Select(v => new RegistryModuleVersionMetadata(v, null, null))] :
                         [];
                 });
             publicRegistryModuleMetadataProvider.Setup(x => x.IsCached)

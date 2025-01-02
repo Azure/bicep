@@ -29,9 +29,7 @@ public record PublicRegistryModuleIndexEntry(
                 var parsedVersions = Tags.Select(x =>
                     (@string: x, version: SemVersion.TryParse(x, SemVersionStyles.AllowV, out var version) ? version : DefaultVersion))
                     .ToArray();
-                return parsedVersions.OrderByDescending(x => x.version, SemVersion.SortOrderComparer)
-                    .Select(x => x.@string)
-                    .ToImmutableArray();
+                return [.. parsedVersions.OrderByDescending(x => x.version, SemVersion.SortOrderComparer).Select(x => x.@string)];
             }
         }
     }

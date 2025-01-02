@@ -102,8 +102,7 @@ namespace Bicep.Core
 
         public static readonly ImmutableSortedSet<string> DeclarationKeywords = ImmutableSortedSet.Create(
             StringComparer.Ordinal,
-            new[]
-            {
+            [
                 AssertKeyword,
                 ImportKeyword,
                 MetadataKeyword,
@@ -113,7 +112,7 @@ namespace Bicep.Core
                 OutputKeyword,
                 ModuleKeyword,
                 TypeKeyword
-            });
+            ]);
 
         public static readonly ImmutableSortedSet<string> ContextualKeywords = DeclarationKeywords
             .Add(TargetScopeKeyword)
