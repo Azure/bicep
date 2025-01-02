@@ -149,6 +149,18 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("network", LanguageConstants.String, "String in CIDR notation containing an IP address range to be converted.")
                     .Build();
 
+                yield return new FunctionOverloadBuilder("buildUri")
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("buildUri", LanguageConstants.String), LanguageConstants.String)
+                    .WithGenericDescription("Constructs a URI from specified components and returns an object with these components.")
+                    .WithRequiredParameter("components", GetParseOrBuildUri(), "An object containing URI components such as scheme, host, port, path, and query.")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("parseUri")
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("parseUri", LanguageConstants.Object), LanguageConstants.Object)
+                    .WithGenericDescription("Parses a URI string into its components (scheme, host, port, path, query).")
+                    .WithRequiredParameter("baseUrl", LanguageConstants.String, "The complete URI to parse.")
+                    .Build();
+
                 yield return new FunctionOverloadBuilder("concat")
                     .WithReturnType(LanguageConstants.String)
                     .WithGenericDescription(ConcatDescription)
@@ -1106,6 +1118,18 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("lastUsable", LanguageConstants.String),
                 new TypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
             }, null);
+        }
+
+        private static ObjectType GetParseOrBuildUri()
+        {
+            return new ObjectType("parseUri", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("scheme", LanguageConstants.String, TypePropertyFlags.Required),
+                new TypeProperty("host", LanguageConstants.String, TypePropertyFlags.Required),
+                new TypeProperty("port", LanguageConstants.Int),
+                new TypeProperty("path", LanguageConstants.String),
+                new TypeProperty("query", LanguageConstants.String),
+             }, null);
         }
 
         private static ResultWithDiagnosticBuilder<Uri> TryGetFileUriWithDiagnostics(IBinder binder, string filePath)
