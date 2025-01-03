@@ -26,7 +26,7 @@ public interface IRegistryModuleMetadataProvider //asdfg?
 
     public void StartUpdateCache(bool forceUpdate = false);
 
-    ImmutableArray<RegistryModuleMetadata> GetModulesMetadata();
+    ImmutableArray<RegistryModuleMetadata> GetModules();
 
-    ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersionsMetadata(string modulePath);
+    ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersions(string registry, string modulePath);
 }

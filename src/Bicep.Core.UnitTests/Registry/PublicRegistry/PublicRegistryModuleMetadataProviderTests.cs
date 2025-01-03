@@ -1176,7 +1176,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = provider.GetModulesMetadata();
+            var modules = provider.GetModules();
             modules.Should().HaveCount(50);
         }
 
@@ -1185,7 +1185,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = provider.GetModulesMetadata();
+            var modules = provider.GetModules();
             var m = modules.Should().Contain(m => m.ModuleName == "samples/hello-world")
                 .Which;
             m.Description.Should().Be("A \"שָׁלוֹם עוֹלָם\" sample Bicep registry module");
@@ -1197,7 +1197,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = provider.GetModulesMetadata();
+            var modules = provider.GetModules();
             var m = modules.Should().Contain(m => m.ModuleName == "lz/sub-vending")
                 .Which;
             m.Description.Should().Be("This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.");
@@ -1210,7 +1210,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
 
-            var versions = provider.GetModuleVersionsMetadata("samples/array-loop").Select(x => x.Version);
+            var versions = provider.GetModuleVersions(LanguageConstants.BicepPublicMcrRegistry, "bicep/samples/array-loop").Select(x => x.Version);//asdfg test
 
             versions.Should().Equal(
                   "1.10.1",

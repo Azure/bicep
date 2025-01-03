@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
+using System.Linq;
 using System.Text.Json;
 using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +36,7 @@ namespace Bicep.Core.Registry.PublicRegistry;
 /// <summary>
 /// Provider to get modules metadata that we store at a public endpoint.
 /// </summary>
-public abstract class RegistryModuleMetadataProviderBase //asdfg rename
+public abstract class RegistryModuleMetadataProviderBase //asdfg rename     asdfg refactor cache portion?
 {
     private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
     private readonly TimeSpan InitialThrottleDelay = TimeSpan.FromSeconds(5);
@@ -46,7 +47,9 @@ public abstract class RegistryModuleMetadataProviderBase //asdfg rename
     private DateTime? lastSuccessfulQuery;
     private int consecutiveFailures = 0;
 
-    private ImmutableArray<RegistryModuleMetadata> cachedModules = [];
+    protected record CachedModule(RegistryModuleMetadata RegistryModuleMetadata, ImmutableDictionary<string, RegistryModuleVersionMetadata>/*asdfg sort?*/ RegistryModuleVersionMetadata);
+
+    private ImmutableArray<CachedModule> cachedModules = []; //asdfg dicvtionary?
     private string? lastDownloadError = null;
 
     public bool IsCached => cachedModules.Length > 0;
@@ -64,7 +67,7 @@ public abstract class RegistryModuleMetadataProviderBase //asdfg rename
     }
     public async Task<bool> TryUpdateCacheAsync()
     {
-        if (await TryGetLiveIndexAsync() is { } modules)
+        if (await TryGetLiveDataAsync() is { } modules)
         {
             this.cachedModules = modules;
             this.lastSuccessfulQuery = DateTime.Now;
@@ -76,26 +79,26 @@ public abstract class RegistryModuleMetadataProviderBase //asdfg rename
         }
     }
 
-    // If cache has not yet successfully been updated, returns empty
-    public ImmutableArray<RegistryModuleMetadata> GetModulesMetadata()
+    private CachedModule? TryGetCachedModule(string registry, string modulePath)
     {
-        StartCacheUpdateInBackgroundIfNeeded();
-
-        return [.. this.cachedModules.Select(x => GetPublicRegistryModuleMetadata(x.ModulePath, x.GetDescription(), x.GetDocumentationUri()))];
+        return this.cachedModules.FirstOrDefault(x =>
+            x.RegistryModuleMetadata.Registry.Equals(registry, StringComparison.Ordinal)
+                && x.RegistryModuleMetadata.ModuleName.Equals(modulePath, StringComparison.Ordinal));
     }
 
-    public ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersionsMetadata(string modulePath)
+    // If cache has not yet successfully been updated, returns empty
+    public ImmutableArray<RegistryModuleMetadata> GetModules()
     {
         StartCacheUpdateInBackgroundIfNeeded();
 
-        PublicRegistryModuleIndexEntry? entry = this.cachedModules.FirstOrDefault(x => x.ModulePath.Equals(modulePath, StringComparison.Ordinal));
+        return [.. cachedModules.Select(x => x.RegistryModuleMetadata)];
+    }
 
-        if (entry == null)
-        {
-            return [];
-        }
+    public ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersions(string registry, string modulePath)
+    {
+        StartCacheUpdateInBackgroundIfNeeded();
 
-        return [.. entry.Versions.Select(version => new RegistryModuleVersionMetadata(version, entry.GetDescription(version), entry.GetDocumentationUri(version)))];
+        return TryGetCachedModule(registry, modulePath)?.RegistryModuleVersionMetadata.Values.ToImmutableArray() ?? [];
     }
 
     private void StartCacheUpdateInBackgroundIfNeeded(bool initialDelay = false)
@@ -188,9 +191,9 @@ public abstract class RegistryModuleMetadataProviderBase //asdfg rename
         return expired;
     }
 
-    protected abstract Task<ImmutableArray<RegistryModuleMetadata>?> GetLiveDataCoreAsync();
+    protected abstract Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync();
 
-    private async Task<ImmutableArray<RegistryModuleMetadata>?> TryGetLiveDataAsync()
+    private async Task<ImmutableArray<CachedModule>?> TryGetLiveDataAsync()
     {
         try
         {

@@ -48,13 +48,13 @@ namespace Bicep.LanguageServer.Completions
 
         // Aliased reference to a registry via br/alias:path
         private static readonly Regex ModulePrefixWithAlias = new(@"^br/(?<alias>.*):(?<path>(.*?))", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
-        private static readonly Regex ModuleWithAliasAndVersionSeparator = new(@"^br/(.*):(?<path>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        //asdfg private static readonly Regex ModuleWithAliasAndVersionSeparator = new(@"^br/(.*):(?<path>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         // Direct reference to the MCR (public) registry via br:mcr.microsoft.com/bicep/path
-        private static readonly Regex PublicModuleWithFullPathAndVersionSeparator = new($"^br:{PublicMcrRegistry}/bicep/(?<path>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        //asdfg private static readonly Regex PublicModuleWithFullPathAndVersionSeparator = new($"^br:{PublicMcrRegistry}/bicep/(?<path>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         // Aliased reference to the MCR (public) registry via br/public:
-        private static readonly Regex PublicModuleWithAliasAndVersionSeparator = new(@"^br/public:(?<path>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        //asdfg private static readonly Regex PublicModuleWithAliasAndVersionSeparator = new(@"^br/public:(?<path>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         private const string PublicMcrRegistry = LanguageConstants.BicepPublicMcrRegistry; // "mcr.microsoft.com"
 
@@ -92,7 +92,7 @@ namespace Bicep.LanguageServer.Completions
 
                 var replacementsRequiringStartingQuote =
                     GetOciModulePathCompletions(context, trimmedReplacementText, sourceFileUri)
-                    .Concat(GetPublicModuleVersionCompletions(context, trimmedReplacementText, sourceFileUri))
+                    //asdfg .Concat(GetPublicModuleVersionCompletions(context, trimmedReplacementText, sourceFileUri))
                     .Concat(await GetAllRegistryNameAndAliasCompletions(context, trimmedReplacementText, sourceFileUri, cancellationToken));
 
                 completions = [
@@ -197,113 +197,113 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
-        // Handles version completions for Microsoft Container Registries (MCR): asdfg
-        //
-        //   br/module/name:<CURSOR>
-        //   br:mcr.microsoft/bicep/module/name:<CURSOR>
-        //
-        // etc
-        private IEnumerable<CompletionItem> GetPublicModuleVersionCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg
-        {
-            if (!IsOciArtifactRegistryReference(trimmedText))
-            {
-                return [];
-            }
+        //// Handles version completions for Microsoft Container Registries (MCR): asdfg
+        ////
+        ////   br/module/name:<CURSOR>
+        ////   br:mcr.microsoft/bicep/module/name:<CURSOR>
+        ////
+        //// etc
+        //private IEnumerable<CompletionItem> GetPublicModuleVersionCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg
+        //{
+        //    if (!IsOciArtifactRegistryReference(trimmedText))
+        //    {
+        //        return [];
+        //    }
 
-            string? modulePath;
+        //    string? modulePath;
 
-            if (PublicModuleWithAliasAndVersionSeparator.IsMatch(trimmedText))
-            {
-                var matches = PublicModuleWithAliasAndVersionSeparator.Matches(trimmedText);
-                modulePath = matches[0].Groups["path"].Value;
-            }
-            else if (PublicModuleWithFullPathAndVersionSeparator.IsMatch(trimmedText))
-            {
-                var matches = PublicModuleWithFullPathAndVersionSeparator.Matches(trimmedText);
-                modulePath = matches[0].Groups["path"].Value;
-            }
-            else
-            {
-                modulePath = GetAliasedMCRModulePath(trimmedText, sourceFileUri);
-            }
+        //    if (PublicModuleWithAliasAndVersionSeparator.IsMatch(trimmedText))
+        //    {
+        //        var matches = PublicModuleWithAliasAndVersionSeparator.Matches(trimmedText);
+        //        modulePath = matches[0].Groups["path"].Value;
+        //    }
+        //    else if (PublicModuleWithFullPathAndVersionSeparator.IsMatch(trimmedText))
+        //    {
+        //        var matches = PublicModuleWithFullPathAndVersionSeparator.Matches(trimmedText);
+        //        modulePath = matches[0].Groups["path"].Value;
+        //    }
+        //    else
+        //    {
+        //        modulePath = GetAliasedMCRModulePath(trimmedText, sourceFileUri);
+        //    }
 
-            if (modulePath is null)
-            {
-                return [];
-            }
+        //    if (modulePath is null)
+        //    {
+        //        return [];
+        //    }
 
-            List<CompletionItem> completions = new();
+        //    List<CompletionItem> completions = new();
 
-            var versionsMetadata = publicRegistryModuleMetadataProvider.GetModuleVersionsMetadata(modulePath);
+        //    var versionsMetadata = publicRegistryModuleMetadataProvider.GetModuleVersions(modulePath);
 
-            for (int i = versionsMetadata.Length - 1; i >= 0; i--)
-            {
-                var (version, description, documentationUri) = versionsMetadata[i];
+        //    for (int i = versionsMetadata.Length - 1; i >= 0; i--)
+        //    {
+        //        var (version, description, documentationUri) = versionsMetadata[i];
 
-                var insertText = $"'{trimmedText}{version}'$0";
+        //        var insertText = $"'{trimmedText}{version}'$0";
 
-                // Module version is last completion, no follow-up completions triggered
-                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version)
-                    .WithSnippetEdit(context.ReplacementRange, insertText)
-                    .WithFilterText(insertText)
-                    .WithSortText(GetSortText(i))
-                    .WithDetail(description)
-                    .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))
-                    .Build();
+        //        // Module version is last completion, no follow-up completions triggered
+        //        var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version)
+        //            .WithSnippetEdit(context.ReplacementRange, insertText)
+        //            .WithFilterText(insertText)
+        //            .WithSortText(GetSortText(i))
+        //            .WithDetail(description)
+        //            .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))
+        //            .Build();
 
-                completions.Add(completionItem);
-            }
+        //        completions.Add(completionItem);
+        //    }
 
-            return completions;
+        //    return completions;
 
-            // Handles scenario where the user has configured an alias for MCR in bicepconfig.json.
-            string? GetAliasedMCRModulePath(string trimmedText, Uri sourceFileUri)
-            {
-                foreach (var kvp in GetModuleAliases(sourceFileUri))
-                {
-                    if (kvp.Value.Registry is string registry &&
-                        registry.Equals(PublicMcrRegistry, StringComparison.Ordinal))
-                    {
-                        var aliasFromBicepConfig = $"br/{kvp.Key}:";
+        //    // Handles scenario where the user has configured an alias for MCR in bicepconfig.json.
+        //    string? GetAliasedMCRModulePath(string trimmedText, Uri sourceFileUri)
+        //    {
+        //        foreach (var kvp in GetModuleAliases(sourceFileUri))
+        //        {
+        //            if (kvp.Value.Registry is string registry &&
+        //                registry.Equals(PublicMcrRegistry, StringComparison.Ordinal))
+        //            {
+        //                var aliasFromBicepConfig = $"br/{kvp.Key}:";
 
-                        if (trimmedText.StartsWith(aliasFromBicepConfig, StringComparison.Ordinal))
-                        {
-                            var matches = ModuleWithAliasAndVersionSeparator.Matches(trimmedText);
-                            if (!matches.Any())
-                            {
-                                continue;
-                            }
+        //                if (trimmedText.StartsWith(aliasFromBicepConfig, StringComparison.Ordinal))
+        //                {
+        //                    var matches = ModuleWithAliasAndVersionSeparator.Matches(trimmedText);
+        //                    if (!matches.Any())
+        //                    {
+        //                        continue;
+        //                    }
 
-                            string subpath = matches[0].Groups["path"].Value;
-                            if (subpath is null)
-                            {
-                                continue;
-                            }
+        //                    string subpath = matches[0].Groups["path"].Value;
+        //                    if (subpath is null)
+        //                    {
+        //                        continue;
+        //                    }
 
-                            var modulePath = kvp.Value.ModulePath;
+        //                    var modulePath = kvp.Value.ModulePath;
 
-                            if (modulePath is not null)
-                            {
-                                if (modulePath.StartsWith("bicep/")) //asdfg
-                                {
-                                    modulePath = modulePath.Substring("bicep/".Length);
-                                    return $"{modulePath}/{subpath}";
-                                }
-                            }
-                            else
-                            {
-                                if (subpath.StartsWith("bicep/"))
-                                {
-                                    return subpath.Substring("bicep/".Length); //asdfg
-                                }
-                            }
-                        }
-                    }
-                }
+        //                    if (modulePath is not null)
+        //                    {
+        //                        if (modulePath.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix)) //asdfg
+        //                        {
+        //                            modulePath = modulePath.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length);
+        //                            return $"{modulePath}/{subpath}";
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        if (subpath.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix))
+        //                        {
+        //                            return subpath.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length); //asdfg
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
 
-                return null;
-            }
-        }
+        //        return null;
+        //    }
+        //}
 
         private ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(Uri sourceFileUri)
         {
@@ -483,7 +483,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal)) //asdfg?
                             {
-                                var modules = publicRegistryModuleMetadataProvider.GetModulesMetadata();
+                                var modules = publicRegistryModuleMetadataProvider.GetModules();
                                 foreach (var (registry, moduleName, description, documentationUri) in modules)
                                 {
                                     //asdfg make sure registry is inputRegistry?
@@ -517,14 +517,14 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
                             //   }
                             // }
 
-                            if (modulePath.Equals("bicep", StringComparison.Ordinal) || !modulePath.StartsWith("bicep/", StringComparison.Ordinal))
+                            if (modulePath.Equals(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal) || !modulePath.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal))
                             {
                                 continue;
                             }
 
                             // Completions are e.g. br/[alias]/[module]
-                            var modulePathWithoutBicepKeyword = TrimStart(modulePath, "bicep/");
-                            var modules = publicRegistryModuleMetadataProvider.GetModulesMetadata();
+                            var modulePathWithoutBicepKeyword = TrimStart(modulePath, LanguageConstants.BicepPublicMcrPathPrefix);
+                            var modules = publicRegistryModuleMetadataProvider.GetModules();
 
                             var matchingModules = modules.Where(x => x.ModuleName.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -754,7 +754,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             List<CompletionItem> completions = new();
 
-            var modules = publicRegistryModuleMetadataProvider.GetModulesMetadata();
+            var modules = publicRegistryModuleMetadataProvider.GetModules();
             foreach (var (registry, moduleName, description, documentationUri) in modules)
             {
                 //asdfg remove?

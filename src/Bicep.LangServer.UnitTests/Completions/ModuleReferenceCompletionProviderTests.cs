@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions.TestingHelpers;
 using System.Runtime.CompilerServices;
+using Bicep.Core;
 using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
@@ -227,8 +228,8 @@ namespace Bicep.LangServer.UnitTests.Completions
         public async Task GetFilteredCompletions_WithInvalidCompletionContext_ReturnsEmptyList(string inputWithCursors)
         {
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([]); //asdfg??  why is this returning empty?
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.1", null, null), new("1.0.2", null, null)]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).Returns([]); //asdfg??  why is this returning empty?
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersions(LanguageConstants.BicepPublicMcrRegistry, "bicep/app/dapr-containerapp")).Returns([new("1.0.1", null, null), new("1.0.2", null, null)]);
 
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -492,7 +493,7 @@ string expectedCompletionText2,
 int expectedEnd)
         {
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([PublicModuleMetadata("app/dapr-cntrapp1", null, null), PublicModuleMetadata("app/dapr-cntrapp2", "description2", "contoso.com/help2")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).Returns([PublicModuleMetadata("app/dapr-cntrapp1", null, null), PublicModuleMetadata("app/dapr-cntrapp2", "description2", "contoso.com/help2")]);
 
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -618,7 +619,7 @@ int expectedEnd)
 }";
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).Returns([
                 new() {
                     Registry = "testacr1.contoso.io",
                     ModuleName = "bicep/modules/module1",
@@ -702,8 +703,8 @@ int expectedEnd)
   }
 }";
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([]); //asdfg??  why is this returning empty?
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).Returns([]); //asdfg??  why is this returning empty?
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersions(LanguageConstants.BicepPublicMcrRegistry, "bicep/app/dapr-containerapp")).Returns([new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html")]);
 
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -745,9 +746,9 @@ int expectedEnd)
         [TestMethod]
         public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_AndNoMatchingModuleName_ReturnsEmptyListOfCompletionItems()
         {
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([]); //asdfg??  why is this returning empty?
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerappapp")).Returns([]);
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>(); // asdfg instead, use PublicRegistryModuleMetadataProvider wrapped around this
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).Returns([]); //asdfg??  why is this returning empty?
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersions(LanguageConstants.BicepPublicMcrRegistry, "bicep/app/dapr-containerappapp")).Returns([]);
 
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext("module test 'br/public:app/dapr-containerappapp:|'");
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -836,7 +837,7 @@ int expectedEnd)
   }
 }";
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([PublicModuleMetadata("app/dapr-containerappapp", "dapr description", "contoso.com/help")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).Returns([PublicModuleMetadata("app/dapr-containerappapp", "dapr description", "contoso.com/help")]);
 
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -896,7 +897,7 @@ int expectedEnd)
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([PublicModuleMetadata("app/dapr-cntrapp1", "description1", null), PublicModuleMetadata("app/dapr-cntrapp2", null, "contoso.com/help2")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).Returns([PublicModuleMetadata("app/dapr-cntrapp1", "description1", null), PublicModuleMetadata("app/dapr-cntrapp2", null, "contoso.com/help2")]);
 
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));

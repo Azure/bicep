@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -36,8 +37,6 @@ public static class PublicRegistryModuleMetadataProviderExtensions
 /// </summary>
 public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase, IRegistryModuleMetadataProvider
 {
-    private const string Registry = $"{LanguageConstants.BicepPublicMcrRegistry}";
-    private const string BasePath = "bicep/";
     private readonly IServiceProvider serviceProvider;
 
     //asdfg
@@ -52,29 +51,23 @@ public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProvid
     }
 
     public static RegistryModuleMetadata GetPublicRegistryModuleMetadata(string modulePath, string? description, string? documentationUri)
-        => new(Registry, $"{BasePath}/{modulePath}", description, documentationUri);
+        => new(LanguageConstants.BicepPublicMcrRegistry, $"{LanguageConstants.BicepPublicMcrPathPrefix}/{modulePath}", description, documentationUri);
 
-    private async Task<ImmutableArray<RegistryModuleMetadata>?> GetLiveDataAsync()
+    protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
     {
-            var client = serviceProvider.GetRequiredService<IPublicRegistryModuleIndexClient>();
-            var modules = await client.GetModuleIndexAsync();
+        var client = serviceProvider.GetRequiredService<IPublicRegistryModuleIndexClient>();
+        var modules = await client.GetModuleIndexAsync();
 
-    asdfg
-            return modules.Select(m => GetPublicRegistryModuleMetadata(m.ModulePath, m.de, m.DocumentationUri)).ToImmutableArray();
-    }
-        catch (Exception ex)
-        {
-            this.lastDownloadError = ex.Message;
-            return null;
-        }
-    }
-
-    public static TimeSpan GetExponentialDelay(TimeSpan initialDelay, int consecutiveFailures, TimeSpan maxDelay)
-    {
-        var maxFailuresToConsider = (int)Math.Ceiling(Math.Log(maxDelay.TotalSeconds, 2)); // Avoid overflow on Math.Pow()
-        var secondsDelay = initialDelay.TotalSeconds * Math.Pow(2, Math.Min(consecutiveFailures, maxFailuresToConsider));
-        var delay = TimeSpan.FromSeconds(secondsDelay);
-
-        return delay > maxDelay ? maxDelay : delay;
+        return [
+            .. modules.Select(m =>
+                new CachedModule(
+                    GetPublicRegistryModuleMetadata(m.ModulePath, m.GetDescription(), m.GetDocumentationUri()),
+                    m.PropertiesByTag.ToImmutableDictionary(
+                        p => p.Key,
+                        p => new RegistryModuleVersionMetadata(p.Key, p.Value.Description, p.Value.DocumentationUri)
+                    )
+                )
+            )
+        ];
     }
 }

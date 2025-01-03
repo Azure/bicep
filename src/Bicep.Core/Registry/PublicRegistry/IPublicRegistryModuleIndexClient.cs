@@ -60,7 +60,7 @@ public record PublicRegistryModuleIndexEntry(
     }
 }
 
-public interface IPublicRegistryModuleIndexClient
+public interface IPublicRegistryModuleIndexClient //asdfg needed?
 {
     Task<ImmutableArray<PublicRegistryModuleIndexEntry>> GetModuleIndexAsync();
 }
