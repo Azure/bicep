@@ -26,7 +26,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            if (model.Root.VariableDeclarations.Count() > MaxNumber)
+            var variablesInCompiledTemplate = model.Root.VariableDeclarations.Count() +
+                model.ImportClosureInfo.ImportedVariablesInClosure.Count();
+            if (variablesInCompiledTemplate > MaxNumber)
             {
                 var firstItem = model.Root.VariableDeclarations.First();
                 return new IDiagnostic[] { CreateDiagnosticForSpan(diagnosticLevel, firstItem.NameSource.Span, MaxNumber) };

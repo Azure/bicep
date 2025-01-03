@@ -98,7 +98,7 @@ namespace Bicep.Core.Emit
 
             var program = (ProgramExpression)ExpressionBuilder.Convert(Context.SemanticModel.Root.Syntax);
 
-            var programTypes = program.Types.Concat(Context.ImportClosureInfo.ImportedTypesInClosure);
+            var programTypes = program.Types.Concat(Context.SemanticModel.ImportClosureInfo.ImportedTypesInClosure);
             declaredTypesByName = programTypes.ToImmutableDictionary(t => t.Name);
 
             jsonWriter.WriteStartObject();
@@ -128,11 +128,11 @@ namespace Bicep.Core.Emit
 
             this.EmitTypeDefinitionsIfPresent(emitter, programTypes);
 
-            this.EmitUserDefinedFunctions(emitter, program.Functions.Concat(Context.ImportClosureInfo.ImportedFunctionsInClosure));
+            this.EmitUserDefinedFunctions(emitter, program.Functions.Concat(Context.SemanticModel.ImportClosureInfo.ImportedFunctionsInClosure));
 
             this.EmitParametersIfPresent(emitter, program.Parameters);
 
-            this.EmitVariablesIfPresent(emitter, program.Variables.Concat(Context.ImportClosureInfo.ImportedVariablesInClosure));
+            this.EmitVariablesIfPresent(emitter, program.Variables.Concat(Context.SemanticModel.ImportClosureInfo.ImportedVariablesInClosure));
 
             this.EmitExtensionsIfPresent(emitter, program.Extensions);
 
@@ -315,7 +315,7 @@ namespace Bicep.Core.Emit
                     ? function.Name
                     : $"{function.Namespace}.{function.Name}";
 
-                if (function.Description is not null || function.Exported is not null || Context.ImportClosureInfo.ImportedSymbolOriginMetadata.ContainsKey(originMetadataLookupKey))
+                if (function.Description is not null || function.Exported is not null || Context.SemanticModel.ImportClosureInfo.ImportedSymbolOriginMetadata.ContainsKey(originMetadataLookupKey))
                 {
                     emitter.EmitObjectProperty(LanguageConstants.ParameterMetadataPropertyName, () =>
                     {
@@ -329,7 +329,7 @@ namespace Bicep.Core.Emit
                             emitter.EmitProperty(LanguageConstants.MetadataExportedPropertyName, ExpressionFactory.CreateBooleanLiteral(true, function.Exported.SourceSyntax));
                         }
 
-                        if (Context.ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(originMetadataLookupKey, out var originMetadata))
+                        if (Context.SemanticModel.ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(originMetadataLookupKey, out var originMetadata))
                         {
                             emitter.EmitObjectProperty(LanguageConstants.MetadataImportedFromPropertyName, () =>
                             {
@@ -363,7 +363,7 @@ namespace Bicep.Core.Emit
                 () =>
                 {
                     var declaredTypeObject = ApplyTypeModifiers(declaredType, TypePropertiesForTypeExpression(declaredType.Value));
-                    if (Context.ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(declaredType.Name, out var originMetadata))
+                    if (Context.SemanticModel.ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(declaredType.Name, out var originMetadata))
                     {
                         var importedFromProperties = ExpressionFactory.CreateObjectProperty(LanguageConstants.ImportMetadataSourceTemplatePropertyName,
                             ExpressionFactory.CreateStringLiteral(originMetadata.SourceTemplateIdentifier)).AsEnumerable();
@@ -542,9 +542,9 @@ namespace Bicep.Core.Emit
                 TypeAliasReferenceExpression typeAliasReference => ForNamedRoot(typeAliasReference.Symbol.Name),
                 SynthesizedTypeAliasReferenceExpression typeAliasReference => ForNamedRoot(typeAliasReference.Name),
                 ImportedTypeReferenceExpression importedTypeReference => ForNamedRoot(
-                    Context.ImportClosureInfo.ImportedSymbolNames[importedTypeReference.Symbol]),
+                    Context.SemanticModel.ImportClosureInfo.ImportedSymbolNames[importedTypeReference.Symbol]),
                 WildcardImportTypePropertyReferenceExpression importedTypeReference => ForNamedRoot(
-                    Context.ImportClosureInfo.WildcardImportPropertyNames[new(importedTypeReference.ImportSymbol, importedTypeReference.PropertyName)]),
+                    Context.SemanticModel.ImportClosureInfo.WildcardImportPropertyNames[new(importedTypeReference.ImportSymbol, importedTypeReference.PropertyName)]),
                 ResourceDerivedTypeExpression resourceDerived => new ResourceDerivedTypeResolution(resourceDerived),
                 _ => throw new ArgumentException($"Cannot resolve type reference access expression with a root of type '{root.GetType().Name}'."),
             };

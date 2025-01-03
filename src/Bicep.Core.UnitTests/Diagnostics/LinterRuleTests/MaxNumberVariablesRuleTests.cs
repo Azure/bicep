@@ -40,5 +40,30 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(GenerateText(i, j, pattern), MaxNumberVariablesRule.Code, DiagnosticLevel.Error, expectedMessages);
         }
+
+        [TestMethod]
+        public void TooManyVariablesAfterImport()
+        {
+            var withoutImport = GenerateText(1, MaxNumberVariablesRule.MaxNumber, "var v% = %");
+            CompileAndTest(withoutImport, MaxNumberVariablesRule.Code, DiagnosticLevel.Off, []);
+
+            var importTarget = """
+                @export()
+                var imported1 = 1
+                """;
+            CompileAndTest(
+                string.Join('\n', "import {imported1} from 'imported.bicep'", withoutImport),
+                MaxNumberVariablesRule.Code,
+                DiagnosticLevel.Error,
+                [$"Too many variables. Number of variables is limited to {MaxNumberVariablesRule.MaxNumber}."],
+                new(AdditionalFiles: [ ("imported.bicep", importTarget) ]));
+
+            CompileAndTest(
+                string.Join('\n', "import * as imported from 'imported.bicep'", withoutImport),
+                MaxNumberVariablesRule.Code,
+                DiagnosticLevel.Error,
+                [$"Too many variables. Number of variables is limited to {MaxNumberVariablesRule.MaxNumber}."],
+                new(AdditionalFiles: [("imported.bicep", importTarget)]));
+        }
     }
 }

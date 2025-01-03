@@ -358,8 +358,10 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
         ArmTemplateFile templateFile,
         BicepWildcardImportSymbolicReference referrer,
         IntraTemplateSymbolicReferenceFactory referenceFactory
-    ) => model.Exports.Values.Select<ExportMetadata, (string, IntraTemplateSymbolicReference)>(
-        md => (md.Name, ReferenceForArmTarget(md, templateFile, model, referrer, referenceFactory)));
+    ) => model.Exports.Values
+        .Where(export => export.Kind != ExportMetadataKind.Error)
+        .Select<ExportMetadata, (string, IntraTemplateSymbolicReference)>(
+            md => (md.Name, ReferenceForArmTarget(md, templateFile, model, referrer, referenceFactory)));
 
     private static DeclaredSymbol FindExportedSymbol(ExportMetadata target, SemanticModel model)
     {
@@ -379,9 +381,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
         ArmTemplateFile sourceTemplateFile,
         ISemanticModel sourceModel,
         InterTemplateSymbolicReference referrer,
-        IntraTemplateSymbolicReferenceFactory referenceFactory
-    )
-        => targetMetadata switch
+        IntraTemplateSymbolicReferenceFactory referenceFactory) => targetMetadata switch
         {
             ExportedTypeMetadata => referenceFactory.SymbolFor(
                 ArmSymbolType.Type,
