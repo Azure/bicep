@@ -30,7 +30,7 @@ namespace Bicep.Cli.IntegrationTests
                     services
                         .AddSingleton(clientFactory)
                         .AddSingleton(templateSpecRepositoryFactory)
-                        .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
+                        .AddSingleton<IRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
 
                     IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, moduleMetadataClient);
                 }
