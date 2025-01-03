@@ -861,14 +861,14 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                 completions.Add(mcrCompletionItem);
 
-                completions.AddRange(await GetPrivateModuleCompletions(trimmedText, context, sourceFileUri, cancellationToken));
+                completions.AddRange(await GetPrivateModuleCompletionsAsdfg(trimmedText, context, sourceFileUri, cancellationToken));
             }
 
             return completions;
         }
 
         // Handles registry name completions for private modules possibly available in ACR registries
-        private async Task<IEnumerable<CompletionItem>> GetPrivateModuleCompletions(string trimmedText, BicepCompletionContext context, Uri sourceFileUri, CancellationToken cancellationToken)
+        private async Task<IEnumerable<CompletionItem>> GetPrivateModuleCompletionsAsdfg(string trimmedText, BicepCompletionContext context, Uri sourceFileUri, CancellationToken cancellationToken)
         {
             if (settingsProvider.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting))
             {
