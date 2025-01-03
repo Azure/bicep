@@ -11,12 +11,12 @@ namespace Bicep.Core.TypeSystem.Types
     /// </summary>
     public class ObjectType : TypeSymbol
     {
-        public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.None, IEnumerable<FunctionOverload>? functions = null)
-            : this(name, validationFlags, properties, additionalPropertiesType, additionalPropertiesFlags, owner => new FunctionResolver(owner, functions ?? ImmutableArray<FunctionOverload>.Empty))
+        public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.None, string? additionalPropertiesDescription = null, IEnumerable<FunctionOverload>? functions = null)
+            : this(name, validationFlags, properties, additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription, owner => new FunctionResolver(owner, functions ?? ImmutableArray<FunctionOverload>.Empty))
         {
         }
 
-        public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags, Func<ObjectType, FunctionResolver> methodResolverBuilder)
+        public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags, string? additionalPropertiesDescription, Func<ObjectType, FunctionResolver> methodResolverBuilder)
             : base(name)
         {
             ValidationFlags = validationFlags;
@@ -24,6 +24,7 @@ namespace Bicep.Core.TypeSystem.Types
             MethodResolver = methodResolverBuilder(this);
             AdditionalPropertiesType = additionalPropertiesType;
             AdditionalPropertiesFlags = additionalPropertiesFlags;
+            AdditionalPropertiesDescription = additionalPropertiesDescription;
         }
 
         public override TypeKind TypeKind => TypeKind.Object;
@@ -36,6 +37,8 @@ namespace Bicep.Core.TypeSystem.Types
 
         public TypePropertyFlags AdditionalPropertiesFlags { get; }
 
+        public string? AdditionalPropertiesDescription { get; }
+
         public bool HasExplicitAdditionalPropertiesType =>
             AdditionalPropertiesType != null && !AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty);
 
@@ -46,12 +49,14 @@ namespace Bicep.Core.TypeSystem.Types
             IEnumerable<TypeProperty>? properties = null,
             Tuple<ITypeReference?>? additionalPropertiesType = null,
             TypePropertyFlags? additionalPropertiesFlags = null,
+            string? additionalPropertiesDescription = null,
             Func<ObjectType, FunctionResolver>? methodResolverBuilder = null) => new(
                 Name,
                 validationFlags ?? ValidationFlags,
                 properties ?? Properties.Values,
                 additionalPropertiesType is not null ? additionalPropertiesType.Item1 : AdditionalPropertiesType,
                 additionalPropertiesFlags ?? AdditionalPropertiesFlags,
+                additionalPropertiesDescription ?? AdditionalPropertiesDescription,
                 methodResolverBuilder ?? MethodResolver.CopyToObject);
     }
 }

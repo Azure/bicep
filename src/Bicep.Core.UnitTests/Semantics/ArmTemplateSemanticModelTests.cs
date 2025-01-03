@@ -73,6 +73,36 @@ public class ArmTemplateSemanticModelTests
     }
 
     [TestMethod]
+    public void Model_creates_object_with_additionalProperties_description()
+    {
+        var parameterType = GetLoadedParameterType(@"{
+          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+          ""contentVersion"": ""1.0.0.0"",
+          ""languageVersion"": ""2.0"",
+          ""resources"": {},
+          ""parameters"": {
+            ""objectParameter"": {
+              ""type"": ""object"",
+              ""additionalProperties"": { 
+                ""type"": ""string"",
+                ""metadata"": {
+                  ""description"": ""This is a description""
+                }
+              }
+            }
+          }
+        }
+        ", "objectParameter");
+
+        parameterType.Should().BeOfType<ObjectType>();
+
+        var addlPropsType = parameterType.As<ObjectType>().AdditionalPropertiesType;
+        addlPropsType.Should().NotBeNull().And.BeOfType<StringType>();
+        parameterType.As<ObjectType>().AdditionalPropertiesDescription.Should().Be("This is a description");
+        parameterType.As<ObjectType>().AdditionalPropertiesFlags.Should().NotHaveFlag(TypePropertyFlags.FallbackProperty);
+    }
+
+    [TestMethod]
     public void Model_creates_array_from_items_constraint()
     {
         var parameterType = GetLoadedParameterType(@"{

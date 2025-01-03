@@ -1061,11 +1061,11 @@ There might also be a link to something [link](www.google.com)
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperty: string\n```  \nA named property  \n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperty: string\n```  \nA named property  \n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperty: string\n```  \nA named property  \n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n  \n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n"));
         }
 
         [TestMethod]

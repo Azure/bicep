@@ -278,6 +278,7 @@ public static class ArmTemplateTypeLoader
         ObjectTypeNameBuilder nameBuilder = new();
         List<TypeProperty>? propertyList = null;
         ITypeReference? additionalPropertiesType = LanguageConstants.Any;
+        string? additionalPropertiesDescription = null;
         TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.FallbackProperty;
 
         if (properties is not null)
@@ -310,6 +311,12 @@ public static class ArmTemplateTypeLoader
             {
                 var (type, typeName) = GetDeferrableTypeInfo(context, additionalPropertiesSchema);
                 additionalPropertiesType = type;
+                additionalPropertiesDescription = additionalPropertiesSchema.Metadata?.Value is JObject metadataObject &&
+                    metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
+                    descriptionToken is JValue { Value: string descriptionString }
+                        ? descriptionString
+                        : null;
+
                 nameBuilder.AppendPropertyMatcher(typeName);
             }
             else if (additionalProperties.BooleanValue == false)
@@ -323,7 +330,7 @@ public static class ArmTemplateTypeLoader
             return flags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? LanguageConstants.SecureObject : LanguageConstants.Object;
         }
 
-        return new ObjectType(nameBuilder.ToString(), flags, propertyList.CoalesceEnumerable(), additionalPropertiesType, additionalPropertiesFlags);
+        return new ObjectType(nameBuilder.ToString(), flags, propertyList.CoalesceEnumerable(), additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription);
     }
 
     private class SansMetadata : ITemplateSchemaNode

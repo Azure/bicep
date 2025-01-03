@@ -1236,7 +1236,7 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                var narrowedObject = new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver.CopyToObject);
+                var narrowedObject = new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.AdditionalPropertiesDescription, targetType.MethodResolver.CopyToObject);
 
                 return config.IsResourceDeclaration
                     ? TypeHelper.RemovePropertyFlagsRecursively(narrowedObject, TypePropertyFlags.ReadOnly)

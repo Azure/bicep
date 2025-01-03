@@ -381,7 +381,8 @@ internal class ArmDeclarationToExpressionConverter
             new(string.Empty,
                 TypeSymbolValidationFlags.Default,
                 properties.Select(pe => new TypeProperty(pe.PropertyName, pe.Value.ExpressedType)),
-                addlProperties?.Value.ExpressedType),
+                addlProperties?.Value.ExpressedType,
+                additionalPropertiesDescription: addlProperties?.Description is StringLiteralExpression stringLiteral ? stringLiteral.Value : null),
             properties,
             addlProperties);
     }

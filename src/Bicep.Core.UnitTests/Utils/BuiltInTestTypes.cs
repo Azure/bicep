@@ -240,6 +240,7 @@ namespace Bicep.Core.UnitTests.Utils
                     AzResourceTypeProvider.GetCommonResourceProperties(resourceType),
                     null,
                     TypePropertyFlags.None,
+                    null,
                     overloads));
         }
 

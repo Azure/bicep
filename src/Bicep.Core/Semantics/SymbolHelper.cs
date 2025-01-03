@@ -58,7 +58,7 @@ namespace Bicep.Core.Semantics
                     return null;
                 }
 
-                return new PropertySymbol("*", string.Empty, objectType.AdditionalPropertiesType.Type);
+                return new PropertySymbol("*", objectType.AdditionalPropertiesDescription, objectType.AdditionalPropertiesType.Type);
             }
 
             switch (syntax)

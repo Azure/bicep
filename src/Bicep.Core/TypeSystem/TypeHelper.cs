@@ -688,6 +688,7 @@ namespace Bicep.Core.TypeSystem
                 input.Properties.Values.Select(transformFunc),
                 input.AdditionalPropertiesType,
                 input.AdditionalPropertiesFlags,
+                input.AdditionalPropertiesDescription,
                 input.MethodResolver.functionOverloads);
         }
 

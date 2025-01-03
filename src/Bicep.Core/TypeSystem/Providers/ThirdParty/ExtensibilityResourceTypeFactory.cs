@@ -26,7 +26,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 GetResourceFunctionOverloads(resourceType) is { } resourceFunctions &&
                 resourceFunctions.Any())
             {
-                bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, objectType.Properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, resourceFunctions);
+                bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, objectType.Properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, objectType.AdditionalPropertiesDescription, resourceFunctions);
             }
 
             return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);

@@ -50,6 +50,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
                             bodyObjectType.Properties.SetItem(NamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
                             bodyObjectType.AdditionalPropertiesType,
                             bodyObjectType.AdditionalPropertiesFlags,
+                            bodyObjectType.AdditionalPropertiesDescription,
                             bodyObjectType.MethodResolver.CopyToObject);
 
                         bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
@@ -98,6 +99,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
                 objectType.AdditionalPropertiesType,
                 isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
+                objectType.AdditionalPropertiesDescription,
                 functions: null);
         }
 
@@ -129,6 +131,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
                         updatedProperties,
                         metadataType.AdditionalPropertiesType,
                         ConvertToReadOnly(metadataType.AdditionalPropertiesFlags),
+                        metadataType.AdditionalPropertiesDescription,
                         functions: null);
 
                     yield return new TypeProperty(property.Name, updatedMetadataType, property.Flags, property.Description);

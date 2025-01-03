@@ -410,7 +410,7 @@ internal static class TypeCollapser
                     structuralNameBuilder.AppendProperty(declaredPropertyName, properties[^1].TypeReference.Type.Name);
                 }
 
-                var (additionalPropertiesType, additionalPropertiesFlags) = GetAdditionalPropertiesType(members);
+                var (additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription) = GetAdditionalPropertiesType(members);
                 if (additionalPropertiesType is not null &&
                     !additionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
                 {
@@ -422,10 +422,11 @@ internal static class TypeCollapser
                     flags,
                     properties,
                     additionalPropertiesType,
-                    additionalPropertiesFlags);
+                    additionalPropertiesFlags,
+                    additionalPropertiesDescription);
             }
 
-            private static (TypeSymbol? type, TypePropertyFlags flags) GetAdditionalPropertiesType(
+            private static (TypeSymbol? type, TypePropertyFlags flags, string? description) GetAdditionalPropertiesType(
                 IEnumerable<ObjectType> objects)
             {
                 var noneHaveAdditionalPropertiesType = true;
@@ -434,6 +435,7 @@ internal static class TypeCollapser
 
                 List<TypeSymbol> possibleTypes = new();
                 TypePropertyFlags propertyFlags = ~TypePropertyFlags.None;
+                string? propertyDescription = null;
                 foreach (var @object in objects)
                 {
                     noneHaveAdditionalPropertiesType &= @object.AdditionalPropertiesType is null;
@@ -445,17 +447,23 @@ internal static class TypeCollapser
                     {
                         possibleTypes.Add(addlPropertiesType);
                     }
+
                     propertyFlags &= @object.AdditionalPropertiesFlags;
+                    
+                    if (@object.AdditionalPropertiesDescription is not null)
+                    {
+                        propertyDescription = @object.AdditionalPropertiesDescription;
+                    }
                 }
 
                 if (noneHaveAdditionalPropertiesType)
                 {
-                    return (null, TypePropertyFlags.None);
+                    return (null, TypePropertyFlags.None, null);
                 }
 
                 if (allHaveImplicitAnyAdditionalPropertiesType)
                 {
-                    return (LanguageConstants.Any, TypePropertyFlags.FallbackProperty);
+                    return (LanguageConstants.Any, TypePropertyFlags.FallbackProperty, null);
                 }
 
                 if (anyHaveNullAdditionalPropertiesType)
@@ -463,7 +471,7 @@ internal static class TypeCollapser
                     propertyFlags |= TypePropertyFlags.FallbackProperty;
                 }
 
-                return (TypeHelper.CollapseOrCreateTypeUnion(possibleTypes), propertyFlags);
+                return (TypeHelper.CollapseOrCreateTypeUnion(possibleTypes), propertyFlags, propertyDescription);
             }
 
             public UnionCollapseState Push(ITypeReference memberType)
