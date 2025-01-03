@@ -28,6 +28,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     // More extensive tests in src/Bicep.Cli.IntegrationTests/UseRecentModuleVersionsIntegrationTests.cs
 
+    asdfg these all fail
     [TestClass]
     public partial class UseRecentModuleVersionsRuleTests : LinterRuleTestsBase
     {
