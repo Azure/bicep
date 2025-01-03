@@ -28,7 +28,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     // More extensive tests in src/Bicep.Cli.IntegrationTests/UseRecentModuleVersionsIntegrationTests.cs
 
-    asdfg these all fail
     [TestClass]
     public partial class UseRecentModuleVersionsRuleTests : LinterRuleTestsBase
     {
@@ -48,7 +47,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModules())
                 .Returns([.. availableModules.Select(m => PublicRegistryModuleMetadataProvider.GetPublicRegistryModuleMetadata(m, null, null))]); // asdfg extend to private modules?
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersions(It.IsAny<string>()/*asdfg?*/, It.IsAny<string>()))
-                .Returns((string module) =>
+                .Returns((string registry, string module) =>
                 {
                     return availableModules.Contains(module) ?
                         [.. availableVersions.Select(v => new RegistryModuleVersionMetadata(v, null, null))] :
