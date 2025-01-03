@@ -2009,11 +2009,11 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@                "copy": [
 //@                ]
 //@              }
-        e: [for j in range(7,7): j % thing]
+        e: [for j in range(7,7): j % (thing + 1)]
 //@                  {
 //@                    "name": "e",
 //@                    "count": "[length(range(7, 7))]",
-//@                    "input": "[mod(range(7, 7)[copyIndex('e')], range(0, 1)[copyIndex()])]"
+//@                    "input": "[mod(range(7, 7)[copyIndex('e')], add(range(0, 1)[copyIndex()], 1))]"
 //@                  }
       }
     ]

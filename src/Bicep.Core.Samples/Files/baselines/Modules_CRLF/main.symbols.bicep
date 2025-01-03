@@ -325,7 +325,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
 //@[79:84) Local thing. Type: 0. Declaration start char: 79, length: 5
-//@[07:55) Module propertyLoopInsideParameterValueInsideModuleLoop. Type: module[]. Declaration start char: 0, length: 529
+//@[07:55) Module propertyLoopInsideParameterValueInsideModuleLoop. Type: module[]. Declaration start char: 0, length: 535
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
   params: {
     objParam: {
@@ -345,7 +345,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
     stringParamB: ''
     arrayParam: [
       {
-        e: [for j in range(7,7): j % thing]
+        e: [for j in range(7,7): j % (thing + 1)]
 //@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
       }
     ]

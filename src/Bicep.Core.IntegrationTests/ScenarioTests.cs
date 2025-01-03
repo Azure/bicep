@@ -6631,4 +6631,35 @@ var subnetId = vNet::subnets[0].id
             ("BCP159", DiagnosticLevel.Error, "The resource \"vNet\" does not contain a nested resource named \"subnets\"."),
         ]);
     }
+
+    [TestMethod]
+    public void Test_Issue14838()
+    {
+        var result = CompilationHelper.Compile("""
+            var data = [
+              {
+                name: 'foo'
+                parallelism: 2
+              }
+              {
+                name: 'bar'
+                parallelism: 0
+              }
+              {
+                name: 'baz'
+                parallelism: 0
+              }
+            ]
+
+            var size = 4
+            var parallelisms = map(data, org => org.parallelism)
+            var allocated = reduce(parallelisms, 0, (sum, parallelism) => sum + parallelism)
+            var count = reduce(parallelisms, 0, (sum, parallelism) => parallelism == 0 ? sum + 1 : sum)
+
+            output remaining int = (size - allocated) / count
+            output extra int = (size - allocated) % count
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }

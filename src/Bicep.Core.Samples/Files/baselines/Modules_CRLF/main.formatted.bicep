@@ -297,7 +297,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [
       stringParamB: ''
       arrayParam: [
         {
-          e: [for j in range(7, 7): j % thing]
+          e: [for j in range(7, 7): j % (thing + 1)]
         }
       ]
     }

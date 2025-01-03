@@ -1634,7 +1634,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
       {
 //@[006:007) LeftBrace |{|
 //@[007:009) NewLine |\r\n|
-        e: [for j in range(7,7): j % thing]
+        e: [for j in range(7,7): j % (thing + 1)]
 //@[008:009) Identifier |e|
 //@[009:010) Colon |:|
 //@[011:012) LeftSquare |[|
@@ -1650,9 +1650,13 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[031:032) Colon |:|
 //@[033:034) Identifier |j|
 //@[035:036) Modulo |%|
-//@[037:042) Identifier |thing|
-//@[042:043) RightSquare |]|
-//@[043:045) NewLine |\r\n|
+//@[037:038) LeftParen |(|
+//@[038:043) Identifier |thing|
+//@[044:045) Plus |+|
+//@[046:047) Integer |1|
+//@[047:048) RightParen |)|
+//@[048:049) RightSquare |]|
+//@[049:051) NewLine |\r\n|
       }
 //@[006:007) RightBrace |}|
 //@[007:009) NewLine |\r\n|

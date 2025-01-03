@@ -1,5 +1,5 @@
 
-//@[000:9426) ProgramExpression
+//@[000:9432) ProgramExpression
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) | | └─ModuleReferenceExpression [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
@@ -905,12 +905,12 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 }
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
-//@[000:0529) ├─DeclaredModuleExpression
-//@[074:0529) | ├─ForLoopExpression
+//@[000:0535) ├─DeclaredModuleExpression
+//@[074:0535) | ├─ForLoopExpression
 //@[088:0098) | | ├─FunctionCallExpression { Name = range }
 //@[094:0095) | | | ├─IntegerLiteralExpression { Value = 0 }
 //@[096:0097) | | | └─IntegerLiteralExpression { Value = 1 }
-//@[100:0528) | | └─ObjectExpression
+//@[100:0534) | | └─ObjectExpression
 //@[088:0098) |   |   |       └─FunctionCallExpression { Name = range }
 //@[094:0095) |   |   |         ├─IntegerLiteralExpression { Value = 0 }
 //@[096:0097) |   |   |         └─IntegerLiteralExpression { Value = 1 }
@@ -920,15 +920,15 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[088:0098) |   |               └─FunctionCallExpression { Name = range }
 //@[094:0095) |   |                 ├─IntegerLiteralExpression { Value = 0 }
 //@[096:0097) |   |                 └─IntegerLiteralExpression { Value = 1 }
-//@[088:0098) |                 └─FunctionCallExpression { Name = range }
-//@[094:0095) |                   ├─IntegerLiteralExpression { Value = 0 }
-//@[096:0097) |                   └─IntegerLiteralExpression { Value = 1 }
+//@[088:0098) |                 | └─FunctionCallExpression { Name = range }
+//@[094:0095) |                 |   ├─IntegerLiteralExpression { Value = 0 }
+//@[096:0097) |                 |   └─IntegerLiteralExpression { Value = 1 }
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
 //@[002:0058) | |   └─ObjectPropertyExpression
 //@[002:0006) | |     ├─StringLiteralExpression { Value = name }
 //@[008:0058) | |     └─StringLiteralExpression { Value = propertyLoopInsideParameterValueInsideModuleLoop }
   params: {
-//@[010:0362) | └─ObjectExpression
+//@[010:0368) | └─ObjectExpression
     objParam: {
 //@[004:0233) |   ├─ObjectPropertyExpression
 //@[004:0012) |   | ├─StringLiteralExpression { Value = objParam }
@@ -1006,26 +1006,28 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[004:0016) |   | ├─StringLiteralExpression { Value = stringParamB }
 //@[018:0020) |   | └─StringLiteralExpression { Value =  }
     arrayParam: [
-//@[004:0087) |   └─ObjectPropertyExpression
+//@[004:0093) |   └─ObjectPropertyExpression
 //@[004:0014) |     ├─StringLiteralExpression { Value = arrayParam }
-//@[016:0087) |     └─ArrayExpression
+//@[016:0093) |     └─ArrayExpression
       {
-//@[006:0061) |       └─ObjectExpression
-        e: [for j in range(7,7): j % thing]
-//@[008:0043) |         └─ObjectPropertyExpression
+//@[006:0067) |       └─ObjectExpression
+        e: [for j in range(7,7): j % (thing + 1)]
+//@[008:0049) |         └─ObjectPropertyExpression
 //@[008:0009) |           ├─StringLiteralExpression { Value = e }
-//@[011:0043) |           └─ForLoopExpression
+//@[011:0049) |           └─ForLoopExpression
 //@[021:0031) |             ├─FunctionCallExpression { Name = range }
 //@[027:0028) |             | ├─IntegerLiteralExpression { Value = 7 }
 //@[029:0030) |             | └─IntegerLiteralExpression { Value = 7 }
-//@[033:0042) |             └─BinaryExpression { Operator = Modulo }
+//@[033:0048) |             └─BinaryExpression { Operator = Modulo }
 //@[033:0034) |               ├─ArrayAccessExpression
 //@[033:0034) |               | ├─CopyIndexExpression
 //@[021:0031) |               | └─FunctionCallExpression { Name = range }
 //@[027:0028) |               |   ├─IntegerLiteralExpression { Value = 7 }
 //@[029:0030) |               |   └─IntegerLiteralExpression { Value = 7 }
-//@[037:0042) |               └─ArrayAccessExpression
-//@[037:0042) |                 ├─CopyIndexExpression
+//@[038:0047) |               └─BinaryExpression { Operator = Add }
+//@[038:0043) |                 ├─ArrayAccessExpression
+//@[038:0043) |                 | ├─CopyIndexExpression
+//@[046:0047) |                 └─IntegerLiteralExpression { Value = 1 }
       }
     ]
   }
