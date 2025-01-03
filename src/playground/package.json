@@ -16,13 +16,13 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.17.0",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.10.2",
     "@types/pako": "^2.0.3",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^18.3.1",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
-    "@typescript-eslint/parser": "^8.18.1",
+    "@typescript-eslint/parser": "^8.18.2",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
     "eslint": "^9.17.0",
@@ -43,10 +43,10 @@
   "dependencies": {
     "@microsoft/applicationinsights-web": "^3.3.4",
     "bootstrap": "^5.3.3",
-    "monaco-editor": "^0.52.0",
+    "monaco-editor": "^0.52.2",
     "pako": "^2.1.0",
     "react": "^19.0.0",
-    "react-bootstrap": "^2.10.6",
+    "react-bootstrap": "^2.10.7",
     "react-dom": "^19.0.0"
   }
 }

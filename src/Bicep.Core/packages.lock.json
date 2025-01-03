@@ -107,11 +107,11 @@
       },
       "JsonPath.Net": {
         "type": "Direct",
-        "requested": "[1.1.6, )",
-        "resolved": "1.1.6",
-        "contentHash": "FQLbFJdjIa70GdYGR3RpdGkLTMZwQCqcd8gC35yx6aGofVEP3QxMvSuXHn75N30jj9SS6yvsPPTDzJmPMt/Mdw==",
+        "requested": "[2.0.1, )",
+        "resolved": "2.0.1",
+        "contentHash": "St/l0QIkHSqUNKqQ8iT1yvbJUpTFH1kl5V1zlU+aY8gxU0VKszMNL9qfgT4QvWGICfInh17NgBSFDF5RH38Emw==",
         "dependencies": {
-          "Json.More.Net": "2.0.2"
+          "Json.More.Net": "2.1.0"
         }
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {

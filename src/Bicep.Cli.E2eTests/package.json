@@ -8,7 +8,7 @@
     "@types/cross-spawn": "^6.0.6",
     "@types/eslint__js": "^8.42.3",
     "@types/uuid": "^10.0.0",
-    "@vitest/eslint-plugin": "^1.1.20",
+    "@vitest/eslint-plugin": "^1.1.21",
     "cross-env": "^7.0.3",
     "cross-spawn": "^7.0.6",
     "eslint": "^9.17.0",
@@ -16,7 +16,7 @@
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
     "typescript": "~5.7.2",
-    "typescript-eslint": "^8.18.1",
+    "typescript-eslint": "^8.18.2",
     "uuid": "^11.0.3",
     "vitest": "^2.1.8",
     "vscode-jsonrpc": "^8.2.1"
