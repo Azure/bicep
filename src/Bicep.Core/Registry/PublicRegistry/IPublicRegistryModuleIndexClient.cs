@@ -12,10 +12,10 @@ namespace Bicep.Core.Registry.PublicRegistry;
 
 public readonly record struct PublicRegistryModuleProperties(string Description, string DocumentationUri);
 
-public record PublicRegistryModuleIndexEntry(
+public record PublicRegistryModuleIndexEntry( //asdfg rename
     [property: JsonPropertyName("moduleName")] string ModulePath, // e.g. "avm/app/dapr-containerapp"
     ImmutableArray<string> Tags, // e.g. "1.0.0" (not guaranteed to be in that format, although it currently is for public modules)
-    [property: JsonPropertyName("properties")] ImmutableDictionary<string, PublicRegistryModuleProperties> PropertiesByTag // Module properties per tag
+    [property: JsonPropertyName("properties")] ImmutableDictionary<string, PublicRegistryModuleProperties/*asdfg rename*/> PropertiesByTag // Module properties per tag
 )
 {
     private static readonly SemVersion DefaultVersion = new(0);
@@ -29,9 +29,7 @@ public record PublicRegistryModuleIndexEntry(
                 var parsedVersions = Tags.Select(x =>
                     (@string: x, version: SemVersion.TryParse(x, SemVersionStyles.AllowV, out var version) ? version : DefaultVersion))
                     .ToArray();
-                return parsedVersions.OrderByDescending(x => x.version, SemVersion.SortOrderComparer)
-                    .Select(x => x.@string)
-                    .ToImmutableArray();
+                return [.. parsedVersions.OrderByDescending(x => x.version, SemVersion.SortOrderComparer).Select(x => x.@string)];
             }
         }
     }

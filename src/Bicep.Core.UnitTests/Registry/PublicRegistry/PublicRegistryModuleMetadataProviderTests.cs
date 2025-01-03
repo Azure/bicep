@@ -15,7 +15,7 @@ using RichardSzalay.MockHttp;
 namespace Bicep.Core.UnitTests.Registry.PublicRegistry
 {
     [TestClass]
-    public class PublicRegistryModuleMetadataProviderTests
+    public class PublicRegistryModuleMetadataProviderTests //asdfgasdfg existing core tests
     {
         private IServiceProvider GetServiceProvider()
         {
@@ -762,6 +762,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
               },
               {
                 "moduleName": "samples/array-loop",
+                "$comment": "Tags intentionally out of order",
                 "tags": [
                   "1.0.1",
                   "1.10.1",
@@ -1176,41 +1177,41 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = provider.GetModulesMetadata();
+            var modules = provider.GetModules();
             modules.Should().HaveCount(50);
         }
 
         [TestMethod]
-        public async Task GetModules_OnlyLastTagHasDescription()
+        public async Task GetModules_IfOnlyLastTagHasDescription()
         {
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = provider.GetModulesMetadata();
-            var m = modules.Should().Contain(m => m.Name == "samples/hello-world")
+            var modules = provider.GetModules();
+            var m = modules.Should().Contain(m => m.ModuleName == "bicep/samples/hello-world")
                 .Which;
             m.Description.Should().Be("A \"שָׁלוֹם עוֹלָם\" sample Bicep registry module");
             m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/samples/hello-world/1.0.4/modules/samples/hello-world/README.md");
         }
 
         [TestMethod]
-        public async Task GetModules_MultipleTagsHaveDescriptions()
+        public async Task GetModules_IfMultipleTagsHaveDescriptions()
         {
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = provider.GetModulesMetadata();
-            var m = modules.Should().Contain(m => m.Name == "lz/sub-vending")
+            var modules = provider.GetModules();
+            var m = modules.Should().Contain(m => m.ModuleName == "bicep/lz/sub-vending")
                 .Which;
             m.Description.Should().Be("This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.");
             m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.2/modules/lz/sub-vending/README.md");
         }
 
         [TestMethod]
-        public async Task GetModuleVerionsMetadata_ByDefault_ReturnsMetadataSortedByVersion()
+        public async Task GetModuleVersions_ByDefault_ReturnsMetadataSortedByVersion()
         {
             PublicRegistryModuleMetadataProvider provider = new(GetServiceProvider());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
 
-            var versions = provider.GetModuleVersionsMetadata("samples/array-loop").Select(x => x.Version);
+            var versions = provider.GetModuleVersions(LanguageConstants.BicepPublicMcrRegistry, "bicep/samples/array-loop").Select(x => x.Version);//asdfg test
 
             versions.Should().Equal(
                   "1.10.1",
