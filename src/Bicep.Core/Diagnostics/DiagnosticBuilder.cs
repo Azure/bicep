@@ -1880,6 +1880,8 @@ namespace Bicep.Core.Diagnostics
                     with
                 { Fixes = [fixToResourceInput, fixToResourceOutput] };
             }
+
+            public Diagnostic AttemptToDivideByZero() => CoreError("BCP410", "Division by zero is not supported.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
