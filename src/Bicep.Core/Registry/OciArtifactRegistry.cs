@@ -42,7 +42,7 @@ namespace Bicep.Core.Registry
             IContainerRegistryClientFactory clientFactory,
             IFeatureProvider features,
             RootConfiguration configuration,
-            IRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
+            IRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider, //asdfg should this be IRegistryModuleMetadataProvider?
             Uri parentModuleUri)
             : base(FileResolver)
         {
@@ -218,6 +218,8 @@ namespace Bicep.Core.Registry
 
         public override async Task OnRestoreArtifacts(bool forceRestore)
         {
+            // This is here because we don't want to run this code at all if we're running from the command line and --no-restore has been specified
+            //asdfg use global options instead?
             await publicRegistryModuleMetadataProvider.TryAwaitCache(forceRestore);
         }
 

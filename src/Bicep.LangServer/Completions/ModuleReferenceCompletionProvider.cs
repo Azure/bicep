@@ -32,7 +32,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly IAzureContainerRegistriesProvider azureContainerRegistriesProvider;
 
         private readonly IConfigurationManager configurationManager;
-        private readonly IRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
+        private readonly IRegistryModuleMetadataProvider[] registryModuleMetadataProviders;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
         //asdfg private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
@@ -63,14 +63,14 @@ namespace Bicep.LanguageServer.Completions
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
             //asdfg IContainerRegistryClientFactory containerRegistryClientFactory,
             IConfigurationManager configurationManager,
-            IRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
+            IRegistryModuleMetadataProvider[] registryModuleMetadataProviders,
             ISettingsProvider settingsProvider,
             ITelemetryProvider telemetryProvider)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
             //asdfg this.containerRegistryClientFactory = containerRegistryClientFactory;
             this.configurationManager = configurationManager;
-            this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
+            this.registryModuleMetadataProviders = registryModuleMetadataProviders;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
         }
@@ -235,7 +235,10 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            var versionsMetadata = publicRegistryModuleMetadataProvider.GetModuleVersions(LanguageConstants.BicepPublicMcrRegistry, $"{LanguageConstants.BicepPublicMcrPathPrefix}{modulePath}");//asdfg
+            var versionsMetadata = IRegistryModuleMetadataProvider.GetModuleVersions(
+                registryModuleMetadataProviders,
+                LanguageConstants.BicepPublicMcrRegistry,
+                $"{LanguageConstants.BicepPublicMcrPathPrefix}{modulePath}");//asdfg
 
             for (int i = versionsMetadata.Length - 1; i >= 0; i--)
             {
@@ -484,7 +487,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal)) //asdfg?
                             {
-                                var modules = publicRegistryModuleMetadataProvider.GetModules();
+                                var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders);
                                 foreach (var (registry, moduleName, description, documentationUri) in modules)
                                 {
                                     //asdfg make sure registry is inputRegistry?
@@ -525,7 +528,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = TrimStart(modulePath, LanguageConstants.BicepPublicMcrPathPrefix);
-                            var modules = publicRegistryModuleMetadataProvider.GetModules();
+                            var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders);
 
                             var matchingModules = modules.Where(x => x.ModuleName.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -757,7 +760,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             List<CompletionItem> completions = new();
 
-            var modules = publicRegistryModuleMetadataProvider.GetModules();
+            var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders);
             foreach (var (registry, moduleName, description, documentationUri) in modules)
             {
                 //asdfg remove?

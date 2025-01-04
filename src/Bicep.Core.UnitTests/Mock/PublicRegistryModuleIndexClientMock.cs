@@ -18,7 +18,7 @@ public static class PublicRegistryModuleIndexClientMock
         var mock = StrictMock.Of<IPublicRegistryModuleIndexClient>();
         mock
             .Setup(client => client.GetModuleIndexAsync())
-            .ReturnsAsync(() => metadata.ToImmutableArray());
+            .ReturnsAsync(() => [.. metadata]);
         return mock;
     }
 

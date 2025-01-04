@@ -9,19 +9,20 @@ using System.Text.Json;
 using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.PublicRegistry;
+namespace Bicep.Core.Registry.PublicRegistry;//asdfg rename folder/namespace PublicRegistry?
 
-//asdfg
-//public static class PublicRegistryModuleMetadataProviderExtensions
+//asdfg public interface IAcrRegistryModuleMetadataProvider : IRegistryModuleMetadataProvider { }
+
+//public static class AcrRegistryModuleMetadataProviderExtensions asdfg
 //{
-//    public static IServiceCollection AddPublicRegistryModuleMetadataProviderServices(this IServiceCollection services)
+//    public static IServiceCollection AddAcrRegistryModuleMetadataProviderServices(this IServiceCollection services)
 //    {
-//        services.AddSingleton<IRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
+//        services.AddSingleton<AcrRegistryModuleMetadataProvider, AcrRegistryModuleMetadataProvider>();
 
 //        // using type based registration for Http clients so dependencies can be injected automatically
 //        // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
 //        services
-//            .AddHttpClient<IPublicRegistryModuleIndexClient, PublicRegistryModuleMetadataClient>()
+//            .AddHttpClient<IAcrRegistryModuleCatalogClient, AcrRegistryModuleCatalogClient>()
 //            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
 //            {
 //                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
@@ -31,11 +32,10 @@ namespace Bicep.Core.Registry.PublicRegistry;
 //    }
 //}
 
-
 /// <summary>
 /// Provider to get modules metadata that we store at a public endpoint.
 /// </summary>
-public class AcrRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase, IRegistryModuleMetadataProvider
+public class AcrRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase
 {
     private readonly IServiceProvider serviceProvider;
 
@@ -44,8 +44,10 @@ public class AcrRegistryModuleMetadataProvider : RegistryModuleMetadataProviderB
         this.serviceProvider = serviceProvider;
     }
 
-    protected override Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
+    protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
     {
-        return Task.FromResult<ImmutableArray<CachedModule>>([]);
+        var client = serviceProvider.GetRequiredService<IAcrRegistryModuleCatalogClient>();
+        var modules = await client.TryGetCatalog("sawbiceppublic.azurecr.io"); //asdfgasdfg move to config
+        return [];
     }
 }

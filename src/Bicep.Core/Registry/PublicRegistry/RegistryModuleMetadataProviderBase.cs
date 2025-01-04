@@ -12,31 +12,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry.PublicRegistry;
 
-//asdfg
-//public static class PublicRegistryModuleMetadataProviderExtensions
-//{
-//    public static IServiceCollection AddPublicRegistryModuleMetadataProviderServices(this IServiceCollection services)
-//    {
-//        services.AddSingleton<IRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
-
-//        // using type based registration for Http clients so dependencies can be injected automatically
-//        // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
-//        services
-//            .AddHttpClient<IPublicRegistryModuleIndexClient, PublicRegistryModuleMetadataClient>()
-//            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-//            {
-//                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-//            });
-
-//        return services;
-//    }
-//}
-
-
 /// <summary>
 /// Provider to get modules metadata that we store at a public endpoint.
 /// </summary>
-public abstract class RegistryModuleMetadataProviderBase //asdfg rename     asdfg refactor cache portion?
+public abstract class RegistryModuleMetadataProviderBase : IRegistryModuleMetadataProvider //asdfg rename     asdfg refactor cache portion?
 {
     private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
     private readonly TimeSpan InitialThrottleDelay = TimeSpan.FromSeconds(5);

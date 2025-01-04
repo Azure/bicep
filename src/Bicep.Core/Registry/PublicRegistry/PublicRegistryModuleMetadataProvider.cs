@@ -11,31 +11,12 @@ using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry.PublicRegistry;
-
-public static class PublicRegistryModuleMetadataProviderExtensions
-{
-    public static IServiceCollection AddPublicRegistryModuleMetadataProviderServices(this IServiceCollection services)
-    {
-        services.AddSingleton<IRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
-
-        // using type based registration for Http clients so dependencies can be injected automatically
-        // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
-        services
-            .AddHttpClient<IPublicRegistryModuleIndexClient, PublicRegistryModuleMetadataClient>()
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            });
-
-        return services;
-    }
-}
-
+//asdfg public interface IPublicRegistryModuleMetadataProvider : IRegistryModuleMetadataProvider { }
 
 /// <summary>
 /// Provider to get modules metadata that we store at a public endpoint.
 /// </summary>
-public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase, IRegistryModuleMetadataProvider
+public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase
 {
     private readonly IServiceProvider serviceProvider;
 

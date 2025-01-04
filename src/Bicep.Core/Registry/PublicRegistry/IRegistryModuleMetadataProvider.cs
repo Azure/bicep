@@ -16,17 +16,27 @@ public readonly record struct RegistryModuleVersionMetadata(
     string? Description,
     string? DocumentationUri);
 
-public interface IRegistryModuleMetadataProvider //asdfg?
+public interface IRegistryModuleMetadataProvider //asdfg?           asdfg rename IOci...?
 {
-    public bool IsCached { get; }
+    bool IsCached { get; }
 
-    public string? DownloadError { get; }
+    string? DownloadError { get; }
 
-    public Task TryAwaitCache(bool forceUpdate = false);
+    Task TryAwaitCache(bool forceUpdate = false);
 
-    public void StartUpdateCache(bool forceUpdate = false);
+    void StartUpdateCache(bool forceUpdate = false);
 
     ImmutableArray<RegistryModuleMetadata> GetModules();
 
     ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersions(string registry, string modulePath);
+
+    public static ImmutableArray<RegistryModuleMetadata> GetModules(IRegistryModuleMetadataProvider[] providers)
+    {
+        return [.. providers.SelectMany(x => x.GetModules())];
+    }
+
+    public static ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersions(IRegistryModuleMetadataProvider[] providers, string registry, string modulePath)
+    {
+        return [.. providers.SelectMany(x => x.GetModuleVersions(registry, modulePath))];
+    }
 }
