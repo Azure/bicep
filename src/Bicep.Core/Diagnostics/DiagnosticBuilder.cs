@@ -844,7 +844,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP158",
                 $"Cannot access nested resources of type \"{wrongType}\". A resource type is required.");
 
-            public Diagnostic NestedResourceNotFound(string resourceName, string identifierName, IEnumerable<string> nestedResourceNames) 
+            public Diagnostic NestedResourceNotFound(string resourceName, string identifierName, IEnumerable<string> nestedResourceNames)
             {
                 var nestedResourceNamesClause = nestedResourceNames.Any()
                     ? $" Known nested resources are: {ToQuotedString(nestedResourceNames)}."
