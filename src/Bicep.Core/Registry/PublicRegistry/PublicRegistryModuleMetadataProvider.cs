@@ -18,7 +18,7 @@ namespace Bicep.Core.Registry.PublicRegistry;
 /// </summary>
 public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase
 {
-    private readonly IServiceProvider serviceProvider;
+    private readonly IPublicRegistryModuleIndexClient client;
 
     //asdfg
     //private readonly object queryingLiveSyncObject = new();
@@ -26,9 +26,9 @@ public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProvid
     //private DateTime? lastSuccessfulQuery;
     //private int consecutiveFailures = 0;
 
-    public PublicRegistryModuleMetadataProvider(IServiceProvider serviceProvider)
+    public PublicRegistryModuleMetadataProvider(IPublicRegistryModuleIndexClient publicRegistryModuleIndexClient)
     {
-        this.serviceProvider = serviceProvider;
+        this.client = publicRegistryModuleIndexClient;
     }
 
     public static RegistryModuleMetadata GetPublicRegistryModuleMetadata(string modulePath, string? description, string? documentationUri)
@@ -36,7 +36,6 @@ public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProvid
 
     protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
     {
-        var client = serviceProvider.GetRequiredService<IPublicRegistryModuleIndexClient>();
         var modules = await client.GetModuleIndexAsync();
 
         return [.. modules.Select(m =>

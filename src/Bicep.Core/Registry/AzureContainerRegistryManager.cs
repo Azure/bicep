@@ -34,10 +34,12 @@ namespace Bicep.Core.Registry
             this.clientFactory = clientFactory;
         }
 
-        public async Task<string[]> GetCatalogAsync(
+        public async Task<string[]> GetCatalogAsync( //asdfg move?
             RootConfiguration configuration,
-            Uri registryUri)
+            string registry)
         {
+            var registryUri = GetRegistryUri(registry);
+
             async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
             {
                 var client = CreateClient(configuration, registryUri, anonymousAccess);
@@ -68,16 +70,17 @@ namespace Bicep.Core.Registry
             RootConfiguration configuration,
             IOciArtifactReference artifactReference)
         {
-            try
-            {
-                string[] test = await GetCatalogAsync(configuration, GetRegistryUri(artifactReference)); //asdfg remove
+            //asdfg remove
+            //try
+            //{
+            //    string[] test = await GetCatalogAsync(configuration, artifactReference); //asdfg remove
 
-                Trace.WriteLine($"{artifactReference.ArtifactId}: {string.Join(',', test)}");
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine($"{artifactReference.ArtifactId}: {ex.Message}");
-            }
+            //    Trace.WriteLine($"{artifactReference.ArtifactId}: {string.Join(',', test)}");
+            //}
+            //catch (Exception ex)
+            //{
+            //    Trace.WriteLine($"{artifactReference.ArtifactId}: {ex.Message}");
+            //}
 
             async Task<OciArtifactResult> DownloadManifestInternalAsync(bool anonymousAccess)
             {

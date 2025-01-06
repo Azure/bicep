@@ -316,7 +316,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles remote (OCI) module path completions, e.g. br: and br/
-        private IEnumerable<CompletionItem> GetOciModuleCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri)
+        private IEnumerable<CompletionItem> GetOciModuleCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg rename?
         {
             if (!IsOciArtifactRegistryReference(trimmedText))
             {
@@ -359,6 +359,7 @@ namespace Bicep.LanguageServer.Completions
 
                     if (registry is not null && !registry.Equals(PublicMCRRegistry, StringComparison.Ordinal)/*asdfg?*/)
                     {
+                    //asdfg2
                         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
                         var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
                         var catalog = await acrManager.GetCatalogAsync(rootConfiguration, registry); //asdfg cache
@@ -487,7 +488,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal)) //asdfg?
                             {
-                                var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders);
+                                var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders, PublicMcrRegistry);//asdfg testpoint
                                 foreach (var (registry, moduleName, description, documentationUri) in modules)
                                 {
                                     //asdfg make sure registry is inputRegistry?
@@ -528,7 +529,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = TrimStart(modulePath, LanguageConstants.BicepPublicMcrPathPrefix);
-                            var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders);
+                            var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders, PublicMcrRegistry); //asdfg testpoint
 
                             var matchingModules = modules.Where(x => x.ModuleName.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -729,10 +730,11 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
                     {
                         basePath = aliasValue.ModulePath;
                         inputPath = string.IsNullOrEmpty(aliasValue.ModulePath) ? inputPath : $"{aliasValue.ModulePath}/{inputPath}";
+                        inputRegistry = aliasValue.Registry; //adsfg testpoint
                     }
                 }
 
-                if (inputPath is null)
+                if (inputPath is null || string.IsNullOrWhiteSpace(inputRegistry))
                 {
                     return [];
                 }
@@ -760,7 +762,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             List<CompletionItem> completions = new();
 
-            var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders);
+            var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders, inputRegistry); //asdfg2
             foreach (var (registry, moduleName, description, documentationUri) in modules)
             {
                 //asdfg remove?

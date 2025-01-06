@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text.Json;
 using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 
 namespace Bicep.Core.Registry.PublicRegistry;
 
@@ -49,7 +50,7 @@ public abstract class RegistryModuleMetadataProviderBase : IRegistryModuleMetada
     }
     public async Task<bool> TryUpdateCacheAsync()
     {
-        if (await TryGetLiveDataAsync() is { } modules)
+        if (await TryGetLiveDataAsync() is { } modules) //asdfg handle null?
         {
             this.cachedModules = modules;
             this.lastSuccessfulQuery = DateTime.Now;
@@ -69,11 +70,11 @@ public abstract class RegistryModuleMetadataProviderBase : IRegistryModuleMetada
     }
 
     // If cache has not yet successfully been updated, returns empty
-    public ImmutableArray<RegistryModuleMetadata> GetModules()
+    public ImmutableArray<RegistryModuleMetadata> GetModules(string registry)
     {
         StartCacheUpdateInBackgroundIfNeeded();
 
-        return [.. cachedModules.Select(x => x.RegistryModuleMetadata)];
+        return [.. cachedModules.Where(x => x.RegistryModuleMetadata.Registry.Equals(registry, StringComparison.Ordinal)) .Select(x => x.RegistryModuleMetadata)];
     }
 
     public ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersions(string registry, string modulePath)

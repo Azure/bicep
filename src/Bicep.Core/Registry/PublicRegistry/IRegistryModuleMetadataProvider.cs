@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Microsoft.Win32;
 
 namespace Bicep.Core.Registry.PublicRegistry;
 
@@ -16,7 +17,7 @@ public readonly record struct RegistryModuleVersionMetadata(
     string? Description,
     string? DocumentationUri);
 
-public interface IRegistryModuleMetadataProvider //asdfg?           asdfg rename IOci...?
+public interface IRegistryModuleMetadataProvider //asdfg?           asdfg rename IOci...?         rename so it's clear it's intended to have multiple service implementations?
 {
     bool IsCached { get; }
 
@@ -26,13 +27,13 @@ public interface IRegistryModuleMetadataProvider //asdfg?           asdfg rename
 
     void StartUpdateCache(bool forceUpdate = false);
 
-    ImmutableArray<RegistryModuleMetadata> GetModules();
+    ImmutableArray<RegistryModuleMetadata> GetModules(string registry);
 
     ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersions(string registry, string modulePath);
 
-    public static ImmutableArray<RegistryModuleMetadata> GetModules(IRegistryModuleMetadataProvider[] providers)
+    public static ImmutableArray<RegistryModuleMetadata> GetModules(IRegistryModuleMetadataProvider[] providers, string registry)
     {
-        return [.. providers.SelectMany(x => x.GetModules())];
+        return [.. providers.SelectMany(x => x.GetModules(registry))];
     }
 
     public static ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersions(IRegistryModuleMetadataProvider[] providers, string registry, string modulePath)

@@ -14,7 +14,10 @@ using Semver.Comparers;
 
 namespace Bicep.Core.Registry.PublicRegistry;
 
-//asdfg public readonly record struct PublicRegistryModuleProperties(string Description, string DocumentationUri);
+public interface IAcrRegistryModuleCatalogClient
+{
+    Task<ImmutableArray<string>?> TryGetCatalog(string loginServer);
+}
 
 public class AcrRegistryModuleCatalogClient(HttpClient httpClient) : IAcrRegistryModuleCatalogClient
 {
@@ -40,7 +43,7 @@ public class AcrRegistryModuleCatalogClient(HttpClient httpClient) : IAcrRegistr
         }
         catch (Exception e)
         {
-            Trace.TraceError(string.Format("asdfgError retrieving MCR modules metadata: {0}", e.Message));
+            Trace.TraceError(string.Format("asdfgError retrieving MCR modules metadata: {0}", e.Message)); //asdfg add server name
             return null;
         }
     }
@@ -94,8 +97,3 @@ public class AcrRegistryModuleCatalogClient(HttpClient httpClient) : IAcrRegistr
 //        }
 //    }
 //}
-
-public interface IAcrRegistryModuleCatalogClient
-{
-    Task<ImmutableArray<string>?> TryGetCatalog(string loginServer);
-}

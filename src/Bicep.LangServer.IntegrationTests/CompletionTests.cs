@@ -4127,15 +4127,17 @@ var file = " + functionName + @"(templ|)
 
         //asdfg existing test
         [DataTestMethod]
-        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.BicepFile)]
-        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.BicepFile)]
-        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br/public:|'", BicepSourceFileKind.BicepFile)]
-        /* asdfg GetPublicModuleCompletions */ [DataRow("module test 'br/public:|", BicepSourceFileKind.BicepFile)]
-        /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.ParamsFile)]
-        /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.ParamsFile)]
-        /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br/public:|'", BicepSourceFileKind.ParamsFile)]
+        // asdfg (used to) calls GetPublicModuleCompletions
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:|", BicepSourceFileKind.BicepFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br/public:|'", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br/public:|", BicepSourceFileKind.ParamsFile)]
         //asdfg consider renaming similar to Public_registry_completions_support_prefix_matching
+        //asdfg private registries
         public async Task ModuleRegistryReferenceCompletions_GetPathCompletions_PublicRegistries(string inputWithCursors, BicepSourceFileKind kind)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
@@ -4146,7 +4148,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).Returns([PublicModuleMetadata("app/dapr-containerapp", "d1", "contoso.com/help1"), PublicModuleMetadata("app/dapr-containerapp-env", "d2", "contoso.com/help2")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules("mcr.microsoft.com")).Returns([PublicModuleMetadata("app/dapr-containerapp", "d1", "contoso.com/help1"), PublicModuleMetadata("app/dapr-containerapp-env", "d2", "contoso.com/help2")]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -4181,7 +4183,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).Returns([PublicModuleMetadata("app/dapr-containerapp", "d1", "contoso.com/help1")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules("mcr.microsoft.com")).Returns([PublicModuleMetadata("app/dapr-containerapp", "d1", "contoso.com/help1")]);
             //asdfg dup publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersions(LanguageConstants.BicepPublicMcrRegistry, "bicep/app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
 
@@ -4219,7 +4221,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).Returns([PublicModuleMetadata("foo/bar", "d1", "contoso.com/help1"), PublicModuleMetadata("food/bar", "d2", "contoso.com/help2"), PublicModuleMetadata("bar/bar", "d2", "contoso.com/help2")]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules("mcr.microsoft.com")).Returns([PublicModuleMetadata("foo/bar", "d1", "contoso.com/help1"), PublicModuleMetadata("food/bar", "d2", "contoso.com/help2"), PublicModuleMetadata("bar/bar", "d2", "contoso.com/help2")]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
