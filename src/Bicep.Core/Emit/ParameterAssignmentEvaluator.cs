@@ -155,11 +155,11 @@ public class ParameterAssignmentEvaluator
 
         EmitterContext context = new(model);
         this.converter = new(context);
-        this.importsByName = context.ImportClosureInfo.ImportedSymbolNames.Keys
-            .Select(importedVariable => (context.ImportClosureInfo.ImportedSymbolNames[importedVariable], importedVariable))
+        this.importsByName = context.SemanticModel.ImportClosureInfo.ImportedSymbolNames.Keys
+            .Select(importedVariable => (context.SemanticModel.ImportClosureInfo.ImportedSymbolNames[importedVariable], importedVariable))
             .GroupBy(x => x.Item1, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First().importedVariable, LanguageConstants.IdentifierComparer);
-        this.wildcardImportPropertiesByName = context.ImportClosureInfo.WildcardImportPropertyNames
+        this.wildcardImportPropertiesByName = context.SemanticModel.ImportClosureInfo.WildcardImportPropertyNames
             .GroupBy(x => x.Value, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First().Key, LanguageConstants.IdentifierComparer);
         this.synthesizedVariableValuesByName = context.FunctionVariables.Values
