@@ -110,7 +110,7 @@ namespace Bicep.Core.Emit
 
                 case ImportedUserDefinedFunctionCallExpression importedFunction:
                     {
-                        var (namespaceName, functionName) = GetFunctionName(context.ImportClosureInfo.ImportedSymbolNames[importedFunction.Symbol]);
+                        var (namespaceName, functionName) = GetFunctionName(context.SemanticModel.ImportClosureInfo.ImportedSymbolNames[importedFunction.Symbol]);
                         return CreateFunction(
                             $"{namespaceName}.{functionName}",
                             importedFunction.Parameters.Select(ConvertExpression));
@@ -119,7 +119,7 @@ namespace Bicep.Core.Emit
                 case WildcardImportInstanceFunctionCallExpression importedFunction:
                     {
                         var (namespaceName, functionName) = GetFunctionName(
-                            context.ImportClosureInfo.WildcardImportPropertyNames[new(importedFunction.ImportSymbol, importedFunction.MethodName)]);
+                            context.SemanticModel.ImportClosureInfo.WildcardImportPropertyNames[new(importedFunction.ImportSymbol, importedFunction.MethodName)]);
                         return CreateFunction(
                             $"{namespaceName}.{functionName}",
                             importedFunction.Parameters.Select(ConvertExpression));
@@ -167,11 +167,11 @@ namespace Bicep.Core.Emit
                     return CreateFunction("variables", new JTokenExpression(exp.Name));
 
                 case ImportedVariableReferenceExpression exp:
-                    return CreateFunction("variables", new JTokenExpression(context.ImportClosureInfo.ImportedSymbolNames[exp.Variable]));
+                    return CreateFunction("variables", new JTokenExpression(context.SemanticModel.ImportClosureInfo.ImportedSymbolNames[exp.Variable]));
 
                 case WildcardImportVariablePropertyReferenceExpression exp:
                     return CreateFunction("variables",
-                    new JTokenExpression(context.ImportClosureInfo.WildcardImportPropertyNames[new(exp.ImportSymbol, exp.PropertyName)]));
+                    new JTokenExpression(context.SemanticModel.ImportClosureInfo.WildcardImportPropertyNames[new(exp.ImportSymbol, exp.PropertyName)]));
 
                 case ParametersReferenceExpression exp:
                     return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
