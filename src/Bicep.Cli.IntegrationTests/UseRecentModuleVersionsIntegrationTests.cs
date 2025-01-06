@@ -96,7 +96,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         // compile and publish modules using throwaway file system
         var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
             new MockFileSystem(),
-            options.PublishedModules.Select(x => (x, "", true)).ToArray());
+            [.. options.PublishedModules.Select(x => (x, "", true))]);
 
         // create files
         var mainFile = FileHelper.SaveResultFile(TestContext, "main.bicep", options.Bicep, testOutputPath);
