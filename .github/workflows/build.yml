@@ -449,6 +449,10 @@ jobs:
           name: bicep-nupkg-any
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
 
+      - name: Install mono
+        run: sudo apt update && sudo apt install mono-complete
+        if: ${{ matrix.rid == 'linux-x64' || matrix.rid == 'linux-arm64' }}
+
       - name: Build CLI Package
         run: dotnet build --configuration Release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
 
