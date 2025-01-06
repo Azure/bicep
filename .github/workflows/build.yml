@@ -386,7 +386,7 @@ jobs:
           - os: windows-latest
             rid: win-x64
             runTests: true
-          - os: ubuntu-latest
+          - os: windows-latest
             rid: linux-x64
             runTests: true
           - os: macos-latest
@@ -395,7 +395,7 @@ jobs:
           - os: windows-latest
             rid: win-arm64
             runTests: false
-          - os: ubuntu-latest
+          - os: windows-latest
             rid: linux-arm64
             runTests: false
           - os: macos-latest
