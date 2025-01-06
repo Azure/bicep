@@ -386,7 +386,7 @@ jobs:
           - os: windows-latest
             rid: win-x64
             runTests: true
-          - os: windows-latest
+          - os: ubuntu-latest
             rid: linux-x64
             runTests: true
           - os: macos-latest
@@ -395,7 +395,7 @@ jobs:
           - os: windows-latest
             rid: win-arm64
             runTests: false
-          - os: windows-latest
+          - os: ubuntu-latest
             rid: linux-arm64
             runTests: false
           - os: macos-latest
@@ -410,6 +410,8 @@ jobs:
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.404'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
