@@ -520,9 +520,8 @@ namespace Bicep.LangServer.UnitTests.Completions
 
         [DataTestMethod]
         [DataRow("module test 'br:my.own.acr.com/bicep/|'", "bicep/modules/module1", "'br:my.own.acr.com/bicep/modules/module1:$0'", "bicep/modules/module2", "'br:my.own.acr.com/bicep/modules/module2:$0'", 38)]
-
-        asdfg
-        //[DataRow("module test 'br:mcr.microsoft.com/bicep/|", "app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 40)]
+        [DataRow("module test 'br:my.own.acr.com/bicep/|", "bicep/modules/module1", "'br:my.own.acr.com/bicep/modules/module1:$0'", "bicep/modules/module2", "'br:my.own.acr.com/bicep/modules/module2:$0'", 37)]
+        //asdfg aliases
         //[DataRow("module test 'br/public:|'", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 24)]
         //[DataRow("module test 'br/public:|", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 23)]
         public async Task GetFilteredCompletions_ForPrivateModule_ReturnsCompletionItems(
