@@ -118,7 +118,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static IEnumerable<Failure> AnalyzeBicepModule(PublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
         {
-            var availableVersions = publicRegistryModuleMetadataProvider.GetModuleVersions(publicModulePath/*asdfg does this contain LanguageConstants.McrRepositoryPrefix prefix?*/)
+            var availableVersions = publicRegistryModuleMetadataProvider.GetCachedModuleVersions(publicModulePath/*asdfg does this contain LanguageConstants.McrRepositoryPrefix prefix?*/)
                 .Select(v => v.Version)
                 .ToArray();
             if (availableVersions.Length == 0)

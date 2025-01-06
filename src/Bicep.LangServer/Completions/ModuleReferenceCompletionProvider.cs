@@ -92,8 +92,8 @@ namespace Bicep.LanguageServer.Completions
                 var trimmedReplacementText = replacementText.Trim('\'');
 
                 var replacementsRequiringStartingQuote =
-                    GetOciModuleCompletions(context, trimmedReplacementText, sourceFileUri)
-                    .Concat(GetPublicModuleVersionCompletions(context, trimmedReplacementText, sourceFileUri))
+                    (await GetOciModuleCompletions(context, trimmedReplacementText, sourceFileUri))
+                    .Concat(await GetPublicModuleVersionCompletions(context, trimmedReplacementText, sourceFileUri))
                     .Concat(await GetAllRegistryNameAndAliasCompletions(context, trimmedReplacementText, sourceFileUri, cancellationToken));
 
                 completions = [
@@ -204,7 +204,7 @@ namespace Bicep.LanguageServer.Completions
         //   br:mcr.microsoft/bicep/module/name:<CURSOR>
         //
         // etc
-        private IEnumerable<CompletionItem> GetPublicModuleVersionCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg change this to be public/private agnostic
+        private async Task<IEnumerable<CompletionItem>> GetPublicModuleVersionCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg change this to be public/private agnostic
         {
             if (!IsOciArtifactRegistryReference(trimmedText))
             {
@@ -235,7 +235,7 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            var versionsMetadata = registryModuleIndexer.GetRegistry(LanguageConstants.BicepPublicMcrRegistry/*asdfg generalize*/)
+            var versionsMetadata = await registryModuleIndexer.GetRegistry(LanguageConstants.BicepPublicMcrRegistry)
                 .GetModuleVersions($"{LanguageConstants.BicepPublicMcrPathPrefix}{modulePath}");
 
             for (int i = versionsMetadata.Length - 1; i >= 0; i--)
@@ -314,7 +314,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles remote (OCI) module path completions, e.g. br: and br/
-        private IEnumerable<CompletionItem> GetOciModuleCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg rename?
+        private async Task<IEnumerable<CompletionItem>> GetOciModuleCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg rename?
         {
             if (!IsOciArtifactRegistryReference(trimmedText))
             {
@@ -322,9 +322,9 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return [
-                .. GetModuleCompletions(trimmedText, context, sourceFileUri),
+                .. await GetModuleCompletions(trimmedText, context, sourceFileUri),
                 .. GetPartialPrivatePathCompletionsFromAliases(trimmedText, context, sourceFileUri),
-                .. GetPublicPathCompletionFromAliases(trimmedText, context, sourceFileUri),
+                .. await GetPublicPathCompletionFromAliases(trimmedText, context, sourceFileUri),
             ];
         }
 
@@ -444,7 +444,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
 
         // Handles path completions for case where user has specified an alias in bicepconfig.json with registry set to "mcr.microsoft.com".
-        private IEnumerable<CompletionItem> GetPublicPathCompletionFromAliases(string trimmedText, BicepCompletionContext context, Uri sourceFileUri) //asdfg rewrite or remove
+        private async Task<IEnumerable<CompletionItem>> GetPublicPathCompletionFromAliases(string trimmedText, BicepCompletionContext context, Uri sourceFileUri) //asdfg rewrite or remove
         {
             List<CompletionItem> completions = new();
 
@@ -486,7 +486,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal)) //asdfg?
                             {
-                                var modules = registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModules();//asdfg testpoint
+                                var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModules();//asdfg testpoint
                                 foreach (var (registry, moduleName, description, documentationUri) in modules)
                                 {
                                     //asdfg make sure registry is inputRegistry?
@@ -527,7 +527,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = TrimStart(modulePath, LanguageConstants.BicepPublicMcrPathPrefix);
-                            var modules = registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModules(); //asdfg testpoint
+                            var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModules(); //asdfg testpoint
 
                             var matchingModules = modules.Where(x => x.ModuleName.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -712,7 +712,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
         //   br/public:<CURSOR>
         // or
         //   br:mcr.microsoft.com/bicep/:<CURSOR>
-        private IEnumerable<CompletionItem> GetModuleCompletions(string trimmedText, BicepCompletionContext context, Uri sourceFileUri)//asdfgasdfgasdfg
+        private async Task<IEnumerable<CompletionItem>> GetModuleCompletions(string trimmedText, BicepCompletionContext context, Uri sourceFileUri)//asdfgasdfgasdfg
         {
             string? alias = null;
             string? inputPath = null;
@@ -760,7 +760,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             List<CompletionItem> completions = new();
 
-            var modules = registryModuleIndexer.GetRegistry(inputRegistry).GetModules(); //asdfg2
+            var modules = await registryModuleIndexer.GetRegistry(inputRegistry).GetModules(); //asdfg2
             foreach (var (registry, moduleName, description, documentationUri) in modules)
             {
                 //asdfg remove?

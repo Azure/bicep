@@ -44,9 +44,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string? downloadError = null)
         {
             var publicRegistryModuleMetadataProvider = StrictMock.Of<PublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()) //asdfg extend to private?
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()) //asdfg extend to private?
                 .Returns([.. availableModules.Select(m => PublicRegistryModuleMetadataProvider.GetPublicRegistryModuleMetadata(m, null, null))]); // asdfg extend to private modules?
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersions(It.IsAny<string>()))
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions(It.IsAny<string>()))
                 .Returns((string registry, string module) =>
                 {
                     return availableModules.Contains(module) ?
