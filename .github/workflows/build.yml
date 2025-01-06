@@ -398,7 +398,7 @@ jobs:
           - os: ubuntu-latest
             rid: linux-arm64
             runTests: false
-          - os: ubuntu-latest
+          - os: macos-latest
             rid: osx-arm64
             runTests: false
 
@@ -410,8 +410,6 @@ jobs:
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: global.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
