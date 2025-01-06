@@ -236,7 +236,7 @@ namespace Bicep.LanguageServer.Completions
             List<CompletionItem> completions = new();
 
             var versionsMetadata = await registryModuleIndexer.GetRegistry(LanguageConstants.BicepPublicMcrRegistry)
-                .GetModuleVersions($"{LanguageConstants.BicepPublicMcrPathPrefix}{modulePath}");
+                .GetModuleVersionsAsync($"{LanguageConstants.BicepPublicMcrPathPrefix}{modulePath}");
 
             for (int i = versionsMetadata.Length - 1; i >= 0; i--)
             {
@@ -486,7 +486,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal)) //asdfg?
                             {
-                                var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModules();//asdfg testpoint
+                                var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModulesAsync();//asdfg testpoint
                                 foreach (var (registry, moduleName, description, documentationUri) in modules)
                                 {
                                     //asdfg make sure registry is inputRegistry?
@@ -527,7 +527,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = TrimStart(modulePath, LanguageConstants.BicepPublicMcrPathPrefix);
-                            var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModules(); //asdfg testpoint
+                            var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModulesAsync(); //asdfg testpoint
 
                             var matchingModules = modules.Where(x => x.ModuleName.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -760,7 +760,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             List<CompletionItem> completions = new();
 
-            var modules = await registryModuleIndexer.GetRegistry(inputRegistry).GetModules(); //asdfg2
+            var modules = await registryModuleIndexer.GetRegistry(inputRegistry).GetModulesAsync(); //asdfg2
             foreach (var (registry, moduleName, description, documentationUri) in modules)
             {
                 //asdfg remove?

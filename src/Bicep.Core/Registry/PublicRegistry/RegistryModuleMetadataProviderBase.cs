@@ -15,11 +15,11 @@ using System.Threading.Tasks;
 namespace Bicep.Core.Registry.PublicRegistry;
 
 /// <summary>
-/// Provider to get modules metadata that we store at a public endpoint.
+/// Provider to get metadata for modules stored in a public or private registry.
 /// </summary>
 public abstract class RegistryModuleMetadataProviderBase(
     string registry
-) : IRegistryModuleMetadataProvider //asdfg rename     asdfg refactor cache portion?
+) : IRegistryModuleMetadataProvider
 {
     private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
     private readonly TimeSpan InitialThrottleDelay = TimeSpan.FromSeconds(5);
@@ -33,11 +33,12 @@ public abstract class RegistryModuleMetadataProviderBase(
     protected string Registry => registry;
 
     protected record CachedModule(
-        RegistryModuleMetadata RegistryModuleMetadata,
-        // Using array instead of dictionary to preserve sort order of versions
-        ImmutableArray<RegistryModuleVersionMetadata>RegistryModuleVersionMetadata);
+        RegistryModuleMetadata RegistryModuleMetadata,        
+        ImmutableArray<RegistryModuleVersionMetadata> RegistryModuleVersionMetadata // Using array instead of dictionary to preserve sort order
+    );
 
-    private ImmutableArray<CachedModule> cachedModules = []; //asdfg dicvtionary?
+    // Using array instead of dictionary to preserve sort order
+    private ImmutableArray<CachedModule> cachedModules = [];
     private string? lastDownloadError = null;
 
     public bool IsCached => cachedModules.Length > 0;
@@ -46,7 +47,7 @@ public abstract class RegistryModuleMetadataProviderBase(
 
     public Task TryAwaitCache(bool forceUpdate)
     {
-        return UpdateCacheIfNeeded(forceUpdate: forceUpdate, initialDelay: false);
+        return UpdateCacheIfNeededAsync(forceUpdate: forceUpdate, initialDelay: false);
     }
 
     public void StartUpdateCache(bool forceUpdate)
@@ -75,54 +76,42 @@ public abstract class RegistryModuleMetadataProviderBase(
     }
 
     // If cache has not yet successfully been updated, returns empty
-    public async Task<ImmutableArray<RegistryModuleMetadata>> GetModules()
+    public async Task<ImmutableArray<RegistryModuleMetadata>> GetModulesAsync()
     {
-        //asdfg StartCacheUpdateInBackgroundIfNeeded();
-        await TryAwaitCache(forceUpdate: false);//asdfg??
-
+        await TryAwaitCache(forceUpdate: false);
         return GetCachedModules();
     }
 
     // If cache has not yet successfully been updated, returns empty
     public ImmutableArray<RegistryModuleMetadata> GetCachedModules()
     {
-        //asdfg StartCacheUpdateInBackgroundIfNeeded();
         return [.. cachedModules.Where(x => x.RegistryModuleMetadata.Registry.Equals(Registry, StringComparison.Ordinal)).Select(x => x.RegistryModuleMetadata)];
     }
 
-    public async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetModuleVersions(string modulePath)
+    public async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetModuleVersionsAsync(string modulePath)
     {
-        //asdfg???  StartCacheUpdateInBackgroundIfNeeded();
-        await TryAwaitCache(forceUpdate: false);//asdfg??
-
+        await TryAwaitCache(forceUpdate: false);
         return GetCachedModuleVersions(modulePath);
     }
 
     public ImmutableArray<RegistryModuleVersionMetadata> GetCachedModuleVersions(string modulePath)
     {
-        //asdfg??? StartCacheUpdateInBackgroundIfNeeded();
         return TryGetCachedModule(modulePath)?.RegistryModuleVersionMetadata.ToImmutableArray() ?? [];
     }
 
-    //asdfg
-    //private void StartCacheUpdateInBackgroundIfNeeded(bool initialDelay = false)
-    //{
-    //    _ = UpdateCacheIfNeeded(forceUpdate: false, initialDelay);
-    //}
-
-    private Task UpdateCacheIfNeeded(bool forceUpdate, bool initialDelay)
+    private Task UpdateCacheIfNeededAsync(bool forceUpdate, bool initialDelay)
     {
         if (!this.cachedModules.Any())
         {
-            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: First data retrieval...");
+            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] First data retrieval...");
         }
         else if (forceUpdate)
         {
-            Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Force updating cache...");
+            Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] Force updating cache...");
         }
         else if (IsCacheExpired())
         {
-            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: Cache expired, updating...");
+            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] Cache expired, updating...");
         }
         else
         {
@@ -159,7 +148,7 @@ public abstract class RegistryModuleMetadataProviderBase(
 
                     if (delay > 0)
                     {
-                        Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Delaying {delay} before retry...");
+                        Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] Delaying {delay} before retry...");
                         await Task.Delay(delay);
                     }
 
@@ -176,7 +165,7 @@ public abstract class RegistryModuleMetadataProviderBase(
                 {
                     lock (this.queryingLiveSyncObject)
                     {
-                        Trace.Assert(this.queryLiveDataTask is { }, $"{nameof(PublicRegistryModuleMetadataProvider)}: should be querying live data");
+                        Trace.Assert(this.queryLiveDataTask is { }, $"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] Should be querying live data");
                         this.queryLiveDataTask = null;
                     }
                 }
@@ -189,7 +178,7 @@ public abstract class RegistryModuleMetadataProviderBase(
         var expired = this.lastSuccessfulQuery.HasValue && this.lastSuccessfulQuery.Value + this.CacheValidFor < DateTime.Now;
         if (expired)
         {
-            Trace.TraceInformation($"{nameof(PublicRegistryModuleMetadataProvider)}: Public asdfg modules cache is expired.");
+            Trace.TraceInformation($"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] Cache has expired.");
         }
 
         return expired;
@@ -210,7 +199,7 @@ public abstract class RegistryModuleMetadataProviderBase(
         }
     }
 
-    public static TimeSpan GetExponentialDelay(TimeSpan initialDelay, int consecutiveFailures, TimeSpan maxDelay) //asdfg move
+    public static TimeSpan GetExponentialDelay(TimeSpan initialDelay, int consecutiveFailures, TimeSpan maxDelay)
     {
         var maxFailuresToConsider = (int)Math.Ceiling(Math.Log(maxDelay.TotalSeconds, 2)); // Avoid overflow on Math.Pow()
         var secondsDelay = initialDelay.TotalSeconds * Math.Pow(2, Math.Min(consecutiveFailures, maxFailuresToConsider));

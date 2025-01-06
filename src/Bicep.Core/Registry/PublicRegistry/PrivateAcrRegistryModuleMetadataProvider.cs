@@ -35,7 +35,7 @@ namespace Bicep.Core.Registry.PublicRegistry;//asdfg rename folder/namespace Pub
 //}
 
 /// <summary>
-/// Provider to get modules metadata that we store at a public endpoint.
+/// Provider to get modules metadata from a private ACR registry
 /// </summary>
 public class PrivateAcrRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase, IRegistryModuleMetadataProvider
 {
