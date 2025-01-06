@@ -12,6 +12,7 @@ using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
@@ -37,6 +38,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
         private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
         private readonly Lazy<EmitterSettings> emitterSettingsLazy;
+        private readonly Lazy<ImportClosureInfo> importClosureInfoLazy;
 
         // needed to support param file go to def
         private readonly Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterMetadata?>> declarationsByAssignment;
@@ -89,6 +91,7 @@ namespace Bicep.Core.Semantics
 
             this.emitterSettingsLazy = new(() => new(this));
             this.emitLimitationInfoLazy = new(() => EmitLimitationCalculator.Calculate(this));
+            this.importClosureInfoLazy = new(() => ImportClosureInfo.Calculate(this));
             this.symbolHierarchyLazy = new(() =>
             {
                 var hierarchy = new SymbolHierarchy();
@@ -241,6 +244,8 @@ namespace Bicep.Core.Semantics
         public IDiagnosticLookup ParsingErrorLookup => this.SourceFile.ParsingErrorLookup;
 
         public EmitLimitationInfo EmitLimitationInfo => emitLimitationInfoLazy.Value;
+
+        public ImportClosureInfo ImportClosureInfo => importClosureInfoLazy.Value;
 
         public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
 
