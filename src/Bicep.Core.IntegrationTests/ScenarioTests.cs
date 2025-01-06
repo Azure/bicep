@@ -6632,6 +6632,37 @@ var subnetId = vNet::subnets[0].id
         ]);
     }
 
+    [TestMethod]
+    public void Test_Issue14838()
+    {
+        var result = CompilationHelper.Compile("""
+            var data = [
+              {
+                name: 'foo'
+                parallelism: 2
+              }
+              {
+                name: 'bar'
+                parallelism: 0
+              }
+              {
+                name: 'baz'
+                parallelism: 0
+              }
+            ]
+
+            var size = 4
+            var parallelisms = map(data, org => org.parallelism)
+            var allocated = reduce(parallelisms, 0, (sum, parallelism) => sum + parallelism)
+            var count = reduce(parallelisms, 0, (sum, parallelism) => parallelism == 0 ? sum + 1 : sum)
+
+            output remaining int = (size - allocated) / count
+            output extra int = (size - allocated) % count
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
     // https://www.github.com/Azure/bicep/issues/14067
     [TestMethod]
     public void Fail_function_should_be_usable_anywhere_the_expression_will_be_evaluated_at_runtime()
