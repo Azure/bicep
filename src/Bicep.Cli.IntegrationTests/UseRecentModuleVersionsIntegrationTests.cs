@@ -40,7 +40,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
 
     private class Options(string CacheRoot)
     {
-        private IPublicRegistryModuleIndexClient? _metadataClient = null;
+        private PublicRegistryModuleIndexHttpClient? _metadataClient = null;
         private string? _config = null;
 
         public string Bicep { get; init; } = "/* bicep contents */";
@@ -74,7 +74,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         }
 
         // Automatically created from ModulesMetadata by default
-        public IPublicRegistryModuleIndexClient MetadataClient
+        public PublicRegistryModuleIndexHttpClient MetadataClient
         {
             set
             {

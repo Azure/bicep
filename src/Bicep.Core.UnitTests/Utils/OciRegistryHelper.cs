@@ -91,7 +91,7 @@ namespace Bicep.Core.UnitTests.Utils
                 clientFactory.Object,
                 featureProvider,
                 BicepTestConstants.BuiltInConfiguration,
-                StrictMock.Of<IRegistryModuleMetadataProvider>().Object,
+                StrictMock.Of<PublicRegistryModuleMetadataProvider>().Object,
                 parentModuleUri);
 
             return (registry, blobClient);

@@ -8,9 +8,14 @@ using Bicep.Core.Registry.Oci;
 using Semver;
 using Semver.Comparers;
 
-namespace Bicep.Core.Registry.PublicRegistry;
+namespace Bicep.Core.Registry.PublicRegistry; //asdfg rename to Registry.Acr?  Oci?  Modules?
 
 public readonly record struct PublicRegistryModuleProperties(string Description, string DocumentationUri);
+
+public interface PublicRegistryModuleIndexHttpClient
+{
+    Task<ImmutableArray<PublicRegistryModuleIndexEntry>> GetModuleIndexAsync();
+}
 
 public record PublicRegistryModuleIndexEntry( //asdfg rename
     [property: JsonPropertyName("moduleName")] string ModulePath, // e.g. "avm/app/dapr-containerapp"
@@ -58,9 +63,4 @@ public record PublicRegistryModuleIndexEntry( //asdfg rename
             return this.PropertiesByTag.TryGetValue(version, out var propertiesEntry) ? propertySelector(propertiesEntry) : null;
         }
     }
-}
-
-public interface IPublicRegistryModuleIndexClient
-{
-    Task<ImmutableArray<PublicRegistryModuleIndexEntry>> GetModuleIndexAsync();
 }

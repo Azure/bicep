@@ -32,7 +32,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly IAzureContainerRegistriesProvider azureContainerRegistriesProvider;
 
         private readonly IConfigurationManager configurationManager;
-        private readonly IRegistryModuleMetadataProvider[] registryModuleMetadataProviders;
+        private readonly IRegistryModuleIndexer registryModuleIndexer;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
         //asdfg private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
@@ -63,14 +63,14 @@ namespace Bicep.LanguageServer.Completions
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
             //asdfg IContainerRegistryClientFactory containerRegistryClientFactory,
             IConfigurationManager configurationManager,
-            IRegistryModuleMetadataProvider[] registryModuleMetadataProviders,
+            IRegistryModuleIndexer registryModuleIndexer,
             ISettingsProvider settingsProvider,
             ITelemetryProvider telemetryProvider)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
             //asdfg this.containerRegistryClientFactory = containerRegistryClientFactory;
             this.configurationManager = configurationManager;
-            this.registryModuleMetadataProviders = registryModuleMetadataProviders;
+            this.registryModuleIndexer = registryModuleIndexer;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
         }
@@ -204,7 +204,7 @@ namespace Bicep.LanguageServer.Completions
         //   br:mcr.microsoft/bicep/module/name:<CURSOR>
         //
         // etc
-        private IEnumerable<CompletionItem> GetPublicModuleVersionCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg
+        private IEnumerable<CompletionItem> GetPublicModuleVersionCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg change this to be public/private agnostic
         {
             if (!IsOciArtifactRegistryReference(trimmedText))
             {
@@ -235,10 +235,8 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            var versionsMetadata = IRegistryModuleMetadataProvider.GetModuleVersions(
-                registryModuleMetadataProviders,
-                LanguageConstants.BicepPublicMcrRegistry,
-                $"{LanguageConstants.BicepPublicMcrPathPrefix}{modulePath}");//asdfg
+            var versionsMetadata = registryModuleIndexer.GetRegistry(LanguageConstants.BicepPublicMcrRegistry/*asdfg generalize*/)
+                .GetModuleVersions($"{LanguageConstants.BicepPublicMcrPathPrefix}{modulePath}");
 
             for (int i = versionsMetadata.Length - 1; i >= 0; i--)
             {
@@ -488,7 +486,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal)) //asdfg?
                             {
-                                var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders, PublicMcrRegistry);//asdfg testpoint
+                                var modules = registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModules();//asdfg testpoint
                                 foreach (var (registry, moduleName, description, documentationUri) in modules)
                                 {
                                     //asdfg make sure registry is inputRegistry?
@@ -529,7 +527,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = TrimStart(modulePath, LanguageConstants.BicepPublicMcrPathPrefix);
-                            var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders, PublicMcrRegistry); //asdfg testpoint
+                            var modules = registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModules(); //asdfg testpoint
 
                             var matchingModules = modules.Where(x => x.ModuleName.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -762,7 +760,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             List<CompletionItem> completions = new();
 
-            var modules = IRegistryModuleMetadataProvider.GetModules(registryModuleMetadataProviders, inputRegistry); //asdfg2
+            var modules = registryModuleIndexer.GetRegistry(inputRegistry).GetModules(); //asdfg2
             foreach (var (registry, moduleName, description, documentationUri) in modules)
             {
                 //asdfg remove?

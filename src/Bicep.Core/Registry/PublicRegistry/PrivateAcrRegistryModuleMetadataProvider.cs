@@ -37,40 +37,38 @@ namespace Bicep.Core.Registry.PublicRegistry;//asdfg rename folder/namespace Pub
 /// <summary>
 /// Provider to get modules metadata that we store at a public endpoint.
 /// </summary>
-public class AcrRegistryModuleMetadataProvider(
-    IContainerRegistryClientFactory containerRegistryClientFactory, //asdfg lifetime
-        // IAcrRegistryModuleCatalogClient acrRegistryModuleCatalogClient, //asdfg lifetime
-        IConfigurationManager configurationManager) : RegistryModuleMetadataProviderBase //asdfg rename PrivateAcr...
+public class PrivateAcrRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase, IRegistryModuleMetadataProvider
 {
-    //adsfg test only gets called when registry is fully completed in input string
+    private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
+    private readonly IConfigurationManager configurationManager;
+
+    public PrivateAcrRegistryModuleMetadataProvider(
+        string registry,
+        IContainerRegistryClientFactory containerRegistryClientFactory,
+        IConfigurationManager configurationManager)
+        : base(registry)
+    {
+        this.containerRegistryClientFactory = containerRegistryClientFactory;
+        this.configurationManager = configurationManager;
+    }
+
     protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
     {
-        Uri sourceFileUri = new("C:\\Users\\stephwe\\Downloads\\main.bicep"); //asdfg
-        string registry = "sawbiceppublic.azurecr.io"; //asdfg
+        Uri sourceFileUri = new("C:\\Users\\stephwe\\Downloads\\main.bicep");
         var filter = new Regex(""); //asdfg
-
-        if (registry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.InvariantCulture))
-        {
-            return []; //asdfg
-        }
-
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
         var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
-        var catalog = await acrManager.GetCatalogAsync(rootConfiguration, registry); //asdfg cache
+        var catalog = await acrManager.GetCatalogAsync(rootConfiguration, Registry);
         var modules = catalog
             .Where(m => filter.IsMatch(m))
             .Select(m =>
             new CachedModule(
-                new RegistryModuleMetadata(registry, m, "asdfg description", "asdfg documentation uri"),
+                new RegistryModuleMetadata(Registry, m, "asdfg description", "asdfg documentation uri"),
                 [new RegistryModuleVersionMetadata("1.2.3.4", null, null)]
             )
         ).ToImmutableArray();
 
-
-
-
-        //var modules = await acrRegistryModuleCatalogClient.TryGetCatalog(registry); //asdfgasdfg move to config
         return modules;
     }
 }

@@ -10,13 +10,16 @@ using System.Text.Json;
 using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
+using System.Threading.Tasks;
 
 namespace Bicep.Core.Registry.PublicRegistry;
 
 /// <summary>
 /// Provider to get modules metadata that we store at a public endpoint.
 /// </summary>
-public abstract class RegistryModuleMetadataProviderBase : IRegistryModuleMetadataProvider //asdfg rename     asdfg refactor cache portion?
+public abstract class RegistryModuleMetadataProviderBase(
+    string registry
+) : IRegistryModuleMetadataProvider //asdfg rename     asdfg refactor cache portion?
 {
     private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
     private readonly TimeSpan InitialThrottleDelay = TimeSpan.FromSeconds(5);
@@ -26,6 +29,8 @@ public abstract class RegistryModuleMetadataProviderBase : IRegistryModuleMetada
     private Task? queryLiveDataTask;
     private DateTime? lastSuccessfulQuery;
     private int consecutiveFailures = 0;
+
+    protected string Registry => registry;
 
     protected record CachedModule(
         RegistryModuleMetadata RegistryModuleMetadata,
@@ -62,26 +67,28 @@ public abstract class RegistryModuleMetadataProviderBase : IRegistryModuleMetada
         }
     }
 
-    private CachedModule? TryGetCachedModule(string registry, string modulePath)
+    private CachedModule? TryGetCachedModule(string modulePath)
     {
         return this.cachedModules.FirstOrDefault(x =>
-            x.RegistryModuleMetadata.Registry.Equals(registry, StringComparison.Ordinal)
+            x.RegistryModuleMetadata.Registry.Equals(Registry, StringComparison.Ordinal)
                 && x.RegistryModuleMetadata.ModuleName.Equals(modulePath, StringComparison.Ordinal));
     }
 
     // If cache has not yet successfully been updated, returns empty
-    public ImmutableArray<RegistryModuleMetadata> GetModules(string registry)
+    public async Task<ImmutableArray<RegistryModuleMetadata>> GetModules()
     {
-        StartCacheUpdateInBackgroundIfNeeded();
+        //asdfg StartCacheUpdateInBackgroundIfNeeded();
+        await TryAwaitCache(forceUpdate: false);//asdfg??
 
-        return [.. cachedModules.Where(x => x.RegistryModuleMetadata.Registry.Equals(registry, StringComparison.Ordinal)) .Select(x => x.RegistryModuleMetadata)];
+        return [.. cachedModules.Where(x => x.RegistryModuleMetadata.Registry.Equals(Registry, StringComparison.Ordinal)) .Select(x => x.RegistryModuleMetadata)];
     }
 
-    public ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersions(string registry, string modulePath)
+    public async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetModuleVersions(string modulePath)
     {
-        StartCacheUpdateInBackgroundIfNeeded();
+        //asdfg StartCacheUpdateInBackgroundIfNeeded();
+        await TryAwaitCache(forceUpdate: false);//asdfg??
 
-        return TryGetCachedModule(registry, modulePath)?.RegistryModuleVersionMetadata.ToImmutableArray() ?? [];
+        return TryGetCachedModule(modulePath)?.RegistryModuleVersionMetadata.ToImmutableArray() ?? [];
     }
 
     private void StartCacheUpdateInBackgroundIfNeeded(bool initialDelay = false)

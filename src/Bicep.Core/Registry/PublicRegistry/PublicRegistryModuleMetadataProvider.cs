@@ -11,14 +11,13 @@ using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry.PublicRegistry;
-//asdfg public interface IPublicRegistryModuleMetadataProvider : IRegistryModuleMetadataProvider { }
 
 /// <summary>
 /// Provider to get modules metadata that we store at a public endpoint.
 /// </summary>
-public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase
+public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase, IRegistryModuleMetadataProvider
 {
-    private readonly IPublicRegistryModuleIndexClient client;
+    private readonly PublicRegistryModuleIndexHttpClient client;
 
     //asdfg
     //private readonly object queryingLiveSyncObject = new();
@@ -26,7 +25,8 @@ public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProvid
     //private DateTime? lastSuccessfulQuery;
     //private int consecutiveFailures = 0;
 
-    public PublicRegistryModuleMetadataProvider(IPublicRegistryModuleIndexClient publicRegistryModuleIndexClient)
+    public PublicRegistryModuleMetadataProvider(PublicRegistryModuleIndexHttpClient publicRegistryModuleIndexClient)
+        : base(LanguageConstants.BicepPublicMcrRegistry)
     {
         this.client = publicRegistryModuleIndexClient;
     }

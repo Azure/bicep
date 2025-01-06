@@ -75,7 +75,7 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-        .AddPublicRegistryModuleMetadataProviderServices()
+        .AddRegistryIndexerServices()
         .AddSingleton<BicepCompiler>();
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services

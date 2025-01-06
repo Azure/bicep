@@ -27,17 +27,7 @@ public interface IRegistryModuleMetadataProvider //asdfg?           asdfg rename
 
     void StartUpdateCache(bool forceUpdate = false);
 
-    ImmutableArray<RegistryModuleMetadata> GetModules(string registry);
+    Task<ImmutableArray<RegistryModuleMetadata>> GetModules(); //asdfg or not Task??  Was originally not
 
-    ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersions(string registry, string modulePath);
-
-    public static ImmutableArray<RegistryModuleMetadata> GetModules(IRegistryModuleMetadataProvider[] providers, string registry)
-    {
-        return [.. providers.SelectMany(x => x.GetModules(registry))];
-    }
-
-    public static ImmutableArray<RegistryModuleVersionMetadata> GetModuleVersions(IRegistryModuleMetadataProvider[] providers, string registry, string modulePath)
-    {
-        return [.. providers.SelectMany(x => x.GetModuleVersions(registry, modulePath))];
-    }
+    Task<ImmutableArray<RegistryModuleVersionMetadata>> GetModuleVersions(string modulePath);
 }

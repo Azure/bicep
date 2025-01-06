@@ -15,23 +15,21 @@ namespace Bicep.Core.Registry.PublicRegistry
 {
     public static class OciRegistryModuleMetadataProviderExtensions
     {
-        public static IServiceCollection AddPublicRegistryModuleMetadataProviderServices(this IServiceCollection services)//asdfg rename
+        public static IServiceCollection AddRegistryIndexerServices(this IServiceCollection services)//asdfg rename
         {
-            services.AddSingleton<IRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
-            services.AddSingleton<IRegistryModuleMetadataProvider, AcrRegistryModuleMetadataProvider>();
-
-            services.AddSingleton<PublicRegistryModuleMetadataProvider>(); //asdfg don't do this - used keyed?
+            services.AddSingleton<PublicRegistryModuleMetadataProvider>();
+            services.AddSingleton<IRegistryModuleIndexer, RegistryModuleIndexer>();
 
             // using type based registration for Http clients so dependencies can be injected automatically
             // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
             services
-                .AddHttpClient<IPublicRegistryModuleIndexClient, PublicRegistryModuleMetadataClient>()
+                .AddHttpClient<PublicRegistryModuleIndexHttpClient, PublicRegistryModuleMetadataHttpClient>()
                 .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
                 {
                     AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
                 });
             services
-                .AddHttpClient<IAcrRegistryModuleCatalogClient, AcrRegistryModuleCatalogClient>()
+                .AddHttpClient<IOciCatalogHttpClient, OciCatalogHttpClient>()
                 .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
                 {
                     AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate

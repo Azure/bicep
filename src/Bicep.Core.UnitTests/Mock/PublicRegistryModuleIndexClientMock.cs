@@ -13,18 +13,18 @@ public static class PublicRegistryModuleIndexClientMock
 {
     // CONSIDER: Mock HttpClient rather than the typed client
 
-    public static Mock<IPublicRegistryModuleIndexClient> Create(IEnumerable<PublicRegistryModuleIndexEntry> metadata)
+    public static Mock<PublicRegistryModuleIndexHttpClient> Create(IEnumerable<PublicRegistryModuleIndexEntry> metadata)
     {
-        var mock = StrictMock.Of<IPublicRegistryModuleIndexClient>();
+        var mock = StrictMock.Of<PublicRegistryModuleIndexHttpClient>();
         mock
             .Setup(client => client.GetModuleIndexAsync())
             .ReturnsAsync(() => [.. metadata]);
         return mock;
     }
 
-    public static Mock<IPublicRegistryModuleIndexClient> CreateToThrow(Exception exception)
+    public static Mock<PublicRegistryModuleIndexHttpClient> CreateToThrow(Exception exception)
     {
-        var mock = StrictMock.Of<IPublicRegistryModuleIndexClient>();
+        var mock = StrictMock.Of<PublicRegistryModuleIndexHttpClient>();
         mock
             .Setup(client => client.GetModuleIndexAsync())
             .ThrowsAsync(exception);

@@ -35,14 +35,14 @@ namespace Bicep.Core.Registry
 
         private readonly IFeatureProvider features;
 
-        private readonly IRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
+        private readonly PublicRegistryModuleMetadataProvider/*asdfg or indexer?*/ publicRegistryModuleMetadataProvider;
 
         public OciArtifactRegistry(
             IFileResolver FileResolver,
             IContainerRegistryClientFactory clientFactory,
             IFeatureProvider features,
             RootConfiguration configuration,
-            IRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider, //asdfg should this be IRegistryModuleMetadataProvider?
+            PublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
             Uri parentModuleUri)
             : base(FileResolver)
         {
@@ -218,9 +218,9 @@ namespace Bicep.Core.Registry
 
         public override async Task OnRestoreArtifacts(bool forceRestore)
         {
-            // This is here because we don't want to run this code at all if we're running from the command line and --no-restore has been specified
+            // We call this here because we don't want to run this code at all if we're running from the command line and --no-restore has been specified.
             //asdfg use global options instead?
-            await publicRegistryModuleMetadataProvider.TryAwaitCache(forceRestore);
+            await publicRegistryModuleMetadataProvider.TryAwaitCache(forceRestore); //asdfg why are we waiting for the cache?
         }
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
