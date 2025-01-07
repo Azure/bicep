@@ -96,7 +96,7 @@ namespace Bicep.LanguageServer.Completions
 
                 var replacementsRequiringStartingQuote =
                     (await GetOciModuleCompletions(context, trimmedReplacementText, sourceFileUri))
-                    .Concat(await GetPublicModuleVersionCompletions(context, trimmedReplacementText, sourceFileUri))
+                    .Concat(await GetVersionCompletions(context, trimmedReplacementText, sourceFileUri))
                     .Concat(await GetAllRegistryNameAndAliasCompletions(context, trimmedReplacementText, sourceFileUri, cancellationToken));
 
                 completions = [
@@ -207,7 +207,7 @@ namespace Bicep.LanguageServer.Completions
         //   br:mcr.microsoft/bicep/module/name:<CURSOR>
         //
         // etc
-        private async Task<IEnumerable<CompletionItem>> GetPublicModuleVersionCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg change this to be public/private agnostic
+        private async Task<IEnumerable<CompletionItem>> asdfg GetVersionCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg change this to be public/private agnostic
         {
             if (!IsOciArtifactRegistryReference(trimmedText))
             {
