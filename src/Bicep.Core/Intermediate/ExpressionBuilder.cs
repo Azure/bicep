@@ -1584,6 +1584,18 @@ public class ExpressionBuilder
         EmitResourceOrModuleScopeProperties(resource.ScopeData, expressionEmitter, resource.BodySyntax);
     }
 
+    /*public void EmitResourceOptionsProperties(ExpressionEmitter expressionEmitter, DeclaredResourceExpression resource)
+    {
+        if (resource.SourceSyntax is FunctionCallSyntax functionCallSyntax)
+        {
+            // emit the resource id of the resource being extended
+            var indexContext = TryGetReplacementContext(scopeResource, resource.ScopeData.IndexExpression, resource.BodySyntax);
+            expressionEmitter.EmitProperty("parent", () => expressionEmitter.EmitUnqualifiedResourceId(scopeResource, indexContext));
+            return;
+        }
+        EmitResourceOrModuleScopeProperties(resource.ScopeData, expressionEmitter, resource.BodySyntax);
+    }
+*/
     public void EmitModuleScopeProperties(ExpressionEmitter expressionEmitter, DeclaredModuleExpression module)
     {
         EmitResourceOrModuleScopeProperties(module.ScopeData, expressionEmitter, module.BodySyntax);

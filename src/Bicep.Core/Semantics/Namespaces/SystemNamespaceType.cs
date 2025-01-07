@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Text;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Templates.Extensions;
 using Azure.Identity;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
@@ -1827,6 +1828,57 @@ namespace Bicep.Core.Semantics.Namespaces
                             }
                         }
                         //TODO: validate list of exceptions are string value
+                    })
+                    .WithEvaluator((functionCall, decorated) =>
+                    {
+                        if (decorated is DeclaredResourceExpression declaredResourceExpression)
+                        {
+                            var retryOnProperties = new List<ObjectPropertyExpression>
+                                                    {
+                                                        new (
+                                                            null,
+                                                            new StringLiteralExpression(null, "errorMessages"),
+                                                            functionCall.Parameters[0]
+                                                        )
+                                                    };
+
+                            if (functionCall.Parameters.Length > 1)
+                            {
+                                retryOnProperties.Add(
+                                    new (
+                                        null,
+                                        new StringLiteralExpression(null, "retryCount"),
+                                        functionCall.Parameters[1]
+                                    )
+                                );
+                            }
+
+                            var retryOnOptions = new ObjectPropertyExpression(
+                                null,
+                                new StringLiteralExpression(null, "retryOn"),
+                                new ObjectExpression(null, [.. retryOnProperties])
+                            );
+
+                            var optionProperties = new List<ObjectPropertyExpression>
+                                                   {
+                                                         new
+                                                         (
+                                                              null,
+                                                              new StringLiteralExpression(null, "retryOn"),
+                                                              new ObjectExpression(null, [.. retryOnProperties])
+                                                         )
+                                                    };
+
+                            var options = new ObjectPropertyExpression(
+                                null,
+                                new StringLiteralExpression(null, "options"),
+                                new ObjectExpression(null, [.. optionProperties])
+                            );
+
+                            return declaredResourceExpression with { Options = options };
+                        }
+
+                        return decorated;
                     })
                     .Build();
 
