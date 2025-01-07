@@ -48,7 +48,7 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Regex ModulePrefixWithFullPath = new(@"^br:(?<registry>(.*?))/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         // Aliased reference to a registry via br/alias:path
-        private static readonly Regex ModulePrefixWithAlias = new(@"^br/(?<alias>.*):(?<path>(.*?))", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex ModulePrefixWithAlias = new(@"^br/(?<alias>[^/:]*):(?<path>(.*?))", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex ModuleWithAliasAndVersionSeparator = new(@"^br/(.*):(?<path>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         // Direct reference to the MCR (public) registry via br:mcr.microsoft.com/bicep/path
@@ -56,6 +56,9 @@ namespace Bicep.LanguageServer.Completions
 
         // Aliased reference to the MCR (public) registry via br/public:
         private static readonly Regex PublicModuleWithAliasAndVersionSeparator = new(@"^br/public:(?<path>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+
+        // Any module reference with a version separator
+        private static readonly Regex ModuleReferenceWithVersionSeparator = new(@"^(br/[^:]+:[^:]+:)|(br:[^:]+:)", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         private const string PublicMcrRegistry = LanguageConstants.BicepPublicMcrRegistry; // "mcr.microsoft.com"
 
@@ -717,6 +720,12 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
             string? alias = null;
             string? inputPath = null;
             string? basePath = null;
+
+            var hasVersion = ModuleReferenceWithVersionSeparator.IsMatch(trimmedText);
+            if (hasVersion)
+            {
+                return [];
+            }
 
             if (!IsFullPathModuleReference(trimmedText, out string? inputRegistry, out inputPath)
                 || string.IsNullOrWhiteSpace(inputRegistry))
