@@ -295,10 +295,10 @@
       },
       "JsonPatch.Net": {
         "type": "Transitive",
-        "resolved": "3.2.3",
-        "contentHash": "hAE5qvxJ4CgmcTHZYpHysSIDosu6DhFuKUCWrOHJOuANvBAYchjB161jWXT6CO6eRbgx72Cj5qR6Me1bSDQKLw==",
+        "resolved": "3.3.0",
+        "contentHash": "GIcMMDtzfzVfIpQgey8w7dhzcw6jG5nD4DDAdQCTmHfblkCvN7mI8K03to8YyUhKMl4PTR6D6nLSvWmyOGFNTg==",
         "dependencies": {
-          "JsonPointer.Net": "5.1.0"
+          "JsonPointer.Net": "5.2.0"
         }
       },
       "JsonPath.Net": {
@@ -311,8 +311,8 @@
       },
       "JsonPointer.Net": {
         "type": "Transitive",
-        "resolved": "5.1.0",
-        "contentHash": "pqVAJGpGBkEWQTMrmuiw54HT/ou0bLr+wOWlqQCqYfAG3mGOF/j4JC3UIw8mf0CTpT5TwLttF3kCRXk+hnAD9g==",
+        "resolved": "5.2.0",
+        "contentHash": "qe1F7Tr/p4mgwLPU9P60MbYkp+xnL2uCPnWXGgzfR/AZCunAZIC0RZ32dLGJJEhSuLEfm0YF/1R3u5C7mEVq+w==",
         "dependencies": {
           "Humanizer.Core": "2.14.1",
           "Json.More.Net": "2.1.0"
@@ -1243,7 +1243,7 @@
           "Azure.Identity": "[1.13.1, )",
           "Azure.ResourceManager.Resources": "[1.9.0, )",
           "Bicep.IO": "[1.0.0, )",
-          "JsonPatch.Net": "[3.2.3, )",
+          "JsonPatch.Net": "[3.3.0, )",
           "JsonPath.Net": "[2.0.1, )",
           "Microsoft.Extensions.Configuration": "[9.0.0, )",
           "Microsoft.Extensions.Configuration.Binder": "[9.0.0, )",
