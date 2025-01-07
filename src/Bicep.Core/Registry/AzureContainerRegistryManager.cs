@@ -33,6 +33,45 @@ namespace Bicep.Core.Registry
         {
             this.clientFactory = clientFactory;
         }
+        public async Task<string[]> GetArtifactTags( //asdfg move?
+            RootConfiguration configuration,
+            string registry,
+            string repository)
+        {
+            var registryUri = GetRegistryUri(registry);
+
+            async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
+            {
+                var client = CreateClient(configuration, registryUri, anonymousAccess);
+
+                var tags = new List<string>();
+                await foreach (var manifest in client.GetRepository(repository).GetAllManifestPropertiesAsync(/*asdfg cancel token??*/ ))
+                {
+                    tags.Add(manifest.Tags.First()); //asdfg?
+                }
+
+                return [.. tags];
+            }
+
+            try
+            {
+                // Try authenticated client first.
+                Trace.WriteLine($"asdfg Authenticated attempt to pull catalog for module {registryUri}.");
+                return await GetCatalogInternalAsync(anonymousAccess: false);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"asdfg Authenticated attempt to pull catalog for module {registryUri} failed, received code {exception.Status}. Fallback to anonymous pull.");
+                return await GetCatalogInternalAsync(anonymousAccess: true);
+            }
+            catch (CredentialUnavailableException)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"asdfg Authenticated attempt to pull catalog for module {registryUri} failed due to missing login step. Fallback to anonymous pull.");
+                return await GetCatalogInternalAsync(anonymousAccess: true);
+            }
+        }
 
         public async Task<string[]> GetCatalogAsync( //asdfg move?
             RootConfiguration configuration,
@@ -43,12 +82,25 @@ namespace Bicep.Core.Registry
             async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
             {
                 var client = CreateClient(configuration, registryUri, anonymousAccess);
-                return await GetCatalogAsync(client);
+                return await GetCatalogAsync(client); //asdfg paging?
+            }
+
+            // Note: This won't work for MCR
+            static async Task<string[]> GetCatalogAsync(ContainerRegistryClient client)
+            {
+                List<string> catalog = [];
+
+                await foreach (var repository in client.GetRepositoryNamesAsync(CancellationToken.None/*asdfg?*/))
+                {
+                    catalog.Add(repository);
+                }
+
+                return [.. catalog];
             }
 
             try
             {
-                // Try authenticated client first.
+                // Try authenticated client first. asdfg refactor
                 Trace.WriteLine($"asdfg Authenticated attempt to pull catalog for module {registryUri}.");
                 return await GetCatalogInternalAsync(anonymousAccess: false);
             }
@@ -218,19 +270,6 @@ namespace Bicep.Core.Registry
                 BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers, config),
                 _ => throw new InvalidArtifactException($"artifacts of type: \'{deserializedManifest.ArtifactType}\' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}")
             };
-        }
-
-        //asdfg doesn't work for MCR
-        private static async Task<string[]> GetCatalogAsync(ContainerRegistryClient client)
-        {
-            List<string> catalog = [];
-
-            await foreach (var repository in client.GetRepositoryNamesAsync(CancellationToken.None/*asdfg?*/))
-            {
-                catalog.Add(repository);
-            }
-
-            return [.. catalog];
         }
 
         private static async Task<BinaryData> PullLayerAsync(ContainerRegistryContentClient client, OciDescriptor layer, CancellationToken cancellationToken = default)

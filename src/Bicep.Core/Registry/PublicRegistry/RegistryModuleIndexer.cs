@@ -14,10 +14,11 @@ public interface IRegistryModuleIndexer
 
 public class RegistryModuleIndexer : IRegistryModuleIndexer
 {
-    private readonly Dictionary<string, IRegistryModuleMetadataProvider> registryProviders = new();
+    private readonly AzureContainerRegistryManager? azureContainerRegistryManager;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
     private readonly IConfigurationManager configurationManager;
 
+    private readonly Dictionary<string, IRegistryModuleMetadataProvider> registryProviders = new();
 
     public RegistryModuleIndexer(
         PublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider/*asdfgasdfgasdfg asdfg2 create it ourselves? */,
@@ -25,6 +26,9 @@ public class RegistryModuleIndexer : IRegistryModuleIndexer
         IConfigurationManager configurationManager
         )
     {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+        this.azureContainerRegistryManager = null;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         this.containerRegistryClientFactory = containerRegistryClientFactory;
         this.configurationManager = configurationManager;
 
@@ -39,7 +43,7 @@ public class RegistryModuleIndexer : IRegistryModuleIndexer
         }
 
         //asdfg cache
-        provider = new PrivateAcrRegistryModuleMetadataProvider(registry, containerRegistryClientFactory, configurationManager); // asdfg use factory pattern?
+        provider = new PrivateAcrRegistryModuleMetadataProvider(registry, azureContainerRegistryManager!/*asdfg*/, containerRegistryClientFactory, configurationManager); // asdfg use factory pattern?
         registryProviders[registry] = provider; //asdfg threads
 
         //throw new InvalidOperationException($"No provider found for registry '{registry}'"); //asdfg

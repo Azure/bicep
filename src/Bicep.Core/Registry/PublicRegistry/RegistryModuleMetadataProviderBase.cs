@@ -33,8 +33,10 @@ public abstract class RegistryModuleMetadataProviderBase(
     protected string Registry => registry;
 
     protected record CachedModule(
-        RegistryModuleMetadata RegistryModuleMetadata,        
-        ImmutableArray<RegistryModuleVersionMetadata> RegistryModuleVersionMetadata // Using array instead of dictionary to preserve sort order
+        RegistryModuleMetadata RegistryModuleMetadata,
+
+        // Using array instead of dictionary to preserve sort order
+        Task<ImmutableArray<RegistryModuleVersionMetadata>>? RegistryModuleVersionMetadataTask
     );
 
     // Using array instead of dictionary to preserve sort order
@@ -68,14 +70,19 @@ public abstract class RegistryModuleMetadataProviderBase(
         }
     }
 
-    private CachedModule? TryGetCachedModule(string modulePath)
+    private CachedModule? GetCachedModule(string modulePath, bool throwIfNotFound/*asdfg*/)
     {
-        return this.cachedModules.FirstOrDefault(x =>
+        var found = this.cachedModules.FirstOrDefault(x =>
             x.RegistryModuleMetadata.Registry.Equals(Registry, StringComparison.Ordinal)
                 && x.RegistryModuleMetadata.ModuleName.Equals(modulePath, StringComparison.Ordinal));
+        if (found != null  && throwIfNotFound)
+        {
+            throw new InvalidOperationException($"Module '{modulePath}' not found in cache.");
+        }
+
+        return found;
     }
 
-    // If cache has not yet successfully been updated, returns empty
     public async Task<ImmutableArray<RegistryModuleMetadata>> GetModulesAsync()
     {
         await TryAwaitCache(forceUpdate: false);
@@ -88,15 +95,44 @@ public abstract class RegistryModuleMetadataProviderBase(
         return [.. cachedModules.Where(x => x.RegistryModuleMetadata.Registry.Equals(Registry, StringComparison.Ordinal)).Select(x => x.RegistryModuleMetadata)];
     }
 
+    // asdfg Make this abstract?
     public async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetModuleVersionsAsync(string modulePath)
     {
         await TryAwaitCache(forceUpdate: false);
-        return GetCachedModuleVersions(modulePath);
+
+        var module = GetCachedModule(modulePath, false);
+        if (module is null)
+        {
+            return [];
+        }
+
+        var getVersionsTask = module.RegistryModuleVersionMetadataTask;
+        if (getVersionsTask is null)
+        {
+            getVersionsTask = GetLiveModuleVersionsAsync(modulePath);
+            //asdfg cache
+        }
+
+        return await getVersionsTask;
     }
 
+    protected abstract Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath);//asdfg?
+    //{
+    //    throw new NotImplementedException($"{nameof(RegistryModuleMetadataProviderBase)}.{nameof(GetLiveModuleVersionsAsync)}: This method should not have been called.");
+    //}
+
+    // If cache has not yet successfully been updated, returns empty  asdfg needed?
     public ImmutableArray<RegistryModuleVersionMetadata> GetCachedModuleVersions(string modulePath)
     {
-        return TryGetCachedModule(modulePath)?.RegistryModuleVersionMetadata.ToImmutableArray() ?? [];
+        var getVersionsTask = GetCachedModule(modulePath, false)?.RegistryModuleVersionMetadataTask;
+        if (getVersionsTask?.IsCompletedSuccessfully == true)
+        {
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+            return [.. getVersionsTask.Result];
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+        }
+
+        return [];
     }
 
     private Task UpdateCacheIfNeededAsync(bool forceUpdate, bool initialDelay)

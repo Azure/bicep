@@ -31,7 +31,7 @@ public record PublicRegistryModuleIndexEntry( //asdfg rename
         get
         {
             {
-                var parsedVersions = Tags.Select(x =>
+                var parsedVersions = Tags.Select(x => //asdfg this to indexer so private and public use it
                     (@string: x, version: SemVersion.TryParse(x, SemVersionStyles.AllowV, out var version) ? version : DefaultVersion))
                     .ToArray();
                 return [.. parsedVersions.OrderByDescending(x => x.version, SemVersion.SortOrderComparer).Select(x => x.@string)];

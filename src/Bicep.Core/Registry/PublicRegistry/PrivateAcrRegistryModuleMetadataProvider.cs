@@ -3,12 +3,14 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.IO.Packaging;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
+using Bicep.Core.Registry.Oci;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry.PublicRegistry;//asdfg rename folder/namespace PublicRegistry?
@@ -39,22 +41,42 @@ namespace Bicep.Core.Registry.PublicRegistry;//asdfg rename folder/namespace Pub
 /// </summary>
 public class PrivateAcrRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase, IRegistryModuleMetadataProvider
 {
+    private readonly AzureContainerRegistryManager azureContainerRegistryManager;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
     private readonly IConfigurationManager configurationManager;
 
     public PrivateAcrRegistryModuleMetadataProvider(
         string registry,
+        AzureContainerRegistryManager azureContainerRegistryManager,
         IContainerRegistryClientFactory containerRegistryClientFactory,
         IConfigurationManager configurationManager)
         : base(registry)
     {
+        this.azureContainerRegistryManager = azureContainerRegistryManager;
         this.containerRegistryClientFactory = containerRegistryClientFactory;
         this.configurationManager = configurationManager;
     }
 
+    protected override async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
+    {
+        Uri sourceFileUri = new("C:\\Users\\stephwe\\Downloads\\main.bicep"); //asdfg
+
+        var registry = Registry;
+        var repository = modulePath;
+
+        var tags = await this.azureContainerRegistryManager.GetArtifactTags(configurationManager.GetConfiguration(sourceFileUri), registry, repository);
+        return [.. tags.Select(t =>
+            new RegistryModuleVersionMetadata(
+                t,
+                null,
+                null
+            )
+        )];
+    }
+
     protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
     {
-        Uri sourceFileUri = new("C:\\Users\\stephwe\\Downloads\\main.bicep");
+        Uri sourceFileUri = new("C:\\Users\\stephwe\\Downloads\\main.bicep"); //asdfg
         var filter = new Regex(""); //asdfg
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
@@ -65,7 +87,7 @@ public class PrivateAcrRegistryModuleMetadataProvider : RegistryModuleMetadataPr
             .Select(m =>
             new CachedModule(
                 new RegistryModuleMetadata(Registry, m, "asdfg description", "asdfg documentation uri"),
-                [new RegistryModuleVersionMetadata("1.2.3.4", null, null)]
+                null
             )
         ).ToImmutableArray();
 

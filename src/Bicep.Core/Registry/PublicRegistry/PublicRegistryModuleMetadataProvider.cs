@@ -41,14 +41,20 @@ public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProvid
         return [.. modules.Select(m =>
             new CachedModule(
                 GetPublicRegistryModuleMetadata(m.ModulePath, m.GetDescription(), m.GetDocumentationUri()),
-                [.. m.Versions.Select(
-                    t => new RegistryModuleVersionMetadata(
-                        t,
-                        m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].Description:null,
-                        m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].DocumentationUri:null
-                    )
-                )]
+                Task.FromResult<ImmutableArray<RegistryModuleVersionMetadata>>(
+                    [.. m.Versions.Select(
+                        t => new RegistryModuleVersionMetadata(
+                            t,
+                            m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].Description:null,
+                            m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].DocumentationUri:null
+                        )
+                    )])
             )
         )];
+    }
+
+    protected override Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
+    {
+        throw new NotImplementedException("This method should never get called because versions are pre-filled with a resolved task");
     }
 }
