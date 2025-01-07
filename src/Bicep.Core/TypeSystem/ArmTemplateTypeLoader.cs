@@ -273,6 +273,15 @@ public static class ArmTemplateTypeLoader
         TemplateBooleanOrSchemaNode? additionalProperties,
         TypeSymbolValidationFlags flags)
     {
+        static string? GetDescriptionFromMetadata(TemplateGenericProperty<JToken>? metadataNode)
+        {
+            return metadataNode?.Value is JObject metadataObject &&
+                    metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
+                    descriptionToken is JValue { Value: string descriptionString }
+                ? descriptionString
+                : null;
+        }
+
         var requiredProps = requiredProperties is not null ? ImmutableHashSet.CreateRange(requiredProperties) : null;
 
         ObjectTypeNameBuilder nameBuilder = new();
@@ -291,11 +300,7 @@ public static class ArmTemplateTypeLoader
                 var required = context.TemplateLanguageVersion?.HasFeature(TemplateLanguageFeature.NullableParameters) == true
                     || (requiredProps?.Contains(propertyName) ?? false);
                 var propertyFlags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
-                var description = schema.Metadata?.Value is JObject metadataObject &&
-                    metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
-                    descriptionToken is JValue { Value: string descriptionString }
-                        ? descriptionString
-                        : null;
+                var description = GetDescriptionFromMetadata(schema.Metadata);
 
                 var (type, typeName) = GetDeferrableTypeInfo(context, schema);
                 propertyList.Add(new(propertyName, type, propertyFlags, description));
@@ -311,11 +316,7 @@ public static class ArmTemplateTypeLoader
             {
                 var (type, typeName) = GetDeferrableTypeInfo(context, additionalPropertiesSchema);
                 additionalPropertiesType = type;
-                additionalPropertiesDescription = additionalPropertiesSchema.Metadata?.Value is JObject metadataObject &&
-                    metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
-                    descriptionToken is JValue { Value: string descriptionString }
-                        ? descriptionString
-                        : null;
+                additionalPropertiesDescription = GetDescriptionFromMetadata(additionalPropertiesSchema.Metadata);
 
                 nameBuilder.AppendPropertyMatcher(typeName);
             }
