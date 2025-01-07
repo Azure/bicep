@@ -166,12 +166,18 @@ namespace Bicep.Core.IntegrationTests
                 location: 'polandcentral'
             }
             ");
+
+            var retryOnJObject = new JObject
+            {
+            ["errorMessages"] = new JArray("ResourceNotFound"),
+            ["retryCount"] = 1
+            };
             using (new AssertionScope())
             {
-                template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP411", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"0\"."),
-                });
+                diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
+
+                template.Should().NotBeNull()
+                    .And.HaveValueAtPath("$.resources[0].options.retryOn", retryOnJObject);
             }
         }
 

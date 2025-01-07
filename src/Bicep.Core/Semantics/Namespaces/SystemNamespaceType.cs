@@ -1853,12 +1853,6 @@ namespace Bicep.Core.Semantics.Namespaces
                                 );
                             }
 
-                            var retryOnOptions = new ObjectPropertyExpression(
-                                null,
-                                new StringLiteralExpression(null, "retryOn"),
-                                new ObjectExpression(null, [.. retryOnProperties])
-                            );
-
                             var optionProperties = new List<ObjectPropertyExpression>
                                                    {
                                                          new
