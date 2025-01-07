@@ -10,6 +10,7 @@ using System.Text.Json;
 using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
+//asdfg these shouldn't be in core
 namespace Bicep.Core.Registry.PublicRegistry;
 
 /// <summary>

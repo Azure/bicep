@@ -41,18 +41,15 @@ namespace Bicep.Core.Registry.PublicRegistry;//asdfg rename folder/namespace Pub
 /// </summary>
 public class PrivateAcrRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase, IRegistryModuleMetadataProvider
 {
-    private readonly AzureContainerRegistryManager azureContainerRegistryManager;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
     private readonly IConfigurationManager configurationManager;
 
     public PrivateAcrRegistryModuleMetadataProvider(
         string registry,
-        AzureContainerRegistryManager azureContainerRegistryManager,
         IContainerRegistryClientFactory containerRegistryClientFactory,
         IConfigurationManager configurationManager)
         : base(registry)
     {
-        this.azureContainerRegistryManager = azureContainerRegistryManager;
         this.containerRegistryClientFactory = containerRegistryClientFactory;
         this.configurationManager = configurationManager;
     }
@@ -64,7 +61,8 @@ public class PrivateAcrRegistryModuleMetadataProvider : RegistryModuleMetadataPr
         var registry = Registry;
         var repository = modulePath;
 
-        var tags = await this.azureContainerRegistryManager.GetArtifactTags(configurationManager.GetConfiguration(sourceFileUri), registry, repository);
+        AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
+        var tags = await acrManager.GetArtifactTags(configurationManager.GetConfiguration(sourceFileUri), registry, repository);
         return [.. tags.Select(t =>
             new RegistryModuleVersionMetadata(
                 t,

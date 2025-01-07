@@ -30,7 +30,6 @@ namespace Bicep.LanguageServer.Completions
     public partial class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
         private readonly IAzureContainerRegistriesProvider azureContainerRegistriesProvider;
-
         private readonly IConfigurationManager configurationManager;
         private readonly IRegistryModuleIndexer registryModuleIndexer;
         private readonly ISettingsProvider settingsProvider;

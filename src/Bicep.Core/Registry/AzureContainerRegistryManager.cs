@@ -47,7 +47,10 @@ namespace Bicep.Core.Registry
                 var tags = new List<string>();
                 await foreach (var manifest in client.GetRepository(repository).GetAllManifestPropertiesAsync(/*asdfg cancel token??*/ ))
                 {
-                    tags.Add(manifest.Tags.First()); //asdfg?
+                    foreach (var tag in manifest.Tags) //asdfg?
+                    {
+                        tags.Add(tag);
+                    }
                 }
 
                 return [.. tags];
