@@ -38,7 +38,7 @@
     "typescript": "^5.7.2",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.1.0"
+    "webpack-dev-server": "^5.2.0"
   },
   "dependencies": {
     "@microsoft/applicationinsights-web": "^3.3.4",
