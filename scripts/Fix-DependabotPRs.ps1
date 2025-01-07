@@ -151,8 +151,10 @@ function processPR {
 }
 
 function showStatus($prs) {
+    $i = 1
     foreach ($pr in $prs) {
-        Write-Host "$(getPrLink($pr.number)): $($prStatus[[int]$pr.number]) ($(getPrState($pr.number)))"
+        Write-Host "$($i): $(getPrLink($pr.number)): $($prStatus[[int]$pr.number]) ($(getPrState($pr.number)))"
+        $i++
     }
 }
 
@@ -189,4 +191,5 @@ while ($prsToBeProcessed) {
 }
 
 Write-Host "`nAll PRs processed."
+Write-Host "Originally there were $($allPrs.Count) PRs. $($prStatus.Count) are still open."
 showStatus $allPrs
