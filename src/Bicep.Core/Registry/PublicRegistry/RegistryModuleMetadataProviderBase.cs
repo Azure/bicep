@@ -32,12 +32,37 @@ public abstract class RegistryModuleMetadataProviderBase(
 
     protected string Registry => registry;
 
-    protected record CachedModule(
-        RegistryModuleMetadata RegistryModuleMetadata,
+    private static readonly object CachedModuleSyncObject = new();
+
+    protected class CachedModule
+    {
+        public RegistryModuleMetadata RegistryModuleMetadata;
 
         // Using array instead of dictionary to preserve sort order
-        Task<ImmutableArray<RegistryModuleVersionMetadata>>? RegistryModuleVersionMetadataTask
-    );
+        public Task<ImmutableArray<RegistryModuleVersionMetadata>>? RegistryModuleVersionMetadataTask { get; private set; }
+
+        public CachedModule(RegistryModuleMetadata registryModuleMetadata, ImmutableArray<RegistryModuleVersionMetadata>? registryModuleVersionMetadata)
+        {
+            this.RegistryModuleMetadata = registryModuleMetadata;
+            this.RegistryModuleVersionMetadataTask = registryModuleVersionMetadata is null ? null : Task.FromResult(registryModuleVersionMetadata.Value);
+        }
+
+        public Task<ImmutableArray<RegistryModuleVersionMetadata>> GetOrSetRegistryModuleVersionMetadataTask(Func<Task<ImmutableArray<RegistryModuleVersionMetadata>>> createTask)
+        {
+            if (this.RegistryModuleVersionMetadataTask is null)
+            {
+                lock (CachedModuleSyncObject)
+                {
+                    if (this.RegistryModuleVersionMetadataTask is null)
+                    {
+                        this.RegistryModuleVersionMetadataTask = createTask();
+                    }
+                }
+            }
+
+            return this.RegistryModuleVersionMetadataTask;
+        }
+    }
 
     // Using array instead of dictionary to preserve sort order
     private ImmutableArray<CachedModule> cachedModules = [];
@@ -75,7 +100,7 @@ public abstract class RegistryModuleMetadataProviderBase(
         var found = this.cachedModules.FirstOrDefault(x =>
             x.RegistryModuleMetadata.Registry.Equals(Registry, StringComparison.Ordinal)
                 && x.RegistryModuleMetadata.ModuleName.Equals(modulePath, StringComparison.Ordinal));
-        if (found != null  && throwIfNotFound)
+        if (found != null && throwIfNotFound)
         {
             throw new InvalidOperationException($"Module '{modulePath}' not found in cache.");
         }
@@ -106,20 +131,10 @@ public abstract class RegistryModuleMetadataProviderBase(
             return [];
         }
 
-        var getVersionsTask = module.RegistryModuleVersionMetadataTask;
-        if (getVersionsTask is null)
-        {
-            getVersionsTask = GetLiveModuleVersionsAsync(modulePath);
-            //asdfg cache
-        }
-
-        return await getVersionsTask;
+        return await module.GetOrSetRegistryModuleVersionMetadataTask(() => GetLiveModuleVersionsAsync(modulePath));
     }
 
     protected abstract Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath);//asdfg?
-    //{
-    //    throw new NotImplementedException($"{nameof(RegistryModuleMetadataProviderBase)}.{nameof(GetLiveModuleVersionsAsync)}: This method should not have been called.");
-    //}
 
     // If cache has not yet successfully been updated, returns empty  asdfg needed?
     public ImmutableArray<RegistryModuleVersionMetadata> GetCachedModuleVersions(string modulePath)
