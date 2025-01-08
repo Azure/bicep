@@ -496,6 +496,9 @@
   <data name="ExperimentalFeatureNames_SymbolicNameCodegen" xml:space="preserve">
     <value>Symbolic name code generation</value>
   </data>
+  <data name="ExperimentalFeatureNames_ResourceInfoCodegen" xml:space="preserve">
+    <value>Resource info code generation</value>
+  </data>
   <data name="ExperimentalFeatureNames_TestFramework" xml:space="preserve">
     <value>Test framework</value>
   </data>

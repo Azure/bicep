@@ -370,10 +370,21 @@ namespace Bicep.Core.Emit
             }
             else if (resource is DeclaredResourceMetadata declaredResource)
             {
-                // For symbolic-named resources we have the option of simplifying codegen by emitting expressions like "resourceInfo('symbolicName').id".
-                // However, there are numerous cases where resourceInfo can & can't be used, and it's too difficult to try and address them all here.
-                // See https://github.com/Azure/bicep/issues/9450 & https://github.com/Azure/bicep/issues/9246 for examples.
-                // For now, let's stick with emitting the more verbose expressions that we know work.
+                if (context.SemanticModel.Features.ResourceInfoCodegenEnabled)
+                {
+                    // Use simplified "resourceInfo" code generation.
+                    switch (propertyName)
+                    {
+                        case "id":
+                        case "name":
+                        case "type":
+                        case "apiVersion":
+                            var symbolExpression = GenerateSymbolicReference(declaredResource, indexContext);
+                            var resourceInfoExpression = AppendProperties(CreateFunction("resourceInfo", symbolExpression), new JTokenExpression(propertyName));
+
+                            return (resourceInfoExpression, [], safeAccess);
+                    }
+                }
 
                 switch (propertyName)
                 {

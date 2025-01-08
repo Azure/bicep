@@ -241,6 +241,15 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Resource info code generation.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_ResourceInfoCodegen {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_ResourceInfoCodegen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Test framework.
         /// </summary>
         internal static string ExperimentalFeatureNames_TestFramework {
