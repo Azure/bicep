@@ -917,20 +917,22 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             if (completions.Any())
             {
-                var command = TelemetryHelper.CreateCommand //asdfg
-                (
-                    title: "asdfg title",
-                    name: "bicep.asdfg",
-                    args: JArray.FromObject(new List<object> { "asdfg value" })
-                );
+                // asdfgasdfgasdfg allow refresh of completions
+                //var command = TelemetryHelper.CreateCommand //asdfg
+                //(
+                //    title: "asdfg title",
+                //    name: "bicep.asdfg",
+                //    args: JArray.FromObject(new List<object> { "asdfg value" })
+                //);
 
-                completions.Add(CompletionItemBuilder.Create(CompletionItemKind.Function, "Refresh completions")
-                    asdfg didn't work.WithFilterText(trimmedText)
-                    .WithInsertText("")
-                    .WithCommand(command)
-                    .WithDetail("asdfg")
-                    .WithDocumentation(MarkdownHelper.GetDocumentationLink("asdfg"))
-                    .Build());
+                //completions.Add(CompletionItemBuilder.Create(CompletionItemKind.Function, "Refresh completions")
+                //    asdfg didn't work.WithFilterText(trimmedText)
+                //    .WithInsertText("")
+                //    .WithCommand(command)
+                //    .WithDetail("asdfg")
+                //    .WithDocumentation(MarkdownHelper.GetDocumentationLink("asdfg"))
+                //    .Build());
+
                 telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.MCR)); //asdfg useful??  especially if returning all and not filtering
             }
 
