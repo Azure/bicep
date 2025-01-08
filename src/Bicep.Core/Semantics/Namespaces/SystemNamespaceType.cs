@@ -1071,6 +1071,12 @@ namespace Bicep.Core.Semantics.Namespaces
                     }, LanguageConstants.String)
                     .WithFlags(FunctionFlags.IsArgumentValueIndependent)
                     .Build();
+
+                yield return new FunctionOverloadBuilder("fail")
+                    .WithGenericDescription("Raises a runtime error with the provided message. Will cause a deployment to fail when evaluated.")
+                    .WithRequiredParameter("message", LanguageConstants.String, "The error message to use.")
+                    .WithReturnType(LanguageConstants.Never)
+                    .Build();
             }
 
             static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()

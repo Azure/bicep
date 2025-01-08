@@ -4,12 +4,12 @@
     ".NETFramework,Version=v4.7.2": {
       "MessagePack": {
         "type": "Direct",
-        "requested": "[3.1.0, )",
-        "resolved": "3.1.0",
-        "contentHash": "hxj7V0A7cBWLSXxNGwkMRtN9IcF/rO0ZT3kTCneH6N4l1upZfpnL2dcuY/gqEG6+NXEE5qiFIp/GV1lJWEaICw==",
+        "requested": "[3.1.1, )",
+        "resolved": "3.1.1",
+        "contentHash": "nC7/arPbdsjcvDwLrdp2aJafk3Y8GbjoomvY1oFCJbODAmgURM9JVKrkIcaZSX1GOLtPSQH4/6rM/TNtSx+U4Q==",
         "dependencies": {
-          "MessagePack.Annotations": "3.1.0",
-          "MessagePackAnalyzer": "3.1.0",
+          "MessagePack.Annotations": "3.1.1",
+          "MessagePackAnalyzer": "3.1.1",
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.NET.StringTools": "17.11.4",
           "System.Collections.Immutable": "8.0.0",
@@ -283,13 +283,13 @@
       },
       "MessagePack.Annotations": {
         "type": "Transitive",
-        "resolved": "3.1.0",
-        "contentHash": "mAHg+d+eMF0p4grdJS04vUt3ECxj6hfSEr+Xvb1JcW48S/Vz2wahXU64O9ST+PAGw/icnANksXX+ceSaH/mv2A=="
+        "resolved": "3.1.1",
+        "contentHash": "z/qHzXoz+SAw8+MDZV6Woge1fWD27v+Ce+9a3AJU7FF7TmXpIvGmALsS0A83RdM0P1utLuJ8UJlhNmjpDJ4y4A=="
       },
       "MessagePackAnalyzer": {
         "type": "Transitive",
-        "resolved": "3.1.0",
-        "contentHash": "SRpt29jXfDgH20dyjXdAWRnRaDS+LpjQkORD+IDI96XNDH+u++9JTgKbH2VG0pNyMjOO1IoPPRteSOTx1yv2Vw=="
+        "resolved": "3.1.1",
+        "contentHash": "gQeHB5RKo7C033FoUToZsvpabWuBR4ajiDoA0dXVTf7SdrA8sB0EGE04t37dDJ+8jIZ9/rCNYUmE67xKPgPThA=="
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",

@@ -37,7 +37,7 @@ namespace Bicep.Cli.Commands
             var inputUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(args.InputFile));
             var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, PathHelper.GetDefaultDecompileparamOutputPath);
             var outputUri = PathHelper.FilePathToFileUrl(outputPath);
-            var bicepUri = args.BicepFilePath is { } ? PathHelper.FilePathToFileUrl(args.BicepFilePath) : null;
+            var bicepUri = args.BicepFilePath is { } ? PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(args.BicepFilePath)) : null;
 
             try
             {

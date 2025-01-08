@@ -112,15 +112,14 @@ namespace Bicep.IO.Abstraction
 
         // See: The "file" URI Scheme (https://datatracker.ietf.org/doc/html/rfc8089).
         // Note that we don't handle user info and the case where the host IP resolves to the local machine.
-        public string? TryGetLocalFilePath() => this.IsLocalFile ? new UriBuilder { Scheme = this.Scheme, Host = "", Path = Path }.Uri.LocalPath : null;
+        public string? TryGetLocalFilePath() => this.IsLocalFile ? new UriBuilder { Scheme = this.Scheme, Host = "", Path = EscapePercentSign(this.Path) }.Uri.LocalPath : null;
 
         public string GetLocalFilePath() => TryGetLocalFilePath() ?? throw new InvalidOperationException("The URI is not a local file path.");
 
         // See: Uniform Resource Identifier (URI): Generic Syntax (https://datatracker.ietf.org/doc/html/rfc3986).
         public string ToUriString()
         {
-            var escapedSegments = Path.Split('/').Select(Uri.EscapeDataString);
-            var excapedPath = string.Join('/', escapedSegments);
+            var excapedPath = EscapePercentSign(this.Path);
 
             return this.Authority is null ? $"{Scheme}:{Path}" : $"{Scheme}://{Authority}{Path}";
         }
@@ -227,6 +226,8 @@ namespace Bicep.IO.Abstraction
 
             return this.IsLocalFile ? FromLocalFilePath(path) : new IOUri(this.Scheme, this.Authority, path, this.Query, this.Fragment);
         }
+
+        private static string EscapePercentSign(string value) => value.Replace("%", "%25");
 
         private static string? NormalizeAuthority(IOUriScheme scheme, string? authority)
         {

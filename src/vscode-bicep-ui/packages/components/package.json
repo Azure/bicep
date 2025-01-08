@@ -42,13 +42,13 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^2.1.8",
     "@vscode/codicons": "^0.0.36",
-    "happy-dom": "^15.11.7",
+    "happy-dom": "^16.3.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "storybook": "^8.3.0",
     "styled-components": "^6.1.13",
     "vite": "^5.4.8",
     "vite-plugin-dts": "^4.3.0",
-    "vite-plugin-lib-inject-css": "^2.1.1",
+    "vite-plugin-lib-inject-css": "^2.2.1",
     "vite-plugin-svgr": "^4.2.0",
     "vitest": "^2.1.3"
   }
