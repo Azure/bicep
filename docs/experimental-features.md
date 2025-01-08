@@ -29,6 +29,9 @@ Enabling this feature makes the `name` property in the body of `module` declarat
 ### `resourceDerivedTypes`
 If enabled, templates can reuse resource types wherever a type is expected. For example, to declare a parameter `foo` that should be usable as the name of an Azure Storage account, the following syntax would be used: `param foo resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name`. **NB:** Because resource types may be inaccurate in some cases, no constraints other than the ARM type primitive will be enforced on resource derived types within the ARM deployment engine. Resource-derived types will be checked by Bicep at compile time, but violations will be emitted as warnings rather than errors.
 
+### `resourceInfoCodegen`
+Enables the 'resourceInfo' function for simplified code generation.
+
 ### `resourceTypedParamsAndOutputs`
 Enables the type for a parameter or output to be of type resource to make it easier to pass resource references between modules. This feature is only partially implemented. See [Simplifying resource referencing](https://github.com/azure/bicep/issues/2245).
 
@@ -40,9 +43,6 @@ Enables basic source mapping to map an error location returned in the ARM templa
 
 ### `symbolicNameCodegen`
 Allows the ARM template layer to use a new schema to represent resources as an object dictionary rather than an array of objects. This feature improves the semantic equivalence of the Bicep and ARM templates, resulting in more reliable code generation. Enabling this feature has no effect on the Bicep layer's functionality.
-
-### `resourceInfoCodegen`
-Enables the 'resourceInfo' function for simplified code generation.
 
 ### `testFramework`
 Should be enabled in tandem with `assertions` experimental feature flag for expected functionality. Allows you to author client-side, offline unit-test test blocks that reference Bicep files and mock deployment parameters in a separate `test.bicep` file using the new `test` keyword. Test blocks can be run with the command *bicep test <filepath_to_file_with_test_blocks>* which runs all `assert` statements in the Bicep files referenced by the test blocks. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).

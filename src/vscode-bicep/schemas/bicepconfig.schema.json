@@ -835,7 +835,7 @@
         },
         "resourceInfoCodegen": {
             "type": "boolean",
-            "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfo"
+            "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
         }
       },
       "additionalProperties": false
