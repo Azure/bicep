@@ -24,9 +24,10 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private async Task RunExampleTest(EmbeddedFile embeddedBicep, FeatureProviderOverrides features, string jsonFileExtension)
+        public static async Task RunExampleTest(TestContext testContext, EmbeddedFile embeddedBicep, FeatureProviderOverrides? features = null, string jsonFileExtension = ".json")
         {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedBicep);
+            features ??= new();
+            var baselineFolder = BaselineFolder.BuildOutputFolder(testContext, embeddedBicep);
             var bicepFile = baselineFolder.EntryFile;
             var jsonFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedBicep.FileName, jsonFileExtension));
 
@@ -69,19 +70,20 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public Task ExampleIsValid(EmbeddedFile embeddedBicep)
-            => RunExampleTest(embeddedBicep, new(), ".json");
+            => RunExampleTest(TestContext, embeddedBicep, new(), ".json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public Task ExampleIsValid_using_experimental_symbolic_names(EmbeddedFile embeddedBicep)
-            => RunExampleTest(embeddedBicep, new(SymbolicNameCodegenEnabled: true), ".symbolicnames.json");
+            => RunExampleTest(TestContext, embeddedBicep, new(SymbolicNameCodegenEnabled: true), ".symbolicnames.json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetExtensibilityExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public Task ExampleIsValid_extensibility(EmbeddedFile embeddedBicep)
             => RunExampleTest(
+                TestContext,
                 embeddedBicep,
                 new(ExtensibilityEnabled: true),
                 ".json");

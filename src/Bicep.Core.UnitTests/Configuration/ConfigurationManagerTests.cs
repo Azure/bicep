@@ -111,7 +111,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "secureOutputs": false,
+          "resourceInfoCodegen": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -192,7 +193,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "secureOutputs": false,
+          "resourceInfoCodegen": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -298,7 +300,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "secureOutputs": false,
+          "resourceInfoCodegen": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -389,7 +392,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 OptionalModuleNames: false,
                 LocalDeploy: false,
                 ResourceDerivedTypes: false,
-                SecureOutputs: false);
+                SecureOutputs: false,
+                ResourceInfoCodegen: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -474,7 +478,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "optionalModuleNames": false,
                 "localDeploy": false,
                 "resourceDerivedTypes": false,
-                "secureOutputs": false
+                "secureOutputs": false,
+                "resourceInfoCodegen": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -845,7 +850,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "secureOutputs": false,
+          "resourceInfoCodegen": false
         },
         "formatting": {
           "indentKind": "Space",
