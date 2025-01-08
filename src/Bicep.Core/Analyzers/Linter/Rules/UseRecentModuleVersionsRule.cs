@@ -67,7 +67,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static IEnumerable<Failure> GetFailures(SemanticModel model, IServiceProvider serviceProvider, DiagnosticLevel diagnosticLevel)
         {
-            var publicRegistryModuleMetadataProvider = serviceProvider.GetRequiredService<PublicRegistryModuleMetadataProvider/*asdfg?*/>();
+            var publicRegistryModuleMetadataProvider = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
             var hasShownDownloadWarning = false;
 
             foreach (var (syntax, artifactResolutionInfo) in model.SourceFileGrouping.ArtifactLookup
@@ -106,7 +106,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             continue;
                         }
 
-                        foreach (var failure in AnalyzeBicepModule(publicRegistryModuleMetadataProvider, moduleSyntax, errorSpan, tag, publicModulePath))
+                        foreach (var failure in AnalyzeBicepModule((PublicRegistryModuleMetadataProvider)/*asdfg don't cast*/ publicRegistryModuleMetadataProvider, moduleSyntax, errorSpan, tag, publicModulePath))
                         {
                             yield return failure;
                         }

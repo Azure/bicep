@@ -7,8 +7,8 @@ using Microsoft.Win32;
 namespace Bicep.Core.Registry.PublicRegistry;
 
 public readonly record struct RegistryModuleMetadata(
-    string Registry, // e.g. "mcr.microsoft.com"
-    string ModuleName, // e.g. "bicep/avm/app/dapr-containerapp"    asdfg was "avm/app/dapr-containerapp" (asdfg note: the actual repo name has "bicep/" at the beginning, but the "public" alias takes care of that)
+    string Registry, // e.g. "mcr.microsoft.com"  //asdfg needed?
+    string ModuleName, // e.g. "bicep/avm/app/dapr-containerapp"
     string? Description,
     string? DocumentationUri);
 

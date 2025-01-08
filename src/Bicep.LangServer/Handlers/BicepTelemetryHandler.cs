@@ -30,18 +30,4 @@ namespace Bicep.LanguageServer.Handlers
             return Unit.Task;
         }
     }
-
-    // asdfgasdfgasdfg allow refresh of completions
-    //public class Asdfg : ExecuteTypedCommandHandlerBase<string/*asdfg*/>
-    //{
-    //    public Asdfg(ISerializer serializer)
-    //       : base("bicep.asdfg", serializer)
-    //    {
-    //    }
-
-    //    public override Task<Unit> Handle(string asdfg, CancellationToken cancellationToken)
-    //    {            
-    //        return Unit.Task; //asdfg
-    //    }
-    //}
 }

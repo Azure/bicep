@@ -20,7 +20,7 @@ public class RegistryModuleIndexer : IRegistryModuleIndexer
     private readonly Dictionary<string, IRegistryModuleMetadataProvider> registryProviders = new();
 
     public RegistryModuleIndexer(
-        PublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider/*asdfgasdfgasdfg asdfg2 create it ourselves? */,
+        IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider/*asdfgasdfgasdfg asdfg2 create it ourselves? */,
         IContainerRegistryClientFactory containerRegistryClientFactory,
         IConfigurationManager configurationManager
         )
@@ -40,7 +40,9 @@ public class RegistryModuleIndexer : IRegistryModuleIndexer
 
         //asdfg cache
         provider = new PrivateAcrRegistryModuleMetadataProvider(registry, containerRegistryClientFactory, configurationManager); // asdfg use factory pattern?
-        registryProviders[registry] = provider; //asdfg threads
+        registryProviders[registry] = provider; //asdfg threading
+
+        //asdfg remove from cache, esp if error
 
         //throw new InvalidOperationException($"No provider found for registry '{registry}'"); //asdfg
         return provider;

@@ -4147,7 +4147,7 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<PublicRegistryModuleMetadataProvider>();
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<PublicRegistryModuleMetadataProvider>();//asdfg interface
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([PublicModuleMetadata("app/dapr-containerapp", "d1", "contoso.com/help1"), PublicModuleMetadata("app/dapr-containerapp-env", "d2", "contoso.com/help2")]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
@@ -4182,7 +4182,7 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<PublicRegistryModuleMetadataProvider>();
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<PublicRegistryModuleMetadataProvider>();//asdfg interface
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([PublicModuleMetadata("app/dapr-containerapp", "d1", "contoso.com/help1")]);
             //asdfg dup publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsAsync("bicep/app/dapr-containerapp")).ReturnsAsync([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
@@ -4211,7 +4211,7 @@ var file = " + functionName + @"(templ|)
         /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br:mcr.microsoft.com/bicep/foo|", BicepSourceFileKind.ParamsFile)]
         /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br/public:foo|'", BicepSourceFileKind.ParamsFile)]
         /* asdfg GetPublicModuleCompletions */ [DataRow("using 'br/public:foo|", BicepSourceFileKind.ParamsFile)]
-        public async Task Public_registry_completions_support_prefix_matching(string text, BicepSourceFileKind kind)
+        public async Task Public_registry_completions_support_prefix_matching(string text, BicepSourceFileKind kind)//asdfg private?
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
@@ -4220,14 +4220,14 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<PublicRegistryModuleMetadataProvider>();
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([PublicModuleMetadata("foo/bar", "d1", "contoso.com/help1"), PublicModuleMetadata("food/bar", "d2", "contoso.com/help2"), PublicModuleMetadata("bar/bar", "d2", "contoso.com/help2")]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                .AddSingleton(publicRegistryModuleMetadataProvider.Object)
-                .AddSingleton(settingsProvider.Object));
+                    .AddSingleton<IPublicRegistryModuleMetadataProvider>(publicRegistryModuleMetadataProvider.Object)
+                    .AddSingleton(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
             var completions = await file.RequestCompletion(cursor);

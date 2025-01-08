@@ -17,9 +17,10 @@ namespace Bicep.Core.Registry.PublicRegistry
     {
         public static IServiceCollection AddRegistryIndexerServices(this IServiceCollection services)//asdfg rename
         {
-            services.AddSingleton<PublicRegistryModuleMetadataProvider>();
+            services.AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
             services.AddSingleton<IRegistryModuleIndexer, RegistryModuleIndexer>();
 
+            //asdfg mock these instead of mocking IPublicRegistryModuleMetadataProvider?
             // using type based registration for Http clients so dependencies can be injected automatically
             // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
             services

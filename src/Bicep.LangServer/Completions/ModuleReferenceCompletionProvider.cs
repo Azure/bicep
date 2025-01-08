@@ -171,6 +171,29 @@ namespace Bicep.LanguageServer.Completions
                 return null;
             }
 
+
+
+            //// refactor, similar to start of GetVersionCompletions
+            //if (!IsFullPathModuleReference(trimmedText, out string? inputRegistry, out inputPath)
+            //    || string.IsNullOrWhiteSpace(inputRegistry))
+            //{
+            //    if (IsAliasedModuleReference(trimmedText, out alias, out inputPath))
+            //    {
+            //        var aliases = GetModuleAliases(sourceFileUri);
+            //        if (aliases.TryGetValue(alias, out var aliasValue))
+            //        {
+            //            basePath = aliasValue.ModulePath;
+            //            inputPath = string.IsNullOrEmpty(aliasValue.ModulePath) ? inputPath : $"{aliasValue.ModulePath}/{inputPath}";
+            //            inputRegistry = aliasValue.Registry; //adsfg testpoint
+            //        }
+            //    }
+
+            //    if (inputPath is null || string.IsNullOrWhiteSpace(inputRegistry))
+            //    {
+            //        return [];
+            //    }
+            //}
+
             {
                 return new Parts( //asdfg
                     registry,
@@ -804,36 +827,14 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
         //   br:mcr.microsoft.com/bicep/:<CURSOR>
         private async Task<IEnumerable<CompletionItem>> GetModuleCompletions(string trimmedText, BicepCompletionContext context, Uri sourceFileUri)//asdfgasdfgasdfg
         {
-            string? alias = null;
-            string? inputPath = null;
-            string? basePath = null;
-
-            var hasVersion = ModuleReferenceWithVersionSeparator.IsMatch(trimmedText);
-            if (hasVersion)
+            if (Decode(trimmedText, sourceFileUri) is not Parts parts
+                || parts.ModulePath is null
+                || parts.HasVersionSeparator)
             {
                 return [];
             }
 
-            // refactor, similar to start of GetVersionCompletions
-            if (!IsFullPathModuleReference(trimmedText, out string? inputRegistry, out inputPath)
-                || string.IsNullOrWhiteSpace(inputRegistry))
-            {
-                if (IsAliasedModuleReference(trimmedText, out alias, out inputPath))
-                {
-                    var aliases = GetModuleAliases(sourceFileUri);
-                    if (aliases.TryGetValue(alias, out var aliasValue))
-                    {
-                        basePath = aliasValue.ModulePath;
-                        inputPath = string.IsNullOrEmpty(aliasValue.ModulePath) ? inputPath : $"{aliasValue.ModulePath}/{inputPath}";
-                        inputRegistry = aliasValue.Registry; //adsfg testpoint
-                    }
-                }
 
-                if (inputPath is null || string.IsNullOrWhiteSpace(inputRegistry))
-                {
-                    return [];
-                }
-            }
 
             //var (prefix, suffix, registry, path, alias) = trimmedText switch //asdfg shouldn't have to have specific code for "br" or PublicMCRRegistry
             //{//asdfg
@@ -857,19 +858,13 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             List<CompletionItem> completions = new();
 
-            var modules = await registryModuleIndexer.GetRegistry(inputRegistry).GetModulesAsync(); //asdfg2
+            var modules = await registryModuleIndexer.GetRegistry(parts.Registry).GetModulesAsync(); //asdfg2
             foreach (var (registry, moduleName, description, documentationUri) in modules)
             {
-                //asdfg remove?
-                //if (!moduleName.StartsWith(suffix, StringComparison.Ordinal)) //asdfg case-insensitive
-                //{
-                //    continue;
-                //}
-
-                //if (!moduleName.StartsWith(suffix, StringComparison.Ordinal)) //asdfg case-insensitive
-                //{
-                //    continue;
-                //}
+                if (!moduleName.StartsWith(parts.ModulePath, StringComparison.Ordinal)) //asdfg case-insensitive
+                {
+                    continue;
+                }                
 
                 var isPublicModule = registry.EqualsOrdinally(LanguageConstants.BicepPublicMcrRegistry)
                     && moduleName.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.InvariantCulture)
@@ -879,13 +874,13 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
                     );
 
                 string insertText;
-                if (alias is string)
-                {
-                    var module = isPublicModule ? moduleName.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length)/*asdfg extract*/ : moduleName;
-                    insertText = $"'br/{alias}:{module}:$0'";
-                }
-                else
-                {
+                //if (alias is string)
+                //{
+                //    var module = isPublicModule ? moduleName.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length)/*asdfg extract*/ : moduleName;
+                //    insertText = $"'br/{alias}:{module}:$0'";
+                //}
+                //else
+                //{
                     //asdfg?
                     //if (registry.EqualsOrdinally(LanguageConstants.BicepPublicMcrRegistry)
                     //    && moduleName.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.InvariantCulture))
@@ -896,9 +891,9 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
                     //{
                     insertText = $"'br:{registry}/{moduleName}:$0'"; //asdfg
                     //}
-                }
+                //}
 
-                var label = isPublicModule
+                var label = isPublicModule//asdfg2
                     ? moduleName.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length)/*asdfg extract?*///asdfg?
                     : moduleName;                                                                                                                       //}
 
@@ -917,23 +912,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             if (completions.Any())
             {
-                // asdfgasdfgasdfg allow refresh of completions
-                //var command = TelemetryHelper.CreateCommand //asdfg
-                //(
-                //    title: "asdfg title",
-                //    name: "bicep.asdfg",
-                //    args: JArray.FromObject(new List<object> { "asdfg value" })
-                //);
-
-                //completions.Add(CompletionItemBuilder.Create(CompletionItemKind.Function, "Refresh completions")
-                //    asdfg didn't work.WithFilterText(trimmedText)
-                //    .WithInsertText("")
-                //    .WithCommand(command)
-                //    .WithDetail("asdfg")
-                //    .WithDocumentation(MarkdownHelper.GetDocumentationLink("asdfg"))
-                //    .Build());
-
-                telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.MCR)); //asdfg useful??  especially if returning all and not filtering
+                telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.MCR/*asdfg wrong*/));
             }
 
             return completions;
