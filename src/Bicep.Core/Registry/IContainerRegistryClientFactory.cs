@@ -15,8 +15,8 @@ namespace Bicep.Core.Registry
         ContainerRegistryContentClient CreateAuthenticatedBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
         ContainerRegistryContentClient CreateAnonymousBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
 
-        public ContainerRegistryClient CreateAuthenticatedClient(RootConfiguration configuration, Uri registryUri);
-        public ContainerRegistryClient CreateAnonymousClient(RootConfiguration configuration, Uri registryUri);
+        public ContainerRegistryClient CreateAuthenticatedRegistryClient(RootConfiguration configuration, Uri registryUri);
+        public ContainerRegistryClient CreateAnonymousRegistryClient(RootConfiguration configuration, Uri registryUri);
 
     }
 }

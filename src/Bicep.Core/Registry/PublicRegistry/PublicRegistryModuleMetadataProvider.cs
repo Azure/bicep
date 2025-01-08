@@ -20,16 +20,10 @@ public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProvid
 {
     private readonly PublicRegistryModuleIndexHttpClient client;
 
-    //asdfg
-    //private readonly object queryingLiveSyncObject = new();
-    //private Task? queryLiveDataTask;
-    //private DateTime? lastSuccessfulQuery;
-    //private int consecutiveFailures = 0;
-
     public PublicRegistryModuleMetadataProvider(PublicRegistryModuleIndexHttpClient publicRegistryModuleIndexClient)
         : base(LanguageConstants.BicepPublicMcrRegistry)
     {
-        this.client = publicRegistryModuleIndexClient;
+        this.client = publicRegistryModuleIndexClient; //asdfg lifetime
     }
 
     public static RegistryModuleMetadata GetPublicRegistryModuleMetadata(string modulePath, string? description, string? documentationUri)
@@ -42,14 +36,13 @@ public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProvid
         return [.. modules.Select(m =>
             new CachedModule(
                 GetPublicRegistryModuleMetadata(m.ModulePath, m.GetDescription(), m.GetDocumentationUri()),
-                Task.FromResult<ImmutableArray<RegistryModuleVersionMetadata>>(
-                    [.. m.Versions.Select(
-                        t => new RegistryModuleVersionMetadata(
-                            t,
-                            m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].Description:null,
-                            m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].DocumentationUri:null
-                        )
-                    )])
+                [.. m.Versions.Select(
+                    t => new RegistryModuleVersionMetadata(
+                        t,
+                        m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].Description:null,
+                        m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].DocumentationUri:null
+                    )
+                )]
             )
         )];
     }

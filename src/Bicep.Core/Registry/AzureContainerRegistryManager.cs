@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
@@ -33,7 +34,7 @@ namespace Bicep.Core.Registry
         {
             this.clientFactory = clientFactory;
         }
-        public async Task<string[]> GetArtifactTags( //asdfg move?
+        public async Task<string[]> GetRepositoryTags(
             RootConfiguration configuration,
             string registry,
             string repository)
@@ -42,12 +43,12 @@ namespace Bicep.Core.Registry
 
             async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
             {
-                var client = CreateClient(configuration, registryUri, anonymousAccess);
+                var client = CreateRegistryClient(configuration, registryUri, anonymousAccess);
 
                 var tags = new List<string>();
                 await foreach (var manifest in client.GetRepository(repository).GetAllManifestPropertiesAsync(/*asdfg cancel token??*/ ))
                 {
-                    foreach (var tag in manifest.Tags) //asdfg?
+                    foreach (var tag in manifest.Tags) //asdfg? - don't list if not a bicep module
                     {
                         tags.Add(tag);
                     }
@@ -84,7 +85,7 @@ namespace Bicep.Core.Registry
 
             async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
             {
-                var client = CreateClient(configuration, registryUri, anonymousAccess);
+                var client = CreateRegistryClient(configuration, registryUri, anonymousAccess);
                 return await GetCatalogAsync(client); //asdfg paging?
             }
 
@@ -224,12 +225,12 @@ namespace Bicep.Core.Registry
             ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository)
             : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository);
 
-        private ContainerRegistryClient CreateClient(
+        private ContainerRegistryClient CreateRegistryClient(
             RootConfiguration configuration,
             Uri registryUri,
             bool anonymousAccess) => anonymousAccess
-            ? this.clientFactory.CreateAnonymousClient(configuration, registryUri)
-            : this.clientFactory.CreateAuthenticatedClient(configuration, registryUri);
+            ? this.clientFactory.CreateAnonymousRegistryClient(configuration, registryUri)
+            : this.clientFactory.CreateAuthenticatedRegistryClient(configuration, registryUri);
 
         private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactReference artifactReference, ContainerRegistryContentClient client)
         {

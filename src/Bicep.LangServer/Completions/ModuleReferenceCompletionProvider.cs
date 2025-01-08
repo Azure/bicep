@@ -1,6 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// asdfg public CompletionItemLabelDetails? LabelDetails { get; init; }
+
+// <summary>
+// Completion was re-triggered as the current completion list is incomplete.
+// </summary>
+//asdfg TriggerForIncompleteCompletions = 3,
+
+// public CompletionList(IEnumerable<CompletionItem> items, bool isIncomplete) : base(items)
+
 #pragma warning disable IDE0051 // Remove unused private members asdfg remove
 
 using System.Collections.Immutable;
@@ -20,6 +29,7 @@ using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Completions
@@ -907,6 +917,20 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             if (completions.Any())
             {
+                var command = TelemetryHelper.CreateCommand //asdfg
+                (
+                    title: "asdfg title",
+                    name: "bicep.asdfg",
+                    args: JArray.FromObject(new List<object> { "asdfg value" })
+                );
+
+                completions.Add(CompletionItemBuilder.Create(CompletionItemKind.Function, "Refresh completions")
+                    asdfg didn't work.WithFilterText(trimmedText)
+                    .WithInsertText("")
+                    .WithCommand(command)
+                    .WithDetail("asdfg")
+                    .WithDocumentation(MarkdownHelper.GetDocumentationLink("asdfg"))
+                    .Build());
                 telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.MCR)); //asdfg useful??  especially if returning all and not filtering
             }
 

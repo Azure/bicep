@@ -37,7 +37,7 @@ namespace Bicep.Core.Registry
             return new(registryUri, repository, options);
         }
 
-        public ContainerRegistryClient CreateAuthenticatedClient(RootConfiguration configuration, Uri registryUri)
+        public ContainerRegistryClient CreateAuthenticatedRegistryClient(RootConfiguration configuration, Uri registryUri)
         {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
@@ -48,7 +48,7 @@ namespace Bicep.Core.Registry
             return new(registryUri, credential, options);
         }
 
-        public ContainerRegistryClient CreateAnonymousClient(RootConfiguration configuration, Uri registryUri)
+        public ContainerRegistryClient CreateAnonymousRegistryClient(RootConfiguration configuration, Uri registryUri)
         {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
