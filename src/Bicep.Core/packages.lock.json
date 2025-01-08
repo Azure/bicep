@@ -983,7 +983,7 @@
           "TestableIO.System.IO.Abstractions": "21.1.7"
         }
       },
-      "bicep.io": {
+      "Azure.Bicep.IO": {
         "type": "Project",
         "dependencies": {
           "System.IO.Abstractions": "[21.1.7, )",
