@@ -888,8 +888,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(10, "max", new[] { 10, 4, 1, 6 }),
                 CreateRow("foo/bar/baz", "join", new[] { "foo", "bar", "baz"}, "/"),
                 CreateRow("abc/123/True", "join", new object[] { "abc", 123, true }, "/"),
-                CreateRow("https://example.com:443/path/to/resource?key=value", "buildUri", new Dictionary<string, object>{ ["scheme"] = "https", ["host"] = "example.com", ["port"] = 443, ["path"] = "path/to/resource", ["query"] = "key=value" }),
-                CreateRow(new Dictionary<string, object> { ["scheme"] = "https", ["host"] ="example.com", ["port"] = 443, ["path"] = "path/to/resource", ["query"] = "key=value" }, "parseUri", "https://example.com:443/path/to/resource?key=value"),
             };
         }
 
@@ -1019,6 +1017,64 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("fake");
             yield return CreateRow("fake", LanguageConstants.String);
         }
+
+        [TestMethod]
+        public void TestParseAndBuildUri()
+        {
+            string inputUri = "https://example.com/path/to/resource?key=value";
+
+            var expectedParsedUri = new Dictionary<string, string?>
+            {
+                ["scheme"] = "https",
+                ["host"] = "example.com",
+                ["port"] = null,
+                ["path"] = "/path/to/resource",
+                ["query"] = "?key=value"
+            };
+
+            var argumentTypes = new List<TypeSymbol> { LanguageConstants.String };
+
+            // Use var directly for the arguments initialization
+            var arguments = new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateString(inputUri)) };
+
+            var parsedUriType = EvaluateFunction(
+                "parseUri",
+                argumentTypes,
+                arguments
+            ).Type;
+
+            parsedUriType.Should().BeAssignableTo<ObjectType>();
+            var parsedUriObject = parsedUriType as ObjectType;
+
+            parsedUriObject.Should().NotBeNull();
+            parsedUriObject!.Properties.Should().ContainKeys(expectedParsedUri.Keys);
+
+            foreach (var (key, value) in expectedParsedUri)
+            {
+                parsedUriObject.Properties[key].Value.Type.Name.Should().Be(value ?? "null");
+            }
+
+            var uriObject = new ObjectSyntax(
+                expectedParsedUri.Select(kvp => new ObjectPropertySyntax(
+                    TestSyntaxFactory.CreateString(kvp.Key),
+                    kvp.Value is null
+                        ? new NullLiteralSyntax()
+                        : TestSyntaxFactory.CreateString(kvp.Value)
+                )).ToList()
+            );
+
+            // Same as above but removing unnecessary explicit initialization
+            var rebuiltUri = EvaluateFunction(
+                "buildUri",
+                new[] { LanguageConstants.Object },
+                new[] { new FunctionArgumentSyntax(uriObject) }  // This is a simplified expression
+            ).Type;
+
+            rebuiltUri.Should().Be(inputUri);
+        }
+
+
+
 
         private static IEnumerable<FunctionOverload> GetMatches(
             string functionName,
