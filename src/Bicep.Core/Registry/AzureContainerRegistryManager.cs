@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
@@ -34,6 +35,94 @@ namespace Bicep.Core.Registry
             this.clientFactory = clientFactory;
         }
 
+        public async Task<string[]> GetRepositoryTags(
+            RootConfiguration configuration,
+            string registry,
+            string repository)
+        {
+            var registryUri = GetRegistryUri(registry);
+
+            async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
+            {
+                var client = CreateRegistryClient(configuration, registryUri, anonymousAccess);
+
+                var tags = new List<string>();
+                await foreach (var manifest in client.GetRepository(repository).GetAllManifestPropertiesAsync())
+                {
+                    foreach (var tag in manifest.Tags) //asdfg? - don't list if not a bicep module
+                    {
+                        tags.Add(tag);
+                    }
+                }
+
+                return [.. tags];
+            }
+
+            try
+            {
+                // Try authenticated client first.
+                Trace.WriteLine($"Attempting to list repository tags for module {registryUri}/{repository} using authentication.");
+                return await GetCatalogInternalAsync(anonymousAccess: false);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed, received code {exception.Status}. Falling back to anonymous.");
+                return await GetCatalogInternalAsync(anonymousAccess: true);
+            }
+            catch (CredentialUnavailableException)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed due to missing login step. Falling back to anonymous.");
+                return await GetCatalogInternalAsync(anonymousAccess: true);
+            }
+        }
+
+        public async Task<string[]> GetCatalogAsync(
+            RootConfiguration configuration,
+            string registry)
+        {
+            var registryUri = GetRegistryUri(registry);
+
+            async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
+            {
+                var client = CreateRegistryClient(configuration, registryUri, anonymousAccess);
+                return await GetCatalogAsync(client);
+            }
+
+            // Note: This won't work for MCR
+            static async Task<string[]> GetCatalogAsync(ContainerRegistryClient client)
+            {
+                List<string> catalog = [];
+
+                await foreach (var repository in client.GetRepositoryNamesAsync(CancellationToken.None/*asdfg?*/))
+                {
+                    catalog.Add(repository);
+                }
+
+                return [.. catalog];
+            }
+
+            try
+            {
+                // Try authenticated client first.
+                Trace.WriteLine($"Aattempt to list catalog for registry {registryUri} using authentication.");
+                return await GetCatalogInternalAsync(anonymousAccess: false);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"Authenticated attempt to list catalog for registry {registryUri} failed, received code {exception.Status}. Falling back to anonymous.");
+                return await GetCatalogInternalAsync(anonymousAccess: true);
+            }
+            catch (CredentialUnavailableException)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"Authenticated attempt to pull catalog for registry {registryUri} failed due to missing login step. Falling back to anonymous.");
+                return await GetCatalogInternalAsync(anonymousAccess: true);
+            }
+        }
+
         public async Task<OciArtifactResult> PullArtifactAsync(
             RootConfiguration configuration,
             IOciArtifactReference artifactReference)
@@ -47,12 +136,12 @@ namespace Bicep.Core.Registry
             try
             {
                 // Try anonymous auth first.
-                Trace.WriteLine($"Attempt to pull artifact for module {artifactReference.FullyQualifiedReference} with anonymous authentication.");
+                Trace.WriteLine($"Attempting to pull artifact for module {artifactReference.FullyQualifiedReference} with anonymous authentication.");
                 return await DownloadManifestInternalAsync(anonymousAccess: true);
             }
             catch (RequestFailedException requestedFailedException) when (requestedFailedException.Status is 401 or 403)
             {
-                Trace.WriteLine($"Anonymous authetncation failed with status code {requestedFailedException.Status}. Retrying with authenticated client.");
+                Trace.WriteLine($"Anonymous authentication failed with status code {requestedFailedException.Status}. Retrying with authenticated client.");
             }
             catch (Exception exception)
             {
@@ -72,7 +161,6 @@ namespace Bicep.Core.Registry
             IEnumerable<OciDescriptor> layers,
             OciManifestAnnotationsBuilder annotations)
         {
-
             // push is not supported anonymously
             var blobClient = this.CreateBlobClient(configuration, artifactReference, anonymousAccess: false);
 
@@ -116,7 +204,8 @@ namespace Bicep.Core.Registry
             _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
         }
 
-        private static Uri GetRegistryUri(IOciArtifactReference artifactReference) => new($"https://{artifactReference.Registry}");
+        private static Uri GetRegistryUri(IOciArtifactReference artifactReference) => GetRegistryUri(artifactReference.Registry);
+        private static Uri GetRegistryUri(string loginServer) => new($"https://{loginServer}");
 
         private ContainerRegistryContentClient CreateBlobClient(
             RootConfiguration configuration,
@@ -124,6 +213,13 @@ namespace Bicep.Core.Registry
             bool anonymousAccess) => anonymousAccess
             ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository)
             : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository);
+
+        private ContainerRegistryClient CreateRegistryClient(
+            RootConfiguration configuration,
+            Uri registryUri,
+            bool anonymousAccess) => anonymousAccess
+            ? this.clientFactory.CreateAnonymousRegistryClient(configuration, registryUri)
+            : this.clientFactory.CreateAuthenticatedRegistryClient(configuration, registryUri);
 
         private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactReference artifactReference, ContainerRegistryContentClient client)
         {

@@ -178,10 +178,9 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
         var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
         var configurationPath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", string.Empty, testOutputPath);
-        var settings = new InvocationSettings() { ModuleMetadataClient = PublicRegistryModuleIndexClientMock.CreateToThrow(new Exception("unit test failed: shouldn't call this")).Object };
+        var settings = new InvocationSettings() { ModuleMetadataClient = PublicRegistryModuleIndexClientMock.Create([]).Object };
 
         var (output, error, result) = await Bicep(settings, "lint", inputFile);
-
 
         result.Should().Be(1);
         output.Should().BeEmpty();

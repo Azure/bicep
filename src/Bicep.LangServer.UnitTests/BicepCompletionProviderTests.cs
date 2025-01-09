@@ -27,7 +27,7 @@ using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.UnitTests
 {
-    // See also Bicep.LangServer.IntegrationTests/CompletionTests.cs4
+    // See also Bicep.LangServer.IntegrationTests/CompletionTests.cs
 
     [TestClass]
     public class BicepCompletionProviderTests
@@ -47,7 +47,7 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
-                .AddHttpClient<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
+                .AddHttpClient<PublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>() //correct? asdfg
                     .ConfigurePrimaryHttpMessageHandler(() => mockHttpMessageHandler).Services
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<BicepCompletionProvider>()

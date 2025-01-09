@@ -44,13 +44,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string? downloadError = null)
         {
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata())
-                .Returns(availableModules.Select(m => new PublicRegistryModuleMetadata(m, null, null)).ToImmutableArray());
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata(It.IsAny<string>()))
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules())
+                .Returns([.. availableModules.Select(m => new RegistryModuleMetadata("mcr.microsoft.com", "bicep/" + m, null, null))]);
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions(It.IsAny<string>()))
                 .Returns((string module) =>
                 {
                     return availableModules.Contains(module) ?
-                        availableVersions.Select(v => new PublicRegistryModuleVersionMetadata(v, null, null)).ToImmutableArray() :
+                        [.. availableVersions.Select(v => new RegistryModuleVersionMetadata(v, null, null))] :
                         [];
                 });
             publicRegistryModuleMetadataProvider.Setup(x => x.IsCached)

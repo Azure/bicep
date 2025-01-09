@@ -96,8 +96,8 @@ namespace Bicep.LanguageServer
 #pragma warning restore VSTHRD003 // Avoid awaiting foreign Tasks
             }
 
-            var moduleMetadataProvider = server.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
-            moduleMetadataProvider.StartUpdateCache();
+            var moduleMetadataProvider = server.GetRequiredService<IRegistryIndexer>();
+            moduleMetadataProvider.StartUpCache();
         }
 
         public void Dispose()

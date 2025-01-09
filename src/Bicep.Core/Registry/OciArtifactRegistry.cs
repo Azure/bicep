@@ -158,9 +158,9 @@ namespace Bicep.Core.Registry
                 || string.IsNullOrWhiteSpace(documentationUri))
             {
                 // Automatically generate a help URI for public MCR modules
-                if (ociArtifactModuleReference.Registry == LanguageConstants.BicepPublicMcrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.McrRepositoryPrefix, StringComparison.Ordinal))
+                if (ociArtifactModuleReference.Registry == LanguageConstants.BicepPublicMcrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal))
                 {
-                    var moduleName = ociArtifactModuleReference.Repository.Substring(LanguageConstants.McrRepositoryPrefix.Length);
+                    var moduleName = ociArtifactModuleReference.Repository.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length);
                     return ociArtifactModuleReference.Tag is null ? null : GetPublicBicepModuleDocumentationUri(moduleName, ociArtifactModuleReference.Tag);
                 }
 
@@ -218,6 +218,14 @@ namespace Bicep.Core.Registry
 
         public override async Task OnRestoreArtifacts(bool forceRestore)
         {
+            // We don't want linter tests to download anything during analysis.  So we are downloading
+            //   metadata here to avoid downloading during analysis, and tests can use cached data if it
+            //   exists (e.g. IRegistryModuleMetadataProvider.GetCached* methods).
+            // If --no-restore has been specified on the command ine, we don't want to download anything at all.
+            // Therefore we do the cache download here so that lint rules can have access to the cached metadata.
+            // CONSIDER: Revisit if it's okay to download metadata during analysis?  This will be more of a problem
+            //   when we extend the linter rules to include private registry modules.
+
             await publicRegistryModuleMetadataProvider.TryAwaitCache(forceRestore);
         }
 
