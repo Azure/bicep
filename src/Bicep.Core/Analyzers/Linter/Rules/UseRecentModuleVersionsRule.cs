@@ -118,7 +118,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static IEnumerable<Failure> AnalyzeBicepModule(IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
         {
-            var availableVersions = publicRegistryModuleMetadataProvider.GetModuleVersionsMetadata(publicModulePath)
+            var availableVersions = publicRegistryModuleMetadataProvider.GetCachedModuleVersions(publicModulePath/*asdfg does this contain LanguageConstants.McrRepositoryPrefix prefix?*/)
                 .Select(v => v.Version)
                 .ToArray();
             if (availableVersions.Length == 0)
@@ -146,17 +146,16 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static string? TryGetBicepModuleName(IOciArtifactReference ociReference)
         {
-            // IPublicRegistryModuleMetadataProvider does not return the "bicep/" that prefixes all
+            // asdfg IPublicRegistryModuleMetadataProvider does not return the "bicep/" that prefixes all
             //   public registry module paths (it's embedded in the default "bicep" alias path),
             //   so we need to remove it here.
-            const string bicepPrefix = "bicep/";
             var repoPath = ociReference.Repository;
-            if (!repoPath.StartsWith("bicep/", StringComparison.Ordinal))
+            if (!repoPath.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal))
             {
                 return null;
             }
 
-            return repoPath.Substring(bicepPrefix.Length);
+            return repoPath.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length);
         }
 
         public static string[] GetMoreRecentModuleVersions(string[] availableVersions, string modulePath, string referencedVersion)
@@ -176,10 +175,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var availableParsedVersions = availableVersions
                 .Select(v => (version: v, semVersion: SemVersion.Parse(v, SemVersionStyles.Strict)));
 
-            return availableParsedVersions.Where(v => v.semVersion.ComparePrecedenceTo(requestedSemver) > 0)
+            return [.. availableParsedVersions.Where(v => v.semVersion.ComparePrecedenceTo(requestedSemver) > 0)
                 .OrderByDescending(v => v.semVersion, SemVersion.PrecedenceComparer)
-                .Select(v => v.version)
-                .ToArray();
+                .Select(v => v.version)];
         }
 
         // Find the portion of the module/path:version string that corresponds to the module version,

@@ -40,7 +40,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
 
     private class Options(string CacheRoot)
     {
-        private IPublicRegistryModuleIndexClient? _metadataClient = null;
+        private IPublicRegistryModuleIndexHttpClient? _metadataClient = null;
         private string? _config = null;
 
         public string Bicep { get; init; } = "/* bicep contents */";
@@ -73,8 +73,8 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
             }
         }
 
-        // Automatically created from ModulesMetadata by default
-        public IPublicRegistryModuleIndexClient MetadataClient
+        // Automatically created from ModulesMetadata by default (set manually for testing)
+        internal IPublicRegistryModuleIndexHttpClient MetadataClient
         {
             set
             {
@@ -84,7 +84,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
                 ModulesMetadata.Select(mm => new PublicRegistryModuleIndexEntry(
                     mm.module,
                     [.. mm.versions],
-                    new Dictionary<string, PublicRegistryModuleProperties>().ToImmutableDictionary()))).Object;
+                    new Dictionary<string, PublicRegistryModuleIndexProperties>().ToImmutableDictionary()))).Object;
         }
 
     }

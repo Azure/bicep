@@ -39,7 +39,7 @@ namespace Bicep.LangServer.UnitTests
             var mockHttpMessageHandler = new MockHttpMessageHandler();
             mockHttpMessageHandler.When("*").Respond("application/json", "{}");
 
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IRegistryIndexer>();
 
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)
@@ -47,7 +47,7 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
-                .AddHttpClient<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
+                .AddHttpClient<PublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>() //correct? asdfg
                     .ConfigurePrimaryHttpMessageHandler(() => mockHttpMessageHandler).Services
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<BicepCompletionProvider>()
