@@ -1501,6 +1501,7 @@
       "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
+          "Azure.Bicep.IO": "[1.0.0, )",
           "Azure.Bicep.Types": "[0.5.110, )",
           "Azure.Bicep.Types.Az": "[0.2.727, )",
           "Azure.Bicep.Types.K8s": "[0.1.644, )",
@@ -1508,7 +1509,6 @@
           "Azure.Deployments.Templates": "[1.224.0, )",
           "Azure.Identity": "[1.13.1, )",
           "Azure.ResourceManager.Resources": "[1.9.0, )",
-          "Bicep.IO": "[1.0.0, )",
           "JsonPatch.Net": "[3.3.0, )",
           "JsonPath.Net": "[2.0.1, )",
           "Microsoft.Extensions.Configuration": "[9.0.0, )",
@@ -1529,6 +1529,13 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )"
+        }
+      },
+      "Azure.Bicep.IO": {
+        "type": "Project",
+        "dependencies": {
+          "System.IO.Abstractions": "[21.1.7, )",
+          "System.Memory.Data": "[6.0.0, )"
         }
       },
       "Azure.Bicep.Local.Deploy": {
@@ -1564,13 +1571,6 @@
           "Newtonsoft.Json.Schema": "[4.0.1, )",
           "RichardSzalay.MockHttp": "[7.0.0, )",
           "System.IO.Abstractions.TestingHelpers": "[21.1.7, )"
-        }
-      },
-      "bicep.io": {
-        "type": "Project",
-        "dependencies": {
-          "System.IO.Abstractions": "[21.1.7, )",
-          "System.Memory.Data": "[6.0.0, )"
         }
       },
       "bicep.langserver": {
