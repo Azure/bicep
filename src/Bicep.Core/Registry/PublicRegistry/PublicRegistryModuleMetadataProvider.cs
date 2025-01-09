@@ -28,10 +28,6 @@ public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProvid
         this.client = publicRegistryModuleIndexClient; //asdfg lifetime
     }
 
-    //asdfg remove
-    //public static RegistryModuleMetadata GetRegistryModuleMetadataWithPublicPrefix(string modulePath, string? description, string? documentationUri)
-    //    => new(LanguageConstants.BicepPublicMcrRegistry, $"{LanguageConstants.BicepPublicMcrPathPrefix}{modulePath}", description, documentationUri);
-
     protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
     {
         var modules = await client.GetModuleIndexAsync();

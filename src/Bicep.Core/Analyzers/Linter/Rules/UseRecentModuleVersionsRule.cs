@@ -106,7 +106,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             continue;
                         }
 
-                        foreach (var failure in AnalyzeBicepModule((PublicRegistryModuleMetadataProvider)/*asdfg don't cast*/ publicRegistryModuleMetadataProvider, moduleSyntax, errorSpan, tag, publicModulePath))
+                        foreach (var failure in AnalyzeBicepModule(publicRegistryModuleMetadataProvider, moduleSyntax, errorSpan, tag, publicModulePath))
                         {
                             yield return failure;
                         }
@@ -116,7 +116,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             yield break;
         }
 
-        private static IEnumerable<Failure> AnalyzeBicepModule(PublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
+        private static IEnumerable<Failure> AnalyzeBicepModule(IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
         {
             var availableVersions = publicRegistryModuleMetadataProvider.GetCachedModuleVersions(publicModulePath/*asdfg does this contain LanguageConstants.McrRepositoryPrefix prefix?*/)
                 .Select(v => v.Version)
