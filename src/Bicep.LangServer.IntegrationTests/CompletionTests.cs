@@ -5,9 +5,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Json;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.PublicRegistry;
@@ -30,6 +33,7 @@ using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -4159,7 +4163,7 @@ var file = " + functionName + @"(templ|)
             completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0000" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d1" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help1)");
         }
 
-        [TestMethod]//asdfg
+        [TestMethod]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/abc/foo|'", "bicep/abc/foo/bar", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/abc/foo|", "bicep/abc/foo/bar", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br/public:abc/foo|'", "abc/foo/bar", "'br/public:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
@@ -4207,27 +4211,50 @@ var file = " + functionName + @"(templ|)
             );
         }
 
-        [TestMethod] asdfg: similar to Public_registry_completions_support_prefix_matching
-        [DataRow("module test 'br:my.registry.io/bicep/abc/foo|'", "br:my.registry.io/bicep/abc/foo", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br:my.registry.io/bicep/abc/foo|", "br:my.registry.io/bicep/abc/foo", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br:my.registry.io/bicep/abc/foo|", "br:my.registry.io/bicep/abc/foo", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br/myregistry:abc/foo|'", "br/myregistry:bicep/abc/foo", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br/myregistry:abc/foo|", "br/myregistry:bicep/abc/foo", BicepSourceFileKind.BicepFile)]
-        [DataRow("using 'br:my.registry.io/bicep/abc/foo|'", "br:my.registry.io/bicep/abc/foo", BicepSourceFileKind.ParamsFile)]
-        public async Task Private_registry_completions_support_prefix_matching_asdfg(string text, string expectedInsertTextForFoo, BicepSourceFileKind kind)
+        //asdfg if a different base path is specified for an alias in bicepconfig.json, should we add it automaticaly to filter?
+
+        [TestMethod]
+        [DataRow("module test 'br:my.registry.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:my.registry.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:my.registry.io/bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br:my.registry.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/myRegistry:abc/foo|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:my.registry.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:my.registry.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        public async Task Private_registry_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
-            var fileUri = new Uri($"file:///{Guid.NewGuid():D}/{TestContext.TestName}/main.{extension}");
+            var baseFolder = $"{Guid.NewGuid():D}";
+            var fileUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/main.{extension}");
+            //asdfgvar bicepConfigUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/bicepconfig.json");
+
+            var configurationManager = StrictMock.Of<IConfigurationManager>();
+            var asdfgExtractMe = BicepTestConstants.BuiltInConfiguration.With(
+                moduleAliases: ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(
+                """
+                    {
+                        "br": {
+                            "myRegistry": {
+                                "registry": "my.registry.io",
+                                "modulePath": "bicep/whatever"
+                            },
+                            "myRegistry_noPath": {
+                                "registry": "my.registry.io"
+                            }
+                        }
+                    }
+                    """),
+                null));
+            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(asdfgExtractMe);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var privateRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
             privateRegistryModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([
-                new RegistryModuleMetadata("my.registry.io", "bicep/abc/foo/bar", "d1", "contoso.com/help1"),
-                new RegistryModuleMetadata("my.registry.io", "bicep/abc/food/bar", "d2", "contoso.com/help2"),
-                new RegistryModuleMetadata("my.registry.io", "bicep/abc/bar/bar", "d3", "contoso.com/help3")]);
+                new RegistryModuleMetadata("my.registry.io", "bicep/whatever/abc/foo/bar", "d1", "contoso.com/help1"),
+                new RegistryModuleMetadata("my.registry.io", "bicep/whatever/abc/food/bar", "d2", "contoso.com/help2"),
+                new RegistryModuleMetadata("my.registry.io", "bicep/whatever/abc/bar/bar", "d3", "contoso.com/help3")]);
 
             var indexer = StrictMock.Of<IRegistryModuleIndexer>();
             indexer.Setup(x => x.GetRegistry("my.registry.io")).Returns(privateRegistryModuleMetadataProvider.Object);
@@ -4236,16 +4263,26 @@ var file = " + functionName + @"(templ|)
                 TestContext,
                 services => services
                     .AddSingleton(settingsProvider.Object)
-                    .AddSingleton(indexer.Object));
+                    .AddSingleton(indexer.Object)
+                    .AddSingleton(configurationManager.Object)
+            );
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
-            completions.Should().Contain(x => x.Label == "abc/foo/bar")
-                .Which.InsertText.Should().Be(expectedInsertTextForFoo);
-            completions.Should().Contain(x => x.Label == "abc/food/bar")
-                .Which.InsertText.Should().Be(expectedInsertTextForFoo.Replace("foo/", "food/"));
+            completions.Select(x => (Label: x.Label, InsertText: x.TextEdit!.TextEdit!.NewText)).Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be(expectedLabelForFoo);
+                    c.InsertText.Should().Be(expectedInsertTextForFoo);
+                },
+                c =>
+                {
+                    c.Label.Should().Be(expectedLabelForFoo.Replace("foo/", "food/"));
+                    c.InsertText.Should().Be(expectedInsertTextForFoo.Replace("foo/", "food/"));
+                }
+            );
         }
 
         [DataTestMethod]

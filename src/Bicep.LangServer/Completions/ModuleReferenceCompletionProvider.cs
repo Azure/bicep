@@ -70,7 +70,7 @@ namespace Bicep.LanguageServer.Completions
         //private static readonly Regex PublicModuleWithAliasAndVersionSeparator = new(@"^br/public:(?<path>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         // Any module reference with a version separator
-        private static readonly Regex ModuleReferenceWithVersionSeparator = new(@"^(br/[^:]+:[^:]+:)|(br:[^:]+:)", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        //asdfg private static readonly Regex ModuleReferenceWithVersionSeparator = new(@"^(br/[^:]+:[^:]+:)|(br:[^:]+:)", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         // Examples: asdfg test
         //   br:contoso.io/path1/path2/module:2.0.1 =>
@@ -168,20 +168,20 @@ namespace Bicep.LanguageServer.Completions
                 ^
                 ( # Prefix and registry or alias
 
-                    br/ (?<alias>[^/:']*) :
+                    br/(?<alias>[a-zA-Z0-9-_]*):   # see src\Bicep.Core\Configuration\ModuleAliasesConfiguration.cs::ModuleAliasNameRegex
                     |
-                    br: (?<registry>[^/:']*) /
+                    br:(?<registry>[^/:']*)\/   #asdfg valid?
                 )
 
                 # Path
                 (
-                    (?<path>[^:']+)
+                    (?<path>[^:']+) #asdfg valid?
                 )?
 
                 # Version
                 (
                     (?<versionSeparator>:)
-                    (?<version>[^:']+)?
+                    (?<version>[^:']+)?   #asdfg valid?
                 )?
                 """,
             RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant,
@@ -863,42 +863,43 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
         private IEnumerable<CompletionItem> GetPartialPrivatePathCompletionsFromAliases(string trimmedText, BicepCompletionContext context, Uri sourceFileUri)
         {
             List<CompletionItem> completions = new();
-
-            var hasVersion = ModuleReferenceWithVersionSeparator.IsMatch(trimmedText); //asdfg move to caller?  extract?
-            if (hasVersion)
-            {
-                return [];
-            }
-
-            if (!IsPrivateRegistryReference(trimmedText, out string? registry) || string.IsNullOrWhiteSpace(registry))
-            {
-                return completions;
-            }
-
-            telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
-            foreach (var kvp in GetModuleAliases(sourceFileUri))
-            {
-                if (registry.Equals(kvp.Value.Registry, StringComparison.Ordinal))
-                {
-                    var modulePath = kvp.Value.ModulePath;
-
-                    if (modulePath is null)
-                    {
-                        continue;
-                    }
-
-                    var insertText = $"'{trimmedText}{modulePath}:$0'";
-                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, modulePath)
-                       .WithSnippetEdit(context.ReplacementRange, insertText)
-                       .WithFilterText(insertText)
-                       .WithSortText(GetSortText(modulePath))
-                       .WithFollowupCompletion("module path completion")
-                       .Build();
-                    completions.Add(completionItem);
-                }
-            }
-
             return completions;
+            //asdfg
+            //var hasVersion = ModuleReferenceWithVersionSeparator.IsMatch(trimmedText); //asdfg move to caller?  extract?
+            //if (hasVersion)
+            //{
+            //    return [];
+            //}
+
+            //if (!IsPrivateRegistryReference(trimmedText, out string? registry) || string.IsNullOrWhiteSpace(registry))
+            //{
+            //    return completions;
+            //}
+
+            //telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
+            //foreach (var kvp in GetModuleAliases(sourceFileUri))
+            //{
+            //    if (registry.Equals(kvp.Value.Registry, StringComparison.Ordinal))
+            //    {
+            //        var modulePath = kvp.Value.ModulePath;
+
+            //        if (modulePath is null)
+            //        {
+            //            continue;
+            //        }
+
+            //        var insertText = $"'{trimmedText}{modulePath}:$0'";
+            //        var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, modulePath)
+            //           .WithSnippetEdit(context.ReplacementRange, insertText)
+            //           .WithFilterText(insertText)
+            //           .WithSortText(GetSortText(modulePath))
+            //           .WithFollowupCompletion("module path completion")
+            //           .Build();
+            //        completions.Add(completionItem);
+            //    }
+            //}
+
+            //return completions;
         }
 
         //asdfg make sure sorted by version
