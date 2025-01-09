@@ -1051,14 +1051,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             foreach (var (key, value) in expectedParsedUri)
             {
-                parsedUriObject.Properties[key].Value.Type.Name.Should().Be(value ?? "null");
+                parsedUriObject.Properties[key].Value.Type.Name.Should().Be(value ?? "null"); // tbd
             }
 
-            var uriObject = new ObjectSyntax(
-                expectedParsedUri.Select(kvp => new ObjectPropertySyntax(
+            var uriObject = new ObjectSyntax( //tbd
+                expectedParsedUri.Select(kvp => new ObjectPropertySyntax( //tbd
                     TestSyntaxFactory.CreateString(kvp.Key),
                     kvp.Value is null
-                        ? new NullLiteralSyntax()
+                        ? new NullLiteralSyntax() //tbd
                         : TestSyntaxFactory.CreateString(kvp.Value)
                 )).ToList()
             );
@@ -1072,9 +1072,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             rebuiltUri.Should().Be(inputUri);
         }
-
-
-
 
         private static IEnumerable<FunctionOverload> GetMatches(
             string functionName,
