@@ -4207,7 +4207,7 @@ var file = " + functionName + @"(templ|)
             );
         }
 
-        [TestMethod] //asdfg
+        [TestMethod] asdfg: similar to Public_registry_completions_support_prefix_matching
         [DataRow("module test 'br:my.registry.io/bicep/abc/foo|'", "br:my.registry.io/bicep/abc/foo", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br:my.registry.io/bicep/abc/foo|", "br:my.registry.io/bicep/abc/foo", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br:my.registry.io/bicep/abc/foo|", "br:my.registry.io/bicep/abc/foo", BicepSourceFileKind.BicepFile)]
