@@ -4144,9 +4144,8 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<PublicRegistryModuleMetadataProvider>();//asdfg interface
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([new RegistryModuleMetadata("mcr.microsoft.com", "app/dapr-containerapp", "d1", "contoso.com/help1")]);
-            //asdfg dup publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsAsync("bicep/app/dapr-containerapp")).ReturnsAsync([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
