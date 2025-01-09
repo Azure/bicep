@@ -51,7 +51,7 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
             .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
             .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-            .AddPublicRegistryModuleMetadataProviderServices()
+            .AddRegistryIndexerServices()
             .AddSingleton<BicepCompiler>();
 
         AddMockHttpClient(services, PublicRegistryModuleIndexClientMock.Create([]).Object);

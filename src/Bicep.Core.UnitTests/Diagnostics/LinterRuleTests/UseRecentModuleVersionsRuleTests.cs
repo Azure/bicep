@@ -43,14 +43,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string[] availableVersions, // for simplicity, mock returns these same versions for all available modules
             string? downloadError = null)
         {
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata())
-                .Returns(availableModules.Select(m => new PublicRegistryModuleMetadata(m, null, null)).ToImmutableArray());
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata(It.IsAny<string>()))
-                .Returns((string module) =>
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<PublicRegistryModuleMetadataProvider>();//asdfg use interface
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules()) //asdfg extend to private?
+                .Returns([.. availableModules.Select(m => new RegistryModuleMetadata("mcr.microsoft.com", "bicep/" + m, null, null))]); // asdfg extend to private modules?
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions(It.IsAny<string>()))
+                .Returns((string registry, string module) =>
                 {
                     return availableModules.Contains(module) ?
-                        availableVersions.Select(v => new PublicRegistryModuleVersionMetadata(v, null, null)).ToImmutableArray() :
+                        [.. availableVersions.Select(v => new RegistryModuleVersionMetadata(v, null, null))] :
                         [];
                 });
             publicRegistryModuleMetadataProvider.Setup(x => x.IsCached)
