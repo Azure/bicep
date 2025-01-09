@@ -19,13 +19,13 @@ namespace Bicep.Core.TypeSystem.Types
         public NamespaceType(
             string aliasName,
             NamespaceSettings settings,
-            IEnumerable<TypeProperty> properties,
+            IEnumerable<NamedTypeProperty> properties,
             IEnumerable<FunctionOverload> functionOverloads,
             IEnumerable<BannedFunction> bannedFunctions,
             IEnumerable<Decorator> decorators,
             IResourceTypeProvider resourceTypeProvider,
             ArtifactReference? artifact = null)
-            : base(aliasName, TypeSymbolValidationFlags.PreventAssignment, properties, null, TypePropertyFlags.None, null, obj => new FunctionResolver(obj, functionOverloads, bannedFunctions))
+            : base(aliasName, TypeSymbolValidationFlags.PreventAssignment, properties, null, obj => new FunctionResolver(obj, functionOverloads, bannedFunctions))
         {
             Settings = settings;
             ResourceTypeProvider = resourceTypeProvider;

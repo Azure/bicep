@@ -30,7 +30,7 @@ public static class BarNamespaceType
     {
         return new ObjectType("configuration", TypeSymbolValidationFlags.Default, new[]
         {
-            new TypeProperty("connectionString", LanguageConstants.String, TypePropertyFlags.Required),
+            new NamedTypeProperty("connectionString", LanguageConstants.String, TypePropertyFlags.Required),
         }, null);
     }
 
@@ -44,9 +44,9 @@ public static class BarNamespaceType
                 ResourceFlags.None,
                 new ObjectType("Service properties", TypeSymbolValidationFlags.Default, new[]
                 {
-                    new TypeProperty("staticWebsiteEnabled", LanguageConstants.Bool),
-                    new TypeProperty("staticWebsiteIndexDocument", LanguageConstants.String),
-                    new TypeProperty("staticWebsiteErrorDocument404Path", LanguageConstants.String),
+                    new NamedTypeProperty("staticWebsiteEnabled", LanguageConstants.Bool),
+                    new NamedTypeProperty("staticWebsiteIndexDocument", LanguageConstants.String),
+                    new NamedTypeProperty("staticWebsiteErrorDocument404Path", LanguageConstants.String),
                 }, null)),
             new ResourceTypeComponents(
                 ResourceTypeReference.Parse("container"),
@@ -55,7 +55,7 @@ public static class BarNamespaceType
                 ResourceFlags.None,
                 new ObjectType("Container properties", TypeSymbolValidationFlags.Default, new[]
                 {
-                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
                 }, null)),
             new ResourceTypeComponents(
                 ResourceTypeReference.Parse("blob"),
@@ -64,9 +64,9 @@ public static class BarNamespaceType
                 ResourceFlags.None,
                 new ObjectType("Blob properties", TypeSymbolValidationFlags.Default, new[]
                 {
-                    new TypeProperty("containerName", LanguageConstants.String, TypePropertyFlags.Required),
-                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
-                    new TypeProperty("base64Content", LanguageConstants.String, TypePropertyFlags.Required),
+                    new NamedTypeProperty("containerName", LanguageConstants.String, TypePropertyFlags.Required),
+                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                    new NamedTypeProperty("base64Content", LanguageConstants.String, TypePropertyFlags.Required),
                 }, null)),
         }.ToImmutableDictionary(x => x.TypeReference);
 
@@ -109,7 +109,7 @@ public static class BarNamespaceType
         return new NamespaceType(
             aliasName,
             Settings,
-            ImmutableArray<TypeProperty>.Empty,
+            ImmutableArray<NamedTypeProperty>.Empty,
             ImmutableArray<FunctionOverload>.Empty,
             ImmutableArray<BannedFunction>.Empty,
             ImmutableArray<Decorator>.Empty,

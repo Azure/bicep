@@ -116,7 +116,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
                 switch (type)
                 {
                     case ObjectType obj:
-                        if (obj.AdditionalPropertiesType?.Type is TypeSymbol addlPropsType)
+                        if (obj.AdditionalProperties?.TypeReference.Type is TypeSymbol addlPropsType)
                         {
                             foreach (var dictMemberPath in FindPathsToSecureTypeComponents(addlPropsType, $"{path}.*", visited))
                             {
