@@ -8,10 +8,10 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry.PublicRegistry.HttpClients;
+using Bicep.Core.Registry.Indexing.HttpClients;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.PublicRegistry;
+namespace Bicep.Core.Registry.Indexing;
 
 /// <summary>
 /// Provider to get modules metadata that we store at a public endpoint.

@@ -12,7 +12,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Indexing;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;

@@ -7,7 +7,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Indexing;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.IO.Abstraction;

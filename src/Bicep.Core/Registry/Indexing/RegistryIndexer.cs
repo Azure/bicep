@@ -4,7 +4,7 @@
 using Bicep.Core.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.PublicRegistry;
+namespace Bicep.Core.Registry.Indexing;
 
 public class RegistryIndexer : IRegistryIndexer
 {

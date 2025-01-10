@@ -6,7 +6,7 @@ using System.Diagnostics;
 using Bicep.Cli.UnitTests;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Indexing;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Mock;

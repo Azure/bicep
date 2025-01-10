@@ -8,8 +8,8 @@
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using Bicep.Core.Registry.PublicRegistry;
-using Bicep.Core.Registry.PublicRegistry.HttpClients;
+using Bicep.Core.Registry.Indexing;
+using Bicep.Core.Registry.Indexing.HttpClients;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

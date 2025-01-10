@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using Microsoft.Win32;
 
-namespace Bicep.Core.Registry.PublicRegistry;
+namespace Bicep.Core.Registry.Indexing;
 
 public readonly record struct RegistryModuleMetadata(
     string Registry, // e.g. "mcr.microsoft.com"

@@ -3,7 +3,7 @@
 
 using System.Collections.Immutable;
 
-namespace Bicep.Core.Registry.PublicRegistry.HttpClients; //asdfg rename to Registry.Acr?  Oci?  Modules?   Public?
+namespace Bicep.Core.Registry.Indexing.HttpClients;
 
 public interface IPublicModuleIndexHttpClient
 {

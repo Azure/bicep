@@ -13,7 +13,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Indexing;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;

@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using System.Threading.Tasks;
 
-namespace Bicep.Core.Registry.PublicRegistry;
+namespace Bicep.Core.Registry.Indexing;
 
 /// <summary>
 /// Provider to get metadata for modules stored in a public or private registry.

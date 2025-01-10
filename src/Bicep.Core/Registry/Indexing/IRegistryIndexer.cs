@@ -3,7 +3,7 @@
 
 using Bicep.Core.Configuration;
 
-namespace Bicep.Core.Registry.PublicRegistry;
+namespace Bicep.Core.Registry.Indexing;
 
 /// <summary>
 /// Retrieves module metadata from OCI registries (public or private)

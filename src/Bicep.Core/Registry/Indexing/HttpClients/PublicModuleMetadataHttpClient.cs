@@ -10,7 +10,7 @@ using System.Text.Json;
 using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.PublicRegistry.HttpClients;
+namespace Bicep.Core.Registry.Indexing.HttpClients;
 
 /// <summary>
 /// Typed http client to get modules metadata that we store at a public endpoint (currently https://github.com/Azure/bicep-registry-modules)

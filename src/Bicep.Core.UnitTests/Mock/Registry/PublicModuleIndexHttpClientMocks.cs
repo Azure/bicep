@@ -3,15 +3,13 @@
 
 using System;
 using System.Collections.Immutable;
-using Bicep.Core.Registry.PublicRegistry.HttpClients;
+using Bicep.Core.Registry.Indexing.HttpClients;
 using Moq;
 
-namespace Bicep.Core.UnitTests.Mock.Registry;
+namespace Bicep.Core.UnitTests.Mock.Registry.Indexing;
 
 public static class PublicModuleIndexHttpClientMocks
 {
-    // CONSIDER: Mock HttpClient rather than the typed client
-
     public static Mock<IPublicModuleIndexHttpClient> Create(IEnumerable<PublicModuleIndexEntry> metadata)
     {
         var mock = StrictMock.Of<IPublicModuleIndexHttpClient>();

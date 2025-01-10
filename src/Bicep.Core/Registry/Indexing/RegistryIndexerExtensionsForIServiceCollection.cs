@@ -3,10 +3,10 @@
 
 using System.Net;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry.PublicRegistry.HttpClients;
+using Bicep.Core.Registry.Indexing.HttpClients;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.PublicRegistry;
+namespace Bicep.Core.Registry.Indexing;
 
 public static class RegistryIndexerExtensionsForIServiceCollection
 {

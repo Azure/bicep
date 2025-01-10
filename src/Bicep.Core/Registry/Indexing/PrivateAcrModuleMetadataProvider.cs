@@ -13,7 +13,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Registry.Oci;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.PublicRegistry;//asdfg rename folder/namespace PublicRegistry?
+namespace Bicep.Core.Registry.Indexing;
 
 /// <summary>
 /// Provider to get modules metadata from a private ACR registry
