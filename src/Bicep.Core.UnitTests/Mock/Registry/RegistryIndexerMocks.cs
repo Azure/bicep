@@ -78,7 +78,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
         }
 
         public static IRegistryIndexer CreateRegistryIndexer(
-            Mock<IPublicModuleMetadataProvider>? publicProvider,
+            Mock<IPublicModuleMetadataProvider>? publicProvider = null,
             params Mock<IRegistryModuleMetadataProvider>[] privateProviders
         )
         {

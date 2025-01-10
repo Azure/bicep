@@ -125,6 +125,8 @@ namespace Bicep.LanguageServer.Completions
                     (?<versionSeparator>:)
                     (?<version>[^:']+)?   #asdfg valid?
                 )?
+
+                '  # The string must end (CONSIDER: get rid of this limitation?)
                 """,
             RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant,
             10
@@ -326,7 +328,6 @@ namespace Bicep.LanguageServer.Completions
             {
                 return [];
             }
-
             List<CompletionItem> completions = new();
 
             var versionsMetadata =
@@ -433,7 +434,7 @@ namespace Bicep.LanguageServer.Completions
                 return completions;
             }
 
-            foreach (var kvp in GetModuleAliases(rootConfiguration))
+            foreach (var kvp in GetModuleAliases(rootConfiguration)) //asdfg test
             {
                 if (kvp.Value.Registry is string inputRegistry)
                 {
@@ -744,7 +745,7 @@ namespace Bicep.LanguageServer.Completions
             else
             {
                 // CONSIDER: Somehow indicate in the completion list that users can get more completions by setting GetAllAzureContainerRegistriesForCompletionsSetting
-                return GetACRModuleRegistriesCompletionsFromBicepConfig(trimmedText, context, rootConfiguration);
+                return GetPartialACRModuleRegistriesCompletionsFromBicepConfig(trimmedText, context, rootConfiguration);
             }
         }
 
@@ -782,7 +783,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles private ACR registry name completions only for registries that are configured via aliases in the bicepconfig.json file
-        private IEnumerable<CompletionItem> GetACRModuleRegistriesCompletionsFromBicepConfig(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)
+        private IEnumerable<CompletionItem> GetPartialACRModuleRegistriesCompletionsFromBicepConfig(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)
         {
             List<CompletionItem> completions = new();
             HashSet<string> aliases = new();
