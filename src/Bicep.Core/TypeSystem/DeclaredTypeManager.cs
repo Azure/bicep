@@ -1790,6 +1790,14 @@ namespace Bicep.Core.TypeSystem
                     var type = TypeHelper.MakeRequiredPropertiesOptional(enclosingObjectType);
 
                     return TryCreateAssignment(type, syntax);
+
+                case TypedLambdaSyntax lambda when binder.IsEqualOrDescendent(syntax, lambda.Body):
+                    if (GetTypedLambdaType(lambda).Reference is not LambdaType lambdaType)
+                    {
+                        return null;
+                    }
+
+                    return TryCreateAssignment(lambdaType.ReturnType, syntax);
             }
 
             return null;
