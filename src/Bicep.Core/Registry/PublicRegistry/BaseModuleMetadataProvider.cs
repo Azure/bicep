@@ -17,7 +17,7 @@ namespace Bicep.Core.Registry.PublicRegistry;
 /// <summary>
 /// Provider to get metadata for modules stored in a public or private registry.
 /// </summary>
-public abstract class RegistryModuleMetadataProviderBase(
+public abstract class BaseModuleMetadataProvider(
     string registry
 ) : IRegistryModuleMetadataProvider
 {
@@ -153,15 +153,15 @@ public abstract class RegistryModuleMetadataProviderBase(
     {
         if (!this.cachedModules.Any())
         {
-            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] First data retrieval...");
+            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicModuleMetadataProvider)}: [{Registry}] First data retrieval...");
         }
         else if (forceUpdate)
         {
-            Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] Force updating cache...");
+            Trace.WriteLine($"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Force updating cache...");
         }
         else if (IsCacheExpired())
         {
-            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] Cache expired, updating...");
+            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Cache expired, updating...");
         }
         else
         {
@@ -198,7 +198,7 @@ public abstract class RegistryModuleMetadataProviderBase(
 
                     if (delay > 0)
                     {
-                        Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] Delaying {delay} before retry...");
+                        Trace.WriteLine($"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Delaying {delay} before retry...");
                         await Task.Delay(delay);
                     }
 
@@ -215,7 +215,7 @@ public abstract class RegistryModuleMetadataProviderBase(
                 {
                     lock (this.queryingLiveSyncObject)
                     {
-                        Trace.Assert(this.queryLiveDataTask is { }, $"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] Should be querying live data");
+                        Trace.Assert(this.queryLiveDataTask is { }, $"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Should be querying live data");
                         this.queryLiveDataTask = null;
                     }
                 }
@@ -228,7 +228,7 @@ public abstract class RegistryModuleMetadataProviderBase(
         var expired = this.lastSuccessfulQuery.HasValue && this.lastSuccessfulQuery.Value + this.CacheValidFor < DateTime.Now;
         if (expired)
         {
-            Trace.TraceInformation($"{nameof(PublicRegistryModuleMetadataProvider)}: [{Registry}] Cache has expired.");
+            Trace.TraceInformation($"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Cache has expired.");
         }
 
         return expired;

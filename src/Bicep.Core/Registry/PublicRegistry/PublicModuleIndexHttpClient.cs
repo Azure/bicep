@@ -8,22 +8,22 @@ using Bicep.Core.Registry.Oci;
 using Semver;
 using Semver.Comparers;
 
-namespace Bicep.Core.Registry.PublicRegistry; //asdfg rename to Registry.Acr?  Oci?  Modules?
+namespace Bicep.Core.Registry.PublicRegistry; //asdfg rename to Registry.Acr?  Oci?  Modules?   Public?
 
-public readonly record struct PublicRegistryModuleIndexProperties(string Description, string DocumentationUri);
+public readonly record struct PublicModuleIndexProperties(string Description, string DocumentationUri);
 
-public interface IPublicRegistryModuleIndexHttpClient
+public interface IPublicModuleIndexHttpClient
 {
-    Task<ImmutableArray<PublicRegistryModuleIndexEntry>> GetModuleIndexAsync();
+    Task<ImmutableArray<PublicModuleIndexEntry>> GetModuleIndexAsync();
 }
 
 /// <summary>
 /// This is the DTO for modules listed in the public bicep registry
 /// </summary>
-public record PublicRegistryModuleIndexEntry(
+public record PublicModuleIndexEntry(
     [property: JsonPropertyName("moduleName")] string ModulePath, // e.g. "avm/app/dapr-containerapp" - the "bicep/" prefix is assumed and not included in the index
     ImmutableArray<string> Tags, // e.g. "1.0.0" (not guaranteed to be in semver format, although it currently is for all our public modules)
-    [property: JsonPropertyName("properties")] ImmutableDictionary<string, PublicRegistryModuleIndexProperties> PropertiesByTag // Module properties per tag
+    [property: JsonPropertyName("properties")] ImmutableDictionary<string, PublicModuleIndexProperties> PropertiesByTag // Module properties per tag
 )
 {
     private static readonly SemVersion DefaultVersion = new(0);
@@ -46,7 +46,7 @@ public record PublicRegistryModuleIndexEntry(
 
     public string? GetDocumentationUri(string? version = null) => this.GetProperty(version, x => x.DocumentationUri);
 
-    private string? GetProperty(string? version, Func<PublicRegistryModuleIndexProperties, string> propertySelector)
+    private string? GetProperty(string? version, Func<PublicModuleIndexProperties, string> propertySelector)
     {
         if (version is null)
         {

@@ -9,4 +9,4 @@ namespace Bicep.Core.Registry.PublicRegistry;
 /// An IRegistryModuleMetadataProvider that will be registered as a singleton to handle
 /// the public bicep registry only.   asdfg create in indexer?
 /// </summary>
-public interface IPublicRegistryModuleMetadataProvider : IRegistryModuleMetadataProvider { }
+public interface IPublicModuleMetadataProvider : IRegistryModuleMetadataProvider { }

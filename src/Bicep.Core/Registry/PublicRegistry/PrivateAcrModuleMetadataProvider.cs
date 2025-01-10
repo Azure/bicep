@@ -18,12 +18,12 @@ namespace Bicep.Core.Registry.PublicRegistry;//asdfg rename folder/namespace Pub
 /// <summary>
 /// Provider to get modules metadata from a private ACR registry
 /// </summary>
-public class PrivateAcrRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase, IRegistryModuleMetadataProvider
+public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IRegistryModuleMetadataProvider
 {
     private readonly CloudConfiguration cloud;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
 
-    public PrivateAcrRegistryModuleMetadataProvider(
+    public PrivateAcrModuleMetadataProvider(
         CloudConfiguration cloud,
         string registry,
         IContainerRegistryClientFactory containerRegistryClientFactory)

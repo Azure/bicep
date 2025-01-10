@@ -32,7 +32,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         private static void ShouldHaveValidCachedModules(IFileSystem fileSystem, IDirectoryHandle cacheRootDirectory, bool? withSource = null)
         {
-            var modules = CachedModules.GetCachedRegistryModules(fileSystem, cacheRootDirectory);
+            var modules = CachedModules.GetCachedModules(fileSystem, cacheRootDirectory);
             modules.Should().HaveCountGreaterThan(0);
             if (withSource.HasValue)
             {

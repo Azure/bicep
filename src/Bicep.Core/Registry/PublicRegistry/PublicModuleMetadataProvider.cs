@@ -15,14 +15,14 @@ namespace Bicep.Core.Registry.PublicRegistry;
 /// <summary>
 /// Provider to get modules metadata that we store at a public endpoint.
 /// </summary>
-public class PublicRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase, IPublicRegistryModuleMetadataProvider
+public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicModuleMetadataProvider
 {
-    private readonly IPublicRegistryModuleIndexHttpClient client;
+    private readonly IPublicModuleIndexHttpClient client;
 
-    public PublicRegistryModuleMetadataProvider(IPublicRegistryModuleIndexHttpClient publicRegistryModuleIndexClient)
+    public PublicModuleMetadataProvider(IPublicModuleIndexHttpClient publicModuleIndexClient)
         : base(LanguageConstants.BicepPublicMcrRegistry)
     {
-        this.client = publicRegistryModuleIndexClient; //asdfg lifetime
+        this.client = publicModuleIndexClient; //asdfg lifetime
     }
 
     protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()

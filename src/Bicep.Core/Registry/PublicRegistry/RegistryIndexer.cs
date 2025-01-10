@@ -14,7 +14,7 @@ public class RegistryIndexer : IRegistryIndexer
     private readonly Dictionary<string, IRegistryModuleMetadataProvider> registryProviders = new();
 
     public RegistryIndexer(
-        IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider/*asdfgasdfgasdfg asdfg2 create it ourselves? */,
+        IPublicModuleMetadataProvider publicModuleMetadataProvider/*asdfgasdfgasdfg asdfg2 create it ourselves? */,
         IContainerRegistryClientFactory containerRegistryClientFactory,
         IConfigurationManager configurationManager
         )
@@ -22,7 +22,7 @@ public class RegistryIndexer : IRegistryIndexer
         this.containerRegistryClientFactory = containerRegistryClientFactory;
         this.configurationManager = configurationManager;
 
-        registryProviders["mcr.microsoft.com"] = publicRegistryModuleMetadataProvider;
+        registryProviders["mcr.microsoft.com"] = publicModuleMetadataProvider;
     }
 
     public IRegistryModuleMetadataProvider GetRegistry(string registry, CloudConfiguration cloud)
@@ -32,7 +32,7 @@ public class RegistryIndexer : IRegistryIndexer
             return provider;
         }
 
-        provider = new PrivateAcrRegistryModuleMetadataProvider(cloud, registry, containerRegistryClientFactory);
+        provider = new PrivateAcrModuleMetadataProvider(cloud, registry, containerRegistryClientFactory);
         registryProviders[registry] = provider; //asdfg threading
 
         //asdfg remove from cache, esp if error

@@ -17,7 +17,7 @@ using RichardSzalay.MockHttp;
 namespace Bicep.Core.UnitTests.Registry.PublicRegistry
 {
     [TestClass]
-    public class PublicRegistryModuleMetadataProviderTests //asdfgasdfg existing core tests
+    public class PublicModuleMetadataProviderTests //asdfgasdfg existing core tests
     {
         //private IServiceProvider GetServiceProvider() asdfg remove
         //{
@@ -27,9 +27,9 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         //    ).Build().Construct<IServiceProvider>();
         //}
 
-        private PublicRegistryModuleMetadataHttpClient CreateTypedClient() { //asdfg extract
+        private PublicModuleMetadataHttpClient CreateTypedClient() { //asdfg extract
             var httpClient = MockHttpMessageHandler.ToHttpClient();
-            return new PublicRegistryModuleMetadataHttpClient(httpClient);
+            return new PublicModuleMetadataHttpClient(httpClient);
         }
 
         private const string ModuleIndexJson = """
@@ -1112,7 +1112,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             TimeSpan initial = TimeSpan.FromDays(2.5);
             TimeSpan max = TimeSpan.FromDays(10);
-            var delay = RegistryModuleMetadataProviderBase.GetExponentialDelay(initial, 0, max);
+            var delay = BaseModuleMetadataProvider.GetExponentialDelay(initial, 0, max);
 
             delay.Should().Be(initial);
         }
@@ -1122,7 +1122,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             TimeSpan initial = TimeSpan.FromDays(2.5);
             TimeSpan max = TimeSpan.FromDays(10);
-            var delay = RegistryModuleMetadataProviderBase.GetExponentialDelay(initial, 1, max);
+            var delay = BaseModuleMetadataProvider.GetExponentialDelay(initial, 1, max);
 
             delay.Should().Be(initial * 2);
         }
@@ -1132,7 +1132,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             TimeSpan initial = TimeSpan.FromDays(2.5);
             TimeSpan max = TimeSpan.FromDays(10);
-            var delay = RegistryModuleMetadataProviderBase.GetExponentialDelay(initial, 2, max);
+            var delay = BaseModuleMetadataProvider.GetExponentialDelay(initial, 2, max);
 
             delay.Should().Be(initial * 4);
         }
@@ -1147,7 +1147,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
             int count = 0;
             while (exponentiallyGrowingDelay < max * 1000)
             {
-                var delay = PublicRegistryModuleMetadataProvider.GetExponentialDelay(initial, count, max);
+                var delay = PublicModuleMetadataProvider.GetExponentialDelay(initial, count, max);
 
                 if (exponentiallyGrowingDelay < max)
                 {
@@ -1183,7 +1183,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         [TestMethod]
         public async Task GetModules_Count_SanityCheck()
         {
-            PublicRegistryModuleMetadataProvider provider = new(CreateTypedClient());
+            PublicModuleMetadataProvider provider = new(CreateTypedClient());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModulesAsync();
             modules.Should().HaveCount(50);
@@ -1192,7 +1192,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         [TestMethod]
         public async Task GetModules_IfOnlyLastTagHasDescription()
         {
-            PublicRegistryModuleMetadataProvider provider = new(CreateTypedClient());
+            PublicModuleMetadataProvider provider = new(CreateTypedClient());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModulesAsync();
             var m = modules.Should().Contain(m => m.ModuleName == "bicep/samples/hello-world")
@@ -1204,7 +1204,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         [TestMethod]
         public async Task GetModules_IfMultipleTagsHaveDescriptions()
         {
-            PublicRegistryModuleMetadataProvider provider = new(CreateTypedClient());
+            PublicModuleMetadataProvider provider = new(CreateTypedClient());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModulesAsync();
             var m = modules.Should().Contain(m => m.ModuleName == "bicep/lz/sub-vending")
@@ -1216,7 +1216,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         [TestMethod]
         public async Task GetModuleVersions_SortsBySemver() //asdfg test for private
         {
-            PublicRegistryModuleMetadataProvider provider = new(CreateTypedClient());
+            PublicModuleMetadataProvider provider = new(CreateTypedClient());
             var versions = (await provider.GetModuleVersionsAsync("bicep/samples/array-loop")).Select(x => x.Version);//asdfg test
 
             versions.Should().Equal(

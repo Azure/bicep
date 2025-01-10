@@ -67,7 +67,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static IEnumerable<Failure> GetFailures(SemanticModel model, IServiceProvider serviceProvider, DiagnosticLevel diagnosticLevel)
         {
-            var publicRegistryModuleMetadataProvider = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
+            var publicModuleMetadataProvider = serviceProvider.GetRequiredService<IPublicModuleMetadataProvider>();
             var hasShownDownloadWarning = false;
 
             foreach (var (syntax, artifactResolutionInfo) in model.SourceFileGrouping.ArtifactLookup
@@ -87,7 +87,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             continue;
                         }
 
-                        if (publicRegistryModuleMetadataProvider.DownloadError is string downloadError)
+                        if (publicModuleMetadataProvider.DownloadError is string downloadError)
                         {
                             if (!hasShownDownloadWarning)
                             {
@@ -96,7 +96,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             }
                             continue;
                         }
-                        else if (!publicRegistryModuleMetadataProvider.IsCached)
+                        else if (!publicModuleMetadataProvider.IsCached)
                         {
                             if (!hasShownDownloadWarning)
                             {
@@ -106,7 +106,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             continue;
                         }
 
-                        foreach (var failure in AnalyzeBicepModule(publicRegistryModuleMetadataProvider, moduleSyntax, errorSpan, tag, publicModulePath))
+                        foreach (var failure in AnalyzeBicepModule(publicModuleMetadataProvider, moduleSyntax, errorSpan, tag, publicModulePath))
                         {
                             yield return failure;
                         }
@@ -116,12 +116,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             yield break;
         }
 
-        private static IEnumerable<Failure> AnalyzeBicepModule(IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
+        private static IEnumerable<Failure> AnalyzeBicepModule(IPublicModuleMetadataProvider publicModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
         {
             // NOTE: We don't want linter tests to download anything during analysis.  So metadata is loaded
-            //   and cached during module restore.  So don't use the Get*Async methods of IPublicRegistryModuleMetadataProvider,
+            //   and cached during module restore.  So don't use the Get*Async methods of IPublicModuleMetadataProvider,
             //   just the GetCached* methods
-            var availableVersions = publicRegistryModuleMetadataProvider.GetCachedModuleVersions($"{LanguageConstants.BicepPublicMcrPathPrefix}{publicModulePath}")
+            var availableVersions = publicModuleMetadataProvider.GetCachedModuleVersions($"{LanguageConstants.BicepPublicMcrPathPrefix}{publicModulePath}")
                 .Select(v => v.Version)
                 .ToArray();
             if (availableVersions.Length == 0)

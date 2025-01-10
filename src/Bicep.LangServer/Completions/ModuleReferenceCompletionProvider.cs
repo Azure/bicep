@@ -318,12 +318,6 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
-        // Handles version completions for Microsoft Container Registries (MCR): asdfg
-        //
-        //   br/module/name:<CURSOR>
-        //   br:mcr.microsoft/bicep/module/name:<CURSOR>
-        //
-        // etc
         private async Task<IEnumerable<CompletionItem>> GetVersionCompletions(BicepCompletionContext context, string trimmedText, RootConfiguration rootConfiguration)
         {
             if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
@@ -332,29 +326,6 @@ namespace Bicep.LanguageServer.Completions
             {
                 return [];
             }
-
-            // refactor, similar to start of GetModuleCompletions asdfg remove
-            //string? modulePath;
-
-            //if (PublicModuleWithAliasAndVersionSeparator.IsMatch(trimmedText))
-            //{
-            //    var matches = PublicModuleWithAliasAndVersionSeparator.Matches(trimmedText);
-            //    modulePath = matches[0].Groups["path"].Value;
-            //}
-            //else if (PublicModuleWithFullPathAndVersionSeparator.IsMatch(trimmedText))
-            //{
-            //    var matches = PublicModuleWithFullPathAndVersionSeparator.Matches(trimmedText);
-            //    modulePath = matches[0].Groups["path"].Value;
-            //}
-            //else
-            //{
-            //    modulePath = GetAliasedMCRModulePath(trimmedText, sourceFileUri); asdfg
-            //}
-
-            //if (modulePath is null)
-            //{
-            //    return [];
-            //}
 
             List<CompletionItem> completions = new();
 
@@ -382,7 +353,7 @@ namespace Bicep.LanguageServer.Completions
 
             return completions;
 
-            //asdfg to do
+            //asdfg test
             //// Handles scenario where the user has configured an alias for MCR in bicepconfig.json.
             //string? GetAliasedMCRModulePath(string trimmedText, Uri sourceFileUri)
             //{
@@ -451,121 +422,6 @@ namespace Bicep.LanguageServer.Completions
                 .. await GetPublicPathCompletionFromAliases(trimmedText, context, rootConfiguration),
             ];
         }
-
-
-
-
-
-
-
-
-#if false
-            if (replacementText == "'br/public:'" ||
-                replacementText == $"'br:{PublicMCRRegistry}/bicep/'" ||
-                replacementText == "'br/public:" ||
-                replacementText == $"'br:{PublicMCRRegistry}/bicep/")
-            {
-                return await GetPublicMCRPathCompletions(replacementText, context, sourceFileUri);
-            }
-            else
-            {
-                List<CompletionItem> completions = new();
-
-                completions.AddRange(GetACRPartialPathCompletionsFromBicepConfig(replacementText, context, sourceFileUri));
-                completions.AddRange(await GetMCRPathCompletionFromBicepConfig(replacementText, context, sourceFileUri));
-
-                var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
-                foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri)/*asdfg non-aliased*/)
-                {
-                    var registry = kvp.Value.Registry;
-
-                    if (registry is not null && !registry.Equals(PublicMCRRegistry, StringComparison.Ordinal)/*asdfg?*/)
-                    {
-                    //asdfg2
-                        AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
-                        var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
-                        var catalog = await acrManager.GetCatalogAsync(rootConfiguration, registry); //asdfg cache
-
-                        //asdfg?if (!aliases.TryGetValue(label, out _))
-                        //{
-                        //asdfg
-                            var replacementTextWithoutQuotes = replacementText.Trim('\''); // e.g. replacementText = "'br/demo/spaces:"
-                        foreach (var module in catalog)
-                        {
-                            var label = module;
-                            var insertText = $"'{replacementTextWithoutQuotes}{module}:$0'";
-                            var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
-                            .WithFilterText(insertText)
-                            .WithSnippetEdit(context.ReplacementRange, insertText)
-                            //asdfg .WithSortText(GetSortText(registry))
-                            .WithFollowupCompletion("private module path completion asdfg")
-                            .Build();
-                            completions.Add(completionItem);
-                        }
-
-                        //asdfg aliases.Add(label );
-                        //}
-                    }
-                }
-
-                return completions;
-            }
-        }
-
-
-private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
-        {
-            Trace.WriteLine($"Retrieving list of public registry modules...");
-
-            try
-            {
-                var catalogEndpoint = $"https://{loginServer}/v2/_catalog";
-                var metadata = await this.httpClient.GetFromJsonAsync<string[]>(catalogEndpoint, JsonSerializerOptions);
-
-                if (metadata is not null)
-                {
-                    return metadata.ToImmutableArray();
-                }
-                else
-                {
-                    throw new Exception($"asdfgList of MCR modules at {LiveDataEndpoint} was empty");
-                }
-            }
-            catch (Exception e)
-            {
-                Trace.TraceError(string.Format("asdfgError retrieving MCR modules metadata: {0}", e.Message));
-                return null;
-            }
-        }
-#endif
-
-
-        // private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
-        // {
-        //     Trace.WriteLine($"Retrieving list of public registry modules...");
-
-        //     try
-        //     {
-        //         var catalogEndpoint = $"https://{loginServer}/v2/_catalog";
-        //         var metadata = await this.httpClient.GetFromJsonAsync<string[]>(catalogEndpoint, JsonSerializerOptions);
-
-        //         if (metadata is not null)
-        //         {
-        //             return metadata.ToImmutableArray();
-        //         }
-        //         else
-        //         {
-        //             throw new Exception($"asdfgList of MCR modules at {LiveDataEndpoint} was empty");
-        //         }
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         Trace.TraceError(string.Format("asdfgError retrieving MCR modules metadata: {0}", e.Message));
-        //         return null;
-        //     }
-        // }
-
-
 
         // Handles path completions for case where user has specified an alias in bicepconfig.json with registry set to "mcr.microsoft.com".
         private async Task<IEnumerable<CompletionItem>> GetPublicPathCompletionFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration) //asdfg rewrite or remove
@@ -740,7 +596,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
         //      =>
         //   br:privateacr.azurecr.io/bicep/app:<CURSOR>
         //asdfg make sure tested, then remove
-        private IEnumerable<CompletionItem> GetPartialPrivatePathCompletionsFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)
+        private IEnumerable<CompletionItem> GetPartialPrivatePathCompletionsFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration) //asdfg test
         {
             List<CompletionItem> completions = new();
             return completions;

@@ -43,22 +43,22 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string[] availableVersions, // for simplicity, mock returns these same versions for all available modules
             string? downloadError = null)
         {
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModules())
+            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            publicModuleMetadataProvider.Setup(x => x.GetCachedModules())
                 .Returns([.. availableModules.Select(m => new RegistryModuleMetadata("mcr.microsoft.com", "bicep/" + m, null, null))]);
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions(It.IsAny<string>()))
+            publicModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions(It.IsAny<string>()))
                 .Returns((string module) =>
                 {
                     return availableModules.Contains(module) ?
                         [.. availableVersions.Select(v => new RegistryModuleVersionMetadata(v, null, null))] :
                         [];
                 });
-            publicRegistryModuleMetadataProvider.Setup(x => x.IsCached)
+            publicModuleMetadataProvider.Setup(x => x.IsCached)
                 .Returns(availableModules.Length > 0);
-            publicRegistryModuleMetadataProvider.Setup(x => x.DownloadError)
+            publicModuleMetadataProvider.Setup(x => x.DownloadError)
                 .Returns(downloadError);
 
-            var services = Services.WithRegistration(x => x.AddSingleton(publicRegistryModuleMetadataProvider.Object));
+            var services = Services.WithRegistration(x => x.AddSingleton(publicModuleMetadataProvider.Object));
             var result = CompilationHelper.Compile(services, [("main.bicep", bicep)]);
             return result;
         }

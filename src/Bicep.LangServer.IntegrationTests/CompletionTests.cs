@@ -4144,14 +4144,14 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([new RegistryModuleMetadata("mcr.microsoft.com", "app/dapr-containerapp", "d1", "contoso.com/help1")]);
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsAsync("bicep/app/dapr-containerapp")).ReturnsAsync([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
+            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            publicModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([new RegistryModuleMetadata("mcr.microsoft.com", "app/dapr-containerapp", "d1", "contoso.com/help1")]);
+            publicModuleMetadataProvider.Setup(x => x.GetModuleVersionsAsync("bicep/app/dapr-containerapp")).ReturnsAsync([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                .AddSingleton(publicRegistryModuleMetadataProvider.Object)
+                .AddSingleton(publicModuleMetadataProvider.Object)
                 .AddSingleton(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
@@ -4180,8 +4180,8 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([
+            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            publicModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([
                 new RegistryModuleMetadata("mcr.microsoft.com", "bicep/abc/foo/bar", "d1", "contoso.com/help1"),
                 new RegistryModuleMetadata("mcr.microsoft.com", "bicep/abc/food/bar", "d2", "contoso.com/help2"),
                 new RegistryModuleMetadata("mcr.microsoft.com", "bicep/abc/bar/bar", "d3", "contoso.com/help3")]);
@@ -4189,7 +4189,7 @@ var file = " + functionName + @"(templ|)
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                    .AddSingleton<IPublicRegistryModuleMetadataProvider>(publicRegistryModuleMetadataProvider.Object)
+                    .AddSingleton<IPublicModuleMetadataProvider>(publicModuleMetadataProvider.Object)
                     .AddSingleton(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
@@ -4249,14 +4249,14 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var privateRegistryModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            privateRegistryModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([
+            var privateModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
+            privateModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([
                 new RegistryModuleMetadata("my.registry.io", "bicep/whatever/abc/foo/bar", "d1", "contoso.com/help1"),
                 new RegistryModuleMetadata("my.registry.io", "bicep/whatever/abc/food/bar", "d2", "contoso.com/help2"),
                 new RegistryModuleMetadata("my.registry.io", "bicep/whatever/abc/bar/bar", "d3", "contoso.com/help3")]);
 
             var indexer = StrictMock.Of<IRegistryIndexer>();
-            indexer.Setup(x => x.GetRegistry("my.registry.io", It.IsAny<CloudConfiguration>())).Returns(privateRegistryModuleMetadataProvider.Object);
+            indexer.Setup(x => x.GetRegistry("my.registry.io", It.IsAny<CloudConfiguration>())).Returns(privateModuleMetadataProvider.Object);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,

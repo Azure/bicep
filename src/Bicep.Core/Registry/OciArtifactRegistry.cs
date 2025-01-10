@@ -35,14 +35,14 @@ namespace Bicep.Core.Registry
 
         private readonly IFeatureProvider features;
 
-        private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
+        private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
         public OciArtifactRegistry(
             IFileResolver FileResolver,
             IContainerRegistryClientFactory clientFactory,
             IFeatureProvider features,
             RootConfiguration configuration,
-            IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
+            IPublicModuleMetadataProvider publicModuleMetadataProvider,
             Uri parentModuleUri)
             : base(FileResolver)
         {
@@ -51,7 +51,7 @@ namespace Bicep.Core.Registry
             this.configuration = configuration;
             this.features = features;
             this.parentModuleUri = parentModuleUri;
-            this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
+            this.publicModuleMetadataProvider = publicModuleMetadataProvider;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.Oci;
@@ -226,7 +226,7 @@ namespace Bicep.Core.Registry
             // CONSIDER: Revisit if it's okay to download metadata during analysis?  This will be more of a problem
             //   when we extend the linter rules to include private registry modules.
 
-            await publicRegistryModuleMetadataProvider.TryAwaitCache(forceRestore);
+            await publicModuleMetadataProvider.TryAwaitCache(forceRestore);
         }
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
