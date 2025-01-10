@@ -23,6 +23,8 @@ public readonly record struct RegistryModuleVersionMetadata(
 /// </summary>
 public interface IRegistryModuleMetadataProvider
 {
+    public string Registry { get; }
+
     bool IsCached { get; }
 
     string? DownloadError { get; }

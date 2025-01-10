@@ -46,6 +46,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using Bicep.Core.UnitTests.Mock.Registry;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
 {
@@ -4144,9 +4145,11 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
-            publicModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([new RegistryModuleMetadata("mcr.microsoft.com", "app/dapr-containerapp", "d1", "contoso.com/help1")]);
-            publicModuleMetadataProvider.Setup(x => x.GetModuleVersionsAsync("bicep/app/dapr-containerapp")).ReturnsAsync([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
+            var publicModuleMetadataProvider = RegistryIndexerMocks.MockPublicMetadataProvider(
+                [("bicep/app/dapr-containerapp", "d1", "contoso.com/help1", [
+                    new("1.0.2", "d1", "contoso.com/help1"),
+                    new("1.0.1", null, null)])
+                ]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -4180,11 +4183,11 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
-            publicModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([
-                new RegistryModuleMetadata("mcr.microsoft.com", "bicep/abc/foo/bar", "d1", "contoso.com/help1"),
-                new RegistryModuleMetadata("mcr.microsoft.com", "bicep/abc/food/bar", "d2", "contoso.com/help2"),
-                new RegistryModuleMetadata("mcr.microsoft.com", "bicep/abc/bar/bar", "d3", "contoso.com/help3")]);
+            var publicModuleMetadataProvider = RegistryIndexerMocks.MockPublicMetadataProvider([
+                   ("bicep/abc/foo/bar", "d1", "contoso.com/help1", []),
+                   ("bicep/abc/food/bar", "d2", "contoso.com/help2", []),
+                   ("bicep/abc/bar/bar", "d3", "contoso.com/help3", []),
+                ]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -4228,7 +4231,7 @@ var file = " + functionName + @"(templ|)
             //asdfgvar bicepConfigUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/bicepconfig.json");
 
             var configurationManager = StrictMock.Of<IConfigurationManager>();
-            var asdfgExtractMe = BicepTestConstants.BuiltInConfiguration.With(
+            var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
                 moduleAliases: ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(
                 """
                     {
@@ -4244,19 +4247,22 @@ var file = " + functionName + @"(templ|)
                     }
                     """),
                 null));
-            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(asdfgExtractMe);
+            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(moduleAliasesConfiguration);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var privateModuleMetadataProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            privateModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([
-                new RegistryModuleMetadata("my.registry.io", "bicep/whatever/abc/foo/bar", "d1", "contoso.com/help1"),
-                new RegistryModuleMetadata("my.registry.io", "bicep/whatever/abc/food/bar", "d2", "contoso.com/help2"),
-                new RegistryModuleMetadata("my.registry.io", "bicep/whatever/abc/bar/bar", "d3", "contoso.com/help3")]);
+            var indexer = RegistryIndexerMocks.MockRegistryIndexer(
+                null,
+                RegistryIndexerMocks.MockPrivateMetadataProvider(
+                    "my.registry.io",
+                    [
+                        ("bicep/whatever/abc/foo/bar", "d1", "contoso.com/help1", []),
+                        ("bicep/whatever/abc/food/bar", "d2", "contoso.com/help2", []),
+                        ("bicep/whatever/abc/bar/bar", "d3", "contoso.com/help3", []),
 
-            var indexer = StrictMock.Of<IRegistryIndexer>();
-            indexer.Setup(x => x.GetRegistry("my.registry.io", It.IsAny<CloudConfiguration>())).Returns(privateModuleMetadataProvider.Object);
+                    ])
+                );
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,

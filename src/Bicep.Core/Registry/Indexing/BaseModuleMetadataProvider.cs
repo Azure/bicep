@@ -30,7 +30,7 @@ public abstract class BaseModuleMetadataProvider(
     private DateTime? lastSuccessfulQuery;
     private int consecutiveFailures = 0;
 
-    protected string Registry => registry;
+    public string Registry => registry;
 
     private static readonly object CachedModuleSyncObject = new();
 

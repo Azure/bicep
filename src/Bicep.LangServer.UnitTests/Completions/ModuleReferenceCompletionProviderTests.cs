@@ -10,6 +10,7 @@ using Bicep.Core.Registry.Indexing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
 using Bicep.LanguageServer;
@@ -400,7 +401,8 @@ namespace Bicep.LangServer.UnitTests.Completions
             settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(true);
 
             var azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
-            azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(documentUri.ToUriEncoded(), CancellationToken.None)).Returns(new List<string> { "testacr3.azurecr.io", "testacr4.azurecr.io" }.ToAsyncEnumerable());
+            var cloud = configMgr.GetConfiguration(documentUri.ToUriEncoded()).Cloud;
+            azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(cloud, CancellationToken.None)).Returns(new List<string> { "testacr3.azurecr.io", "testacr4.azurecr.io" }.ToAsyncEnumerable());
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
@@ -452,7 +454,8 @@ namespace Bicep.LangServer.UnitTests.Completions
             settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(true);
 
             var azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
-            azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(documentUri.ToUriEncoded(), CancellationToken.None)).Returns(new List<string>().ToAsyncEnumerable());
+            var cloud = configMgr.GetConfiguration(documentUri.ToUriEncoded()).Cloud;
+            azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(cloud, CancellationToken.None)).Returns(new List<string>().ToAsyncEnumerable());
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
@@ -487,8 +490,12 @@ namespace Bicep.LangServer.UnitTests.Completions
             string expectedCompletionText2,
             int expectedEnd)
         {
-            var registryIndexer = StrictMock.Of<IRegistryIndexer>();
-            registryIndexer.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-cntrapp1", null, null), new("app/dapr-cntrapp2", "description2", "contoso.com/help2")]);
+            var registryIndexer = RegistryIndexerMocks.MockRegistryIndexer(
+                RegistryIndexerMocks.MockPublicMetadataProvider([
+                    new("bicep/app/dapr-cntrapp1", null, null, []),
+                    new("bicep/app/app/dapr-cntrapp2", "description2", "contoso.com/help2", []),
+                ])
+            );
 
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -605,9 +612,12 @@ namespace Bicep.LangServer.UnitTests.Completions
     }
   }
 }";
-            var registryIndexer = StrictMock.Of<IRegistryIndexer>();
-            registryIndexer.Setup(x => x.GetModulesMetadata()).Returns([]);
-            registryIndexer.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html")]);
+            var registryIndexer = RegistryIndexerMocks.MockRegistryIndexer(
+                RegistryIndexerMocks.MockPublicMetadataProvider([
+                    new("bicep/app/dapr-containerapp", null, null, [new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html")]),
+                    new("bicep/app/dapr-containerappapp", null, null, [new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html")])
+                ])
+            );
 
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -648,9 +658,13 @@ namespace Bicep.LangServer.UnitTests.Completions
         [TestMethod]
         public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_AndNoMatchingModuleName_ReturnsEmptyListOfCompletionItems()
         {
-            var registryIndexer = StrictMock.Of<IRegistryIndexer>();
-            registryIndexer.Setup(x => x.GetModulesMetadata()).Returns([]);
-            registryIndexer.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerappapp")).Returns([]);
+            var registryIndexer = RegistryIndexerMocks.MockRegistryIndexer(
+                RegistryIndexerMocks.MockPublicMetadataProvider([
+                    new("bicep/app/dapr-containerappapp", null, null, []),
+                    new("bicep/app/app/dapr-cntrapp2", "description2", "contoso.com/help2", []),
+                ])
+                .WithReturnEmptyForUnrecognizedModules()
+            );
 
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext("module test 'br/public:app/dapr-containerappapp:|'");
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -736,8 +750,11 @@ namespace Bicep.LangServer.UnitTests.Completions
     }
   }
 }";
-            var registryIndexer = StrictMock.Of<IRegistryIndexer>();
-            var publicRegistryIndexer.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-containerappapp", "dapr description", "contoso.com/help")]);
+            var registryIndexer = RegistryIndexerMocks.MockRegistryIndexer(
+                RegistryIndexerMocks.MockPublicMetadataProvider([
+                    new("bicep/app/dapr-containerapp", "dapr description", "contoso.com/help", []),
+                ])
+            );
 
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -795,8 +812,18 @@ namespace Bicep.LangServer.UnitTests.Completions
 }";
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
 
-            var registryIndexer = StrictMock.Of<IRegistryIndexer>();
-            registryIndexer.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-cntrapp1", "description1", null), new("app/dapr-cntrapp2", null, "contoso.com/help2")]);
+            var registryIndexer = RegistryIndexerMocks.MockRegistryIndexer(
+                RegistryIndexerMocks.MockPublicMetadataProvider([
+                    new("bicep/app/dapr-cntrapp1", "description1", null, []),
+                    new("bicep/app/dapr-cntrapp2", null, "contoso.com/help2", [])
+                ]),
+                RegistryIndexerMocks.MockPrivateMetadataProvider(
+                    "myacr.azurecr.io",
+                    [
+                        new("bicep/modules", null, null, [])
+                    ]
+                )
+            ).WithNormalBehaviorOnUnrecognizedRegistries();
 
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
@@ -842,8 +869,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 secondItemReturned = true;
                 yield return "testacr4.azurecr.io";
             }
-            azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(documentUri.ToUriEncoded(), It.IsAny<CancellationToken>()))
-                .Returns((Uri uri, CancellationToken ct) => GetUris(ct));
+            azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(It.IsAny<CloudConfiguration>(), It.IsAny<CancellationToken>()))
+                .Returns((CloudConfiguration _, CancellationToken ct) => GetUris(ct));
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
