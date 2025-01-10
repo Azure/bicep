@@ -36,8 +36,6 @@ public class RegistryIndexer : IRegistryIndexer
         registryProviders[registry] = provider; //asdfg threading
 
         //asdfg remove from cache, esp if error
-
-        //throw new InvalidOperationException($"No provider found for registry '{registry}'"); //asdfg
         return provider;
     }
 }

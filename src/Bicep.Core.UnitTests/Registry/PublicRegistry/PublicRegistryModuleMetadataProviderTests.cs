@@ -1107,7 +1107,6 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
                 .Respond("application/json", ModuleIndexJson);
         }
 
-        //asdfg move?
         [TestMethod]
         public void GetExponentialDelay_ZeroCount_ShouldGiveInitialDelay()
         {

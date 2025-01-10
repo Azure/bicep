@@ -91,7 +91,7 @@ namespace Bicep.Core.UnitTests.Utils
                 clientFactory.Object,
                 featureProvider,
                 BicepTestConstants.BuiltInConfiguration,
-                StrictMock.Of<IPublicRegistryModuleMetadataProvider>().Object,//  asdfg mock start cache?
+                StrictMock.Of<IPublicRegistryModuleMetadataProvider>().Object,
                 parentModuleUri);
 
             return (registry, blobClient);

@@ -25,7 +25,6 @@ public class PublicRegistryModuleMetadataHttpClient(HttpClient httpClient) : IPu
     public async Task<ImmutableArray<PublicRegistryModuleIndexEntry>> GetModuleIndexAsync()
     {
         Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataHttpClient)}: Retrieving list of public registry modules...");
-   //var asdfg = await TryGetCatalog("sawbiceppublic.azurecr.io");
 
         try
         {

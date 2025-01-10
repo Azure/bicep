@@ -51,7 +51,7 @@ public class PrivateAcrRegistryModuleMetadataProvider : RegistryModuleMetadataPr
 
     protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
     {
-        var filter = new Regex(""); //asdfg
+        var filter = new Regex("bicep/"); // CONSIDER: Allow configuration   asdfg what happens with non-public modules?
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
         var catalog = await acrManager.GetCatalogAsync(cloud, Registry);

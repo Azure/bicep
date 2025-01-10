@@ -83,7 +83,7 @@ public abstract class RegistryModuleMetadataProviderBase(
     }
     public async Task<bool> TryUpdateCacheAsync()
     {
-        if (await TryGetLiveDataAsync() is { } modules) //asdfg handle null?
+        if (await TryGetLiveDataAsync() is { } modules)
         {
             this.cachedModules = modules;
             this.lastSuccessfulQuery = DateTime.Now;
@@ -95,7 +95,7 @@ public abstract class RegistryModuleMetadataProviderBase(
         }
     }
 
-    protected CachedModule? GetCachedModule(string modulePath, bool throwIfNotFound/*asdfg*/)
+    protected CachedModule? GetCachedModule(string modulePath, bool throwIfNotFound)
     {
         var found = this.cachedModules.FirstOrDefault(x =>
             x.RegistryModuleMetadata.Registry.Equals(Registry, StringComparison.Ordinal)
@@ -120,7 +120,6 @@ public abstract class RegistryModuleMetadataProviderBase(
         return [.. cachedModules.Where(x => x.RegistryModuleMetadata.Registry.Equals(Registry, StringComparison.Ordinal)).Select(x => x.RegistryModuleMetadata)];
     }
 
-    // asdfg Make this abstract?
     public async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetModuleVersionsAsync(string modulePath)
     {
         await TryAwaitCache(forceUpdate: false);
@@ -134,7 +133,7 @@ public abstract class RegistryModuleMetadataProviderBase(
         return await module.GetOrSetRegistryModuleVersionMetadataTask(() => GetLiveModuleVersionsAsync(modulePath));
     }
 
-    protected abstract Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath);//asdfg?
+    protected abstract Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath);
 
     // If cache has not yet successfully been updated, returns empty
     public ImmutableArray<RegistryModuleVersionMetadata> GetCachedModuleVersions(string modulePath)

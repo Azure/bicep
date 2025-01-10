@@ -23,12 +23,6 @@ public static class RegistryModuleIndexerExtensionsForIServiceCollection
             {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             });
-        //services asdfg remove
-        //    .AddHttpClient<IOciCatalogHttpClient, OciCatalogHttpClient>()
-        //    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-        //    {
-        //        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-        //    });
 
         return services;
     }

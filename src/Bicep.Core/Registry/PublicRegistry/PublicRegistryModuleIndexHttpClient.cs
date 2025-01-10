@@ -23,7 +23,7 @@ public interface IPublicRegistryModuleIndexHttpClient
 public record PublicRegistryModuleIndexEntry(
     [property: JsonPropertyName("moduleName")] string ModulePath, // e.g. "avm/app/dapr-containerapp" - the "bicep/" prefix is assumed and not included in the index
     ImmutableArray<string> Tags, // e.g. "1.0.0" (not guaranteed to be in semver format, although it currently is for all our public modules)
-    [property: JsonPropertyName("properties")] ImmutableDictionary<string, PublicRegistryModuleIndexProperties/*asdfg rename*/> PropertiesByTag // Module properties per tag
+    [property: JsonPropertyName("properties")] ImmutableDictionary<string, PublicRegistryModuleIndexProperties> PropertiesByTag // Module properties per tag
 )
 {
     private static readonly SemVersion DefaultVersion = new(0);
