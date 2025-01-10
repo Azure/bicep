@@ -27,6 +27,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Bicep.Core.UnitTests.Mock.Registry.Indexing;
 
 namespace Bicep.Cli.IntegrationTests;
 

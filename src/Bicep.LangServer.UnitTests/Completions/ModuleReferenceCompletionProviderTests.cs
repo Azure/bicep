@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions.TestingHelpers;
 using System.Runtime.CompilerServices;
+using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Indexing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
@@ -221,9 +223,13 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("module test 'br:contoso.com/app/dapr-containerapp:1.0.1'|")]
         public async Task GetFilteredCompletions_WithInvalidCompletionContext_ReturnsEmptyList(string inputWithCursors)
         {
-            var registryIndexer = StrictMock.Of<IRegistryIndexer>();
-            registryIndexer.Setup(x => x.GetModulesMetadata()).Returns([]);
-            registryIndexer.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.1", null, null), new("1.0.2", null, null)]);
+            var registryIndexer = StrictMock.Of<IRegistryIndexer>(); //asdfg2
+            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            registryIndexer.Setup(x => x.GetRegistry("my.registry.io", It.IsAny<CloudConfiguration>())).Returns(publicModuleMetadataProvider.Object);
+            publicModuleMetadataProvider.Setup(x => x.GetModulesAsync()).ReturnsAsync([]);
+            publicModuleMetadataProvider.Setup(x => x.GetModuleVersionsAsync("app/dapr-containerapp")).ReturnsAsync([
+                new RegistryModuleVersionMetadata("1.0.1", null, null),
+                new RegistryModuleVersionMetadata("1.0.2", null, null)]);
 
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
