@@ -11,6 +11,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
@@ -370,33 +371,63 @@ namespace Bicep.Core.Emit
             }
             else if (resource is DeclaredResourceMetadata declaredResource)
             {
-                // For symbolic-named resources we have the option of simplifying codegen by emitting expressions like "resourceInfo('symbolicName').id".
-                // However, there are numerous cases where resourceInfo can & can't be used, and it's too difficult to try and address them all here.
-                // See https://github.com/Azure/bicep/issues/9450 & https://github.com/Azure/bicep/issues/9246 for examples.
-                // For now, let's stick with emitting the more verbose expressions that we know work.
+                if (context.SemanticModel.Features.ResourceInfoCodegenEnabled)
+                {
+                    // Use simplified "resourceInfo" code generation.
+
+                    LanguageExpression getResourceInfoExpression()
+                    {
+                        var symbolExpression = GenerateSymbolicReference(declaredResource, indexContext);
+                        return AppendProperties(CreateFunction("resourceInfo", symbolExpression), new JTokenExpression(propertyName));
+                    }
+
+                    switch (propertyName)
+                    {
+                        case AzResourceTypeProvider.ResourceIdPropertyName:
+                        case AzResourceTypeProvider.ResourceTypePropertyName:
+                        case AzResourceTypeProvider.ResourceApiVersionPropertyName:
+                            return (getResourceInfoExpression(), [], safeAccess);
+                        case AzResourceTypeProvider.ResourceNamePropertyName:
+                            var nameExpression = getResourceInfoExpression();
+                            if (declaredResource.Parent is {})
+                            {
+                                // resourceInfo('foo').name will always return a fully-qualified name, whereas using "foo.name" in Bicep
+                                // will give different results depending on whether the resource has a parent (either syntactically, or with the 'parent' property) or not.
+                                // We must preserve this behavior by using "last(split(..., '/'))" to convert from qualified -> unqualified, to avoid this being a breaking change.
+                                nameExpression = CreateFunction(
+                                    "last",
+                                    CreateFunction(
+                                        "split",
+                                        nameExpression,
+                                        new JTokenExpression("/")));
+                            }
+
+                            return (nameExpression, [], safeAccess);
+                    }
+                }
 
                 switch (propertyName)
                 {
-                    case "id":
+                    case AzResourceTypeProvider.ResourceIdPropertyName:
                         // the ID is dependent on the name expression which could involve locals in case of a resource collection
-                        return (GetFullyQualifiedResourceId(resource), Enumerable.Empty<LanguageExpression>(), safeAccess);
-                    case "name":
+                        return (GetFullyQualifiedResourceId(resource), [], safeAccess);
+                    case AzResourceTypeProvider.ResourceNamePropertyName:
                         // the name is dependent on the name expression which could involve locals in case of a resource collection
 
                         // Note that we don't want to return the fully-qualified resource name in the case of name property access.
                         // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
-                        return (ConvertExpression(declaredResource.NameSyntax), Enumerable.Empty<LanguageExpression>(), safeAccess);
-                    case "type":
-                        return (new JTokenExpression(resource.TypeReference.FormatType()), Enumerable.Empty<LanguageExpression>(), safeAccess);
-                    case "apiVersion":
+                        return (ConvertExpression(declaredResource.NameSyntax), [], safeAccess);
+                    case AzResourceTypeProvider.ResourceTypePropertyName:
+                        return (new JTokenExpression(resource.TypeReference.FormatType()), [], safeAccess);
+                    case AzResourceTypeProvider.ResourceApiVersionPropertyName:
                         var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
-                        return (new JTokenExpression(apiVersion), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        return (new JTokenExpression(apiVersion), [], safeAccess);
                     case "properties" when !safeAccess:
                         // use the reference() overload without "full" to generate a shorter expression
                         // this is dependent on the name expression which could involve locals in case of a resource collection
-                        return (GetReferenceExpression(resource, indexContext, false), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        return (GetReferenceExpression(resource, indexContext, false), [], safeAccess);
                     default:
-                        return (GetReferenceExpression(resource, indexContext, true), new[] { new JTokenExpression(propertyName) }, safeAccess);
+                        return (GetReferenceExpression(resource, indexContext, true), [new JTokenExpression(propertyName)], safeAccess);
                 }
             }
             else

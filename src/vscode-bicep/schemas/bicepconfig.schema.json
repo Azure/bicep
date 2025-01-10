@@ -832,6 +832,10 @@
         "secureOutputs": {
             "type": "boolean",
             "description": "If enabled, users can use the secure decorator for outputs. See https://aka.ms/bicep/experimental-features#secureoutputs"
+        },
+        "resourceInfoCodegen": {
+            "type": "boolean",
+            "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
         }
       },
       "additionalProperties": false

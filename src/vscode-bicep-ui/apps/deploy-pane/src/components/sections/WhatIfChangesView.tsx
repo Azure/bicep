@@ -47,6 +47,8 @@ export const WhatIfChangesView: FC<WhatIfChangesViewProps> = ({ changes }) => {
 };
 
 function getWhatIfPropertyChanges(changes?: WhatIfPropertyChange[]) {
+
+  console.log(changes);
   if (!changes) {
     return null;
   }
@@ -58,12 +60,14 @@ function getWhatIfPropertyChanges(changes?: WhatIfPropertyChange[]) {
         <VscodeTableHeaderCell id="1">Path</VscodeTableHeaderCell>
         <VscodeTableHeaderCell id="2">Change Type</VscodeTableHeaderCell>
       </VscodeTableHeader>
+      <VscodeTableBody slot="body">
       {filteredChanges.map((change) => (
         <VscodeTableRow key={change.path}>
           <VscodeTableCell id="1">{change.path}</VscodeTableCell>
           <VscodeTableCell id="2">{change.propertyChangeType}</VscodeTableCell>
         </VscodeTableRow>
       ))}
+        </VscodeTableBody>
     </VscodeTable>
   );
 }
