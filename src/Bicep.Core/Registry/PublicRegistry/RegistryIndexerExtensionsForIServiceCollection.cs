@@ -3,6 +3,7 @@
 
 using System.Net;
 using Bicep.Core.Configuration;
+using Bicep.Core.Registry.PublicRegistry.HttpClients;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry.PublicRegistry;

@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Bicep.Core.Extensions;
+using Bicep.Core.Registry.PublicRegistry.HttpClients;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry.PublicRegistry;

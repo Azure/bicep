@@ -15,11 +15,12 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.PublicRegistry.HttpClients;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
-using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -40,7 +41,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
 
     private class Options(string CacheRoot)
     {
-        private IPublicRegistryModuleIndexHttpClient? _metadataClient = null;
+        private IPublicModuleIndexHttpClient? _metadataClient = null;
         private string? _config = null;
 
         public string Bicep { get; init; } = "/* bicep contents */";
@@ -74,17 +75,17 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         }
 
         // Automatically created from ModulesMetadata by default (set manually for testing)
-        internal IPublicRegistryModuleIndexHttpClient MetadataClient
+        internal IPublicModuleIndexHttpClient MetadataClient
         {
             set
             {
                 _metadataClient = value;
             }
-            get => _metadataClient is { } ? _metadataClient : PublicRegistryModuleIndexClientMock.Create(
-                ModulesMetadata.Select(mm => new PublicRegistryModuleIndexEntry(
+            get => _metadataClient is { } ? _metadataClient : PublicModuleIndexHttpClientMocks.Create(
+                ModulesMetadata.Select(mm => new PublicModuleIndexEntry(
                     mm.module,
                     [.. mm.versions],
-                    new Dictionary<string, PublicRegistryModuleIndexProperties>().ToImmutableDictionary()))).Object;
+                    new Dictionary<string, PublicModuleIndexProperties>().ToImmutableDictionary()))).Object;
         }
 
     }
@@ -115,7 +116,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
     // We don't currently cache to disk, but rather on every check to restore modules.
     public async Task IfNoRestoreSpecified_ThenShouldNotDownloadMetadata_AndShouldFailBecauseNoCache()
     {
-        var moduleIndexClientMock = PublicRegistryModuleIndexClientMock.CreateToThrow(new Exception("shouldn't try to download metadata --no-restore is set"));
+        var moduleIndexClientMock = PublicModuleIndexHttpClientMocks.CreateToThrow(new Exception("shouldn't try to download metadata --no-restore is set"));
         var result = await Test(new Options(CacheRoot)
         {
             Bicep = """
@@ -149,7 +150,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
                 }
                 """.Replace("{PREFIX}", PREFIX),
             PublishedModules = [$"{PREFIX}/fake/avm/res/app/container-app:0.2.0"],
-            MetadataClient = PublicRegistryModuleIndexClientMock.CreateToThrow(new Exception("Download failed.")).Object,
+            MetadataClient = PublicModuleIndexHttpClientMocks.CreateToThrow(new Exception("Download failed.")).Object,
         });
 
         result.Should().HaveStderrMatch($"*Warning use-recent-module-versions: Could not download available module versions: Download failed.*");

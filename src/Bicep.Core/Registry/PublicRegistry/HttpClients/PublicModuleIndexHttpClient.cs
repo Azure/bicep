@@ -8,14 +8,7 @@ using Bicep.Core.Registry.Oci;
 using Semver;
 using Semver.Comparers;
 
-namespace Bicep.Core.Registry.PublicRegistry; //asdfg rename to Registry.Acr?  Oci?  Modules?   Public?
-
-public readonly record struct PublicModuleIndexProperties(string Description, string DocumentationUri);
-
-public interface IPublicModuleIndexHttpClient
-{
-    Task<ImmutableArray<PublicModuleIndexEntry>> GetModuleIndexAsync();
-}
+namespace Bicep.Core.Registry.PublicRegistry.HttpClients; //asdfg rename to Registry.Acr?  Oci?  Modules?   Public?
 
 /// <summary>
 /// This is the DTO for modules listed in the public bicep registry
@@ -42,18 +35,18 @@ public record PublicModuleIndexEntry(
         }
     }
 
-    public string? GetDescription(string? version = null) => this.GetProperty(version, x => x.Description);
+    public string? GetDescription(string? version = null) => GetProperty(version, x => x.Description);
 
-    public string? GetDocumentationUri(string? version = null) => this.GetProperty(version, x => x.DocumentationUri);
+    public string? GetDocumentationUri(string? version = null) => GetProperty(version, x => x.DocumentationUri);
 
     private string? GetProperty(string? version, Func<PublicModuleIndexProperties, string> propertySelector)
     {
         if (version is null)
         {
             // Get description for most recent version with a description
-            foreach (var tag in this.Versions)
+            foreach (var tag in Versions)
             {
-                if (this.PropertiesByTag.TryGetValue(tag, out var propertiesEntry))
+                if (PropertiesByTag.TryGetValue(tag, out var propertiesEntry))
                 {
                     return propertySelector(propertiesEntry);
                 }
@@ -63,7 +56,7 @@ public record PublicModuleIndexEntry(
         }
         else
         {
-            return this.PropertiesByTag.TryGetValue(version, out var propertiesEntry) ? propertySelector(propertiesEntry) : null;
+            return PropertiesByTag.TryGetValue(version, out var propertiesEntry) ? propertySelector(propertiesEntry) : null;
         }
     }
 }
