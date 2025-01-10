@@ -20,30 +20,26 @@ namespace Bicep.Core.Registry.PublicRegistry;//asdfg rename folder/namespace Pub
 /// </summary>
 public class PrivateAcrRegistryModuleMetadataProvider : RegistryModuleMetadataProviderBase, IRegistryModuleMetadataProvider
 {
-    //asdfg allow them to refresh
-
+    private readonly CloudConfiguration cloud;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
-    private readonly IConfigurationManager configurationManager;
 
     public PrivateAcrRegistryModuleMetadataProvider(
+        CloudConfiguration cloud,
         string registry,
-        IContainerRegistryClientFactory containerRegistryClientFactory,
-        IConfigurationManager configurationManager)
+        IContainerRegistryClientFactory containerRegistryClientFactory)
         : base(registry)
     {
+        this.cloud = cloud;
         this.containerRegistryClientFactory = containerRegistryClientFactory;
-        this.configurationManager = configurationManager;
     }
 
     protected override async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
     {
-        Uri sourceFileUri = new("C:\\Users\\stephwe\\Downloads\\main.bicep"); //asdfg
-
         var registry = Registry;
         var repository = modulePath;
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
-        var tags = await acrManager.GetRepositoryTags(configurationManager.GetConfiguration(sourceFileUri), registry, repository);
+        var tags = await acrManager.GetRepositoryTags(cloud, registry, repository);
         return [.. tags.Select(t =>
             new RegistryModuleVersionMetadata(
                 t,
@@ -55,12 +51,10 @@ public class PrivateAcrRegistryModuleMetadataProvider : RegistryModuleMetadataPr
 
     protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
     {
-        Uri sourceFileUri = new("C:\\Users\\stephwe\\Downloads\\main.bicep"); //asdfg
         var filter = new Regex(""); //asdfg
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
-        var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
-        var catalog = await acrManager.GetCatalogAsync(rootConfiguration, Registry);
+        var catalog = await acrManager.GetCatalogAsync(cloud, Registry);
         var modules = catalog
             .Where(m => filter.IsMatch(m))
             .Select(m =>

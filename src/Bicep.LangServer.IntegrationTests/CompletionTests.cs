@@ -4256,7 +4256,7 @@ var file = " + functionName + @"(templ|)
                 new RegistryModuleMetadata("my.registry.io", "bicep/whatever/abc/bar/bar", "d3", "contoso.com/help3")]);
 
             var indexer = StrictMock.Of<IRegistryIndexer>();
-            indexer.Setup(x => x.GetRegistry("my.registry.io")).Returns(privateRegistryModuleMetadataProvider.Object);
+            indexer.Setup(x => x.GetRegistry("my.registry.io", It.IsAny<CloudConfiguration>())).Returns(privateRegistryModuleMetadataProvider.Object);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,

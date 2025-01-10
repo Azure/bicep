@@ -36,7 +36,7 @@ namespace Bicep.Core.Registry
         }
 
         public async Task<string[]> GetRepositoryTags(
-            RootConfiguration configuration,
+            CloudConfiguration cloud,
             string registry,
             string repository)
         {
@@ -44,7 +44,7 @@ namespace Bicep.Core.Registry
 
             async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
             {
-                var client = CreateRegistryClient(configuration, registryUri, anonymousAccess);
+                var client = CreateRegistryClient(cloud, registryUri, anonymousAccess);
 
                 var tags = new List<string>();
                 await foreach (var manifest in client.GetRepository(repository).GetAllManifestPropertiesAsync())
@@ -79,14 +79,14 @@ namespace Bicep.Core.Registry
         }
 
         public async Task<string[]> GetCatalogAsync(
-            RootConfiguration configuration,
+            CloudConfiguration cloud,
             string registry)
         {
             var registryUri = GetRegistryUri(registry);
 
             async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
             {
-                var client = CreateRegistryClient(configuration, registryUri, anonymousAccess);
+                var client = CreateRegistryClient(cloud, registryUri, anonymousAccess);
                 return await GetCatalogAsync(client);
             }
 
@@ -95,7 +95,7 @@ namespace Bicep.Core.Registry
             {
                 List<string> catalog = [];
 
-                await foreach (var repository in client.GetRepositoryNamesAsync(CancellationToken.None/*asdfg?*/))
+                await foreach (var repository in client.GetRepositoryNamesAsync())
                 {
                     catalog.Add(repository);
                 }
@@ -124,12 +124,12 @@ namespace Bicep.Core.Registry
         }
 
         public async Task<OciArtifactResult> PullArtifactAsync(
-            RootConfiguration configuration,
+            CloudConfiguration cloud,
             IOciArtifactReference artifactReference)
         {
             async Task<OciArtifactResult> DownloadManifestInternalAsync(bool anonymousAccess)
             {
-                var client = CreateBlobClient(configuration, artifactReference, anonymousAccess);
+                var client = CreateBlobClient(cloud, artifactReference, anonymousAccess);
                 return await DownloadManifestAndLayersAsync(artifactReference, client);
             }
 
@@ -153,7 +153,7 @@ namespace Bicep.Core.Registry
         }
 
         public async Task PushArtifactAsync(
-            RootConfiguration configuration,
+            CloudConfiguration cloud,
             IOciArtifactReference artifactReference,
             string? mediaType,
             string? artifactType,
@@ -162,7 +162,7 @@ namespace Bicep.Core.Registry
             OciManifestAnnotationsBuilder annotations)
         {
             // push is not supported anonymously
-            var blobClient = this.CreateBlobClient(configuration, artifactReference, anonymousAccess: false);
+            var blobClient = this.CreateBlobClient(cloud, artifactReference, anonymousAccess: false);
 
             _ = await blobClient.UploadBlobAsync(config.Data);
 
@@ -208,18 +208,18 @@ namespace Bicep.Core.Registry
         private static Uri GetRegistryUri(string loginServer) => new($"https://{loginServer}");
 
         private ContainerRegistryContentClient CreateBlobClient(
-            RootConfiguration configuration,
+            CloudConfiguration cloud,
             IOciArtifactReference artifactReference,
             bool anonymousAccess) => anonymousAccess
-            ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository)
-            : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository);
+            ? this.clientFactory.CreateAnonymousBlobClient(cloud, GetRegistryUri(artifactReference), artifactReference.Repository)
+            : this.clientFactory.CreateAuthenticatedBlobClient(cloud, GetRegistryUri(artifactReference), artifactReference.Repository);
 
         private ContainerRegistryClient CreateRegistryClient(
-            RootConfiguration configuration,
+            CloudConfiguration cloud,
             Uri registryUri,
             bool anonymousAccess) => anonymousAccess
-            ? this.clientFactory.CreateAnonymousRegistryClient(configuration, registryUri)
-            : this.clientFactory.CreateAuthenticatedRegistryClient(configuration, registryUri);
+            ? this.clientFactory.CreateAnonymousRegistryClient(cloud, registryUri)
+            : this.clientFactory.CreateAuthenticatedRegistryClient(cloud, registryUri);
 
         private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactReference artifactReference, ContainerRegistryContentClient client)
         {

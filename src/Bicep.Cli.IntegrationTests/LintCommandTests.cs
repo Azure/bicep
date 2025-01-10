@@ -112,7 +112,7 @@ public class LintCommandTests : TestBase
         var client = new MockRegistryBlobClient();
 
         var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
-        clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
+        clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
         var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 

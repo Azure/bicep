@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
+
 namespace Bicep.Core.Registry.PublicRegistry;
 
 /// <summary>
@@ -8,7 +10,5 @@ namespace Bicep.Core.Registry.PublicRegistry;
 /// </summary>
 public interface IRegistryIndexer
 {
-    IRegistryModuleMetadataProvider GetRegistry(string registry);
-
-    void StartUpCache(bool forceUpdate = false);
+    IRegistryModuleMetadataProvider GetRegistry(string registry, CloudConfiguration cloud);
 }

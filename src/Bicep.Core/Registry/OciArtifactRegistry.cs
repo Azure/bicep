@@ -105,7 +105,7 @@ namespace Bicep.Core.Registry
             try
             {
                 // Get module
-                await this.client.PullArtifactAsync(configuration, reference);
+                await this.client.PullArtifactAsync(configuration.Cloud, reference);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
@@ -292,7 +292,7 @@ namespace Bicep.Core.Registry
             try
             {
                 await this.client.PushArtifactAsync(
-                    configuration,
+                    configuration.Cloud,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
@@ -347,7 +347,7 @@ namespace Bicep.Core.Registry
             try
             {
                 await this.client.PushArtifactAsync(
-                    configuration,
+                    configuration.Cloud,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
@@ -500,7 +500,7 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                var result = await client.PullArtifactAsync(configuration, reference);
+                var result = await client.PullArtifactAsync(configuration.Cloud, reference);
 
                 await WriteArtifactContentToCacheAsync(reference, result);
 

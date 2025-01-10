@@ -25,28 +25,19 @@ public class RegistryIndexer : IRegistryIndexer
         registryProviders["mcr.microsoft.com"] = publicRegistryModuleMetadataProvider;
     }
 
-    public IRegistryModuleMetadataProvider GetRegistry(string registry)
+    public IRegistryModuleMetadataProvider GetRegistry(string registry, CloudConfiguration cloud)
     {
         if (registryProviders.TryGetValue(registry, out var provider))
         {
             return provider;
         }
 
-        //asdfg cache
-        provider = new PrivateAcrRegistryModuleMetadataProvider(registry, containerRegistryClientFactory, configurationManager); // asdfg use factory pattern?
+        provider = new PrivateAcrRegistryModuleMetadataProvider(cloud, registry, containerRegistryClientFactory);
         registryProviders[registry] = provider; //asdfg threading
 
         //asdfg remove from cache, esp if error
 
         //throw new InvalidOperationException($"No provider found for registry '{registry}'"); //asdfg
         return provider;
-    }
-
-    public void StartUpCache(bool forceUpdate = false) //asdfg?
-    {
-        foreach (var provider in registryProviders.Values)
-        {
-            provider.StartUpdateCache(forceUpdate);
-        }
     }
 }

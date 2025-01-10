@@ -13,6 +13,7 @@
 #pragma warning disable IDE0051 // Remove unused private members asdfg remove
 
 using System.Collections.Immutable;
+using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
@@ -220,7 +221,8 @@ namespace Bicep.LanguageServer.Completions
                 replacementText = token.Text;
             }
 
-            var completions = GetTopLevelCompletions(context, replacementText, sourceFileUri);
+            var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
+            var completions = GetTopLevelCompletions(context, replacementText, rootConfiguration);
 
             var startsWithSingleQuote = replacementText.StartsWith('\'');
             if (startsWithSingleQuote)
@@ -228,9 +230,9 @@ namespace Bicep.LanguageServer.Completions
                 var trimmedReplacementText = replacementText.Trim('\'');
 
                 var replacementsRequiringStartingQuote =
-                    (await GetOciModuleCompletions(context, trimmedReplacementText, sourceFileUri))
-                    .Concat(await GetVersionCompletions(context, trimmedReplacementText, sourceFileUri))
-                    .Concat(await GetAllRegistryNameAndAliasCompletions(context, trimmedReplacementText, sourceFileUri, cancellationToken));
+                    (await GetOciModuleCompletions(context, trimmedReplacementText, rootConfiguration))
+                    .Concat(await GetVersionCompletions(context, trimmedReplacementText, rootConfiguration))
+                    .Concat(await GetAllRegistryNameAndAliasCompletions(context, trimmedReplacementText, rootConfiguration, cancellationToken));
 
                 completions = [
                     ..completions,
@@ -241,7 +243,7 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
-        private Parts? ParseParts(string text, Uri sourceFileUri)
+        private Parts? ParseParts(string text, RootConfiguration rootConfiguration)
         {
             var match = PartialModuleReferenceRegex().Match(text);
             if (!match.Success)
@@ -269,7 +271,7 @@ namespace Bicep.LanguageServer.Completions
             else if (NullIfEmpty(match.Groups["alias"].Value) is string alias)
             {
                 // Reference with alias
-                var aliases = GetModuleAliases(sourceFileUri);
+                var aliases = GetModuleAliases(rootConfiguration);
                 if (aliases.TryGetValue(alias, out OciArtifactModuleAlias? aliasConfig) && !string.IsNullOrWhiteSpace(aliasConfig.Registry)) //asdfg extract
                 {
                     return new Parts(
@@ -291,7 +293,7 @@ namespace Bicep.LanguageServer.Completions
 
         // Handles bicep registry and template spec top-level schema completions.
         // I.e. typing with an empty path:  module m1 <CURSOR>
-        private IEnumerable<CompletionItem> GetTopLevelCompletions(BicepCompletionContext context, string untrimmedReplacementText, Uri sourceFileUri)
+        private IEnumerable<CompletionItem> GetTopLevelCompletions(BicepCompletionContext context, string untrimmedReplacementText, RootConfiguration rootConfiguration)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath)) //asdfg?
@@ -306,9 +308,8 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completionItems = new();
 
-            var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
             var templateSpecModuleAliases = rootConfiguration.ModuleAliases.GetTemplateSpecModuleAliases();
-            var bicepModuleAliases = GetModuleAliases(sourceFileUri);
+            var bicepModuleAliases = GetModuleAliases(rootConfiguration);
 
             // Top-level TemplateSpec completions
             AddCompletionItem("ts:", null, "Template spec", ModuleCompletionPriority.FullPath, "template spec completion");
@@ -388,9 +389,9 @@ namespace Bicep.LanguageServer.Completions
         //   br:mcr.microsoft/bicep/module/name:<CURSOR>
         //
         // etc
-        private async Task<IEnumerable<CompletionItem>> GetVersionCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg change this to be public/private agnostic
+        private async Task<IEnumerable<CompletionItem>> GetVersionCompletions(BicepCompletionContext context, string trimmedText, RootConfiguration rootConfiguration)
         {
-            if (ParseParts(trimmedText, sourceFileUri) is not Parts parts
+            if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
                 || !parts.HasVersionSeparator
                 || parts.ResolvedModulePath is null)
             {
@@ -423,7 +424,7 @@ namespace Bicep.LanguageServer.Completions
             List<CompletionItem> completions = new();
 
             var versionsMetadata =
-                await registryModuleIndexer.GetRegistry(parts.ResolvedRegistry)
+                await registryModuleIndexer.GetRegistry(parts.ResolvedRegistry, rootConfiguration.Cloud)
                 .GetModuleVersionsAsync($"{parts.ResolvedModulePath}");
 
             for (int i = versionsMetadata.Length - 1; i >= 0; i--)
@@ -496,14 +497,13 @@ namespace Bicep.LanguageServer.Completions
             //}
         }
 
-        private ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(Uri sourceFileUri)
+        private ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(RootConfiguration configuration)
         {
-            var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
-            return rootConfiguration.ModuleAliases.GetOciArtifactModuleAliases();
+            return configuration.ModuleAliases.GetOciArtifactModuleAliases();
         }
 
         // Handles remote (OCI) module path completions, e.g. br: and br/
-        private async Task<IEnumerable<CompletionItem>> GetOciModuleCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri) //asdfg rename?
+        private async Task<IEnumerable<CompletionItem>> GetOciModuleCompletions(BicepCompletionContext context, string trimmedText, RootConfiguration rootConfiguration) //asdfg rename?
         {
             if (!IsOciArtifactRegistryReference(trimmedText))
             {
@@ -511,9 +511,9 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return [
-                .. await GetModuleCompletions(trimmedText, context, sourceFileUri),
-                .. GetPartialPrivatePathCompletionsFromAliases(trimmedText, context, sourceFileUri),
-                .. await GetPublicPathCompletionFromAliases(trimmedText, context, sourceFileUri),
+                .. await GetModuleCompletions(trimmedText, context, rootConfiguration),
+                .. GetPartialPrivatePathCompletionsFromAliases(trimmedText, context, rootConfiguration),
+                .. await GetPublicPathCompletionFromAliases(trimmedText, context, rootConfiguration),
             ];
         }
 
@@ -633,7 +633,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
 
         // Handles path completions for case where user has specified an alias in bicepconfig.json with registry set to "mcr.microsoft.com".
-        private async Task<IEnumerable<CompletionItem>> GetPublicPathCompletionFromAliases(string trimmedText, BicepCompletionContext context, Uri sourceFileUri) //asdfg rewrite or remove
+        private async Task<IEnumerable<CompletionItem>> GetPublicPathCompletionFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration) //asdfg rewrite or remove
         {
             List<CompletionItem> completions = new();
 
@@ -642,7 +642,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
                 return completions;
             }
 
-            foreach (var kvp in GetModuleAliases(sourceFileUri))
+            foreach (var kvp in GetModuleAliases(rootConfiguration))
             {
                 if (kvp.Value.Registry is string inputRegistry)
                 {
@@ -675,7 +675,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal)) //asdfg?
                             {
-                                var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModulesAsync();//asdfg testpoint
+                                var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry, rootConfiguration.Cloud).GetModulesAsync();//asdfg testpoint
                                 foreach (var (registry, moduleName, description, documentationUri) in modules)
                                 {
                                     //asdfg make sure registry is inputRegistry?
@@ -716,7 +716,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                             // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = TrimStart(modulePath, LanguageConstants.BicepPublicMcrPathPrefix);
-                            var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry).GetModulesAsync(); //asdfg testpoint
+                            var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry, rootConfiguration.Cloud).GetModulesAsync(); //asdfg testpoint
 
                             var matchingModules = modules.Where(x => x.ModuleName.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -860,7 +860,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
         //   br:privateacr.azurecr.io/<CURSOR>
         //      =>
         //   br:privateacr.azurecr.io/bicep/app:<CURSOR>
-        private IEnumerable<CompletionItem> GetPartialPrivatePathCompletionsFromAliases(string trimmedText, BicepCompletionContext context, Uri sourceFileUri)
+        private IEnumerable<CompletionItem> GetPartialPrivatePathCompletionsFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)
         {
             List<CompletionItem> completions = new();
             return completions;
@@ -908,9 +908,9 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
         //   br/public:<CURSOR>
         // or
         //   br:mcr.microsoft.com/bicep/:<CURSOR>
-        private async Task<IEnumerable<CompletionItem>> GetModuleCompletions(string trimmedText, BicepCompletionContext context, Uri sourceFileUri)//asdfgasdfgasdfg
+        private async Task<IEnumerable<CompletionItem>> GetModuleCompletions(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)//asdfgasdfgasdfg
         {
-            if (ParseParts(trimmedText, sourceFileUri) is not Parts parts
+            if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
                 || parts.ResolvedModulePath is null
                 || parts.HasVersionSeparator)
             {
@@ -941,7 +941,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             List<CompletionItem> completions = new();
 
-            var modules = await registryModuleIndexer.GetRegistry(parts.ResolvedRegistry).GetModulesAsync(); //asdfg2
+            var modules = await registryModuleIndexer.GetRegistry(parts.ResolvedRegistry, rootConfiguration.Cloud).GetModulesAsync(); //asdfg2
             foreach (var (registry, moduleName, description, documentationUri) in modules)
             {
                 if (!moduleName.StartsWith(parts.ResolvedModulePath, StringComparison.Ordinal)) //asdfg case-insensitive
@@ -999,7 +999,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
         }
 
         // Handles top-level completions of registry names/aliases after br: and br/
-        private async Task<IEnumerable<CompletionItem>> GetAllRegistryNameAndAliasCompletions(BicepCompletionContext context, string trimmedText, Uri sourceFileUri, CancellationToken cancellationToken)
+        private async Task<IEnumerable<CompletionItem>> GetAllRegistryNameAndAliasCompletions(BicepCompletionContext context, string trimmedText, RootConfiguration rootConfiguration, CancellationToken cancellationToken)
         {
             var completions = new List<CompletionItem>();
 
@@ -1010,7 +1010,7 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
             if (trimmedText == "br/")
             {
-                foreach (var kvp in GetModuleAliases(sourceFileUri))
+                foreach (var kvp in GetModuleAliases(rootConfiguration))
                 {
                     var alias = kvp.Key;
                     var insertText = $"'{trimmedText}{alias}:$0'";
@@ -1036,23 +1036,23 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
 
                 completions.Add(mcrCompletionItem);
 
-                completions.AddRange(await GetPrivateModuleCompletionsAsdfg(trimmedText, context, sourceFileUri, cancellationToken));
+                completions.AddRange(await GetPrivateModuleCompletionsAsdfg(trimmedText, context, rootConfiguration, cancellationToken));
             }
 
             return completions;
         }
 
         // Handles registry name completions for private modules possibly available in ACR registries
-        private async Task<IEnumerable<CompletionItem>> GetPrivateModuleCompletionsAsdfg(string trimmedText, BicepCompletionContext context, Uri sourceFileUri, CancellationToken cancellationToken)
+        private async Task<IEnumerable<CompletionItem>> GetPrivateModuleCompletionsAsdfg(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration, CancellationToken cancellationToken)
         {
             if (settingsProvider.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting))
             {
-                return await GetACRModuleRegistriesCompletionsFromAzure(trimmedText, context, sourceFileUri, cancellationToken);
+                return await GetACRModuleRegistriesCompletionsFromAzure(trimmedText, context, rootConfiguration, cancellationToken);
             }
             else
             {
                 // CONSIDER: Somehow indicate in the completion list that users can get more completions by setting GetAllAzureContainerRegistriesForCompletionsSetting
-                return GetACRModuleRegistriesCompletionsFromBicepConfig(trimmedText, context, sourceFileUri);
+                return GetACRModuleRegistriesCompletionsFromBicepConfig(trimmedText, context, rootConfiguration);
             }
         }
 
@@ -1060,13 +1060,13 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
         // This returns all registries that the user has access to via Azure (whether or not they contain bicep modules, and whether
         //   or not they're registered in the bicepconfig.json file)
         // This is for completions after typing "br:"
-        private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletionsFromAzure(string trimmedText, BicepCompletionContext context, Uri sourceFileUri, CancellationToken cancellationToken)
+        private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletionsFromAzure(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration, CancellationToken cancellationToken)
         {
             List<CompletionItem> completions = new();
 
             try
             {
-                await foreach (string registryName in azureContainerRegistriesProvider.GetRegistryUrisAccessibleFromAzure(sourceFileUri, cancellationToken)
+                await foreach (string registryName in azureContainerRegistriesProvider.GetRegistryUrisAccessibleFromAzure(rootConfiguration.Cloud, cancellationToken)
                     .WithCancellation(cancellationToken))
                 {
                     var insertText = $"'{trimmedText}{registryName}/$0'";
@@ -1090,12 +1090,12 @@ private async Task<ImmutableArray<string>?> TryGetCatalog(string loginServer)
         }
 
         // Handles private ACR registry name completions only for registries that are configured via aliases in the bicepconfig.json file
-        private IEnumerable<CompletionItem> GetACRModuleRegistriesCompletionsFromBicepConfig(string trimmedText, BicepCompletionContext context, Uri sourceFileUri)
+        private IEnumerable<CompletionItem> GetACRModuleRegistriesCompletionsFromBicepConfig(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)
         {
             List<CompletionItem> completions = new();
             HashSet<string> aliases = new();
 
-            foreach (var kvp in GetModuleAliases(sourceFileUri))
+            foreach (var kvp in GetModuleAliases(rootConfiguration))
             {
                 var label = kvp.Value.Registry;
 
