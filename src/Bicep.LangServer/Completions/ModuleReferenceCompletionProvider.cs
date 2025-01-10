@@ -126,7 +126,7 @@ namespace Bicep.LanguageServer.Completions
                     (?<version>[^:']+)?   #asdfg valid?
                 )?
 
-                '  # The string must end (CONSIDER: get rid of this limitation?)
+                '?
                 """,
             RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant,
             10
