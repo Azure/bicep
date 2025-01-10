@@ -1186,7 +1186,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             PublicModuleMetadataProvider provider = new(CreateTypedClient());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = await provider.GetModulesAsync();
+            var modules = await provider.TryGetModulesAsync();
             modules.Should().HaveCount(50);
         }
 
@@ -1195,7 +1195,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             PublicModuleMetadataProvider provider = new(CreateTypedClient());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = await provider.GetModulesAsync();
+            var modules = await provider.TryGetModulesAsync();
             var m = modules.Should().Contain(m => m.ModuleName == "bicep/samples/hello-world")
                 .Which;
             m.Description.Should().Be("A \"שָׁלוֹם עוֹלָם\" sample Bicep registry module");
@@ -1207,7 +1207,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         {
             PublicModuleMetadataProvider provider = new(CreateTypedClient());
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = await provider.GetModulesAsync();
+            var modules = await provider.TryGetModulesAsync();
             var m = modules.Should().Contain(m => m.ModuleName == "bicep/lz/sub-vending")
                 .Which;
             m.Description.Should().Be("This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.");
@@ -1218,7 +1218,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         public async Task GetModuleVersions_SortsBySemver() //asdfg test for private
         {
             PublicModuleMetadataProvider provider = new(CreateTypedClient());
-            var versions = (await provider.GetModuleVersionsAsync("bicep/samples/array-loop")).Select(x => x.Version);//asdfg test
+            var versions = (await provider.TryGetModuleVersionsAsync("bicep/samples/array-loop")).Select(x => x.Version);//asdfg test
 
             versions.Should().Equal(
                   "1.10.1",

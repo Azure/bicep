@@ -331,7 +331,7 @@ namespace Bicep.LanguageServer.Completions
 
             var versionsMetadata =
                 await registryModuleIndexer.GetRegistry(parts.ResolvedRegistry, rootConfiguration.Cloud)
-                .GetModuleVersionsAsync($"{parts.ResolvedModulePath}");
+                .TryGetModuleVersionsAsync($"{parts.ResolvedModulePath}");
 
             for (int i = versionsMetadata.Length - 1; i >= 0; i--)
             {
@@ -466,7 +466,7 @@ namespace Bicep.LanguageServer.Completions
 
                             if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal)) //asdfg?
                             {
-                                var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry, rootConfiguration.Cloud).GetModulesAsync();//asdfg testpoint
+                                var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry, rootConfiguration.Cloud).TryGetModulesAsync();//asdfg testpoint
                                 foreach (var (registry, moduleName, description, documentationUri) in modules)
                                 {
                                     //asdfg make sure registry is inputRegistry?
@@ -507,7 +507,7 @@ namespace Bicep.LanguageServer.Completions
 
                             // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = TrimStart(modulePath, LanguageConstants.BicepPublicMcrPathPrefix);
-                            var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry, rootConfiguration.Cloud).GetModulesAsync(); //asdfg testpoint
+                            var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry, rootConfiguration.Cloud).TryGetModulesAsync(); //asdfg testpoint
 
                             var matchingModules = modules.Where(x => x.ModuleName.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -598,44 +598,43 @@ namespace Bicep.LanguageServer.Completions
         //asdfg make sure tested, then remove
         private IEnumerable<CompletionItem> GetPartialPrivatePathCompletionsFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration) //asdfg test
         {
+            if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
+                || parts.HasVersionSeparator)
+            {
+                return [];
+            }
+
             List<CompletionItem> completions = new();
+
+            if (!IsPrivateRegistryReference(trimmedText, out string? registry) || string.IsNullOrWhiteSpace(registry))
+            {
+                return completions;
+            }
+
+            telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
+            foreach (var kvp in GetModuleAliases(rootConfiguration))
+            {
+                if (registry.Equals(kvp.Value.Registry, StringComparison.Ordinal))
+                {
+                    var modulePath = kvp.Value.ModulePath;
+
+                    if (modulePath is null)
+                    {
+                        continue;
+                    }
+
+                    var insertText = $"'{trimmedText}{modulePath}:$0'";
+                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, modulePath)
+                       .WithSnippetEdit(context.ReplacementRange, insertText)
+                       .WithFilterText(insertText)
+                       .WithSortText(GetSortText(modulePath))
+                       .WithFollowupCompletion("module path completion")
+                       .Build();
+                    completions.Add(completionItem);
+                }
+            }
+
             return completions;
-            //asdfg
-            //var hasVersion = ModuleReferenceWithVersionSeparator.IsMatch(trimmedText); //asdfg move to caller?  extract?
-            //if (hasVersion)
-            //{
-            //    return [];
-            //}
-
-            //if (!IsPrivateRegistryReference(trimmedText, out string? registry) || string.IsNullOrWhiteSpace(registry))
-            //{
-            //    return completions;
-            //}
-
-            //telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
-            //foreach (var kvp in GetModuleAliases(sourceFileUri))
-            //{
-            //    if (registry.Equals(kvp.Value.Registry, StringComparison.Ordinal))
-            //    {
-            //        var modulePath = kvp.Value.ModulePath;
-
-            //        if (modulePath is null)
-            //        {
-            //            continue;
-            //        }
-
-            //        var insertText = $"'{trimmedText}{modulePath}:$0'";
-            //        var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, modulePath)
-            //           .WithSnippetEdit(context.ReplacementRange, insertText)
-            //           .WithFilterText(insertText)
-            //           .WithSortText(GetSortText(modulePath))
-            //           .WithFollowupCompletion("module path completion")
-            //           .Build();
-            //        completions.Add(completionItem);
-            //    }
-            //}
-
-            //return completions;
         }
 
         //asdfg make sure sorted by version
@@ -655,7 +654,7 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            var modules = await registryModuleIndexer.GetRegistry(parts.ResolvedRegistry, rootConfiguration.Cloud).GetModulesAsync(); //asdfg2
+            var modules = await registryModuleIndexer.GetRegistry(parts.ResolvedRegistry, rootConfiguration.Cloud).TryGetModulesAsync(); //asdfg2
             foreach (var (registry, moduleName, description, documentationUri) in modules)
             {
                 if (!moduleName.StartsWith(parts.ResolvedModulePath, StringComparison.Ordinal)) //asdfg case-insensitive

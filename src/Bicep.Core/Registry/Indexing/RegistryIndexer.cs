@@ -8,17 +8,20 @@ namespace Bicep.Core.Registry.Indexing;
 
 public class RegistryIndexer : IRegistryIndexer
 {
+    private readonly IPrivateAcrModuleMetadataProviderFactory providerFactory;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
     private readonly IConfigurationManager configurationManager;
 
     private readonly Dictionary<string, IRegistryModuleMetadataProvider> registryProviders = new();
 
     public RegistryIndexer(
-        IPublicModuleMetadataProvider publicModuleMetadataProvider/*asdfgasdfgasdfg asdfg2 create it ourselves? */,
+        IPublicModuleMetadataProvider publicModuleMetadataProvider,
+        IPrivateAcrModuleMetadataProviderFactory privateProviderFactory,
         IContainerRegistryClientFactory containerRegistryClientFactory,
         IConfigurationManager configurationManager
         )
     {
+        this.providerFactory = privateProviderFactory;
         this.containerRegistryClientFactory = containerRegistryClientFactory;
         this.configurationManager = configurationManager;
 
@@ -32,7 +35,7 @@ public class RegistryIndexer : IRegistryIndexer
             return provider;
         }
 
-        provider = new PrivateAcrModuleMetadataProvider(cloud, registry, containerRegistryClientFactory);
+        provider = providerFactory.Create(cloud, registry, containerRegistryClientFactory);
         registryProviders[registry] = provider; //asdfg threading
 
         //asdfg remove from cache, esp if error

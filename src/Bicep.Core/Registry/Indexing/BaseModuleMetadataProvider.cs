@@ -108,7 +108,7 @@ public abstract class BaseModuleMetadataProvider(
         return found;
     }
 
-    public async Task<ImmutableArray<RegistryModuleMetadata>> GetModulesAsync()
+    public async Task<ImmutableArray<RegistryModuleMetadata>> TryGetModulesAsync()
     {
         await TryAwaitCache(forceUpdate: false);
         return GetCachedModules();
@@ -120,7 +120,7 @@ public abstract class BaseModuleMetadataProvider(
         return [.. cachedModules.Where(x => x.RegistryModuleMetadata.Registry.Equals(Registry, StringComparison.Ordinal)).Select(x => x.RegistryModuleMetadata)];
     }
 
-    public async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetModuleVersionsAsync(string modulePath)
+    public async Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetModuleVersionsAsync(string modulePath)
     {
         await TryAwaitCache(forceUpdate: false);
 

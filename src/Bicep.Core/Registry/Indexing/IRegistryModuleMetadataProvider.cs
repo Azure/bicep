@@ -33,12 +33,11 @@ public interface IRegistryModuleMetadataProvider
 
     void StartUpdateCache(bool forceUpdate = false);
 
-    Task<ImmutableArray<RegistryModuleMetadata>> GetModulesAsync();
+    Task<ImmutableArray<RegistryModuleMetadata>> TryGetModulesAsync();
 
-    Task<ImmutableArray<RegistryModuleVersionMetadata>> GetModuleVersionsAsync(string modulePath);
+    Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetModuleVersionsAsync(string modulePath);
 
     ImmutableArray<RegistryModuleMetadata> GetCachedModules();
 
     ImmutableArray<RegistryModuleVersionMetadata> GetCachedModuleVersions(string modulePath);
-
 }
