@@ -40,8 +40,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             publicProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
                 [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions]);
 
-            // Default to throwing an exception for unrecognized modules
-            return publicProvider.WithThrowOnUnrecognizedModules();
+            return publicProvider;
         }
 
         public static Mock<IRegistryModuleMetadataProvider> MockPrivateMetadataProvider(
@@ -58,8 +57,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             privateProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
                 [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions]);
 
-            // Default to throwing an exception for unrecognized modules
-            return privateProvider.WithThrowOnUnrecognizedModules();
+            return privateProvider;
         }
 
         public static Mock<IRegistryModuleMetadataProvider> MockFailingPrivateMetadataProvider(
@@ -89,18 +87,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
 
             var privateFactory = StrictMock.Of<IPrivateAcrModuleMetadataProviderFactory>();
 
-            // Behavior for unrecognized registries
-            //indexer.Setup(x => x.GetRegistry(It.IsAny<string>(), It.IsAny<CloudConfiguration>()))
-            //    .Returns((string moduleName, CloudConfiguration _) =>
-            //    {
-            //        var providerForUnknownRegistry = StrictMock.Of<IRegistryModuleMetadataProvider>();
-            //        providerForUnknownRegistry.Setup(x => x.Registry).Returns(moduleName);
-            //        providerForUnknownRegistry.Setup(x => x.GetModulesAsync())
-            //            .ReturnsAsync(() => throw new InvalidOperationException($"Catalog for registry '{moduleName}' was not found"));
-            //        return providerForUnknownRegistry.Object;
-            //    });
-
-            // Default - create a private provider that fails for any unrecognized registries
+            // Default - when an unrecognized registry is requested, return a provider that fails to load (similar to real behavior)
             privateFactory.Setup(x => x.Create(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<IContainerRegistryClientFactory>()))
                 .Returns((CloudConfiguration _, string registry, IContainerRegistryClientFactory _) => MockFailingPrivateMetadataProvider(registry).Object);
 
@@ -117,30 +104,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
                 StrictMock.Of<IContainerRegistryClientFactory>().Object,
                 BicepTestConstants.BuiltInOnlyConfigurationManager);
 
-
-    //asdfg
-//             Default to throwing an exception for unrecognized registries
-//indexer.Setup(x => x.GetRegistry(It.IsAny<string>(), It.IsAny<CloudConfiguration>()))
-//                .Returns((string moduleName, CloudConfiguration cloud) => throw new InvalidOperationException($"Didn't mock module {moduleName}"));
-
             return indexer;
-        }
-
-        public static Mock<T> WithReturnEmptyForUnrecognizedModules<T>(this Mock<T> provider) where T : class, IRegistryModuleMetadataProvider
-        {
-            //adfg
-            //provider.Setup(x => x.GetModuleVersionsAsync(It.IsAny<string>()))
-            //    .Returns(Task.FromResult<ImmutableArray<RegistryModuleVersionMetadata>>([]));
-            return provider;
-        }
-
-        private static Mock<T> WithThrowOnUnrecognizedModules<T>(this Mock<T> provider) where T : class, IRegistryModuleMetadataProvider
-        {
-            //adfg
-            //provider.Setup(x => x.GetModuleVersionsAsync(It.IsAny<string>()))
-            //    .Returns((string moduleName) => throw new InvalidOperationException($"Didn't mock module {moduleName}"));
-
-            return provider;
         }
     }
 }
