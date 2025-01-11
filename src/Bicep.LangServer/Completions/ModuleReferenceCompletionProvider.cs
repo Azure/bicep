@@ -46,7 +46,7 @@ namespace Bicep.LanguageServer.Completions
         // Direct reference to a full registry login server URI via br:<registry>
         private static readonly Regex ModulePrefixWithFullPath = new(@"^br:(?<registry>(.*?))/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
-        // Examples: asdfg test
+        // Examples:
         //   br:contoso.io/path1/path2/module:2.0.1 =>
         //     SpecifiedRegistry: "contoso.io"
         //     ResolvedRegistry: "contoso.io"
@@ -129,9 +129,9 @@ namespace Bicep.LanguageServer.Completions
                 '?
                 """,
             RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant,
-            10
+            matchTimeoutMilliseconds: 10
         )]
-        public static partial Regex PartialModuleReferenceRegex(); //asdfg non-public?
+        private static partial Regex PartialModuleReferenceRegex();
 
         private const string PublicMcrRegistry = LanguageConstants.BicepPublicMcrRegistry; // "mcr.microsoft.com"
 
@@ -675,7 +675,7 @@ namespace Bicep.LanguageServer.Completions
                     : moduleName;
 
                 var completionItem = CompletionItemBuilder.Create(
-                    CompletionItemKind.Snippet/*asdfg?*/, label)
+                    CompletionItemKind.Snippet, label)
                         .WithSnippetEdit(context.ReplacementRange, insertText)
                         .WithFilterText(insertText)
                         .WithSortText(GetSortText(moduleName))

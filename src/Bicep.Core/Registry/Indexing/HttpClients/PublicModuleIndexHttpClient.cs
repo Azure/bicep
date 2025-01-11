@@ -8,7 +8,7 @@ using Bicep.Core.Registry.Oci;
 using Semver;
 using Semver.Comparers;
 
-namespace Bicep.Core.Registry.Indexing.HttpClients; //asdfg rename to Registry.Acr?  Oci?  Modules?   Public?
+namespace Bicep.Core.Registry.Indexing.HttpClients;
 
 /// <summary>
 /// This is the DTO for modules listed in the public bicep registry
