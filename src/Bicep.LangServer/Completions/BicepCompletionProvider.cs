@@ -176,7 +176,7 @@ namespace Bicep.LanguageServer.Completions
                         {
                             string prefix = resourceSnippet.Prefix;
                             BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTopLevelDeclarationSnippetInsertion(prefix);
-                            var command = TelemetryHelper.CreateCommand //asdfg
+                            var command = TelemetryHelper.CreateCommand
                             (
                                 title: "top level snippet completion",
                                 name: TelemetryConstants.CommandName,

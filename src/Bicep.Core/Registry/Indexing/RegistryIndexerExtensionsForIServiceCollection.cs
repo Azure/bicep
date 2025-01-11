@@ -16,7 +16,6 @@ public static class RegistryIndexerExtensionsForIServiceCollection
         services.AddSingleton<IRegistryIndexer, RegistryIndexer>();
         services.AddSingleton<IPrivateAcrModuleMetadataProviderFactory, PrivateAcrModuleMetadataProviderFactory>();
 
-        //asdfg mock these instead of mocking IPublicModuleMetadataProvider?
         // using type based registration for Http clients so dependencies can be injected automatically
         // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
         services

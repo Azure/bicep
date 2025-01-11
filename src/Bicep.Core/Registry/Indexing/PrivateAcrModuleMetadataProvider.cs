@@ -51,7 +51,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
 
     protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
     {
-        var filter = new Regex("bicep/"); // CONSIDER: Allow configuration   asdfg what happens with non-public modules?
+        var filter = new Regex("bicep/"); // TODO: Allow configuration (note that this allows bicep anywhere in the module path)
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
         var catalog = await acrManager.GetCatalogAsync(cloud, Registry);

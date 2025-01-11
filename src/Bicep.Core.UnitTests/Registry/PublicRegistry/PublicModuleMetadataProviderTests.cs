@@ -20,15 +20,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
     [TestClass]
     public class PublicModuleMetadataProviderTests //asdfgasdfg existing core tests
     {
-        //private IServiceProvider GetServiceProvider() asdfg remove
-        //{
-        //    var httpClient = MockHttpMessageHandler.ToHttpClient();
-        //    return new ServiceBuilder().WithRegistration(x =>
-        //        x.AddSingleton<IPublicRegistryModuleIndexHttpClient>(new PublicRegistryModuleMetadataHttpClient(httpClient))
-        //    ).Build().Construct<IServiceProvider>();
-        //}
-
-        private PublicModuleMetadataHttpClient CreateTypedClient() { //asdfg extract
+        private PublicModuleMetadataHttpClient CreateTypedClient() { //asdfg extract - is this needed?
             var httpClient = MockHttpMessageHandler.ToHttpClient();
             return new PublicModuleMetadataHttpClient(httpClient);
         }
