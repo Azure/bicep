@@ -6346,7 +6346,7 @@ Fake.Web/publishingCredentials@2415-08-01";
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
                     ResourceScope.None,
                     ResourceFlags.None,
-                    new ObjectType(tr.FormatName(), TypeSymbolValidationFlags.Default, [], LanguageConstants.Any)));
+                    new ObjectType(tr.FormatName(), TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.Any))));
 
             typesLoader.Setup(m => m.GetAvailableTypes()).Returns(fakeResourceTypeReferences);
             return typesLoader;

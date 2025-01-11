@@ -337,12 +337,12 @@ public static class TypeStringifier
         return objectType.Properties.Count == 0 && !objectType.HasExplicitAdditionalPropertiesType;
     }
 
-    private static TypeProperty[] GetWriteableProperties(ObjectType objectType) =>
+    private static NamedTypeProperty[] GetWriteableProperties(ObjectType objectType) =>
         objectType.Properties.Select(p => p.Value)
         .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly))
         .ToArray();
 
-    private static string GetFormattedTypeProperty(TypeProperty property, Strictness strictness, TypeSymbol[] visitedTypes)
+    private static string GetFormattedTypeProperty(NamedTypeProperty property, Strictness strictness, TypeSymbol[] visitedTypes)
     {
         return
             $"{StringUtils.EscapeBicepPropertyName(property.Name)}: {StringifyCore(property.TypeReference.Type, property, strictness, visitedTypes)}";

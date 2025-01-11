@@ -301,10 +301,10 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static TypeProperty CreateExistingResourceScopeProperty(ResourceScope validScopes, TypePropertyFlags propertyFlags) =>
+        public static NamedTypeProperty CreateExistingResourceScopeProperty(ResourceScope validScopes, TypePropertyFlags propertyFlags) =>
             CreateResourceScopePropertyInternal(validScopes, propertyFlags);
 
-        public static TypeProperty? TryCreateNonExistingResourceScopeProperty(ResourceScope validScopes, TypePropertyFlags propertyFlags)
+        public static NamedTypeProperty? TryCreateNonExistingResourceScopeProperty(ResourceScope validScopes, TypePropertyFlags propertyFlags)
         {
             // we only support scope in these cases:
             // 1. extension resources (or resources where the scope is unknown and thus may be an extension resource)
@@ -315,7 +315,7 @@ namespace Bicep.Core.Emit
                 : null;
         }
 
-        private static TypeProperty CreateResourceScopePropertyInternal(ResourceScope validScopes, TypePropertyFlags scopePropertyFlags)
+        private static NamedTypeProperty CreateResourceScopePropertyInternal(ResourceScope validScopes, TypePropertyFlags scopePropertyFlags)
         {
             var scopeReference = LanguageConstants.CreateResourceScopeReference(validScopes);
             return new(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags);

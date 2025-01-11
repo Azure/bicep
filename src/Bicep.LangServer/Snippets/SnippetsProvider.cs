@@ -145,7 +145,7 @@ public class SnippetsProvider : ISnippetsProvider
         return SyntaxFactory.CreateObject(objectProperties);
     }
 
-    private static ObjectPropertySyntax GetObjectPropertySnippetSyntax(TypeProperty typeProperty, ref int tabStopIndex, string? discriminatedObjectKey)
+    private static ObjectPropertySyntax GetObjectPropertySnippetSyntax(NamedTypeProperty typeProperty, ref int tabStopIndex, string? discriminatedObjectKey)
     {
         var valueType = typeProperty.TypeReference.Type;
         if (valueType is ObjectType objectType)

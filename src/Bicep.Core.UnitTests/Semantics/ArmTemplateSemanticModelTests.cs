@@ -43,8 +43,10 @@ public class ArmTemplateSemanticModelTests
         properties["baz"].TypeReference.Type.Should().BeOfType<BooleanType>();
 
         // By default, objects should accept additional properties without constraints as a fallback
-        parameterType.As<ObjectType>().AdditionalPropertiesType.Should().NotBeNull().And.Be(LanguageConstants.Any);
-        parameterType.As<ObjectType>().AdditionalPropertiesFlags.Should().HaveFlag(TypePropertyFlags.FallbackProperty);
+        var additionalProperties = parameterType.As<ObjectType>().AdditionalProperties;
+        additionalProperties.Should().NotBeNull();
+        additionalProperties!.TypeReference.Type.Should().NotBeNull().And.Be(LanguageConstants.Any);
+        additionalProperties.Flags.Should().HaveFlag(TypePropertyFlags.FallbackProperty);
     }
 
     [TestMethod]
@@ -66,10 +68,11 @@ public class ArmTemplateSemanticModelTests
 
         parameterType.Should().BeOfType<ObjectType>();
 
-        var addlPropsType = parameterType.As<ObjectType>().AdditionalPropertiesType;
+        var addlProps = parameterType.As<ObjectType>().AdditionalProperties;
+        addlProps.Should().NotBeNull();
+        var addlPropsType = addlProps!.TypeReference.Type;
         addlPropsType.Should().NotBeNull().And.BeOfType<StringType>();
-
-        parameterType.As<ObjectType>().AdditionalPropertiesFlags.Should().NotHaveFlag(TypePropertyFlags.FallbackProperty);
+        addlProps.Flags.Should().NotHaveFlag(TypePropertyFlags.FallbackProperty);
     }
 
     [TestMethod]
@@ -96,10 +99,12 @@ public class ArmTemplateSemanticModelTests
 
         parameterType.Should().BeOfType<ObjectType>();
 
-        var addlPropsType = parameterType.As<ObjectType>().AdditionalPropertiesType;
+        var addlProps = parameterType.As<ObjectType>().AdditionalProperties;
+        addlProps.Should().NotBeNull();
+        var addlPropsType = addlProps!.TypeReference.Type;
         addlPropsType.Should().NotBeNull().And.BeOfType<StringType>();
-        parameterType.As<ObjectType>().AdditionalPropertiesDescription.Should().Be("This is a description");
-        parameterType.As<ObjectType>().AdditionalPropertiesFlags.Should().NotHaveFlag(TypePropertyFlags.FallbackProperty);
+        addlProps.Description.Should().Be("This is a description");
+        addlProps.Flags.Should().NotHaveFlag(TypePropertyFlags.FallbackProperty);
     }
 
     [TestMethod]
@@ -199,10 +204,13 @@ public class ArmTemplateSemanticModelTests
 
         parameterType.Should().BeOfType<TypedArrayType>();
         parameterType.As<TypedArrayType>().Item.Should().BeOfType<ObjectType>();
-        parameterType.As<TypedArrayType>().Item.As<ObjectType>().AdditionalPropertiesType.Should().NotBeNull().And.BeOfType<TypedArrayType>();
-        parameterType.As<TypedArrayType>().Item.As<ObjectType>().AdditionalPropertiesType.As<TypedArrayType>().Item.Should().BeOfType<ObjectType>();
 
-        var properties = parameterType.As<TypedArrayType>().Item.As<ObjectType>().AdditionalPropertiesType.As<TypedArrayType>().Item.As<ObjectType>().Properties;
+        var addlProps = parameterType.As<TypedArrayType>().Item.As<ObjectType>().AdditionalProperties;
+        addlProps.Should().NotBeNull();
+        addlProps!.TypeReference.Type.Should().NotBeNull().And.BeOfType<TypedArrayType>();
+        addlProps.TypeReference.Type.As<TypedArrayType>().Item.Should().BeOfType<ObjectType>();
+
+        var properties = addlProps.TypeReference.Type.As<TypedArrayType>().Item.As<ObjectType>().Properties;
         properties.Should().HaveCount(3);
         properties["foo"].TypeReference.Type.Should().Be(TypeFactory.CreateStringType(minLength: 2, maxLength: 4));
         properties["bar"].TypeReference.Type.Should().Be(TypeFactory.CreateIntegerType(minValue: 1, maxValue: 10));
@@ -564,8 +572,10 @@ public class ArmTemplateSemanticModelTests
             "emptyObject");
 
         var objectParameterType = parameterType.Should().BeAssignableTo<ObjectType>().Subject;
-        objectParameterType.AdditionalPropertiesType.Should().Be(LanguageConstants.Any);
-        objectParameterType.AdditionalPropertiesFlags.Should().HaveFlag(TypePropertyFlags.FallbackProperty);
+        var addlProps = objectParameterType.AdditionalProperties;
+        addlProps.Should().NotBeNull();
+        addlProps!.TypeReference.Type.Should().Be(LanguageConstants.Any);
+        addlProps.Flags.Should().HaveFlag(TypePropertyFlags.FallbackProperty);
     }
 
     private static TypeSymbol GetLoadedParameterType(string jsonTemplate, string parameterName)

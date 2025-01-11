@@ -8,7 +8,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 {
     public class ManagementGroupScopeType : ObjectType, IScopeReference
     {
-        public ManagementGroupScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties)
+        public ManagementGroupScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<NamedTypeProperty> properties)
             : base("managementGroup", TypeSymbolValidationFlags.Default, properties, null)
         {
             Arguments = arguments.ToImmutableArray();

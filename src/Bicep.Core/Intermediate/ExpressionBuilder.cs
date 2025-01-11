@@ -359,12 +359,12 @@ public class ExpressionBuilder
     {
         var baseExpression = ConvertTypeWithoutLowering(syntax.BaseExpression);
 
-        if (baseExpression.ExpressedType is not ObjectType objectType || objectType.AdditionalPropertiesType is null || !objectType.HasExplicitAdditionalPropertiesType)
+        if (baseExpression.ExpressedType is not ObjectType objectType || objectType.AdditionalProperties is null || !objectType.HasExplicitAdditionalPropertiesType)
         {
             throw new ArgumentException($"The additional properties type of type '{baseExpression.ExpressedType.Name}' was not found or was not valid.");
         }
 
-        return new TypeReferenceAdditionalPropertiesAccessExpression(syntax, baseExpression, objectType.AdditionalPropertiesType.Type);
+        return new TypeReferenceAdditionalPropertiesAccessExpression(syntax, baseExpression, objectType.AdditionalProperties.TypeReference.Type);
     }
 
     private TypeReferenceItemsAccessExpression ConvertTypeItemsAccess(TypeItemsAccessSyntax syntax)

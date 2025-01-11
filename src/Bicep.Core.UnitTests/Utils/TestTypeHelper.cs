@@ -59,7 +59,7 @@ namespace Bicep.Core.UnitTests.Utils
                     CreateAzResourceTypeProviderWithTypes(
                         [])));
 
-        public static ResourceTypeComponents CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
+        public static ResourceTypeComponents CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params NamedTypeProperty[] customProperties)
             => CreateCustomResourceTypeWithTopLevelProperties(fullyQualifiedType, apiVersion, validationFlags, null, customProperties);
 
         public static ResourceTypeComponents CreateCustomResourceType(
@@ -69,10 +69,10 @@ namespace Bicep.Core.UnitTests.Utils
             ResourceScope scopes,
             ResourceScope readOnlyScopes,
             ResourceFlags flags,
-            params TypeProperty[] customProperties
+            params NamedTypeProperty[] customProperties
         ) => CreateCustomResourceTypeWithTopLevelProperties(fullyQualifiedType, apiVersion, validationFlags, null, scopes, readOnlyScopes, flags, customProperties);
 
-        public static ResourceTypeComponents CreateCustomResourceTypeWithTopLevelProperties(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty>? additionalTopLevelProperties = null, params TypeProperty[] customProperties)
+        public static ResourceTypeComponents CreateCustomResourceTypeWithTopLevelProperties(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, IEnumerable<NamedTypeProperty>? additionalTopLevelProperties = null, params NamedTypeProperty[] customProperties)
             => CreateCustomResourceTypeWithTopLevelProperties(
                 fullyQualifiedType,
                 apiVersion,
@@ -87,18 +87,18 @@ namespace Bicep.Core.UnitTests.Utils
             string fullyQualifiedType,
             string apiVersion,
             TypeSymbolValidationFlags validationFlags,
-            IEnumerable<TypeProperty>? additionalTopLevelProperties,
+            IEnumerable<NamedTypeProperty>? additionalTopLevelProperties,
             ResourceScope scopes,
             ResourceScope readOnlyScopes,
             ResourceFlags flags,
-            params TypeProperty[] customProperties
+            params NamedTypeProperty[] customProperties
         )
         {
             var reference = ResourceTypeReference.Parse($"{fullyQualifiedType}@{apiVersion}");
 
             var resourceProperties = AzResourceTypeProvider.GetCommonResourceProperties(reference)
                 .Concat(additionalTopLevelProperties ?? [])
-                .Concat(new TypeProperty("properties", new ObjectType("properties", validationFlags, customProperties, null), TypePropertyFlags.None));
+                .Concat(new NamedTypeProperty("properties", new ObjectType("properties", validationFlags, customProperties, null), TypePropertyFlags.None));
 
             var bodyType = new ObjectType(reference.FormatName(), validationFlags, resourceProperties, null);
             return new ResourceTypeComponents(reference, scopes, readOnlyScopes, flags, bodyType);
@@ -108,16 +108,14 @@ namespace Bicep.Core.UnitTests.Utils
             => new(
                 name,
                 TypeSymbolValidationFlags.Default,
-                properties.Select(val => new TypeProperty(val.name, val.type)),
-                null,
-                TypePropertyFlags.None);
+                properties.Select(val => new NamedTypeProperty(val.name, val.type)),
+                null);
         public static ObjectType CreateObjectType(string name, params (string name, ITypeReference type, TypePropertyFlags flags)[] properties)
             => new(
                 name,
                 TypeSymbolValidationFlags.Default,
-                properties.Select(val => new TypeProperty(val.name, val.type, val.flags)),
-                null,
-                TypePropertyFlags.None);
+                properties.Select(val => new NamedTypeProperty(val.name, val.type, val.flags)),
+                null);
 
         public static DiscriminatedObjectType CreateDiscriminatedObjectType(string name, string key, params ITypeReference[] members)
             => new(

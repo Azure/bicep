@@ -51,7 +51,7 @@ public class ResourceDerivedTypeResolverTests
         ObjectType? myObject = null;
         myObject = new("recursive",
             TypeSymbolValidationFlags.Default,
-            new TypeProperty("property", new DeferredTypeReference(() => myObject!)).AsEnumerable(),
+            new NamedTypeProperty("property", new DeferredTypeReference(() => myObject!)).AsEnumerable(),
             null);
         yield return Row(myObject);
     }
@@ -84,7 +84,7 @@ public class ResourceDerivedTypeResolverTests
     {
         var hydrated = new ObjectType("foo",
             TypeSymbolValidationFlags.Default,
-            new TypeProperty("property", TypeFactory.CreateStringLiteralType("foo")).AsEnumerable(),
+            new NamedTypeProperty("property", TypeFactory.CreateStringLiteralType("foo")).AsEnumerable(),
             null);
         var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
@@ -96,7 +96,7 @@ public class ResourceDerivedTypeResolverTests
                 new UnresolvedResourceDerivedPartialObjectType(unhydratedTypeRef, [], ResourceDerivedTypeVariant.None, "property", "foo"),
                 new ObjectType("bar",
                     TypeSymbolValidationFlags.Default,
-                    new TypeProperty("property", TypeFactory.CreateStringLiteralType("bar")).AsEnumerable(),
+                    new NamedTypeProperty("property", TypeFactory.CreateStringLiteralType("bar")).AsEnumerable(),
                     null)
             });
 
@@ -112,7 +112,7 @@ public class ResourceDerivedTypeResolverTests
 
         var containsUnresolved = new ObjectType("object",
             TypeSymbolValidationFlags.Default,
-            new TypeProperty("property", new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input)).AsEnumerable(),
+            new NamedTypeProperty("property", new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input)).AsEnumerable(),
             null);
 
         sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<ObjectType>()
@@ -127,12 +127,12 @@ public class ResourceDerivedTypeResolverTests
 
         var containsUnresolved = new ObjectType("object",
             TypeSymbolValidationFlags.Default,
-            ImmutableArray<TypeProperty>.Empty,
-            new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input));
+            ImmutableArray<NamedTypeProperty>.Empty,
+            new TypeProperty(new UnresolvedResourceDerivedType(unhydratedTypeRef, [], LanguageConstants.Any, ResourceDerivedTypeVariant.Input)));
 
         var hydratedContainer = sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<ObjectType>().Subject;
-        hydratedContainer.AdditionalPropertiesType.Should().NotBeNull();
-        hydratedContainer.AdditionalPropertiesType!.Type.Should().BeSameAs(hydrated);
+        hydratedContainer.AdditionalProperties?.TypeReference.Type.Should().NotBeNull();
+        hydratedContainer.AdditionalProperties?.TypeReference.Type!.Type.Should().BeSameAs(hydrated);
     }
 
     [TestMethod]
@@ -187,7 +187,7 @@ public class ResourceDerivedTypeResolverTests
         var resourceTypeProviderMock = StrictMock.Of<IResourceTypeProvider>();
         var stubbedNamespaceType = new NamespaceType(AzNamespaceType.BuiltInName,
             AzNamespaceType.Settings,
-            ImmutableArray<TypeProperty>.Empty,
+            ImmutableArray<NamedTypeProperty>.Empty,
             ImmutableArray<FunctionOverload>.Empty,
             ImmutableArray<BannedFunction>.Empty,
             ImmutableArray<Decorator>.Empty,
@@ -218,7 +218,7 @@ public class ResourceDerivedTypeResolverTests
         var resourceTypeProviderMock = StrictMock.Of<IResourceTypeProvider>();
         var stubbedNamespaceType = new NamespaceType(AzNamespaceType.BuiltInName,
             AzNamespaceType.Settings,
-            ImmutableArray<TypeProperty>.Empty,
+            ImmutableArray<NamedTypeProperty>.Empty,
             ImmutableArray<FunctionOverload>.Empty,
             ImmutableArray<BannedFunction>.Empty,
             ImmutableArray<Decorator>.Empty,
@@ -251,33 +251,42 @@ public class ResourceDerivedTypeResolverTests
         var hydrated = new ObjectType(
             "object",
             TypeSymbolValidationFlags.Default,
-            ImmutableArray.Create(new TypeProperty(
+            ImmutableArray.Create(new NamedTypeProperty(
                 "property",
                 new TupleType(
                 [
                     new ObjectType(
                         "dictionary",
                         TypeSymbolValidationFlags.Default,
-                        ImmutableArray<TypeProperty>.Empty,
-                        TypeFactory.CreateArrayType(new DiscriminatedObjectType(
-                            "taggedUnion",
-                            TypeSymbolValidationFlags.Default,
-                            "type",
-                            ImmutableArray.Create<ITypeReference>(
-                                new ObjectType(
-                                    "fooVariant",
+                        ImmutableArray<NamedTypeProperty>.Empty,
+                        new(
+                            TypeFactory.CreateArrayType(
+                                new DiscriminatedObjectType(
+                                    "taggedUnion",
                                     TypeSymbolValidationFlags.Default,
-                                    ImmutableArray.Create(
-                                        new TypeProperty("type", TypeFactory.CreateStringLiteralType("foo")),
-                                        new TypeProperty("property", LanguageConstants.Int)),
-                                    null),
-                                new ObjectType(
-                                    "barVariant",
-                                    TypeSymbolValidationFlags.Default,
-                                    ImmutableArray.Create(
-                                        new TypeProperty("type", TypeFactory.CreateStringLiteralType("bar")),
-                                        new TypeProperty("property", targetType)),
-                                    null))))),
+                                    "type",
+                                    ImmutableArray.Create<ITypeReference>(
+                                        new ObjectType(
+                                            "fooVariant",
+                                            TypeSymbolValidationFlags.Default,
+                                            ImmutableArray.Create(
+                                                new NamedTypeProperty("type", TypeFactory.CreateStringLiteralType("foo")),
+                                                new NamedTypeProperty("property", LanguageConstants.Int)),
+                                            null
+                                        ),
+                                        new ObjectType(
+                                            "barVariant",
+                                            TypeSymbolValidationFlags.Default,
+                                            ImmutableArray.Create(
+                                                new NamedTypeProperty("type", TypeFactory.CreateStringLiteralType("bar")),
+                                                new NamedTypeProperty("property", targetType)),
+                                            null
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ),
                 ],
                 TypeSymbolValidationFlags.Default))),
             null);
@@ -299,7 +308,7 @@ public class ResourceDerivedTypeResolverTests
         var hydrated = new ObjectType(
             "object",
             TypeSymbolValidationFlags.Default,
-            ImmutableArray.Create(new TypeProperty(
+            ImmutableArray.Create(new NamedTypeProperty(
                 "property",
                 LanguageConstants.String,
                 TypePropertyFlags.WriteOnly)),
@@ -324,7 +333,7 @@ public class ResourceDerivedTypeResolverTests
         var hydrated = new ObjectType(
             "object",
             TypeSymbolValidationFlags.Default,
-            ImmutableArray.Create(new TypeProperty(
+            ImmutableArray.Create(new NamedTypeProperty(
                 "property",
                 LanguageConstants.String,
                 TypePropertyFlags.ReadOnly)),

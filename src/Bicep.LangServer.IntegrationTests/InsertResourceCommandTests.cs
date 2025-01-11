@@ -113,11 +113,11 @@ namespace Bicep.LangServer.IntegrationTests
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/myTypes", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly),
-                new TypeProperty("floatProp", LanguageConstants.Int, TypePropertyFlags.None),
-                new TypeProperty("bigIntProp", LanguageConstants.Int, TypePropertyFlags.None));
+                new NamedTypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
+                new NamedTypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly),
+                new NamedTypeProperty("floatProp", LanguageConstants.Int, TypePropertyFlags.None),
+                new NamedTypeProperty("bigIntProp", LanguageConstants.Int, TypePropertyFlags.None));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
@@ -233,9 +233,9 @@ namespace Bicep.LangServer.IntegrationTests
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("Microsoft.Resources/resourceGroups", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
+                new NamedTypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
+                new NamedTypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
@@ -310,9 +310,9 @@ namespace Bicep.LangServer.IntegrationTests
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/myTypes/childType", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
+                new NamedTypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
+                new NamedTypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
@@ -382,9 +382,9 @@ namespace Bicep.LangServer.IntegrationTests
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/myTypes", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
+                new NamedTypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
+                new NamedTypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
@@ -458,9 +458,9 @@ output myOutput string = 'myOutput'
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/myTypes", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
+                new NamedTypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
+                new NamedTypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
@@ -534,9 +534,9 @@ output myOutput string = 'myOutput'
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/myTypes", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
+                new NamedTypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
+                new NamedTypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);

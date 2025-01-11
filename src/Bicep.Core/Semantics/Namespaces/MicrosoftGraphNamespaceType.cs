@@ -39,7 +39,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new NamespaceType(
                 aliasName,
                 Settings,
-                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<NamedTypeProperty>.Empty,
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,
@@ -59,7 +59,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         ConfigurationType: namespaceConfig.ConfigurationObject,
                         TemplateExtensionName: TemplateExtensionName,
                         TemplateExtensionVersion: namespaceConfig.Version),
-                    ImmutableArray<TypeProperty>.Empty,
+                    ImmutableArray<NamedTypeProperty>.Empty,
                     ImmutableArray<FunctionOverload>.Empty,
                     ImmutableArray<BannedFunction>.Empty,
                     ImmutableArray<Decorator>.Empty,

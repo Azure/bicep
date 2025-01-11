@@ -257,7 +257,7 @@ extension madeUpNamespace
                     ConfigurationType: null,
                     TemplateExtensionName: "Ns1-Unused",
                     TemplateExtensionVersion: "1.0"),
-                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<NamedTypeProperty>.Empty,
                 new[] {
                     new FunctionOverloadBuilder("ns1Func").Build(),
                     new FunctionOverloadBuilder("dupeFunc").Build(),
@@ -274,7 +274,7 @@ extension madeUpNamespace
                     ConfigurationType: null,
                     TemplateExtensionName: "Ns2-Unused",
                     TemplateExtensionVersion: "1.0"),
-                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<NamedTypeProperty>.Empty,
                 new[] {
                     new FunctionOverloadBuilder("ns2Func").Build(),
                     new FunctionOverloadBuilder("dupeFunc").Build(),
@@ -339,12 +339,12 @@ extension madeUpNamespace
                         TypeSymbolValidationFlags.Default,
                         new[]
                         {
-                            new TypeProperty("optionalConfig", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant),
+                            new NamedTypeProperty("optionalConfig", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant),
                         },
                         null),
                     TemplateExtensionName: "Unused",
                     TemplateExtensionVersion: "1.0.0"),
-                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<NamedTypeProperty>.Empty,
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,

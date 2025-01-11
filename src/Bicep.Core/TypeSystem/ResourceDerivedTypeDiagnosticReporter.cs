@@ -45,7 +45,7 @@ public class ResourceDerivedTypeDiagnosticReporter
             TupleType tuple => tuple.Items.SelectMany(ReportResourceDerivedTypeDiagnostics),
             ArrayType array => ReportResourceDerivedTypeDiagnostics(array.Item),
             DiscriminatedObjectType taggedUnion => taggedUnion.UnionMembersByKey.Values.SelectMany(ReportResourceDerivedTypeDiagnostics),
-            ObjectType @object => @object.Properties.Values.Select(property => property.TypeReference).Append(@object.AdditionalPropertiesType)
+            ObjectType @object => @object.Properties.Values.Select(property => property.TypeReference).Append(@object.AdditionalProperties?.TypeReference)
                 .WhereNotNull()
                 .SelectMany(ReportResourceDerivedTypeDiagnostics),
             UnionType union => union.Members.SelectMany(ReportResourceDerivedTypeDiagnostics),
@@ -100,13 +100,13 @@ public class ResourceDerivedTypeDiagnosticReporter
                 }
                 else if (PointerSegmentComparer.Equals("additionalProperties", unbound.PointerSegments[i]))
                 {
-                    if (current is not ObjectType @object || @object.AdditionalPropertiesType is null)
+                    if (current is not ObjectType @object || @object.AdditionalProperties is null)
                     {
                         yield return x => x.ExplicitAdditionalPropertiesTypeRequiredForAccessThereto(current).WithMaximumDiagnosticLevel(DiagnosticLevel.Warning);
                         break;
                     }
 
-                    current = @object.AdditionalPropertiesType.Type;
+                    current = @object.AdditionalProperties.TypeReference.Type;
                     continue;
                 }
                 else if (PointerSegmentComparer.Equals("prefixItems", unbound.PointerSegments[i]))

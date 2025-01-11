@@ -439,7 +439,7 @@ namespace Bicep.Core.TypeSystem
         {
             if (TryGetSystemDecorator(syntax, LanguageConstants.ParameterSealedPropertyName) is not null)
             {
-                return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, additionalPropertiesType: null);
+                return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, null);
             }
 
             if (declaredObject.ValidationFlags == validationFlags)
@@ -447,7 +447,7 @@ namespace Bicep.Core.TypeSystem
                 return declaredObject;
             }
 
-            return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalPropertiesType, declaredObject.AdditionalPropertiesFlags, declaredObject.AdditionalPropertiesDescription);
+            return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalProperties);
         }
 
         private ITypeReference GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
@@ -623,7 +623,7 @@ namespace Bicep.Core.TypeSystem
         private TypeSymbol GetObjectTypeType(ObjectTypeSyntax syntax)
         {
             HashSet<string> propertyNamesEncountered = new();
-            List<TypeProperty> properties = new();
+            List<NamedTypeProperty> properties = new();
             List<IDiagnostic> diagnostics = new();
             ObjectTypeNameBuilder nameBuilder = new();
 
@@ -682,7 +682,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostics.Concat(properties.Select(p => p.TypeReference).OfType<TypeSymbol>().SelectMany(e => e.GetDiagnostics())));
             }
 
-            return new ObjectType(nameBuilder.ToString(), default, properties, additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription);
+            return new ObjectType(nameBuilder.ToString(), default, properties, additionalPropertiesType is not null ? new(additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription) : null);
         }
 
         private static string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
@@ -1072,12 +1072,12 @@ namespace Bicep.Core.TypeSystem
                 return error;
             }
 
-            if (baseType is not ObjectType @object || @object.AdditionalPropertiesType is null || @object.AdditionalPropertiesType == LanguageConstants.Any)
+            if (baseType is not ObjectType @object || @object.AdditionalProperties is null || @object.AdditionalProperties.TypeReference.Type == LanguageConstants.Any)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Asterisk).ExplicitAdditionalPropertiesTypeRequiredForAccessThereto(baseType));
             }
 
-            return EnsureNonParameterizedType(syntax.Asterisk, UnwrapType(@object.AdditionalPropertiesType.Type));
+            return EnsureNonParameterizedType(syntax.Asterisk, UnwrapType(@object.AdditionalProperties.TypeReference.Type));
         }
 
         private ITypeReference ConvertTypeExpressionToType(TypeItemsAccessSyntax syntax)
@@ -1844,7 +1844,7 @@ namespace Bicep.Core.TypeSystem
                 // properties with their own types), then use the dictionary value type
                 if (parentAssignment?.Reference.Type is ObjectType parentObjectType &&
                     parentObjectType.Properties.IsEmpty &&
-                    parentObjectType.AdditionalPropertiesType is { } additionalPropertiesType)
+                    parentObjectType.AdditionalProperties?.TypeReference.Type is { } additionalPropertiesType)
                 {
                     return new(additionalPropertiesType, syntax, DeclaredTypeFlags.None);
                 }
@@ -1898,9 +1898,10 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // if there are additional properties, try those
-                    if (objectType.AdditionalPropertiesType != null)
+                    if (objectType.AdditionalProperties is { } additionalProperties)
+                    
                     {
-                        return new DeclaredTypeAssignment(objectType.AdditionalPropertiesType.Type, declaringProperty, ConvertFlags(objectType.AdditionalPropertiesFlags));
+                        return new DeclaredTypeAssignment(additionalProperties.TypeReference.Type, declaringProperty, ConvertFlags(additionalProperties.Flags));
                     }
 
                     break;
@@ -2034,7 +2035,7 @@ namespace Bicep.Core.TypeSystem
             // We need to bind and validate all of the parameters and outputs that declare resource types
             // within the context of this type manager. This will surface any issues where the type declared by
             // a module is not understood inside this compilation unit.
-            var parameters = new List<TypeProperty>();
+            var parameters = new List<NamedTypeProperty>();
 
             foreach (var parameter in moduleSemanticModel.Parameters.Values)
             {
@@ -2061,10 +2062,10 @@ namespace Bicep.Core.TypeSystem
                     type = TypeHelper.CreateTypeUnion(type, LanguageConstants.Null);
                 }
 
-                parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
+                parameters.Add(new NamedTypeProperty(parameter.Name, type, flags, parameter.Description));
             }
 
-            var outputs = new List<TypeProperty>();
+            var outputs = new List<NamedTypeProperty>();
             foreach (var output in moduleSemanticModel.Outputs)
             {
                 var type = output.TypeReference.Type;
@@ -2077,7 +2078,7 @@ namespace Bicep.Core.TypeSystem
                     type = resourceDerivedTypeResolver.ResolveResourceDerivedTypes(type);
                 }
 
-                outputs.Add(new TypeProperty(output.Name, type, TypePropertyFlags.ReadOnly, output.Description));
+                outputs.Add(new NamedTypeProperty(output.Name, type, TypePropertyFlags.ReadOnly, output.Description));
             }
 
             return LanguageConstants.CreateModuleType(
@@ -2102,14 +2103,14 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(failureDiagnostic);
             }
 
-            var parameters = new List<TypeProperty>();
+            var parameters = new List<NamedTypeProperty>();
 
             foreach (var parameter in testSemanticModel.Parameters.Values)
             {
                 var type = parameter.TypeReference.Type;
 
                 var flags = parameter.IsRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly;
-                parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
+                parameters.Add(new NamedTypeProperty(parameter.Name, type, flags, parameter.Description));
             }
 
             return CreateTestType(
@@ -2117,7 +2118,7 @@ namespace Bicep.Core.TypeSystem
                 LanguageConstants.TypeNameTest);
         }
 
-        private TypeSymbol CreateTestType(IEnumerable<TypeProperty> paramsProperties, string typeName)
+        private TypeSymbol CreateTestType(IEnumerable<NamedTypeProperty> paramsProperties, string typeName)
         {
             var paramsType = new ObjectType(LanguageConstants.TestParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
             // If none of the params are required, we can allow the 'params' declaration to be omitted entirely
@@ -2128,7 +2129,7 @@ namespace Bicep.Core.TypeSystem
                 TypeSymbolValidationFlags.Default,
                 new[]
                 {
-                    new TypeProperty(LanguageConstants.TestParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
+                    new NamedTypeProperty(LanguageConstants.TestParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                 },
                 null);
 

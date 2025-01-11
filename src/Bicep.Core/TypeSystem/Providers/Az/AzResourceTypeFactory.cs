@@ -20,18 +20,18 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         {
             var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
             var bodyType = GetTypeSymbol(resourceType.Body.Type, isResourceBodyType: true, isResourceBodyTopLevelPropertyType: false);
-            var assertsProperty = new TypeProperty(LanguageConstants.ResourceAssertPropertyName, AzResourceTypeProvider.ResourceAsserts);
+            var assertsProperty = new NamedTypeProperty(LanguageConstants.ResourceAssertPropertyName, AzResourceTypeProvider.ResourceAsserts);
             // DeclaredResourceMetadata.TypeReference.FormatType()
             if (bodyType is ObjectType objectType)
             {
                 var properties = objectType.Properties.SetItem(LanguageConstants.ResourceAssertPropertyName, assertsProperty);
                 if (resourceFunctions.Any())
                 {
-                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, objectType.AdditionalPropertiesDescription, resourceFunctions);
+                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalProperties, resourceFunctions);
                 }
                 else
                 {
-                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, objectType.AdditionalPropertiesDescription);
+                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalProperties);
                 }
             }
 
@@ -64,9 +64,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         private ITypeReference GetTypeReference(Azure.Bicep.Types.Concrete.ITypeReference input, bool isResourceBodyType, bool isResourceBodyTopLevelPropertyType)
             => new DeferredTypeReference(() => GetTypeSymbol(input.Type, isResourceBodyType, isResourceBodyTopLevelPropertyType));
 
-        private TypeProperty GetTypeProperty(string name, Azure.Bicep.Types.Concrete.ObjectTypeProperty input, bool isResourceBodyTopLevelPropertyType)
+        private NamedTypeProperty GetTypeProperty(string name, Azure.Bicep.Types.Concrete.ObjectTypeProperty input, bool isResourceBodyTopLevelPropertyType)
         {
-            return new TypeProperty(name, GetTypeReference(input.Type, isResourceBodyType: false, isResourceBodyTopLevelPropertyType), GetTypePropertyFlags(input), input.Description);
+            return new NamedTypeProperty(name, GetTypeReference(input.Type, isResourceBodyType: false, isResourceBodyTopLevelPropertyType), GetTypePropertyFlags(input), input.Description);
         }
 
         private static TypePropertyFlags GetTypePropertyFlags(Azure.Bicep.Types.Concrete.ObjectTypeProperty input)
@@ -147,8 +147,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                         return new ObjectType(objectType.Name,
                             GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType),
                             properties,
-                            additionalProperties,
-                            TypePropertyFlags.None);
+                            additionalProperties is not null ? new(additionalProperties) : null);
                     }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                     {
@@ -207,8 +206,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             return new ObjectType(name,
                 GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType),
                 extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value, isResourceBodyType)),
-                additionalProperties,
-                TypePropertyFlags.None);
+                additionalProperties is not null ? new(additionalProperties) : null);
         }
 
         private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType, bool isResourceBodyTopLevelPropertyType)

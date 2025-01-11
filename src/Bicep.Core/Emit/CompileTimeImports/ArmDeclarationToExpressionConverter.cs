@@ -268,8 +268,7 @@ internal class ArmDeclarationToExpressionConverter
         return new(sourceSyntax,
             new ObjectType(string.Empty,
                 TypeSymbolValidationFlags.Default,
-                propertyExpressions.Select(p => new TypeProperty(p.PropertyName, p.Value.ExpressedType)),
-                additionalPropertiesType: null),
+                propertyExpressions.Select(p => new NamedTypeProperty(p.PropertyName, p.Value.ExpressedType))),
             propertyExpressions,
             AdditionalPropertiesExpression: null);
     }
@@ -380,9 +379,11 @@ internal class ArmDeclarationToExpressionConverter
         return new ObjectTypeExpression(sourceSyntax,
             new(string.Empty,
                 TypeSymbolValidationFlags.Default,
-                properties.Select(pe => new TypeProperty(pe.PropertyName, pe.Value.ExpressedType)),
-                addlProperties?.Value.ExpressedType,
-                additionalPropertiesDescription: addlProperties?.Description is StringLiteralExpression stringLiteral ? stringLiteral.Value : null),
+                properties.Select(pe => new NamedTypeProperty(pe.PropertyName, pe.Value.ExpressedType)),
+                addlProperties is not null
+                    ? new TypeProperty(addlProperties.Value.ExpressedType, Description: addlProperties.Description is StringLiteralExpression stringLiteral ? stringLiteral.Value : null)
+                    : null
+            ),
             properties,
             addlProperties);
     }

@@ -361,12 +361,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TypeFactory.CreateIntegerType(0)),
                 CreateRow(new ObjectType("object",
                     default,
-                    new TypeProperty[] { new("prop", LanguageConstants.Any, TypePropertyFlags.Required) },
+                    new NamedTypeProperty[] { new("prop", LanguageConstants.Any, TypePropertyFlags.Required) },
                     null),
                     TypeFactory.CreateIntegerLiteralType(1)),
                 CreateRow(new ObjectType("object",
                     default,
-                    new TypeProperty[]
+                    new NamedTypeProperty[]
                     {
                         new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
                         new("prop2", LanguageConstants.Any),
@@ -375,19 +375,19 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TypeFactory.CreateIntegerType(1, 2)),
                 CreateRow(new ObjectType("object",
                     default,
-                    new TypeProperty[]
+                    new NamedTypeProperty[]
                     {
                         new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
                         new("prop2", LanguageConstants.Any),
                     },
-                    LanguageConstants.Any),
+                    new(LanguageConstants.Any)),
                     TypeFactory.CreateIntegerType(1)),
 
                 CreateRow(new DiscriminatedObjectType("discriminated", default, "type", new[]
                 {
                     new ObjectType("object",
                         default,
-                        new TypeProperty[]
+                        new NamedTypeProperty[]
                         {
                             new("type", TypeFactory.CreateStringLiteralType("fizz"), TypePropertyFlags.Required),
                             new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
@@ -395,7 +395,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                         null),
                     new ObjectType("object",
                         default,
-                        new TypeProperty[]
+                        new NamedTypeProperty[]
                         {
                             new("type", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
                             new("prop", LanguageConstants.Any, TypePropertyFlags.Required),

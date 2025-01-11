@@ -141,7 +141,7 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
@@ -149,7 +149,7 @@ public class TypeHelperTests
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
@@ -172,7 +172,7 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
@@ -180,7 +180,7 @@ public class TypeHelperTests
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("type", TypeFactory.CreateStringLiteralType("b"), default),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
@@ -210,7 +210,7 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
@@ -218,7 +218,7 @@ public class TypeHelperTests
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
@@ -226,7 +226,7 @@ public class TypeHelperTests
                 null),
             new("{type: 'a', baz: int}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("baz", LanguageConstants.Int, TypePropertyFlags.Required),
@@ -260,7 +260,7 @@ public class TypeHelperTests
         {
             new ObjectType("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
@@ -268,7 +268,7 @@ public class TypeHelperTests
                 null),
             new ObjectType("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
@@ -287,7 +287,7 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
@@ -296,7 +296,7 @@ public class TypeHelperTests
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("pop"), TypePropertyFlags.Required),
@@ -318,7 +318,7 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("kind", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
@@ -327,7 +327,7 @@ public class TypeHelperTests
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("kind", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("pop"), TypePropertyFlags.Required),
@@ -349,7 +349,7 @@ public class TypeHelperTests
         {
             new("{type: 'a', foo: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("variety", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
@@ -358,7 +358,7 @@ public class TypeHelperTests
                 null),
             new("{type: 'b', bar: int}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("variety", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
                     new("fizz", TypeFactory.CreateStringLiteralType("pop"), TypePropertyFlags.Required),
@@ -380,19 +380,18 @@ public class TypeHelperTests
         {
             new("{foo: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
                 },
                 null),
             new("{bar: string, *: int}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("bar", LanguageConstants.String, TypePropertyFlags.Required),
                 },
-                LanguageConstants.Int,
-                additionalPropertiesDescription: "Description of additional properties"),
+                new TypeProperty(LanguageConstants.Int, Description: "Description of additional properties")),
         };
 
         var collapsed = TypeHelper.TryCollapseTypes(toCollapse).Should().BeAssignableTo<ObjectType>().Subject;
@@ -405,10 +404,12 @@ public class TypeHelperTests
         collapsed.Properties["bar"].TypeReference.Type.Name.Should().Be("string");
         collapsed.Properties["bar"].Flags.HasFlag(TypePropertyFlags.Required).Should().BeFalse();
 
-        collapsed.AdditionalPropertiesType.Should().NotBeNull();
-        collapsed.AdditionalPropertiesType!.Type.Name.Should().Be("int");
-        collapsed.AdditionalPropertiesDescription.Should().Be("Description of additional properties");
-        collapsed.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty).Should().BeTrue();
+        var addlProps = collapsed.AdditionalProperties;
+        addlProps.Should().NotBeNull();
+        addlProps!.TypeReference.Type.Should().NotBeNull();
+        addlProps.TypeReference.Type.Name.Should().Be("int");
+        addlProps.Description.Should().Be("Description of additional properties");
+        addlProps.Flags.HasFlag(TypePropertyFlags.FallbackProperty).Should().BeTrue();
     }
 
     [TestMethod]
@@ -416,24 +417,24 @@ public class TypeHelperTests
     {
         var scopeRef = new ResourceGroupScopeType(
             ImmutableArray<FunctionArgumentSyntax>.Empty,
-            ImmutableArray<TypeProperty>.Empty);
+            ImmutableArray<NamedTypeProperty>.Empty);
 
         var objects = new ObjectType[]
         {
             new("{foo: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
                 },
                 null),
             new("{bar: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("bar", LanguageConstants.String, TypePropertyFlags.Required),
                 },
-                LanguageConstants.Int),
+                new TypeProperty(LanguageConstants.Int)),
         };
 
         TypeHelper.TryCollapseTypes(scopeRef.AsEnumerable()).Should().BeSameAs(scopeRef);
@@ -447,7 +448,7 @@ public class TypeHelperTests
         var @namespace = new NamespaceType(
             "alias",
             new(true, "bicepExtensionName", null, "templateExtensionName", "1.0"),
-            ImmutableArray<TypeProperty>.Empty,
+            ImmutableArray<NamedTypeProperty>.Empty,
             ImmutableArray<FunctionOverload>.Empty,
             ImmutableArray<BannedFunction>.Empty,
             ImmutableArray<Decorator>.Empty,
@@ -457,18 +458,18 @@ public class TypeHelperTests
         {
             new("{foo: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("foo", LanguageConstants.String, TypePropertyFlags.Required),
                 },
                 null),
             new("{bar: string}",
                 default,
-                new TypeProperty[]
+                new NamedTypeProperty[]
                 {
                     new("bar", LanguageConstants.String, TypePropertyFlags.Required),
                 },
-                LanguageConstants.Int),
+                new TypeProperty(LanguageConstants.Int)),
         };
 
         TypeHelper.TryCollapseTypes(@namespace.AsEnumerable()).Should().BeSameAs(@namespace);

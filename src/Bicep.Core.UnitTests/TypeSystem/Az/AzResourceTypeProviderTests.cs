@@ -245,7 +245,7 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             LanguageConstants.ResourceRef,
         ];
 
-        private static IEnumerable<TypeProperty> GetTopLevelProperties(TypeSymbol type) => type switch
+        private static IEnumerable<NamedTypeProperty> GetTopLevelProperties(TypeSymbol type) => type switch
         {
             ResourceType resourceType => GetTopLevelProperties(resourceType.Body.Type),
             ObjectType objectType => objectType.Properties.Values,
@@ -281,9 +281,9 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
                     {
                         VisitAllReachableTypes(property.Value.TypeReference.Type, visited);
                     }
-                    if (objectType.AdditionalPropertiesType != null)
+                    if (objectType.AdditionalProperties?.TypeReference is { } additionalPropertiesType)
                     {
-                        VisitAllReachableTypes(objectType.AdditionalPropertiesType.Type, visited);
+                        VisitAllReachableTypes(additionalPropertiesType.Type, visited);
                     }
                     return;
                 case ResourceType resourceType:

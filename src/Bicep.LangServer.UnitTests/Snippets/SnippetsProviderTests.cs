@@ -359,14 +359,14 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
-                new TypeProperty("keyAProp", LanguageConstants.String),
+                new NamedTypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
+                new NamedTypeProperty("keyAProp", LanguageConstants.String),
             }, null);
 
             var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
-                new TypeProperty("keyBProp", LanguageConstants.String),
+                new NamedTypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
+                new NamedTypeProperty("keyBProp", LanguageConstants.String),
             }, null);
 
             var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
@@ -397,18 +397,18 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
-                new TypeProperty("name", TypeFactory.CreateStringLiteralType("keyA"), TypePropertyFlags.Required),
-                new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("id", LanguageConstants.String)
+                new NamedTypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
+                new NamedTypeProperty("name", TypeFactory.CreateStringLiteralType("keyA"), TypePropertyFlags.Required),
+                new NamedTypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("id", LanguageConstants.String)
             }, null);
 
             var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("kind", TypeFactory.CreateStringLiteralType("discKey"), TypePropertyFlags.ReadOnly),
-                new TypeProperty("hostPoolType", LanguageConstants.String)
+                new NamedTypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("kind", TypeFactory.CreateStringLiteralType("discKey"), TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("hostPoolType", LanguageConstants.String)
             }, null);
 
             var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
@@ -458,9 +458,9 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.WriteOnly),
-                new TypeProperty("id", LanguageConstants.String)
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("location", LanguageConstants.String, TypePropertyFlags.WriteOnly),
+                new NamedTypeProperty("id", LanguageConstants.String)
             }, null);
             TypeSymbol typeSymbol = new ModuleType("module", ResourceScope.Module, objectType);
 
@@ -481,9 +481,9 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("id", LanguageConstants.String)
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("id", LanguageConstants.String)
             }, null);
             TypeSymbol typeSymbol = new ModuleType("module", ResourceScope.Module, objectType);
 
@@ -514,9 +514,9 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.WriteOnly),
-                new TypeProperty("id", LanguageConstants.String)
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("location", LanguageConstants.String, TypePropertyFlags.WriteOnly),
+                new NamedTypeProperty("id", LanguageConstants.String)
             }, null);
 
             IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetObjectBodyCompletionSnippets(objectType);
@@ -536,9 +536,9 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("id", LanguageConstants.String)
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("id", LanguageConstants.String)
             }, null);
 
             IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetObjectBodyCompletionSnippets(objectType);
@@ -568,14 +568,14 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
-                new TypeProperty("keyAProp", LanguageConstants.String),
+                new NamedTypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
+                new NamedTypeProperty("keyAProp", LanguageConstants.String),
             }, null);
 
             var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
-                new TypeProperty("keyBProp", LanguageConstants.String),
+                new NamedTypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
+                new NamedTypeProperty("keyBProp", LanguageConstants.String),
             }, null);
 
             var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
@@ -597,18 +597,18 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
-                new TypeProperty("name", TypeFactory.CreateStringLiteralType("keyA"), TypePropertyFlags.Required),
-                new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("id", LanguageConstants.String)
+                new NamedTypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
+                new NamedTypeProperty("name", TypeFactory.CreateStringLiteralType("keyA"), TypePropertyFlags.Required),
+                new NamedTypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("id", LanguageConstants.String)
             }, null);
 
             var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("kind", TypeFactory.CreateStringLiteralType("discKey"), TypePropertyFlags.ReadOnly),
-                new TypeProperty("hostPoolType", LanguageConstants.String)
+                new NamedTypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("kind", TypeFactory.CreateStringLiteralType("discKey"), TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("hostPoolType", LanguageConstants.String)
             }, null);
 
             var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
@@ -649,7 +649,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
             => new(
                 name,
                 TypeSymbolValidationFlags.Default,
-                properties.Select(val => new TypeProperty(val.name, val.type, val.typePropertyFlags)),
+                properties.Select(val => new NamedTypeProperty(val.name, val.type, val.typePropertyFlags)),
                 null);
     }
 }
