@@ -23,11 +23,13 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     private readonly CloudConfiguration cloud;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
 
+    private string filterExpression = "bicep/"; // TODO: Allow configuration (note that this allows bicep anywhere in the module path) //asdfg test filter
+
     public PrivateAcrModuleMetadataProvider(
         CloudConfiguration cloud,
         string registry,
-        IContainerRegistryClientFactory containerRegistryClientFactory)
-        : base(registry)
+        IContainerRegistryClientFactory containerRegistryClientFactory
+    ) : base(registry)
     {
         this.cloud = cloud;
         this.containerRegistryClientFactory = containerRegistryClientFactory;
@@ -49,14 +51,21 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         )];
     }
 
+    //asdfg bug: br:sawbicep.azurecr.io/de| => br:sawbicep.azurecr.io/dedemo
+
     protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
     {
-        var filter = new Regex("bicep/"); // TODO: Allow configuration (note that this allows bicep anywhere in the module path)
+        var filterRegex = new Regex(filterExpression, RegexOptions.IgnoreCase, matchTimeout: TimeSpan.FromMilliseconds(1));
+
+        Trace.WriteLine($"Retrieving catalog for registry {Registry}...");
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
         var catalog = await acrManager.GetCatalogAsync(cloud, Registry);
-        var modules = catalog
-            .Where(m => filter.IsMatch(m))
+        var filteredCatalog = catalog.Where(m => filterRegex.IsMatch(m)).ToImmutableArray();
+
+        Trace.WriteLine($"Found {catalog.Length} repositories, of which {filteredCatalog.Length} matched the filter (\"{filterExpression}\")");
+
+        var modules = filteredCatalog
             .Select(m =>
             new CachedModule(
                 new RegistryModuleMetadata(Registry, m, "asdfg description", "asdfg documentation uri"),
