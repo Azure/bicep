@@ -40,8 +40,6 @@ public class ExpressionBuilder
         LanguageConstants.ResourceDependsOnPropertyName,
     ];
 
-    private static readonly int MaxCopyIndexStringLength = LanguageConstants.MaxResourceCopyIndexValue.ToString().Length;
-
     private readonly ImmutableDictionary<LocalVariableSymbol, Expression> localReplacements;
 
     public EmitterContext Context { get; }
@@ -525,52 +523,10 @@ public class ExpressionBuilder
             return ConvertObjectProperty(namePropertySyntax);
         }
 
-        var isEnclosedInLoop = symbol.IsCollection;
-
-        var formatParameters = new List<Expression>();
-
-        int formatParametersLength = 0;
-        if (isEnclosedInLoop)
-        {
-            formatParameters.Add(new CopyIndexExpression(SourceSyntax: null, Name: null));
-            formatParametersLength += MaxCopyIndexStringLength;
-        }
-
-        formatParameters.Add(
-            ExpressionFactory.CreateFunctionCall(
-                "uniqueString",
-                null,
-                ExpressionFactory.CreateStringLiteral(symbol.Name, sourceSyntax: null),
-                ExpressionFactory.CreatePropertyAccess(
-                    ExpressionFactory.CreateFunctionCall("deployment", sourceSyntax: null),
-                    "name",
-                    null,
-                    AccessExpressionFlags.None)));
-        formatParametersLength += (int)SystemNamespaceType.UniqueStringHashLength;
-
-        // the format string will use a single dash delimiter per parameter
-        formatParametersLength += formatParameters.Count;
-
-        var maxSymbolicNamePrefixLength = LanguageConstants.MaxDeploymentNameLength - formatParametersLength;
-        var actualSymbolicNamePrefixLength = Math.Min(maxSymbolicNamePrefixLength, symbol.Name.Length);
-        var symbolicNamePrefix = symbol.Name[..actualSymbolicNamePrefixLength];
-
-        var formatStringExpression = ExpressionFactory.CreateStringLiteral(isEnclosedInLoop
-            ? $"{symbolicNamePrefix}-{{0}}-{{1}}"
-            : $"{symbolicNamePrefix}-{{0}}");
-
-        Debug.Assert(actualSymbolicNamePrefixLength <= maxSymbolicNamePrefixLength, "The symbolic name prefix should not exceed the maximum length.");
-        Debug.Assert(formatParametersLength + maxSymbolicNamePrefixLength == LanguageConstants.MaxDeploymentNameLength, "The sum of the format parameters length and the symbolic name prefix length should equal the maximum deployment name length.");
-
-        // in loops, the generated name expression should be:
-        //   '<symbolicNamePrefix>-${copyIndex()}-${uniqueString('<symbolicName>', deployment().name)}'
-        // outside of loops, the name expression should be:
-        //   '<symbolicNamePrefix>-uniqueString('<symbolicName>', deployment().name)'
-
         return new ObjectPropertyExpression(
             SourceSyntax: null,
             Key: new StringLiteralExpression(SourceSyntax: null, Value: AzResourceTypeProvider.ResourceNamePropertyName),
-            Value: ExpressionFactory.CreateFunctionCall("format", formatStringExpression.AsEnumerable().Concat(formatParameters)));
+            Value: ExpressionFactory.CreateGeneratedModuleName(symbol));
     }
 
     private DeclaredModuleExpression ConvertModule(ModuleDeclarationSyntax syntax)
@@ -1241,7 +1197,17 @@ public class ExpressionBuilder
     }
 
     private IndexReplacementContext? TryGetReplacementContext(ModuleSymbol module, SyntaxBase? indexExpression, SyntaxBase newContext)
-        => TryGetReplacementContext(GetModuleNameSyntax(module), indexExpression, newContext);
+    {
+        if (module.TryGetBodyProperty(LanguageConstants.ModuleNamePropertyName) is null)
+        {
+            // The module has a generated module name.
+            return indexExpression is not null
+                ? new(ImmutableDictionary<LocalVariableSymbol, Expression>.Empty, this.ConvertWithoutLowering(indexExpression))
+                : null;
+        }
+
+        return TryGetReplacementContext(module.GetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName), indexExpression, newContext);
+    }
 
     private IndexReplacementContext? TryGetReplacementContext(DeclaredResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
     {
@@ -1282,13 +1248,6 @@ public class ExpressionBuilder
             default:
                 throw new NotImplementedException("Mismatch between count of index expressions and inaccessible symbols during array access index replacement.");
         }
-    }
-
-    private static SyntaxBase GetModuleNameSyntax(ModuleSymbol moduleSymbol)
-    {
-        // this condition should have already been validated by the type checker
-        return moduleSymbol.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName)
-            ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
     }
 
     private ulong? GetBatchSize(StatementSyntax statement)
