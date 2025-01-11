@@ -32,8 +32,8 @@ namespace Bicep.Core.UnitTests.Utils
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
 
             clientFactory
-            .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
-            .Returns<RootConfiguration, Uri, string>((_, registryUri, repository) =>
+            .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+            .Returns<CloudConfiguration, Uri, string>((_, registryUri, repository) =>
             {
                 if (repoToClient.TryGetValue((registryUri, repository), out var client))
                 {
@@ -44,8 +44,8 @@ namespace Bicep.Core.UnitTests.Utils
             });
 
             clientFactory
-                .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
-                .Returns<RootConfiguration, Uri, string>((_, registryUri, repository) =>
+                .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Returns<CloudConfiguration, Uri, string>((_, registryUri, repository) =>
                 {
                     if (repoToClient.TryGetValue((registryUri, repository), out var client))
                     {
