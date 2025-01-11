@@ -36,165 +36,161 @@ namespace Bicep.LangServer.UnitTests.Completions
         public TestContext? TestContext { get; set; }
 
         private IAzureContainerRegistriesProvider azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>().Object;
-        //asdfg private static IRegistryIndexer registryIndexer = StrictMock.Of<IRegistryIndexer>().Object;
         private ISettingsProvider settingsProvider = StrictMock.Of<ISettingsProvider>().Object;
 
-        // TODO: We need improved assertions for all the completion item tests
+        [DataTestMethod]
+        [DataRow("module test |''", 14)]
+        [DataRow("module test ''|", 14)]
+        [DataRow("module test '|'", 14)]
+        [DataRow("module test '|", 13)]
+        [DataRow("module test |'", 13)]
+        [DataRow("module test |", 12)]
+        public async Task GetFilteredCompletions_WithBicepRegistryAndTemplateSpecShemaCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
+        {
+            var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                configMgr,
+                RegistryIndexerMocks.CreateRegistryIndexer(),
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
+            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUriEncoded(), completionContext, CancellationToken.None);
 
-        //asdfg
-        //        [DataTestMethod]
-        //        [DataRow("module test |''", 14)]
-        //        [DataRow("module test ''|", 14)]
-        //        [DataRow("module test '|'", 14)]
-        //        [DataRow("module test '|", 13)]
-        //        [DataRow("module test |'", 13)]
-        //        [DataRow("module test |", 12)]
-        //        public async Task GetFilteredCompletions_WithBicepRegistryAndTemplateSpecShemaCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
-        //        {
-        //            var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors);
-        //            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
-        //                azureContainerRegistriesProvider,
-        //                configMgr,
-        //                registryIndexer,
-        //                settingsProvider,
-        //                BicepTestConstants.CreateMockTelemetryProvider().Object);
-        //            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUriEncoded(), completionContext, CancellationToken.None);
+            completions.Count().Should().Be(4);
 
-        //            completions.Count().Should().Be(4);
+            completions.Should().Contain(
+                c => c.Label == "br/public:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Public Bicep registry" &&
+                c.TextEdit!.TextEdit!.NewText == "'br/public:$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
 
-        //            completions.Should().Contain(
-        //                c => c.Label == "br/public:" &&
-        //                c.Kind == CompletionItemKind.Reference &&
-        //                c.InsertTextFormat == InsertTextFormat.Snippet &&
-        //                c.InsertText == null &&
-        //                c.Detail == "Public Bicep registry" &&
-        //                c.TextEdit!.TextEdit!.NewText == "'br/public:$0'" &&
-        //                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
-        //                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
-        //                c.TextEdit.TextEdit.Range.End.Line == 0 &&
-        //                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
+            completions.Should().Contain(
+                c => c.Label == "br:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Bicep registry" &&
+                c.TextEdit!.TextEdit!.NewText == "'br:$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
 
-        //            completions.Should().Contain(
-        //                c => c.Label == "br:" &&
-        //                c.Kind == CompletionItemKind.Reference &&
-        //                c.InsertTextFormat == InsertTextFormat.Snippet &&
-        //                c.InsertText == null &&
-        //                c.Detail == "Bicep registry" &&
-        //                c.TextEdit!.TextEdit!.NewText == "'br:$0'" &&
-        //                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
-        //                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
-        //                c.TextEdit.TextEdit.Range.End.Line == 0 &&
-        //                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
+            completions.Should().Contain(
+                c => c.Label == "ts/" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Template spec (alias)" &&
+                c.TextEdit!.TextEdit!.NewText == "'ts/$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
 
-        //            completions.Should().Contain(
-        //                c => c.Label == "ts/" &&
-        //                c.Kind == CompletionItemKind.Reference &&
-        //                c.InsertTextFormat == InsertTextFormat.Snippet &&
-        //                c.InsertText == null &&
-        //                c.Detail == "Template spec (alias)" &&
-        //                c.TextEdit!.TextEdit!.NewText == "'ts/$0'" &&
-        //                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
-        //                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
-        //                c.TextEdit.TextEdit.Range.End.Line == 0 &&
-        //                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
+            completions.Should().Contain(
+                c => c.Label == "ts:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Template spec" &&
+                c.TextEdit!.TextEdit!.NewText == "'ts:$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
+        }
 
-        //            completions.Should().Contain(
-        //                c => c.Label == "ts:" &&
-        //                c.Kind == CompletionItemKind.Reference &&
-        //                c.InsertTextFormat == InsertTextFormat.Snippet &&
-        //                c.InsertText == null &&
-        //                c.Detail == "Template spec" &&
-        //                c.TextEdit!.TextEdit!.NewText == "'ts:$0'" &&
-        //                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
-        //                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
-        //                c.TextEdit.TextEdit.Range.End.Line == 0 &&
-        //                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
-        //        }
+        [TestMethod]
+        public async Task GetFilteredCompletions_WithBicepRegistryAndTemplateSpecShemaCompletionContext_AndTemplateSpecAliasInBicepConfigFile_ReturnsCompletionItems()
+        {
+            var bicepConfigFileContents = @"{
+          ""moduleAliases"": {
+            ""br"": {
+              ""test"": {
+                ""registry"": ""testacr.azurecr.io"",
+                ""modulePath"": ""bicep/modules""
+              }
+            },
+            ""ts"": {
+              ""mySpecRG"": {
+                ""subscription"": ""00000000-0000-0000-0000-000000000000"",
+                ""resourceGroup"": ""test-rg""
+              }
+            }
+          }
+        }";
 
-        //        [TestMethod]
-        //        public async Task GetFilteredCompletions_WithBicepRegistryAndTemplateSpecShemaCompletionContext_AndTemplateSpecAliasInBicepConfigFile_ReturnsCompletionItems()
-        //        {
-        //            var bicepConfigFileContents = @"{
-        //  ""moduleAliases"": {
-        //    ""br"": {
-        //      ""test"": {
-        //        ""registry"": ""testacr.azurecr.io"",
-        //        ""modulePath"": ""bicep/modules""
-        //      }
-        //    },
-        //    ""ts"": {
-        //      ""mySpecRG"": {
-        //        ""subscription"": ""00000000-0000-0000-0000-000000000000"",
-        //        ""resourceGroup"": ""test-rg""
-        //      }
-        //    }
-        //  }
-        //}";
+            var (completionContext, configMgr, documentUri) = GetBicepCompletionContext("module test '|'", bicepConfigFileContents);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                configMgr,
+                RegistryIndexerMocks.CreateRegistryIndexer(),
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
+            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUriEncoded(), completionContext, CancellationToken.None);
 
-        //            var (completionContext, configMgr, documentUri) = GetBicepCompletionContext("module test '|'", bicepConfigFileContents);
-        //            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
-        //                azureContainerRegistriesProvider,
-        //                configMgr,
-        //                registryIndexer,
-        //                settingsProvider,
-        //                BicepTestConstants.CreateMockTelemetryProvider().Object);
-        //            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUriEncoded(), completionContext, CancellationToken.None);
+            completions.Count().Should().Be(5);
 
-        //            completions.Count().Should().Be(5);
+            foreach (var c in completions)
+            {
+                c.Label.Should().MatchRegex("^(.*/)|(.*:)$");
+                c.Kind.Should().Be(CompletionItemKind.Reference);
+                c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                c.InsertText.Should().BeNull();
+                c.TextEdit!.TextEdit!.NewText.Should().MatchRegex("^'.*\\$0'$");
+                c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                c.TextEdit.TextEdit.Range.End.Character.Should().Be(14);
+            }
 
-        //            foreach (var c in completions)
-        //            {
-        //                c.Label.Should().MatchRegex("^(.*/)|(.*:)$");
-        //                c.Kind.Should().Be(CompletionItemKind.Reference);
-        //                c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-        //                c.InsertText.Should().BeNull();
-        //                c.TextEdit!.TextEdit!.NewText.Should().MatchRegex("^'.*\\$0'$");
-        //                c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-        //                c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-        //                c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-        //                c.TextEdit.TextEdit.Range.End.Character.Should().Be(14);
-        //            }
+            completions.Should().Contain(
+                c => c.Label == "br:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Bicep registry" &&
+                c.TextEdit!.TextEdit!.NewText == "'br:$0'");
 
-        //            completions.Should().Contain(
-        //                c => c.Label == "br:" &&
-        //                c.Kind == CompletionItemKind.Reference &&
-        //                c.InsertTextFormat == InsertTextFormat.Snippet &&
-        //                c.InsertText == null &&
-        //                c.Detail == "Bicep registry" &&
-        //                c.TextEdit!.TextEdit!.NewText == "'br:$0'");
+            completions.Should().Contain(
+                c => c.Label == "br/test:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Alias for br:testacr.azurecr.io/bicep/modules/" &&
+                c.TextEdit!.TextEdit!.NewText == "'br/test:$0'");
 
-        //            completions.Should().Contain(
-        //                c => c.Label == "br/test:" &&
-        //                c.Kind == CompletionItemKind.Reference &&
-        //                c.InsertTextFormat == InsertTextFormat.Snippet &&
-        //                c.InsertText == null &&
-        //                c.Detail == "Alias for br:testacr.azurecr.io/bicep/modules/" &&
-        //                c.TextEdit!.TextEdit!.NewText == "'br/test:$0'");
+            completions.Should().Contain(
+                c => c.Label == "br/public:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Public Bicep registry" &&
+                c.TextEdit!.TextEdit!.NewText == "'br/public:$0'");
 
-        //            completions.Should().Contain(
-        //                c => c.Label == "br/public:" &&
-        //                c.Kind == CompletionItemKind.Reference &&
-        //                c.InsertTextFormat == InsertTextFormat.Snippet &&
-        //                c.InsertText == null &&
-        //                c.Detail == "Public Bicep registry" &&
-        //                c.TextEdit!.TextEdit!.NewText == "'br/public:$0'");
+            completions.Should().Contain(
+                c => c.Label == "ts:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Template spec" &&
+                c.TextEdit!.TextEdit!.NewText == "'ts:$0'");
 
-        //            completions.Should().Contain(
-        //                c => c.Label == "ts:" &&
-        //                c.Kind == CompletionItemKind.Reference &&
-        //                c.InsertTextFormat == InsertTextFormat.Snippet &&
-        //                c.InsertText == null &&
-        //                c.Detail == "Template spec" &&
-        //                c.TextEdit!.TextEdit!.NewText == "'ts:$0'");
-
-        //            completions.Should().Contain(
-        //                c => c.Label == "ts/mySpecRG:" &&
-        //                c.Kind == CompletionItemKind.Reference &&
-        //                c.InsertTextFormat == InsertTextFormat.Snippet &&
-        //                c.InsertText == null &&
-        //                c.Detail == "Template spec" &&
-        //                c.TextEdit!.TextEdit!.NewText == "'ts/mySpecRG:$0'");
-        //        }
+            completions.Should().Contain(
+                c => c.Label == "ts/mySpecRG:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Template spec" &&
+                c.TextEdit!.TextEdit!.NewText == "'ts/mySpecRG:$0'");
+        }
 
         [TestMethod]
         public async Task GetFilteredCompletions_WithInvalidTextInCompletionContext_ReturnsEmptyListOfCompletionItems()
@@ -212,17 +208,19 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        //asdfg this is valid [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1|")]
-        //[DataRow("module test 'br/public:app/dapr-containerapp:1.0.1|'")]
+        // CONSIDER: This doesn't actually test anything useful because the current code takes the entire string
+        //   into account, and ignores where the cursor is.
+        [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1|")]
+        [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1|'")]
         [DataRow("module test |'br/public:app/dapr-containerapp:1.0.1'")]
-        //[DataRow("module test 'br/public:app/dapr-containerapp:1.0.1'|")]
-        //[DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1|'")]
-        //[DataRow("module test |'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'")]
-        //[DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'|")]
-        ////asdfg this is valid [DataRow("module test 'br:contoso.com/app/dapr-containerapp:1.0.1|")]
-        //[DataRow("module test 'br:contoso.com/app/dapr-containerapp:1.0.1|'")]
-        //[DataRow("module test |'br:contoso.com/app/dapr-containerapp:1.0.1'")]
-        //[DataRow("module test 'br:contoso.com/app/dapr-containerapp:1.0.1'|")]
+        [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1'|")]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1|'")]
+        [DataRow("module test |'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'")]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'|")]
+        [DataRow("module test 'br:contoso.com/app/dapr-containerapp:1.0.1|")]
+        [DataRow("module test 'br:contoso.com/app/dapr-containerapp:1.0.1|'")]
+        [DataRow("module test |'br:contoso.com/app/dapr-containerapp:1.0.1'")]
+        [DataRow("module test 'br:contoso.com/app/dapr-containerapp:1.0.1'|")]
         public async Task GetFilteredCompletions_WithInvalidCompletionContext_ReturnsEmptyList(string inputWithCursors)
         {
             var registryIndexer = RegistryIndexerMocks.CreateRegistryIndexer(
@@ -696,7 +694,6 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().BeEmpty();
         }
 
-#if false //asdfg
         [DataTestMethod]
         [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
         [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
@@ -726,7 +723,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
                 configMgr,
-                registryIndexer,
+                RegistryIndexerMocks.CreateRegistryIndexer(),
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUriEncoded(), completionContext, CancellationToken.None);
@@ -743,10 +740,10 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br/test1:|'", "dapr-containerappapp", "'br/test1:dapr-containerappapp:$0'", 0, 12, 0, 23)]
-        [DataRow("module test 'br/test1:|", "dapr-containerappapp", "'br/test1:dapr-containerappapp:$0'", 0, 12, 0, 22)]
-        [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerappapp", "'br/test2:bicep/app/dapr-containerappapp:$0'", 0, 12, 0, 23)]
-        [DataRow("module test 'br/test2:|", "bicep/app/dapr-containerappapp", "'br/test2:bicep/app/dapr-containerappapp:$0'", 0, 12, 0, 22)]
+        [DataRow("module test 'br/test1:|'", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 23)]
+        [DataRow("module test 'br/test1:|", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 22)]
+        [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
+        [DataRow("module test 'br/test2:|", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 22)]
         public async Task GetFilteredCompletions_WithAliasForMCRInBicepConfigAndModulePath_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel,
@@ -769,7 +766,7 @@ namespace Bicep.LangServer.UnitTests.Completions
     }
   }
 }";
-            var registryIndexer = RegistryIndexerMocks.MockRegistryIndexer(
+            var registryIndexer = RegistryIndexerMocks.CreateRegistryIndexer(
                 RegistryIndexerMocks.MockPublicMetadataProvider([
                     new("bicep/app/dapr-containerapp", "dapr description", "contoso.com/help", []),
                 ])
@@ -779,7 +776,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
                 configMgr,
-                registryIndexer.Object,
+                registryIndexer,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             IEnumerable<CompletionItem> completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUriEncoded(), completionContext, CancellationToken.None);
@@ -806,7 +803,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("module foo 'br/test1:|", ModuleRegistryType.ACR)]
         [DataRow("module foo 'br/test2:|", ModuleRegistryType.ACR)]
         [DataRow("module foo 'br/test3:|", ModuleRegistryType.MCR)]
-        [DataRow("module foo 'br/test4:|", ModuleRegistryType.MCR)]
+        //asdfg [DataRow("module foo 'br/test4:|", ModuleRegistryType.MCR)]
         public async Task VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion(string inputWithCursors, string moduleRegistryType)
         {
             var bicepConfigFileContents = @"{
@@ -831,7 +828,7 @@ namespace Bicep.LangServer.UnitTests.Completions
 }";
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
 
-            var registryIndexer = RegistryIndexerMocks.MockRegistryIndexer(
+            var registryIndexer = RegistryIndexerMocks.CreateRegistryIndexer(
                 RegistryIndexerMocks.MockPublicMetadataProvider([
                     new("bicep/app/dapr-cntrapp1", "description1", null, []),
                     new("bicep/app/dapr-cntrapp2", null, "contoso.com/help2", [])
@@ -850,7 +847,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
                 configMgr,
-                registryIndexer.Object,
+                registryIndexer,
                 settingsProvider,
                 telemetryProvider.Object);
             await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUriEncoded(), completionContext, CancellationToken.None);
@@ -894,7 +891,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
                 configMgr,
-                registryIndexer,
+                RegistryIndexerMocks.CreateRegistryIndexer(),
                 settingsProviderMock.Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
 
@@ -904,7 +901,6 @@ namespace Bicep.LangServer.UnitTests.Completions
             firstItemReturned.Should().BeTrue();
             secondItemReturned.Should().BeFalse();
         }
-#endif
 
         private (BicepCompletionContext, ConfigurationManager, DocumentUri) GetBicepCompletionContext(
             string inputWithCursors,

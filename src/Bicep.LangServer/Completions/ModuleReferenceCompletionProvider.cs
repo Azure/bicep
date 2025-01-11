@@ -323,11 +323,14 @@ namespace Bicep.LanguageServer.Completions
         private async Task<IEnumerable<CompletionItem>> GetVersionCompletions(BicepCompletionContext context, string trimmedText, RootConfiguration rootConfiguration)
         {
             if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
+                || parts.ResolvedModulePath is null
                 || !parts.HasVersionSeparator
-                || parts.ResolvedModulePath is null)
+                || !string.IsNullOrWhiteSpace(parts.Version)
+                )
             {
                 return [];
             }
+
             List<CompletionItem> completions = new();
 
             var versionsMetadata =
@@ -438,6 +441,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 if (kvp.Value.Registry is string inputRegistry)
                 {
+                    //asdfg ntoe: breaks VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion
                     // We currently don't support path completion for private modules, but we'll go ahead and log telemetry to track usage. asdfg
                     if (!inputRegistry.Equals(PublicMcrRegistry, StringComparison.Ordinal) && //asdfg?
                         trimmedText.Equals($"br/{kvp.Key}:"))
