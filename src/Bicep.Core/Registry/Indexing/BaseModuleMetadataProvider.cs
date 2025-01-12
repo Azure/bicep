@@ -81,7 +81,7 @@ public abstract class BaseModuleMetadataProvider(
     {
         _ = TryAwaitCache(forceUpdate);
     }
-    public async Task<bool> TryUpdateCacheAsync()
+    public async Task<bool> TryUpdateCacheAsync()//asdfg implement/test threading
     {
         if (await TryGetLiveDataAsync() is { } modules)
         {
@@ -151,7 +151,11 @@ public abstract class BaseModuleMetadataProvider(
 
     private Task UpdateCacheIfNeededAsync(bool forceUpdate, bool initialDelay)
     {
-        if (!this.cachedModules.Any())
+        if (this.DownloadError is not null)
+        {
+            Trace.WriteLine($"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Last cache load failed, trying again...");
+        }
+        else if (this.lastSuccessfulQuery is null)
         {
             Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicModuleMetadataProvider)}: [{Registry}] First data retrieval...");
         }

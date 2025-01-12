@@ -4217,11 +4217,11 @@ var file = " + functionName + @"(templ|)
 
        //asdfg
         //[TestMethod]
-        //[DataRow("module test 'br:my.registry.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:my.registry.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        //[DataRow("module test 'br:my.registry.io/bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br:my.registry.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        //[DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        //[DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
         //[DataRow("module test 'br/myRegistry:abc/foo|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
         //[DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        //[DataRow("module test 'br:my.registry.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:my.registry.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        //[DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
         //[DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
         //public async Task Private_registry_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
         //{
@@ -4238,11 +4238,11 @@ var file = " + functionName + @"(templ|)
         //            {
         //                "br": {
         //                    "myRegistry": {
-        //                        "registry": "my.registry.io",
+        //                        "registry": "registry.contoso.io",
         //                        "modulePath": "bicep/whatever"
         //                    },
         //                    "myRegistry_noPath": {
-        //                        "registry": "my.registry.io"
+        //                        "registry": "registry.contoso.io"
         //                    }
         //                }
         //            }
@@ -4256,7 +4256,7 @@ var file = " + functionName + @"(templ|)
         //    var indexer = RegistryIndexerMocks.MockRegistryIndexer(
         //        null,
         //        RegistryIndexerMocks.MockPrivateMetadataProvider(
-        //            "my.registry.io",
+        //            "registry.contoso.io",
         //            [
         //                ("bicep/whatever/abc/foo/bar", "d1", "contoso.com/help1", []),
         //                ("bicep/whatever/abc/food/bar", "d2", "contoso.com/help2", []),

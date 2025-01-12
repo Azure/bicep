@@ -42,7 +42,26 @@ namespace Bicep.Core.Registry
         {
             var registryUri = GetRegistryUri(registry);
 
-            async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
+            try
+            {
+                // Try authenticated client first.
+                Trace.WriteLine($"Attempting to list repository tags for module {registryUri}/{repository} using authentication.");
+                return await GetTagsInternalAsync(anonymousAccess: false);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed, received code {exception.Status}. Falling back to anonymous.");
+                return await GetTagsInternalAsync(anonymousAccess: true);
+            }
+            catch (CredentialUnavailableException)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed due to missing login step. Falling back to anonymous.");
+                return await GetTagsInternalAsync(anonymousAccess: true);
+            }
+
+            async Task<string[]> GetTagsInternalAsync(bool anonymousAccess)
             {
                 var client = CreateRegistryClient(cloud, registryUri, anonymousAccess);
 
@@ -57,25 +76,6 @@ namespace Bicep.Core.Registry
 
                 return [.. tags];
             }
-
-            try
-            {
-                // Try authenticated client first.
-                Trace.WriteLine($"Attempting to list repository tags for module {registryUri}/{repository} using authentication.");
-                return await GetCatalogInternalAsync(anonymousAccess: false);
-            }
-            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
-            {
-                // Fall back to anonymous client.
-                Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed, received code {exception.Status}. Falling back to anonymous.");
-                return await GetCatalogInternalAsync(anonymousAccess: true);
-            }
-            catch (CredentialUnavailableException)
-            {
-                // Fall back to anonymous client.
-                Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed due to missing login step. Falling back to anonymous.");
-                return await GetCatalogInternalAsync(anonymousAccess: true);
-            }
         }
 
         public async Task<string[]> GetCatalogAsync(
@@ -83,12 +83,6 @@ namespace Bicep.Core.Registry
             string registry)
         {
             var registryUri = GetRegistryUri(registry);
-
-            async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
-            {
-                var client = CreateRegistryClient(cloud, registryUri, anonymousAccess);
-                return await GetCatalogAsync(client);
-            }
 
             // Note: This won't work for MCR
             static async Task<string[]> GetCatalogAsync(ContainerRegistryClient client)
@@ -106,7 +100,7 @@ namespace Bicep.Core.Registry
             try
             {
                 // Try authenticated client first.
-                Trace.WriteLine($"Aattempt to list catalog for registry {registryUri} using authentication.");
+                Trace.WriteLine($"Attempt to list catalog for registry {registryUri} using authentication.");
                 return await GetCatalogInternalAsync(anonymousAccess: false);
             }
             catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
@@ -120,6 +114,12 @@ namespace Bicep.Core.Registry
                 // Fall back to anonymous client.
                 Trace.WriteLine($"Authenticated attempt to pull catalog for registry {registryUri} failed due to missing login step. Falling back to anonymous.");
                 return await GetCatalogInternalAsync(anonymousAccess: true);
+            }
+
+            async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
+            {
+                var client = CreateRegistryClient(cloud, registryUri, anonymousAccess);
+                return await GetCatalogAsync(client);
             }
         }
 

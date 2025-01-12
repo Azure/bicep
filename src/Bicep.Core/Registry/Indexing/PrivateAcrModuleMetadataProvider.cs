@@ -24,7 +24,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
 
     // TODO: Allow configuration (note that the default allows bicep anywhere in the module path) //asdfg test filter
-    private string filterExpression = "bicep"; 
+    private string filterExpression = "";//asdfg "bicep"; 
 
     public PrivateAcrModuleMetadataProvider(
         CloudConfiguration cloud,

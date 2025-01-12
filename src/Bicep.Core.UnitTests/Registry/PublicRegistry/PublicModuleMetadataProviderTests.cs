@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
-//asdfg do for private
-
-
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -15,12 +11,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.Core.UnitTests.Registry.PublicRegistry
+namespace Bicep.Core.UnitTests.Registry.Indexing
 {
     [TestClass]
-    public class PublicModuleMetadataProviderTests //asdfgasdfg existing core tests
+    public class PublicModuleMetadataProviderTests
     {
-        private PublicModuleMetadataHttpClient CreateTypedClient() { //asdfg extract - is this needed?
+        private PublicModuleMetadataHttpClient CreateTypedClient() {
             var httpClient = MockHttpMessageHandler.ToHttpClient();
             return new PublicModuleMetadataHttpClient(httpClient);
         }

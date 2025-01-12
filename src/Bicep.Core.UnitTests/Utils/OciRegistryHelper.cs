@@ -74,7 +74,7 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         // create a new (real) OciArtifactRegistry instance with an empty on-disk cache that can push and pull modules
-        public static (OciArtifactRegistry, MockRegistryBlobClient) CreateModuleRegistry(
+        public static (OciArtifactRegistry, MockRegistryBlobClient) CreateModuleRegistry( //asdfg
             Uri parentModuleUri,
             IFeatureProvider featureProvider)
         {
@@ -97,7 +97,7 @@ namespace Bicep.Core.UnitTests.Utils
             return (registry, blobClient);
         }
 
-        public static async Task<(MockRegistryBlobClient, Mock<IContainerRegistryClientFactory>)> PublishArtifactLayersToMockClient(string registry, Uri registryUri, string repository, string? mediaType, string? artifactType, string? configContents, IEnumerable<(string mediaType, string contents)> layers)
+        public static async Task<(MockRegistryBlobClient, Mock<IContainerRegistryClientFactory>)> PublishArtifactLayersToMockClient(string registry, Uri registryUri, string repository, string? mediaType, string? artifactType, string? configContents, IEnumerable<(string mediaType, string contents)> layers) //asdfg
         {
             var client = new MockRegistryBlobClient();
 
