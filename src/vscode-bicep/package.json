@@ -812,7 +812,7 @@
     "@microsoft/vscode-azext-azureutils": "^3.1.2",
     "@microsoft/vscode-azext-utils": "^2.5.12",
     "@vscode/codicons": "^0.0.36",
-    "cytoscape": "^3.30.2",
+    "cytoscape": "^3.30.4",
     "cytoscape-elk": "^2.3.0",
     "fs-extra": "^11.2.0",
     "react": "^18.3.1",
