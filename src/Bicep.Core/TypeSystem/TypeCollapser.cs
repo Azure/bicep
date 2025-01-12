@@ -449,7 +449,7 @@ internal static class TypeCollapser
                     }
 
                     propertyFlags &= @object.AdditionalPropertiesFlags;
-                    
+
                     if (@object.AdditionalPropertiesDescription is not null)
                     {
                         propertyDescription = @object.AdditionalPropertiesDescription;

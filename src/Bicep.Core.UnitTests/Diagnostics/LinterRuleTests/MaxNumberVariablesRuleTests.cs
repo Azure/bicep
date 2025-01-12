@@ -56,7 +56,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 MaxNumberVariablesRule.Code,
                 DiagnosticLevel.Error,
                 [$"Too many variables. Number of variables is limited to {MaxNumberVariablesRule.MaxNumber}."],
-                new(AdditionalFiles: [ ("imported.bicep", importTarget) ]));
+                new(AdditionalFiles: [("imported.bicep", importTarget)]));
 
             CompileAndTest(
                 string.Join('\n', "import * as imported from 'imported.bicep'", withoutImport),
