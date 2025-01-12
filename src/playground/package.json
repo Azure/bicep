@@ -33,7 +33,7 @@
     "monaco-editor-webpack-plugin": "^7.1.0",
     "nerdbank-gitversioning": "^3.7.112",
     "style-loader": "^4.0.0",
-    "ts-loader": "^9.5.1",
+    "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "webpack": "^5.97.1",
