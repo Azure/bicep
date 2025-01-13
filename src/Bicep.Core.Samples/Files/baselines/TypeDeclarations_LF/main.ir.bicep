@@ -267,11 +267,10 @@ param mightIncludeNull ({key: 'value'} | null)[]
 
 var nonNull = mightIncludeNull[0]!.key
 //@[000:0038) ├─DeclaredVariableExpression { Name = nonNull }
-//@[014:0038) | └─AccessChainExpression
-//@[014:0033) |   ├─ArrayAccessExpression
-//@[031:0032) |   | ├─IntegerLiteralExpression { Value = 0 }
-//@[014:0030) |   | └─ParametersReferenceExpression { Parameter = mightIncludeNull }
-//@[035:0038) |   └─StringLiteralExpression { Value = key }
+//@[014:0038) | └─PropertyAccessExpression { PropertyName = key }
+//@[014:0033) |   └─ArrayAccessExpression
+//@[031:0032) |     ├─IntegerLiteralExpression { Value = 0 }
+//@[014:0030) |     └─ParametersReferenceExpression { Parameter = mightIncludeNull }
 
 output nonNull string = nonNull
 //@[000:0031) ├─DeclaredOutputExpression { Name = nonNull }
