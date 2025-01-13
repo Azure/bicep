@@ -941,6 +941,8 @@ namespace Bicep.Core.Parsing
                     return TokenType.Asterisk;
                 case '/':
                     return TokenType.Slash;
+                case '^':
+                    return TokenType.Hat;
                 case '!':
                     if (!textWindow.IsAtEnd())
                     {

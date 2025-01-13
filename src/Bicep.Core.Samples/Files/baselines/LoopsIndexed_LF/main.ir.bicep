@@ -247,11 +247,10 @@ resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for (i, i2) 
 output indexedCollectionBlobEndpoint string = storageAccounts[index].properties.primaryEndpoints.blob
 //@[000:00101) ├─DeclaredOutputExpression { Name = indexedCollectionBlobEndpoint }
 //@[037:00043) | ├─AmbientTypeReferenceExpression { Name = string }
-//@[046:00101) | └─AccessChainExpression
-//@[046:00079) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[046:00068) |   | └─ResourceReferenceExpression
-//@[080:00096) |   ├─StringLiteralExpression { Value = primaryEndpoints }
-//@[097:00101) |   └─StringLiteralExpression { Value = blob }
+//@[046:00101) | └─PropertyAccessExpression { PropertyName = blob }
+//@[046:00096) |   └─PropertyAccessExpression { PropertyName = primaryEndpoints }
+//@[046:00079) |     └─PropertyAccessExpression { PropertyName = properties }
+//@[046:00068) |       └─ResourceReferenceExpression
 output indexedCollectionName string = storageAccounts[index].name
 //@[000:00065) ├─DeclaredOutputExpression { Name = indexedCollectionName }
 //@[029:00035) | ├─AmbientTypeReferenceExpression { Name = string }
@@ -288,29 +287,26 @@ output indexedEndpointPair object = {
   primary: storageAccounts[index].properties.primaryEndpoints.blob
 //@[002:00066) |   ├─ObjectPropertyExpression
 //@[002:00009) |   | ├─StringLiteralExpression { Value = primary }
-//@[011:00066) |   | └─AccessChainExpression
-//@[011:00044) |   |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[011:00033) |   |   | └─ResourceReferenceExpression
-//@[045:00061) |   |   ├─StringLiteralExpression { Value = primaryEndpoints }
-//@[062:00066) |   |   └─StringLiteralExpression { Value = blob }
+//@[011:00066) |   | └─PropertyAccessExpression { PropertyName = blob }
+//@[011:00061) |   |   └─PropertyAccessExpression { PropertyName = primaryEndpoints }
+//@[011:00044) |   |     └─PropertyAccessExpression { PropertyName = properties }
+//@[011:00033) |   |       └─ResourceReferenceExpression
   secondary: storageAccounts[index + 1].properties.secondaryEndpoints.blob
 //@[002:00074) |   └─ObjectPropertyExpression
 //@[002:00011) |     ├─StringLiteralExpression { Value = secondary }
-//@[013:00074) |     └─AccessChainExpression
-//@[013:00050) |       ├─PropertyAccessExpression { PropertyName = properties }
-//@[013:00039) |       | └─ResourceReferenceExpression
-//@[051:00069) |       ├─StringLiteralExpression { Value = secondaryEndpoints }
-//@[070:00074) |       └─StringLiteralExpression { Value = blob }
+//@[013:00074) |     └─PropertyAccessExpression { PropertyName = blob }
+//@[013:00069) |       └─PropertyAccessExpression { PropertyName = secondaryEndpoints }
+//@[013:00050) |         └─PropertyAccessExpression { PropertyName = properties }
+//@[013:00039) |           └─ResourceReferenceExpression
 }
 
 // nested indexer?
 output indexViaReference string = storageAccounts[int(storageAccounts[index].properties.creationTime)].properties.accessTier
 //@[000:00124) ├─DeclaredOutputExpression { Name = indexViaReference }
 //@[025:00031) | ├─AmbientTypeReferenceExpression { Name = string }
-//@[034:00124) | └─AccessChainExpression
-//@[034:00113) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[034:00102) |   | └─ResourceReferenceExpression
-//@[114:00124) |   └─StringLiteralExpression { Value = accessTier }
+//@[034:00124) | └─PropertyAccessExpression { PropertyName = accessTier }
+//@[034:00113) |   └─PropertyAccessExpression { PropertyName = properties }
+//@[034:00102) |     └─ResourceReferenceExpression
 
 // dependency on a resource collection
 resource storageAccounts2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, idx) in accounts: {
@@ -655,10 +651,9 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@[020:00086) | |     ├─ModuleOutputPropertyAccessExpression { PropertyName = myOutput }
 //@[020:00077) | |     | └─PropertyAccessExpression { PropertyName = outputs }
 //@[020:00069) | |     |   └─ModuleReferenceExpression
-//@[088:00136) | |     └─AccessChainExpression
-//@[088:00125) | |       ├─PropertyAccessExpression { PropertyName = properties }
-//@[088:00114) | |       | └─ResourceReferenceExpression
-//@[126:00136) | |       └─StringLiteralExpression { Value = accessTier }
+//@[088:00136) | |     └─PropertyAccessExpression { PropertyName = accessTier }
+//@[088:00125) | |       └─PropertyAccessExpression { PropertyName = properties }
+//@[088:00114) | |         └─ResourceReferenceExpression
   }
   dependsOn: [
     storageAccounts2[index - 10]
@@ -688,10 +683,9 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for (modul
 //@[016:00082) | |     ├─ModuleOutputPropertyAccessExpression { PropertyName = myOutput }
 //@[016:00073) | |     | └─PropertyAccessExpression { PropertyName = outputs }
 //@[016:00065) | |     |   └─ModuleReferenceExpression
-//@[088:00136) | |     ├─AccessChainExpression
-//@[088:00125) | |     | ├─PropertyAccessExpression { PropertyName = properties }
-//@[088:00114) | |     | | └─ResourceReferenceExpression
-//@[126:00136) | |     | └─StringLiteralExpression { Value = accessTier }
+//@[088:00136) | |     ├─PropertyAccessExpression { PropertyName = accessTier }
+//@[088:00125) | |     | └─PropertyAccessExpression { PropertyName = properties }
+//@[088:00114) | |     |   └─ResourceReferenceExpression
 //@[142:00152) | |     ├─ArrayAccessExpression
 //@[142:00152) | |     | ├─CopyIndexExpression
 //@[158:00169) | |     └─CopyIndexExpression
@@ -750,10 +744,9 @@ output existingIndexedResourceLocation string = existingStorageAccounts[index/2]
 output existingIndexedResourceAccessTier string = existingStorageAccounts[index%3].properties.accessTier
 //@[000:00104) └─DeclaredOutputExpression { Name = existingIndexedResourceAccessTier }
 //@[041:00047)   ├─AmbientTypeReferenceExpression { Name = string }
-//@[050:00104)   └─AccessChainExpression
-//@[050:00093)     ├─PropertyAccessExpression { PropertyName = properties }
-//@[050:00082)     | └─ResourceReferenceExpression
-//@[094:00104)     └─StringLiteralExpression { Value = accessTier }
+//@[050:00104)   └─PropertyAccessExpression { PropertyName = accessTier }
+//@[050:00093)     └─PropertyAccessExpression { PropertyName = properties }
+//@[050:00082)       └─ResourceReferenceExpression
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
 //@[000:00140) ├─DeclaredResourceExpression
@@ -1006,21 +999,19 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
             address: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
 //@[012:00093) | |                     ├─ObjectPropertyExpression
 //@[012:00019) | |                     | ├─StringLiteralExpression { Value = address }
-//@[021:00093) | |                     | └─AccessChainExpression
-//@[021:00054) | |                     |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[021:00043) | |                     |   | └─ResourceReferenceExpression
-//@[055:00071) | |                     |   ├─StringLiteralExpression { Value = primaryEndpoints }
-//@[072:00089) | |                     |   ├─StringLiteralExpression { Value = internetEndpoints }
-//@[090:00093) | |                     |   └─StringLiteralExpression { Value = web }
+//@[021:00093) | |                     | └─PropertyAccessExpression { PropertyName = web }
+//@[021:00089) | |                     |   └─PropertyAccessExpression { PropertyName = internetEndpoints }
+//@[021:00071) | |                     |     └─PropertyAccessExpression { PropertyName = primaryEndpoints }
+//@[021:00054) | |                     |       └─PropertyAccessExpression { PropertyName = properties }
+//@[021:00043) | |                     |         └─ResourceReferenceExpression
             backendHostHeader: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
 //@[012:00103) | |                     ├─ObjectPropertyExpression
 //@[012:00029) | |                     | ├─StringLiteralExpression { Value = backendHostHeader }
-//@[031:00103) | |                     | └─AccessChainExpression
-//@[031:00064) | |                     |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[031:00053) | |                     |   | └─ResourceReferenceExpression
-//@[065:00081) | |                     |   ├─StringLiteralExpression { Value = primaryEndpoints }
-//@[082:00099) | |                     |   ├─StringLiteralExpression { Value = internetEndpoints }
-//@[100:00103) | |                     |   └─StringLiteralExpression { Value = web }
+//@[031:00103) | |                     | └─PropertyAccessExpression { PropertyName = web }
+//@[031:00099) | |                     |   └─PropertyAccessExpression { PropertyName = internetEndpoints }
+//@[031:00081) | |                     |     └─PropertyAccessExpression { PropertyName = primaryEndpoints }
+//@[031:00064) | |                     |       └─PropertyAccessExpression { PropertyName = properties }
+//@[031:00053) | |                     |         └─ResourceReferenceExpression
             httpPort: 80
 //@[012:00024) | |                     ├─ObjectPropertyExpression
 //@[012:00020) | |                     | ├─StringLiteralExpression { Value = httpPort }
@@ -1086,21 +1077,19 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
               address: storageAccounts[index+i].properties.primaryEndpoints.internetEndpoints.web
 //@[014:00097) | |                       ├─ObjectPropertyExpression
 //@[014:00021) | |                       | ├─StringLiteralExpression { Value = address }
-//@[023:00097) | |                       | └─AccessChainExpression
-//@[023:00058) | |                       |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[023:00047) | |                       |   | └─ResourceReferenceExpression
-//@[059:00075) | |                       |   ├─StringLiteralExpression { Value = primaryEndpoints }
-//@[076:00093) | |                       |   ├─StringLiteralExpression { Value = internetEndpoints }
-//@[094:00097) | |                       |   └─StringLiteralExpression { Value = web }
+//@[023:00097) | |                       | └─PropertyAccessExpression { PropertyName = web }
+//@[023:00093) | |                       |   └─PropertyAccessExpression { PropertyName = internetEndpoints }
+//@[023:00075) | |                       |     └─PropertyAccessExpression { PropertyName = primaryEndpoints }
+//@[023:00058) | |                       |       └─PropertyAccessExpression { PropertyName = properties }
+//@[023:00047) | |                       |         └─ResourceReferenceExpression
               backendHostHeader: storageAccounts[index+i].properties.primaryEndpoints.internetEndpoints.web
 //@[014:00107) | |                       ├─ObjectPropertyExpression
 //@[014:00031) | |                       | ├─StringLiteralExpression { Value = backendHostHeader }
-//@[033:00107) | |                       | └─AccessChainExpression
-//@[033:00068) | |                       |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[033:00057) | |                       |   | └─ResourceReferenceExpression
-//@[069:00085) | |                       |   ├─StringLiteralExpression { Value = primaryEndpoints }
-//@[086:00103) | |                       |   ├─StringLiteralExpression { Value = internetEndpoints }
-//@[104:00107) | |                       |   └─StringLiteralExpression { Value = web }
+//@[033:00107) | |                       | └─PropertyAccessExpression { PropertyName = web }
+//@[033:00103) | |                       |   └─PropertyAccessExpression { PropertyName = internetEndpoints }
+//@[033:00085) | |                       |     └─PropertyAccessExpression { PropertyName = primaryEndpoints }
+//@[033:00068) | |                       |       └─PropertyAccessExpression { PropertyName = properties }
+//@[033:00057) | |                       |         └─ResourceReferenceExpression
               httpPort: 80
 //@[014:00026) | |                       ├─ObjectPropertyExpression
 //@[014:00022) | |                       | ├─StringLiteralExpression { Value = httpPort }
