@@ -24,6 +24,9 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
+//asdfg bug: public descriptions aren't showing up
+//asdfg test documentationUri shows up
+
 namespace Bicep.LanguageServer.Completions
 {
     /// <summary>
@@ -135,7 +138,9 @@ namespace Bicep.LanguageServer.Completions
         private static partial Regex PartialModuleReferenceRegex();
 
         private const string PublicMcrRegistry = LanguageConstants.BicepPublicMcrRegistry; // "mcr.microsoft.com"
-        private const string ModuleVersionsResolutionKey = "moduleVer";
+
+        private const string ModuleVersionResolutionKey = "ociVersion";
+        private const string ModuleResolutionKey = "oci";
 
         public ModuleReferenceCompletionProvider(
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
@@ -349,7 +354,7 @@ namespace Bicep.LanguageServer.Completions
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(i))
-                    .WithResolve(ModuleVersionsResolutionKey, new { Registry = parts.ResolvedRegistry, Module = parts.ResolvedModulePath, Version = version })
+                    .WithResolveData(ModuleVersionResolutionKey, new { Registry = parts.ResolvedRegistry, Module = parts.ResolvedModulePath, Version = version }) //asdfg test
                     .Build();
 
                 completions.Add(completionItem);
@@ -407,7 +412,7 @@ namespace Bicep.LanguageServer.Completions
             //}
         }
 
-        private async Task<CompletionItem> ResolveVersion(CompletionItem completionItem, string registry, string modulePath, string version, CancellationToken _)
+        private async Task<CompletionItem> ResolveVersionCompletionItem(CompletionItem completionItem, string registry, string modulePath, string version)
         {
             if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
                 && await cachedRegistry.TryGetModuleVersionMetadataAsync(modulePath, version) is { } versionMetadata)
@@ -416,6 +421,23 @@ namespace Bicep.LanguageServer.Completions
                 {
                     Detail = versionMetadata.Description,
                     Documentation = MarkdownHelper.GetDocumentationLink(versionMetadata.DocumentationUri),
+                };
+            }
+
+            return completionItem;
+        }
+
+        private async Task<CompletionItem> ResolveModuleCompletionItem(CompletionItem completionItem, string registry, string modulePath)
+        {
+            if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
+                && await cachedRegistry.TryGetModuleVersionsAsync(modulePath) is { } versions
+                && versions.FirstOrDefault() is { } firstVersion
+                && await cachedRegistry.TryGetModuleVersionMetadataAsync(modulePath, firstVersion) is { } firstVersionMetadata)
+            {
+                return completionItem with
+                {
+                    Detail = firstVersionMetadata.Description,
+                    Documentation = MarkdownHelper.GetDocumentationLink(firstVersionMetadata.DocumentationUri),
                 };
             }
 
@@ -443,6 +465,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles path completions for case where user has specified an alias in bicepconfig.json with registry set to "mcr.microsoft.com".
+        //asdfg combine
         private async Task<IEnumerable<CompletionItem>> GetPublicPathCompletionFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration) //asdfg rewrite or remove
         {
             List<CompletionItem> completions = new();
@@ -648,6 +671,7 @@ namespace Bicep.LanguageServer.Completions
                        .WithSnippetEdit(context.ReplacementRange, insertText)
                        .WithFilterText(insertText)
                        .WithSortText(GetSortText(modulePath))
+                       .WithResolveData(ModuleResolutionKey, new { Registry = registry, Module = modulePath }) //asdfg test
                        .WithFollowupCompletion("module path completion")
                        .Build();
                     completions.Add(completionItem);
@@ -694,7 +718,11 @@ namespace Bicep.LanguageServer.Completions
                         .WithSnippetEdit(context.ReplacementRange, insertText)
                         .WithFilterText(insertText)
                         .WithSortText(GetSortText(moduleName))
-                        .WithDetail(description)
+                        .WithResolveData( //asdfg test
+                            ModuleResolutionKey,
+                            description is null && documentationUri is null 
+                                ? new { Registry = registry, Module = moduleName }
+                                : null)
                         .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))
                         .WithFollowupCompletion("module version completion")
                         .Build();
@@ -801,17 +829,27 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        public async Task<CompletionItem> ResolveCompletionItem(CompletionItem completionItem, CancellationToken cancellationToken)
+        public async Task<CompletionItem> ResolveCompletionItem(CompletionItem completionItem, CancellationToken _)
         {
-            if (completionItem.Data != null && completionItem.Data[ModuleVersionsResolutionKey] is JObject data)
+            if (completionItem.Data != null && completionItem.Data[ModuleVersionResolutionKey] is JObject versionData)
             {
-                var registry = data["Registry"]?.ToString();
-                var modulePath = data["Module"]?.ToString();
-                var version = data["Version"]?.ToString();
+                var registry = versionData["Registry"]?.ToString();
+                var modulePath = versionData["Module"]?.ToString();
+                var version = versionData["Version"]?.ToString();
 
                 if (registry != null && modulePath != null && version != null)
                 {
-                    return await ResolveVersion(completionItem, registry, modulePath, version, cancellationToken);
+                    return await ResolveVersionCompletionItem(completionItem, registry, modulePath, version);
+                }
+            }
+            else if (completionItem.Data != null && completionItem.Data[ModuleResolutionKey] is JObject moduleVersion)
+            {
+                var registry = moduleVersion["Registry"]?.ToString();
+                var modulePath = moduleVersion["Module"]?.ToString();
+
+                if (registry != null && modulePath != null)
+                {
+                    return await ResolveModuleCompletionItem(completionItem, registry, modulePath);
                 }
             }
 

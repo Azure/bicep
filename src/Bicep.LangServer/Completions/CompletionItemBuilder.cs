@@ -62,9 +62,9 @@ namespace Bicep.LanguageServer.Completions
 
         // Pass in any object here and the completion handler will be asked to resolve the completion item when it is selected
         //   (e.g. by filling in details or documentation).
-        public CompletionItemBuilder WithResolve(string key, object data)
+        public CompletionItemBuilder WithResolveData(string key, object? data)
         {
-            this.data = new Dictionary<string, object> { { key, data } };
+            this.data = data is null ? null : new Dictionary<string, object> { { key, data } };
             return this;
         }
 

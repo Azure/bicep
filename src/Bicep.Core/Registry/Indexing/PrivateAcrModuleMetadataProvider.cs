@@ -79,7 +79,8 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         var modules = filteredCatalog
             .Select(m =>
             new CachableModule(
-                new RegistryModuleMetadata(Registry, m, "asdfg description", "asdfg documentation uri"),
+                // OCI modules don't have a description or documentation URI, that info can be looked up from the first version
+                new RegistryModuleMetadata(Registry, m, null, null),
                 null
             )
         ).ToImmutableArray();
