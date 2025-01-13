@@ -12,7 +12,7 @@
         "--extensionDevelopmentPath=${workspaceRoot}"
       ],
       "sourceMaps": true,
-      "preLaunchTask": "${defaultBuildTask}",
+      "$preLaunchTask": "${defaultBuildTask}",
       "env": {
         "BICEP_TRACING_ENABLED": "true",
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net8.0/Bicep.LangServer.dll",

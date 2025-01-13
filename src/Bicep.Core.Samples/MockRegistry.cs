@@ -14,7 +14,7 @@ namespace Bicep.Core.Samples;
 
 public class MockRegistry
 {
-    private record MockRegistryIndex(
+    private record MockRegistryIndex( //adsfg rename?
         ImmutableDictionary<string, string> modules);
 
     public record ClientFactories(

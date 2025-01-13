@@ -541,8 +541,8 @@ namespace Bicep.LanguageServer.Completions
 
                 if (searchDirectory.Exists())
                 {
-                    files = searchDirectory.EnumerateFiles().Select(x => x.Uri.ToUri()).ToList();
-                    dirs = searchDirectory.EnumerateDirectories().Select(x => x.Uri.ToUri()).ToList();
+                    files = [.. searchDirectory.EnumerateFiles().Select(x => x.Uri.ToUri())];
+                    dirs = [.. searchDirectory.EnumerateDirectories().Select(x => x.Uri.ToUri())];
 
                     // include the parent folder as a completion if we're not at the file system root
                     if (searchDirectory.GetParent() is { } parentSearchDirectory)

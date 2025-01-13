@@ -10,7 +10,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Indexing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -67,7 +67,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static IEnumerable<Failure> GetFailures(SemanticModel model, IServiceProvider serviceProvider, DiagnosticLevel diagnosticLevel)
         {
-            var publicRegistryModuleMetadataProvider = serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>();
+            var publicModuleMetadataProvider = serviceProvider.GetRequiredService<IPublicModuleMetadataProvider>();
             var hasShownDownloadWarning = false;
 
             foreach (var (syntax, artifactResolutionInfo) in model.SourceFileGrouping.ArtifactLookup
@@ -82,12 +82,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         && ociReference.Registry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.Ordinal)
                         && ociReference.Tag is string tag)
                     {
-                        if (TryGetBicepModuleName(ociReference) is not string publicModulePath)
+                        if (TryRemoveBicepModuleNamePrefix(ociReference) is not string publicModulePath)
                         {
                             continue;
                         }
 
-                        if (publicRegistryModuleMetadataProvider.DownloadError is string downloadError)
+                        if (publicModuleMetadataProvider.DownloadError is string downloadError)
                         {
                             if (!hasShownDownloadWarning)
                             {
@@ -96,7 +96,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             }
                             continue;
                         }
-                        else if (!publicRegistryModuleMetadataProvider.IsCached)
+                        else if (!publicModuleMetadataProvider.IsCached)
                         {
                             if (!hasShownDownloadWarning)
                             {
@@ -106,7 +106,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             continue;
                         }
 
-                        foreach (var failure in AnalyzeBicepModule(publicRegistryModuleMetadataProvider, moduleSyntax, errorSpan, tag, publicModulePath))
+                        foreach (var failure in AnalyzeBicepModule(publicModuleMetadataProvider, moduleSyntax, errorSpan, tag, publicModulePath))
                         {
                             yield return failure;
                         }
@@ -116,9 +116,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             yield break;
         }
 
-        private static IEnumerable<Failure> AnalyzeBicepModule(IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
+        private static IEnumerable<Failure> AnalyzeBicepModule(IPublicModuleMetadataProvider publicModuleMetadataProvider, ModuleDeclarationSyntax moduleSyntax, TextSpan errorSpan, string tag, string publicModulePath)
         {
-            var availableVersions = publicRegistryModuleMetadataProvider.GetModuleVersionsMetadata(publicModulePath)
+            // NOTE: We don't want linter tests to download anything during analysis.  So metadata is loaded
+            //   and cached during module restore.  So don't use the Get*Async methods of IPublicModuleMetadataProvider,
+            //   just the GetCached* methods
+            var availableVersions = publicModuleMetadataProvider.GetCachedModuleVersions($"{LanguageConstants.BicepPublicMcrPathPrefix}{publicModulePath}")
                 .Select(v => v.Version)
                 .ToArray();
             if (availableVersions.Length == 0)
@@ -144,19 +147,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private static string? TryGetBicepModuleName(IOciArtifactReference ociReference)
+        private static string? TryRemoveBicepModuleNamePrefix(IOciArtifactReference ociReference)
         {
-            // IPublicRegistryModuleMetadataProvider does not return the "bicep/" that prefixes all
-            //   public registry module paths (it's embedded in the default "bicep" alias path),
-            //   so we need to remove it here.
-            const string bicepPrefix = "bicep/";
             var repoPath = ociReference.Repository;
-            if (!repoPath.StartsWith("bicep/", StringComparison.Ordinal))
+            if (!repoPath.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal))
             {
                 return null;
             }
 
-            return repoPath.Substring(bicepPrefix.Length);
+            return repoPath.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length);
         }
 
         public static string[] GetMoreRecentModuleVersions(string[] availableVersions, string modulePath, string referencedVersion)
@@ -176,10 +175,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var availableParsedVersions = availableVersions
                 .Select(v => (version: v, semVersion: SemVersion.Parse(v, SemVersionStyles.Strict)));
 
-            return availableParsedVersions.Where(v => v.semVersion.ComparePrecedenceTo(requestedSemver) > 0)
+            return [.. availableParsedVersions.Where(v => v.semVersion.ComparePrecedenceTo(requestedSemver) > 0)
                 .OrderByDescending(v => v.semVersion, SemVersion.PrecedenceComparer)
-                .Select(v => v.version)
-                .ToArray();
+                .Select(v => v.version)];
         }
 
         // Find the portion of the module/path:version string that corresponds to the module version,
