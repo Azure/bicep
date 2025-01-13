@@ -55,19 +55,19 @@ namespace Bicep.LanguageServer.Handlers
                 this.logger.LogError("Error with Completion in file {Uri} with {Context}. Underlying exception is: {Exception}", request.TextDocument.Uri, completionContext, e.ToString());
             }
 
-            return new CompletionList(completions, isIncomplete: false);
+            return new CompletionList(completions, isIncomplete: false/*asdfg*/);
         }
 
         public override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(request);
+            return this.completionProvider.Resolve(request, cancellationToken);
         }
 
         protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, ClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             AllCommitCharacters = new Container<string>(),
-            ResolveProvider = false,
+            ResolveProvider = true, //asdfg
             TriggerCharacters = new Container<string>(":", " ", ".", "/", "'", "@", "{", "#", "?")
         };
     }

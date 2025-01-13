@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Json;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -20,6 +22,7 @@ namespace Bicep.LanguageServer.Completions
         private InsertTextFormat insertTextFormat;
         private TextEditOrInsertReplaceEdit? textEdit;
         private InsertTextMode insertTextMode;
+        private object? data;
 
         private string? sortText;
         private bool preselect;
@@ -53,7 +56,16 @@ namespace Bicep.LanguageServer.Completions
                 SortText = this.sortText,
                 Preselect = this.preselect,
                 Command = this.command,
+                Data = JObject.FromObject(new { }),
             };
+        }
+
+        // Pass in any object here and the completion handler will be asked to resolve the completion item when it is selected
+        //   (e.g. by filling in details or documentation).
+        public CompletionItemBuilder WithResolve(JToken data)
+        {
+            this.data = data;
+            return this;
         }
 
         public CompletionItemBuilder WithAdditionalEdits(TextEditContainer editContainer)

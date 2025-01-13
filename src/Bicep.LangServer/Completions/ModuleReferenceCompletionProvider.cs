@@ -22,6 +22,7 @@ using Microsoft.Win32;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.LanguageServer.Completions
 {
@@ -46,7 +47,7 @@ namespace Bicep.LanguageServer.Completions
         // Direct reference to a full registry login server URI via br:<registry>
         private static readonly Regex ModulePrefixWithFullPath = new(@"^br:(?<registry>(.*?))/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
-        // Examples:
+        // Examples: asdfg move?
         //   br:contoso.io/path1/path2/module:2.0.1 =>
         //     SpecifiedRegistry: "contoso.io"
         //     ResolvedRegistry: "contoso.io"
@@ -350,6 +351,7 @@ namespace Bicep.LanguageServer.Completions
                     .WithSortText(GetSortText(i))
                     .WithDetail(description)
                     .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))
+                    .WithResolve(JObject.FromObject((parts.ResolvedRegistry, parts.ResolvedModulePath)))
                     .Build();
 
                 completions.Add(completionItem);
@@ -784,6 +786,16 @@ namespace Bicep.LanguageServer.Completions
                 Trace.TraceError(ex.Message);
                 throw;
             }
+        }
+
+        public Task<CompletionItem> Resolve(CompletionItem completionItem, CancellationToken cancellationToken)
+        {
+            if (completionItem.Data.TryGetProperty<(string registry, string modulePath)>("asdfg") is { } o)
+            {
+                return Task.FromResult(completionItem with { Detail = "asdfg resolved " + o.registry + " " + o.modulePath });
+            }
+
+            return Task.FromResult(completionItem);
         }
 
         // Handles private ACR registry name completions only for registries that are configured via aliases in the bicepconfig.json file
