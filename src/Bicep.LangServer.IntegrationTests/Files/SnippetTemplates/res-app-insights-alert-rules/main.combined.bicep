@@ -12,7 +12,7 @@
 
 param location string
 
-resource appInsightsAlertRules 'Microsoft.Insights/alertrules@2016-03-01' = {
+resource appInsightsAlertRules 'Microsoft.Insights/alertrules@2024-03-01' = {
   name: 'name'
   location: location
   properties: {
