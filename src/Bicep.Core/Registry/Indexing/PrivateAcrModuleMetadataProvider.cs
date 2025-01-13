@@ -50,8 +50,16 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     {
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
         var artifactResult = await acrManager.PullArtifactAsync(cloud, new OciArtifactReference(ArtifactType.Module, Registry, modulePath, version, null, new Uri("file://asdfg")));
-        var data = artifactResult.GetMainLayer();
-        return new RegistryModuleVersionMetadata(version, "asdfg det", "asdfg doc");
+        var manifest = artifactResult.Manifest;
+        string? description = null;
+        string? documentationUri = null;
+        string? title = null;
+
+        manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDescriptionAnnotation, out description);
+        manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDocumentationAnnotation, out documentationUri);
+        manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageTitleAnnotation, out title);
+
+        return new RegistryModuleVersionMetadata(version, description ?? title, documentationUri);
     }
 
     //asdfg bug: br:sawbicep.azurecr.io/de| => br:sawbicep.azurecr.io/dedemo
