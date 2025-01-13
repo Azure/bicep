@@ -335,23 +335,20 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            var versionsMetadata =
-                await registryModuleIndexer.GetRegistry(parts.ResolvedRegistry, rootConfiguration.Cloud)
+            var versions = await registryModuleIndexer.GetRegistry(parts.ResolvedRegistry, rootConfiguration.Cloud)
                 .TryGetModuleVersionsAsync($"{parts.ResolvedModulePath}");
 
-            for (int i = versionsMetadata.Length - 1; i >= 0; i--)
+            for (int i = versions.Length - 1; i >= 0; i--)
             {
-                var (version, description, documentationUri) = versionsMetadata[i];
-
+                var version = versions[i];
                 var insertText = $"'{trimmedText}{version}'$0";
 
                 // Module version is last completion, no follow-up completions triggered
+                // Note: Description and documentation will be resolved later
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(i))
-                    .WithDetail(description) //asdfg
-                    .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))//asdfg
                     .WithResolve(ModuleVersionsResolutionKey, new { Registry = parts.ResolvedRegistry, Module = parts.ResolvedModulePath, Version = version })
                     .Build();
 
@@ -413,13 +410,12 @@ namespace Bicep.LanguageServer.Completions
         private async Task<CompletionItem> ResolveVersion(CompletionItem completionItem, string registry, string modulePath, string version, CancellationToken _)
         {
             if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
-                && await cachedRegistry.TryGetModuleVersionsAsync(modulePath) is { } versionsMetadata
-                && versionsMetadata.FirstOrDefault(x => x.Version.EqualsOrdinally(version)) is { } versionMetadata)
+                && await cachedRegistry.TryGetModuleVersionMetadataAsync(modulePath, version) is { } versionMetadata)
             {
                 return completionItem with
                 {
                     Detail = versionMetadata.Description,
-                    Documentation = MarkdownHelper.GetDocumentationLink(versionsMetadata.Length > 0 ? versionsMetadata[0].DocumentationUri : null),
+                    Documentation = MarkdownHelper.GetDocumentationLink(versionMetadata.DocumentationUri),
                 };
             }
 

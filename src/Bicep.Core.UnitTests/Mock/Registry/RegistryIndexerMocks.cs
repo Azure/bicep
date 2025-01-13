@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
     {
         private const string PublicRegistry = "mcr.microsoft.com";
 
-        public static Mock<IPublicModuleMetadataProvider> MockPublicMetadataProvider(
+        public static Mock<IPublicModuleMetadataProvider> MockPublicMetadataProvider( //asdfg2
             IEnumerable<(string moduleName, string? description, string? documentationUri, IEnumerable<RegistryModuleVersionMetadata> versions)> modules)
         {
             if (modules.Any())
@@ -38,7 +38,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             publicProvider.Setup(x => x.TryGetModulesAsync())
                 .ReturnsAsync([.. modules.Select(m => new RegistryModuleMetadata(PublicRegistry, m.moduleName, m.description, m.documentationUri))]);
             publicProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
-                [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions]);
+                [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.Select(v => v.Version)]);
 
             return publicProvider;
         }
@@ -55,7 +55,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             privateProvider.Setup(x => x.TryGetModulesAsync())
                 .ReturnsAsync([.. modules.Select(m => new RegistryModuleMetadata(registry, m.moduleName, m.description, m.documentationUri))]);
             privateProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
-                [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions]);
+                [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.Select(v => v.Version)]);
 
             return privateProvider;
         }

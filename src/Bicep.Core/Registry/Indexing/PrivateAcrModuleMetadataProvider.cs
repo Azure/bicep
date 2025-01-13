@@ -36,25 +36,27 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         this.containerRegistryClientFactory = containerRegistryClientFactory;
     }
 
-    protected override async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
+    protected override async Task<ImmutableArray<string>> GetLiveModuleVersionsAsync(string modulePath)
     {
         var registry = Registry;
         var repository = modulePath;
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
         var tags = await acrManager.GetRepositoryTags(cloud, registry, repository);
-        return [.. tags.Select(t =>
-            new RegistryModuleVersionMetadata(
-                t,
-                null,
-                null
-            )
-        )];
+        return tags != null ? [.. tags] : [];
+    }
+
+    protected override async Task<RegistryModuleVersionMetadata?> GetLiveModuleVersionMetadataAsync(string modulePath, string version) //asdfg try?
+    {
+        AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
+        var artifactResult = await acrManager.PullArtifactAsync(cloud, new OciArtifactReference(ArtifactType.Module, Registry, modulePath, version, null, new Uri("file://asdfg")));
+        var data = artifactResult.GetMainLayer();
+        return new RegistryModuleVersionMetadata(version, "asdfg det", "asdfg doc");
     }
 
     //asdfg bug: br:sawbicep.azurecr.io/de| => br:sawbicep.azurecr.io/dedemo
 
-    protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
+    protected override async Task<ImmutableArray<CachableModule>> GetLiveDataCoreAsync()
     {
         var filterRegex = new Regex(filterExpression, RegexOptions.IgnoreCase, matchTimeout: TimeSpan.FromMilliseconds(1));
 
@@ -68,7 +70,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
 
         var modules = filteredCatalog
             .Select(m =>
-            new CachedModule(
+            new CachableModule(
                 new RegistryModuleMetadata(Registry, m, "asdfg description", "asdfg documentation uri"),
                 null
             )

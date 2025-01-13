@@ -26,12 +26,12 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
         this.client = publicModuleIndexClient; //asdfg lifetime
     }
 
-    protected override async Task<ImmutableArray<CachedModule>> GetLiveDataCoreAsync()
+    protected override async Task<ImmutableArray<CachableModule>> GetLiveDataCoreAsync()
     {
         var modules = await client.GetModuleIndexAsync();
 
         return [.. modules.Select(m =>
-            new CachedModule(
+            new CachableModule(
                 new RegistryModuleMetadata(LanguageConstants.BicepPublicMcrRegistry, $"{LanguageConstants.BicepPublicMcrPathPrefix}{m.ModulePath}", m.GetDescription(), m.GetDocumentationUri()),
                 [.. m.Versions.Select(
                     t => new RegistryModuleVersionMetadata(
@@ -44,7 +44,12 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
         )];
     }
 
-    protected override Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
+    protected override Task<ImmutableArray<string>> GetLiveModuleVersionsAsync(string modulePath)
+    {
+        throw new NotImplementedException("This method should never get called because versions are pre-filled with a resolved task"); throw new NotImplementedException();
+    }
+
+    protected override Task<RegistryModuleVersionMetadata?> GetLiveModuleVersionMetadataAsync(string modulePath, string version)
     {
         throw new NotImplementedException("This method should never get called because versions are pre-filled with a resolved task");
     }

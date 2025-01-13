@@ -9,8 +9,8 @@ namespace Bicep.Core.Registry.Indexing;
 public readonly record struct RegistryModuleMetadata(
     string Registry, // e.g. "mcr.microsoft.com"
     string ModuleName, // e.g. "bicep/avm/app/dapr-containerapp"
-    string? Description,
-    string? DocumentationUri);
+    string? Description,//asdfgf
+    string? DocumentationUri/*asdfg*/);
 
 public readonly record struct RegistryModuleVersionMetadata(
     string Version,
@@ -35,7 +35,9 @@ public interface IRegistryModuleMetadataProvider
 
     Task<ImmutableArray<RegistryModuleMetadata>> TryGetModulesAsync();
 
-    Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetModuleVersionsAsync(string modulePath);
+    Task<ImmutableArray<string>> TryGetModuleVersionsAsync(string modulePath);
+
+    Task<RegistryModuleVersionMetadata?> TryGetModuleVersionMetadataAsync(string modulePath, string version); //asdfg not null?
 
     ImmutableArray<RegistryModuleMetadata> GetCachedModules();
 

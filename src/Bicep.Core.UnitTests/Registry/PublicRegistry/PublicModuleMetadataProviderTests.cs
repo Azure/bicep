@@ -1206,7 +1206,7 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
         public async Task GetModuleVersions_SortsBySemver() //asdfg test for private
         {
             PublicModuleMetadataProvider provider = new(CreateTypedClient());
-            var versions = (await provider.TryGetModuleVersionsAsync("bicep/samples/array-loop")).Select(x => x.Version);//asdfg test
+            var versions = (await provider.TryGetModuleVersionsAsync("bicep/samples/array-loop"));//asdfg test
 
             versions.Should().Equal(
                   "1.10.1",
