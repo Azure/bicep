@@ -1,5 +1,5 @@
 ﻿// Application Insights Alert Rules
-resource /*${1:appInsightsAlertRules}*/appInsightsAlertRules 'Microsoft.Insights/alertrules@2016-03-01' = {
+resource /*${1:appInsightsAlertRules}*/appInsightsAlertRules 'Microsoft.Insights/alertrules@2024-03-01' = {
   name: /*${2:'name'}*/'name'
   location: /*${3:location}*/'location'
   properties: {
