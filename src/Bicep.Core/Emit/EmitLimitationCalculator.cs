@@ -303,6 +303,14 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
+                if (semanticModel.Features.OptionalModuleNamesEnabled &&
+                    propertyMap.Keys.FirstOrDefault(x => x.Name.Equals(LanguageConstants.ModuleNamePropertyName)) is null)
+                {
+
+                    // The module name is generated and implictly uses the loop variable (copyIndex()).
+                    continue;
+                }
+
                 var indexVariable = @for.IndexVariable;
                 if (propertyMap.All(pair => IsInvariant(semanticModel, itemVariable, indexVariable, pair.Value)))
                 {
