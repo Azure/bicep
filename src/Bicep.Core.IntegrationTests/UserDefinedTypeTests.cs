@@ -1838,4 +1838,46 @@ param myParam string
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
         });
     }
+
+    [TestMethod]
+    public void FromEnd_indexing_of_tuple_resolves_correct_type()
+    {
+        var result = CompilationHelper.Compile("""
+            param foo [int, string]
+            output foo int = foo[^2]
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        result = CompilationHelper.Compile("""
+            param foo [int, string]
+            output foo int = foo[^1]
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int\" but the provided value is of type \"string\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Safe_FromEnd_indexing_of_tuple_resolves_correct_type()
+    {
+        var result = CompilationHelper.Compile("""
+            param foo [int, string]
+            output foo int? = foo[?^2]
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        result = CompilationHelper.Compile("""
+            param foo [int, string]
+            output foo int? = foo[?^1]
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int | null\" but the provided value is of type \"string\"."),
+        });
+    }
 }

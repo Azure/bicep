@@ -1619,12 +1619,16 @@ namespace Bicep.Core.TypeSystem
                 return withNonNullableIndex;
             }
 
-            static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax) => indexType.Value switch
+            static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax, bool fromEnd) => indexType.Value switch
             {
-                < 0 => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
-                long value when value >= baseType.Items.Length => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
-                // unlikely to hit this given that we've established that the tuple has a item at the given position
-                > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
+                long value when value < 0 ||
+                    (value == 0 && fromEnd) ||
+                    value > baseType.Items.Length ||
+                    (value == baseType.Items.Length && !fromEnd) ||
+                    // unlikely to hit this given that we've established that the tuple has a item at the given position
+                    value > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax)
+                        .IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
+                long otherwise when fromEnd => baseType.Items[^(int)otherwise].Type,
                 long otherwise => baseType.Items[(int)otherwise].Type,
             };
 
@@ -1654,12 +1658,12 @@ namespace Bicep.Core.TypeSystem
                     return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType), diagnostics, syntax.IsSafeAccess);
 
                 case TupleType baseTuple when indexType is IntegerLiteralType integerLiteralIndex:
-                    return GetTypeAtIndex(baseTuple, integerLiteralIndex, syntax.IndexExpression);
+                    return GetTypeAtIndex(baseTuple, integerLiteralIndex, syntax.IndexExpression, syntax.FromEndMarker is not null);
 
                 case TupleType baseTuple when indexType is UnionType indexUnion && indexUnion.Members.All(t => t.Type is IntegerLiteralType):
                     var possibilities = indexUnion.Members.Select(t => t.Type)
                         .OfType<IntegerLiteralType>()
-                        .Select(index => GetTypeAtIndex(baseTuple, index, syntax.IndexExpression))
+                        .Select(index => GetTypeAtIndex(baseTuple, index, syntax.IndexExpression, syntax.FromEndMarker is not null))
                         .ToImmutableArray();
 
                     if (possibilities.OfType<ErrorType>().Any())
