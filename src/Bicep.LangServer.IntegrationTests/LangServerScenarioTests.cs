@@ -131,7 +131,7 @@ type fooType = {
 param foo fooType
 ";
 
-            var bicepparamText = @"
+        var bicepparamText = @"
 using 'test.bicep'
 param foo = {
   n|ame: 'test1'

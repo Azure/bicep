@@ -389,7 +389,7 @@ namespace Bicep.Core.Emit
                             return (getResourceInfoExpression(), [], safeAccess);
                         case AzResourceTypeProvider.ResourceNamePropertyName:
                             var nameExpression = getResourceInfoExpression();
-                            if (declaredResource.Parent is {})
+                            if (declaredResource.Parent is { })
                             {
                                 // resourceInfo('foo').name will always return a fully-qualified name, whereas using "foo.name" in Bicep
                                 // will give different results depending on whether the resource has a parent (either syntactically, or with the 'parent' property) or not.

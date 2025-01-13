@@ -63,7 +63,7 @@ output parentProperty string = parentProperty.name
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyCompilationBlockingDiagnostics();
         var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
-        
+
         evaluated.Should().HaveValueAtPath("$.outputs['noParent'].value", "parent/noParent");
         evaluated.Should().HaveValueAtPath("$.outputs['nested'].value", "nested");
         evaluated.Should().HaveValueAtPath("$.outputs['parentProperty'].value", "parentProperty");
