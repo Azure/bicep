@@ -5204,5 +5204,35 @@ module mod 'mod.bicep' = {
             var completions = await mainFile.RequestCompletion(cursor);
             completions.Should().BeEmpty();
         }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/14429
+        public async Task Lambda_output_type_completions_are_offered()
+        {
+            var serverHelper = new ServerRequestHelper(TestContext, DefaultServer);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+type fooType = {
+  bar: 'bar'
+}
+
+func fooFunc() fooType => {
+  |
+}
+""");
+            var mainFile = await serverHelper.OpenFile(text);
+
+            var newFile = await mainFile.RequestAndApplyCompletion(cursor, "bar");
+
+            newFile.Should().HaveSourceText("""
+type fooType = {
+  bar: 'bar'
+}
+
+func fooFunc() fooType => {
+  bar:|
+}
+""");
+        }
     }
 }

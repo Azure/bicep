@@ -211,6 +211,14 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1|'")]
         [DataRow("module test |'br/public:app/dapr-containerapp:1.0.1'")]
         [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1'|")]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1|")]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1|'")]
+        [DataRow("module test |'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'")]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'|")]
+        [DataRow("module test 'br:contoso.com/app/dapr-containerapp:1.0.1|")]
+        [DataRow("module test 'br:contoso.com/app/dapr-containerapp:1.0.1|'")]
+        [DataRow("module test |'br:contoso.com/app/dapr-containerapp:1.0.1'")]
+        [DataRow("module test 'br:contoso.com/app/dapr-containerapp:1.0.1'|")]
         public async Task GetFilteredCompletions_WithInvalidCompletionContext_ReturnsEmptyList(string inputWithCursors)
         {
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();

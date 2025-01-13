@@ -906,6 +906,27 @@
     }
   },
   {
+    "label": "fail",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nfail(message: string): never\n\n```  \nRaises a runtime error with the provided message. Will cause a deployment to fail when evaluated.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_fail",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "fail($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "filter",
     "kind": "function",
     "documentation": {

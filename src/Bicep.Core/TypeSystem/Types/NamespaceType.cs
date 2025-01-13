@@ -25,7 +25,7 @@ namespace Bicep.Core.TypeSystem.Types
             IEnumerable<Decorator> decorators,
             IResourceTypeProvider resourceTypeProvider,
             ArtifactReference? artifact = null)
-            : base(aliasName, TypeSymbolValidationFlags.PreventAssignment, properties, null, TypePropertyFlags.None, obj => new FunctionResolver(obj, functionOverloads, bannedFunctions))
+            : base(aliasName, TypeSymbolValidationFlags.PreventAssignment, properties, null, TypePropertyFlags.None, null, obj => new FunctionResolver(obj, functionOverloads, bannedFunctions))
         {
             Settings = settings;
             ResourceTypeProvider = resourceTypeProvider;

@@ -60,6 +60,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
                 objectType.AdditionalPropertiesType,
                 isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
+                objectType.AdditionalPropertiesDescription,
                 functions: objectType.MethodResolver.functionOverloads);
         }
 
@@ -95,6 +96,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                         ConvertToReadOnly(objectType.Properties.Values),
                         objectType.AdditionalPropertiesType,
                         ConvertToReadOnly(objectType.AdditionalPropertiesFlags),
+                        objectType.AdditionalPropertiesDescription,
                         functions: null);
 
                     yield return new TypeProperty(property.Name, objectType, property.Flags, property.Description);

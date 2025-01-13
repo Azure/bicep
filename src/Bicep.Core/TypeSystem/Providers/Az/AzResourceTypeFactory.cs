@@ -27,11 +27,11 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 var properties = objectType.Properties.SetItem(LanguageConstants.ResourceAssertPropertyName, assertsProperty);
                 if (resourceFunctions.Any())
                 {
-                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, resourceFunctions);
+                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, objectType.AdditionalPropertiesDescription, resourceFunctions);
                 }
                 else
                 {
-                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags);
+                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, objectType.AdditionalPropertiesDescription);
                 }
             }
 
