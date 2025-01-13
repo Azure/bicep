@@ -98,7 +98,7 @@ namespace Bicep.LanguageServer.Completions
 
         public Task<CompletionItem> Resolve(CompletionItem completionItem, CancellationToken cancellationToken)
         {
-            return moduleReferenceCompletionProvider.Resolve(completionItem, cancellationToken);
+            return moduleReferenceCompletionProvider.ResolveCompletionItem(completionItem, cancellationToken);
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)

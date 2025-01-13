@@ -41,4 +41,14 @@ public class RegistryIndexer : IRegistryIndexer
         //asdfg remove from cache, esp if error
         return provider;
     }
+
+    public IRegistryModuleMetadataProvider? TryGetCachedRegistry(string registry)
+    {
+        if (registryProviders.TryGetValue(registry, out var provider))
+        {
+            return provider;
+        }
+
+        return null;
+    }
 }

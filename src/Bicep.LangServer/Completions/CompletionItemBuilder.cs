@@ -56,15 +56,15 @@ namespace Bicep.LanguageServer.Completions
                 SortText = this.sortText,
                 Preselect = this.preselect,
                 Command = this.command,
-                Data = JObject.FromObject(new { }),
+                Data = data is null ? null : JObject.FromObject(data),
             };
         }
 
         // Pass in any object here and the completion handler will be asked to resolve the completion item when it is selected
         //   (e.g. by filling in details or documentation).
-        public CompletionItemBuilder WithResolve(JToken data)
+        public CompletionItemBuilder WithResolve(string key, object data)
         {
-            this.data = data;
+            this.data = new Dictionary<string, object> { { key, data } };
             return this;
         }
 

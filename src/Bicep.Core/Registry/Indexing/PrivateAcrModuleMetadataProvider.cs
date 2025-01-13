@@ -13,7 +13,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Registry.Oci;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.Indexing;
+namespace Bicep.Core.Registry.Indexing; //asdfg should this be in core?
 
 /// <summary>
 /// Provider to get modules metadata from a private ACR registry

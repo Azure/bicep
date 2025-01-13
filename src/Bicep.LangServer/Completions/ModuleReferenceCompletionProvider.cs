@@ -135,6 +135,7 @@ namespace Bicep.LanguageServer.Completions
         private static partial Regex PartialModuleReferenceRegex();
 
         private const string PublicMcrRegistry = LanguageConstants.BicepPublicMcrRegistry; // "mcr.microsoft.com"
+        private const string ModuleVersionsResolutionKey = "moduleVer";
 
         public ModuleReferenceCompletionProvider(
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
@@ -349,9 +350,9 @@ namespace Bicep.LanguageServer.Completions
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(i))
-                    .WithDetail(description)
-                    .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))
-                    .WithResolve(JObject.FromObject((parts.ResolvedRegistry, parts.ResolvedModulePath)))
+                    .WithDetail(description) //asdfg
+                    .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))//asdfg
+                    .WithResolve(ModuleVersionsResolutionKey, new { Registry = parts.ResolvedRegistry, Module = parts.ResolvedModulePath, Version = version })
                     .Build();
 
                 completions.Add(completionItem);
@@ -407,6 +408,22 @@ namespace Bicep.LanguageServer.Completions
 
             //    return null;
             //}
+        }
+
+        private async Task<CompletionItem> ResolveVersion(CompletionItem completionItem, string registry, string modulePath, string version, CancellationToken _)
+        {
+            if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
+                && await cachedRegistry.TryGetModuleVersionsAsync(modulePath) is { } versionsMetadata
+                && versionsMetadata.FirstOrDefault(x => x.Version.EqualsOrdinally(version)) is { } versionMetadata)
+            {
+                return completionItem with
+                {
+                    Detail = versionMetadata.Description,
+                    Documentation = MarkdownHelper.GetDocumentationLink(versionsMetadata.Length > 0 ? versionsMetadata[0].DocumentationUri : null),
+                };
+            }
+
+            return completionItem;
         }
 
         private ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(RootConfiguration configuration)
@@ -788,14 +805,21 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        public Task<CompletionItem> Resolve(CompletionItem completionItem, CancellationToken cancellationToken)
+        public async Task<CompletionItem> ResolveCompletionItem(CompletionItem completionItem, CancellationToken cancellationToken)
         {
-            if (completionItem.Data.TryGetProperty<(string registry, string modulePath)>("asdfg") is { } o)
+            if (completionItem.Data != null && completionItem.Data[ModuleVersionsResolutionKey] is JObject data)
             {
-                return Task.FromResult(completionItem with { Detail = "asdfg resolved " + o.registry + " " + o.modulePath });
+                var registry = data["Registry"]?.ToString();
+                var modulePath = data["Module"]?.ToString();
+                var version = data["Version"]?.ToString();
+
+                if (registry != null && modulePath != null && version != null)
+                {
+                    return await ResolveVersion(completionItem, registry, modulePath, version, cancellationToken);
+                }
             }
 
-            return Task.FromResult(completionItem);
+            return completionItem;
         }
 
         // Handles private ACR registry name completions only for registries that are configured via aliases in the bicepconfig.json file
