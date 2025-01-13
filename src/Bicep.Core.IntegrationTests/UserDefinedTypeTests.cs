@@ -1864,20 +1864,20 @@ param myParam string
     public void Safe_FromEnd_indexing_of_tuple_resolves_correct_type()
     {
         var result = CompilationHelper.Compile("""
-            param foo [int, string]
+            param foo [int, string]?
             output foo int? = foo[?^2]
             """);
 
         result.Should().NotHaveAnyDiagnostics();
 
         result = CompilationHelper.Compile("""
-            param foo [int, string]
+            param foo [int, string]?
             output foo int? = foo[?^1]
             """);
 
         result.Should().HaveDiagnostics(new[]
         {
-            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int | null\" but the provided value is of type \"string\"."),
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int | null\" but the provided value is of type \"null | string\"."),
         });
     }
 }
