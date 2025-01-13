@@ -89,6 +89,15 @@ namespace Bicep.LanguageServer.Handlers
                 _ => throw new ArgumentException($"Unexpected languageId value {languageId}"),
             };
         }
+        private static string LanguageIdAsString(LanguageId languageId)
+        {
+            return languageId switch
+            {
+                LanguageId.Bicep => "bicep",
+                LanguageId.BicepParams => "bicep-params",
+                _ => throw new ArgumentException($"Unexpected languageId value {languageId}"),
+            };
+        }
 
 
         private record ResultAndTelemetry(BicepDecompileForPasteCommandResult Result, BicepTelemetryEvent? SuccessTelemetry);
@@ -189,14 +198,14 @@ namespace Bicep.LanguageServer.Handlers
                 // Don't convert to Bicep if inside a string
                 return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteType: null, ErrorMessage: null,
                         Bicep: null, Disclaimer: null),
-                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType: null, bicep: null));
+                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType: null, bicep: null, languageId: languageId));
             }
 
             if (string.IsNullOrWhiteSpace(json))
             {
                 return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteType: null, ErrorMessage: null,
                         Bicep: null, Disclaimer: null),
-                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType: null, bicep: null));
+                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType: null, bicep: null, languageId: languageId));
             }
 
             var (pasteType, constructedJsonTemplate) = languageId switch
@@ -210,7 +219,7 @@ namespace Bicep.LanguageServer.Handlers
                 case PasteType.None:
                     {
                         // It's not a template or resource.  Try treating it as a JSON value.
-                        var resultAndTelemetry = TryConvertFromJsonValue(output, json, decompileId, pasteContext, queryCanPaste);
+                        var resultAndTelemetry = TryConvertFromJsonValue(output, json, decompileId, pasteContext, queryCanPaste, languageId);
                         if (resultAndTelemetry is not null)
                         {
                             return resultAndTelemetry;
@@ -221,7 +230,7 @@ namespace Bicep.LanguageServer.Handlers
                 case PasteType.FullParams:
                     {
                         // It's a full parameters file
-                        var result = TryConvertFromConstructedParameters(output, json, decompileId, pasteContext, pasteType, queryCanPaste, constructedJsonTemplate);
+                        var result = TryConvertFromConstructedParameters(output, json, decompileId, pasteContext, pasteType, queryCanPaste, constructedJsonTemplate, languageId);
                         if (result is not null)
                         {
                             return result;
@@ -232,7 +241,7 @@ namespace Bicep.LanguageServer.Handlers
                 default:
                     {
                         // It's a full or partial template and we have converted it into a full template to parse
-                        var result = await TryConvertFromConstructedTemplate(output, json, decompileId, pasteContext, pasteType, queryCanPaste, constructedJsonTemplate);
+                        var result = await TryConvertFromConstructedTemplate(output, json, decompileId, pasteContext, pasteType, queryCanPaste, constructedJsonTemplate, languageId);
                         if (result is not null)
                         {
                             return result;
@@ -247,10 +256,10 @@ namespace Bicep.LanguageServer.Handlers
                 new(
                     decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteType: null, ErrorMessage: null,
                     Bicep: null, Disclaimer: null),
-                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType: null, bicep: null));
+                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType: null, bicep: null, languageId: languageId));
         }
 
-        private async Task<ResultAndTelemetry?> TryConvertFromConstructedTemplate(StringBuilder output, string json, string decompileId, PasteContext pasteContext, PasteType pasteType, bool queryCanPaste, string? constructedJsonTemplate)
+        private async Task<ResultAndTelemetry?> TryConvertFromConstructedTemplate(StringBuilder output, string json, string decompileId, PasteContext pasteContext, PasteType pasteType, bool queryCanPaste, string? constructedJsonTemplate, LanguageId languageId)
         {
             ImmutableDictionary<Uri, string> filesToSave;
             try
@@ -272,7 +281,7 @@ namespace Bicep.LanguageServer.Handlers
                 Log(output, $"Decompilation failed: {message}");
 
                 return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteTypeAsString(pasteType), message, Bicep: null, Disclaimer: null),
-                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicep: null));
+                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicep: null, languageId: languageId));
             }
 
             // Get Bicep output from the main file (all others are currently ignored)
@@ -289,10 +298,10 @@ namespace Bicep.LanguageServer.Handlers
             // Show disclaimer and return result
             Log(output, DisclaimerMessage);
             return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteTypeAsString(pasteType), null, bicepOutput, DisclaimerMessage),
-                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicepOutput));
+                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicepOutput, languageId: languageId));
         }
 
-        private ResultAndTelemetry? TryConvertFromConstructedParameters(StringBuilder output, string json, string decompileId, PasteContext pasteContext, PasteType pasteType, bool queryCanPaste, string? constructedJsonTemplate)
+        private ResultAndTelemetry? TryConvertFromConstructedParameters(StringBuilder output, string json, string decompileId, PasteContext pasteContext, PasteType pasteType, bool queryCanPaste, string? constructedJsonTemplate, LanguageId languageId)
         {
             ImmutableDictionary<Uri, string> filesToSave;
             try
@@ -316,7 +325,7 @@ namespace Bicep.LanguageServer.Handlers
                 Log(output, $"Decompilation failed: {message}");
 
                 return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteTypeAsString(pasteType), message, Bicep: null, Disclaimer: null),
-                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicep: null));
+                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicep: null, languageId: languageId));
             }
 
             // Get Bicep output from the main file (all others are currently ignored)
@@ -333,7 +342,7 @@ namespace Bicep.LanguageServer.Handlers
             // Show disclaimer and return result
             Log(output, DisclaimerMessage);
             return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteTypeAsString(pasteType), null, bicepOutput, DisclaimerMessage),
-                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicepOutput));
+                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicepOutput, languageId: languageId));
         }
 
         private static string PasteContextAsString(PasteContext pasteContext)
@@ -347,7 +356,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        private BicepTelemetryEvent? GetSuccessTelemetry(bool queryCanPaste, string decompileId, string json, PasteContext pasteContext, string? pasteType, string? bicep)
+        private BicepTelemetryEvent? GetSuccessTelemetry(bool queryCanPaste, string decompileId, string json, PasteContext pasteContext, string? pasteType, string? bicep, LanguageId languageId)
         {
 
             // Don't log telemetry if we're just determining if we can paste, because this will happen a lot
@@ -355,7 +364,7 @@ namespace Bicep.LanguageServer.Handlers
             // TODO: but we don't call back for telemetry if we use the result
             return queryCanPaste ?
                 null :
-                BicepTelemetryEvent.DecompileForPaste(decompileId, PasteContextAsString(pasteContext), pasteType, json.Length, bicep?.Length);
+                BicepTelemetryEvent.DecompileForPaste(decompileId, PasteContextAsString(pasteContext), pasteType, json.Length, bicep?.Length, LanguageIdAsString(languageId));
         }
 
         private static DecompileOptions GetDecompileOptions(PasteType pasteType)
@@ -371,7 +380,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        private ResultAndTelemetry? TryConvertFromJsonValue(StringBuilder output, string json, string decompileId, PasteContext pasteContext, bool queryCanPaste)
+        private ResultAndTelemetry? TryConvertFromJsonValue(StringBuilder output, string json, string decompileId, PasteContext pasteContext, bool queryCanPaste, LanguageId languageId)
         {
             // Is it valid JSON that we can convert into Bicep?
             var pasteType = PasteType.JsonValue;
@@ -415,7 +424,7 @@ namespace Bicep.LanguageServer.Handlers
 
             return new(new(decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteTypeAsString(pasteType),
                     ErrorMessage: null, bicep, Disclaimer: null),
-                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicep));
+                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, PasteTypeAsString(pasteType), bicep, languageId: languageId));
 
         }
 

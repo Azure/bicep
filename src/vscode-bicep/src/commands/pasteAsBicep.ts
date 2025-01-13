@@ -161,6 +161,7 @@ export class PasteAsBicepCommand implements Command {
         context.telemetry.properties.decompileId = decompileResult.decompileId;
         context.telemetry.properties.jsonSize = String(jsonContent.length);
         context.telemetry.properties.queryCanPaste = String(queryCanPaste);
+        context.telemetry.properties.languageId = languageId;
 
         return decompileResult;
       },
