@@ -1464,6 +1464,7 @@ name: 'Premium_LRS'
         [DataRow(
             "2012-03-21T05:40Z",
             DisplayName = "datetime")]
+        [TestMethod]
         public async Task JsonValue_Invalid_CantConvert(string json)
         {
             await TestDecompileForPaste(
