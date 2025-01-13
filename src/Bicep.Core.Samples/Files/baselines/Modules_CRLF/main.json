@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4393939250524671956"
+      "templateHash": "17401662066036177246"
     }
   },
   "parameters": {
@@ -1706,7 +1706,7 @@
                   {
                     "name": "e",
                     "count": "[length(range(7, 7))]",
-                    "input": "[mod(range(7, 7)[copyIndex('e')], range(0, 1)[copyIndex()])]"
+                    "input": "[mod(range(7, 7)[copyIndex('e')], add(range(0, 1)[copyIndex()], 1))]"
                   }
                 ]
               }

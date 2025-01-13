@@ -111,7 +111,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "secureOutputs": false,
+          "resourceInfoCodegen": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -192,7 +193,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "secureOutputs": false,
+          "resourceInfoCodegen": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -298,7 +300,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "secureOutputs": false,
+          "resourceInfoCodegen": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -389,7 +392,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 OptionalModuleNames: false,
                 LocalDeploy: false,
                 ResourceDerivedTypes: false,
-                SecureOutputs: false);
+                SecureOutputs: false,
+                ResourceInfoCodegen: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -474,7 +478,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "optionalModuleNames": false,
                 "localDeploy": false,
                 "resourceDerivedTypes": false,
-                "secureOutputs": false
+                "secureOutputs": false,
+                "resourceInfoCodegen": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -658,15 +663,17 @@ namespace Bicep.Core.UnitTests.Configuration
             diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {expectedExceptionMessage}");
         }
 
-        [TestMethod]
-        public void GetConfiguration_ValidCustomConfiguration_OverridesBuiltInConfiguration()
+        [DataTestMethod]
+        [DataRow("repo")]
+        [DataRow("re%20po")]
+        public void GetConfiguration_ValidCustomConfiguration_OverridesBuiltInConfiguration(string root)
         {
             // Arrange.
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                [CreatePath("repo")] = new MockDirectoryData(),
-                [CreatePath("repo/modules")] = new MockDirectoryData(),
-                [CreatePath("repo/bicepconfig.json")] = /*lang=json,strict*/ """
+                [CreatePath(root)] = new MockDirectoryData(),
+                [CreatePath($"{root}/modules")] = new MockDirectoryData(),
+                [CreatePath($"{root}/bicepconfig.json")] = /*lang=json,strict*/ """
         {
           "cloud": {
             "currentProfile": "MyCloud",
@@ -739,7 +746,7 @@ namespace Bicep.Core.UnitTests.Configuration
             });
             var fileExplorer = new FileSystemFileExplorer(fileSystem);
             var sut = new ConfigurationManager(fileExplorer);
-            var sourceFileUri = new Uri(this.CreatePath("repo/modules/vnet.bicep"));
+            var sourceFileUri = new Uri(this.CreatePath($"{root}/modules/vnet.bicep"));
 
             // Act.
             var configuration = sut.GetConfiguration(sourceFileUri);
@@ -843,7 +850,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "optionalModuleNames": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "secureOutputs": false,
+          "resourceInfoCodegen": false
         },
         "formatting": {
           "indentKind": "Space",

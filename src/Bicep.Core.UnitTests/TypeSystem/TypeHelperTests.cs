@@ -391,7 +391,8 @@ public class TypeHelperTests
                 {
                     new("bar", LanguageConstants.String, TypePropertyFlags.Required),
                 },
-                LanguageConstants.Int),
+                LanguageConstants.Int,
+                additionalPropertiesDescription: "Description of additional properties"),
         };
 
         var collapsed = TypeHelper.TryCollapseTypes(toCollapse).Should().BeAssignableTo<ObjectType>().Subject;
@@ -406,6 +407,7 @@ public class TypeHelperTests
 
         collapsed.AdditionalPropertiesType.Should().NotBeNull();
         collapsed.AdditionalPropertiesType!.Type.Name.Should().Be("int");
+        collapsed.AdditionalPropertiesDescription.Should().Be("Description of additional properties");
         collapsed.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty).Should().BeTrue();
     }
 

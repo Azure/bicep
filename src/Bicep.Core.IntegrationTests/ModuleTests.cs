@@ -756,6 +756,53 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
             result.Template.Should().HaveValueAtPath("$.resources[0].name", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', copyIndex(), uniqueString('{symbolicName}', deployment().name))]");
         }
 
+        [DataRow("a", "a")]
+        [DataRow("hello", "hello")]
+        [DataRow("this______has_________fifty_____________characters", "this______has_________fifty_____________characters")]
+        [DataRow("this______has_________fifty_one__________characters", "this______has_________fifty_one__________character")]
+        [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_that_h")]
+        [DataTestMethod]
+        public void Module_with_generated_name_can_be_referenced_correctly(string symbolicName, string symbolicNamePrefix)
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var result = CompilationHelper.Compile(services,
+                ("main.bicep", $$"""
+                    module {{symbolicName}} 'mod1.bicep' = {}
+
+                    output name string = {{symbolicName}}.name
+                    """),
+                ("mod1.bicep", ""));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.outputs.name.value", $"[format('{symbolicNamePrefix}-{{0}}', uniqueString('{symbolicName}', deployment().name))]");
+        }
+
+        [DataRow("a", "a")]
+        [DataRow("hello", "hello")]
+        [DataRow("this______has_______forty_six_______characters", "this______has_______forty_six_______characters")]
+        [DataRow("this______has_______forty_seven______characters", "this______has_______forty_seven______character")]
+        [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_th")]
+        [DataTestMethod]
+        public void Module_collection_with_generated_name_can_be_referenced_correctly(string symbolicName, string symbolicNamePrefix)
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var result = CompilationHelper.Compile(services,
+                ("main.bicep", $$"""
+                    module {{symbolicName}} 'mod.bicep' = [for _ in range(0, 10): {}]
+
+                    output firstModName string = {{symbolicName}}[0].name
+                    output allModNames string[] = [for i in range(0, 10): {{symbolicName}}[i].name]
+                    """),
+                ("mod.bicep", ""));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.outputs.firstModName.value", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', 0, uniqueString('{symbolicName}', deployment().name))]");
+            result.Template.Should().HaveValueAtPath("$.outputs.firstModName.value", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', 0, uniqueString('{symbolicName}', deployment().name))]");
+            result.Template.Should().HaveValueAtPath("$.outputs.allModNames.copy.input", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', range(0, 10)[copyIndex()], uniqueString('{symbolicName}', deployment().name))]");
+        }
+
         private static string GetTemplate(Compilation compilation)
         {
             var stringBuilder = new StringBuilder();

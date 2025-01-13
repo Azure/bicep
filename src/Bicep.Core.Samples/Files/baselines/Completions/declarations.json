@@ -423,37 +423,6 @@
     }
   },
   {
-    "label": "res-app-insights-alert-rules",
-    "kind": "snippet",
-    "detail": "Application Insights Alert Rules",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nresource appInsightsAlertRules 'Microsoft.Insights/alertrules@2016-03-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    name: 'name'\n    description: 'description'\n    isEnabled: false\n    condition: {\n      failedLocationCount: 'failedLocationCount'\n      'odata.type': 'Microsoft.Azure.Management.Insights.Models.LocationThresholdRuleCondition'\n      dataSource: {\n        'odata.type': 'Microsoft.Azure.Management.Insights.Models.RuleManagementEventDataSource'\n        resourceUri: 'resourceUri'\n      }\n      windowSize: 'windowSize'\n    }\n    action: {\n      'odata.type': 'Microsoft.Azure.Management.Insights.Models.RuleEmailAction'\n      sendToServiceOwners: true\n    }\n  }\n}\n\n```  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_res-app-insights-alert-rules",
-    "filterText": "res-app-insights-alert-rules Application Insights Alert Rules Microsoft.Insights/alertrules",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "resource ${1:appInsightsAlertRules} 'Microsoft.Insights/alertrules@2016-03-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    name: ${4:'name'}\n    description: ${5:'description'}\n    isEnabled: false\n    condition: {\n      failedLocationCount: ${6:'failedLocationCount'}\n      'odata.type': '${7|Microsoft.Azure.Management.Insights.Models.LocationThresholdRuleCondition,Microsoft.Azure.Management.Insights.Models.ManagementEventRuleCondition,Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition|}'\n      dataSource: {\n        'odata.type': '${8|Microsoft.Azure.Management.Insights.Models.RuleManagementEventDataSource,Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource|}'\n        resourceUri: ${9:'resourceUri'}\n      }\n      windowSize: ${10:'windowSize'}\n    }\n    action: {\n      'odata.type': '${11|Microsoft.Azure.Management.Insights.Models.RuleEmailAction,Microsoft.Azure.Management.Insights.Models.RuleWebhookAction|}'\n      sendToServiceOwners: true\n    }\n  }\n}\n"
-    },
-    "command": {
-      "title": "top level snippet completion",
-      "command": "bicep.Telemetry",
-      "arguments": [
-        {
-          "EventName": "snippet/toplevel",
-          "Properties": {
-            "name": "res-app-insights-alert-rules"
-          }
-        }
-      ]
-    }
-  },
-  {
     "label": "res-app-insights-auto-scale-settings",
     "kind": "snippet",
     "detail": "Application Insights Auto Scale Settings",

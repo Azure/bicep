@@ -392,13 +392,13 @@ jobs:
           - os: macos-latest
             rid: osx-x64
             runTests: true
-          - os: ubuntu-latest
+          - os: windows-latest
             rid: win-arm64
             runTests: false
           - os: ubuntu-latest
             rid: linux-arm64
             runTests: false
-          - os: ubuntu-latest
+          - os: macos-latest
             rid: osx-arm64
             runTests: false
 
@@ -446,6 +446,10 @@ jobs:
         with:
           name: bicep-nupkg-any
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
+
+      - name: Install mono
+        run: sudo apt update && sudo apt install mono-complete
+        if: ${{ matrix.rid == 'linux-x64' || matrix.rid == 'linux-arm64' }}
 
       - name: Build CLI Package
         run: dotnet build --configuration Release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj

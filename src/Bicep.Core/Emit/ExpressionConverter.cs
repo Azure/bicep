@@ -12,6 +12,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
@@ -111,7 +112,7 @@ namespace Bicep.Core.Emit
 
                 case ImportedUserDefinedFunctionCallExpression importedFunction:
                     {
-                        var (namespaceName, functionName) = GetFunctionName(context.ImportClosureInfo.ImportedSymbolNames[importedFunction.Symbol]);
+                        var (namespaceName, functionName) = GetFunctionName(context.SemanticModel.ImportClosureInfo.ImportedSymbolNames[importedFunction.Symbol]);
                         return CreateFunction(
                             $"{namespaceName}.{functionName}",
                             importedFunction.Parameters.Select(ConvertExpression));
@@ -120,7 +121,7 @@ namespace Bicep.Core.Emit
                 case WildcardImportInstanceFunctionCallExpression importedFunction:
                     {
                         var (namespaceName, functionName) = GetFunctionName(
-                            context.ImportClosureInfo.WildcardImportPropertyNames[new(importedFunction.ImportSymbol, importedFunction.MethodName)]);
+                            context.SemanticModel.ImportClosureInfo.WildcardImportPropertyNames[new(importedFunction.ImportSymbol, importedFunction.MethodName)]);
                         return CreateFunction(
                             $"{namespaceName}.{functionName}",
                             importedFunction.Parameters.Select(ConvertExpression));
@@ -171,11 +172,11 @@ namespace Bicep.Core.Emit
                     return CreateFunction("variables", new JTokenExpression(exp.Name));
 
                 case ImportedVariableReferenceExpression exp:
-                    return CreateFunction("variables", new JTokenExpression(context.ImportClosureInfo.ImportedSymbolNames[exp.Variable]));
+                    return CreateFunction("variables", new JTokenExpression(context.SemanticModel.ImportClosureInfo.ImportedSymbolNames[exp.Variable]));
 
                 case WildcardImportVariablePropertyReferenceExpression exp:
                     return CreateFunction("variables",
-                    new JTokenExpression(context.ImportClosureInfo.WildcardImportPropertyNames[new(exp.ImportSymbol, exp.PropertyName)]));
+                    new JTokenExpression(context.SemanticModel.ImportClosureInfo.WildcardImportPropertyNames[new(exp.ImportSymbol, exp.PropertyName)]));
 
                 case ParametersReferenceExpression exp:
                     return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
@@ -404,25 +405,55 @@ namespace Bicep.Core.Emit
             }
             else if (resource is DeclaredResourceMetadata declaredResource)
             {
-                // For symbolic-named resources we have the option of simplifying codegen by emitting expressions like "resourceInfo('symbolicName').id".
-                // However, there are numerous cases where resourceInfo can & can't be used, and it's too difficult to try and address them all here.
-                // See https://github.com/Azure/bicep/issues/9450 & https://github.com/Azure/bicep/issues/9246 for examples.
-                // For now, let's stick with emitting the more verbose expressions that we know work.
+                if (context.SemanticModel.Features.ResourceInfoCodegenEnabled)
+                {
+                    // Use simplified "resourceInfo" code generation.
+
+                    LanguageExpression getResourceInfoExpression()
+                    {
+                        var symbolExpression = GenerateSymbolicReference(declaredResource, indexContext);
+                        return AppendProperties(CreateFunction("resourceInfo", symbolExpression), new JTokenExpression(propertyName));
+                    }
+
+                    switch (propertyName)
+                    {
+                        case AzResourceTypeProvider.ResourceIdPropertyName:
+                        case AzResourceTypeProvider.ResourceTypePropertyName:
+                        case AzResourceTypeProvider.ResourceApiVersionPropertyName:
+                            return getResourceInfoExpression();
+                        case AzResourceTypeProvider.ResourceNamePropertyName:
+                            var nameExpression = getResourceInfoExpression();
+                            if (declaredResource.Parent is { })
+                            {
+                                // resourceInfo('foo').name will always return a fully-qualified name, whereas using "foo.name" in Bicep
+                                // will give different results depending on whether the resource has a parent (either syntactically, or with the 'parent' property) or not.
+                                // We must preserve this behavior by using "last(split(..., '/'))" to convert from qualified -> unqualified, to avoid this being a breaking change.
+                                return CreateFunction(
+                                    "last",
+                                    CreateFunction(
+                                        "split",
+                                        nameExpression,
+                                        new JTokenExpression("/")));
+                            }
+
+                            return nameExpression;
+                    }
+                }
 
                 switch (propertyName)
                 {
-                    case "id":
+                    case AzResourceTypeProvider.ResourceIdPropertyName:
                         // the ID is dependent on the name expression which could involve locals in case of a resource collection
                         return GetFullyQualifiedResourceId(resource);
-                    case "name":
+                    case AzResourceTypeProvider.ResourceNamePropertyName:
                         // the name is dependent on the name expression which could involve locals in case of a resource collection
 
                         // Note that we don't want to return the fully-qualified resource name in the case of name property access.
                         // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
                         return ConvertExpression(declaredResource.NameSyntax);
-                    case "type":
+                    case AzResourceTypeProvider.ResourceTypePropertyName:
                         return new JTokenExpression(resource.TypeReference.FormatType());
-                    case "apiVersion":
+                    case AzResourceTypeProvider.ResourceApiVersionPropertyName:
                         var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                         return new JTokenExpression(apiVersion);
                     case string when expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess):
@@ -450,7 +481,7 @@ namespace Bicep.Core.Emit
             {
                 case "name":
                     // the name is dependent on the name expression which could involve locals in case of a resource collection
-                    return GetModuleNameExpression(reference.Module);
+                    return GetModuleNameExpression(reference.Module, reference.IndexContext?.Index);
 
                 case "outputs":
                     var moduleSymbol = reference.Module;
@@ -458,7 +489,7 @@ namespace Bicep.Core.Emit
                     if (context.SemanticModel.Features.SecureOutputsEnabled &&
                         FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(context.SemanticModel, moduleSymbol.DeclaringModule).Any())
                     {
-                        var deploymentResourceId = GetFullyQualifiedResourceId(moduleSymbol);
+                        var deploymentResourceId = GetFullyQualifiedResourceId(moduleSymbol, reference.IndexContext?.Index);
                         var apiVersion = new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion);
                         return CreateFunction(secureOutputsApi, deploymentResourceId, apiVersion);
                     }
@@ -543,16 +574,16 @@ namespace Bicep.Core.Emit
             return CreateFunction("format", new JTokenExpression(formatString).AsEnumerable().Concat(nameSegments));
         }
 
-        private LanguageExpression GetModuleNameExpression(ModuleSymbol moduleSymbol)
+        private LanguageExpression GetModuleNameExpression(ModuleSymbol moduleSymbol, Expression? indexExpression)
         {
-            SyntaxBase nameValueSyntax = GetModuleNameSyntax(moduleSymbol);
-            return ConvertExpression(nameValueSyntax);
-        }
+            if (moduleSymbol.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) is { } nameValueSyntax)
+            {
+                return ConvertExpression(nameValueSyntax);
+            }
 
-        public static SyntaxBase GetModuleNameSyntax(ModuleSymbol moduleSymbol)
-        {
-            // this condition should have already been validated by the type checker
-            return moduleSymbol.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
+            var generatedModuleNameExpression = ExpressionFactory.CreateGeneratedModuleName(moduleSymbol, indexExpression);
+
+            return ConvertExpression(generatedModuleNameExpression);
         }
 
         public LanguageExpression GetUnqualifiedResourceId(DeclaredResourceMetadata resource)
@@ -598,14 +629,14 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public LanguageExpression GetFullyQualifiedResourceId(ModuleSymbol moduleSymbol)
+        public LanguageExpression GetFullyQualifiedResourceId(ModuleSymbol moduleSymbol, Expression? indexExpression)
         {
             return ScopeHelper.FormatFullyQualifiedResourceId(
                 context,
                 this,
                 context.ModuleScopeData[moduleSymbol],
                 TemplateWriter.NestedDeploymentResourceType,
-                GetModuleNameExpression(moduleSymbol).AsEnumerable());
+                GetModuleNameExpression(moduleSymbol, indexExpression).AsEnumerable());
         }
 
         public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext, bool isModuleOutputResource)
@@ -629,7 +660,7 @@ namespace Bicep.Core.Emit
 
             return CreateFunction(
                 referenceFunctionName,
-                GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol),
+                GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol, indexContext?.Index),
                 new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion));
         }
 

@@ -447,7 +447,7 @@ namespace Bicep.Core.TypeSystem
                 return declaredObject;
             }
 
-            return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalPropertiesType, declaredObject.AdditionalPropertiesFlags);
+            return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalPropertiesType, declaredObject.AdditionalPropertiesFlags, declaredObject.AdditionalPropertiesDescription);
         }
 
         private ITypeReference GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
@@ -673,6 +673,8 @@ namespace Bicep.Core.TypeSystem
                 nameBuilder.AppendPropertyMatcher(GetPropertyTypeName(additionalPropertiesDeclarations[0].Value, additionalPropertiesType));
             }
 
+            var additionalPropertiesDescription = !additionalPropertiesDeclarations.Any() ? null : DescriptionHelper.TryGetFromDecorator(binder, typeManager, additionalPropertiesDeclarations[0]);
+
             if (diagnostics.Any())
             {
                 // forward any diagnostics gathered from parsing properties to the return type. normally, these diagnostics would be gathered by the SemanticDiagnosticVisitor (which would visit the properties of an ObjectType looking for errors).
@@ -680,7 +682,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostics.Concat(properties.Select(p => p.TypeReference).OfType<TypeSymbol>().SelectMany(e => e.GetDiagnostics())));
             }
 
-            return new ObjectType(nameBuilder.ToString(), default, properties, additionalPropertiesType, additionalPropertiesFlags);
+            return new ObjectType(nameBuilder.ToString(), default, properties, additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription);
         }
 
         private static string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
@@ -1795,6 +1797,14 @@ namespace Bicep.Core.TypeSystem
                     var type = TypeHelper.MakeRequiredPropertiesOptional(enclosingObjectType);
 
                     return TryCreateAssignment(type, syntax);
+
+                case TypedLambdaSyntax lambda when binder.IsEqualOrDescendent(syntax, lambda.Body):
+                    if (GetTypedLambdaType(lambda).Reference is not LambdaType lambdaType)
+                    {
+                        return null;
+                    }
+
+                    return TryCreateAssignment(lambdaType.ReturnType, syntax);
             }
 
             return null;

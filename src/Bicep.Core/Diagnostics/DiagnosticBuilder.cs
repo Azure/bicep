@@ -844,9 +844,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP158",
                 $"Cannot access nested resources of type \"{wrongType}\". A resource type is required.");
 
-            public Diagnostic NestedResourceNotFound(string resourceName, string identifierName, IEnumerable<string> nestedResourceNames) => CoreError(
-                "BCP159",
-                $"The resource \"{resourceName}\" does not contain a nested resource named \"{identifierName}\". Known nested resources are: {ToQuotedString(nestedResourceNames)}.");
+            public Diagnostic NestedResourceNotFound(string resourceName, string identifierName, IEnumerable<string> nestedResourceNames)
+            {
+                var nestedResourceNamesClause = nestedResourceNames.Any()
+                    ? $" Known nested resources are: {ToQuotedString(nestedResourceNames)}."
+                    : string.Empty;
+
+                return CoreError(
+                    "BCP159",
+                    $"""The resource "{resourceName}" does not contain a nested resource named "{identifierName}".{nestedResourceNamesClause}""");
+            }
 
             public Diagnostic NestedResourceNotAllowedInLoop() => CoreError(
                 "BCP160",
@@ -1873,6 +1880,8 @@ namespace Bicep.Core.Diagnostics
                     with
                 { Fixes = [fixToResourceInput, fixToResourceOutput] };
             }
+
+            public Diagnostic AttemptToDivideByZero() => CoreError("BCP410", "Division by zero is not supported.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

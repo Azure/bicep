@@ -1,5 +1,5 @@
 
-//@[000:10074) ProgramSyntax
+//@[000:10080) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 @sys.description('this is deployTimeSuffix param')
 //@[000:00093) ├─ParameterDeclarationSyntax
@@ -2379,14 +2379,14 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
-//@[000:00529) ├─ModuleDeclarationSyntax
+//@[000:00535) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00055) | ├─IdentifierSyntax
 //@[007:00055) | | └─Token(Identifier) |propertyLoopInsideParameterValueInsideModuleLoop|
 //@[056:00071) | ├─StringSyntax
 //@[056:00071) | | └─Token(StringComplete) |'modulea.bicep'|
 //@[072:00073) | ├─Token(Assignment) |=|
-//@[074:00529) | └─ForSyntax
+//@[074:00535) | └─ForSyntax
 //@[074:00075) |   ├─Token(LeftSquare) |[|
 //@[075:00078) |   ├─Token(Identifier) |for|
 //@[079:00084) |   ├─LocalVariableSyntax
@@ -2406,7 +2406,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[096:00097) |   | |   └─Token(Integer) |1|
 //@[097:00098) |   | └─Token(RightParen) |)|
 //@[098:00099) |   ├─Token(Colon) |:|
-//@[100:00528) |   ├─ObjectSyntax
+//@[100:00534) |   ├─ObjectSyntax
 //@[100:00101) |   | ├─Token(LeftBrace) |{|
 //@[101:00103) |   | ├─Token(NewLine) |\r\n|
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
@@ -2418,11 +2418,11 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[008:00058) |   | |   └─Token(StringComplete) |'propertyLoopInsideParameterValueInsideModuleLoop'|
 //@[058:00060) |   | ├─Token(NewLine) |\r\n|
   params: {
-//@[002:00362) |   | ├─ObjectPropertySyntax
+//@[002:00368) |   | ├─ObjectPropertySyntax
 //@[002:00008) |   | | ├─IdentifierSyntax
 //@[002:00008) |   | | | └─Token(Identifier) |params|
 //@[008:00009) |   | | ├─Token(Colon) |:|
-//@[010:00362) |   | | └─ObjectSyntax
+//@[010:00368) |   | | └─ObjectSyntax
 //@[010:00011) |   | |   ├─Token(LeftBrace) |{|
 //@[011:00013) |   | |   ├─Token(NewLine) |\r\n|
     objParam: {
@@ -2602,24 +2602,24 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[018:00020) |   | |   |   └─Token(StringComplete) |''|
 //@[020:00022) |   | |   ├─Token(NewLine) |\r\n|
     arrayParam: [
-//@[004:00087) |   | |   ├─ObjectPropertySyntax
+//@[004:00093) |   | |   ├─ObjectPropertySyntax
 //@[004:00014) |   | |   | ├─IdentifierSyntax
 //@[004:00014) |   | |   | | └─Token(Identifier) |arrayParam|
 //@[014:00015) |   | |   | ├─Token(Colon) |:|
-//@[016:00087) |   | |   | └─ArraySyntax
+//@[016:00093) |   | |   | └─ArraySyntax
 //@[016:00017) |   | |   |   ├─Token(LeftSquare) |[|
 //@[017:00019) |   | |   |   ├─Token(NewLine) |\r\n|
       {
-//@[006:00061) |   | |   |   ├─ArrayItemSyntax
-//@[006:00061) |   | |   |   | └─ObjectSyntax
+//@[006:00067) |   | |   |   ├─ArrayItemSyntax
+//@[006:00067) |   | |   |   | └─ObjectSyntax
 //@[006:00007) |   | |   |   |   ├─Token(LeftBrace) |{|
 //@[007:00009) |   | |   |   |   ├─Token(NewLine) |\r\n|
-        e: [for j in range(7,7): j % thing]
-//@[008:00043) |   | |   |   |   ├─ObjectPropertySyntax
+        e: [for j in range(7,7): j % (thing + 1)]
+//@[008:00049) |   | |   |   |   ├─ObjectPropertySyntax
 //@[008:00009) |   | |   |   |   | ├─IdentifierSyntax
 //@[008:00009) |   | |   |   |   | | └─Token(Identifier) |e|
 //@[009:00010) |   | |   |   |   | ├─Token(Colon) |:|
-//@[011:00043) |   | |   |   |   | └─ForSyntax
+//@[011:00049) |   | |   |   |   | └─ForSyntax
 //@[011:00012) |   | |   |   |   |   ├─Token(LeftSquare) |[|
 //@[012:00015) |   | |   |   |   |   ├─Token(Identifier) |for|
 //@[016:00017) |   | |   |   |   |   ├─LocalVariableSyntax
@@ -2639,16 +2639,23 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[029:00030) |   | |   |   |   |   | |   └─Token(Integer) |7|
 //@[030:00031) |   | |   |   |   |   | └─Token(RightParen) |)|
 //@[031:00032) |   | |   |   |   |   ├─Token(Colon) |:|
-//@[033:00042) |   | |   |   |   |   ├─BinaryOperationSyntax
+//@[033:00048) |   | |   |   |   |   ├─BinaryOperationSyntax
 //@[033:00034) |   | |   |   |   |   | ├─VariableAccessSyntax
 //@[033:00034) |   | |   |   |   |   | | └─IdentifierSyntax
 //@[033:00034) |   | |   |   |   |   | |   └─Token(Identifier) |j|
 //@[035:00036) |   | |   |   |   |   | ├─Token(Modulo) |%|
-//@[037:00042) |   | |   |   |   |   | └─VariableAccessSyntax
-//@[037:00042) |   | |   |   |   |   |   └─IdentifierSyntax
-//@[037:00042) |   | |   |   |   |   |     └─Token(Identifier) |thing|
-//@[042:00043) |   | |   |   |   |   └─Token(RightSquare) |]|
-//@[043:00045) |   | |   |   |   ├─Token(NewLine) |\r\n|
+//@[037:00048) |   | |   |   |   |   | └─ParenthesizedExpressionSyntax
+//@[037:00038) |   | |   |   |   |   |   ├─Token(LeftParen) |(|
+//@[038:00047) |   | |   |   |   |   |   ├─BinaryOperationSyntax
+//@[038:00043) |   | |   |   |   |   |   | ├─VariableAccessSyntax
+//@[038:00043) |   | |   |   |   |   |   | | └─IdentifierSyntax
+//@[038:00043) |   | |   |   |   |   |   | |   └─Token(Identifier) |thing|
+//@[044:00045) |   | |   |   |   |   |   | ├─Token(Plus) |+|
+//@[046:00047) |   | |   |   |   |   |   | └─IntegerLiteralSyntax
+//@[046:00047) |   | |   |   |   |   |   |   └─Token(Integer) |1|
+//@[047:00048) |   | |   |   |   |   |   └─Token(RightParen) |)|
+//@[048:00049) |   | |   |   |   |   └─Token(RightSquare) |]|
+//@[049:00051) |   | |   |   |   ├─Token(NewLine) |\r\n|
       }
 //@[006:00007) |   | |   |   |   └─Token(RightBrace) |}|
 //@[007:00009) |   | |   |   ├─Token(NewLine) |\r\n|

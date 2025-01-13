@@ -22,6 +22,7 @@ public record FeatureProviderOverrides(
     bool? LocalDeployEnabled = default,
     bool? ResourceDerivedTypesEnabled = default,
     bool? SecureOutputsEnabled = default,
+    bool? ResourceInfoCodegenEnabled = default,
     bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ExtensibilityV2EmittingEnabled = default)
@@ -41,6 +42,7 @@ public record FeatureProviderOverrides(
         bool? LocalDeployEnabled = default,
         bool? ResourceDerivedTypesEnabled = default,
         bool? SecureOutputsEnabled = default,
+        bool? ResourceInfoCodegenEnabled = default,
         bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ExtensibilityV2EmittingEnabled = default
@@ -59,6 +61,7 @@ public record FeatureProviderOverrides(
         LocalDeployEnabled,
         ResourceDerivedTypesEnabled,
         SecureOutputsEnabled,
+        ResourceInfoCodegenEnabled,
         ExtendableParamFilesEnabled,
         AssemblyVersion,
         ExtensibilityV2EmittingEnabled)
