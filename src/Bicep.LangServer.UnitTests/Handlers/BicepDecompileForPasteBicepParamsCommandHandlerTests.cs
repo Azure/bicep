@@ -206,7 +206,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
               """,
             PasteType.FullParams,
             """
-            
             using '' /*TODO: Provide a path to a bicep template*/
             
             param pString = ''
