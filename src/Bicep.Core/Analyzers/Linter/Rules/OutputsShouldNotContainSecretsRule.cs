@@ -54,6 +54,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
             {
+                if (this.model.Features.SecureOutputsEnabled)
+                {
+                    // SecureOutputs feature is enabled, so we don't need to check for secrets in outputs
+                    return;
+                }
+
                 // Does the output name contain 'password' (suggesting it contains an actual password)?
                 if (syntax.Name.IdentifierName.Contains("password", StringComparison.OrdinalIgnoreCase))
                 {
