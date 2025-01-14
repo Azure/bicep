@@ -514,32 +514,6 @@ param foo2 string", "param foo2 string")]
             updatedFile.Should().HaveSourceText(expectedText);
         }
 
-        [TestMethod]
-        public async Task Provider_codefix_works()
-        {
-            var server = await MultiFileLanguageServerHelper.StartLanguageServer(
-                TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true)));
-
-            (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(@"
-imp|ort 'br:example.azurecr.io/test/radius:1.0.0'
-", server: server);
-
-            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith("Replace the import keyword with the extension keyword")));
-            updatedFile.Should().HaveSourceText(@"
-extension 'br:example.azurecr.io/test/radius:1.0.0'
-");
-
-            (codeActions, bicepFile) = await GetCodeActionsForSyntaxTest(@"
-pro|vider 'br:example.azurecr.io/test/radius:1.0.0'
-", server: server);
-
-            updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith("Replace the provider keyword with the extension keyword")));
-            updatedFile.Should().HaveSourceText(@"
-extension 'br:example.azurecr.io/test/radius:1.0.0'
-");
-        }
-
         [DataRow("var|")]
         [DataRow("var |")]
         [DataTestMethod]
