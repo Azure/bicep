@@ -156,7 +156,7 @@ public class SecureOutputsTests
         result.Diagnostics.Should().NotHaveAnyDiagnostics();
 
         // Verify referencing secure output in a resource property will be translated to listOutputsWithSecureValues function
-        result.Template.Should().HaveValueAtPath("$.resources['0'].properties.value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'foo'), '2022-09-01').secureOutput]");
+        result.Template.Should().HaveValueAtPath("$.resources[0].properties.value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'foo'), '2022-09-01').secureOutput]");
 
         // Verify referencing secure output will be translated to listOutputsWithSecureValues function
         result.Template.Should().HaveValueAtPath("$.outputs['outputSecureVal'].value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'foo'), '2022-09-01').secureOutput]");
