@@ -40,6 +40,10 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             publicProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
                 [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.Select(v => v.Version)]);
 
+            publicProvider.Setup(x => x.TryGetModuleVersionMetadataAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync((string modulePath, string version) =>
+                    modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.SingleOrDefault(v => v.Version.EqualsOrdinally(version)));
+
             return publicProvider;
         }
 

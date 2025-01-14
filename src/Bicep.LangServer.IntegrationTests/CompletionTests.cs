@@ -4136,7 +4136,7 @@ var file = " + functionName + @"(templ|)
         [DataRow("using 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
-        //asdfg
+        //asdfg2    asdfg add private
         public async Task ModuleRegistryReferenceCompletions_GetVersionCompletions(string inputWithCursors, BicepSourceFileKind kind)//asdfg existing test - rename
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
@@ -4176,7 +4176,7 @@ var file = " + functionName + @"(templ|)
                     second.SortText.Should().Be("0000");
                     second.Kind.Should().Be(CompletionItemKind.Snippet);
                     second.Detail.Should().Be("d1");
-                    second.Documentation!.MarkupContent!.Value.Should().Be("View Documentation");
+                    second.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help1)");
                 }
             );
         }

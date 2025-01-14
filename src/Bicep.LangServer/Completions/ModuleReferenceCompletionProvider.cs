@@ -350,7 +350,7 @@ namespace Bicep.LanguageServer.Completions
 
                 // Module version is last completion, no follow-up completions triggered
                 // Note: Description and documentation will be resolved later
-                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version)
+                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version) //asdfg2
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(i))
@@ -410,38 +410,6 @@ namespace Bicep.LanguageServer.Completions
 
             //    return null;
             //}
-        }
-
-        private async Task<CompletionItem> ResolveVersionCompletionItem(CompletionItem completionItem, string registry, string modulePath, string version)
-        {
-            if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
-                && await cachedRegistry.TryGetModuleVersionMetadataAsync(modulePath, version) is { } versionMetadata)
-            {
-                return completionItem with
-                {
-                    Detail = versionMetadata.Description,
-                    Documentation = MarkdownHelper.GetDocumentationLink(versionMetadata.DocumentationUri),
-                };
-            }
-
-            return completionItem;
-        }
-
-        private async Task<CompletionItem> ResolveModuleCompletionItem(CompletionItem completionItem, string registry, string modulePath)
-        {
-            if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
-                && await cachedRegistry.TryGetModuleVersionsAsync(modulePath) is { } versions
-                && versions.FirstOrDefault() is { } firstVersion
-                && await cachedRegistry.TryGetModuleVersionMetadataAsync(modulePath, firstVersion) is { } firstVersionMetadata)
-            {
-                return completionItem with
-                {
-                    Detail = firstVersionMetadata.Description,
-                    Documentation = MarkdownHelper.GetDocumentationLink(firstVersionMetadata.DocumentationUri),
-                };
-            }
-
-            return completionItem;
         }
 
         private ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(RootConfiguration configuration)
@@ -720,10 +688,7 @@ namespace Bicep.LanguageServer.Completions
                         .WithSortText(GetSortText(moduleName))
                         .WithResolveData( //asdfg test
                             ModuleResolutionKey,
-                            description is null && documentationUri is null 
-                                ? new { Registry = registry, Module = moduleName }
-                                : null)
-                        .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))
+                            new { Registry = registry, Module = moduleName })
                         .WithFollowupCompletion("module version completion")
                         .Build();
 
@@ -851,6 +816,37 @@ namespace Bicep.LanguageServer.Completions
                 {
                     return await ResolveModuleCompletionItem(completionItem, registry, modulePath);
                 }
+            }
+
+            return completionItem;
+        }
+
+        private async Task<CompletionItem> ResolveVersionCompletionItem(CompletionItem completionItem, string registry, string modulePath, string version)
+        {
+            if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
+                && await cachedRegistry.TryGetModuleVersionMetadataAsync(modulePath, version) is { } versionMetadata)
+            {
+                return (completionItem with
+                {
+                    Detail = versionMetadata.Description,
+                })
+                .WithDocumentation(MarkdownHelper.GetDocumentationLink(versionMetadata.DocumentationUri));
+            }
+
+            return completionItem;
+        }
+
+        private async Task<CompletionItem> ResolveModuleCompletionItem(CompletionItem completionItem, string registry, string modulePath)
+        {
+            if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
+                && await cachedRegistry.TryGetModuleVersionsAsync(modulePath) is { } versions
+                && versions.FirstOrDefault() is { } firstVersion
+                && await cachedRegistry.TryGetModuleVersionMetadataAsync(modulePath, firstVersion) is { } firstVersionMetadata)
+            {
+                return (completionItem with
+                {
+                    Detail = firstVersionMetadata.Description,
+                }).WithDocumentation(MarkdownHelper.GetDocumentationLink(firstVersionMetadata.DocumentationUri));
             }
 
             return completionItem;
