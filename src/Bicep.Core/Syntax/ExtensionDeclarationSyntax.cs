@@ -13,7 +13,7 @@ namespace Bicep.Core.Syntax
         public ExtensionDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase specificationString, SyntaxBase withClause, SyntaxBase asClause)
             : base(leadingNodes)
         {
-            AssertKeyword(keyword, nameof(keyword), LanguageConstants.ImportKeyword, LanguageConstants.ProviderKeyword, LanguageConstants.ExtensionKeyword);
+            AssertKeyword(keyword, nameof(keyword), LanguageConstants.ImportKeyword, LanguageConstants.ExtensionKeyword);
             AssertSyntaxType(specificationString, nameof(specificationString), typeof(StringSyntax), typeof(SkippedTriviaSyntax), typeof(IdentifierSyntax));
 
             this.Keyword = keyword;

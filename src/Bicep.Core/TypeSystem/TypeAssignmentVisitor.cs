@@ -898,12 +898,6 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                if (syntax.Keyword.IsKeyword(LanguageConstants.ImportKeyword) ||
-                    syntax.Keyword.IsKeyword(LanguageConstants.ProviderKeyword))
-                {
-                    diagnostics.Write(syntax.Keyword, x => x.ExtensionDeclarationKeywordIsDeprecated(syntax));
-                }
-
                 if (namespaceSymbol.DeclaredType is not NamespaceType namespaceType)
                 {
                     // We should have an error type here - return it directly.

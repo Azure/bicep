@@ -64,7 +64,6 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
                             LanguageConstants.TestKeyword => this.TestDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
-                            LanguageConstants.ProviderKeyword or
                             LanguageConstants.ExtensionKeyword => this.ExtensionDeclaration(ExpectKeyword(current.Text), leadingNodes),
                             LanguageConstants.AssertKeyword => this.AssertDeclaration(leadingNodes),
                             _ => leadingNodes.Length > 0

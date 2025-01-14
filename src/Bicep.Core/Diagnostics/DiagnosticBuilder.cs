@@ -1737,21 +1737,6 @@ namespace Bicep.Core.Diagnostics
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
 
-            public Diagnostic ExtensionDeclarationKeywordIsDeprecated(ExtensionDeclarationSyntax syntax)
-            {
-                var codeFix = new CodeFix(
-                    $"Replace the {syntax.Keyword.Text} keyword with the extension keyword",
-                    true,
-                    CodeFixKind.QuickFix,
-                    new CodeReplacement(syntax.Keyword.Span, LanguageConstants.ExtensionKeyword));
-
-                return CoreWarning(
-                    "BCP381",
-                    @$"Declaring extension with the ""{syntax.Keyword.Text}"" keyword has been deprecated. Please use the ""extension"" keyword instead. Please see https://github.com/Azure/bicep/issues/14374 for more information.")
-                    with
-                { Fixes = [codeFix] };
-            }
-
             public Diagnostic TypeIsNotParameterizable(string typeName) => CoreError(
                 "BCP383",
                 $"The \"{typeName}\" type is not parameterizable.");
