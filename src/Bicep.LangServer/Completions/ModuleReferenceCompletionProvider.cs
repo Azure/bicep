@@ -669,7 +669,7 @@ namespace Bicep.LanguageServer.Completions
             var modules = await registryModuleIndexer.GetRegistry(parts.ResolvedRegistry, rootConfiguration.Cloud).TryGetModulesAsync(); //asdfg2
             foreach (var (registry, moduleName, description, documentationUri) in modules)
             {
-                if (!moduleName.StartsWith(parts.ResolvedModulePath, StringComparison.Ordinal)) //asdfg case-insensitive
+                if (!moduleName.StartsWith(parts.ResolvedModulePath, StringComparison.Ordinal))
                 {
                     continue;
                 }

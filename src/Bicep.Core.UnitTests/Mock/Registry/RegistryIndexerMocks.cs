@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
     {
         private const string PublicRegistry = "mcr.microsoft.com";
 
-        public static Mock<IPublicModuleMetadataProvider> MockPublicMetadataProvider( //asdfg2
+        public static Mock<IPublicModuleMetadataProvider> MockPublicMetadataProvider(
             IEnumerable<(string moduleName, string? description, string? documentationUri, IEnumerable<RegistryModuleVersionMetadata> versions)> modules)
         {
             if (modules.Any())
