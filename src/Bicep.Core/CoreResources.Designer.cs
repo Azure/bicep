@@ -241,6 +241,15 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Resource info code generation.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_ResourceInfoCodegen {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_ResourceInfoCodegen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Test framework.
         /// </summary>
         internal static string ExperimentalFeatureNames_TestFramework {
@@ -1074,6 +1083,15 @@ namespace Bicep.Core {
         internal static string UseSafeAccessRule_Description {
             get {
                 return ResourceManager.GetString("UseSafeAccessRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use user-defined types instead of &quot;object&quot; or &quot;array&quot;..
+        /// </summary>
+        internal static string UseUserDefinedTypesRule_Description {
+            get {
+                return ResourceManager.GetString("UseUserDefinedTypesRule_Description", resourceCulture);
             }
         }
         

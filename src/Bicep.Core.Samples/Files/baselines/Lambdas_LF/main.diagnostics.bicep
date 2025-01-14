@@ -89,6 +89,7 @@ var filteredLoop = filter(itemForLoop, i => i > 5)
 //@[04:016) [no-unused-vars (Warning)] Variable "filteredLoop" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |filteredLoop|
 
 output doggoGreetings array = [for item in mapObject: item.greeting]
+//@[22:027) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
 
 resource storageAcc 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
   name: 'asdfsadf'

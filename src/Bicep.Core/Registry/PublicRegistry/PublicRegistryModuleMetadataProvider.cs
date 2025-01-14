@@ -87,9 +87,7 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
     {
         StartCacheUpdateInBackgroundIfNeeded();
 
-        return this.cachedIndex
-            .Select(x => new PublicRegistryModuleMetadata(x.ModulePath, x.GetDescription(), x.GetDocumentationUri()))
-            .ToImmutableArray();
+        return [.. this.cachedIndex.Select(x => new PublicRegistryModuleMetadata(x.ModulePath, x.GetDescription(), x.GetDocumentationUri()))];
     }
 
     public ImmutableArray<PublicRegistryModuleVersionMetadata> GetModuleVersionsMetadata(string modulePath)
@@ -103,9 +101,7 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
             return [];
         }
 
-        return entry.Versions
-            .Select(version => new PublicRegistryModuleVersionMetadata(version, entry.GetDescription(version), entry.GetDocumentationUri(version)))
-            .ToImmutableArray();
+        return [.. entry.Versions.Select(version => new PublicRegistryModuleVersionMetadata(version, entry.GetDescription(version), entry.GetDocumentationUri(version)))];
     }
 
     private void StartCacheUpdateInBackgroundIfNeeded(bool initialDelay = false)

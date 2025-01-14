@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9129114772864237098"
+      "templateHash": "10727609760574024345"
     }
   },
   "parameters": {
@@ -66,7 +66,7 @@
   "resources": [
     {
       "copy": {
-        "name": "sqlDatabases",
+        "name": "sqlServer::sqlDatabases",
         "count": "[length(variables('dbs'))]",
         "mode": "serial",
         "batchSize": 1

@@ -69,6 +69,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithFileResolver(this IServiceCollection services, IFileResolver fileResolver)
         => Register(services, fileResolver);
 
+    public static IServiceCollection WithFileExplorer(this IServiceCollection services, IFileExplorer fileExplorer)
+        => Register(services, fileExplorer);
+
     public static IServiceCollection WithFileSystem(this IServiceCollection services, IFileSystem fileSystem)
         => Register(services, fileSystem);
 

@@ -16,17 +16,23 @@ namespace Bicep.Core.Semantics
         public static SyntaxBase? TryGetBodyPropertyValue(this ResourceSymbol resourceSymbol, string propertyName)
             => TryGetBodyProperty(resourceSymbol, propertyName)?.Value;
 
-        public static ObjectPropertySyntax UnTryGetBodyProperty(this ResourceSymbol resourceSymbol, string propertyName)
-            => resourceSymbol.TryGetBodyProperty(propertyName) ?? throw new ArgumentException($"Expected resource syntax body to contain property '{propertyName}'");
+        public static ObjectPropertySyntax GetBodyProperty(this ResourceSymbol resourceSymbol, string propertyName)
+            => resourceSymbol.TryGetBodyProperty(propertyName) ?? throw new ArgumentException($"Expected resource syntax body to contain property '{propertyName}'.");
 
-        public static SyntaxBase UnTryGetBodyPropertyValue(this ResourceSymbol resourceSymbol, string propertyName)
-            => resourceSymbol.TryGetBodyPropertyValue(propertyName) ?? throw new ArgumentException($"Expected resource syntax body to contain property '{propertyName}'");
+        public static SyntaxBase GetBodyPropertyValue(this ResourceSymbol resourceSymbol, string propertyName)
+            => resourceSymbol.TryGetBodyPropertyValue(propertyName) ?? throw new ArgumentException($"Expected resource syntax body to contain property '{propertyName}'.");
 
         public static ObjectPropertySyntax? TryGetBodyProperty(this ModuleSymbol moduleSymbol, string propertyName)
             => moduleSymbol.DeclaringModule.TryGetBody()?.TryGetPropertyByName(propertyName);
 
         public static SyntaxBase? TryGetBodyPropertyValue(this ModuleSymbol moduleSymbol, string propertyName)
             => TryGetBodyProperty(moduleSymbol, propertyName)?.Value;
+
+        public static ObjectPropertySyntax GetBodyProperty(this ModuleSymbol moduleSymbol, string propertyName)
+            => moduleSymbol.TryGetBodyProperty(propertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property '{propertyName}'.");
+
+        public static SyntaxBase GetBodyPropertyValue(this ModuleSymbol moduleSymbol, string propertyName)
+            => moduleSymbol.TryGetBodyPropertyValue(propertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property '{propertyName}'.");
 
         public static bool IsSecure(this ParameterSymbol parameterSymbol)
         {

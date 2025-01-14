@@ -14,67 +14,61 @@ namespace Bicep.IO.FileSystem
 {
     public class FileSystemDirectoryHandle : FileSystemIOHandle, IDirectoryHandle
     {
-        public FileSystemDirectoryHandle(IFileSystem fileSystem, string fileSystemPath)
-            : base(fileSystem, EnsureTrailingSlash(fileSystem, fileSystemPath))
+        public FileSystemDirectoryHandle(IFileSystem fileSystem, IOUri uri)
+            : base(fileSystem, EnsureTrailingSlash(uri))
         {
         }
 
-        public override bool Exists() => this.FileSystem.Directory.Exists(Uri.GetFileSystemPath());
+        public override bool Exists() => this.FileSystem.Directory.Exists(this.FilePath);
 
         public IDirectoryHandle EnsureExists()
         {
-            this.FileSystem.Directory.CreateDirectory(this.Uri.GetFileSystemPath());
-
+            this.FileSystem.Directory.CreateDirectory(this.FilePath);
             return this;
         }
 
-        public void Delete() => this.FileSystem.Directory.Delete(this.Uri.GetFileSystemPath(), recursive: true);
+        public void Delete() => this.FileSystem.Directory.Delete(this.FilePath, recursive: true);
+
+        public IDirectoryHandle? GetParent()
+        {
+            var parentUri = this.Uri.Resolve("..");
+            return this.Uri == parentUri ? null : new FileSystemDirectoryHandle(this.FileSystem, parentUri);
+        }
 
         public IDirectoryHandle GetDirectory(string relativePath)
         {
-            var directoryPath = GetFullPath(relativePath);
-
-            return new FileSystemDirectoryHandle(this.FileSystem, directoryPath);
+            var directoryUri = this.Uri.Resolve(relativePath);
+            return new FileSystemDirectoryHandle(this.FileSystem, directoryUri);
         }
 
         public IFileHandle GetFile(string relativePath)
         {
-            var filePath = GetFullPath(relativePath);
-
-            return new FileSystemFileHandle(this.FileSystem, filePath);
+            var fileUri = this.Uri.Resolve(relativePath);
+            return new FileSystemFileHandle(this.FileSystem, fileUri);
         }
 
-        public IDirectoryHandle? GetParent()
+        private static IOUri EnsureTrailingSlash(IOUri uri) => uri.Path.EndsWith('/') ? uri : new IOUri(uri.Scheme, uri.Authority, uri.Path + "/");
+
+        public IEnumerable<IDirectoryHandle> EnumerateDirectories(string searchPattern = "")
         {
-            var currentPath = Uri.GetFileSystemPath().TrimEnd(this.FileSystem.Path.DirectorySeparatorChar);
-            var parentDirectoryPath = this.FileSystem.Path.GetDirectoryName(currentPath);
+            var directories = this.FileSystem.Directory.EnumerateDirectories(this.FilePath, searchPattern);
 
-            if (string.IsNullOrEmpty(parentDirectoryPath))
+            foreach (var directory in directories)
             {
-                return null;
+                var directoryUri = IOUri.FromLocalFilePath(directory);
+                yield return new FileSystemDirectoryHandle(this.FileSystem, directoryUri);
             }
-
-            return new FileSystemDirectoryHandle(FileSystem, parentDirectoryPath);
         }
 
-        private string GetFullPath(string relativePath)
+        public IEnumerable<IFileHandle> EnumerateFiles(string searchPattern = "")
         {
-            if (this.FileSystem.Path.IsPathRooted(relativePath))
-            {
-                throw new FileSystemPathException("Path must be relative.");
-            }
+            var files = this.FileSystem.Directory.EnumerateFiles(this.FilePath, searchPattern);
 
-            try
+            foreach (var file in files)
             {
-                return this.FileSystem.Path.GetFullPath(relativePath, basePath: Uri.GetFileSystemPath());
-            }
-            catch (Exception exception) when (exception is ArgumentException)
-            {
-                throw new FileSystemPathException(exception.Message);
+                var fileUri = IOUri.FromLocalFilePath(file);
+                yield return new FileSystemFileHandle(this.FileSystem, fileUri);
             }
         }
-
-        private static string EnsureTrailingSlash(IFileSystem fileSystem, string path) =>
-            path.EndsWith(fileSystem.Path.DirectorySeparatorChar) ? path : path + fileSystem.Path.DirectorySeparatorChar;
     }
 }

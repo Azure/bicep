@@ -1824,6 +1824,21 @@ param myParam string
         );
     }
 
+    [DataTestMethod]
+    [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>")] // should be caught at syntax level
+    [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>.properties")] // should be caught by type manager
+    public void Parameterized_type_recursion_raises_diagnostic(string template)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            template);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+        });
+    }
+
     // https://www.github.com/Azure/bicep/issues/15277
     [DataTestMethod]
     [DataRow("type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings")]
@@ -1844,7 +1859,7 @@ param myParam string
         result.Template.Should().BeNull();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP410", DiagnosticLevel.Error, """The type "any" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object). If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+            ("BCP411", DiagnosticLevel.Error, """The type "any" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object). If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
         });
     }
 }

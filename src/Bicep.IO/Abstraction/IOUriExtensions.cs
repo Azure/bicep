@@ -11,36 +11,36 @@ namespace Bicep.IO.Abstraction
 {
     public static class IOUriExtensions
     {
-        public static ReadOnlySpan<char> GetExtension(this IOUri identifier)
+        public static ReadOnlySpan<char> GetExtension(this IOUri uri)
         {
-            int lastDotIndex = GetExtensionStartIndex(identifier.Path);
+            int lastDotIndex = GetExtensionStartIndex(uri.Path);
 
-            if (lastDotIndex == -1 || lastDotIndex == identifier.Path.Length - 1)
+            if (lastDotIndex == -1 || lastDotIndex == uri.Path.Length - 1)
             {
                 return "";
             }
 
-            return identifier.Path.AsSpan()[lastDotIndex..];
+            return uri.Path.AsSpan()[lastDotIndex..];
         }
 
-        public static IOUri WithExtension(this IOUri identifier, string extension)
+        public static IOUri WithExtension(this IOUri uri, string extension)
         {
             if (!extension.StartsWith('.'))
             {
                 extension = "." + extension;
             }
 
-            var extensionStartIndex = GetExtensionStartIndex(identifier.Path);
+            var extensionStartIndex = GetExtensionStartIndex(uri.Path);
             var newPath = extensionStartIndex == -1
-                ? identifier.Path + extension
-                : string.Concat(identifier.Path.AsSpan(0, extensionStartIndex), extension);
+                ? uri.Path + extension
+                : string.Concat(uri.Path.AsSpan(0, extensionStartIndex), extension);
 
             return new IOUri(
-                identifier.Scheme,
-                identifier.Authority,
+                uri.Scheme,
+                uri.Authority,
                 newPath,
-                identifier.Query,
-                identifier.Fragment);
+                uri.Query,
+                uri.Fragment);
         }
 
         private static int GetExtensionStartIndex(string path)
