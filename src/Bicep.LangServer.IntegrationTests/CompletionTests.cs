@@ -4136,6 +4136,7 @@ var file = " + functionName + @"(templ|)
         [DataRow("using 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
+        //asdfg
         public async Task ModuleRegistryReferenceCompletions_GetVersionCompletions(string inputWithCursors, BicepSourceFileKind kind)//asdfg existing test - rename
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
@@ -4160,9 +4161,24 @@ var file = " + functionName + @"(templ|)
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
             var completions = await file.RequestCompletion(cursor);
 
+            // Change this to Should().SatisfyRespectively
             completions.Count().Should().Be(2);
-            completions.Should().Contain(x => x.Label == "1.0.1" && x.SortText == "0001" && x.Kind == CompletionItemKind.Snippet && x.Detail == null && x.Documentation == null);
-            completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0000" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d1" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help1)");
+            completions.Should().SatisfyRespectively(
+                first => {
+                    first.Label.Should().Be("1.0.1");
+                    first.SortText.Should().Be("0001");
+                    first.Kind.Should().Be(CompletionItemKind.Snippet);
+                    first.Detail.Should().BeNull();
+                    first.Documentation.Should().BeNull();
+                },
+                second => {
+                    second.Label.Should().Be("1.0.2");
+                    second.SortText.Should().Be("0000");
+                    second.Kind.Should().Be(CompletionItemKind.Snippet);
+                    second.Detail.Should().Be("d1");
+                    second.Documentation!.MarkupContent!.Value.Should().Be("View Documentation");
+                }
+            );
         }
 
         [TestMethod]

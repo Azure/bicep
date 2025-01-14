@@ -24,7 +24,7 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
-//asdfg bug: public descriptions aren't showing up
+//asdfg bug: public descriptions aren't showing up - why don't tests fail?
 //asdfg test documentationUri shows up
 
 namespace Bicep.LanguageServer.Completions
