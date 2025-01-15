@@ -66,9 +66,9 @@ namespace Bicep.Core.Registry
                 var client = CreateRegistryClient(cloud, registryUri, anonymousAccess);
 
                 var tags = new List<string>();
-                await foreach (var manifest in client.GetRepository(repository).GetAllManifestPropertiesAsync())
+                await foreach (var manifestProps in client.GetRepository(repository).GetAllManifestPropertiesAsync())
                 {
-                    foreach (var tag in manifest.Tags) //asdfg? - don't list if not a bicep module
+                    foreach (var tag in manifestProps.Tags) //asdfg? - don't list if not a bicep module
                     {
                         tags.Add(tag);
                     }
@@ -143,7 +143,7 @@ namespace Bicep.Core.Registry
             {
                 Trace.WriteLine($"Anonymous authentication failed with status code {requestedFailedException.Status}. Retrying with authenticated client.");
             }
-            catch (Exception exception)
+            catch (Exception exception) //asdfg shouldn't fall back if InvalidArtifactException
             {
                 Trace.WriteLine($"Anonymous authentication failed with unexpected exception {exception.Message}. Retrying with authenticated client.");
             }

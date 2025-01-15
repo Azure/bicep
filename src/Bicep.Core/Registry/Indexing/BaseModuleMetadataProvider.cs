@@ -178,7 +178,7 @@ public abstract class BaseModuleMetadataProvider(
         });
     }
 
-    public async Task<ImmutableArray<string>> TryGetModuleVersionsAsync(string modulePath)
+    public async Task<ImmutableArray<string>> TryGetModuleVersionsAsync(string modulePath) //asdfg should start getting metadata
     {
         var versions = await TryGetCachableModuleVersionsAsync(modulePath);
         return [.. versions.Select(v => v.Version)];
