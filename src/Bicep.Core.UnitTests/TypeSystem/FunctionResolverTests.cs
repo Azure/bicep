@@ -13,6 +13,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.TypeSystem
 {
@@ -813,6 +814,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 bool boolVal => new(TestSyntaxFactory.CreateBool(boolVal)),
                 bool[] boolArray => new(TestSyntaxFactory.CreateArray(boolArray.Select(TestSyntaxFactory.CreateBool))),
                 object[] mixedArray => new(TestSyntaxFactory.CreateArray(mixedArray.Select(obj => ToFunctionArgumentSyntax(obj).Expression))),
+                IDictionary<string, object> obj => new(TestSyntaxFactory.CreateObject(obj.Select(pair => TestSyntaxFactory.CreateProperty(TestSyntaxFactory.CreateIdentifier(pair.Key), ToFunctionArgumentSyntax(pair.Value))))),
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a literal syntax node.")
             };
 
@@ -826,6 +828,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 bool[] boolArray => new TupleType("", boolArray.Select(@bool => TypeFactory.CreateBooleanLiteralType(@bool)).ToImmutableArray<ITypeReference>(), default),
                 null => LanguageConstants.Null,
                 object[] mixedArray => new TupleType("", mixedArray.Select(ToTypeLiteral).ToImmutableArray<ITypeReference>(), default),
+                IDictionary<string, object> obj => new ObjectType("", TypeSymbolValidationFlags.Default, obj.Select(pair => new TypeProperty(pair.Key, ToTypeLiteral(pair.Value))), additionalPropertiesType: null),
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a type literal.")
             };
 
@@ -928,7 +931,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("length", TypeFactory.CreateIntegerType(0), LanguageConstants.Array);
             yield return CreateRow("length", LanguageConstants.Int, TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object));
         }
-
         private static IEnumerable<object[]> GetAmbiguousMatchData()
         {
             // local function
@@ -1014,6 +1016,61 @@ namespace Bicep.Core.UnitTests.TypeSystem
             // wrong name
             yield return CreateRow("fake");
             yield return CreateRow("fake", LanguageConstants.String);
+        }
+
+        [TestMethod]
+        public void TestParseAndBuildUri()
+        {
+            string inputUri = "https://example.com/path/to/resource?key=value";
+
+            var expectedParsedUri = new Dictionary<string, string?>
+            {
+                ["scheme"] = "https",
+                ["host"] = "example.com",
+                ["port"] = null,
+                ["path"] = "/path/to/resource",
+                ["query"] = "?key=value"
+            };
+
+            var argumentTypes = new List<TypeSymbol> { LanguageConstants.String };
+
+            // Use var directly for the arguments initialization
+            var arguments = new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateString(inputUri)) };
+
+            var parsedUriType = EvaluateFunction(
+                "parseUri",
+                argumentTypes,
+                arguments
+            ).Type;
+
+            parsedUriType.Should().BeAssignableTo<ObjectType>();
+            var parsedUriObject = parsedUriType as ObjectType;
+
+            parsedUriObject.Should().NotBeNull();
+            parsedUriObject!.Properties.Should().ContainKeys(expectedParsedUri.Keys);
+
+            foreach (var (key, value) in expectedParsedUri)
+            {
+                parsedUriObject.Properties[key].Value.Type.Name.Should().Be(value ?? "null"); // tbd
+            }
+
+            var uriObject = new ObjectSyntax( //tbd
+                expectedParsedUri.Select(kvp => new ObjectPropertySyntax( //tbd
+                    TestSyntaxFactory.CreateString(kvp.Key),
+                    kvp.Value is null
+                        ? new NullLiteralSyntax() //tbd
+                        : TestSyntaxFactory.CreateString(kvp.Value)
+                )).ToList()
+            );
+
+            // Same as above but removing unnecessary explicit initialization
+            var rebuiltUri = EvaluateFunction(
+                "buildUri",
+                new[] { LanguageConstants.Object },
+                new[] { new FunctionArgumentSyntax(uriObject) }  // This is a simplified expression
+            ).Type;
+
+            rebuiltUri.Should().Be(inputUri);
         }
 
         private static IEnumerable<FunctionOverload> GetMatches(
