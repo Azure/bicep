@@ -13,8 +13,10 @@ using Microsoft.Win32;
 using System.Threading.Tasks;
 using Bicep.Core.Registry.Oci;
 using System.Security.Cryptography.Xml;
+using Bicep.Core.Registry.Indexing;
 
 namespace Bicep.Core.Registry.Indexing; //asdfg split into PublicRegistry/PrivateRegistry
+
 
 /// <summary>
 /// Provider to get metadata for modules stored in a public or private registry.
@@ -34,147 +36,148 @@ public abstract class BaseModuleMetadataProvider(
 
     public string Registry => registry;
 
-    private static readonly object CachedModuleSyncObject = new();
+    //asdfg private static readonly object CachedModuleSyncObject = new();
 
-    //asdfg test all this
-    protected class CachableModule
-    {
-        public string Registry { get; init; }
-        public string ModuleName { get; init; }
+    ////asdfg test all this
+    ////asdfg move/delete
+    //public class RegistryModuleMetadata
+    //{
+    //    public string Registry { get; init; }
+    //    public string ModuleName { get; init; }
 
-        //adsfg public CachableModuleMetadata Metadata;
-        //public RegistryModuleMetadata? Metadata { get; private set; }
+    //    //adsfg public CachableModuleMetadata Metadata;
+    //    //public RegistryModuleMetadata? Metadata { get; private set; }
 
-        // Using array instead of dictionary to preserve sort order
-        public Task<ImmutableArray<CachableVersionMetadata>>? Versions { get; private set; }
+    //    // Using array instead of dictionary to preserve sort order
+    //    public Task<ImmutableArray<CachableVersionMetadata>>? Versions { get; private set; }
 
-        public Task<ImmutableArray<CachableVersionMetadata>>? GetVersionsTask { get; private set; }
+    //    public Func<Task<ImmutableArray<CachableVersionMetadata>>>? GetVersionsFunc { get; private set; }
 
-        public Func<Task<RegistryModuleMetadata/*asdfg confusing name*/>> GetModuleMetadataFunc { get; init; }
+    //    public Func<Task<RegistryModuleMetadata/*asdfg confusing name*/>> GetModuleMetadataFunc { get; init; }
 
-        public CachableModule(
-            string registry,
-            string moduleName,
-            //asdfg CachableModuleMetadata metadata,
-            Func<Task<RegistryModuleMetadata>> getModuleMetadataFunc,
-            ImmutableArray<RegistryModuleVersionMetadata>? versionsMetadata)
-        {
-            //asdfg this.Metadata = metadata;
-            this.Registry = registry;
-            this.ModuleName = moduleName;
-            this.GetModuleMetadataFunc = getModuleMetadataFunc;
-            this.GetVersionsTask = versionsMetadata is null ? null :
-                Task.FromResult(versionsMetadata.Value.Select(v =>
-                    new CachableVersionMetadata(v.Version, v)).ToImmutableArray());
-        }
+    //    //public CachableModule(
+    //    //    string registry,
+    //    //    string moduleName,
+    //    //    //asdfg CachableModuleMetadata metadata,
+    //    //    Func<Task<RegistryModuleMetadata>> getDetailsFunc,
+    //    //    Func<Task<ImmutableArray<RegistryModuleVersionMetadata>>? getVersionsFunc)
+    //    //{
+    //    //    //asdfg this.Metadata = metadata;
+    //    //    this.Registry = registry;
+    //    //    this.ModuleName = moduleName;
+    //    //    this.GetModuleMetadataFunc = getDetailsFunc;
+    //    //    this.GetVersionsTask = versionsMetadata is null ? null :
+    //    //        Task.FromResult(versionsMetadata.Value.Select(v =>
+    //    //            new CachableVersionMetadata(v.Version, v)).ToImmutableArray());
+    //    //}
 
-        public RegistryModuleMetadata GetCachedStateAsdfg()
-        {
-            var metadata = GetModuleMetadataFunc();
-            if (metadata.IsCompletedSuccessfully) //asdfg extract
-            {
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-                return metadata.Result;
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
-            }
-            else
-            {
-                return new RegistryModuleMetadata(Registry, ModuleName, null, null);
-            }
-        }
+    //    //        //public RegistryModuleMetadata GetCachedStateAsdfg()
+    //    //        {
+    //    //            var metadata = GetModuleMetadataFunc();
+    //    //            if (metadata.IsCompletedSuccessfully) //asdfg extract
+    //    //            {
+    //    //#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+    //    //                return metadata.Result;
+    //    //#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+    //    //            }
+    //    //            else
+    //    //            {
+    //    //                return new RegistryModuleMetadata(Registry, ModuleName, null, null);
+    //    //            }
+    //    //        }
 
-        //asdfg extract - use lazy?
-        public Task<ImmutableArray<CachableVersionMetadata>> GetOrSetVersionsTask(Func<Task<ImmutableArray<CachableVersionMetadata>>> createTask)
-        {
-            if (this.GetVersionsTask is null)
-            {
-                lock (CachedModuleSyncObject)
-                {
-                    if (this.GetVersionsTask is null)
-                    {
-                        this.GetVersionsTask = createTask();
-                    }
-                }
-            }
+    //    //asdfg extract - use lazy?
+    //    //public Task<ImmutableArray<CachableVersionMetadata>> GetOrSetVersionsTask(Func<Task<ImmutableArray<CachableVersionMetadata>>> createTask)
+    //    //{
+    //    //    if (this.GetVersionsTask is null)
+    //    //    {
+    //    //        lock (CachedModuleSyncObject)
+    //    //        {
+    //    //            if (this.GetVersionsTask is null)
+    //    //            {
+    //    //                this.GetVersionsTask = createTask();
+    //    //            }
+    //    //        }
+    //    //    }
 
-            return this.GetVersionsTask;
-        }
-    }
+    //    //    return this.GetVersionsTask;
+    //    //}
+    //}
 
-    protected class CachableVersionMetadata
-    {
-        public string Version { get; init; }
-        public RegistryModuleVersionMetadata? Metadata { get; private set; }
-        public Task<RegistryModuleVersionMetadata?>? GetMetadataTask { get; private set; }
+    //protected class CachableVersionMetadata
+    //{
+    //    public string Version { get; init; }
+    //    public RegistryModuleVersionMetadata? Metadata { get; private set; }
+    //    public Task<RegistryModuleVersionMetadata?>? GetMetadataTask { get; private set; }
 
-        public CachableVersionMetadata(string version, RegistryModuleVersionMetadata? metadata)
-        {
-            this.Version = version;
-            this.Metadata = metadata;
-            this.GetMetadataTask = metadata is null ? null : Task.FromResult(metadata);
-        }
+    //    public CachableVersionMetadata(string version, RegistryModuleVersionMetadata? metadata)
+    //    {
+    //        this.Version = version;
+    //        this.Metadata = metadata;
+    //        this.GetMetadataTask = metadata is null ? null : Task.FromResult(metadata);
+    //    }
 
-        public Task<RegistryModuleVersionMetadata?> GetOrSetMetadataTask(Func<Task<RegistryModuleVersionMetadata?>> createTask)
-        {
-            if (this.GetMetadataTask is null)
-            {
-                lock (CachedModuleSyncObject)
-                {
-                    if (this.GetMetadataTask is null)
-                    {
-                        this.GetMetadataTask = createTask();
-                    }
-                }
-            }
+    //    public Task<RegistryModuleVersionMetadata?> GetOrSetMetadataTask(Func<Task<RegistryModuleVersionMetadata?>> createTask)
+    //    {
+    //        if (this.GetMetadataTask is null)
+    //        {
+    //            lock (CachedModuleSyncObject)
+    //            {
+    //                if (this.GetMetadataTask is null)
+    //                {
+    //                    this.GetMetadataTask = createTask();
+    //                }
+    //            }
+    //        }
 
-            return this.GetMetadataTask;
-        }
-    }
+    //        return this.GetMetadataTask;
+    //    }
+    //}
 
-    protected class CachableModuleMetadata //asdfg combine
-    {
-        public string ModulePath { get; init; }
+    //protected class CachableModuleMetadata //asdfg combine
+    //{
+    //    public string ModulePath { get; init; }
 
-        public RegistryModuleMetadata? Metadata { get; private set; }
-        public Task<RegistryModuleMetadata?>? GetMetadataTask { get; private set; }
+    //    public RegistryModuleMetadata? Metadata { get; private set; }
+    //    public Task<RegistryModuleMetadata?>? GetMetadataTask { get; private set; }
 
-        public CachableModuleMetadata(string modulePath, RegistryModuleMetadata? metadata)
-        {
-            this.ModulePath = modulePath;
-            this.Metadata = metadata;
-            this.GetMetadataTask = metadata is null ? null : Task.FromResult(metadata);
-        }
+    //    public CachableModuleMetadata(string modulePath, RegistryModuleMetadata? metadata)
+    //    {
+    //        this.ModulePath = modulePath;
+    //        this.Metadata = metadata;
+    //        this.GetMetadataTask = metadata is null ? null : Task.FromResult(metadata);
+    //    }
 
-        public Task<RegistryModuleMetadata?> GetOrSetMetadataTask(Func<Task<RegistryModuleMetadata?>> createTask)
-        {
-            if (this.GetMetadataTask is null)
-            {
-                lock (CachedModuleSyncObject)
-                {
-                    if (this.GetMetadataTask is null)
-                    {
-                        this.GetMetadataTask = createTask();
-                    }
-                }
-            }
+    //    public Task<RegistryModuleMetadata?> GetOrSetMetadataTask(Func<Task<RegistryModuleMetadata?>> createTask)
+    //    {
+    //        if (this.GetMetadataTask is null)
+    //        {
+    //            lock (CachedModuleSyncObject)
+    //            {
+    //                if (this.GetMetadataTask is null)
+    //                {
+    //                    this.GetMetadataTask = createTask();
+    //                }
+    //            }
+    //        }
 
-            return this.GetMetadataTask;
-        }
-    }
+    //        return this.GetMetadataTask;
+    //    }
+    //}
 
     // Using array instead of dictionary to preserve sort order
-    private ImmutableArray<CachableModule> cachedModules = [];
+    private ImmutableArray<IRegistryModuleMetadata> cachedModules = [];
     private string? lastDownloadError = null;
 
     public bool IsCached => cachedModules.Length > 0;
 
     public string? DownloadError => IsCached ? null : lastDownloadError;
 
-    protected abstract Task<ImmutableArray<CachableModule>> GetLiveDataCoreAsync();
+    protected abstract Task<ImmutableArray<IRegistryModuleMetadata>> GetLiveDataCoreAsync();
 
-    protected abstract Task<ImmutableArray<string>> GetLiveModuleVersionsAsync(string modulePath);
+    protected abstract Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath);
 
-    protected abstract Task<RegistryModuleVersionMetadata?> GetLiveModuleVersionMetadataAsync(string modulePath, string version);
+    //asdfg protected abstract Task<RegistryModuleVersionMetadata?> GetLiveModuleVersionMetadataAsync(string modulePath, string version);
 
     public Task TryAwaitCache(bool forceUpdate)
     {
@@ -199,7 +202,7 @@ public abstract class BaseModuleMetadataProvider(
         }
     }
 
-    protected CachableModule? GetCachedModule(string modulePath, bool throwIfNotFound)
+    protected IRegistryModuleMetadata? GetCachedModule(string modulePath, bool throwIfNotFound)
     {
         var found = this.cachedModules.FirstOrDefault(x =>
             x.Registry.Equals(Registry, StringComparison.Ordinal)
@@ -212,87 +215,97 @@ public abstract class BaseModuleMetadataProvider(
         return found;
     }
 
-    public async Task<ImmutableArray<RegistryModuleMetadata>> TryGetModulesAsync()
+    public async Task<ImmutableArray<IRegistryModuleMetadata>> TryGetModulesAsync()
     {
         await TryAwaitCache(forceUpdate: false);
         return GetCachedModules();
     }
 
     // If cache has not yet successfully been updated, returns empty
-    public ImmutableArray<RegistryModuleMetadata> GetCachedModules()
+    public ImmutableArray<IRegistryModuleMetadata> GetCachedModules()
     {
         return [.. cachedModules
             .Where(x => x.Registry.Equals(Registry, StringComparison.Ordinal))
-            .Select(x => x.GetCachedStateAsdfg())];
+        ];
     }
 
-    private async Task<ImmutableArray<CachableVersionMetadata>> TryGetCachableModuleVersionsAsync(string modulePath)
-    {
-        await TryAwaitCache(forceUpdate: false);
-        var module = GetCachedModule(modulePath, false);
-        if (module is null)
-        {
-            return [];
-        }
+    //asdfg
+    //private async Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetCachableModuleVersionsAsync(string modulePath)
+    //{
+    //    await TryAwaitCache(forceUpdate: false);
+    //    var module = GetCachedModule(modulePath, false);
+    //    if (module is null)
+    //    {
+    //        return [];
+    //    }
 
-        return await module.GetOrSetVersionsTask(async () =>
-        {
-            var versions = await GetLiveModuleVersionsAsync(modulePath);
-            return [.. versions.Select(v => new CachableVersionMetadata(v, null))];
-        });
-    }
+    //    return await module.GetOrSetVersionsTask(async () =>
+    //    {
+    //        var versions = await GetLiveModuleVersionsAsync(modulePath);
+    //        return [.. versions.Select(v => new CachableVersionMetadata(v, null))];
+    //    });
+    //}
 
     //asdfg consistency - should it return null?  not be Try?
     //public abstract Task<RegistryModuleMetadata> TryGetModuleMetadataAsync(string modulePath);
 
-    private async Task<ImmutableArray<CachableModuleMetadata>> TryGetCachableModuleMetadataAsync(string modulePath)
-    {
-        await TryAwaitCache(forceUpdate: false);
-        var module = GetCachedModule(modulePath, false);
-        if (module is null)
-        {
-            return [];
-        }
+    //asdfg?
+    //private async Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetCachableModuleMetadataAsync(string modulePath)
+    //{
+    //    await TryAwaitCache(forceUpdate: false);
+    //    var module = GetCachedModule(modulePath, false);
+    //    if (module is null)
+    //    {
+    //        return [];
+    //    }
 
-        return await module.Metadata.GetOrSetMetadataTask(async () =>
-        {
-            var versions = await GetLiveModuleVersionsAsync(modulePath);
-            return [.. versions.Select(v => new CachableVersionMetadata(v, null))];
-        });
-    }
+    //    return await module.Metadata.GetOrSetMetadataTask(async () =>
+    //    {
+    //        var versions = await GetLiveModuleVersionsAsync(modulePath);
+    //        return [.. versions.Select(v => new CachableVersionMetadata(v, null))];
+    //    });
+    //}
 
 
-    public async Task<ImmutableArray<string>> TryGetModuleVersionsAsync(string modulePath) //asdfg should start getting metadata
-    {
-        var versions = await TryGetCachableModuleVersionsAsync(modulePath);
-        return [.. versions.Select(v => v.Version)];
-    }
+    //asdfg
+    //public async Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetModuleVersionsAsync(string modulePath) //asdfg should start getting metadata
+    //{
+    //    try
+    //    {
+    //        return await GetLiveModuleVersionsAsync(modulePath);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Trace.WriteLine($"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Failed to get module versions: {ex.Message}");
+    //        return [];
+    //    }
+    //}
 
-    public async Task<RegistryModuleVersionMetadata?> TryGetModuleVersionMetadataAsync(string modulePath, string version)
-    {
-        var versions = await TryGetCachableModuleVersionsAsync(modulePath);
-        if (versions.FirstOrDefault(v => v.Version.Equals(version, StringComparison.Ordinal)) is not { } versionMetadata)
-        {
-            return new RegistryModuleVersionMetadata(version, null, null);
-        }
+    //public async Task<RegistryModuleVersionMetadata?> TryGetModuleVersionMetadataAsync(string modulePath, string version)
+    //{
+    //    var versions = await TryGetCachableModuleVersionsAsync(modulePath);
+    //    if (versions.FirstOrDefault(v => v.Version.Equals(version, StringComparison.Ordinal)) is not { } versionMetadata)
+    //    {
+    //        return new RegistryModuleVersionMetadata(version, null, null);
+    //    }
 
-        return await versionMetadata.GetOrSetMetadataTask(async () => await GetLiveModuleVersionMetadataAsync(modulePath, version));
-    }
+    //    return await versionMetadata.GetOrSetMetadataTask(async () => await GetLiveModuleVersionMetadataAsync(modulePath, version));
+    //}
 
-    // If cache has not yet successfully been updated, returns empty
-    public ImmutableArray<RegistryModuleVersionMetadata> GetCachedModuleVersions(string modulePath)
-    {
-        var getVersionsTask = GetCachedModule(modulePath, false)?.GetVersionsTask;
-        if (getVersionsTask?.IsCompletedSuccessfully == true)
-        {
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-            return [.. getVersionsTask.Result
-                .Select(v => v.Metadata ?? new RegistryModuleVersionMetadata(v.Version, null, null/*asdfg needed? test */))];
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
-        }
+    //asdfg
+//    // If cache has not yet successfully been updated, returns empty
+//    public ImmutableArray<RegistryModuleVersionMetadata> GetCachedModuleVersions(string modulePath)
+//    {
+//        var getVersionsTask = GetCachedModule(modulePath, false)?.GetVersionsTask;
+//        if (getVersionsTask?.IsCompletedSuccessfully == true)
+//        {
+//#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+//            return Task.FromResult(..getVersionsTask.Result);
+//#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+//        }
 
-        return [];
-    }
+//        return [];
+//    }
 
     private Task UpdateCacheIfNeededAsync(bool forceUpdate, bool initialDelay)
     {
@@ -383,7 +396,7 @@ public abstract class BaseModuleMetadataProvider(
         return expired;
     }
 
-    private async Task<ImmutableArray<CachableModule>?> TryGetLiveDataAsync()
+    private async Task<ImmutableArray<IRegistryModuleMetadata>?> TryGetLiveDataAsync()
     {
         try
         {

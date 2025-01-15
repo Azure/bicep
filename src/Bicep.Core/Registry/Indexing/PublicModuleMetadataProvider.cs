@@ -27,33 +27,36 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
         this.client = publicModuleIndexClient; //asdfg lifetime
     }
 
-    protected override async Task<ImmutableArray<CachableModule>> GetLiveDataCoreAsync()
+    protected override async Task<ImmutableArray<IRegistryModuleMetadata>> GetLiveDataCoreAsync()
     {
         var modules = await client.GetModuleIndexAsync();
 
         return [.. modules.Select(m =>
-            new CachableModule(
-                new RegistryModuleMetadata(LanguageConstants.BicepPublicMcrRegistry, $"{LanguageConstants.BicepPublicMcrPathPrefix}{m.ModulePath}", m.GetDescription(), m.GetDocumentationUri()),
-                [.. m.Versions.Select(
+            new RegistryModuleMetadata(
+                Registry,
+                m.ModulePath,
+                getDetailsFunc: () => Task.FromResult(new RegistryMetadataDetails(m.GetDescription(), m.GetDocumentationUri())),
+                getVersionsFunc: () => Task.FromResult(ImmutableArray.Create<RegistryModuleVersionMetadata>([.. m.Versions.Select(
                     t => new RegistryModuleVersionMetadata(
                         t,
                         m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].Description:null,
                         m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].DocumentationUri:null
                     )
-                )]
+                )]))
             )
         )];
     }
 
-    protected override Task<ImmutableArray<string>> GetLiveModuleVersionsAsync(string modulePath)
+    protected override Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
     {
         throw new NotImplementedException("This method should never get called because versions are pre-filled with a resolved task"); throw new NotImplementedException();
     }
 
-    protected override Task<RegistryModuleVersionMetadata?> GetLiveModuleVersionMetadataAsync(string modulePath, string version)
-    {
-        throw new NotImplementedException("This method should never get called because versions are pre-filled with a resolved task");
-    }
+    //asdfg
+    //protected override Task<RegistryModuleVersionMetadata?> GetLiveModuleVersionMetadataAsync(string modulePath, string version)
+    //{
+    //    throw new NotImplementedException("This method should never get called because versions are pre-filled with a resolved task");
+    //}
 
     //asdfg
     //private override async Task<RegistryModuleMetadata> TryGetModuleMetadataFromAsdfgAsync(CachableModuleMetadata metadata)

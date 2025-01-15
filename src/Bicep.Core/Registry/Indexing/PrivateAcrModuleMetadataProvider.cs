@@ -24,7 +24,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
 
     // TODO: Allow configuration (note that the default allows bicep anywhere in the module path) //asdfg test filter
-    private string filterExpression = "";//asdfg "bicep"; 
+    private string filterExpression = "";//asdfg "bicep";
 
     public PrivateAcrModuleMetadataProvider(
         CloudConfiguration cloud,
@@ -36,35 +36,50 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         this.containerRegistryClientFactory = containerRegistryClientFactory;
     }
 
-    protected override async Task<ImmutableArray<string>> GetLiveModuleVersionsAsync(string modulePath)
+    protected override async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
     {
         var registry = Registry;
         var repository = modulePath;
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
+
+        // For this part we want to throw on errors
         var tags = await acrManager.GetRepositoryTags(cloud, registry, repository);
-        return tags != null ? [.. tags] : [];
+
+        // For the rest, we'll be resilient
+        return [.. await Task.WhenAll(
+            tags.Select(async tag => await TryGetLiveModuleVersionMetadataAsync(modulePath, tag))
+        )];
     }
 
-    protected override async Task<RegistryModuleVersionMetadata?> GetLiveModuleVersionMetadataAsync(string modulePath, string version) //asdfg try?
+    private async Task<RegistryModuleVersionMetadata> TryGetLiveModuleVersionMetadataAsync(string modulePath, string version) //asdfg just get details
     {
-        AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
-        var artifactResult = await acrManager.PullArtifactAsync(cloud, new OciArtifactReference(ArtifactType.Module, Registry, modulePath, version, null, new Uri("file://asdfg")));
-        var manifest = artifactResult.Manifest;
-        string? description = null;
-        string? documentationUri = null;
-        string? title = null;
+        try
+        {
+            AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
+            var artifactResult = await acrManager.PullArtifactAsync(cloud, new OciArtifactReference(ArtifactType.Module, Registry, modulePath, version, null, new Uri("file://asdfg")));
+            var manifest = artifactResult.Manifest;
+            string? description = null;
+            string? documentationUri = null;
+            string? title = null;
 
-        manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDescriptionAnnotation, out description);
-        manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDocumentationAnnotation, out documentationUri);
-        manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageTitleAnnotation, out title);
+            manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDescriptionAnnotation, out description);
+            manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDocumentationAnnotation, out documentationUri);
+            manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageTitleAnnotation, out title);
 
-        return new RegistryModuleVersionMetadata(version, description ?? title, documentationUri);
+            return new RegistryModuleVersionMetadata(version,
+                new RegistryMetadataDetails(description ?? title, documentationUri));
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Failed to get version details for module {modulePath} version {version}: {ex.Message}");
+            return new RegistryModuleVersionMetadata(version, new RegistryMetadataDetails(null, null));
+        }
     }
 
     //asdfg bug: br:sawbicep.azurecr.io/de| => br:sawbicep.azurecr.io/dedemo
 
-    protected override async Task<ImmutableArray<CachableModule>> GetLiveDataCoreAsync()
+    protected override async Task<ImmutableArray<IRegistryModuleMetadata>> GetLiveDataCoreAsync()
     {
         var filterRegex = new Regex(filterExpression, RegexOptions.IgnoreCase, matchTimeout: TimeSpan.FromMilliseconds(1));
 
@@ -78,27 +93,41 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
 
         var modules = filteredCatalog
             .Select(m =>
-            new CachableModule(
-                // OCI modules don't have a description or documentation URI, that info can be looked up from the first version
-                new RegistryModuleMetadata(Registry, m, null, null),
-                async () => 
+            new RegistryModuleMetadata(
+                Registry,
+                m,
+                () => this.TryGetModuleDetails(m),
+                () => this.GetLiveModuleVersionsAsync(m)
             )
         ).ToImmutableArray();
 
-        return modules;
+        return [.. modules.Cast<IRegistryModuleMetadata>()];
     }
 
-    public override async Task<RegistryModuleMetadata> TryGetModuleMetadataAsync(string modulePath)
+    //asdfg
+    //public async Task<RegistryModuleMetadata> TryGetModuleMetadataAsync(string modulePath)
+    //{
+    //    // OCI modules don't have a description or documentation URI, we use the first (latest) version's metadata
+
+    //    if (await TryGetModuleVersionsAsync(modulePath) is { } versions
+    //        && versions.FirstOrDefault() is { } firstVersion)
+    //    {
+    //        return new(Registry, modulePath, firstVersion.Description, firstVersionMetadata.DocumentationUri);
+    //    }
+
+    //    return new(Registry, modulePath, null, null);
+    //}
+
+    public async Task<RegistryMetadataDetails> TryGetModuleDetails(string modulePath)
     {
-        // OCI modules don't have a description or documentation URI, we use the first (latest) version's metadata
+        // OCI modules don't have a description or documentation URI, we just use the first (latest) version's metadata
 
         if (await TryGetModuleVersionsAsync(modulePath) is { } versions
-            && versions.FirstOrDefault() is { } firstVersion
-            && await TryGetModuleVersionMetadataAsync(modulePath, firstVersion) is { } firstVersionMetadata)
+            && versions.FirstOrDefault() is { } firstVersion)
         {
-            return new(Registry, modulePath, firstVersionMetadata.Description, firstVersionMetadata.DocumentationUri);
+            return firstVersion.Details;
         }
 
-        return new(Registry, modulePath, null, null);
+        return new RegistryMetadataDetails(null, null);
     }
 }

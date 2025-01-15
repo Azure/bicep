@@ -36,7 +36,16 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             publicProvider.Setup(x => x.Registry).Returns(PublicRegistry);
 
             publicProvider.Setup(x => x.TryGetModulesAsync())
-                .ReturnsAsync([.. modules.Select(m => new RegistryModuleMetadata(PublicRegistry, m.moduleName, m.description, m.documentationUri))]);
+                .ReturnsAsync([.. modules
+                    .Select(m => new DefaultRegistryModuleMetadata( //asdfg would be nice to mock the http client instead
+                        PublicRegistry,
+                        m.moduleName,
+                        () => Task.FromResult(new RegistryMetadataDetails(m.description, m.documentationUri)),
+                        () => Task.FromResult<RegistryModuleVersionMetadata>(
+                            modules.Single(m => m.moduleName.EqualsOrdinally(m.moduleName)).versions
+                                .Select(v => new RegistryModuleVersionMetadata(v.Version, v.Details))
+                            .ToImmutableArray())
+                        ))]);
             publicProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
                 [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.Select(v => v.Version)]);
 

@@ -22,6 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Semver;
 using Semver.Comparers;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -121,9 +122,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             // NOTE: We don't want linter tests to download anything during analysis.  So metadata is loaded
             //   and cached during module restore.  So don't use the Get*Async methods of IPublicModuleMetadataProvider,
             //   just the GetCached* methods
-            var availableVersions = publicModuleMetadataProvider.GetCachedModuleVersions($"{LanguageConstants.BicepPublicMcrPathPrefix}{publicModulePath}")
+            var fullModuleName = $"{LanguageConstants.BicepPublicMcrPathPrefix}{publicModulePath}";
+            var availableVersions = publicModuleMetadataProvider.GetCachedModules()
+                .FirstOrDefault(m => m.ModuleName.EqualsOrdinally(fullModuleName))
+                ?.GetCachedVersions()
                 .Select(v => v.Version)
-                .ToArray();
+                .ToArray()
+                ?? [];
+
             if (availableVersions.Length == 0)
             {
                 // If the module doesn't exist, we assume the compiler will flag as an error, no need for us to show anything in the linter.  Or else

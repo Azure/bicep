@@ -4,19 +4,33 @@
 using System.Collections.Immutable;
 using Bicep.Core.Registry.Oci;
 using Microsoft.Win32;
+using static Bicep.Core.Registry.Indexing.IRegistryModuleMetadata;
 
 namespace Bicep.Core.Registry.Indexing;
 
-public readonly record struct RegistryModuleMetadata( //asdfg better name?   asdfg combine
-    string Registry, // e.g. "mcr.microsoft.com"
-    string ModuleName, // e.g. "bicep/avm/app/dapr-containerapp"
-    string? Description,//asdfgf
-    string? DocumentationUri/*asdfg*/);
+//asdfg move?
+public interface IRegistryModuleMetadata
+{ //asdfg better name?   asdfg combine    asdfg interface?
+    public string Registry { get; init; } // e.g. "mcr.microsoft.com"
+    public string ModuleName { get; init; } // e.g. "bicep/avm/app/dapr-containerapp"
 
-public readonly record struct RegistryModuleVersionMetadata(
-    string Version,
+    public Task<RegistryMetadataDetails> TryGetDetails();
+
+    public Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetVersions();
+
+    public ImmutableArray<RegistryModuleVersionMetadata> GetCachedVersions();
+}
+
+//asdfg move?
+public readonly record struct RegistryMetadataDetails(
     string? Description,
     string? DocumentationUri);
+
+//asdfg move?
+public readonly record struct RegistryModuleVersionMetadata(
+    string Version,
+    RegistryMetadataDetails Details
+);
 
 /// <summary>
 /// Retrieves metadata about modules from a specific OCI registry (public or private).
@@ -34,15 +48,16 @@ public interface IRegistryModuleMetadataProvider
 
     void StartUpdateCache(bool forceUpdate = false);
 
-    Task<ImmutableArray<RegistryModuleMetadata>> TryGetModulesAsync();
+    Task<ImmutableArray<IRegistryModuleMetadata>> TryGetModulesAsync();
 
-    Task<ModuleMetadata> TryGetModuleMetadataAsync(string modulePath);
+    //asdfg Task<ModuleMetadata> TryGetModuleMetadataAsync(string modulePath);
 
-    Task<ImmutableArray<string>> TryGetModuleVersionsAsync(string modulePath);
+    //asdfg Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetModuleVersionsAsync(string modulePath);
 
-    Task<RegistryModuleVersionMetadata?> TryGetModuleVersionMetadataAsync(string modulePath, string version); //asdfg not null?
+    //asdfg Task<RegistryModuleVersionMetadata?> TryGetModuleVersionMetadataAsync(string modulePath, string version); //asdfg not null?
 
-    ImmutableArray<RegistryModuleMetadata> GetCachedModules();
+    ImmutableArray<IRegistryModuleMetadata> GetCachedModules();
 
-    ImmutableArray<RegistryModuleVersionMetadata> GetCachedModuleVersions(string modulePath);
+    //asdfg ImmutableArray<RegistryModuleVersionMetadata> GetCachedModuleVersions(string modulePath);
 }
+

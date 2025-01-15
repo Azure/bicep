@@ -354,7 +354,7 @@ namespace Bicep.LanguageServer.Completions
 
             for (int i = versions.Length - 1; i >= 0; i--)
             {
-                var version = versions[i];
+                var version = versions[i].Version;
                 var insertText = $"'{trimmedText}{version}'$0";
 
                 // Module version is last completion, no follow-up completions triggered
@@ -487,18 +487,19 @@ namespace Bicep.LanguageServer.Completions
                             if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal)) //asdfg?
                             {
                                 var modules = await registryModuleIndexer.GetRegistry(PublicMcrRegistry, rootConfiguration.Cloud).TryGetModulesAsync();//asdfg testpoint
-                                foreach (var (registry, moduleName, description, documentationUri) in modules)
+                                foreach (var module in modules)
                                 {
                                     //asdfg make sure registry is inputRegistry?
 
-                                    var label = $"bicep/{moduleName}";//asdfg??
-                                    var insertText = $"'{trimmedText}bicep/{moduleName}:$0'";
+                                    var label = $"bicep/{module.ModuleName}";//asdfg??
+                                    var insertText = $"'{trimmedText}bicep/{module.ModuleName}:$0'";
+                                    var details = await module.TryGetDetails();
                                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                                         .WithSnippetEdit(context.ReplacementRange, insertText)
                                         .WithFilterText(insertText)
                                         .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
-                                        .WithDetail(description)
-                                        .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))
+                                        .WithDetail(details.Description)
+                                        .WithDocumentation(MarkdownHelper.GetDocumentationLink(details.DocumentationUri))
                                         .WithFollowupCompletion("module version completion")
                                         .Build();
 
@@ -542,13 +543,14 @@ namespace Bicep.LanguageServer.Completions
                                 }
                                 sb.Append($"{label}:$0'");
                                 var insertText = sb.ToString();
+                                var details = await module.TryGetDetails();
 
                                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                                     .WithSnippetEdit(context.ReplacementRange, insertText)
                                     .WithFilterText(insertText)
                                     .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
-                                    .WithDetail(module.Description)
-                                    .WithDocumentation(MarkdownHelper.GetDocumentationLink(module.DocumentationUri))
+                                    .WithDetail(details.Description)
+                                    .WithDocumentation(MarkdownHelper.GetDocumentationLink(details.DocumentationUri))
                                     .WithFollowupCompletion("module version completion")
                                     .Build();
                                 completions.Add(completionItem);
@@ -677,8 +679,10 @@ namespace Bicep.LanguageServer.Completions
             List<CompletionItem> completions = new();
 
             var modules = await registryModuleIndexer.GetRegistry(parts.ResolvedRegistry, rootConfiguration.Cloud).TryGetModulesAsync(); //asdfg2
-            foreach (var (registry, moduleName, description, documentationUri) in modules)
+            foreach (var module in modules)
             {
+                var moduleName = module.ModuleName;
+
                 if (!moduleName.StartsWith(parts.ResolvedModulePath, StringComparison.Ordinal))
                 {
                     continue;
@@ -698,7 +702,7 @@ namespace Bicep.LanguageServer.Completions
                         .WithSortText(GetSortText(moduleName))
                         .WithResolveData( //asdfg test
                             ModuleResolutionKey,
-                            new { Registry = registry, Module = moduleName })
+                            new { Registry = module.Registry, Module = moduleName })
                         .WithFollowupCompletion("module version completion")
                         .Build();
 
@@ -833,14 +837,16 @@ namespace Bicep.LanguageServer.Completions
 
         private async Task<CompletionItem> ResolveVersionCompletionItem(CompletionItem completionItem, string registry, string modulePath, string version)
         {
+
             if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
-                && await cachedRegistry.TryGetModuleVersionMetadataAsync(modulePath, version) is { } versionMetadata)
+                && await cachedRegistry.TryGetModuleVersionsAsync(modulePath) is { } versions
+                && versions.FirstOrDefault(v => v.Version.Equals(version, StringComparison.Ordinal)) is RegistryModuleVersionMetadata metadata/*asdfg does this work if not found?*/)
             {
-                return (completionItem with
+                return (completionItem with //asdfg extract
                 {
-                    Detail = versionMetadata.Description,
+                    Detail = metadata.Details.Description,
                 })
-                .WithDocumentation(MarkdownHelper.GetDocumentationLink(versionMetadata.DocumentationUri));
+                .WithDocumentation(MarkdownHelper.GetDocumentationLink(metadata.Details.DocumentationUri));
             }
 
             return completionItem;
@@ -850,13 +856,12 @@ namespace Bicep.LanguageServer.Completions
         {
             if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
                 && await cachedRegistry.TryGetModuleVersionsAsync(modulePath) is { } versions
-                && versions.FirstOrDefault() is { } firstVersion
-                && await cachedRegistry.TryGetModuleVersionMetadataAsync(modulePath, firstVersion) is { } firstVersionMetadata)
+                && versions.FirstOrDefault() is { } firstVersion)
             {
                 return (completionItem with
                 {
-                    Detail = firstVersionMetadata.Description,
-                }).WithDocumentation(MarkdownHelper.GetDocumentationLink(firstVersionMetadata.DocumentationUri));
+                    Detail = firstVersion.Details.Description,
+                }).WithDocumentation(MarkdownHelper.GetDocumentationLink(firstVersion.Details.DocumentationUri));
             }
 
             return completionItem;
