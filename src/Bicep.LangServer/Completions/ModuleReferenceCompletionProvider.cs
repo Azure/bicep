@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 //asdfg cache
 using System.Collections.Immutable;
 using System.Configuration;
@@ -25,6 +26,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 //asdfg test documentationUri shows up
+//asdfg registry should be case-insensitive
 
 namespace Bicep.LanguageServer.Completions
 {
@@ -47,7 +49,43 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Direct reference to a full registry login server URI via br:<registry>
-        private static readonly Regex ModulePrefixWithFullPath = new(@"^br:(?<registry>(.*?))/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex ModulePrefixWithFullPath = new(@"^br:(?<registry>(.*?))/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase); //asdfg remove?
+
+        //asdfg bug:
+        //  module automation_account 'br:sawbicep.azurecr.io/nginx|' = {
+        // suggests demo, if you select it, it becomes:
+        // module automation_account 'br:sawbicep.azurecr.io/nginxdemo:' = {
+
+        //asdfg test?
+        [GeneratedRegex(
+            """
+                (?x) # Extended mode (allow comments and whitespace)
+                ^
+                ( # Prefix and registry or alias
+
+                    br/(?<alias>[a-zA-Z0-9-_]*):   # see src\Bicep.Core\Configuration\ModuleAliasesConfiguration.cs::ModuleAliasNameRegex
+                    |
+                    br:(?<registry>[-0-9A-Za-z|.^]*)\/
+                )
+
+                # Path
+                (
+                    (?<path>[a-z0-9._\-/]*) # see src\Bicep.Core\Configuration\ModuleAliasesConfiguration.cs::OciNamespaceSegmentRegex
+                )?
+
+                # Version
+                (
+                    (?<versionSeparator>:)
+                    (?<version>[a-zA-Z0-9_][a-zA-Z0-9._-]{0,127})?   # see src\Bicep.Core\Registry\Oci\OciArtifactReferenceFacts.cs::TagNameRegex
+                )?
+
+                '?
+                $
+                """,
+            RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant,
+            matchTimeoutMilliseconds: 10
+        )]
+        private static partial Regex PartialModuleReferenceRegex();
 
         // Examples: asdfg move?
         //   br:contoso.io/path1/path2/module:2.0.1 =>
@@ -105,36 +143,6 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
         }
-
-        //asdfg test?
-        [GeneratedRegex(
-            """
-                (?x) # Extended mode (allow comments and whitespace)
-                ^
-                ( # Prefix and registry or alias
-
-                    br/(?<alias>[a-zA-Z0-9-_]*):   # see src\Bicep.Core\Configuration\ModuleAliasesConfiguration.cs::ModuleAliasNameRegex
-                    |
-                    br:(?<registry>[^/:']*)\/   #asdfg valid?
-                )
-
-                # Path
-                (
-                    (?<path>[^:']+) #asdfg valid?
-                )?
-
-                # Version
-                (
-                    (?<versionSeparator>:)
-                    (?<version>[^:']+)?   #asdfg valid?
-                )?
-
-                '?
-                """,
-            RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant,
-            matchTimeoutMilliseconds: 10
-        )]
-        private static partial Regex PartialModuleReferenceRegex();
 
         private const string PublicMcrRegistry = LanguageConstants.BicepPublicMcrRegistry; // "mcr.microsoft.com"
 
@@ -609,6 +617,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetPartialPrivatePathCompletionsFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration) //asdfg test
         {
             if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
+                || !string.IsNullOrWhiteSpace(parts.ResolvedModulePath)
                 || parts.HasVersionSeparator)
             {
                 return [];
