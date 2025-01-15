@@ -251,11 +251,11 @@ resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[58:59) Assignment |=|
 //@[60:61) LeftBrace |{|
 //@[61:62) NewLine |\n|
-  name: 'resC/resD'
+  name: 'resC/resD_2'
 //@[02:06) Identifier |name|
 //@[06:07) Colon |:|
-//@[08:19) StringComplete |'resC/resD'|
-//@[19:20) NewLine |\n|
+//@[08:21) StringComplete |'resC/resD_2'|
+//@[21:22) NewLine |\n|
   properties: {
 //@[02:12) Identifier |properties|
 //@[12:13) Colon |:|
