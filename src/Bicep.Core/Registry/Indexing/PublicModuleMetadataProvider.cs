@@ -34,7 +34,7 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
         return [.. modules.Select(m =>
             new DefaultRegistryModuleMetadata(
                 Registry,
-                $"{LanguageConstants.BicepPublicMcrPathPrefix}{m.ModulePath}",
+                $"{LanguageConstants.BicepPublicMcrPathPrefix}{m.ModulePath}", //asdfg remove prefix and get tests to fail
                 getDetailsFunc: () => Task.FromResult(new RegistryMetadataDetails(m.GetDescription(), m.GetDocumentationUri())),
                 getVersionsFunc: () => Task.FromResult(ImmutableArray.Create<RegistryModuleVersionMetadata>([.. m.Versions.Select(
                     t => new RegistryModuleVersionMetadata(
