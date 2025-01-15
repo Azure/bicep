@@ -448,9 +448,9 @@ namespace Bicep.Core.Emit
 
                 case "outputs":
                     var moduleSymbol = reference.Module;
-
-                    if (context.SemanticModel.Features.SecureOutputsEnabled &&
-                        FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(context.SemanticModel, moduleSymbol.DeclaringModule).Any())
+                    var hasSecureValues = expression.SourceSyntax is null
+                        || FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(context.SemanticModel, expression.SourceSyntax).Any();
+                    if (context.SemanticModel.Features.SecureOutputsEnabled && hasSecureValues)
                     {
                         var deploymentResourceId = GetFullyQualifiedResourceId(moduleSymbol, reference.IndexContext?.Index);
                         var apiVersion = new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion);
