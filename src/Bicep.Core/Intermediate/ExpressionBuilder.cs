@@ -997,7 +997,7 @@ public class ExpressionBuilder
             Context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata moduleCollectionOutputMetadata &&
             moduleCollectionOutputMetadata.Module.IsCollection)
         {
-            var indexContext = TryGetReplacementContext(moduleCollectionOutputMetadata.NameSyntax, moduleArrayAccess.IndexExpression, propertyAccess);
+            var indexContext = TryGetReplacementContext(moduleCollectionOutputMetadata.Module, moduleArrayAccess.IndexExpression, propertyAccess);
             return ConvertResourcePropertyAccess(propertyAccess, moduleCollectionOutputMetadata, indexContext, propertyAccess.PropertyName.IdentifierName, flags);
         }
 
