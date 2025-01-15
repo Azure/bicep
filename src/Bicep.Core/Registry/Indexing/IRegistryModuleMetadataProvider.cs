@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Oci;
 using Microsoft.Win32;
 using static Bicep.Core.Registry.Indexing.IRegistryModuleMetadata;
@@ -14,9 +15,9 @@ public interface IRegistryModuleMetadata
     public string Registry { get; init; } // e.g. "mcr.microsoft.com"
     public string ModuleName { get; init; } // e.g. "bicep/avm/app/dapr-containerapp"
 
-    public Task<RegistryMetadataDetails> TryGetDetails();
+    public Task<RegistryMetadataDetails> TryGetDetailsAsync();
 
-    public Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetVersions();
+    public Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetVersionsAsync();
 
     public ImmutableArray<RegistryModuleVersionMetadata> GetCachedVersions();
 }
@@ -36,7 +37,7 @@ public readonly record struct RegistryModuleVersionMetadata(
 /// Retrieves metadata about modules from a specific OCI registry (public or private).
 /// Use IRegistryIndexer to retrieve an instance for a specific registry.
 /// </summary>
-public interface IRegistryModuleMetadataProvider
+public interface IRegistryModuleMetadataProvider //asdfg rename?  see GetRegistry()
 {
     public string Registry { get; }
 
@@ -49,6 +50,9 @@ public interface IRegistryModuleMetadataProvider
     void StartUpdateCache(bool forceUpdate = false);
 
     Task<ImmutableArray<IRegistryModuleMetadata>> TryGetModulesAsync();
+
+
+
 
     //asdfg Task<ModuleMetadata> TryGetModuleMetadataAsync(string modulePath);
 

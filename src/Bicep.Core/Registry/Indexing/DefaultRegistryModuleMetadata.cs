@@ -36,7 +36,7 @@ public class DefaultRegistryModuleMetadata : IRegistryModuleMetadata
     //    Task.FromResult(versionsMetadata.Value.Select(v =>
     //        new CachableVersionMetadata(v.Version, v)).ToImmutableArray());
 
-    public async Task<RegistryMetadataDetails> TryGetDetails() => await getDetailsFunc();
+    public async Task<RegistryMetadataDetails> TryGetDetailsAsync() => await getDetailsFunc(); //asdfg try/catch?
 
     //    public Task<RegistryMetadataDetails> TryGetDetails() //asdfg GetDetailsOrEmpty?
     //    {
@@ -53,7 +53,7 @@ public class DefaultRegistryModuleMetadata : IRegistryModuleMetadata
     //        }
     //    }
 
-    public async Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetVersions() => await getVersionsFunc();
+    public async Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetVersionsAsync() => await getVersionsFunc();//asdfg try/catch?
 
     public ImmutableArray<RegistryModuleVersionMetadata> GetCachedVersions()
     {

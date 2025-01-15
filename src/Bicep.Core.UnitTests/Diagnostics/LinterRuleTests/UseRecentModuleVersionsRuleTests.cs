@@ -45,14 +45,23 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
             publicModuleMetadataProvider.Setup(x => x.GetCachedModules())
-                .Returns([.. availableModules.Select(m => new RegistryModuleMetadata("mcr.microsoft.com", "bicep/" + m, null, null))]);
-            publicModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions(It.IsAny<string>()))
-                .Returns((string module) =>
-                {
-                    return availableModules.Contains(module) ?
-                        [.. availableVersions.Select(v => new RegistryModuleVersionMetadata(v, null, null))] :
-                        [];
-                });
+                .Returns([.. availableModules
+                    .Select(m => new DefaultRegistryModuleMetadata(
+                        "mcr.microsoft.com",
+                        $"bicep/{m}",
+                        getDetailsFunc: () => Task.FromResult(new RegistryMetadataDetails(null, null)),
+                        getVersionsFunc: () => Task.FromResult<ImmutableArray<RegistryModuleVersionMetadata>>(
+                            [.. availableVersions
+                                .Select(v => new RegistryModuleVersionMetadata(v,
+                        new(null, null)))])))]);
+            //asdfg
+            //publicModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions(It.IsAny<string>()))
+            //    .Returns((string module) =>
+            //    {
+            //        return availableModules.Contains(module) ?
+            //            [.. availableVersions.Select(v => new RegistryModuleVersionMetadata(v, null, null))] :
+            //            [];
+            //    });
             publicModuleMetadataProvider.Setup(x => x.IsCached)
                 .Returns(availableModules.Length > 0);
             publicModuleMetadataProvider.Setup(x => x.DownloadError)

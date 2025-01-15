@@ -22,7 +22,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
         private const string PublicRegistry = "mcr.microsoft.com";
 
         public static Mock<IPublicModuleMetadataProvider> MockPublicMetadataProvider(
-            IEnumerable<(string moduleName, string? description, string? documentationUri, IEnumerable<RegistryModuleVersionMetadata> versions)> modules)
+            IEnumerable<(string moduleName, string? description, string? documentationUri, IEnumerable<(string version, string? description, string? documentUri)> versions)> modules)
         {
             if (modules.Any())
             {
@@ -40,18 +40,19 @@ namespace Bicep.Core.UnitTests.Mock.Registry
                     .Select(m => new DefaultRegistryModuleMetadata( //asdfg would be nice to mock the http client instead
                         PublicRegistry,
                         m.moduleName,
-                        () => Task.FromResult(new RegistryMetadataDetails(m.description, m.documentationUri)),
-                        () => Task.FromResult<RegistryModuleVersionMetadata>(
-                            modules.Single(m => m.moduleName.EqualsOrdinally(m.moduleName)).versions
-                                .Select(v => new RegistryModuleVersionMetadata(v.Version, v.Details))
-                            .ToImmutableArray())
+                        getDetailsFunc: () => Task.FromResult(new RegistryMetadataDetails(m.description, m.documentationUri)),
+                        getVersionsFunc: () => Task.FromResult<ImmutableArray<RegistryModuleVersionMetadata>>(
+                            [.. modules.Single(m2 => m2.moduleName.EqualsOrdinally(m.moduleName))
+                                .versions
+                                .Select(v => new RegistryModuleVersionMetadata(v.version,new(v.description,v.documentUri)))])
                         ))]);
-            publicProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
-                [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.Select(v => v.Version)]);
+            //asdfg
+            //publicProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
+            //    [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.Select(v => v.Version)]);
 
-            publicProvider.Setup(x => x.TryGetModuleVersionMetadataAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync((string modulePath, string version) =>
-                    modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.SingleOrDefault(v => v.Version.EqualsOrdinally(version)));
+            //publicProvider.Setup(x => x.TryGetModuleVersionMetadataAsync(It.IsAny<string>(), It.IsAny<string>()))
+            //    .ReturnsAsync((string modulePath, string version) =>
+            //        modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.SingleOrDefault(v => v.Version.EqualsOrdinally(version)));
 
             return publicProvider;
         }
@@ -66,9 +67,19 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             privateProvider.Setup(x => x.Registry).Returns(registry);
 
             privateProvider.Setup(x => x.TryGetModulesAsync())
-                .ReturnsAsync([.. modules.Select(m => new RegistryModuleMetadata(registry, m.moduleName, m.description, m.documentationUri))]);
-            privateProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
-                [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.Select(v => v.Version)]);
+                .ReturnsAsync([..
+                    modules.Select(m => new DefaultRegistryModuleMetadata(
+                        registry,
+                        m.moduleName,
+                        getDetailsFunc: () => /*asdfg delay?*/Task.FromResult(new RegistryMetadataDetails( m.description, m.documentationUri)),
+                        getVersionsFunc: () => Task.FromResult<ImmutableArray<RegistryModuleVersionMetadata>>(
+                            [.. modules.Single(m => m.moduleName.EqualsOrdinally(m.moduleName))
+                                .versions
+                                .Select(v => new RegistryModuleVersionMetadata(v.Version, v.Details))])
+                        ))]);
+            //asdfg
+            //privateProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
+            //    [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.Select(v => v.Version)]);
 
             return privateProvider;
         }

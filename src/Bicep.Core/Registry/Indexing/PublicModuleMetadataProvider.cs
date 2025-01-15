@@ -32,15 +32,16 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
         var modules = await client.GetModuleIndexAsync();
 
         return [.. modules.Select(m =>
-            new RegistryModuleMetadata(
+            new DefaultRegistryModuleMetadata(
                 Registry,
-                m.ModulePath,
+                $"{LanguageConstants.BicepPublicMcrPathPrefix}{m.ModulePath}",
                 getDetailsFunc: () => Task.FromResult(new RegistryMetadataDetails(m.GetDescription(), m.GetDocumentationUri())),
                 getVersionsFunc: () => Task.FromResult(ImmutableArray.Create<RegistryModuleVersionMetadata>([.. m.Versions.Select(
                     t => new RegistryModuleVersionMetadata(
                         t,
-                        m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].Description:null,
-                        m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].DocumentationUri:null
+                        new RegistryMetadataDetails(
+                            m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].Description:null,
+                            m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].DocumentationUri:null)
                     )
                 )]))
             )

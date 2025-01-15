@@ -93,12 +93,11 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
 
         var modules = filteredCatalog
             .Select(m =>
-            new RegistryModuleMetadata(
-                Registry,
-                m,
-                () => this.TryGetModuleDetails(m),
-                () => this.GetLiveModuleVersionsAsync(m)
-            )
+            {
+                var getVersionsAsyncFunc = () => this.GetLiveModuleVersionsAsync(m);
+                var getDetailsAsyncFunc = () => this.GetLiveModuleDetails(getVersionsAsyncFunc);
+                return new DefaultRegistryModuleMetadata(Registry, m, getDetailsAsyncFunc, getVersionsAsyncFunc);
+            }
         ).ToImmutableArray();
 
         return [.. modules.Cast<IRegistryModuleMetadata>()];
@@ -118,12 +117,13 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     //    return new(Registry, modulePath, null, null);
     //}
 
-    public async Task<RegistryMetadataDetails> TryGetModuleDetails(string modulePath)
+    //asdfg
+    private async Task<RegistryMetadataDetails> GetLiveModuleDetails(
+        Func<Task<ImmutableArray<RegistryModuleVersionMetadata>>> getVersionsAsyncFunc)
     {
         // OCI modules don't have a description or documentation URI, we just use the first (latest) version's metadata
-
-        if (await TryGetModuleVersionsAsync(modulePath) is { } versions
-            && versions.FirstOrDefault() is { } firstVersion)
+        var versions = await getVersionsAsyncFunc();
+        if (versions.FirstOrDefault() is { } firstVersion)
         {
             return firstVersion.Details;
         }

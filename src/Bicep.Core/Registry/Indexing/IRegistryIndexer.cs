@@ -11,7 +11,7 @@ namespace Bicep.Core.Registry.Indexing;
 public interface IRegistryIndexer
 {
     // Aways returns an instance, either from cache or newly created
-    IRegistryModuleMetadataProvider GetRegistry(string registry, CloudConfiguration cloud);
+    IRegistryModuleMetadataProvider GetRegistry(CloudConfiguration cloud, string registry);
 
     IRegistryModuleMetadataProvider? TryGetCachedRegistry(string registry);
 }

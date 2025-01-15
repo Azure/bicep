@@ -28,7 +28,7 @@ public class RegistryIndexer : IRegistryIndexer
         registryProviders["mcr.microsoft.com"] = publicModuleMetadataProvider;
     }
 
-    public IRegistryModuleMetadataProvider GetRegistry(string registry, CloudConfiguration cloud)
+    public IRegistryModuleMetadataProvider GetRegistry(CloudConfiguration cloud, string registry)
     {
         if (registryProviders.TryGetValue(registry, out var provider))
         {
