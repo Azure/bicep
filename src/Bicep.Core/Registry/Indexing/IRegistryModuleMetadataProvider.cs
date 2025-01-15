@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Registry.Oci;
 using Microsoft.Win32;
 
 namespace Bicep.Core.Registry.Indexing;
 
-public readonly record struct RegistryModuleMetadata(
+public readonly record struct RegistryModuleMetadata( //asdfg better name?   asdfg combine
     string Registry, // e.g. "mcr.microsoft.com"
     string ModuleName, // e.g. "bicep/avm/app/dapr-containerapp"
     string? Description,//asdfgf
@@ -34,6 +35,8 @@ public interface IRegistryModuleMetadataProvider
     void StartUpdateCache(bool forceUpdate = false);
 
     Task<ImmutableArray<RegistryModuleMetadata>> TryGetModulesAsync();
+
+    Task<ModuleMetadata> TryGetModuleMetadataAsync(string modulePath);
 
     Task<ImmutableArray<string>> TryGetModuleVersionsAsync(string modulePath);
 

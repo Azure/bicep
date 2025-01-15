@@ -27,6 +27,8 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 //asdfg test documentationUri shows up
 //asdfg registry should be case-insensitive
+//asdfg bug: module m1 'br/demo:|' = {   -> gets nothing
+//   should be module m1 'br/demo:avm/key-vault:' = {
 
 namespace Bicep.LanguageServer.Completions
 {

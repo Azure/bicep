@@ -81,10 +81,24 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
             new CachableModule(
                 // OCI modules don't have a description or documentation URI, that info can be looked up from the first version
                 new RegistryModuleMetadata(Registry, m, null, null),
-                null
+                async () => 
             )
         ).ToImmutableArray();
 
         return modules;
+    }
+
+    public override async Task<RegistryModuleMetadata> TryGetModuleMetadataAsync(string modulePath)
+    {
+        // OCI modules don't have a description or documentation URI, we use the first (latest) version's metadata
+
+        if (await TryGetModuleVersionsAsync(modulePath) is { } versions
+            && versions.FirstOrDefault() is { } firstVersion
+            && await TryGetModuleVersionMetadataAsync(modulePath, firstVersion) is { } firstVersionMetadata)
+        {
+            return new(Registry, modulePath, firstVersionMetadata.Description, firstVersionMetadata.DocumentationUri);
+        }
+
+        return new(Registry, modulePath, null, null);
     }
 }

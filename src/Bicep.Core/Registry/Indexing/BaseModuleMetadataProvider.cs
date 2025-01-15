@@ -11,8 +11,10 @@ using Bicep.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using System.Threading.Tasks;
+using Bicep.Core.Registry.Oci;
+using System.Security.Cryptography.Xml;
 
-namespace Bicep.Core.Registry.Indexing;
+namespace Bicep.Core.Registry.Indexing; //asdfg split into PublicRegistry/PrivateRegistry
 
 /// <summary>
 /// Provider to get metadata for modules stored in a public or private registry.
@@ -37,19 +39,48 @@ public abstract class BaseModuleMetadataProvider(
     //asdfg test all this
     protected class CachableModule
     {
-        public RegistryModuleMetadata RegistryModuleMetadata;
+        public string Registry { get; init; }
+        public string ModuleName { get; init; }
+
+        //adsfg public CachableModuleMetadata Metadata;
+        //public RegistryModuleMetadata? Metadata { get; private set; }
 
         // Using array instead of dictionary to preserve sort order
         public Task<ImmutableArray<CachableVersionMetadata>>? Versions { get; private set; }
 
         public Task<ImmutableArray<CachableVersionMetadata>>? GetVersionsTask { get; private set; }
 
-        public CachableModule(RegistryModuleMetadata registryModuleMetadata, ImmutableArray<RegistryModuleVersionMetadata>? versionsMetadata)
+        public Func<Task<RegistryModuleMetadata/*asdfg confusing name*/>> GetModuleMetadataFunc { get; init; }
+
+        public CachableModule(
+            string registry,
+            string moduleName,
+            //asdfg CachableModuleMetadata metadata,
+            Func<Task<RegistryModuleMetadata>> getModuleMetadataFunc,
+            ImmutableArray<RegistryModuleVersionMetadata>? versionsMetadata)
         {
-            this.RegistryModuleMetadata = registryModuleMetadata;
+            //asdfg this.Metadata = metadata;
+            this.Registry = registry;
+            this.ModuleName = moduleName;
+            this.GetModuleMetadataFunc = getModuleMetadataFunc;
             this.GetVersionsTask = versionsMetadata is null ? null :
                 Task.FromResult(versionsMetadata.Value.Select(v =>
                     new CachableVersionMetadata(v.Version, v)).ToImmutableArray());
+        }
+
+        public RegistryModuleMetadata GetCachedStateAsdfg()
+        {
+            var metadata = GetModuleMetadataFunc();
+            if (metadata.IsCompletedSuccessfully) //asdfg extract
+            {
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+                return metadata.Result;
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+            }
+            else
+            {
+                return new RegistryModuleMetadata(Registry, ModuleName, null, null);
+            }
         }
 
         //asdfg extract - use lazy?
@@ -84,6 +115,37 @@ public abstract class BaseModuleMetadataProvider(
         }
 
         public Task<RegistryModuleVersionMetadata?> GetOrSetMetadataTask(Func<Task<RegistryModuleVersionMetadata?>> createTask)
+        {
+            if (this.GetMetadataTask is null)
+            {
+                lock (CachedModuleSyncObject)
+                {
+                    if (this.GetMetadataTask is null)
+                    {
+                        this.GetMetadataTask = createTask();
+                    }
+                }
+            }
+
+            return this.GetMetadataTask;
+        }
+    }
+
+    protected class CachableModuleMetadata //asdfg combine
+    {
+        public string ModulePath { get; init; }
+
+        public RegistryModuleMetadata? Metadata { get; private set; }
+        public Task<RegistryModuleMetadata?>? GetMetadataTask { get; private set; }
+
+        public CachableModuleMetadata(string modulePath, RegistryModuleMetadata? metadata)
+        {
+            this.ModulePath = modulePath;
+            this.Metadata = metadata;
+            this.GetMetadataTask = metadata is null ? null : Task.FromResult(metadata);
+        }
+
+        public Task<RegistryModuleMetadata?> GetOrSetMetadataTask(Func<Task<RegistryModuleMetadata?>> createTask)
         {
             if (this.GetMetadataTask is null)
             {
@@ -140,8 +202,8 @@ public abstract class BaseModuleMetadataProvider(
     protected CachableModule? GetCachedModule(string modulePath, bool throwIfNotFound)
     {
         var found = this.cachedModules.FirstOrDefault(x =>
-            x.RegistryModuleMetadata.Registry.Equals(Registry, StringComparison.Ordinal)
-                && x.RegistryModuleMetadata.ModuleName.Equals(modulePath, StringComparison.Ordinal));
+            x.Registry.Equals(Registry, StringComparison.Ordinal)
+                && x.ModuleName.Equals(modulePath, StringComparison.Ordinal));
         if (found != null && throwIfNotFound)
         {
             throw new InvalidOperationException($"Module '{modulePath}' not found in cache.");
@@ -159,7 +221,9 @@ public abstract class BaseModuleMetadataProvider(
     // If cache has not yet successfully been updated, returns empty
     public ImmutableArray<RegistryModuleMetadata> GetCachedModules()
     {
-        return [.. cachedModules.Where(x => x.RegistryModuleMetadata.Registry.Equals(Registry, StringComparison.Ordinal)).Select(x => x.RegistryModuleMetadata)];
+        return [.. cachedModules
+            .Where(x => x.Registry.Equals(Registry, StringComparison.Ordinal))
+            .Select(x => x.GetCachedStateAsdfg())];
     }
 
     private async Task<ImmutableArray<CachableVersionMetadata>> TryGetCachableModuleVersionsAsync(string modulePath)
@@ -177,6 +241,26 @@ public abstract class BaseModuleMetadataProvider(
             return [.. versions.Select(v => new CachableVersionMetadata(v, null))];
         });
     }
+
+    //asdfg consistency - should it return null?  not be Try?
+    //public abstract Task<RegistryModuleMetadata> TryGetModuleMetadataAsync(string modulePath);
+
+    private async Task<ImmutableArray<CachableModuleMetadata>> TryGetCachableModuleMetadataAsync(string modulePath)
+    {
+        await TryAwaitCache(forceUpdate: false);
+        var module = GetCachedModule(modulePath, false);
+        if (module is null)
+        {
+            return [];
+        }
+
+        return await module.Metadata.GetOrSetMetadataTask(async () =>
+        {
+            var versions = await GetLiveModuleVersionsAsync(modulePath);
+            return [.. versions.Select(v => new CachableVersionMetadata(v, null))];
+        });
+    }
+
 
     public async Task<ImmutableArray<string>> TryGetModuleVersionsAsync(string modulePath) //asdfg should start getting metadata
     {

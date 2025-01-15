@@ -38,6 +38,19 @@ namespace Bicep.LangServer.UnitTests.Completions
         private IAzureContainerRegistriesProvider azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>().Object;
         private ISettingsProvider settingsProvider = StrictMock.Of<ISettingsProvider>().Object;
 
+        private static async Task<IEnumerable<CompletionItem>> GetAndResolveCompletionItems(BicepCompletionContext completionContext, DocumentUri documentUri, ModuleReferenceCompletionProvider moduleReferenceCompletionProvider)
+        {
+            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUriEncoded(), completionContext, CancellationToken.None);
+            var resolved = new List<CompletionItem>();
+            foreach (var completion in completions)
+            {
+                var c = await moduleReferenceCompletionProvider.ResolveCompletionItem(completion, CancellationToken.None);
+                resolved.Add(c);
+            }
+
+            return resolved;
+        }
+
         [DataTestMethod]
         [DataRow("module test |''", 14)]
         [DataRow("module test ''|", 14)]
@@ -766,6 +779,9 @@ namespace Bicep.LangServer.UnitTests.Completions
     }
   }
 }";
+
+            //asdfg2 getting module descriptions fails because it tries to do It by getting last version's metadata, which is not available in the mock'
+
             var registryIndexer = RegistryIndexerMocks.CreateRegistryIndexer(
                 RegistryIndexerMocks.MockPublicMetadataProvider([
                     new("bicep/app/dapr-containerapp", "dapr description", "contoso.com/help", []),
@@ -779,7 +795,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 registryIndexer,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
-            IEnumerable<CompletionItem> completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUriEncoded(), completionContext, CancellationToken.None);
+            IEnumerable<CompletionItem> completions = await GetAndResolveCompletionItems(completionContext, documentUri, moduleReferenceCompletionProvider);
 
             CompletionItem actualCompletionItem = completions.First(x => x.Label == expectedLabel);
             actualCompletionItem.Kind.Should().Be(CompletionItemKind.Snippet);

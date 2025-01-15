@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text.Json;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry.Indexing.HttpClients;
@@ -53,4 +54,21 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
     {
         throw new NotImplementedException("This method should never get called because versions are pre-filled with a resolved task");
     }
+
+    //asdfg
+    //private override async Task<RegistryModuleMetadata> TryGetModuleMetadataFromAsdfgAsync(CachableModuleMetadata metadata)
+    //{
+    //    return [.. modules.Select(m =>
+    //        new CachableModule(
+    //            new RegistryModuleMetadata(LanguageConstants.BicepPublicMcrRegistry, $"{LanguageConstants.BicepPublicMcrPathPrefix}{m.ModulePath}", m.GetDescription(), m.GetDocumentationUri()),
+    //            [.. m.Versions.Select(
+    //                t => new RegistryModuleVersionMetadata(
+    //                    t,
+    //                    m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].Description:null,
+    //                    m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].DocumentationUri:null
+    //                )
+    //            )]
+    //        )
+    //    )];
+    //}
 }
