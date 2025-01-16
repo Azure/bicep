@@ -6731,4 +6731,20 @@ var subnetId = vNet::subnets[0].id
             ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"module[] | (resource | module) | resource[]\", but the provided item was of type \"never\"."),
         });
     }
+
+    [TestMethod]
+    public void Test_Issue16112()
+    {
+        var result = CompilationHelper.Compile("""
+            @description('A description of this resource is required to document the purpose for which it was created.')
+            param descriptionParam string
+
+            var description = 'foo'
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"description\" is not a function. Did you mean \"sys.description\"?"),
+        });
+    }
 }
