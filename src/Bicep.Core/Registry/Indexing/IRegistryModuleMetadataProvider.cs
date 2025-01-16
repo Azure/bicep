@@ -23,12 +23,12 @@ public interface IRegistryModuleMetadata
 }
 
 //asdfg move?
-public readonly record struct RegistryMetadataDetails(
+public record RegistryMetadataDetails(
     string? Description,
     string? DocumentationUri);
 
 //asdfg move?
-public readonly record struct RegistryModuleVersionMetadata(
+public record RegistryModuleVersionMetadata(
     string Version,
     RegistryMetadataDetails Details
 );

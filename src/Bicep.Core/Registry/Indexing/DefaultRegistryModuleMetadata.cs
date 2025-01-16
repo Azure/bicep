@@ -2,24 +2,22 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using Microsoft.VisualStudio.Threading;
 
 namespace Bicep.Core.Registry.Indexing; //asdfg split into PublicRegistry/PrivateRegistry
-//asdfg
 
 public class DefaultRegistryModuleMetadata : IRegistryModuleMetadata
 {
     public string Registry { get; init; }
     public string ModuleName { get; init; }
 
-    private readonly RegistryMetadataDetails? details; //asdfg extract into a class
-    private readonly ImmutableArray<RegistryModuleVersionMetadata>? versions;
+    private readonly MightBeLazyAsync<RegistryMetadataDetails> details;
+    private readonly MightBeLazyAsync<ImmutableArray<RegistryModuleVersionMetadata>> versions;
 
     //asdfg CachableModuleMetadata metadata,
-    private AsyncLazy<RegistryMetadataDetails>? lazyDetails;
+    //private AsyncLazy<RegistryMetadataDetails>? lazyDetails;
     // asdfg private Func<Task<RegistryMetadataDetails>> getDetailsFunc;
     //private Func<Task<ImmutableArray<RegistryModuleVersionMetadata>>>? getVersionsFunc;
-    private AsyncLazy<ImmutableArray<RegistryModuleVersionMetadata>>? lazyVersions;
+    //private AsyncLazy<ImmutableArray<RegistryModuleVersionMetadata>>? lazyVersions;
 
     public DefaultRegistryModuleMetadata(
         string registry,
@@ -31,10 +29,8 @@ public class DefaultRegistryModuleMetadata : IRegistryModuleMetadata
         this.Registry = registry;
         this.ModuleName = moduleName;
 
-        this.details = details;
-        this.versions = versions;
-        this.lazyDetails = null;
-        this.lazyVersions = null;
+        this.details = new MightBeLazyAsync<RegistryMetadataDetails>(details);
+        this.versions = new(versions);
     }
 
     public DefaultRegistryModuleMetadata(
@@ -47,13 +43,10 @@ public class DefaultRegistryModuleMetadata : IRegistryModuleMetadata
         this.Registry = registry;
         this.ModuleName = moduleName;
 
-        this.lazyDetails = new AsyncLazy<RegistryMetadataDetails>(getDetailsAsyncFunc, new(new JoinableTaskContext()));
+        this.details = new(getDetailsAsyncFunc);
         //asdfg this.getDetailsFunc = getDetailsFunc;
         //this.getVersionsFunc = getVersionsFunc;
-        this.lazyVersions = new AsyncLazy<ImmutableArray<RegistryModuleVersionMetadata>>(getVersionsAsyncFunc, new(new JoinableTaskContext()));
-
-        this.details = null;
-        this.versions = null;
+        this.versions = new(getVersionsAsyncFunc);
     }
 
     ////asdfg this.Metadata = metadata;
@@ -66,7 +59,14 @@ public class DefaultRegistryModuleMetadata : IRegistryModuleMetadata
 
     public async Task<RegistryMetadataDetails> TryGetDetailsAsync()
     {
-        return details.HasValue ? details.Value : await lazyDetails!/*asdfg*/.GetValueAsync();//asdfg try/catch?
+        try
+        {
+            return await details.GetValueAsync();
+        }
+        catch
+        {
+            return new RegistryMetadataDetails(null, null);
+        }
     }
 
     //    public Task<RegistryMetadataDetails> TryGetDetails() //asdfg GetDetailsOrEmpty?
@@ -86,22 +86,18 @@ public class DefaultRegistryModuleMetadata : IRegistryModuleMetadata
 
     public async Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetVersionsAsync()
     {
-        return versions.HasValue ? versions.Value : await lazyVersions!/*asdfg*/.GetValueAsync();//asdfg try/catch?
+        try //asdfg
+        {
+            return await versions.GetValueAsync();
+        }
+        catch
+        {
+            return [];
+        }
     }
 
     public ImmutableArray<RegistryModuleVersionMetadata> GetCachedVersions()
     {
-        if (versions is not null)
-        {
-            return versions.Value;
-        }
-        else if (lazyVersions!/*asdfg*/.IsValueFactoryCompleted)
-        {
-            return lazyVersions.GetValue(); //asdfg can this throw?
-        }
-        else
-        {
-            return [];
-        }
+        return versions.TryGetValue(); //asdfg try/catch??
     }
 }

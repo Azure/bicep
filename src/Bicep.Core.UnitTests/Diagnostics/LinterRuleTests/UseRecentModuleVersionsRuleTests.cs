@@ -43,16 +43,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string[] availableVersions, // for simplicity, mock returns these same versions for all available modules
             string? downloadError = null)
         {
-            // use MockPublicMetadataProvider? asdfg
             var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
             publicModuleMetadataProvider.Setup(x => x.GetCachedModules())
                 .Returns([.. availableModules
                     .Select(m => new DefaultRegistryModuleMetadata(
                         "mcr.microsoft.com",
-                        m,
-                        new RegistryMetadataDetails(null, null),
-                        [.. availableVersions
-                            .Select(v => new RegistryModuleVersionMetadata(v, new(null, null)))]))]);
+                        $"bicep/{m}",
+                        getDetailsAsyncFunc: () => Task.FromResult(new RegistryMetadataDetails(null, null)),
+                        getVersionsAsyncFunc: () => Task.FromResult<ImmutableArray<RegistryModuleVersionMetadata>>(
+                            [.. availableVersions
+                                .Select(v => new RegistryModuleVersionMetadata(v,
+                        new(null, null)))])))]);
             //asdfg
             //publicModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions(It.IsAny<string>()))
             //    .Returns((string module) =>
