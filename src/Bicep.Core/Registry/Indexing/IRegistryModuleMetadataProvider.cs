@@ -45,9 +45,9 @@ public interface IRegistryModuleMetadataProvider //asdfg rename?  see GetRegistr
 
     string? DownloadError { get; }
 
-    Task TryAwaitCache(bool forceUpdate = false);
+    void StartCache();
 
-    void StartCache(bool forceUpdate = false);
+    Task TryAwaitCache(bool forceUpdate = false);
 
     Task<ImmutableArray<IRegistryModuleMetadata>> TryGetModulesAsync();
 

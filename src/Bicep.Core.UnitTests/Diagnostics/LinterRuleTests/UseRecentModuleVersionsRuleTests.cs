@@ -48,12 +48,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 .Returns([.. availableModules
                     .Select(m => new DefaultRegistryModuleMetadata(
                         "mcr.microsoft.com",
-                        $"bicep/{m}",
-                        getDetailsAsyncFunc: () => Task.FromResult(new RegistryMetadataDetails(null, null)),
-                        getVersionsAsyncFunc: () => Task.FromResult<ImmutableArray<RegistryModuleVersionMetadata>>(
-                            [.. availableVersions
-                                .Select(v => new RegistryModuleVersionMetadata(v,
-                        new(null, null)))])))]);
+                        m,
+                        new RegistryMetadataDetails(null, null),                        
+                        [.. availableVersions
+                            .Select(v => new RegistryModuleVersionMetadata(v, new("det", "doc.html")))]))]);
             //asdfg
             //publicModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions(It.IsAny<string>()))
             //    .Returns((string module) =>

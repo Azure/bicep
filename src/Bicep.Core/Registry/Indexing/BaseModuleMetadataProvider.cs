@@ -184,9 +184,9 @@ public abstract class BaseModuleMetadataProvider(
         return UpdateCacheIfNeededAsync(forceUpdate: forceUpdate, initialDelay: false);
     }
 
-    public void StartCache(bool forceUpdate)
+    public void StartCache()
     {
-        _ = TryAwaitCache(forceUpdate);
+        _ = TryAwaitCache(false);
     }
 
     public async Task<bool> TryUpdateCacheAsync()//asdfg implement/test threading
