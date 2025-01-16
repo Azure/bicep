@@ -186,9 +186,9 @@
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
-        "requested": "[8.0.11, )",
-        "resolved": "8.0.11",
-        "contentHash": "zk5lnZrYJgtuJG8L4v17Ej8rZ3PUcR2iweNV08BaO5LbYHIi2wNaVNcJoLxvqgQdnjLlKnCCfVGLDr6QHeAarQ=="
+        "requested": "[8.0.12, )",
+        "resolved": "8.0.12",
+        "contentHash": "FV4HnQ3JI15PHnJ5PGTbz+rYvrih42oLi/7UMIshNwCwUZhTq13UzrggtXk4ygrcMcN+4jsS6hhshx2p/Zd0ig=="
       },
       "Microsoft.PowerPlatform.ResourceStack": {
         "type": "Direct",
@@ -208,6 +208,16 @@
         "dependencies": {
           "Microsoft.Build.Tasks.Git": "8.0.0",
           "Microsoft.SourceLink.Common": "8.0.0"
+        }
+      },
+      "Microsoft.VisualStudio.Threading": {
+        "type": "Direct",
+        "requested": "[17.12.19, )",
+        "resolved": "17.12.19",
+        "contentHash": "eLiGMkMYyaSguqHs3lsrFxy3tAWSLuPEL2pIWRcADMDVAs2xqm3dr1d9QYjiEusTgiClF9KD6OB2NdZP72Oy0Q==",
+        "dependencies": {
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.12.19",
+          "Microsoft.VisualStudio.Validation": "17.8.8"
         }
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
@@ -508,6 +518,11 @@
         "type": "Transitive",
         "resolved": "8.0.0",
         "contentHash": "dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw=="
+      },
+      "Microsoft.VisualStudio.Validation": {
+        "type": "Transitive",
+        "resolved": "17.8.8",
+        "contentHash": "rWXThIpyQd4YIXghNkiv2+VLvzS+MCMKVRDR0GAMlflsdo+YcAN2g2r5U1Ah98OFjQMRexTFtXQQ2LkajxZi3g=="
       },
       "Microsoft.Win32.Registry": {
         "type": "Transitive",

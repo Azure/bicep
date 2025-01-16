@@ -8,7 +8,7 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Registry.Oci
 {
-    public class OciArtifactReference : ArtifactReference, IOciArtifactReference
+    public class OciArtifactReference : ArtifactReference, IOciArtifactReference //asdfg2 validations
     {
         public OciArtifactReference(ArtifactType type, IArtifactAddressComponents artifactIdParts, Uri parentModuleUri) :
             base(OciArtifactReferenceFacts.Scheme, parentModuleUri)
@@ -69,7 +69,7 @@ namespace Bicep.Core.Registry.Oci
         public override bool IsExternal => true;
 
         // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
-        // The configuration and parentModuleUri are needed to resolve aliases and experimental features
+        // The configuration and parentModuleUri are needed to resolve aliases and experimental features asdfg
         public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseModuleAndAlias(string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
             => TryParse(ArtifactType.Module, aliasName, unqualifiedReference, configuration, parentModuleUri);
 

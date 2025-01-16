@@ -162,7 +162,7 @@ namespace Bicep.Cli.IntegrationTests
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
             // mock client factory caches the clients
-            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
+            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
@@ -261,7 +261,7 @@ namespace Bicep.Cli.IntegrationTests
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
             // mock client factory caches the clients
-            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
+            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
@@ -315,7 +315,7 @@ namespace Bicep.Cli.IntegrationTests
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
             // mock client factory caches the clients
-            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
+            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
@@ -343,7 +343,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), new Uri("https://fake"), "fake"))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://fake"), "fake"))
                 .Returns(client.Object);
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
@@ -375,7 +375,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), new Uri("https://fake"), "fake"))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://fake"), "fake"))
                 .Returns(client.Object);
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();

@@ -12,7 +12,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Json;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Indexing;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
@@ -43,22 +43,30 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string[] availableVersions, // for simplicity, mock returns these same versions for all available modules
             string? downloadError = null)
         {
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata())
-                .Returns(availableModules.Select(m => new PublicRegistryModuleMetadata(m, null, null)).ToImmutableArray());
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata(It.IsAny<string>()))
-                .Returns((string module) =>
-                {
-                    return availableModules.Contains(module) ?
-                        availableVersions.Select(v => new PublicRegistryModuleVersionMetadata(v, null, null)).ToImmutableArray() :
-                        [];
-                });
-            publicRegistryModuleMetadataProvider.Setup(x => x.IsCached)
+            // use MockPublicMetadataProvider? asdfg
+            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            publicModuleMetadataProvider.Setup(x => x.GetCachedModules())
+                .Returns([.. availableModules
+                    .Select(m => new DefaultRegistryModuleMetadata(
+                        "mcr.microsoft.com",
+                        m,
+                        new RegistryMetadataDetails(null, null),
+                        [.. availableVersions
+                            .Select(v => new RegistryModuleVersionMetadata(v, new(null, null)))]))]);
+            //asdfg
+            //publicModuleMetadataProvider.Setup(x => x.GetCachedModuleVersions(It.IsAny<string>()))
+            //    .Returns((string module) =>
+            //    {
+            //        return availableModules.Contains(module) ?
+            //            [.. availableVersions.Select(v => new RegistryModuleVersionMetadata(v, null, null))] :
+            //            [];
+            //    });
+            publicModuleMetadataProvider.Setup(x => x.IsCached)
                 .Returns(availableModules.Length > 0);
-            publicRegistryModuleMetadataProvider.Setup(x => x.DownloadError)
+            publicModuleMetadataProvider.Setup(x => x.DownloadError)
                 .Returns(downloadError);
 
-            var services = Services.WithRegistration(x => x.AddSingleton(publicRegistryModuleMetadataProvider.Object));
+            var services = Services.WithRegistration(x => x.AddSingleton(publicModuleMetadataProvider.Object));
             var result = CompilationHelper.Compile(services, [("main.bicep", bicep)]);
             return result;
         }
@@ -70,7 +78,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     module m1 'br/public:avm/res/network/public-ip-address:0.4.0' = {
                     }
                     """,
-                ["avm/res/network/public-ip-address"],
+                ["bicep/avm/res/network/public-ip-address"],
                 ["1.0.0"]
             );
             result.Diagnostics.Where(d => d.Code == UseRecentModuleVersionsRule.Code)
@@ -90,7 +98,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     module m1 'br/public:avm/res/network/public-ip-address:1.4.0' = {
                     }
                     """,
-                ["avm/res/network/public-ip-address"],
+                ["bicep/avm/res/network/public-ip-address"],
                 ["1.0.0"]
             );
             result.Diagnostics.Where(d => d.Code == UseRecentModuleVersionsRule.Code)
@@ -105,7 +113,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     module m1 'br/public:avm/res/network/public-ip-address:0.4.0' = {
                     }
                     """,
-                ["avm/res/network/public-ip-address"],
+                ["bicep/avm/res/network/public-ip-address"],
                 ["0.3.0", "0.3.1", "0.4.0"]
             );
             result.Diagnostics.Where(d => d.Code == UseRecentModuleVersionsRule.Code)
@@ -180,7 +188,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     module m1 'br/public:avm/res/network/public-ip-address:0.4.0' = {
                     }
                     """,
-                ["avm/res/network/public-ip-address"],
+                ["bicep/avm/res/network/public-ip-address"],
                 ["1.0.0"],
                 "My download error"
             );
@@ -198,7 +206,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     module m1 'br/public:avm/res/network/public-ip-address:0.4.0' = {
                     }
                     """,
-                ["avm/res/network/public-ip-address"],
+                ["bicep/avm/res/network/public-ip-address"],
                 ["0.3.0", "0.4.0", "0.5.0", "1.0.1"]
             );
             result.Diagnostics.Where(d => d.Code == UseRecentModuleVersionsRule.Code)
@@ -215,7 +223,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     module m1 'br/public:avm/res/network/public-ip-address:0.4.0' = {
                     }
                     """,
-                ["avm/res/network/public-ip-address"],
+                ["bicep/avm/res/network/public-ip-address"],
                 ["0.3.0", "0.4.0", "1.0.0"]
             );
             result.Diagnostics.Where(d => d.Code == UseRecentModuleVersionsRule.Code)
@@ -232,7 +240,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     module m1 'br/public:avm/res/network/public-ip-address:0.4.1' = {
                     }
                     """,
-                ["avm/res/network/public-ip-address"],
+                ["bicep/avm/res/network/public-ip-address"],
                 ["0.3.0", "0.4.1", "0.4.2", "0.5.0"]
             );
             result.Diagnostics.Where(d => d.Code == UseRecentModuleVersionsRule.Code)
@@ -249,7 +257,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     module m1 'br/public:avm/res/network/public-ip-address:0.4.1' = {
                     }
                     """,
-                ["avm/res/network/public-ip-address"],
+                ["bicep/avm/res/network/public-ip-address"],
                 ["0.3.0", "0.4.1", "0.4.2", "0.4.5"]
             );
             result.Diagnostics.Where(d => d.Code == UseRecentModuleVersionsRule.Code)
@@ -266,7 +274,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     module m1 'br/public:avm/res/network/public-ip-address:0.4.0' = {
                     }
                     """,
-                ["avm/res/network/public-ip-address"],
+                ["bicep/avm/res/network/public-ip-address"],
                 ["0.3.0", "0.4.0", "0.5.0", "1.0.1"]
             );
 

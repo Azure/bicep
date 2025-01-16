@@ -44,11 +44,20 @@ namespace Bicep.LangServer.IntegrationTests
 
         public async Task<CompletionList> RequestCompletion(int cursor)
         {
-            return await client.RequestCompletion(new CompletionParams
+            CompletionList completions = await client.RequestCompletion(new CompletionParams
             {
                 TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
                 Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
             });
+
+            var resolved = new List<CompletionItem>();
+            foreach (var completion in completions.Items)
+            {
+                var resolvedCompletion = completion.Data is null ? completion : await client.ResolveCompletion(completion);
+                resolved.Add(resolvedCompletion);
+            }
+
+            return new CompletionList(resolved, completions.IsIncomplete);
         }
 
         public async Task<LocationContainer?> RequestReferences(int cursor, bool includeDeclaration)
