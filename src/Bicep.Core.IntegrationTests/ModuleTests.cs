@@ -731,7 +731,7 @@ module {symbolicName} 'mod.bicep' = {{}}
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-            result.Template.Should().HaveValueAtPath("$.resources[0].name", $"[format('{symbolicNamePrefix}-{{0}}', uniqueString('{symbolicName}', deployment().name))]");
+            result.Template.Should().HaveValueAtPath($"$.resources.{symbolicName}.name", $"[format('{symbolicNamePrefix}-{{0}}', uniqueString('{symbolicName}', deployment().name))]");
         }
 
         [DataRow("a", "a")]
@@ -753,7 +753,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-            result.Template.Should().HaveValueAtPath("$.resources[0].name", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', copyIndex(), uniqueString('{symbolicName}', deployment().name))]");
+            result.Template.Should().HaveValueAtPath($"$.resources.{symbolicName}.name", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', copyIndex(), uniqueString('{symbolicName}', deployment().name))]");
         }
 
         [DataRow("a", "a")]
