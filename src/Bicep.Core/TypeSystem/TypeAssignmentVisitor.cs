@@ -1921,7 +1921,9 @@ namespace Bicep.Core.TypeSystem
                     case ImportedFunctionSymbol importedFunction:
                         return GetFunctionSymbolType(importedFunction, syntax, errors, diagnostics);
 
-                    case Symbol symbolInfo when binder.NamespaceResolver.GetKnownFunctions(symbolInfo.Name).FirstOrDefault() is { } knownFunction:
+                    case Symbol symbolInfo when binder.NamespaceResolver
+                            .GetKnownFunctions(symbolInfo.Name, binder.GetParent(syntax) is DecoratorSyntax)
+                            .FirstOrDefault() is { } knownFunction:
                         // A function exists, but it's being shadowed by another symbol in the file
                         return ErrorType.Create(
                             errors.Append(
