@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-//asdfg cache
+//asdfg sort modules/registries
 using System.Collections.Immutable;
 using System.Configuration;
 using System.Diagnostics;
@@ -840,7 +840,6 @@ namespace Bicep.LanguageServer.Completions
 
         private async Task<CompletionItem> ResolveVersionCompletionItem(CompletionItem completionItem, string registry, string modulePath, string version)
         {
-
             if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
                 && await cachedRegistry.TryGetModuleAsync(modulePath) is { } module
                 && await module.TryGetVersionsAsync() is { } versions

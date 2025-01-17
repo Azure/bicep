@@ -221,7 +221,6 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
             ModulesMetadata = [("fake/avm/res/app/container-app", ["0.2.0", "0.3.0"])],
         });
 
-        //asdfg2 why filling cache multipl.e times?
         result.Should().HaveStderrMatch($"*Error use-recent-module-versions: Use a more recent version of module 'fake/avm/res/app/container-app'. The most recent version is 0.3.0.*");
         result.Should().HaveStdout("");
         result.Should().Fail();

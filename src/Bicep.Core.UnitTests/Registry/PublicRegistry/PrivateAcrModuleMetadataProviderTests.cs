@@ -11,6 +11,7 @@ using Bicep.Core.Registry.Indexing;
 using Bicep.Core.Registry.Indexing.HttpClients;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,15 +31,17 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
         //}
 
 
-        private static readonly MockHttpMessageHandler MockHttpMessageHandler = new();
+        //private static readonly MockHttpMessageHandler MockHttpMessageHandler = new();
 
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext _)
-        {
-            MockHttpMessageHandler
-                .When(HttpMethod.Get, "*")
-                .Respond("application/json", "asdfg ModuleIndexJson");
-        }
+        //[ClassInitialize]
+        //public static void ClassInitialize(TestContext _)
+        //{
+        //    MockHttpMessageHandler
+        //        .When(HttpMethod.Get, "*")
+        //        .Respond("application/json", "asdfg ModuleIndexJson");
+        //}
+
+        //asdfg: test after calling to get details, calling to get versions shouldn't require another call to the server
 
         [TestMethod]
         public async Task Asdfg()
@@ -78,6 +81,46 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
             var acrManager = new AzureContainerRegistryManager(clientFactory2.Object);
             client.MockRepositoryNames = ["abc", "def", "bicep/abc", "bicep/def"];
             var asdfg1 = acrManager.GetCatalogAsync(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
+
+            var indexer = RegistryIndexerMocks.CreateRegistryIndexer(null,
+                RegistryIndexerMocks.MockPrivateMetadataProvider(
+                    "registry.contoso.io",
+                    [
+                        ("bicep/abc", "description", "https://contoso.com/hep", [ ("1.0.0", "abc 1.0.0 description", "https://contoso.com/help/abc") ]),
+                        ("bicep/def", "description", "https://contoso.com/hep", [ ("1.0.0", "def 1.0.0 description", "https://contoso.com/help/def") ]),
+                    ]));
+
+            var configuration = BicepTestConstants.BuiltInConfiguration.With(
+                moduleAliases: RegistryIndexerMocks.ModuleAliases(
+                    """
+                    {
+                        "br": {
+                            "contoso": {
+                                "registry": "private.contoso.io"
+                            }
+                        }
+                    }
+                    """));
+            var configurationManager = StrictMock.Of<IConfigurationManager>(); //asdfg extract
+            configurationManager.Setup(x => x.GetConfiguration(It.IsAny<Uri>())).Returns(configuration);
+
+            var registry = indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
+            registry.Should().NotBeNull();
+            indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io").Should().BeSameAs(registry); //asdfg separate test
+
+            var modules = await registry.TryGetModulesAsync();
+            modules.Should().HaveCount(2);
+
+            //modules.Should().SatisfyRespectively(
+            //    x =>
+            //    {
+            //        x.ModuleName.Should().Be("bicep/abc");
+            //        (await x.TryGetVersionsAsync()).Should().HaveCount(1);
+            //        x.TryGetVersionsAsync().Result[0].Should().BeEquivalentTo(
+            //            new RegistryModuleVersionMetadata("1.0.0", new RegistryMetadataDetails("abc 1.0.0 description", "https://contoso.com/help/abc")));
+            //    },
+            //    x => x.ModuleName.Should().Be("bicep/def")
+            //);
         }
 
         //asdfg

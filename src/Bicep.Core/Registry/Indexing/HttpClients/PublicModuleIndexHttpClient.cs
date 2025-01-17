@@ -27,6 +27,7 @@ public record PublicModuleIndexEntry(
         get
         {
             {
+                //asdfg remove
                 var parsedVersions = Tags.Select(x => //asdfg this to indexer so private and public use it
                     (@string: x, version: SemVersion.TryParse(x, SemVersionStyles.AllowV, out var version) ? version : DefaultVersion))
                     .ToArray();

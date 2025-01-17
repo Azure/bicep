@@ -9,6 +9,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
+using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Indexing;
 using FluentAssertions;
@@ -59,7 +60,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
 
         public static Mock<IRegistryModuleMetadataProvider> MockPrivateMetadataProvider(
             string registry,
-            IEnumerable<(string moduleName, string? description, string? documentationUri, IEnumerable<RegistryModuleVersionMetadata> versions)> modules
+            IEnumerable<(string moduleName, string? description, string? documentationUri, IEnumerable<(string version, string? description, string? documentUri)> versions)> modules
         )
         {
             var privateProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
@@ -75,7 +76,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
                         getVersionsAsyncFunc: () => Task.FromResult<ImmutableArray<RegistryModuleVersionMetadata>>(
                             [.. modules.Single(m => m.moduleName.EqualsOrdinally(m.moduleName))
                                 .versions
-                                .Select(v => new RegistryModuleVersionMetadata(v.Version, v.Details))])
+                                    .Select(v => new RegistryModuleVersionMetadata(v.version,new( v.description, v.documentUri)))])
                         ))]);
             //asdfg
             //privateProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
@@ -130,5 +131,22 @@ namespace Bicep.Core.UnitTests.Mock.Registry
 
             return indexer;
         }
+
+        //asdfg
+        public static ModuleAliasesConfiguration ModuleAliases( //asdfg extension method?
+            string moduleAliasesJson
+        )
+        {
+            return ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(moduleAliasesJson), null);
+        }
+
+        //asdfg
+
+        //public static CloudConfiguration CloudConfiguration( //asdfg extension method?
+        //    ModuleAliasesConfiguration moduleAliasesJson
+        //)
+        //{
+        //    return ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(moduleAliasesJson), null);
+        //}
     }
 }

@@ -23,8 +23,8 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     private readonly CloudConfiguration cloud;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
 
-    // TODO: Allow configuration (note that the default allows bicep anywhere in the module path) //asdfg test filter
-    private string filterExpression = "";//asdfg "bicep";
+    // CONSIDER: Allow configuration
+    private string filterExpression = "";
 
     public PrivateAcrModuleMetadataProvider(
         CloudConfiguration cloud,
@@ -87,11 +87,12 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
         var catalog = await acrManager.GetCatalogAsync(cloud, Registry);
-        var filteredCatalog = catalog.Where(m => filterRegex.IsMatch(m)).ToImmutableArray();
+        var filteredCatalog = catalog.Where(m => filterRegex.IsMatch(m)).ToImmutableArray(); //asdfg limit?
 
         Trace.WriteLine($"Found {catalog.Length} repositories, of which {filteredCatalog.Length} matched the filter (\"{filterExpression}\")");
 
         var modules = filteredCatalog
+            .Reverse() // Reverse to get the latest modules first
             .Select(m =>
             {
                 var getVersionsAsyncFunc = () => this.GetLiveModuleVersionsAsync(m);

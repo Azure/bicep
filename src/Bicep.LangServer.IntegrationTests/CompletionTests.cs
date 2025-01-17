@@ -4136,8 +4136,7 @@ var file = " + functionName + @"(templ|)
         [DataRow("using 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
-        //asdfg2    asdfg add private
-        public async Task ModuleRegistryReferenceCompletions_GetVersionCompletions(string inputWithCursors, BicepSourceFileKind kind)//asdfg existing test - rename
+        public async Task Public_module_version_completions(string inputWithCursors, BicepSourceFileKind kind)//asdfg existing test - rename
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
@@ -4161,22 +4160,99 @@ var file = " + functionName + @"(templ|)
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
             var completions = await file.RequestCompletion(cursor);
 
-            // Change this to Should().SatisfyRespectively
             completions.Count().Should().Be(2);
             completions.Should().SatisfyRespectively(
-                first => {
+                first =>
+                {
                     first.Label.Should().Be("1.0.1");
                     first.SortText.Should().Be("0001");
                     first.Kind.Should().Be(CompletionItemKind.Snippet);
                     first.Detail.Should().BeNull();
                     first.Documentation.Should().BeNull();
                 },
-                second => {
+                second =>
+                {
                     second.Label.Should().Be("1.0.2");
                     second.SortText.Should().Be("0000");
                     second.Kind.Should().Be(CompletionItemKind.Snippet);
                     second.Detail.Should().Be("d1");
                     second.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help1)");
+                }
+            );
+        }
+
+        [DataTestMethod] //asdfg fails because of sorting
+        [DataRow("module test 'br/contoso:app/private-app:|'", BicepSourceFileKind.BicepFile)]
+        //[DataRow("module test 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.BicepFile)]
+        //[DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.BicepFile)]
+        //[DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.BicepFile)]
+        //[DataRow("using 'br/public:app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
+        //[DataRow("using 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
+        //[DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
+        //[DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
+        //// private
+        //[DataRow("module test 'br/contoso:app/dapr-containerapp:|'", BicepSourceFileKind.BicepFile)]
+        //asdfg2    asdfg add private
+        public async Task Private_module_version_completions(string inputWithCursors, BicepSourceFileKind kind)//asdfg existing test - rename
+        {
+            var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
+            var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
+            var fileUri = new Uri($"file:///{Guid.NewGuid():D}/{TestContext.TestName}/main.{extension}");
+
+            var settingsProvider = StrictMock.Of<ISettingsProvider>();
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+
+            var privateModuleMetadataProvider = RegistryIndexerMocks.MockPrivateMetadataProvider(
+                "private.contoso.com",
+                [("app/private-app", "d1", "contoso.com/help1", [
+                    new("v100", "d100", "contoso.com/help/d100.html"),
+                    new("v101", "d101", "contoso.com/help/d101.html")])
+                ]);
+            var indexer = RegistryIndexerMocks.CreateRegistryIndexer(
+                null,
+                privateModuleMetadataProvider);
+
+            var configurationManager = StrictMock.Of<IConfigurationManager>(); //asdfg extract
+            var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
+                    moduleAliases: RegistryIndexerMocks.ModuleAliases(
+                        """
+                        {
+                            "br": {
+                                "contoso": {
+                                    "registry": "private.contoso.io"
+                                }
+                            }
+                        }
+                        """));
+            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(moduleAliasesConfiguration);
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                services => services
+                .AddSingleton(settingsProvider.Object)
+                .AddSingleton(configurationManager.Object)
+                .AddSingleton(indexer));
+
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
+            var completions = await file.RequestCompletion(cursor);
+
+            completions.Count().Should().Be(2);
+            completions.Should().SatisfyRespectively(
+                first =>
+                {
+                    first.Label.Should().Be("v100");
+                    first.SortText.Should().Be("0001");
+                    first.Kind.Should().Be(CompletionItemKind.Snippet);
+                    first.Detail.Should().Be("d100");
+                    first.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help/d100.html)");
+                },
+                second =>
+                {
+                    second.Label.Should().Be("v101");
+                    second.SortText.Should().Be("0000");
+                    second.Kind.Should().Be(CompletionItemKind.Snippet);
+                    second.Detail.Should().Be("d101");
+                    second.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help/d101.html)");
                 }
             );
         }
@@ -4190,7 +4266,7 @@ var file = " + functionName + @"(templ|)
         [DataRow("using 'br:mcr.microsoft.com/bicep/abc/foo|", "bicep/abc/foo/bar", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br/public:abc/foo|'", "abc/foo/bar", "'br/public:abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br/public:abc/foo|", "abc/foo/bar", "'br/public:abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
-        public async Task Public_registry_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
+        public async Task Public_registry_module_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
@@ -4231,81 +4307,81 @@ var file = " + functionName + @"(templ|)
 
         //asdfg if a different base path is specified for an alias in bicepconfig.json, should we add it automaticaly to filter?
 
-       //asdfg
-        //[TestMethod]
-        //[DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        //[DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        //[DataRow("module test 'br/myRegistry:abc/foo|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        //[DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        //[DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
-        //[DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
-        //public async Task Private_registry_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
-        //{
-        //    var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
-        //    var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
-        //    var baseFolder = $"{Guid.NewGuid():D}";
-        //    var fileUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/main.{extension}");
-        //    //asdfgvar bicepConfigUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/bicepconfig.json");
+        //asdfg
+        [TestMethod]
+        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/myRegistry:abc/foo|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        public async Task Private_registry_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
+        {
+            var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
+            var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
+            var baseFolder = $"{Guid.NewGuid():D}";
+            var fileUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/main.{extension}");
+            //asdfgvar bicepConfigUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/bicepconfig.json");
 
-        //    var configurationManager = StrictMock.Of<IConfigurationManager>();
-        //    var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
-        //        moduleAliases: ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(
-        //        """
-        //            {
-        //                "br": {
-        //                    "myRegistry": {
-        //                        "registry": "registry.contoso.io",
-        //                        "modulePath": "bicep/whatever"
-        //                    },
-        //                    "myRegistry_noPath": {
-        //                        "registry": "registry.contoso.io"
-        //                    }
-        //                }
-        //            }
-        //            """),
-        //        null));
-        //    configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(moduleAliasesConfiguration);
+            var configurationManager = StrictMock.Of<IConfigurationManager>();
+            var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
+                moduleAliases: ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(
+                """
+                    {
+                        "br": {
+                            "myRegistry": {
+                                "registry": "registry.contoso.io",
+                                "modulePath": "bicep/whatever"
+                            },
+                            "myRegistry_noPath": {
+                                "registry": "registry.contoso.io"
+                            }
+                        }
+                    }
+                    """),
+                null));
+            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(moduleAliasesConfiguration);
 
-        //    var settingsProvider = StrictMock.Of<ISettingsProvider>();
-        //    settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+            var settingsProvider = StrictMock.Of<ISettingsProvider>();
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-        //    var indexer = RegistryIndexerMocks.MockRegistryIndexer(
-        //        null,
-        //        RegistryIndexerMocks.MockPrivateMetadataProvider(
-        //            "registry.contoso.io",
-        //            [
-        //                ("bicep/whatever/abc/foo/bar", "d1", "contoso.com/help1", []),
-        //                ("bicep/whatever/abc/food/bar", "d2", "contoso.com/help2", []),
-        //                ("bicep/whatever/abc/bar/bar", "d3", "contoso.com/help3", []),
+            var indexer = RegistryIndexerMocks.CreateRegistryIndexer(
+                null,
+                RegistryIndexerMocks.MockPrivateMetadataProvider(
+                    "registry.contoso.io",
+                    [
+                        ("bicep/whatever/abc/foo/bar", "d1", "contoso.com/help1", []),
+                        ("bicep/whatever/abc/food/bar", "d2", "contoso.com/help2", []),
+                        ("bicep/whatever/abc/bar/bar", "d3", "contoso.com/help3", []),
 
-        //            ])
-        //        );
+                    ])
+                );
 
-        //    using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
-        //        TestContext,
-        //        services => services
-        //            .AddSingleton(settingsProvider.Object)
-        //            .AddSingleton(indexer.Object)
-        //            .AddSingleton(configurationManager.Object)
-        //    );
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                services => services
+                    .AddSingleton(settingsProvider.Object)
+                    .AddSingleton(indexer)
+                    .AddSingleton(configurationManager.Object)
+            );
 
-        //    var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
-        //    var completions = await file.RequestCompletion(cursor);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
+            var completions = await file.RequestCompletion(cursor);
 
-        //    completions.Count().Should().Be(2);
-        //    completions.Select(x => (Label: x.Label, InsertText: x.TextEdit!.TextEdit!.NewText)).Should().SatisfyRespectively(
-        //        c =>
-        //        {
-        //            c.Label.Should().Be(expectedLabelForFoo);
-        //            c.InsertText.Should().Be(expectedInsertTextForFoo);
-        //        },
-        //        c =>
-        //        {
-        //            c.Label.Should().Be(expectedLabelForFoo.Replace("foo/", "food/"));
-        //            c.InsertText.Should().Be(expectedInsertTextForFoo.Replace("foo/", "food/"));
-        //        }
-        //    );
-        //}
+            completions.Count().Should().Be(2);
+            completions.Select(x => (Label: x.Label, InsertText: x.TextEdit!.TextEdit!.NewText)).Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be(expectedLabelForFoo);
+                    c.InsertText.Should().Be(expectedInsertTextForFoo);
+                },
+                c =>
+                {
+                    c.Label.Should().Be(expectedLabelForFoo.Replace("foo/", "food/"));
+                    c.InsertText.Should().Be(expectedInsertTextForFoo.Replace("foo/", "food/"));
+                }
+            );
+        }
 
         [DataTestMethod]
         [DataRow("var arr1 = [|]")]
