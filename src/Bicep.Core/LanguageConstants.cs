@@ -73,7 +73,6 @@ namespace Bicep.Core
         public const string FunctionKeyword = "func";
         public const string ExistingKeyword = "existing";
         public const string ImportKeyword = "import";
-        public const string ProviderKeyword = "provider";
         public const string ExtensionKeyword = "extension";
         public const string AssertKeyword = "assert";
         public const string WithKeyword = "with";
@@ -99,6 +98,7 @@ namespace Bicep.Core
         public const string DisableNextLineDiagnosticsKeyword = "disable-next-line";
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
+        public static readonly Regex ArmParametersSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[dD]eploymentParameters\.json)#?");
 
         public static readonly ImmutableSortedSet<string> DeclarationKeywords = ImmutableSortedSet.Create(
             StringComparer.Ordinal,

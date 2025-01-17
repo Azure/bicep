@@ -4241,6 +4241,37 @@ output sql resource = sql
     }
 
     [TestMethod]
+    public void Test_Issue12895()
+    {
+
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true, OptionalModuleNamesEnabled: true)),
+("main.bicep", @"
+module mymodule 'test.bicep' = {
+}
+
+resource myresource 'Microsoft.Sql/servers@2021-08-01-preview' = {
+  name: 'myothersql'
+  location: resourceGroup().location
+  properties: {
+    administratorLogin: mymodule.outputs.sql.properties.administratorLogin
+  }
+}
+"),
+("test.bicep", @"
+resource sql 'Microsoft.Sql/servers@2021-08-01-preview' existing = {
+  name: 'mysql'
+}
+
+output sql resource = sql
+"));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP320", DiagnosticLevel.Error, "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein."),
+        });
+    }
+
+    [TestMethod]
     public void Test_Issue6065_ResourceFunctions()
     {
         var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)),
@@ -6698,6 +6729,22 @@ var subnetId = vNet::subnets[0].id
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"module[] | (resource | module) | resource[]\", but the provided item was of type \"never\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Test_Issue16112()
+    {
+        var result = CompilationHelper.Compile("""
+            @description('A description of this resource is required to document the purpose for which it was created.')
+            param descriptionParam string
+
+            var description = 'foo'
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"description\" is not a function. Did you mean \"sys.description\"?"),
         });
     }
 }

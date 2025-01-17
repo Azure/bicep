@@ -16,9 +16,9 @@
       },
       "Microsoft.CodeAnalysis.CSharp.CodeStyle": {
         "type": "Direct",
-        "requested": "[4.12.0, )",
-        "resolved": "4.12.0",
-        "contentHash": "5S+LHLhm0am4MWQQMN0O3VyKA/St5JCqH1yv+1YGZl2klIJlLlmNA/KTLCVJSC1kZPIKR1MFF/3g9FqsyzIyCQ=="
+        "requested": "[4.11.0, )",
+        "resolved": "4.11.0",
+        "contentHash": "lcKLcYWr0vtRcGcmLs9WMilKT1DwoOaDIGvkuIX5t2exqVluHGCEBoE/R5zsoealJUDJb8BTu6ODPwpDb/JZug=="
       },
       "Microsoft.IO.Redist": {
         "type": "Direct",
@@ -1883,6 +1883,12 @@
           "Microsoft.Visualstudio.Telemetry": "[17.12.48, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.9, )",
           "System.Text.Json": "[9.0.0, )"
+        }
+      },
+      "bicep.vslanguageserverclient.itemtemplate": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.VisualStudio.CoreUtility": "[17.12.215, )"
         }
       }
     },
