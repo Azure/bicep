@@ -1648,6 +1648,16 @@ namespace Bicep.Core.TypeSystem
                         return LanguageConstants.Any;
                     }
 
+                    if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String) &&
+                        syntax.FromEndMarker is not null)
+                    {
+                        return InvalidAccessExpression(
+                            DiagnosticBuilder.ForPosition(syntax.FromEndMarker)
+                                .FromEndArrayAccessNotSupportedWithIndexType(indexType),
+                            diagnostics,
+                            syntax.IsSafeAccess);
+                    }
+
                     if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) ||
                         TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String))
                     {
@@ -1692,6 +1702,13 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType), diagnostics, syntax.IsSafeAccess);
+
+                case ObjectType or DiscriminatedObjectType when syntax.FromEndMarker is not null:
+                    return InvalidAccessExpression(
+                        DiagnosticBuilder.ForPosition(syntax.FromEndMarker)
+                            .FromEndArrayAccessNotSupportedOnBaseType(baseType),
+                        diagnostics,
+                        syntax.IsSafeAccess);
 
                 case ObjectType baseObject:
                     {
