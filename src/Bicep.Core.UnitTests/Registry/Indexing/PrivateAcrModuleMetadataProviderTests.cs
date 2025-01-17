@@ -96,8 +96,9 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
 
             //clientFactory2.Setup(m => m.)
 
-            var acrManager = new AzureContainerRegistryManager(clientFactory);
-            var asdfg = await acrManager.GetCatalogAsync(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
+            //var acrManager = new AzureContainerRegistryManager(clientFactory);
+
+            //var asdfg = await acrManager.GetCatalogAsync(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
             //client.MockRepositoryNames = ["abc", "def", "bicep/abc", "bicep/def"];
             //var asdfg1 = acrManager.GetCatalogAsync(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
 
@@ -140,6 +141,13 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
             //    },
             //    x => x.ModuleName.Should().Be("bicep/def")
             //);
+
+            var provider = new PrivateAcrModuleMetadataProvider(
+                BicepTestConstants.BuiltInConfiguration.Cloud,
+                "registry.contoso.io",
+                clientFactory);
+            var modules = await provider.TryGetModulesAsync();
+            modules.Should().HaveCount(2);
         }
 
         [TestMethod]
