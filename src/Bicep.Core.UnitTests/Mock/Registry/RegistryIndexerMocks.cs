@@ -119,7 +119,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             foreach (var privateProvider in privateProviders)
             {
                 privateProvider.Object.Registry.Should().NotBe(PublicRegistry);
-                privateFactory.Setup(x => x.Create(It.IsAny<CloudConfiguration>(), It.IsAny<string>(), It.IsAny<IContainerRegistryClientFactory>()))
+                privateFactory.Setup(x => x.Create(It.IsAny<CloudConfiguration>(), privateProvider.Object.Registry, It.IsAny<IContainerRegistryClientFactory>()))
                     .Returns(privateProvider.Object);
             }
 
