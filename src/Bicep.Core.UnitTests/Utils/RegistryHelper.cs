@@ -30,7 +30,7 @@ public static class RegistryHelper
             .Build().clientFactory;
     }
 
-    public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(params (string, string)[] clients)
+    public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> , FakeContainerRegistryClient containerRegistryClient) CreateMockRegistryClients(params (string, string)[] clients)
     {
         var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
 

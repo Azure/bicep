@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests.Mock;
@@ -38,7 +39,7 @@ namespace Bicep.Core.UnitTests.Utils
             }
         }
 
-        public (IContainerRegistryClientFactory clientFactory, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) Build()
+        public (IContainerRegistryClientFactory clientFactory, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks, FakeContainerRegistryClient containerRegistryClient) Build()
         {
             var blobClientsByRepository = blobClientsBuilder.ToImmutable();
 
@@ -58,7 +59,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Setup(m => m.CreateAuthenticatedContainerClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>()))
                 .Returns<CloudConfiguration, Uri>((_, registryUri) => containerClient);
 
-            return (clientFactory.Object, blobClientsByRepository);
+            return (clientFactory.Object, blobClientsByRepository, containerClient);
 
             MockRegistryBlobClient GetBlobClient(Uri registryUri, string repository)
             {

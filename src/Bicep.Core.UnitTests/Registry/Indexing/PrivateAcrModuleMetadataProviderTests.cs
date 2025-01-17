@@ -225,5 +225,50 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
             //var modules = await registry.TryGetModulesAsync();
             //modules.Should().HaveCount(2);
         }
+
+
+        public async Task TryGetModulesAsync()
+        {
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                new MockFileSystem(),
+                [
+                    ("br:registry.contoso.io/test/module1:v1", "param p1 bool", withSource: true),
+                    ("br:registry.contoso.io/test/module2:v1", "param p2 string", withSource: true),
+                    ("br:registry.contoso.io/test/module1:v2", "param p12 string", withSource: false),
+                ]);
+
+            var provider = new PrivateAcrModuleMetadataProvider(
+                BicepTestConstants.BuiltInConfiguration.Cloud,
+                "registry.contoso.io",
+                clientFactory);
+            var modules = await provider.TryGetModulesAsync();
+
+            modules.Should().HaveCount(2);
+        }
+
+        [TestMethod]
+        public async Task GetCachedModules()
+        {
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                new MockFileSystem(),
+                [
+                    ("br:registry.contoso.io/test/module1:v1", "param p1 bool", withSource: true),
+                    ("br:registry.contoso.io/test/module2:v1", "param p2 string", withSource: true),
+                    ("br:registry.contoso.io/test/module1:v2", "param p12 string", withSource: false),
+                ]);
+
+            var provider = new PrivateAcrModuleMetadataProvider(
+                BicepTestConstants.BuiltInConfiguration.Cloud,
+                "registry.contoso.io",
+                clientFactory);
+
+            
+            provider.GetCachedModules().Should().HaveCount(0);
+
+            var modules = await provider.TryGetModulesAsync();
+            modules.Should().HaveCount(2);
+
+            provider.GetCachedModules().Should().HaveCount(2);
+        }
     }
 }
