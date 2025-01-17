@@ -15,8 +15,8 @@ namespace Bicep.Core.Registry
         ContainerRegistryContentClient CreateAuthenticatedBlobClient(CloudConfiguration cloud, Uri registryUri, string repository);
         ContainerRegistryContentClient CreateAnonymousBlobClient(CloudConfiguration cloud, Uri registryUri, string repository);
 
-        public ContainerRegistryClient CreateAuthenticatedRegistryClient(CloudConfiguration cloud, Uri registryUri);
-        public ContainerRegistryClient CreateAnonymousRegistryClient(CloudConfiguration cloud, Uri registryUri);
+        public ContainerRegistryClient CreateAuthenticatedContainerClient(CloudConfiguration cloud, Uri registryUri);
+        public ContainerRegistryClient CreateAnonymousContainerClient(CloudConfiguration cloud, Uri registryUri);
 
     }
 }

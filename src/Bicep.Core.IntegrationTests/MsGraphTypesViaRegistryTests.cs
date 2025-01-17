@@ -127,7 +127,7 @@ namespace Bicep.Core.IntegrationTests
 
             // mock the registry client to return the mock blob client
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
-            containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(
+            containerRegistryFactoryBuilder.WithRepository(
                 artifactRegistryAddress.RegistryAddress,
                 artifactRegistryAddress.RepositoryPath,
                 mockBlobClient.Object);

@@ -6,56 +6,69 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
+using FluentAssertions;
 using Moq;
 
 namespace Bicep.Core.UnitTests.Utils
 {
     public class TestContainerRegistryClientFactoryBuilder
     {
-        private readonly ImmutableDictionary<(Uri registryUri, string repository), MockRegistryBlobClient>.Builder clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
+        private readonly ImmutableDictionary<(Uri registryUri, string repository), MockRegistryBlobClient>.Builder blobClientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
+        private readonly FakeContainerRegistryClient containerClient = new();
 
-        public TestContainerRegistryClientFactoryBuilder RegisterMockRepositoryBlobClient(string registryHost, string repository)
+        public TestContainerRegistryClientFactoryBuilder WithRepository(string registryHost, string repository)
         {
-            clientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), new MockRegistryBlobClient());
+            blobClientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), new MockRegistryBlobClient());
+
+            if (!containerClient.FakeRepositoryNames.ContainsKey(repository))
+            {
+                containerClient.FakeRepositoryNames.Add(repository, repository);
+            }
 
             return this;
         }
 
-        public void RegisterMockRepositoryBlobClient(string registryHost, string repository, MockRegistryBlobClient client)
+        public void WithRepository(string registryHost, string repository, MockRegistryBlobClient client)
         {
-            clientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), client);
+            blobClientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), client);
+
+            if (!containerClient.FakeRepositoryNames.ContainsKey(repository))
+            {
+                containerClient.FakeRepositoryNames.Add(repository, repository);
+            }
         }
 
         public (IContainerRegistryClientFactory clientFactory, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) Build()
         {
-            var repoToClient = clientsBuilder.ToImmutable();
+            var blobClientsByRepository = blobClientsBuilder.ToImmutable();
+
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
 
             clientFactory
-            .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
-            .Returns<CloudConfiguration, Uri, string>((_, registryUri, repository) =>
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Returns<CloudConfiguration, Uri, string>((_, registryUri, repository) => GetBlobClient(registryUri, repository));
+            clientFactory
+                .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Returns<CloudConfiguration, Uri, string>((_, registryUri, repository) => GetBlobClient(registryUri, repository));
+
+            clientFactory
+                .Setup(m => m.CreateAuthenticatedContainerClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>()))
+                .Returns<CloudConfiguration, Uri>((_, registryUri) => containerClient);
+            clientFactory
+                .Setup(m => m.CreateAuthenticatedContainerClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>()))
+                .Returns<CloudConfiguration, Uri>((_, registryUri) => containerClient);
+
+            return (clientFactory.Object, blobClientsByRepository);
+
+            MockRegistryBlobClient GetBlobClient(Uri registryUri, string repository)
             {
-                if (repoToClient.TryGetValue((registryUri, repository), out var client))
+                if (blobClientsByRepository.TryGetValue((registryUri, repository), out var client))
                 {
                     return client;
                 }
 
-                throw new InvalidOperationException($"No mock authenticated client was registered for Uri '{registryUri}' and repository '{repository}'.");
-            });
-
-            clientFactory
-                .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
-                .Returns<CloudConfiguration, Uri, string>((_, registryUri, repository) =>
-                {
-                    if (repoToClient.TryGetValue((registryUri, repository), out var client))
-                    {
-                        return client;
-                    }
-
-                    throw new InvalidOperationException($"No mock anonymous client was registered for Uri '{registryUri}' and repository '{repository}'.");
-                });
-
-            return (clientFactory.Object, repoToClient);
+                throw new InvalidOperationException($"No mock blob client was registered for Uri '{registryUri}' and repository '{repository}'.");
+            }
         }
     }
 }

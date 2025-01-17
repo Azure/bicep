@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -25,7 +26,7 @@ public static class RegistryHelper
     public static IContainerRegistryClientFactory CreateMockRegistryClient(string registry, string repository)
     {
         return new TestContainerRegistryClientFactoryBuilder()
-            .RegisterMockRepositoryBlobClient(registry, repository)
+            .WithRepository(registry, repository)
             .Build().clientFactory;
     }
 
@@ -35,7 +36,7 @@ public static class RegistryHelper
 
         foreach (var (registryHost, repository) in clients)
         {
-            containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryHost, repository);
+            containerRegistryFactoryBuilder.WithRepository(registryHost, repository);
         }
 
         return containerRegistryFactoryBuilder.Build();
@@ -93,11 +94,13 @@ public static class RegistryHelper
 
     // Creates a new registry client factory and publishes the specified modules to the registry.
     // Example usage:
-    // var clientFactory = await PublishModules([                
-    //    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-    //    ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
-    //    ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: false),
-    // ]);
+    //   var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+    //      new MockFileSystem(),
+    //      [
+    //        ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+    //        ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
+    //        ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: false),
+    //      ]);
     public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientWithPublishedModulesAsync(
         IFileSystem fileSystem,
         params (string target, string source, bool withSource)[] modules)

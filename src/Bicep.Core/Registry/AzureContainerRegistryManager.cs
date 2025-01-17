@@ -218,8 +218,8 @@ namespace Bicep.Core.Registry
             CloudConfiguration cloud,
             Uri registryUri,
             bool anonymousAccess) => anonymousAccess
-            ? this.clientFactory.CreateAnonymousRegistryClient(cloud, registryUri)
-            : this.clientFactory.CreateAuthenticatedRegistryClient(cloud, registryUri);
+            ? this.clientFactory.CreateAnonymousContainerClient(cloud, registryUri)
+            : this.clientFactory.CreateAuthenticatedContainerClient(cloud, registryUri);
 
         private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactReference artifactReference, ContainerRegistryContentClient client) //asdfg
         {

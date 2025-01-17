@@ -17,14 +17,14 @@ namespace Bicep.Core.UnitTests.Registry
     /// <summary>
     /// Mock OCI registry blob client. This client is intended to represent a single repository within a specific registry Uri.
     /// </summary>
-    public class MockContainerRegistryClient : ContainerRegistryClient
+    public class FakeContainerRegistryClient : ContainerRegistryClient
     {
-        public MockContainerRegistryClient() : base()
+        public FakeContainerRegistryClient() : base()
         {
             // ensure we call the base parameterless constructor to prevent outgoing calls
         }
 
-        public ImmutableArray<string> MockRepositoryNames { get; set; } = new();
+        public SortedList<string, string> FakeRepositoryNames { get; set; } = new();
 
         //asdfg
         //// maps digest to blob bytes
@@ -49,7 +49,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         public override AsyncPageable<string> GetRepositoryNamesAsync(CancellationToken cancellationToken = default) //asdfg test with lots and lots
         {
-            var page = Page<string>.FromValues(MockRepositoryNames.ToImmutableList(), continuationToken: null, StrictMock.Of<Response>().Object);
+            var page = Page<string>.FromValues(FakeRepositoryNames.Values.ToArray(), continuationToken: null, StrictMock.Of<Response>().Object);
             return AsyncPageable<string>.FromPages([page]);
         }
 

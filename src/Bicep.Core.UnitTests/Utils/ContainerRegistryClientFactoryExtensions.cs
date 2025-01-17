@@ -15,7 +15,7 @@ public class ContainerRegistryClientFactoryExtensions
 
         foreach (var (registryHost, repository) in clients)
         {
-            containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryHost, repository);
+            containerRegistryFactoryBuilder.WithRepository(registryHost, repository);
 
         }
 

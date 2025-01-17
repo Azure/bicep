@@ -37,7 +37,7 @@ namespace Bicep.Core.Registry
             return new(registryUri, repository, options);
         }
 
-        public ContainerRegistryClient CreateAuthenticatedRegistryClient(CloudConfiguration cloud, Uri registryUri)
+        public ContainerRegistryClient CreateAuthenticatedContainerClient(CloudConfiguration cloud, Uri registryUri)
         {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
@@ -48,7 +48,7 @@ namespace Bicep.Core.Registry
             return new(registryUri, credential, options);
         }
 
-        public ContainerRegistryClient CreateAnonymousRegistryClient(CloudConfiguration cloud, Uri registryUri)
+        public ContainerRegistryClient CreateAnonymousContainerClient(CloudConfiguration cloud, Uri registryUri)
         {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();

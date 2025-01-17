@@ -23,8 +23,18 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
 {
     [TestClass]
     public class PrivateAcrModuleMetadataProviderTests //asdfg2
+                                                       //asdfg: test after calling to get details, calling to get versions shouldn't require another call to the server
+
+
     {
         //asdfg
+        //private IConfigurationManager ConfigManagerWithModuleAliases(string moduleAliasesJson)
+        //{
+        //    var configuration = BicepTestConstants.BuiltInConfiguration.With(
+        //        moduleAliases: RegistryIndexerMocks.ModuleAliases(moduleAliasesJson));
+        //    return RegistryIndexerMocks.MockConfigurationManager(configuration).Object;
+        //}
+
         //private PublicModuleMetadataHttpClient CreateTypedClient() { //asdfg
         //    var httpClient = MockHttpMessageHandler.ToHttpClient();
         //    return new PublicModuleMetadataHttpClient(httpClient);
@@ -67,51 +77,58 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
 
 
             //// compile and publish modules using throwaway file system
-            //var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            //var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(asdfg
             //    new MockFileSystem(),
+
             //    [.. options.PublishedModules.Select(x => (x, "", true))]);
 
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                new MockFileSystem(),
+                [
+                    ("br:registry.contoso.io/test/module1:v1", "param p1 bool", withSource: true),
+                    ("br:registry.contoso.io/test/module2:v1", "param p2 string", withSource: true),
+                    ("br:registry.contoso.io/test/module1:v2", "param p12 string", withSource: false),
+                ]);
 
-            //asdfg var client = new MockRegistryBlobClient();
 
-            //asdfg2 use this???
             //var clientFactory2 = StrictMock.Of<IContainerRegistryClientFactory>();
             //clientFactory2.Setup(m => m.CreateAuthenticatedRegistryClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>())).Returns(client);
 
             //clientFactory2.Setup(m => m.)
 
-            //var acrManager = new AzureContainerRegistryManager(clientFactory2.Object);
+            var acrManager = new AzureContainerRegistryManager(clientFactory);
+            var asdfg = await acrManager.GetCatalogAsync(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
             //client.MockRepositoryNames = ["abc", "def", "bicep/abc", "bicep/def"];
             //var asdfg1 = acrManager.GetCatalogAsync(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
 
-            var indexer = RegistryIndexerMocks.CreateRegistryIndexer(null,
-                RegistryIndexerMocks.MockPrivateMetadataProvider(
-                    "registry.contoso.io",
-                    [
-                        ("bicep/abc", "description", "https://contoso.com/hep", [ ("1.0.0", "abc 1.0.0 description", "https://contoso.com/help/abc") ]),
-                        ("bicep/def", "description", "https://contoso.com/hep", [ ("1.0.0", "def 1.0.0 description", "https://contoso.com/help/def") ]),
-                    ]));
+            //var indexer = RegistryIndexerMocks.CreateRegistryIndexer(null,
+            //    RegistryIndexerMocks.MockPrivateMetadataProvider(
+            //        "registry.contoso.io",
+            //        [
+            //            ("bicep/abc", "description", "https://contoso.com/hep", [ ("1.0.0", "abc 1.0.0 description", "https://contoso.com/help/abc") ]),
+            //            ("bicep/def", "description", "https://contoso.com/hep", [ ("1.0.0", "def 1.0.0 description", "https://contoso.com/help/def") ]),
+            //        ]));
 
-            var configuration = BicepTestConstants.BuiltInConfiguration.With(
-                moduleAliases: RegistryIndexerMocks.ModuleAliases(
-                    """
-                    {
-                        "br": {
-                            "contoso": {
-                                "registry": "private.contoso.io"
-                            }
-                        }
-                    }
-                    """));
-            var configurationManager = StrictMock.Of<IConfigurationManager>(); //asdfg extract
-            configurationManager.Setup(x => x.GetConfiguration(It.IsAny<Uri>())).Returns(configuration);
+            //var configuration = BicepTestConstants.BuiltInConfiguration.With(
+            //    moduleAliases: RegistryIndexerMocks.ModuleAliases(
+            //        """
+            //        {
+            //            "br": {
+            //                "contoso": {
+            //                    "registry": "private.contoso.io"
+            //                }
+            //            }
+            //        }
+            //        """));
+            //var configurationManager = StrictMock.Of<IConfigurationManager>(); //asdfg extract
+            //configurationManager.Setup(x => x.GetConfiguration(It.IsAny<Uri>())).Returns(configuration);
 
-            var registry = indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
-            registry.Should().NotBeNull();
-            indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io").Should().BeSameAs(registry); //asdfg separate test
+            //var registry = indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
+            //registry.Should().NotBeNull();
+            //indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io").Should().BeSameAs(registry); //asdfg separate test
 
-            var modules = await registry.TryGetModulesAsync();
-            modules.Should().HaveCount(2);
+            //var modules = await registry.TryGetModulesAsync();
+            //modules.Should().HaveCount(2);
 
             //modules.Should().SatisfyRespectively(
             //    x =>
@@ -126,36 +143,79 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
         }
 
         [TestMethod]
-        public async Task Asdfg2()
+        public void Asdfg2()
         {
-            var indexer = RegistryIndexerMocks.CreateRegistryIndexer(null,
-                RegistryIndexerMocks.MockPrivateMetadataProvider(
-                    "registry.contoso.io",
-                    [
-                        ("bicep/abc", "description", "https://contoso.com/hep", [ ("1.0.0", "abc 1.0.0 description", "https://contoso.com/help/abc") ]),
-                        ("bicep/def", "description", "https://contoso.com/hep", [ ("1.0.0", "def 1.0.0 description", "https://contoso.com/help/def") ]),
-                    ]));
+            var provider = new PrivateAcrModuleMetadataProvider(
+                BicepTestConstants.BuiltInConfiguration.Cloud,
+                "registry.contoso.io",
+                StrictMock.Of<IContainerRegistryClientFactory>().Object);
+            //var containerRegistryClientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
 
-            var configuration = BicepTestConstants.BuiltInConfiguration.With(
-                moduleAliases: RegistryIndexerMocks.ModuleAliases(
-                    """
-                    {
-                        "br": {
-                            "contoso": {
-                                "registry": "private.contoso.io"
-                            }
-                        }
-                    }
-                    """));
-            var configurationManager = StrictMock.Of<IConfigurationManager>(); //asdfg extract
-            configurationManager.Setup(x => x.GetConfiguration(It.IsAny<Uri>())).Returns(configuration);
+            //var provider = RegistryIndexerMocks.MockPrivateMetadataProvider(asdfg
+            //    "registry.contoso.io",
+            //    [
+            //        ("bicep/abc", "description", "https://contoso.com/hep", [ ("1.0.0", "abc 1.0.0 description", "https://contoso.com/help/abc") ]),
+            //        ("bicep/def", "description", "https://contoso.com/hep", [ ("1.0.0", "def 1.0.0 description", "https://contoso.com/help/def") ]),
+            //    ]);
 
-            var registry = indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
-            registry.Should().NotBeNull();
-            indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io").Should().BeSameAs(registry); //asdfg separate test
+            provider.Registry.Should().Be("registry.contoso.io");
+            ////var configManager = ConfigManagerWithModuleAliases(asdfg
+            ////    """
+            ////    {
+            ////        "br": {
+            ////            "contoso": {
+            ////                "registry": "private.contoso.io"
+            ////            }
+            ////        }
+            ////    }
+            ////    """);
 
-            var modules = await registry.TryGetModulesAsync();
+            //var registry = indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
+            //registry.Should().NotBeNull();
+            //indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io").Should().BeSameAs(registry); //asdfg separate test
+
+            //var modules = await registry.TryGetModulesAsync();
+            //modules.Should().HaveCount(2);
+        }
+
+        [TestMethod]
+        public async Task Asdfg3()
+        {
+            var provider = new PrivateAcrModuleMetadataProvider(
+                BicepTestConstants.BuiltInConfiguration.Cloud,
+                "registry.contoso.io",
+                StrictMock.Of<IContainerRegistryClientFactory>().Object);
+            var containerRegistryClientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            containerRegistryClientFactory.Setup(x => x.CreateAuthenticatedContainerClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>())).Returns(new FakeContainerRegistryClient());
+
+            //var provider = RegistryIndexerMocks.MockPrivateMetadataProvider(asdfg
+            //    "registry.contoso.io",
+            //    [
+            //        ("bicep/abc", "description", "https://contoso.com/hep", [ ("1.0.0", "abc 1.0.0 description", "https://contoso.com/help/abc") ]),
+            //        ("bicep/def", "description", "https://contoso.com/hep", [ ("1.0.0", "def 1.0.0 description", "https://contoso.com/help/def") ]),
+            //    ]);
+
+            var modules = await provider.TryGetModulesAsync();
             modules.Should().HaveCount(2);
+            provider.GetCachedModules().Should().BeEmpty();
+
+            ////var configManager = ConfigManagerWithModuleAliases(asdfg
+            ////    """
+            ////    {
+            ////        "br": {
+            ////            "contoso": {
+            ////                "registry": "private.contoso.io"
+            ////            }
+            ////        }
+            ////    }
+            ////    """);
+
+            //var registry = indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io");
+            //registry.Should().NotBeNull();
+            //indexer.GetRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "registry.contoso.io").Should().BeSameAs(registry); //asdfg separate test
+
+            //var modules = await registry.TryGetModulesAsync();
+            //modules.Should().HaveCount(2);
         }
     }
 }
