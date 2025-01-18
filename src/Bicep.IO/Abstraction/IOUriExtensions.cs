@@ -43,6 +43,18 @@ namespace Bicep.IO.Abstraction
                 uri.Fragment);
         }
 
+        public static bool HasExtension(this IOUri uri, string extension)
+        {
+            if (!extension.StartsWith('.'))
+            {
+                extension = "." + extension;
+            }
+
+            var actualExtension = GetExtension(uri);
+
+            return actualExtension.Equals(extension, StringComparison.OrdinalIgnoreCase);
+        }
+
         private static int GetExtensionStartIndex(string path)
         {
             for (int i = path.Length - 1; i >= 0; i--)
