@@ -300,5 +300,30 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
             modules = await provider.TryGetModulesAsync();
             containerClient.CountCallsGetRepositoryNamesAsync.Should().Be(1);
         }
+
+        [TestMethod]
+        public async Task GetDetails()
+        {
+            var containerClient = new FakeContainerRegistryClient();
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                new MockFileSystem(),
+                containerClient,
+                [
+                    ("br:registry.contoso.io/test/module1:v1", "param p1 bool", withSource: true),
+                    ("br:registry.contoso.io/test/module2:v1", "param p2 string", withSource: true),
+                    ("br:registry.contoso.io/test/module1:v2", "param p12 string", withSource: false),
+                ]);
+
+            var provider = new PrivateAcrModuleMetadataProvider(
+                BicepTestConstants.BuiltInConfiguration.Cloud,
+                "registry.contoso.io",
+                clientFactory);
+
+            var module = await provider.TryGetModuleAsync("test/module1");
+            module.Should().NotBeNull();
+
+            var details = await module!.TryGetDetailsAsync();
+            details.Description.Should().Be("param p1 bool");
+        }
     }
 }
