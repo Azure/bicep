@@ -24,6 +24,8 @@ namespace Bicep.Core.UnitTests.Registry
             // ensure we call the base parameterless constructor to prevent outgoing calls
         }
 
+        public int CountCallsGetRepositoryNamesAsync { get; private set; }
+
         public SortedList<string, string> FakeRepositoryNames { get; set; } = new();
 
         //asdfg
@@ -49,6 +51,8 @@ namespace Bicep.Core.UnitTests.Registry
 
         public override AsyncPageable<string> GetRepositoryNamesAsync(CancellationToken cancellationToken = default) //asdfg test with lots and lots
         {
+            CountCallsGetRepositoryNamesAsync++;
+
             var page = Page<string>.FromValues(FakeRepositoryNames.Values.ToArray(), continuationToken: null, StrictMock.Of<Response>().Object);
             return AsyncPageable<string>.FromPages([page]);
         }

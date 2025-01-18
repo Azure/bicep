@@ -15,7 +15,7 @@ namespace Bicep.Core.UnitTests.Utils
     public class TestContainerRegistryClientFactoryBuilder
     {
         private readonly ImmutableDictionary<(Uri registryUri, string repository), MockRegistryBlobClient>.Builder blobClientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
-        private readonly FakeContainerRegistryClient containerClient = new();
+        private FakeContainerRegistryClient containerClient = new();
 
         public TestContainerRegistryClientFactoryBuilder WithRepository(string registryHost, string repository)
         {
@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Utils
             return this;
         }
 
-        public void WithRepository(string registryHost, string repository, MockRegistryBlobClient client)
+        public TestContainerRegistryClientFactoryBuilder WithRepository(string registryHost, string repository, MockRegistryBlobClient client)
         {
             blobClientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), client);
 
@@ -37,6 +37,15 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 containerClient.FakeRepositoryNames.Add(repository, repository);
             }
+
+            return this;
+        }
+
+        public TestContainerRegistryClientFactoryBuilder WithFakeContainerRegistryClient(FakeContainerRegistryClient containerRegistryClient)
+        {
+            this.containerClient.FakeRepositoryNames.Should().BeEmpty("Must set up ContainterRegistryClient before adding repos");
+            this.containerClient = containerRegistryClient;
+            return this;
         }
 
         public (IContainerRegistryClientFactory clientFactory, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks, FakeContainerRegistryClient containerRegistryClient) Build()
