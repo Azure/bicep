@@ -57,6 +57,26 @@ namespace Bicep.Core.UnitTests.Registry
             return AsyncPageable<string>.FromPages([page]);
         }
 
+        public override ContainerRepository GetRepository(string repositoryName)
+        {
+            var repository = StrictMock.Of<ContainerRepository>();
+            repository.Setup(x => x.GetAllManifestPropertiesAsync(It.IsAny<ArtifactManifestOrder>(), It.IsAny<CancellationToken>()))
+                .Returns((ArtifactManifestOrder order, CancellationToken token) =>
+                    {
+                        ArtifactManifestProperties is not mockable
+                        var properties = StrictMock.Of<ArtifactManifestProperties>();
+                        properties.Setup(x => x.Tags).Returns(FakeRepositoryNames.Keys.ToImmutableArray());
+
+                        return AsyncPageable<ArtifactManifestProperties>.FromPages(
+                            new[] { Page<ArtifactManifestProperties>.FromValues(
+                            new[] { properties.Object }, null, StrictMock.Of<Response>().Object) }
+                        );
+                    }
+                );
+            return repository.Object;
+        }
+
+
         //asdfg
         //public override async Task<Response<DownloadRegistryBlobResult>> DownloadBlobContentAsync(string digest, CancellationToken cancellationToken = default)
         //{
