@@ -14,7 +14,7 @@
     "prettier": "^3.4.2",
     "typescript": "~5.7.3",
     "typescript-eslint": "^8.20.0",
-    "vitest": "^2.1.8"
+    "vitest": "^3.0.2"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
