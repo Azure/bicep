@@ -19,11 +19,11 @@
       },
       "JsonSchema.Net": {
         "type": "Direct",
-        "requested": "[7.3.0, )",
-        "resolved": "7.3.0",
-        "contentHash": "NjVeRnxnU6WMn6kmQ/t/VyfnAVT34wWMw8LmUNE0TgIju2YKWvQWsjWTipUaR1bZJA7b/2brAu+xIleJnGFiPw==",
+        "requested": "[7.3.1, )",
+        "resolved": "7.3.1",
+        "contentHash": "6H/B3Wqyz1DqVxb0SVZzTfS8DSnvwuh/UCPa2OUB5GNepWP1ynIkWEmwWEJRG4c5BDwX3o4C5RtTcYCm+viYmQ==",
         "dependencies": {
-          "JsonPointer.Net": "5.0.0"
+          "JsonPointer.Net": "5.1.0"
         }
       },
       "Markdig": {
