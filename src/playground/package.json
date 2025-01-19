@@ -19,7 +19,7 @@
     "@types/node": "^22.10.5",
     "@types/pako": "^2.0.3",
     "@types/react": "^19.0.5",
-    "@types/react-dom": "^18.3.1",
+    "@types/react-dom": "^19.0.3",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
