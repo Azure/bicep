@@ -6,7 +6,7 @@ import { Button, ButtonGroup, Col, Container, Dropdown, FormControl, Nav, Navbar
 import './playground.css';
 import { JsonEditor } from './jsonEditor';
 import { BicepEditor } from './bicepEditor';
-import { copyShareLinkToClipboard, handleShareLink } from './utils';
+import { getShareLink, handleShareLink } from './utils';
 import { quickstartsPaths, getQuickstartsLink } from './examples';
 import { decompile } from './lspInterop';
 import { IApplicationInsights } from '@microsoft/applicationinsights-web';
@@ -69,7 +69,8 @@ export const Playground : React.FC<Props> = (props) => {
     insights.trackEvent({ name: 'copySharedLink' });
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    copyShareLinkToClipboard(bicepContent);
+    const shareLink = getShareLink(bicepContent);
+    navigator.clipboard.writeText(shareLink);
   }
 
   const handleDecompileClick = (file: File) => {

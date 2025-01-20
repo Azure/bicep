@@ -18,10 +18,15 @@ export function handleShareLink(onContents: (contents : string | null) => void):
   }
 }
 
-export function copyShareLinkToClipboard(content: string): void {
+export function getShareLink(content: string) {
   const contentHash = encodeHash(content);
-  const shareLink = `https://aka.ms/bicepdemo#${contentHash}`;
-  navigator.clipboard.writeText(shareLink);
+  let href = document.location.href;
+  if (href === 'https://azure.github.io/bicep/') {
+    // use aka.ms for the official site
+    href = 'https://aka.ms/bicepdemo';
+  }
+
+  return `${href}#${contentHash}`;
 }
 
 function encodeHash(content: string): string {
