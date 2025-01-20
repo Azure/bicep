@@ -476,10 +476,9 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
     otherThings: nested.properties.mode
 //@[004:00039) | |     └─ObjectPropertyExpression
 //@[004:00015) | |       ├─StringLiteralExpression { Value = otherThings }
-//@[017:00039) | |       └─AccessChainExpression
-//@[017:00034) | |         ├─PropertyAccessExpression { PropertyName = properties }
-//@[017:00023) | |         | └─ResourceReferenceExpression
-//@[035:00039) | |         └─StringLiteralExpression { Value = mode }
+//@[017:00039) | |       └─PropertyAccessExpression { PropertyName = mode }
+//@[017:00034) | |         └─PropertyAccessExpression { PropertyName = properties }
+//@[017:00023) | |           └─ResourceReferenceExpression
   }
 }
 
@@ -748,10 +747,9 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
     res1runtime: vmWithCondition.properties.something
 //@[004:00053) | |     ├─ObjectPropertyExpression
 //@[004:00015) | |     | ├─StringLiteralExpression { Value = res1runtime }
-//@[017:00053) | |     | └─AccessChainExpression
-//@[017:00043) | |     |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[017:00032) | |     |   | └─ResourceReferenceExpression
-//@[044:00053) | |     |   └─StringLiteralExpression { Value = something }
+//@[017:00053) | |     | └─PropertyAccessExpression { PropertyName = something }
+//@[017:00043) | |     |   └─PropertyAccessExpression { PropertyName = properties }
+//@[017:00032) | |     |     └─ResourceReferenceExpression
     res2: extension1.id
 //@[004:00023) | |     ├─ObjectPropertyExpression
 //@[004:00008) | |     | ├─StringLiteralExpression { Value = res2 }
@@ -760,10 +758,9 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
     res2runtime: extension1.properties.something
 //@[004:00048) | |     ├─ObjectPropertyExpression
 //@[004:00015) | |     | ├─StringLiteralExpression { Value = res2runtime }
-//@[017:00048) | |     | └─AccessChainExpression
-//@[017:00038) | |     |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[017:00027) | |     |   | └─ResourceReferenceExpression
-//@[039:00048) | |     |   └─StringLiteralExpression { Value = something }
+//@[017:00048) | |     | └─PropertyAccessExpression { PropertyName = something }
+//@[017:00038) | |     |   └─PropertyAccessExpression { PropertyName = properties }
+//@[017:00027) | |     |     └─ResourceReferenceExpression
     res3: extension2.id
 //@[004:00023) | |     ├─ObjectPropertyExpression
 //@[004:00008) | |     | ├─StringLiteralExpression { Value = res3 }
@@ -772,10 +769,9 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
     res3runtime: extension2.properties.something
 //@[004:00048) | |     └─ObjectPropertyExpression
 //@[004:00015) | |       ├─StringLiteralExpression { Value = res3runtime }
-//@[017:00048) | |       └─AccessChainExpression
-//@[017:00038) | |         ├─PropertyAccessExpression { PropertyName = properties }
-//@[017:00027) | |         | └─ResourceReferenceExpression
-//@[039:00048) | |         └─StringLiteralExpression { Value = something }
+//@[017:00048) | |       └─PropertyAccessExpression { PropertyName = something }
+//@[017:00038) | |         └─PropertyAccessExpression { PropertyName = properties }
+//@[017:00027) | |           └─ResourceReferenceExpression
   }
 }
 
@@ -1193,10 +1189,9 @@ resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
 output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
 //@[000:00068) ├─DeclaredOutputExpression { Name = p1_subnet1prefix }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
-//@[033:00068) | └─AccessChainExpression
-//@[033:00054) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[033:00043) |   | └─ResourceReferenceExpression
-//@[055:00068) |   └─StringLiteralExpression { Value = addressPrefix }
+//@[033:00068) | └─PropertyAccessExpression { PropertyName = addressPrefix }
+//@[033:00054) |   └─PropertyAccessExpression { PropertyName = properties }
+//@[033:00043) |     └─ResourceReferenceExpression
 output p1_subnet1name string = p1_subnet1.name
 //@[000:00046) ├─DeclaredOutputExpression { Name = p1_subnet1name }
 //@[022:00028) | ├─AmbientTypeReferenceExpression { Name = string }
@@ -1244,10 +1239,9 @@ resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 output p2_res2childprop string = p2_res2child.properties.someProp
 //@[000:00065) ├─DeclaredOutputExpression { Name = p2_res2childprop }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
-//@[033:00065) | └─AccessChainExpression
-//@[033:00056) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[033:00045) |   | └─ResourceReferenceExpression
-//@[057:00065) |   └─StringLiteralExpression { Value = someProp }
+//@[033:00065) | └─PropertyAccessExpression { PropertyName = someProp }
+//@[033:00056) |   └─PropertyAccessExpression { PropertyName = properties }
+//@[033:00045) |     └─ResourceReferenceExpression
 output p2_res2childname string = p2_res2child.name
 //@[000:00050) ├─DeclaredOutputExpression { Name = p2_res2childname }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
@@ -1281,10 +1275,9 @@ resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 output p3_res1childprop string = p3_child1.properties.someProp
 //@[000:00062) ├─DeclaredOutputExpression { Name = p3_res1childprop }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
-//@[033:00062) | └─AccessChainExpression
-//@[033:00053) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[033:00042) |   | └─ResourceReferenceExpression
-//@[054:00062) |   └─StringLiteralExpression { Value = someProp }
+//@[033:00062) | └─PropertyAccessExpression { PropertyName = someProp }
+//@[033:00053) |   └─PropertyAccessExpression { PropertyName = properties }
+//@[033:00042) |     └─ResourceReferenceExpression
 output p3_res1childname string = p3_child1.name
 //@[000:00047) ├─DeclaredOutputExpression { Name = p3_res1childname }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
@@ -1319,10 +1312,9 @@ resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
 output p4_res1childprop string = p4_child1.properties.someProp
 //@[000:00062) ├─DeclaredOutputExpression { Name = p4_res1childprop }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
-//@[033:00062) | └─AccessChainExpression
-//@[033:00053) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[033:00042) |   | └─ResourceReferenceExpression
-//@[054:00062) |   └─StringLiteralExpression { Value = someProp }
+//@[033:00062) | └─PropertyAccessExpression { PropertyName = someProp }
+//@[033:00053) |   └─PropertyAccessExpression { PropertyName = properties }
+//@[033:00042) |     └─ResourceReferenceExpression
 output p4_res1childname string = p4_child1.name
 //@[000:00047) ├─DeclaredOutputExpression { Name = p4_res1childname }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }

@@ -343,6 +343,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.BaseExpression);
             this.Visit(syntax.OpenSquare);
             this.Visit(syntax.SafeAccessMarker);
+            this.Visit(syntax.FromEndMarker);
             this.Visit(syntax.IndexExpression);
             this.Visit(syntax.CloseSquare);
         }

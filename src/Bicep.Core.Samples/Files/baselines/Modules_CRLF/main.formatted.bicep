@@ -409,3 +409,13 @@ module moduleWithNameof 'modulea.bicep' = {
     ]
   }
 }
+
+module moduleWithNullableOutputs 'child/nullableOutputs.bicep' = {
+  name: 'nullableOutputs'
+}
+
+output nullableString string? = moduleWithNullableOutputs.outputs.?nullableString
+output deeplyNestedProperty string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.property
+output deeplyNestedArrayItem string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[0]
+output deeplyNestedArrayItemFromEnd string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[^1]
+output deeplyNestedArrayItemFromEndAttempt string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[?^1]
