@@ -3,7 +3,9 @@
 
 using System.Collections.Immutable;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -20,25 +22,37 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.UnitTests.Utils;
 
-public static class RegistryHelper
+public static class RegistryHelper //asdfg turn into an instance class?
 {
     public static IContainerRegistryClientFactory CreateMockRegistryClient(string registry, string repository)
     {
         return new TestContainerRegistryClientFactoryBuilder()
-            .RegisterMockRepositoryBlobClient(registry, repository)
+            .WithRepository(registry, repository)
             .Build().clientFactory;
     }
 
-    public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(params (string, string)[] clients)
+    public static
+    (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> , FakeContainerRegistryClient containerRegistryClient/*asdfg don't return?*/)
+    CreateMockRegistryClients(
+        FakeContainerRegistryClient containerRegistryClient,
+        params (string, string)[] clients)
     {
         var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
 
+        containerRegistryFactoryBuilder.WithFakeContainerRegistryClient(containerRegistryClient);
         foreach (var (registryHost, repository) in clients)
         {
-            containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryHost, repository);
+            containerRegistryFactoryBuilder.WithRepository(registryHost, repository);
         }
 
         return containerRegistryFactoryBuilder.Build();
+    }
+
+    public static
+    (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient>, FakeContainerRegistryClient containerRegistryClient/*asdfg don't return?*/)
+    CreateMockRegistryClients(params (string, string)[] clients)
+    {
+        return CreateMockRegistryClients(new FakeContainerRegistryClient(), clients);
     }
 
     // Example target: br:mockregistry.io/test/module1:v1
@@ -93,14 +107,18 @@ public static class RegistryHelper
 
     // Creates a new registry client factory and publishes the specified modules to the registry.
     // Example usage:
-    // var clientFactory = await PublishModules([                
-    //    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-    //    ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
-    //    ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: false),
-    // ]);
+    //   var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+    //      new MockFileSystem(),
+    //      [
+    //        ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+    //        ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
+    //        ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: false),
+    //      ]);
     public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientWithPublishedModulesAsync(
         IFileSystem fileSystem,
-        params (string target, string source, bool withSource)[] modules)
+        FakeContainerRegistryClient containerRegistryClient,
+        params (string target, string source, bool withSource)[] modules
+    )
     {
         var repos = new List<(string registry, string repo)>();
 
@@ -116,7 +134,7 @@ public static class RegistryHelper
             }
         }
 
-        var clientFactory = CreateMockRegistryClients([.. repos]).factoryMock;
+        var clientFactory = CreateMockRegistryClients(containerRegistryClient, [.. repos]).factoryMock;
 
         foreach (var module in modules)
         {
@@ -129,6 +147,14 @@ public static class RegistryHelper
         }
 
         return clientFactory;
+    }
+
+    public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientWithPublishedModulesAsync(
+        IFileSystem fileSystem,
+        params (string target, string source, bool withSource)[] modules
+    )
+    {
+        return await CreateMockRegistryClientWithPublishedModulesAsync(fileSystem, new FakeContainerRegistryClient(), modules);
     }
 
     public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string pathToIndexJson, string target)

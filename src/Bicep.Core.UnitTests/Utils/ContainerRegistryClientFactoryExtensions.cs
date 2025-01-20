@@ -9,13 +9,13 @@ namespace Bicep.Core.UnitTests.Utils;
 
 public class ContainerRegistryClientFactoryExtensions
 {
-    public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(params (string, string)[] clients)
+    public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks, FakeContainerRegistryClient containerRegistryClient) CreateMockRegistryClients(params (string, string)[] clients)
     {
         var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
 
         foreach (var (registryHost, repository) in clients)
         {
-            containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryHost, repository);
+            containerRegistryFactoryBuilder.WithRepository(registryHost, repository);
 
         }
 

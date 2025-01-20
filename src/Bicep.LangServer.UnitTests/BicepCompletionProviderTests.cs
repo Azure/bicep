@@ -4,7 +4,7 @@
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Indexing;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
@@ -27,7 +27,7 @@ using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.UnitTests
 {
-    // See also Bicep.LangServer.IntegrationTests/CompletionTests.cs4
+    // See also Bicep.LangServer.IntegrationTests/CompletionTests.cs
 
     [TestClass]
     public class BicepCompletionProviderTests
@@ -39,7 +39,7 @@ namespace Bicep.LangServer.UnitTests
             var mockHttpMessageHandler = new MockHttpMessageHandler();
             mockHttpMessageHandler.When("*").Respond("application/json", "{}");
 
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
 
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)
@@ -47,11 +47,11 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
-                .AddHttpClient<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
+                .AddHttpClient<PublicModuleMetadataProvider, PublicModuleMetadataProvider>() //correct? asdfg
                     .ConfigurePrimaryHttpMessageHandler(() => mockHttpMessageHandler).Services
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<BicepCompletionProvider>()
-                .AddSingleton(publicRegistryModuleMetadataProvider.Object)
+                .AddSingleton(publicModuleMetadataProvider.Object)
             );
 
             return helper.Construct<BicepCompletionProvider>();

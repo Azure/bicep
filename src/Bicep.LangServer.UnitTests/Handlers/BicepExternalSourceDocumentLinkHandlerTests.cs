@@ -134,7 +134,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private (string registry, string repo, string tag)[] GetCachedModules()
         {
-            var cachedModules = CachedModules.GetCachedRegistryModules(MockFileSystem, CacheRootDirectory);
+            var cachedModules = CachedModules.GetCachedModules(MockFileSystem, CacheRootDirectory);
             return cachedModules.Select(x => (x.Registry, x.Repository, x.Tag)).ToArray();
         }
 

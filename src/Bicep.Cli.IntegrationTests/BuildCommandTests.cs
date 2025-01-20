@@ -126,7 +126,7 @@ namespace Bicep.Cli.IntegrationTests
 
             if (dataSet.HasExternalModules)
             {
-                CachedModules.GetCachedRegistryModules(BicepTestConstants.FileSystem, settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                CachedModules.GetCachedModules(BicepTestConstants.FileSystem, settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                     .And.AllSatisfy(m => m.Should().HaveSource());
             }
 
@@ -194,7 +194,7 @@ namespace Bicep.Cli.IntegrationTests
             var client = new MockRegistryBlobClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
-            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
+            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 

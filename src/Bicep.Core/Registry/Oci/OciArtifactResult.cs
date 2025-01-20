@@ -15,7 +15,7 @@ namespace Bicep.Core.Registry.Oci
             this.ManifestData = manifestData;
             this.Manifest = OciManifest.FromBinaryData(manifestData) ?? throw new InvalidArtifactException("Unable to deserialize OCI manifest");
             this.ManifestDigest = manifestDigest;
-            this.Layers = layers.ToImmutableArray();
+            this.Layers = [.. layers];
         }
 
         public BinaryData ManifestData { get; }

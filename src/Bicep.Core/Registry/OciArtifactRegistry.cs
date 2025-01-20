@@ -13,7 +13,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Indexing;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
@@ -35,14 +35,14 @@ namespace Bicep.Core.Registry
 
         private readonly IFeatureProvider features;
 
-        private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
+        private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
         public OciArtifactRegistry(
             IFileResolver FileResolver,
             IContainerRegistryClientFactory clientFactory,
             IFeatureProvider features,
             RootConfiguration configuration,
-            IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
+            IPublicModuleMetadataProvider publicModuleMetadataProvider,
             Uri parentModuleUri)
             : base(FileResolver)
         {
@@ -51,7 +51,7 @@ namespace Bicep.Core.Registry
             this.configuration = configuration;
             this.features = features;
             this.parentModuleUri = parentModuleUri;
-            this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
+            this.publicModuleMetadataProvider = publicModuleMetadataProvider;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.Oci;
@@ -105,7 +105,7 @@ namespace Bicep.Core.Registry
             try
             {
                 // Get module
-                await this.client.PullArtifactAsync(configuration, reference);
+                await this.client.PullArtifactAsync(configuration.Cloud, reference);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
@@ -158,9 +158,9 @@ namespace Bicep.Core.Registry
                 || string.IsNullOrWhiteSpace(documentationUri))
             {
                 // Automatically generate a help URI for public MCR modules
-                if (ociArtifactModuleReference.Registry == LanguageConstants.BicepPublicMcrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.McrRepositoryPrefix, StringComparison.Ordinal))
+                if (ociArtifactModuleReference.Registry == LanguageConstants.BicepPublicMcrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal))
                 {
-                    var moduleName = ociArtifactModuleReference.Repository.Substring(LanguageConstants.McrRepositoryPrefix.Length);
+                    var moduleName = ociArtifactModuleReference.Repository.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length);
                     return ociArtifactModuleReference.Tag is null ? null : GetPublicBicepModuleDocumentationUri(moduleName, ociArtifactModuleReference.Tag);
                 }
 
@@ -218,7 +218,15 @@ namespace Bicep.Core.Registry
 
         public override async Task OnRestoreArtifacts(bool forceRestore)
         {
-            await publicRegistryModuleMetadataProvider.TryAwaitCache(forceRestore);
+            // We don't want linter tests to download anything during analysis.  So we are downloading
+            //   metadata here to avoid downloading during analysis, and tests can use cached data if it
+            //   exists (e.g. IRegistryModuleMetadataProvider.GetCached* methods).
+            // If --no-restore has been specified on the command ine, we don't want to download anything at all.
+            // Therefore we do the cache download here so that lint rules can have access to the cached metadata.
+            // CONSIDER: Revisit if it's okay to download metadata during analysis?  This will be more of a problem
+            //   when we extend the linter rules to include private registry modules.
+
+            await publicModuleMetadataProvider.TryAwaitCache(forceRestore);
         }
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
@@ -284,7 +292,7 @@ namespace Bicep.Core.Registry
             try
             {
                 await this.client.PushArtifactAsync(
-                    configuration,
+                    configuration.Cloud,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
@@ -339,7 +347,7 @@ namespace Bicep.Core.Registry
             try
             {
                 await this.client.PushArtifactAsync(
-                    configuration,
+                    configuration.Cloud,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
@@ -363,7 +371,7 @@ namespace Bicep.Core.Registry
         // media types are case-insensitive (they are lowercase by convention only)
         public static readonly StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
 
-        protected override void WriteArtifactContentToCache(OciArtifactReference reference, OciArtifactResult result)
+        protected override void WriteArtifactContentToCache(OciArtifactReference reference, OciArtifactResult result) //asdfg2
         {
             /*
                 * this should be kept in sync with the IsModuleRestoreRequired() implementation
@@ -492,7 +500,7 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                var result = await client.PullArtifactAsync(configuration, reference);
+                var result = await client.PullArtifactAsync(configuration.Cloud, reference);
 
                 await WriteArtifactContentToCacheAsync(reference, result);
 

@@ -52,7 +52,7 @@ namespace Bicep.Core.IntegrationTests
 
         private async Task<ServiceBuilder> ServicesWithTestExtensionArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
         {
-            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
+            (var clientFactory, var blobClients, _) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
 
             (_, var client) = blobClients.First();
             var configResult = await client.UploadBlobAsync(BinaryData.FromString("{}"));
@@ -145,7 +145,7 @@ namespace Bicep.Core.IntegrationTests
 
             // mock the registry client to return the mock blob client
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
-            containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(
+            containerRegistryFactoryBuilder.WithRepository(
                 artifactRegistryAddress.RegistryAddress,
                 artifactRegistryAddress.RepositoryPath,
                 mockBlobClient.Object);
