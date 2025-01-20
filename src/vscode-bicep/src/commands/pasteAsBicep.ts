@@ -50,7 +50,12 @@ export class PasteAsBicepCommand implements Command {
     let finalPastedBicep: string | undefined;
 
     try {
-      documentUri = await findOrCreateActiveBicepFile(context, documentUri, "Choose which Bicep file to paste into", true);
+      documentUri = await findOrCreateActiveBicepFile(
+        context,
+        documentUri,
+        "Choose which Bicep file to paste into",
+        true,
+      );
 
       const document = await workspace.openTextDocument(documentUri);
       const editor = await window.showTextDocument(document);
@@ -81,7 +86,7 @@ export class PasteAsBicepCommand implements Command {
         rangeEnd - rangeStart,
         clipboardText,
         false /* queryCanPaste */,
-        editor.document.languageId
+        editor.document.languageId,
       );
 
       context.telemetry.properties.pasteType = result.pasteType;
@@ -146,7 +151,7 @@ export class PasteAsBicepCommand implements Command {
           rangeLength,
           jsonContent,
           queryCanPaste,
-          languageId
+          languageId,
         };
         const decompileResult: BicepDecompileForPasteCommandResult = await this.client.sendRequest(
           "workspace/executeCommand",
@@ -187,7 +192,7 @@ export class PasteAsBicepCommand implements Command {
         e.reason !== TextDocumentChangeReason.Redo &&
         e.reason !== TextDocumentChangeReason.Undo &&
         e.document === editor?.document &&
-        (e.document.languageId === bicepLanguageId || e.document.languageId === bicepParamLanguageId ) &&
+        (e.document.languageId === bicepLanguageId || e.document.languageId === bicepParamLanguageId) &&
         e.contentChanges.length === 1
       ) {
         const contentChange = e.contentChanges[0];
@@ -234,7 +239,7 @@ export class PasteAsBicepCommand implements Command {
                   formattedPastedText.length,
                   clipboardText,
                   true, // queryCanPaste
-                  e.document.languageId
+                  e.document.languageId,
                 );
                 if (!canPasteResult.pasteType) {
                   // Nothing we know how to convert, or pasting is not allowed in this context
