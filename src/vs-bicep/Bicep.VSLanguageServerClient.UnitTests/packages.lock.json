@@ -39,6 +39,15 @@
         "resolved": "4.12.0",
         "contentHash": "xXDdIgDfcbMr+2bLzVJHg+/oCHwcYs808TlooX0M9+BVCeHITaROsjdbWSJNdyzeMe/K8iB2NeHmaAOUcqkKWw=="
       },
+      "Microsoft.NETFramework.ReferenceAssemblies": {
+        "type": "Direct",
+        "requested": "[1.0.3, )",
+        "resolved": "1.0.3",
+        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
+        "dependencies": {
+          "Microsoft.NETFramework.ReferenceAssemblies.net472": "1.0.3"
+        }
+      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[8.0.0, )",
@@ -137,9 +146,12 @@
       },
       "MSTest.TestFramework": {
         "type": "Direct",
-        "requested": "[3.6.3, )",
-        "resolved": "3.6.3",
-        "contentHash": "jockRcUoLJMeHzLqFcMnZBrWy7tS32JP7shlepDDJuf5A6HO2PwAefXzhvprcWNkfpEwmR0KihSO2HRXwNbTng=="
+        "requested": "[3.7.1, )",
+        "resolved": "3.7.1",
+        "contentHash": "E22Dkq+4AsRgPV36Zmf7FIYiB2jkInxg5xcyP2uJ+SP34QrEkEt7rJkD6En/W8rG3k8yDaLeGR35VVUhtdx0PA==",
+        "dependencies": {
+          "MSTest.Analyzers": "3.7.1"
+        }
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
@@ -336,6 +348,11 @@
           "System.Memory": "4.5.5",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
+      },
+      "Microsoft.NETFramework.ReferenceAssemblies.net472": {
+        "type": "Transitive",
+        "resolved": "1.0.3",
+        "contentHash": "0E7evZXHXaDYYiLRfpyXvCh+yzM2rNTyuZDI+ZO7UUqSc6GfjePiXTdqJGtgIKUwdI81tzQKmaWprnUiPj9hAw=="
       },
       "Microsoft.ServiceHub.Analyzers": {
         "type": "Transitive",
@@ -730,6 +747,11 @@
           "System.Security.AccessControl": "5.0.0",
           "System.Security.Principal.Windows": "5.0.0"
         }
+      },
+      "MSTest.Analyzers": {
+        "type": "Transitive",
+        "resolved": "3.7.1",
+        "contentHash": "HmsRhCu8IV1bRKHMW+BIuye91Pw2dnl6Q7eTmn8eLpY15sSpMAe0F9L5nrsoehCHKvgi4HoOjJo7WDZJZS1ntg=="
       },
       "Nerdbank.Streams": {
         "type": "Transitive",
