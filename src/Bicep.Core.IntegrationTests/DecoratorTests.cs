@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -15,6 +17,9 @@ namespace Bicep.Core.IntegrationTests
     public class DecoratorTests
     {
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+
+        [NotNull]
+        public TestContext? TestContext { get; set; }
 
         [TestMethod]
         public void ParameterDecorator_MissingDeclaration_ExpectedParameterDeclaration()
@@ -34,7 +39,8 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void WaitUntilDecorator_MissingDeclaration_ExpectedResourceDeclaration()
         {
-            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @waitUntil(x => x.ProvisionStatus == 'Succeeded', 'PT20S')
             ");
             using (new AssertionScope())
@@ -49,7 +55,8 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void WaitUntilDecorator_MissingParameters_ExpectedTwoParameters()
         {
-            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @waitUntil(x => x.ProvisionStatus == 'Succeeded')
             ");
             using (new AssertionScope())
@@ -66,7 +73,8 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void RetryOnDecorator_ExpectedResourceDeclaration()
         {
-            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @retryOn(['ResourceNotFound'])
             ");
             using (new AssertionScope())
@@ -81,8 +89,9 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void RetryOnDecorator_WithModuleDeclaration_ShouldFail()
         {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
             var moduleUri = new Uri("file:///module.bicep");
-            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @retryOn(['ResourceNotFound'])
             module myModule 'module.bicep' = {
             name: 'moduleb'
@@ -105,7 +114,8 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void RetryOnDecorator_WithRetryCountOptionalParameter_ExpectedResourceDeclaration()
         {
-            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @retryOn(['ResourceNotFound'], 5)
             ");
             using (new AssertionScope())
@@ -120,7 +130,8 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void RetryOnDecorator_InvalidRetryCount()
         {
-            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @retryOn(['ResourceNotFound'], 0)
             resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
                 name: 'sql-server-name'
@@ -139,7 +150,8 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void RetryOnDecorator_NegativeRetryCount()
         {
-            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @retryOn(['ResourceNotFound'], -5)
             resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
                 name: 'sql-server-name'
@@ -159,7 +171,8 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void RetryOnDecorator_ValidScenario()
         {
-            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @retryOn(['ResourceNotFound'], 1)
             resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
                 name: 'sql-server-name'
@@ -178,6 +191,7 @@ namespace Bicep.Core.IntegrationTests
 
                 template.Should().NotBeNull()
                     .And.HaveValueAtPath("$.resources[0].options.retryOn", retryOnJObject);
+
             }
         }
 

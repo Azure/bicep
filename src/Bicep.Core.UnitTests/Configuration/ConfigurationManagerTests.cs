@@ -296,6 +296,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "testFramework": false,
           "assertions": false,
           "optionalModuleNames": false,
+          "waitAndRetry": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
           "secureOutputs": false
@@ -387,6 +388,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 TestFramework: false,
                 Assertions: false,
                 OptionalModuleNames: false,
+                WaitAndRetry: false,
                 LocalDeploy: false,
                 ResourceDerivedTypes: false,
                 SecureOutputs: false);
@@ -472,6 +474,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "testFramework": false,
                 "assertions": false,
                 "optionalModuleNames": false,
+                "waitAndRetry": false,
                 "localDeploy": false,
                 "resourceDerivedTypes": false,
                 "secureOutputs": false
@@ -843,6 +846,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "testFramework": false,
           "assertions": false,
           "optionalModuleNames": false,
+          "waitAndRetry": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
           "secureOutputs": false

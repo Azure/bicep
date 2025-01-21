@@ -25,6 +25,8 @@ public interface IFeatureProvider
 
     bool OptionalModuleNamesEnabled { get; }
 
+    bool WaitAndRetryEnabled { get; }
+
     bool LocalDeployEnabled { get; }
 
     bool ResourceDerivedTypesEnabled { get; }
@@ -50,6 +52,7 @@ public interface IFeatureProvider
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
                 (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),
+                (WaitAndRetryEnabled, CoreResources.ExperimentalFeatureNames_WaitAndRetry, true, false),
                 (LocalDeployEnabled, "Enable local deploy", false, false),
                 (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
                 (SecureOutputsEnabled, CoreResources.ExperimentalFeatureNames_SecureOutputs, true, false),
