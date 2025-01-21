@@ -39,7 +39,7 @@ namespace Bicep.IO.UnitTests.Abstraction
         [DataRow("/a/b/c/", "/a/b/c/")]
         [DataRow("/a//b/c", "/a/b/c")]
         [DataRow("/a/b/c/..", "/a/b")]
-        public void IOUri_ByDefault_NormalizesPath(string inputPath, string expectedPath)
+        public void IOUri_ByDefault_NormalizesNonFilePath(string inputPath, string expectedPath)
         {
             // Arrange & Act.
             var resourceIdentifier = new IOUri("http", "example.com", inputPath);
@@ -74,8 +74,10 @@ namespace Bicep.IO.UnitTests.Abstraction
         [DataTestMethod]
         [DataRow("http", "example.com", "/a/b/c", "http://example.com/a/b/c")]
         [DataRow("https", "example.com", "/a/b/c", "https://example.com/a/b/c")]
+        [DataRow("inmemory", null, "a/b/c", "inmemory:a/b/c")]
+        [DataRow("inmemory", null, "a/b/../c", "inmemory:a/c")]
         [DataRow("file", "", "/a/b/c", "/a/b/c")]
-        public void ToString_ByDefault_ReturnsUriOrLocalFilePath(string scheme, string authority, string path, string expectedOutput)
+        public void ToString_ByDefault_ReturnsUriOrLocalFilePath(string scheme, string? authority, string path, string expectedOutput)
         {
             // Arrange & Act.
             var resourceIdentifier = new IOUri(scheme, authority, path);
@@ -230,5 +232,91 @@ namespace Bicep.IO.UnitTests.Abstraction
             // Assert.
             result.Should().BeFalse();
         }
+
+        [DataTestMethod]
+        [DataRow("http", "example.com", "/a/b/c", "d/e", "http://example.com/a/b/d/e")]
+        [DataRow("http", "example.com", "/a/b/c/", "d/e", "http://example.com/a/b/c/d/e")]
+        [DataRow("http", "example.com", "/a/b/c", "../d/e", "http://example.com/a/d/e")]
+        [DataRow("http", "example.com", "/a/b/c/", "../d/e", "http://example.com/a/b/d/e")]
+        [DataRow("http", "example.com", "/a/b/c/", "./d/e", "http://example.com/a/b/c/d/e")]
+        [DataRow("file", "", "/a/b/c", "d/e", "/a/b/d/e")]
+        [DataRow("file", "", "/a/b/c/", "d/e", "/a/b/c/d/e")]
+        [DataRow("file", "", "/a/b/c", ".", "/a/b/")]
+        [DataRow("file", "", "/a/b/c", "..", "/a/")]
+        [DataRow("file", "", "/a/b/c", "../d/e", "/a/d/e")]
+        [DataRow("file", "", "/a/b/c/", "../d/e", "/a/b/d/e")]
+        [DataRow("http", "example.com", "/a/b/c/", "/d/e", "http://example.com/d/e")]
+        [DataRow("file", "", "/a/b/c/", "/d/e", "/d/e")]
+        [DataRow("file", "", "/a/b/c/", "/../d/e", "/d/e")]
+        [DataRow("file", "", "/a/b/c/", "/./d/e", "/d/e")]
+        public void Resolve_RelativeOrAbsolutePath_ReturnsExpectedUri(string scheme, string? authority, string path, string relativeOrAbsolutePath, string expectedUri)
+        {
+            // Arrange
+            var baseUri = new IOUri(scheme, authority, path);
+
+            // Act
+            var resolvedUri = baseUri.Resolve(relativeOrAbsolutePath);
+
+            // Assert
+            resolvedUri.ToString().Should().Be(expectedUri);
+        }
+
+        [TestMethod]
+        public void FromLocalFilePath_RelativePath_ThrowsIOException()
+        {
+            // Arrange
+            var filePath = "a/b/c";
+
+            // Act
+            Action act = () => IOUri.FromLocalFilePath(filePath);
+
+            // Assert
+            act.Should().Throw<IOException>().WithMessage("File path must be absolute.");
+        }
+
+        [TestMethod]
+        public void FromLocalFilePath_UncPath_ThrowsIOException()
+        {
+            // Arrange
+            var filePath = "//server/share";
+
+            // Act
+            Action act = () => IOUri.FromLocalFilePath(filePath);
+
+            // Assert
+            act.Should().Throw<IOException>().WithMessage("Unsupported UNC path.");
+        }
+
+        [TestMethod]
+        public void FromLocalFilePath_ValidAbsolutePath_ReturnsExpectedUri()
+        {
+            // Arrange
+            var filePath = "/a/b/c";
+
+            // Act
+            var uri = IOUri.FromLocalFilePath(filePath);
+
+            // Assert
+            uri.Scheme.Should().Be(IOUriScheme.File);
+            uri.Authority.Should().Be("");
+            uri.Path.Should().Be("/a/b/c");
+        }
+
+#if WINDOWS_BUILD
+        [TestMethod]
+        public void FromLocalFilePath_WindowsAbsolutePath_ReturnsExpectedUri()
+        {
+            // Arrange
+            var filePath = "C:\\a\\b\\c";
+
+            // Act
+            var uri = IOUri.FromLocalFilePath(filePath);
+
+            // Assert
+            uri.Scheme.Should().Be(IOUriScheme.File);
+            uri.Authority.Should().Be("");
+            uri.Path.Should().Be("/C:/a/b/c");
+        }
+#endif
     }
 }

@@ -18,7 +18,7 @@ import {
 } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { BicepDecompileForPasteCommandParams, BicepDecompileForPasteCommandResult } from "../language";
-import { bicepConfigurationKeys, bicepLanguageId } from "../language/constants";
+import { bicepConfigurationKeys, bicepLanguageId, bicepParamLanguageId } from "../language/constants";
 import { getBicepConfiguration } from "../language/getBicepConfiguration";
 import { areEqualIgnoringWhitespace } from "../utils/areEqualIgnoringWhitespace";
 import { Disposable } from "../utils/disposable";
@@ -50,13 +50,18 @@ export class PasteAsBicepCommand implements Command {
     let finalPastedBicep: string | undefined;
 
     try {
-      documentUri = await findOrCreateActiveBicepFile(context, documentUri, "Choose which Bicep file to paste into");
+      documentUri = await findOrCreateActiveBicepFile(
+        context,
+        documentUri,
+        "Choose which Bicep file to paste into",
+        true,
+      );
 
       const document = await workspace.openTextDocument(documentUri);
       const editor = await window.showTextDocument(document);
 
-      if (editor?.document.languageId !== bicepLanguageId) {
-        throw new Error("Cannot paste as Bicep: Editor is not editing a Bicep document.");
+      if (editor?.document.languageId !== bicepLanguageId && editor?.document.languageId !== bicepParamLanguageId) {
+        throw new Error("Cannot paste as Bicep: Editor is not editing a Bicep or BicepParam document.");
       }
 
       clipboardText = await env.clipboard.readText();
@@ -81,6 +86,7 @@ export class PasteAsBicepCommand implements Command {
         rangeEnd - rangeStart,
         clipboardText,
         false /* queryCanPaste */,
+        editor.document.languageId,
       );
 
       context.telemetry.properties.pasteType = result.pasteType;
@@ -130,6 +136,7 @@ export class PasteAsBicepCommand implements Command {
     rangeLength: number,
     jsonContent: string,
     queryCanPaste: boolean,
+    languageId: string,
   ): Promise<BicepDecompileForPasteCommandResult> {
     return await withProgressAfterDelay(
       {
@@ -144,6 +151,7 @@ export class PasteAsBicepCommand implements Command {
           rangeLength,
           jsonContent,
           queryCanPaste,
+          languageId,
         };
         const decompileResult: BicepDecompileForPasteCommandResult = await this.client.sendRequest(
           "workspace/executeCommand",
@@ -158,6 +166,7 @@ export class PasteAsBicepCommand implements Command {
         context.telemetry.properties.decompileId = decompileResult.decompileId;
         context.telemetry.properties.jsonSize = String(jsonContent.length);
         context.telemetry.properties.queryCanPaste = String(queryCanPaste);
+        context.telemetry.properties.languageId = languageId;
 
         return decompileResult;
       },
@@ -183,7 +192,7 @@ export class PasteAsBicepCommand implements Command {
         e.reason !== TextDocumentChangeReason.Redo &&
         e.reason !== TextDocumentChangeReason.Undo &&
         e.document === editor?.document &&
-        e.document.languageId === bicepLanguageId &&
+        (e.document.languageId === bicepLanguageId || e.document.languageId === bicepParamLanguageId) &&
         e.contentChanges.length === 1
       ) {
         const contentChange = e.contentChanges[0];
@@ -230,6 +239,7 @@ export class PasteAsBicepCommand implements Command {
                   formattedPastedText.length,
                   clipboardText,
                   true, // queryCanPaste
+                  e.document.languageId,
                 );
                 if (!canPasteResult.pasteType) {
                   // Nothing we know how to convert, or pasting is not allowed in this context

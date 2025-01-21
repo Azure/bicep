@@ -220,7 +220,7 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                 var response = await client.GetFileReferences(new("/main.bicepparam"), token);
 
                 response.FilePaths.Should().BeEquivalentTo([
-                    fileSystem.Path.GetFullPath("/bicepconfig.json"),
+                    "/bicepconfig.json",
                     "/invalid.txt",
                     "/main.bicep",
                     "/main.bicepparam",

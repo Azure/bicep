@@ -7,6 +7,7 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
 
@@ -20,7 +21,7 @@ namespace Bicep.IO.UnitTests.FileSystem
         {
             // Arrange.
             var fileSystem = new MockFileSystem();
-            var fileHandle = new FileSystemFileHandle(fileSystem, "/file");
+            var fileHandle = CreateFileSystemFileHandle(fileSystem, "/file");
 
             // Act & Assert.
             fileHandle.Exists().Should().BeFalse();
@@ -32,7 +33,7 @@ namespace Bicep.IO.UnitTests.FileSystem
             // Arrange.
             var fileSystem = new MockFileSystem();
             fileSystem.AddFile("/file", new MockFileData("content"));
-            var fileHandle = new FileSystemFileHandle(fileSystem, "/file");
+            var fileHandle = CreateFileSystemFileHandle(fileSystem, "/file");
 
             // Act & Assert.
             fileHandle.Exists().Should().BeTrue();
@@ -43,13 +44,13 @@ namespace Bicep.IO.UnitTests.FileSystem
         {
             // Arrange.
             var fileSystem = new MockFileSystem();
-            var fileHandle = new FileSystemFileHandle(fileSystem, "/dir/file");
+            var fileHandle = CreateFileSystemFileHandle(fileSystem, "/dir/file");
 
             // Act.
             var parentDirectory = fileHandle.GetParent();
 
             // Assert.
-            parentDirectory.Uri.GetFileSystemPath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
+            parentDirectory.Uri.GetLocalFilePath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
         }
 
         [TestMethod]
@@ -57,7 +58,7 @@ namespace Bicep.IO.UnitTests.FileSystem
         {
             // Arrange.
             var fileSystem = new MockFileSystem();
-            var fileHandle = new FileSystemFileHandle(fileSystem, "/dir/subdir/file.txt");
+            var fileHandle = CreateFileSystemFileHandle(fileSystem, "/dir/subdir/file.txt");
 
             // Act.
             using (var stream = fileHandle.OpenWrite())
@@ -70,6 +71,13 @@ namespace Bicep.IO.UnitTests.FileSystem
             fileSystem.Directory.Exists("/dir/subdir").Should().BeTrue();
             fileSystem.File.Exists("/dir/subdir/file.txt").Should().BeTrue();
             fileSystem.File.ReadAllText("/dir/subdir/file.txt").Should().Be("Hello, World!");
+        }
+
+        private static FileSystemFileHandle CreateFileSystemFileHandle(MockFileSystem fileSystem, string path)
+        {
+            path = fileSystem.Path.GetFullPath(path);
+
+            return new FileSystemFileHandle(fileSystem, IOUri.FromLocalFilePath(path));
         }
     }
 }

@@ -4241,6 +4241,37 @@ output sql resource = sql
     }
 
     [TestMethod]
+    public void Test_Issue12895()
+    {
+
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true, OptionalModuleNamesEnabled: true)),
+("main.bicep", @"
+module mymodule 'test.bicep' = {
+}
+
+resource myresource 'Microsoft.Sql/servers@2021-08-01-preview' = {
+  name: 'myothersql'
+  location: resourceGroup().location
+  properties: {
+    administratorLogin: mymodule.outputs.sql.properties.administratorLogin
+  }
+}
+"),
+("test.bicep", @"
+resource sql 'Microsoft.Sql/servers@2021-08-01-preview' existing = {
+  name: 'mysql'
+}
+
+output sql resource = sql
+"));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP320", DiagnosticLevel.Error, "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein."),
+        });
+    }
+
+    [TestMethod]
     public void Test_Issue6065_ResourceFunctions()
     {
         var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)),
@@ -6528,5 +6559,192 @@ param p invalidRecursiveObjectType = {}
               "functionApp"
             ]
             """);
+    }
+
+    [TestMethod]
+    public void Test_Issue15898()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import {someType} from 'nameClash.bicep'
+                """),
+            ("nameClash.bicep", """
+                @export()
+                type someType = {}
+
+                output someType someType = {}
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Nested_copy_resources_should_be_assigned_a_fully_qualified_copy_loop_name()
+    {
+        var result = CompilationHelper.Compile("""
+            param location string = resourceGroup().location
+            param _resourceName string
+            param serviceAccountsApp1 string[]
+            param serviceAccountsApp2 string[]
+            param _aksOidcIssuerProfileURL string
+            param configAks { namespace: string }
+
+            resource aksWorkloadIdentityApp1 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+              name: '${_resourceName}-id-app1'
+              location: location
+
+              @batchSize(1)
+              resource federation 'federatedIdentityCredentials' = [for item in serviceAccountsApp1: {
+                name: 'federated-credentials-${item}'
+                properties: {
+                  audiences: [ 'api://AzureADTokenExchange' ]
+                  issuer: _aksOidcIssuerProfileURL
+                  subject: 'system:serviceaccount:${configAks.namespace}:${item}'
+                }
+              }]
+            }
+
+            resource aksWorkloadIdentityApp2 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+              name: '${_resourceName}-id-app2'
+              location: location
+
+              @batchSize(1)
+              resource federation 'federatedIdentityCredentials' = [for item in serviceAccountsApp2: {
+                name: 'federated-credentials-${item}'
+                properties: {
+                  audiences: [ 'api://AzureADTokenExchange' ]
+                  issuer: _aksOidcIssuerProfileURL
+                  subject: 'system:serviceaccount:${configAks.namespace}:${item}'
+                }
+              }]
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.resources.aksWorkloadIdentityApp1::federation.copy.name", "aksWorkloadIdentityApp1::federation");
+        result.Template.Should().HaveValueAtPath("$.resources.aksWorkloadIdentityApp2::federation.copy.name", "aksWorkloadIdentityApp2::federation");
+    }
+
+    [TestMethod]
+    // https://github.com/Azure/bicep/issues/15402
+    public void Test_Issue15402()
+    {
+        var result = CompilationHelper.Compile(
+"""
+param vNetAddress string = '192.168.1.0/24'
+param subnetPrefixLength int = 29
+
+resource vNet 'Microsoft.Network/virtualNetworks@2023-04-01' = {
+  name: 'myVNet'
+  location: 'westus'
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        vNetAddress
+      ]
+    }
+    subnets: [
+      {
+        name: 'mySubnet'
+        properties: {
+          addressPrefix: cidrSubnet(vNetAddress, subnetPrefixLength, 0)
+        }
+      }
+    ]
+  }
+}
+
+var subnetId = vNet::subnets[0].id
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP159", DiagnosticLevel.Error, "The resource \"vNet\" does not contain a nested resource named \"subnets\"."),
+        ]);
+    }
+
+    [TestMethod]
+    public void Test_Issue14838()
+    {
+        var result = CompilationHelper.Compile("""
+            var data = [
+              {
+                name: 'foo'
+                parallelism: 2
+              }
+              {
+                name: 'bar'
+                parallelism: 0
+              }
+              {
+                name: 'baz'
+                parallelism: 0
+              }
+            ]
+
+            var size = 4
+            var parallelisms = map(data, org => org.parallelism)
+            var allocated = reduce(parallelisms, 0, (sum, parallelism) => sum + parallelism)
+            var count = reduce(parallelisms, 0, (sum, parallelism) => parallelism == 0 ? sum + 1 : sum)
+
+            output remaining int = (size - allocated) / count
+            output extra int = (size - allocated) % count
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://www.github.com/Azure/bicep/issues/14067
+    [TestMethod]
+    public void Fail_function_should_be_usable_anywhere_the_expression_will_be_evaluated_at_runtime()
+    {
+        var result = CompilationHelper.Compile("""
+            var foo = fail('foo')
+            param required string = fail('should have supplied one')
+
+            resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = if (fail('should be allowed here')) {
+              name: fail('should be allowed here, too')
+            }
+
+            output boolOutput bool = required == 'bar' && fail('this, too, should be fine')
+            output stringOutput string = required == 'bar' ? 'boo' : fail('ternary should have assigned type of \'boo\'')
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://www.github.com/Azure/bicep/issues/14067
+    [TestMethod]
+    public void Fail_function_should_not_be_usable_anywhere_the_expression_will_be_evaluated_at_compile_time()
+    {
+        var result = CompilationHelper.Compile("""
+            resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+              name: 'acct'
+              dependsOn: [
+                fail('should not be allowed here')
+              ]
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"module[] | (resource | module) | resource[]\", but the provided item was of type \"never\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Test_Issue16112()
+    {
+        var result = CompilationHelper.Compile("""
+            @description('A description of this resource is required to document the purpose for which it was created.')
+            param descriptionParam string
+
+            var description = 'foo'
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"description\" is not a function. Did you mean \"sys.description\"?"),
+        });
     }
 }

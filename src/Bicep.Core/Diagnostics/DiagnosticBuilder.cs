@@ -844,9 +844,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP158",
                 $"Cannot access nested resources of type \"{wrongType}\". A resource type is required.");
 
-            public Diagnostic NestedResourceNotFound(string resourceName, string identifierName, IEnumerable<string> nestedResourceNames) => CoreError(
-                "BCP159",
-                $"The resource \"{resourceName}\" does not contain a nested resource named \"{identifierName}\". Known nested resources are: {ToQuotedString(nestedResourceNames)}.");
+            public Diagnostic NestedResourceNotFound(string resourceName, string identifierName, IEnumerable<string> nestedResourceNames)
+            {
+                var nestedResourceNamesClause = nestedResourceNames.Any()
+                    ? $" Known nested resources are: {ToQuotedString(nestedResourceNames)}."
+                    : string.Empty;
+
+                return CoreError(
+                    "BCP159",
+                    $"""The resource "{resourceName}" does not contain a nested resource named "{identifierName}".{nestedResourceNamesClause}""");
+            }
 
             public Diagnostic NestedResourceNotAllowedInLoop() => CoreError(
                 "BCP160",
@@ -1730,21 +1737,6 @@ namespace Bicep.Core.Diagnostics
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
 
-            public Diagnostic ExtensionDeclarationKeywordIsDeprecated(ExtensionDeclarationSyntax syntax)
-            {
-                var codeFix = new CodeFix(
-                    $"Replace the {syntax.Keyword.Text} keyword with the extension keyword",
-                    true,
-                    CodeFixKind.QuickFix,
-                    new CodeReplacement(syntax.Keyword.Span, LanguageConstants.ExtensionKeyword));
-
-                return CoreWarning(
-                    "BCP381",
-                    @$"Declaring extension with the ""{syntax.Keyword.Text}"" keyword has been deprecated. Please use the ""extension"" keyword instead. Please see https://github.com/Azure/bicep/issues/14374 for more information.")
-                    with
-                { Fixes = [codeFix] };
-            }
-
             public Diagnostic TypeIsNotParameterizable(string typeName) => CoreError(
                 "BCP383",
                 $"The \"{typeName}\" type is not parameterizable.");
@@ -1873,6 +1865,12 @@ namespace Bicep.Core.Diagnostics
                     with
                 { Fixes = [fixToResourceInput, fixToResourceOutput] };
             }
+
+            public Diagnostic AttemptToDivideByZero() => CoreError("BCP410", "Division by zero is not supported.");
+
+            public Diagnostic TypeExpressionResolvesToUnassignableType(TypeSymbol type) => CoreError(
+                "BCP411",
+                $"The type \"{type}\" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object).{TypeInaccuracyClause}");
 
             public Diagnostic NegativeRetryCount() => CoreError(
                    "BCP410",

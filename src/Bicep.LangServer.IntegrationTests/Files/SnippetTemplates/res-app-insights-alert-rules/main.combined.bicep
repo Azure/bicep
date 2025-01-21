@@ -12,7 +12,8 @@
 
 param location string
 
-resource appInsightsAlertRules 'Microsoft.Insights/alertrules@2016-03-01' = {
+resource appInsightsAlertRules 'Microsoft.Insights/alertrules@2024-03-01' = {
+//@[31:73) [BCP081 (Warning)] Resource type "Microsoft.Insights/alertrules@2024-03-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Insights/alertrules@2024-03-01'|
   name: 'name'
   location: location
   properties: {

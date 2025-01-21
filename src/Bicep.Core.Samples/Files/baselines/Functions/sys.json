@@ -439,6 +439,25 @@
     ]
   },
   {
+    "name": "fail",
+    "description": "Raises a runtime error with the provided message. Will cause a deployment to fail when evaluated.",
+    "fixedParameters": [
+      {
+        "name": "message",
+        "description": "The error message to use.",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(message: string): never",
+    "parameterTypeSignatures": [
+      "message: string"
+    ]
+  },
+  {
     "name": "filter",
     "description": "Filters an array with a custom filtering function.",
     "fixedParameters": [

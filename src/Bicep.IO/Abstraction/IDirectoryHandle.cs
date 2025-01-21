@@ -11,12 +11,18 @@ namespace Bicep.IO.Abstraction
 {
     public interface IDirectoryHandle : IIOHandle
     {
-        void EnsureExists();
+        IDirectoryHandle EnsureExists();
+
+        void Delete();
 
         IDirectoryHandle? GetParent();
 
         IDirectoryHandle GetDirectory(string relativePath);
 
         IFileHandle GetFile(string relativePath);
+
+        IEnumerable<IDirectoryHandle> EnumerateDirectories(string searchPattern = "");
+
+        IEnumerable<IFileHandle> EnumerateFiles(string searchPattern = "");
     }
 }

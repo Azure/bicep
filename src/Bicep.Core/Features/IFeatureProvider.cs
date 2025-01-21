@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.IO.Abstraction;
+
 namespace Bicep.Core.Features;
 
 public interface IFeatureProvider
 {
     string AssemblyVersion { get; }
 
-    string CacheRootDirectory { get; }
+    IDirectoryHandle CacheRootDirectory { get; }
 
     bool SymbolicNameCodegenEnabled { get; }
 
@@ -35,6 +37,8 @@ public interface IFeatureProvider
 
     bool SecureOutputsEnabled { get; }
 
+    bool ResourceInfoCodegenEnabled { get; }
+
     bool ExtensibilityV2EmittingEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
@@ -46,6 +50,7 @@ public interface IFeatureProvider
             foreach (var (enabled, name, impactsCompilation, usesExperimentalArmEngineFeature) in new[]
             {
                 (SymbolicNameCodegenEnabled, CoreResources.ExperimentalFeatureNames_SymbolicNameCodegen, false, false), // Symbolic name codegen is listed as not impacting compilation because it is GA
+                (ResourceInfoCodegenEnabled, CoreResources.ExperimentalFeatureNames_ResourceInfoCodegen, true, true),
                 (ExtensibilityEnabled, CoreResources.ExperimentalFeatureNames_Extensibility, true, true),
                 (ResourceTypedParamsAndOutputsEnabled, CoreResources.ExperimentalFeatureNames_ResourceTypedParamsAndOutputs, true, false),
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),

@@ -18,6 +18,10 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class CompilationHelper
     {
+        public record InputFile(
+            string FileName,
+            string Contents);
+
         public interface ICompilationResult
         {
             IEnumerable<IDiagnostic> Diagnostics { get; }
@@ -139,6 +143,9 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static CompilationResult Compile(IResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
             => Compile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides).WithAzResourceTypeLoader(resourceTypeLoader), files);
+
+        public static CompilationResult Compile(params InputFile[] files)
+            => Compile(files.Select(x => (x.FileName, x.Contents)).ToArray());
 
         public static CompilationResult Compile(params (string fileName, string fileContents)[] files)
             => Compile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides), files);

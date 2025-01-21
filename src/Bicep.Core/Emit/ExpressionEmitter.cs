@@ -137,7 +137,7 @@ namespace Bicep.Core.Emit
         {
             var converterForContext = this.converter.GetConverter(indexContext);
 
-            var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(moduleSymbol);
+            var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(moduleSymbol, indexContext?.Index);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);

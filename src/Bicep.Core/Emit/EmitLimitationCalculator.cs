@@ -303,6 +303,14 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
+                if (semanticModel.Features.OptionalModuleNamesEnabled &&
+                    propertyMap.Keys.FirstOrDefault(x => x.Name.Equals(LanguageConstants.ModuleNamePropertyName)) is null)
+                {
+
+                    // The module name is generated and implictly uses the loop variable (copyIndex()).
+                    continue;
+                }
+
                 var indexVariable = @for.IndexVariable;
                 if (propertyMap.All(pair => IsInvariant(semanticModel, itemVariable, indexVariable, pair.Value)))
                 {
@@ -469,9 +477,16 @@ namespace Bicep.Core.Emit
                     .Select(syntaxToBlock => DiagnosticBuilder.ForPosition(syntaxToBlock).ModuleOutputResourcePropertyAccessDetected()));
 
         private static bool IsModuleOutputResourceRuntimePropertyAccess(SemanticModel model, SyntaxBase syntax)
-            => syntax is PropertyAccessSyntax propertyAccess &&
+        {
+            if (syntax is PropertyAccessSyntax propertyAccess &&
                 model.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata &&
-                !AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyAccess.PropertyName.IdentifierName);
+                !AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyAccess.PropertyName.IdentifierName))
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         private static bool IsModuleOutputResourceListFunction(SemanticModel model, SyntaxBase syntax)
             => syntax is InstanceFunctionCallSyntax instanceFunctionCall &&

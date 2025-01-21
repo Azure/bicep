@@ -12,12 +12,10 @@
   <ItemGroup>
     <ProjectReference Include="../Bicep.Local.Extension/Bicep.Local.Extension.csproj" />
     <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.66.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.67.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.146" />
-    <!-- Indirect reference temporarily needed to pick specific version -->
-    <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="8.0.11" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
   </ItemGroup>
 </Project>

@@ -247,6 +247,15 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Resource info code generation.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_ResourceInfoCodegen {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_ResourceInfoCodegen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Test framework.
         /// </summary>
         internal static string ExperimentalFeatureNames_TestFramework {
@@ -1075,7 +1084,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use the safe access (.?) operator instead of checking object contents with the &apos;contains&apos; function..
+        ///   Looks up a localized string similar to Use the safe access (.?) operator..
         /// </summary>
         internal static string UseSafeAccessRule_Description {
             get {
@@ -1084,11 +1093,29 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Use user-defined types instead of &quot;object&quot; or &quot;array&quot;..
+        /// </summary>
+        internal static string UseUserDefinedTypesRule_Description {
+            get {
+                return ResourceManager.GetString("UseUserDefinedTypesRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The syntax can be simplified by using the safe access (.?) operator..
         /// </summary>
-        internal static string UseSafeAccessRule_MessageFormat {
+        internal static string UseSafeAccessRule_ContainsReplacement_MessageFormat {
             get {
-                return ResourceManager.GetString("UseSafeAccessRule_MessageFormat", resourceCulture);
+                return ResourceManager.GetString("UseSafeAccessRule_ContainsReplacement_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The property being accessed may be null. Use the (.?) operator to handle this safely..
+        /// </summary>
+        internal static string UseSafeAccessRule_NullCheckReplacement_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseSafeAccessRule_NullCheckReplacement_MessageFormat", resourceCulture);
             }
         }
         

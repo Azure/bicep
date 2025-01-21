@@ -188,7 +188,7 @@ resource loopParent 'My.Rp/parentType@2020-12-01' = {
   resource loopChild 'childType' = [for item in items: {
 //@    {
 //@      "copy": {
-//@        "name": "loopChild",
+//@        "name": "loopParent::loopChild",
 //@        "count": "[length(variables('items'))]"
 //@      },
 //@      "type": "My.Rp/parentType/childType",

@@ -19,9 +19,9 @@
       },
       "Microsoft.CodeAnalysis.CSharp.CodeStyle": {
         "type": "Direct",
-        "requested": "[4.12.0, )",
-        "resolved": "4.12.0",
-        "contentHash": "5S+LHLhm0am4MWQQMN0O3VyKA/St5JCqH1yv+1YGZl2klIJlLlmNA/KTLCVJSC1kZPIKR1MFF/3g9FqsyzIyCQ=="
+        "requested": "[4.11.0, )",
+        "resolved": "4.11.0",
+        "contentHash": "lcKLcYWr0vtRcGcmLs9WMilKT1DwoOaDIGvkuIX5t2exqVluHGCEBoE/R5zsoealJUDJb8BTu6ODPwpDb/JZug=="
       },
       "Microsoft.IO.Redist": {
         "type": "Direct",
@@ -264,9 +264,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.6.146, )",
-        "resolved": "3.6.146",
-        "contentHash": "W1eQ8hD9Y/cZ2+ilgxECl003xr1hybpN3fMxoTlMqg++BixETBMWzS4y9s08oHJKXgKtudsoxhITNOEf1OR66w=="
+        "requested": "[3.7.115, )",
+        "resolved": "3.7.115",
+        "contentHash": "EpXamaAdRfG/BMxGgvZlTM0npRnkmXUjAj8OdNKd17t4oN+2nvjdv/KnFmzOOMDqvlwB49UCwtOHJrAQTfUBtQ=="
       },
       "MediatR": {
         "type": "Transitive",
@@ -275,13 +275,14 @@
       },
       "MessagePack": {
         "type": "Transitive",
-        "resolved": "2.5.192",
-        "contentHash": "Jtle5MaFeIFkdXtxQeL9Tu2Y3HsAQGoSntOzrn6Br/jrl6c8QmG22GEioT5HBtZJR0zw0s46OnKU8ei2M3QifA==",
+        "resolved": "3.1.1",
+        "contentHash": "nC7/arPbdsjcvDwLrdp2aJafk3Y8GbjoomvY1oFCJbODAmgURM9JVKrkIcaZSX1GOLtPSQH4/6rM/TNtSx+U4Q==",
         "dependencies": {
-          "MessagePack.Annotations": "2.5.192",
-          "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
-          "Microsoft.NET.StringTools": "17.6.3",
-          "System.Collections.Immutable": "6.0.0",
+          "MessagePack.Annotations": "3.1.1",
+          "MessagePackAnalyzer": "3.1.1",
+          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
+          "Microsoft.NET.StringTools": "17.11.4",
+          "System.Collections.Immutable": "8.0.0",
           "System.Memory": "4.5.5",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0",
           "System.Threading.Tasks.Extensions": "4.5.4"
@@ -289,8 +290,13 @@
       },
       "MessagePack.Annotations": {
         "type": "Transitive",
-        "resolved": "2.5.192",
-        "contentHash": "jaJuwcgovWIZ8Zysdyf3b7b34/BrADw4v82GaEZymUhDd3ScMPrYd/cttekeDteJJPXseJxp04yTIcxiVUjTWg=="
+        "resolved": "3.1.1",
+        "contentHash": "z/qHzXoz+SAw8+MDZV6Woge1fWD27v+Ce+9a3AJU7FF7TmXpIvGmALsS0A83RdM0P1utLuJ8UJlhNmjpDJ4y4A=="
+      },
+      "MessagePackAnalyzer": {
+        "type": "Transitive",
+        "resolved": "3.1.1",
+        "contentHash": "gQeHB5RKo7C033FoUToZsvpabWuBR4ajiDoA0dXVTf7SdrA8sB0EGE04t37dDJ+8jIZ9/rCNYUmE67xKPgPThA=="
       },
       "Microsoft.ApplicationInsights": {
         "type": "Transitive",
@@ -1302,7 +1308,7 @@
       "bicep.vslanguageserverclient": {
         "type": "Project",
         "dependencies": {
-          "MessagePack": "[2.5.192, )",
+          "MessagePack": "[3.1.1, )",
           "Microsoft.IO.Redist": "[6.1.0, )",
           "Microsoft.VisualStudio.LanguageServer.Client": "[17.12.48, )",
           "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",

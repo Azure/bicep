@@ -17,6 +17,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
@@ -1060,11 +1061,11 @@ There might also be a link to something [link](www.google.com)
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperty: string\n```  \nA named property  \n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperty: string\n```  \nA named property  \n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperty: string\n```  \nA named property  \n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n  \n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n*: int\n```  \n"));
         }
 
         [TestMethod]
@@ -1203,9 +1204,10 @@ AzureMetrics
             return bicepCompilationManager.Object;
         }
 
-        private IFeatureProviderFactory GetFeatureProviderFactory(Uri uri, string rootDirectory)
+        private IFeatureProviderFactory GetFeatureProviderFactory(Uri uri, string rootDirectoryPath)
         {
             var features = StrictMock.Of<IFeatureProvider>();
+            var rootDirectory = BicepTestConstants.FileExplorer.GetDirectory(IOUri.FromLocalFilePath(rootDirectoryPath));
             features.Setup(m => m.CacheRootDirectory).Returns(rootDirectory);
 
             var featureProviderFactory = StrictMock.Of<IFeatureProviderFactory>();

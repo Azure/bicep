@@ -100,6 +100,7 @@ var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
 
 param webSiteName string
 param cosmosDb object
+//@[15:21) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 resource site 'Microsoft.Web/sites@2019-08-01' = {
   name: webSiteName
   location: location

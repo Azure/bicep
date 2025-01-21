@@ -2,12 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Features;
 
 public record FeatureProviderOverrides(
-    string? CacheRootDirectory = null,
+    IDirectoryHandle? CacheRootDirectory = null,
     bool? RegistryEnabled = default,
     bool? SymbolicNameCodegenEnabled = default,
     bool? ExtensibilityEnabled = default,
@@ -22,6 +23,7 @@ public record FeatureProviderOverrides(
     bool? LocalDeployEnabled = default,
     bool? ResourceDerivedTypesEnabled = default,
     bool? SecureOutputsEnabled = default,
+    bool? ResourceInfoCodegenEnabled = default,
     bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ExtensibilityV2EmittingEnabled = default)
@@ -42,11 +44,12 @@ public record FeatureProviderOverrides(
         bool? LocalDeployEnabled = default,
         bool? ResourceDerivedTypesEnabled = default,
         bool? SecureOutputsEnabled = default,
+        bool? ResourceInfoCodegenEnabled = default,
         bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ExtensibilityV2EmittingEnabled = default
     ) : this(
-        FileHelper.GetCacheRootPath(testContext),
+        FileHelper.GetCacheRootDirectory(testContext),
         RegistryEnabled,
         SymbolicNameCodegenEnabled,
         ExtensibilityEnabled,
@@ -61,6 +64,7 @@ public record FeatureProviderOverrides(
         LocalDeployEnabled,
         ResourceDerivedTypesEnabled,
         SecureOutputsEnabled,
+        ResourceInfoCodegenEnabled,
         ExtendableParamFilesEnabled,
         AssemblyVersion,
         ExtensibilityV2EmittingEnabled)

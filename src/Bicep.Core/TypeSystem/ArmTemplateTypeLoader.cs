@@ -273,11 +273,21 @@ public static class ArmTemplateTypeLoader
         TemplateBooleanOrSchemaNode? additionalProperties,
         TypeSymbolValidationFlags flags)
     {
+        static string? GetDescriptionFromMetadata(TemplateGenericProperty<JToken>? metadataNode)
+        {
+            return metadataNode?.Value is JObject metadataObject &&
+                    metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
+                    descriptionToken is JValue { Value: string descriptionString }
+                ? descriptionString
+                : null;
+        }
+
         var requiredProps = requiredProperties is not null ? ImmutableHashSet.CreateRange(requiredProperties) : null;
 
         ObjectTypeNameBuilder nameBuilder = new();
         List<TypeProperty>? propertyList = null;
         ITypeReference? additionalPropertiesType = LanguageConstants.Any;
+        string? additionalPropertiesDescription = null;
         TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.FallbackProperty;
 
         if (properties is not null)
@@ -290,11 +300,7 @@ public static class ArmTemplateTypeLoader
                 var required = context.TemplateLanguageVersion?.HasFeature(TemplateLanguageFeature.NullableParameters) == true
                     || (requiredProps?.Contains(propertyName) ?? false);
                 var propertyFlags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
-                var description = schema.Metadata?.Value is JObject metadataObject &&
-                    metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
-                    descriptionToken is JValue { Value: string descriptionString }
-                        ? descriptionString
-                        : null;
+                var description = GetDescriptionFromMetadata(schema.Metadata);
 
                 var (type, typeName) = GetDeferrableTypeInfo(context, schema);
                 propertyList.Add(new(propertyName, type, propertyFlags, description));
@@ -310,6 +316,8 @@ public static class ArmTemplateTypeLoader
             {
                 var (type, typeName) = GetDeferrableTypeInfo(context, additionalPropertiesSchema);
                 additionalPropertiesType = type;
+                additionalPropertiesDescription = GetDescriptionFromMetadata(additionalPropertiesSchema.Metadata);
+
                 nameBuilder.AppendPropertyMatcher(typeName);
             }
             else if (additionalProperties.BooleanValue == false)
@@ -323,7 +331,7 @@ public static class ArmTemplateTypeLoader
             return flags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? LanguageConstants.SecureObject : LanguageConstants.Object;
         }
 
-        return new ObjectType(nameBuilder.ToString(), flags, propertyList.CoalesceEnumerable(), additionalPropertiesType, additionalPropertiesFlags);
+        return new ObjectType(nameBuilder.ToString(), flags, propertyList.CoalesceEnumerable(), additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription);
     }
 
     private class SansMetadata : ITemplateSchemaNode

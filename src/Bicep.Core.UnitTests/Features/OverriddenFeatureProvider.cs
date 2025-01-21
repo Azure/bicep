@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Features;
+using Bicep.IO.Abstraction;
 using Bicep.Core.Registry.PublicRegistry;
 
 namespace Bicep.Core.UnitTests.Features;
@@ -19,7 +20,7 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public string AssemblyVersion => overrides.AssemblyVersion ?? features.AssemblyVersion;
 
-    public string CacheRootDirectory => overrides.CacheRootDirectory ?? features.CacheRootDirectory;
+    public IDirectoryHandle CacheRootDirectory => overrides.CacheRootDirectory ?? features.CacheRootDirectory;
 
     public bool SymbolicNameCodegenEnabled => overrides.SymbolicNameCodegenEnabled ?? features.SymbolicNameCodegenEnabled;
 
@@ -44,6 +45,8 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool ResourceDerivedTypesEnabled => overrides.ResourceDerivedTypesEnabled ?? features.ResourceDerivedTypesEnabled;
 
     public bool SecureOutputsEnabled => overrides.SecureOutputsEnabled ?? features.SecureOutputsEnabled;
+
+    public bool ResourceInfoCodegenEnabled => overrides.ResourceInfoCodegenEnabled ?? features.ResourceInfoCodegenEnabled;
 
     public bool ExtendableParamFilesEnabled => overrides.ExtendableParamFilesEnabled ?? features.ExtendableParamFilesEnabled;
 

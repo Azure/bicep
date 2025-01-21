@@ -189,7 +189,7 @@ public class ExpressionAndTypeExtractor
         yield return CreateExtraction(
             extractionContext,
             ExtractionKind.Variable,
-            "[Preview] Extract variable",
+            "Extract variable",
             null,
             extractKindsAvailable);
 
@@ -198,7 +198,7 @@ public class ExpressionAndTypeExtractor
             yield return CreateExtraction(
                 extractionContext,
                 ExtractionKind.SimpleParam,
-                $"[Preview] Extract parameter of type {GetQuotedText(stringifiedLooseType)}",
+                $"Extract parameter of type {GetQuotedText(stringifiedLooseType)}",
                 stringifiedLooseType,
                 extractKindsAvailable);
         }
@@ -208,7 +208,7 @@ public class ExpressionAndTypeExtractor
             yield return CreateExtraction(
                 extractionContext,
                 ExtractionKind.UserDefParam,
-                $"[Preview] Extract parameter of type {GetQuotedText(stringifiedUserDefinedType)}",
+                $"Extract parameter of type {GetQuotedText(stringifiedUserDefinedType)}",
                 stringifiedUserDefinedType,
                 extractKindsAvailable);
         }
@@ -218,7 +218,7 @@ public class ExpressionAndTypeExtractor
             yield return CreateExtraction(
                 extractionContext,
                 ExtractionKind.ResDerivedParam,
-                $"[Preview] Extract parameter of type {GetQuotedText(resourceDerivedType!)}",
+                $"Extract parameter of type {GetQuotedText(resourceDerivedType!)}",
                 resourceDerivedType,
                 extractKindsAvailable);
         }
@@ -228,7 +228,7 @@ public class ExpressionAndTypeExtractor
             yield return CreateExtraction(
                 extractionContext,
                 ExtractionKind.Type,
-                $"[Preview] Create user-defined type for {GetQuotedText(stringifiedUserDefinedType)}",
+                $"Create user-defined type for {GetQuotedText(stringifiedUserDefinedType)}",
                 stringifiedUserDefinedType,
                 extractKindsAvailable);
         }

@@ -96,75 +96,6 @@ namespace Bicep.Core.UnitTests.FileSystem
             failureMessage.Should().NotBeNull();
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(IOException), AllowDerivedTypes = true)]
-        public void GetDirectories_should_return_expected_results()
-        {
-            var fileResolver = GetFileResolver();
-            var tempDir = Path.Combine(Path.GetTempPath(), $"BICEP_TESTDIR_{Guid.NewGuid()}");
-            var tempFile = Path.Combine(tempDir, $"BICEP_TEST_{Guid.NewGuid()}");
-            var tempChildDir = Path.Combine(tempDir, $"BICEP_TESTCHILDDIR_{Guid.NewGuid()}");
-
-            // make parent dir
-            Directory.CreateDirectory(tempDir);
-            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(0);
-            // make child dir
-            Directory.CreateDirectory(tempChildDir);
-            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(1);
-            // add a file to parent dir
-            File.WriteAllText(tempFile, "abcd\r\ndef");
-            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(1);
-            // check child dir
-            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempChildDir)).Should().HaveCount(0);
-            // should throw an IOException when called with a file path
-            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(Path.Join(Path.GetTempPath(), tempFile)));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(IOException), AllowDerivedTypes = true)]
-        public void GetFiles_should_return_expected_results()
-        {
-            var fileResolver = GetFileResolver();
-            var tempDir = Path.Combine(Path.GetTempPath(), $"BICEP_TESTDIR_{Guid.NewGuid()}");
-            var tempFile = Path.Combine(tempDir, $"BICEP_TEST_{Guid.NewGuid()}");
-            var tempChildDir = Path.Combine(tempDir, $"BICEP_TESTCHILDDIR_{Guid.NewGuid()}");
-
-            // make parent dir
-            Directory.CreateDirectory(tempDir);
-            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(0);
-            // add a file to parent dir
-            File.WriteAllText(tempFile, "abcd\r\ndef");
-            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(1);
-            // make child dir
-            Directory.CreateDirectory(tempChildDir);
-            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(1);
-            // check child dir
-            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempChildDir)).Should().HaveCount(0);
-            // should throw an IOException when called with a file path
-            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(Path.Join(Path.GetTempPath(), tempFile)));
-        }
-
-        [TestMethod]
-        public void DirExists_should_return_expected_results()
-        {
-            var fileResolver = GetFileResolver();
-            var tempDir = Path.Combine(Path.GetTempPath(), $"BICEP_TESTDIR_{Guid.NewGuid()}");
-            var tempFile = Path.Combine(tempDir, $"BICEP_TEST_{Guid.NewGuid()}");
-            var tempChildDir = Path.Combine(tempDir, $"BICEP_TESTCHILDDIR_{Guid.NewGuid()}");
-
-            // make parent dir
-            Directory.CreateDirectory(tempDir);
-            fileResolver.DirExists(PathHelper.FilePathToFileUrl(tempDir)).Should().BeTrue();
-            fileResolver.DirExists(PathHelper.FilePathToFileUrl(tempFile)).Should().BeFalse();
-            // add a file to parent dir
-            File.WriteAllText(tempFile, "abcd\r\ndef");
-            fileResolver.DirExists(PathHelper.FilePathToFileUrl(tempDir)).Should().BeTrue();
-            fileResolver.DirExists(PathHelper.FilePathToFileUrl(tempFile)).Should().BeFalse();
-            // make child dir
-            Directory.CreateDirectory(tempChildDir);
-            fileResolver.DirExists(PathHelper.FilePathToFileUrl(tempChildDir)).Should().BeTrue();
-        }
-
         [DataTestMethod]
         [DataRow("", 2, true, "")]
         [DataRow("a", 2, true, "a")]
@@ -182,29 +113,6 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             result.Should().Be(expectedResult);
             readContents.Should().Be(expectedContents);
-        }
-
-
-        [TestMethod]
-        public void In_memory_file_resolver_should_simulate_directory_paths_correctly()
-        {
-            var fileTextsByUri = new Dictionary<Uri, string>
-            {
-                [InMemoryFileResolver.GetFileUri("/path/to/file.bicep")] = "param foo int",
-                [InMemoryFileResolver.GetFileUri("/path/to/nested/file.bicep")] = "param bar int",
-                [InMemoryFileResolver.GetFileUri("/path/toOther/file.bicep")] = "param foo string"
-            };
-
-            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
-
-            fileResolver.GetDirectories(InMemoryFileResolver.GetFileUri("/path"), "").Should().SatisfyRespectively(
-                x => x.Should().Be(InMemoryFileResolver.GetFileUri("/path/to/")),
-                x => x.Should().Be(InMemoryFileResolver.GetFileUri("/path/toOther/"))
-            );
-
-            fileResolver.GetDirectories(InMemoryFileResolver.GetFileUri("/path/to"), "").Should().SatisfyRespectively(
-                x => x.Should().Be(InMemoryFileResolver.GetFileUri("/path/to/nested/"))
-            );
         }
 
         [TestMethod]

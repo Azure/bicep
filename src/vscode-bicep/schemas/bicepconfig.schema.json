@@ -664,7 +664,7 @@
                 "use-safe-access": {
                   "allOf": [
                     {
-                      "description": "Use the safe access (.?) operator instead of checking object contents with the 'contains' function. Defaults to 'Warning'. See https://aka.ms/bicep/linter/use-safe-access"
+                      "description": "Use the safe access (.?) operator. Defaults to 'Warning'. See https://aka.ms/bicep/linter/use-safe-access"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -751,6 +751,16 @@
                     }
                   ]
                 },
+                "use-user-defined-types": {
+                  "allOf": [
+                    {
+                      "description": "Use user-defined types instead of 'object' or 'array'. Defaults to 'Off'. See https://aka.ms/bicep/linter/use-user-defined-types"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
                 "what-if-short-circuiting": {
                   "allOf": [
                     {
@@ -826,6 +836,10 @@
         "secureOutputs": {
             "type": "boolean",
             "description": "If enabled, users can use the secure decorator for outputs. See https://aka.ms/bicep/experimental-features#secureoutputs"
+        },
+        "resourceInfoCodegen": {
+            "type": "boolean",
+            "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
         }
       },
       "additionalProperties": false
