@@ -19,6 +19,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 using DataSet = Bicep.Core.Samples.DataSet;
 
 namespace Bicep.Cli.IntegrationTests
@@ -450,11 +451,15 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{moduleName}".ToLowerInvariant();
 
-            var (clientFactory, blobClients, _) = RegistryHelper.CreateMockRegistryClients((registryStr, repository, "v1"));
+            var (clientFactory, blobClients, _) = RegistryHelper.CreateMockRegistryClients(new(ModuleToPublish.ToTarget(registryStr, repository, "v1")));
 
             var blobClient = blobClients[(registryUri, repository)];
 
-            await RegistryHelper.PublishModuleToRegistryAsync(clientFactory, BicepTestConstants.FileSystem, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
+            await RegistryHelper.PublishModuleToRegistryAsync(
+                clientFactory,
+                BicepTestConstants.FileSystem,
+                moduleName,
+                new($"br:example.com/test/{moduleName}:v1", bicepModuleContents, WithSource: false, documentationUri));
 
             var manifest = blobClient.Manifests.Single().Value.ToObjectFromJson<OciManifest>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 

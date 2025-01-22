@@ -234,9 +234,9 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
                 new MockFileSystem(),
                 containerRegistryClient,
                 [
-                    ("br:registry.contoso.io/test/module1:v1", "param p1 bool", withSource: true),
-                    ("br:registry.contoso.io/test/module2:v1", "param p2 string", withSource: true),
-                    ("br:registry.contoso.io/test/module1:v2", "param p12 string", withSource: false),
+                    new("br:registry.contoso.io/test/module1:v1", "param p1 bool", WithSource: true),
+                    new("br:registry.contoso.io/test/module2:v1", "param p2 string", WithSource: true),
+                    new("br:registry.contoso.io/test/module1:v2", "param p12 string", WithSource: false),
                 ]);
 
             var provider = new PrivateAcrModuleMetadataProvider(
@@ -256,16 +256,16 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
                 new MockFileSystem(),
                 containerClient,
                 [
-                    ("br:registry.contoso.io/test/module1:v1", "param p1 bool", withSource: true),
-                    ("br:registry.contoso.io/test/module2:v1", "param p2 string", withSource: true),
-                    ("br:registry.contoso.io/test/module1:v2", "param p12 string", withSource: false),
+                    new("br:registry.contoso.io/test/module1:v1", "param p1 bool", WithSource: true),
+                    new("br:registry.contoso.io/test/module2:v1", "param p2 string", WithSource : true),
+                    new("br:registry.contoso.io/test/module1:v2", "param p12 string", WithSource: false),
                 ]);
 
             var provider = new PrivateAcrModuleMetadataProvider(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 "registry.contoso.io",
                 clientFactory);
-            
+
             provider.GetCachedModules().Should().HaveCount(0);
 
             var modules = await provider.TryGetModulesAsync();
@@ -283,9 +283,9 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
                 new MockFileSystem(),
                 containerClient,
                 [
-                    ("br:registry.contoso.io/test/module1:v1", "param p1 bool", withSource: true),
-                    ("br:registry.contoso.io/test/module2:v1", "param p2 string", withSource: true),
-                    ("br:registry.contoso.io/test/module1:v2", "param p12 string", withSource: false),
+                    new("br:registry.contoso.io/test/module1:v1", "param p1 bool", WithSource: true),
+                    new("br:registry.contoso.io/test/module2:v1", "param p2 string", WithSource: true),
+                    new("br:registry.contoso.io/test/module1:v2", "param p12 string", WithSource : false),
                 ]);
 
             var provider = new PrivateAcrModuleMetadataProvider(
@@ -309,9 +309,9 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
                 new MockFileSystem(),
                 containerClient,
                 [
-                    ("br:registry.contoso.io/test/module1:v1", "metadata description = 'this is module 1 version 1'\nparam p1 bool", withSource: true),
-                    ("br:registry.contoso.io/test/module2:v1", "metadata description = 'this is module 2 version 1'\nparam p2 string", withSource: true),
-                    ("br:registry.contoso.io/test/module1:v2", "metadata description = 'this is module 1 version 2'\nparam p12 string", withSource: false),
+                    new("br:registry.contoso.io/test/module1:v1", "metadata description = 'this is module 1 version 1'\nparam p1 bool", WithSource : true),
+                    new("br:registry.contoso.io/test/module2:v1", "metadata description = 'this is module 2 version 1'\nparam p2 string", WithSource : true),
+                    new("br:registry.contoso.io/test/module1:v2", "metadata description = 'this is module 1 version 2'\nparam p12 string", WithSource: false),
                 ]);
 
             var provider = new PrivateAcrModuleMetadataProvider(

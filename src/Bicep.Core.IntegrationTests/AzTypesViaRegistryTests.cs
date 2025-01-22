@@ -73,7 +73,7 @@ namespace Bicep.Core.IntegrationTests
             // ARRANGE
             var fsMock = new MockFileSystem();
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/extensions/az", "0.2.661");
-            var clientFactory = RegistryHelper.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath, "v1")).factoryMock;
+            var clientFactory = RegistryHelper.CreateMockRegistryClients(new(testArtifact.RegistryAddress, testArtifact.RepositoryPath, ["v1"])).factoryMock;
             var services = new ServiceBuilder()
                 .WithFileSystem(fsMock)
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true))
@@ -83,10 +83,7 @@ namespace Bicep.Core.IntegrationTests
                 clientFactory,
                 fsMock,
                 moduleName: "az",
-                target: testArtifact.ToSpecificationString(':'),
-                moduleSource: "",
-                publishSource: false,
-                documentationUri: "mydocs.org/abc");
+                new(testArtifact.ToSpecificationString(':'), BicepSource: "", WithSource: false, DocumentationUri: "mydocs.org/abc"));
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"

@@ -18,7 +18,7 @@ public static class ExtensionTestHelper
         string repositoryPath,
         FeatureProviderOverrides featureOverrides)
     {
-        var clientFactory = RegistryHelper.CreateMockRegistryClient(registryHost, repositoryPath, []);
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(new(registryHost, repositoryPath, ["tag"]));
 
         return new ServiceBuilder()
             .WithFeatureOverrides(featureOverrides)
