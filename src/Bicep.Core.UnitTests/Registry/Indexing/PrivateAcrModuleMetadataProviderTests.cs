@@ -295,10 +295,10 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
 
             var modules = await provider.TryGetModulesAsync();
             modules.Should().HaveCount(2);
-            containerClient.CountCallsGetRepositoryNamesAsync.Should().Be(1);
+            containerClient.CountGetRepositoryNamesAsync.Should().Be(1);
 
             modules = await provider.TryGetModulesAsync();
-            containerClient.CountCallsGetRepositoryNamesAsync.Should().Be(1);
+            containerClient.CountGetRepositoryNamesAsync.Should().Be(1);
         }
 
         [TestMethod]
