@@ -24,7 +24,7 @@ namespace Bicep.Cli.IntegrationTests
 {
     public abstract class TestBase : Bicep.Core.UnitTests.TestBase
     {
-        private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicModuleIndexHttpClient? moduleMetadataClient)
+        private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicModuleIndexHttpClient? moduleMetadataClient)//asdfg2
             => ServiceBuilder.Create(
                 services =>
                 {
@@ -79,7 +79,7 @@ namespace Bicep.Cli.IntegrationTests
                             services.WithFeatureOverrides(settings.FeatureOverrides);
                         }
 
-                        IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient);
+                        IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient); //asdfg2
 
                         services
                             .AddSingletonIfNotNull(settings.Environment ?? BicepTestConstants.EmptyEnvironment)

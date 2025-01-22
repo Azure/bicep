@@ -17,6 +17,10 @@ namespace Bicep.Core.Registry
 
         public ContainerRegistryClient CreateAuthenticatedContainerClient(CloudConfiguration cloud, Uri registryUri);
         public ContainerRegistryClient CreateAnonymousContainerClient(CloudConfiguration cloud, Uri registryUri);
+    }
+
+    public interface IContainerRegistryClient
+    {
 
     }
 }

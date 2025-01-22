@@ -35,7 +35,7 @@ namespace Bicep.Core.Registry
             this.clientFactory = clientFactory;
         }
 
-        public async Task<string[]> GetRepositoryTags(
+        public async Task<string[]> GetRepositoryTags(//asdfg2
             CloudConfiguration cloud,
             string registry,
             string repository)
@@ -63,7 +63,7 @@ namespace Bicep.Core.Registry
 
             async Task<string[]> GetTagsInternalAsync(bool anonymousAccess)
             {
-                var client = CreateRegistryClient(cloud, registryUri, anonymousAccess);
+                var client = CreateContainerClient(cloud, registryUri, anonymousAccess);
 
                 var tags = new List<string>();
                 await foreach (var manifestProps in client.GetRepository(repository).GetAllManifestPropertiesAsync())
@@ -118,7 +118,7 @@ namespace Bicep.Core.Registry
 
             async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess)
             {
-                var client = CreateRegistryClient(cloud, registryUri, anonymousAccess);
+                var client = CreateContainerClient(cloud, registryUri, anonymousAccess);
                 return await GetCatalogAsync(client);
             }
         }
@@ -214,7 +214,7 @@ namespace Bicep.Core.Registry
             ? this.clientFactory.CreateAnonymousBlobClient(cloud, GetRegistryUri(artifactReference), artifactReference.Repository)
             : this.clientFactory.CreateAuthenticatedBlobClient(cloud, GetRegistryUri(artifactReference), artifactReference.Repository);
 
-        private ContainerRegistryClient CreateRegistryClient(
+        private ContainerRegistryClient CreateContainerClient(
             CloudConfiguration cloud,
             Uri registryUri,
             bool anonymousAccess) => anonymousAccess

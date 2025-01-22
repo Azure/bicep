@@ -295,16 +295,16 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
 
             var modules = await provider.TryGetModulesAsync();
             modules.Should().HaveCount(2);
-            containerClient.CountGetRepositoryNamesAsync.Should().Be(1);
+            containerClient.CallsToGetRepositoryNamesAsync.Should().Be(1);
 
             modules = await provider.TryGetModulesAsync();
-            containerClient.CountGetRepositoryNamesAsync.Should().Be(1);
+            containerClient.CallsToGetRepositoryNamesAsync.Should().Be(1);
         }
 
         [TestMethod]
         public async Task GetDetails()
         {
-            var containerClient = new FakeContainerRegistryClient();
+            var containerClient = new FakeContainerRegistryClient();//asdfg2
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 new MockFileSystem(),
                 containerClient,

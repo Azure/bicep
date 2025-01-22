@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Reflection;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Modules;
@@ -24,7 +25,7 @@ namespace Bicep.Core.UnitTests.Registry
             // ensure we call the base parameterless constructor to prevent outgoing calls
         }
 
-        public int CountCallsGetRepositoryNamesAsync { get; private set; }
+        public int CallsToGetRepositoryNamesAsync { get; private set; }
 
         public SortedList<string, string> FakeRepositoryNames { get; set; } = new();
 
@@ -51,7 +52,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         public override AsyncPageable<string> GetRepositoryNamesAsync(CancellationToken cancellationToken = default) //asdfg test with lots and lots
         {
-            CountCallsGetRepositoryNamesAsync++;
+            CallsToGetRepositoryNamesAsync++;
 
             var page = Page<string>.FromValues(FakeRepositoryNames.Values.ToArray(), continuationToken: null, StrictMock.Of<Response>().Object);
             return AsyncPageable<string>.FromPages([page]);
@@ -63,13 +64,31 @@ namespace Bicep.Core.UnitTests.Registry
             repository.Setup(x => x.GetAllManifestPropertiesAsync(It.IsAny<ArtifactManifestOrder>(), It.IsAny<CancellationToken>()))
                 .Returns((ArtifactManifestOrder order, CancellationToken token) =>
                     {
-                        ArtifactManifestProperties is not mockable
-                        var properties = StrictMock.Of<ArtifactManifestProperties>();
-                        properties.Setup(x => x.Tags).Returns(FakeRepositoryNames.Keys.ToImmutableArray());
+                        var constructor = typeof(ArtifactManifestProperties).GetConstructor(
+                            BindingFlags.NonPublic | BindingFlags.Instance,
+                            null,
+                            [typeof(string), typeof(DateTimeOffset), typeof(DateTimeOffset)],
+                            null);
+
+                        var properties = (ArtifactManifestProperties)constructor!.Invoke(["digest", DateTimeOffset.Now, DateTimeOffset.Now]);
+
+                        // Use reflection to set the Tags property asdfg
+                        var tagsField = typeof(ArtifactManifestProperties).GetField("<Tags>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
+                        tagsField!.SetValue(properties, FakeRepositoryNames.Keys.ToImmutableArray());
+
+
+                        //var properties = StrictMock.Of<ArtifactManifestProperties>();
+                        //var tagsField = typeof(ArtifactManifestProperties).GetProperty("Tags", BindingFlags.Public | BindingFlags.Instance);
+                        //tagsField!.SetValue(properties.Object, FakeRepositoryNames.Keys.ToImmutableArray());
+
+
+                        //ArtifactManifestProperties is not mockable //asdfg 
+                        //var properties = StrictMock.Of<ArtifactManifestProperties>();
+                        //properties.Setup(x => x.Tags).Returns(FakeRepositoryNames.Keys.ToImmutableArray());
 
                         return AsyncPageable<ArtifactManifestProperties>.FromPages(
                             new[] { Page<ArtifactManifestProperties>.FromValues(
-                            new[] { properties.Object }, null, StrictMock.Of<Response>().Object) }
+                            new[] { properties }, null, StrictMock.Of<Response>().Object) }
                         );
                     }
                 );
