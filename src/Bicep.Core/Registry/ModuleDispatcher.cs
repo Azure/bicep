@@ -260,7 +260,7 @@ namespace Bicep.Core.Registry
         {
             var registry = this.GetRegistry(reference);
 
-            var description = DescriptionHelper.TryGetFromArmTemplate(compiledArmTemplate);
+            var description = DescriptionHelper.TryGetFromArmTemplate(compiledArmTemplate);//asdfg2
             await registry.PublishModule(reference, compiledArmTemplate, bicepSources, documentationUri, description);
         }
 
