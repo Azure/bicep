@@ -101,6 +101,16 @@
             "request": "launch",
             "script": "${file}",
             "cwd": "${cwd}"
-        }
+        },
+        {
+            "name": "Deploy Pane Tests",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "test"
+            ],
+            "cwd": "${workspaceFolder}/src/vscode-bicep-ui/apps/deploy-pane"
+        },
     ]
 }

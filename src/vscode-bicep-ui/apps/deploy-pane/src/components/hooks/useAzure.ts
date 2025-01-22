@@ -12,6 +12,7 @@ import type {
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { RestError } from "@azure/core-rest-pipeline";
 import { useState } from "react";
+import { getDate } from "./time";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -83,13 +84,13 @@ export function useAzure(props: UseAzureProps) {
       return;
     }
 
-    const deploymentName = `bicep-deploy-${Date.now()}`;
+    const deploymentName = `bicep-deploy-${getDate()}`;
     await doDeploymentOperation(scope, deploymentName, async (client, deployment) => {
       const updateOperations = async () => {
         const operations = [];
         const result = client.deploymentOperations.listAtScope(getScopeId(scope), deploymentName);
-        for await (const page of result.byPage()) {
-          operations.push(...page);
+        for await (const operation of result) {
+          operations.push(operation);
         }
         setOperations(operations);
       };
