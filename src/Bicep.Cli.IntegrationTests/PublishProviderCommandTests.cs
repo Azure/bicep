@@ -31,7 +31,7 @@ public class PublishExtensionCommandTests : TestBase
         var repository = $"test/extension";
         var version = "0.0.1";
 
-        var (clientFactory, blobClientMocks, _) = RegistryHelper.CreateMockRegistryClients((registryStr, repository));
+        var (clientFactory, blobClientMocks, _) = RegistryHelper.CreateMockRegistryClients((registryStr, repository, "tag"));
         var mockBlobClient = blobClientMocks[(registryUri, repository)];
 
         var indexPath = Path.Combine(outputDirectory, "index.json");

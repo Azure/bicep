@@ -15,7 +15,7 @@ public class RadiusCompatibilityTests
 {
     private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registryHost, string repositoryPath)
     {
-        var clientFactory = RegistryHelper.CreateMockRegistryClient(registryHost, repositoryPath);
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(registryHost, repositoryPath, []);
 
         return new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true))

@@ -20,6 +20,8 @@ namespace Bicep.Core.UnitTests.Registry
     /// </summary>
     public class FakeContainerRegistryClient : ContainerRegistryClient
     {
+        public record FakeRepository(string Registry, string Repository, List<string> Tags);
+
         public FakeContainerRegistryClient() : base()
         {
             // ensure we call the base parameterless constructor to prevent outgoing calls
@@ -27,7 +29,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         public int CallsToGetRepositoryNamesAsync { get; private set; }
 
-        public SortedList<string, string> FakeRepositoryNames { get; set; } = new();
+        public SortedList<string, FakeRepository> FakeRepositories { get; } = new();
 
         //asdfg
         //// maps digest to blob bytes
@@ -54,7 +56,7 @@ namespace Bicep.Core.UnitTests.Registry
         {
             CallsToGetRepositoryNamesAsync++;
 
-            var page = Page<string>.FromValues(FakeRepositoryNames.Values.ToArray(), continuationToken: null, StrictMock.Of<Response>().Object);
+            var page = Page<string>.FromValues(FakeRepositories.Keys.ToArray(), continuationToken: null, StrictMock.Of<Response>().Object);
             return AsyncPageable<string>.FromPages([page]);
         }
 
@@ -74,7 +76,7 @@ namespace Bicep.Core.UnitTests.Registry
 
                         // Use reflection to set the Tags property asdfg
                         var tagsField = typeof(ArtifactManifestProperties).GetField("<Tags>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
-                        tagsField!.SetValue(properties, FakeRepositoryNames.Keys.ToImmutableArray());
+                        tagsField!.SetValue(properties, FakeRepositories[repositoryName].Tags.ToImmutableArray());
 
 
                         //var properties = StrictMock.Of<ArtifactManifestProperties>();

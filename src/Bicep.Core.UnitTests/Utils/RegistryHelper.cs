@@ -18,31 +18,72 @@ using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.IO.FileSystem;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.UnitTests.Utils;
 
 public static class RegistryHelper //asdfg turn into an instance class?
 {
-    public static IContainerRegistryClientFactory CreateMockRegistryClient(string registry, string repository)
+    public static IContainerRegistryClientFactory CreateMockRegistryClient(string registry, string repository, string[] tags)
     {
         return new TestContainerRegistryClientFactoryBuilder()
-            .WithRepository(registry, repository)
+            .WithRepository(registry, repository, tags)
             .Build().clientFactory;
     }
 
     public static
-    (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> , FakeContainerRegistryClient containerRegistryClient/*asdfg don't return?*/)
+    /* create type */ (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient>, FakeContainerRegistryClient containerRegistryClient/*asdfg don't return?*/)
     CreateMockRegistryClients(
         FakeContainerRegistryClient containerRegistryClient,
-        params (string, string)[] clients)
+        params (string registry, string repo, string tag)[] clients)
     {
         var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
 
         containerRegistryFactoryBuilder.WithFakeContainerRegistryClient(containerRegistryClient);
-        foreach (var (registryHost, repository) in clients)
+        var repos = new Dictionary<string, FakeContainerRegistryClient.FakeRepository>();
+
+        foreach (var (registryHost, repository, tag) in clients)
         {
-            containerRegistryFactoryBuilder.WithRepository(registryHost, repository);
+            if (repos.ContainsKey(repository))
+            {
+                repos[repository].Tags.Should().NotContain(tag, $"Repository {repository} already contains tag {tag}.");
+                repos[repository].Tags.Add(tag);
+            }
+            else
+            {
+                repos[repository] = new(registryHost, repository, [tag]);
+            }
+        }
+
+        foreach (var (registryHost, repository, tags) in repos.Values)
+        {
+            containerRegistryFactoryBuilder.WithRepository(registryHost, repository, [.. tags]);
+        }
+
+        return containerRegistryFactoryBuilder.Build();
+    }
+
+    //asdfg shoud jus have one overload with tags?
+    public static
+    /* asdfg create type */ (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient>, FakeContainerRegistryClient containerRegistryClient/*asdfg don't return?*/)
+    CreateMockRegistryClients(
+        FakeContainerRegistryClient containerRegistryClient,
+        params (string registry, string repo, string[] tags)[] clients)
+    {
+        var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
+
+        containerRegistryFactoryBuilder.WithFakeContainerRegistryClient(containerRegistryClient);
+        var repos = new Dictionary<string, FakeContainerRegistryClient.FakeRepository>();
+
+        foreach (var (registryHost, repository, tags) in clients)
+        {
+            repos[repository] = new(registryHost, repository, [.. tags]);
+        }
+
+        foreach (var (registryHost, repository, tags) in repos.Values)
+        {
+            containerRegistryFactoryBuilder.WithRepository(registryHost, repository, [.. tags]);
         }
 
         return containerRegistryFactoryBuilder.Build();
@@ -50,7 +91,7 @@ public static class RegistryHelper //asdfg turn into an instance class?
 
     public static
     (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient>, FakeContainerRegistryClient containerRegistryClient/*asdfg don't return?*/)
-    CreateMockRegistryClients(params (string, string)[] clients)
+    CreateMockRegistryClients(params (string, string, string)[] clients)
     {
         return CreateMockRegistryClients(new FakeContainerRegistryClient(), clients);
     }
@@ -120,18 +161,15 @@ public static class RegistryHelper //asdfg turn into an instance class?
         params (string target, string source, bool withSource)[] modules
     )
     {
-        var repos = new List<(string registry, string repo)>();
+        var repos = new List<(string registry, string repo, string tag)>();
 
         foreach (var module in modules)
         {
-            var (registry, repo) = module.target.ExtractRegexGroups(
+            var (registry, repo, tag) = module.target.ExtractRegexGroups(
                 "^br:(?<registry>.+?)/(?<repo>.+?)[:@](?<tag>.+?)$",
-                ["registry", "repo"]);
+                ["registry", "repo", "tag"]);
 
-            if (!repos.Contains((registry, repo)))
-            {
-                repos.Add((registry, repo));
-            }
+            repos.Add((registry, repo, tag));
         }
 
         var clientFactory = CreateMockRegistryClients(containerRegistryClient, [.. repos]).factoryMock;
@@ -202,11 +240,11 @@ public static class RegistryHelper //asdfg turn into an instance class?
     }
 
     public static IContainerRegistryClientFactory CreateOciClientForAzExtension()
-        => CreateMockRegistryClients((LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/az")).factoryMock;
+        => CreateMockRegistryClients((LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/az", "tag")).factoryMock;
 
     public static IContainerRegistryClientFactory CreateOciClientForMsGraphExtension()
         => CreateMockRegistryClients(
-            (LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/beta"),
-            (LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/v1")
+            (LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/beta", "tag"),
+            (LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/v1", "tag")
             ).factoryMock;
 }

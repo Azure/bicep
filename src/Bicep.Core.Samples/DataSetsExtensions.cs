@@ -46,17 +46,21 @@ namespace Bicep.Core.Samples
             return (compilation, outputDirectory, fileUri);
         }
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, params (string registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(
+            this DataSet dataSet,
+            params (string registryUri, string repository, string tags)[] additionalClients)
             => CreateMockRegistryClients(dataSet.RegistryModules, additionalClients);
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, params (string registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(
+            ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules,
+            params (string registryUri, string repository, string tags)[] additionalClients)
         {
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
             ).Construct<IModuleDispatcher>();
 
-            var clients = new List<(string, string)>();
+            var clients = new List<(string, string, string)>();
 
             foreach (var (moduleName, publishInfo) in registryModules)
             {
@@ -67,7 +71,7 @@ namespace Bicep.Core.Samples
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
 
-                clients.Add((targetReference.Registry, targetReference.Repository));
+                clients.Add((targetReference.Registry, targetReference.Repository, targetReference.Tag ?? "tagasdfg"));
             }
 
             return RegistryHelper.CreateMockRegistryClients([.. clients, .. additionalClients]).factoryMock;

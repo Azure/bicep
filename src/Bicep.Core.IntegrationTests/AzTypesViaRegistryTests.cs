@@ -73,7 +73,7 @@ namespace Bicep.Core.IntegrationTests
             // ARRANGE
             var fsMock = new MockFileSystem();
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/extensions/az", "0.2.661");
-            var clientFactory = RegistryHelper.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
+            var clientFactory = RegistryHelper.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath, "v1")).factoryMock;
             var services = new ServiceBuilder()
                 .WithFileSystem(fsMock)
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true))
@@ -128,7 +128,7 @@ namespace Bicep.Core.IntegrationTests
         {
             public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ExtensionVersion}";
 
-            public (string, string) ClientDescriptor() => (RegistryAddress, RepositoryPath);
+            public (string registry, string repo, string tag) ClientDescriptor() => (RegistryAddress, RepositoryPath, ExtensionVersion);
         }
 
         [TestMethod]
@@ -148,6 +148,7 @@ namespace Bicep.Core.IntegrationTests
             containerRegistryFactoryBuilder.WithRepository(
                 artifactRegistryAddress.RegistryAddress,
                 artifactRegistryAddress.RepositoryPath,
+                [],
                 mockBlobClient.Object);
 
             var services = new ServiceBuilder()

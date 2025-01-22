@@ -17,25 +17,41 @@ namespace Bicep.Core.UnitTests.Utils
         private readonly ImmutableDictionary<(Uri registryUri, string repository), MockRegistryBlobClient>.Builder blobClientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
         private FakeContainerRegistryClient containerClient = new();
 
-        public TestContainerRegistryClientFactoryBuilder WithRepository(string registryHost, string repository)
+        public TestContainerRegistryClientFactoryBuilder WithRepository(string registryHost, string repository, string[] tags)
         {
             blobClientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), new MockRegistryBlobClient());
 
-            if (!containerClient.FakeRepositoryNames.ContainsKey(repository))
+            if (!containerClient.FakeRepositories.ContainsKey(repository))
             {
-                containerClient.FakeRepositoryNames.Add(repository, repository);
+                containerClient.FakeRepositories.Add(repository, new(registryHost, repository, [.. tags]));
             }
 
             return this;
         }
 
-        public TestContainerRegistryClientFactoryBuilder WithRepository(string registryHost, string repository, MockRegistryBlobClient client)
+        public TestContainerRegistryClientFactoryBuilder WithRepository(string registryHost, string repository, string tag)
+        {
+            blobClientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), new MockRegistryBlobClient());
+
+            if (containerClient.FakeRepositories.ContainsKey(repository))
+            {
+                containerClient.FakeRepositories[repository].Tags.Add(tag);
+            }
+            else
+            {
+                containerClient.FakeRepositories.Add(repository, new(registryHost, repository, [tag]));
+            }
+
+            return this;
+        }
+
+        public TestContainerRegistryClientFactoryBuilder WithRepository(string registryHost, string repository, string[] tags, MockRegistryBlobClient client)
         {
             blobClientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), client);
 
-            if (!containerClient.FakeRepositoryNames.ContainsKey(repository))
+            if (!containerClient.FakeRepositories.ContainsKey(repository))
             {
-                containerClient.FakeRepositoryNames.Add(repository, repository);
+                containerClient.FakeRepositories.Add(repository, new(registryHost, repository, [.. tags]));
             }
 
             return this;
@@ -43,7 +59,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public TestContainerRegistryClientFactoryBuilder WithFakeContainerRegistryClient(FakeContainerRegistryClient containerRegistryClient)
         {
-            this.containerClient.FakeRepositoryNames.Should().BeEmpty("Must set up ContainterRegistryClient before adding repos");
+            this.containerClient.FakeRepositories.Should().BeEmpty("Must set up ContainerRegistryClient before adding repos");
             this.containerClient = containerRegistryClient;
             return this;
         }

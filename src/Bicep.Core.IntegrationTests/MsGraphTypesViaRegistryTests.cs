@@ -110,7 +110,7 @@ namespace Bicep.Core.IntegrationTests
         {
             public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ExtensionVersion}";
 
-            public (string, string) ClientDescriptor() => (RegistryAddress, RepositoryPath);
+            public (string, string, string) ClientDescriptor() => (RegistryAddress, RepositoryPath, "tag");
         }
 
         [TestMethod]
@@ -130,6 +130,7 @@ namespace Bicep.Core.IntegrationTests
             containerRegistryFactoryBuilder.WithRepository(
                 artifactRegistryAddress.RegistryAddress,
                 artifactRegistryAddress.RepositoryPath,
+                [],
                 mockBlobClient.Object);
 
             var services = new ServiceBuilder()

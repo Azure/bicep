@@ -66,7 +66,7 @@ param foo: string
         // * The module is re-published with different contents. The module cache (on disk) is not aware of this change
         // * The user forces a module restore to fetch the latest contents
 
-        var clientFactory = RegistryHelper.CreateMockRegistryClient("mockregistry.io", "test/foo");
+        var clientFactory = RegistryHelper.CreateMockRegistryClient("mockregistry.io", "test/foo", ["v1"]);
         async Task publish(string source)
             => await RegistryHelper.PublishModuleToRegistryAsync(
                 clientFactory,
