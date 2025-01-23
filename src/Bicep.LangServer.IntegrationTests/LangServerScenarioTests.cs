@@ -72,7 +72,6 @@ param foo: string
             => await RegistryHelper.PublishModuleToRegistryAsync(
                 clientFactory,
                 BicepTestConstants.FileSystem,
-                "modulename",
                 new("br:mockregistry.io/test/foo:1.1", source, WithSource: false));
 
         var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext);
