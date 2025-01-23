@@ -642,8 +642,8 @@ namespace Bicep.LangServer.UnitTests.Completions
 }";
             var registryIndexer = RegistryIndexerMocks.CreateRegistryIndexer(
                 RegistryIndexerMocks.MockPublicMetadataProvider([
-                    new("bicep/app/dapr-containerapp", null, null, [new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html")]),
-                    new("bicep/app/dapr-containerappapp", null, null, [new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html")])
+                    new("bicep/app/dapr-containerapp", null, null, [new("1.0.1", "d2", "contoso.com/help%20page.html"), new("1.0.2", null, null)]),
+                    new("bicep/app/dapr-containerappapp", null, null, [new("1.0.1", "d2", "contoso.com/help%20page.html"), new("1.0.2", null, null)])
                 ])
             );
 

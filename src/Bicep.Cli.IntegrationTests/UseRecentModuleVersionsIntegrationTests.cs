@@ -28,6 +28,7 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Bicep.Core.UnitTests.Mock.Registry.Indexing;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Cli.IntegrationTests;
 
@@ -98,7 +99,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         // compile and publish modules using throwaway file system
         var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
             new MockFileSystem(),
-            [.. options.PublishedModules.Select(x => (x, "", true))]);
+            [.. options.PublishedModules.Select(x => new ModuleToPublish(x, BicepSource: "",  WithSource: true))]);
 
         // create files
         var mainFile = FileHelper.SaveResultFile(TestContext, "main.bicep", options.Bicep, testOutputPath);

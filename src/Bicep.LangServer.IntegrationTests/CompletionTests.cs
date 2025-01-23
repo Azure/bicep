@@ -4147,9 +4147,9 @@ var file = " + functionName + @"(templ|)
 
             var publicModuleMetadataProvider = RegistryIndexerMocks.MockPublicMetadataProvider(
                 [("bicep/app/dapr-containerapp", "d1", "contoso.com/help1", [
-                    new("1.0.2", "d1", "contoso.com/help1"),
-                    new("1.0.1", null, null)])
-                ]);
+                    new("1.0.1", null, null),
+                    new("1.0.2", "d1", "contoso.com/help1")
+                ])]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -4164,19 +4164,19 @@ var file = " + functionName + @"(templ|)
             completions.Should().SatisfyRespectively(
                 first =>
                 {
-                    first.Label.Should().Be("1.0.1");
-                    first.SortText.Should().Be("0001");
+                    first.Label.Should().Be("1.0.2");
+                    first.SortText.Should().Be("0000");
                     first.Kind.Should().Be(CompletionItemKind.Snippet);
-                    first.Detail.Should().BeNull();
-                    first.Documentation.Should().BeNull();
+                    first.Detail.Should().Be("d1");
+                    first.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help1)");
                 },
                 second =>
                 {
-                    second.Label.Should().Be("1.0.2");
-                    second.SortText.Should().Be("0000");
+                    second.Label.Should().Be("1.0.1");
+                    second.SortText.Should().Be("0001");
                     second.Kind.Should().Be(CompletionItemKind.Snippet);
-                    second.Detail.Should().Be("d1");
-                    second.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help1)");
+                    second.Detail.Should().BeNull();
+                    second.Documentation.Should().BeNull();
                 }
             );
         }
