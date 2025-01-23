@@ -74,19 +74,8 @@ namespace Bicep.Core.UnitTests.Registry
 
                         var properties = (ArtifactManifestProperties)constructor!.Invoke(["digest", DateTimeOffset.Now, DateTimeOffset.Now]);
 
-                        // Use reflection to set the Tags property asdfg
                         var tagsField = typeof(ArtifactManifestProperties).GetField("<Tags>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
                         tagsField!.SetValue(properties, FakeRepositories[repositoryName].Tags.ToImmutableArray());
-
-
-                        //var properties = StrictMock.Of<ArtifactManifestProperties>();
-                        //var tagsField = typeof(ArtifactManifestProperties).GetProperty("Tags", BindingFlags.Public | BindingFlags.Instance);
-                        //tagsField!.SetValue(properties.Object, FakeRepositoryNames.Keys.ToImmutableArray());
-
-
-                        //ArtifactManifestProperties is not mockable //asdfg 
-                        //var properties = StrictMock.Of<ArtifactManifestProperties>();
-                        //properties.Setup(x => x.Tags).Returns(FakeRepositoryNames.Keys.ToImmutableArray());
 
                         return AsyncPageable<ArtifactManifestProperties>.FromPages(
                             new[] { Page<ArtifactManifestProperties>.FromValues(

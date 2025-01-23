@@ -83,7 +83,6 @@ namespace Bicep.Core.IntegrationTests
             await RegistryHelper.PublishModuleToRegistryAsync(
                 clientFactory,
                 fsMock,
-                moduleName: "az",
                 new(testArtifact.ToSpecificationString(':'), BicepSource: "", WithSource: false, DocumentationUri: "mydocs.org/abc"));
 
             // ACT

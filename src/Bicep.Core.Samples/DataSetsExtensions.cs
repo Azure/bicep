@@ -126,7 +126,6 @@ namespace Bicep.Core.Samples
                 await RegistryHelper.PublishModuleToRegistryAsync(
                     clientFactory,
                     BicepTestConstants.FileSystem,
-                    moduleName,
                     new(publishInfo.Metadata.Target, publishInfo.ModuleSource, WithSource: publishSource, DocumentationUri: null));
             }
         }

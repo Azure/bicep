@@ -361,7 +361,7 @@ namespace Bicep.LanguageServer.Completions
 
                     // Module version is last completion, no follow-up completions triggered
                     // Note: Description and documentation will be resolved later
-                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version) //asdfg2
+                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version) //asdfg
                         .WithSnippetEdit(context.ReplacementRange, insertText)
                         .WithFilterText(insertText)
                         .WithSortText(GetSortText(i))
@@ -681,7 +681,8 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            var modules = await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry).TryGetModulesAsync(); //asdfg2
+            var modules = await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry)
+                .TryGetModulesAsync();
             foreach (var module in modules)
             {
                 var moduleName = module.ModuleName;

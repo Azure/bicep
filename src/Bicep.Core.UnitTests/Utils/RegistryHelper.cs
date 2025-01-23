@@ -80,7 +80,7 @@ public static class RegistryHelper //asdfg turn into an instance class?
         public string Registry => ParsedTarget.Registry;
         public string Repository => ParsedTarget.Repository;
         public string Tag => ParsedTarget.Tag!;
-        //asdfg        public static RepoDescriptor ToDescriptor(ModuleToPublish module) => new(module.Registry, module.Repository, [new(module.Tag)]/*asdfg??*/, module.DocumentationUri);
+        public string ModuleName => Repository.Split('/').Last();
     }
 
     public static IContainerRegistryClientFactory CreateMockRegistryClient(RepoDescriptor repo)
@@ -120,7 +120,6 @@ public static class RegistryHelper //asdfg turn into an instance class?
     public static async Task PublishModuleToRegistryAsync(
         IContainerRegistryClientFactory clientFactory,
         IFileSystem fileSystem,
-        string moduleName, //asdfg2 needed?
         ModuleToPublish module)
     {
         var fileExplorer = new FileSystemFileExplorer(fileSystem);
@@ -137,28 +136,17 @@ public static class RegistryHelper //asdfg turn into an instance class?
         var dispatcher = services.Build().Construct<IModuleDispatcher>();
 
         var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Module, module.PublishTarget, RandomFileUri()).IsSuccess(out var @ref) ? @ref
-            : throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{module.PublishTarget}'. Specify a reference to an OCI artifact.");
+            : throw new InvalidOperationException($"Module '{module.ModuleName}' has an invalid target reference '{module.PublishTarget}'. Specify a reference to an OCI artifact.");
 
         var result = await CompilationHelper.RestoreAndCompile(services, module.BicepSource);
         if (result.Template is null)
         {
-            throw new InvalidOperationException($"Module {moduleName} failed to produce a template.");
+            throw new InvalidOperationException($"Module {module.ModuleName} failed to produce a template.");
         }
 
         var features = featureProviderFactory.GetFeatureProvider(result.BicepFile.Uri);
         BinaryData? sourcesStream = module.WithSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(dispatcher, result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
         await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri);
-    }
-
-    // Example target: br:mockregistry.io/test/module1:v1
-    // Module name is automatically extracted from target (in this case, "module1")
-    public static async Task PublishModuleToRegistryAsync(IContainerRegistryClientFactory clientFactory, IFileSystem fileSystem, ModuleToPublish module)
-    {
-        await PublishModuleToRegistryAsync(
-              clientFactory,
-              fileSystem,
-              module.Repository.Split('/').Last(), //asdfg2 needed?
-              module);
     }
 
     // Creates a new registry client factory and publishes the specified modules to the registry.

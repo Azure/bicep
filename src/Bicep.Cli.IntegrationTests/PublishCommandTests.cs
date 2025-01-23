@@ -458,7 +458,6 @@ namespace Bicep.Cli.IntegrationTests
             await RegistryHelper.PublishModuleToRegistryAsync(
                 clientFactory,
                 BicepTestConstants.FileSystem,
-                moduleName,
                 new($"br:example.com/test/{moduleName}:v1", bicepModuleContents, WithSource: false, documentationUri));
 
             var manifest = blobClient.Manifests.Single().Value.ToObjectFromJson<OciManifest>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
