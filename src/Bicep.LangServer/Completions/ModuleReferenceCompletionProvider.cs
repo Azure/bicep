@@ -354,9 +354,9 @@ namespace Bicep.LanguageServer.Completions
             {
                 var versions = await module.TryGetVersionsAsync();
 
-                for (int i = versions.Length - 1; i >= 0; i--)
+                for (int i = 0; i < versions.Length; ++i)
                 {
-                    var version = versions[i].Version;
+                    var version = versions[versions.Length - 1 - i].Version; // Show versions from most recent to oldest
                     var insertText = $"'{trimmedText}{version}'$0";
 
                     // Module version is last completion, no follow-up completions triggered

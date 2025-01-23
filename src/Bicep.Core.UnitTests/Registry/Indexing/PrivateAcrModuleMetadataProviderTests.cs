@@ -309,9 +309,9 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
                 new MockFileSystem(),
                 containerClient,
                 [
-                    new("br:registry.contoso.io/test/module1:v1", "metadata description = 'this is module 1 version 1'\nparam p1 bool", WithSource : true),
-                    new("br:registry.contoso.io/test/module2:v1", "metadata description = 'this is module 2 version 1'\nparam p2 string", WithSource : true),
-                    new("br:registry.contoso.io/test/module1:v2", "metadata description = 'this is module 1 version 2'\nparam p12 string", WithSource: false),
+                    new("br:registry.contoso.io/test/module1:v1", "metadata description = 'this is module 1 version 1'\nparam p1 bool", WithSource: true, DocumentationUri: "http://contoso.com/help11"),
+                    new("br:registry.contoso.io/test/module2:v1", "metadata description = 'this is module 2 version 1'\nparam p2 string", WithSource: true, DocumentationUri: "http://contoso.com/help21"),
+                    new("br:registry.contoso.io/test/module1:v2", "metadata description = 'this is module 1 version 2'\nparam p12 string", WithSource: false, DocumentationUri: "http://contoso.com/help12"),
                 ]);
 
             var provider = new PrivateAcrModuleMetadataProvider(
@@ -324,6 +324,7 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
 
             var details = await module!.TryGetDetailsAsync();
             details.Description.Should().Be("this is module 1 version 1");
+            details.DocumentationUri.Should().Be("http://contoso.com/help11");
         }
     }
 }

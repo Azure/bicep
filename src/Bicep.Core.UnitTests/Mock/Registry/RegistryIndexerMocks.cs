@@ -77,7 +77,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
                         getVersionsAsyncFunc: () => Task.FromResult<ImmutableArray<RegistryModuleVersionMetadata>>(
                             [.. modules.Single(m => m.moduleName.EqualsOrdinally(m.moduleName))
                                 .versions
-                                    .Select(v => new RegistryModuleVersionMetadata(v.version,new( v.description, v.documentUri)))])
+                                    .Select(v => new RegistryModuleVersionMetadata(v.version, new( v.description, v.documentUri)))])
                         ))]);
             //asdfg
             //privateProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>

@@ -4219,7 +4219,7 @@ var file = " + functionName + @"(templ|)
                         {
                             "br": {
                                 "contoso": {
-                                    "registry": "private.contoso.io"
+                                    "registry": "private.contoso.com"
                                 }
                             }
                         }
@@ -4240,19 +4240,19 @@ var file = " + functionName + @"(templ|)
             completions.Should().SatisfyRespectively(
                 first =>
                 {
-                    first.Label.Should().Be("v100");
-                    first.SortText.Should().Be("0001");
+                    first.Label.Should().Be("v101");
+                    first.SortText.Should().Be("0000");
                     first.Kind.Should().Be(CompletionItemKind.Snippet);
-                    first.Detail.Should().Be("d100");
-                    first.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help/d100.html)");
+                    first.Detail.Should().Be("d101");
+                    first.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help/d101.html)");
                 },
                 second =>
                 {
-                    second.Label.Should().Be("v101");
-                    second.SortText.Should().Be("0000");
+                    second.Label.Should().Be("v100");
+                    second.SortText.Should().Be("0001");
                     second.Kind.Should().Be(CompletionItemKind.Snippet);
-                    second.Detail.Should().Be("d101");
-                    second.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help/d101.html)");
+                    second.Detail.Should().Be("d100");
+                    second.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help/d100.html)");
                 }
             );
         }
