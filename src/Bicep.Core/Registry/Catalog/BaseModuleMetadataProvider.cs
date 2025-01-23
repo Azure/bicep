@@ -13,9 +13,9 @@ using Microsoft.Win32;
 using System.Threading.Tasks;
 using Bicep.Core.Registry.Oci;
 using System.Security.Cryptography.Xml;
-using Bicep.Core.Registry.Indexing;
+using Bicep.Core.Registry.Catalog;
 
-namespace Bicep.Core.Registry.Indexing; //asdfg split into PublicRegistry/PrivateRegistry
+namespace Bicep.Core.Registry.Catalog; //asdfg split into PublicRegistry/PrivateRegistry
 
 
 /// <summary>

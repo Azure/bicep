@@ -13,7 +13,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Indexing;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
@@ -39,7 +39,7 @@ namespace Bicep.LanguageServer.Completions
     {
         private readonly IAzureContainerRegistriesProvider azureContainerRegistriesProvider;
         private readonly IConfigurationManager configurationManager;
-        private readonly IRegistryIndexer registryModuleIndexer;
+        private readonly IRegistryCatalog registryModuleCatalog;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
 
@@ -154,13 +154,13 @@ namespace Bicep.LanguageServer.Completions
         public ModuleReferenceCompletionProvider(
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
             IConfigurationManager configurationManager,
-            IRegistryIndexer registryModuleIndexer,
+            IRegistryCatalog registryModuleCatalog,
             ISettingsProvider settingsProvider,
             ITelemetryProvider telemetryProvider)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
             this.configurationManager = configurationManager;
-            this.registryModuleIndexer = registryModuleIndexer;
+            this.registryModuleCatalog = registryModuleCatalog;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
         }
@@ -349,7 +349,7 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            if (await registryModuleIndexer.GetRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry)
+            if (await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry)
                 .TryGetModuleAsync($"{parts.ResolvedModulePath}") is { } module)
             {
                 var versions = await module.TryGetVersionsAsync();
@@ -489,7 +489,7 @@ namespace Bicep.LanguageServer.Completions
 
                             if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal)) //asdfg?
                             {
-                                var modules = await registryModuleIndexer.GetRegistry(rootConfiguration.Cloud, PublicMcrRegistry).TryGetModulesAsync();//asdfg testpoint
+                                var modules = await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, PublicMcrRegistry).TryGetModulesAsync();//asdfg testpoint
                                 foreach (var module in modules)
                                 {
                                     //asdfg make sure registry is inputRegistry?
@@ -531,7 +531,7 @@ namespace Bicep.LanguageServer.Completions
 
                             // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = TrimStart(modulePath, LanguageConstants.BicepPublicMcrPathPrefix);
-                            var modules = await registryModuleIndexer.GetRegistry(rootConfiguration.Cloud, PublicMcrRegistry).TryGetModulesAsync(); //asdfg testpoint
+                            var modules = await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, PublicMcrRegistry).TryGetModulesAsync(); //asdfg testpoint
 
                             var matchingModules = modules.Where(x => x.ModuleName.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -681,7 +681,7 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            var modules = await registryModuleIndexer.GetRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry).TryGetModulesAsync(); //asdfg2
+            var modules = await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry).TryGetModulesAsync(); //asdfg2
             foreach (var module in modules)
             {
                 var moduleName = module.ModuleName;
@@ -840,7 +840,7 @@ namespace Bicep.LanguageServer.Completions
 
         private async Task<CompletionItem> ResolveVersionCompletionItem(CompletionItem completionItem, string registry, string modulePath, string version)
         {
-            if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
+            if (registryModuleCatalog.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
                 && await cachedRegistry.TryGetModuleAsync(modulePath) is { } module
                 && await module.TryGetVersionsAsync() is { } versions
                 &&/*extract?*/ versions.FirstOrDefault(v => v.Version.Equals(version, StringComparison.Ordinal)) is RegistryModuleVersionMetadata metadata/*asdfg does this work if not found?*/)
@@ -857,7 +857,7 @@ namespace Bicep.LanguageServer.Completions
 
         private async Task<CompletionItem> ResolveModuleCompletionItem(CompletionItem completionItem, string registry, string modulePath)
         {
-            if (registryModuleIndexer.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
+            if (registryModuleCatalog.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
                 && await cachedRegistry.TryGetModuleAsync(modulePath) is { } module
                 && await module.TryGetDetailsAsync() is { } details
                 )

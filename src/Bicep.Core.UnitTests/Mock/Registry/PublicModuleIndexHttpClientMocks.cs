@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Immutable;
-using Bicep.Core.Registry.Indexing.HttpClients;
+using Bicep.Core.Registry.Catalog.HttpClients;
 using Moq;
 
-namespace Bicep.Core.UnitTests.Mock.Registry.Indexing;
+namespace Bicep.Core.UnitTests.Mock.Registry.Catalog;
 
 public static class PublicModuleIndexHttpClientMocks
 {

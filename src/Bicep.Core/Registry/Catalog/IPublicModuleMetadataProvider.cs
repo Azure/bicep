@@ -3,7 +3,7 @@
 
 using System.Collections.Immutable;
 
-namespace Bicep.Core.Registry.Indexing;
+namespace Bicep.Core.Registry.Catalog;
 
 /// <summary>
 /// An IRegistryModuleMetadataProvider that will be registered as a singleton to handle

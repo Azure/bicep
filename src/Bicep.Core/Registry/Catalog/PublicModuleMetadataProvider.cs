@@ -9,13 +9,13 @@ using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry.Indexing.HttpClients;
+using Bicep.Core.Registry.Catalog.HttpClients;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.Indexing;
+namespace Bicep.Core.Registry.Catalog;
 
 /// <summary>
-/// Provider to get modules metadata that we store at a public endpoint.
+/// Provider to get modules metadata that we store at the public mcr.microsoft.com/bicep registry.
 /// </summary>
 public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicModuleMetadataProvider
 {

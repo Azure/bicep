@@ -7,8 +7,8 @@ using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Indexing;
-using Bicep.Core.Registry.Indexing.HttpClients;
+using Bicep.Core.Registry.Catalog;
+using Bicep.Core.Registry.Catalog.HttpClients;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
@@ -24,14 +24,14 @@ namespace Bicep.Cli.IntegrationTests
 {
     public abstract class TestBase : Bicep.Core.UnitTests.TestBase
     {
-        private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicModuleIndexHttpClient? moduleMetadataClient)//asdfg2
+        private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicModuleIndexHttpClient? moduleMetadataClient)
             => ServiceBuilder.Create(
                 services =>
                 {
                     services
                         .AddSingleton(clientFactory)
                         .AddSingleton(templateSpecRepositoryFactory)
-                        .AddRegistryIndexerServices();
+                        .AddRegistryCatalogServices();
 
                     IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, moduleMetadataClient);
                 }
@@ -79,7 +79,7 @@ namespace Bicep.Cli.IntegrationTests
                             services.WithFeatureOverrides(settings.FeatureOverrides);
                         }
 
-                        IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient); //asdfg2
+                        IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient);
 
                         services
                             .AddSingletonIfNotNull(settings.Environment ?? BicepTestConstants.EmptyEnvironment)

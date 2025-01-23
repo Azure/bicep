@@ -6,7 +6,7 @@ using Bicep.Core.Configuration;
 using Microsoft.Win32;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
-namespace Bicep.Core.Registry.Indexing;
+namespace Bicep.Core.Registry.Catalog;
 
 /// <summary>
 /// Creates IRegistryModuleMetadataProvider instances for private registries

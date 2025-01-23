@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Indexing;
+using Bicep.Core.Registry.Catalog;
 using FluentAssertions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
@@ -19,7 +19,7 @@ using Moq;
 namespace Bicep.Core.UnitTests.Mock.Registry
 {
     //asdfg refactor?
-    public static class RegistryIndexerMocks
+    public static class RegistryCatalogMocks
     {
         private const string PublicRegistry = "mcr.microsoft.com";
 
@@ -101,7 +101,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             return privateProvider;
         }
 
-        public static IRegistryIndexer CreateRegistryIndexer(
+        public static IRegistryCatalog CreateRegistryCatalogWithMocks(
             Mock<IPublicModuleMetadataProvider>? publicProvider = null,
             params Mock<IRegistryModuleMetadataProvider>[] privateProviders
         )
@@ -124,7 +124,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
                     .Returns(privateProvider.Object);
             }
 
-            var indexer = new RegistryIndexer(
+            var indexer = new RegistryCatalog(
                 publicProvider.Object,
                 privateFactory.Object,
                 StrictMock.Of<IContainerRegistryClientFactory>().Object,

@@ -3,7 +3,7 @@
 
 using System.Collections.Immutable;
 
-namespace Bicep.Core.Registry.Indexing; //asdfg split into PublicRegistry/PrivateRegistry
+namespace Bicep.Core.Registry.Catalog; //asdfg split into PublicRegistry/PrivateRegistry
 
 public class DefaultRegistryModuleMetadata : IRegistryModuleMetadata
 {

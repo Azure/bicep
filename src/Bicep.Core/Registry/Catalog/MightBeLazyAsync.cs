@@ -3,7 +3,7 @@
 
 using Microsoft.VisualStudio.Threading;
 
-namespace Bicep.Core.Registry.Indexing;
+namespace Bicep.Core.Registry.Catalog;
 
 public class MightBeLazyAsync<T>
 {

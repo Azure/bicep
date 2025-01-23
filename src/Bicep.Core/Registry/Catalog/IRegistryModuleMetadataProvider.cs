@@ -5,9 +5,9 @@ using System.Collections.Immutable;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Oci;
 using Microsoft.Win32;
-using static Bicep.Core.Registry.Indexing.IRegistryModuleMetadata;
+using static Bicep.Core.Registry.Catalog.IRegistryModuleMetadata;
 
-namespace Bicep.Core.Registry.Indexing;
+namespace Bicep.Core.Registry.Catalog;
 
 //asdfg move?
 public interface IRegistryModuleMetadata
@@ -17,27 +17,17 @@ public interface IRegistryModuleMetadata
 
     public Task<RegistryMetadataDetails> TryGetDetailsAsync();
 
+    // In order returned by the registry, generally oldest first
     public Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetVersionsAsync();
 
     public ImmutableArray<RegistryModuleVersionMetadata> GetCachedVersions();
 }
 
-//asdfg move?
-public record RegistryMetadataDetails(
-    string? Description,
-    string? DocumentationUri);
-
-//asdfg move?
-public record RegistryModuleVersionMetadata(
-    string Version,
-    RegistryMetadataDetails Details
-);
-
 /// <summary>
 /// Retrieves metadata about modules from a specific OCI registry (public or private).
-/// Use IRegistryIndexer to retrieve an instance for a specific registry.
+/// Use IRegistryCatalog to retrieve an instance for a specific registry.
 /// </summary>
-public interface IRegistryModuleMetadataProvider //asdfg rename?  see GetRegistry()
+public interface IRegistryModuleMetadataProvider
 {
     public string Registry { get; }
 
@@ -51,17 +41,6 @@ public interface IRegistryModuleMetadataProvider //asdfg rename?  see GetRegistr
 
     Task<ImmutableArray<IRegistryModuleMetadata>> TryGetModulesAsync();
 
-
-
-
-    //asdfg Task<ModuleMetadata> TryGetModuleMetadataAsync(string modulePath);
-
-    //asdfg Task<ImmutableArray<RegistryModuleVersionMetadata>> TryGetModuleVersionsAsync(string modulePath);
-
-    //asdfg Task<RegistryModuleVersionMetadata?> TryGetModuleVersionMetadataAsync(string modulePath, string version); //asdfg not null?
-
     ImmutableArray<IRegistryModuleMetadata> GetCachedModules();
-
-    //asdfg ImmutableArray<RegistryModuleVersionMetadata> GetCachedModuleVersions(string modulePath);
 }
 

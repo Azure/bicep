@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+//asdfg make sure public versions still sorted correctly
+
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
@@ -13,7 +15,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Indexing;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
@@ -2135,7 +2137,6 @@ output stringOutput |
             completions.Should().NotContain(x => x.Label == "discriminator");
         }
 
-        //asdfg existing test
         [TestMethod]
         public async Task ModuleCompletionsShouldNotBeUrlEscaped()
         {
@@ -2173,9 +2174,8 @@ module a '|' = {
             );
         }
 
-        //asdfg existing test
         [TestMethod]
-        public async Task ModuleCompletionsShouldContainDescriptions() //asdfg extend?
+        public async Task ModuleCompletionsShouldContainDescriptions()
         {
             var moduleContent = @"
 @description('input that you want multiplied by 3')
@@ -4064,7 +4064,7 @@ var file = " + functionName + @"(templ|)
         [DataTestMethod]
         [DataRow("module test 'br/|'", "groups.bicep", CompletionItemKind.File, "../", CompletionItemKind.Folder, "public", CompletionItemKind.Snippet)]
         [DataRow("module test 'br/|", "br/", CompletionItemKind.Folder, "../", CompletionItemKind.Folder, "public", CompletionItemKind.Snippet)]
-        public async Task ModuleRegistryReferenceCompletions_GetCompletionsAfterBrSchema( //asdfg existing test
+        public async Task ModuleRegistryReferenceCompletions_GetCompletionsAfterBrSchema(
             string inputWithCursors,
             string expectedLabel1,
             CompletionItemKind completionItemKind1,
@@ -4100,7 +4100,7 @@ var file = " + functionName + @"(templ|)
         }
 
         [TestMethod]
-        public async Task ModuleRegistryReferenceCompletions_GetCompletionsForFolderInsideBr() //asdfg existing test
+        public async Task ModuleRegistryReferenceCompletions_GetCompletionsForFolderInsideBr()
         {
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("module test 'br/foo/|'", '|');
@@ -4136,7 +4136,7 @@ var file = " + functionName + @"(templ|)
         [DataRow("using 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
         [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
-        public async Task Public_module_version_completions(string inputWithCursors, BicepSourceFileKind kind)//asdfg existing test - rename
+        public async Task Public_module_version_completions(string inputWithCursors, BicepSourceFileKind kind)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
@@ -4145,7 +4145,7 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicModuleMetadataProvider = RegistryIndexerMocks.MockPublicMetadataProvider(
+            var publicModuleMetadataProvider = RegistryCatalogMocks.MockPublicMetadataProvider(
                 [("bicep/app/dapr-containerapp", "d1", "contoso.com/help1", [
                     new("1.0.1", null, null),
                     new("1.0.2", "d1", "contoso.com/help1")
@@ -4181,19 +4181,16 @@ var file = " + functionName + @"(templ|)
             );
         }
 
-        [DataTestMethod] //asdfg fails because of sorting
+        [DataTestMethod]
         [DataRow("module test 'br/contoso:app/private-app:|'", BicepSourceFileKind.BicepFile)]
-        //[DataRow("module test 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.BicepFile)]
-        //[DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.BicepFile)]
-        //[DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.BicepFile)]
-        //[DataRow("using 'br/public:app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
-        //[DataRow("using 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
-        //[DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
-        //[DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
-        //// private
-        //[DataRow("module test 'br/contoso:app/dapr-containerapp:|'", BicepSourceFileKind.BicepFile)]
-        //asdfg2    asdfg add private
-        public async Task Private_module_version_completions(string inputWithCursors, BicepSourceFileKind kind)//asdfg existing test - rename
+        [DataRow("module test 'br/contoso:app/private-app:|", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:private.contoso.com/app/private-app:|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:private.contoso.com/app/private-app:|", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/contoso:app/private-app:|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("module test 'br/contoso:app/private-app:|", BicepSourceFileKind.ParamsFile)]
+        [DataRow("module test 'br:private.contoso.com/app/private-app:|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("module test 'br:private.contoso.com/app/private-app:|", BicepSourceFileKind.ParamsFile)]
+        public async Task Private_module_version_completions(string inputWithCursors, BicepSourceFileKind kind)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
@@ -4202,19 +4199,19 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var privateModuleMetadataProvider = RegistryIndexerMocks.MockPrivateMetadataProvider(
+            var privateModuleMetadataProvider = RegistryCatalogMocks.MockPrivateMetadataProvider(
                 "private.contoso.com",
                 [("app/private-app", "d1", "contoso.com/help1", [
                     new("v100", "d100", "contoso.com/help/d100.html"),
                     new("v101", "d101", "contoso.com/help/d101.html")])
                 ]);
-            var indexer = RegistryIndexerMocks.CreateRegistryIndexer(
+            var indexer = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(
                 null,
                 privateModuleMetadataProvider);
 
             var configurationManager = StrictMock.Of<IConfigurationManager>(); //asdfg extract
             var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
-                    moduleAliases: RegistryIndexerMocks.ModuleAliases(
+                    moduleAliases: RegistryCatalogMocks.ModuleAliases(
                         """
                         {
                             "br": {
@@ -4275,7 +4272,7 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicModuleMetadataProvider = RegistryIndexerMocks.MockPublicMetadataProvider([
+            var publicModuleMetadataProvider = RegistryCatalogMocks.MockPublicMetadataProvider([
                    ("bicep/abc/foo/bar", "d1", "contoso.com/help1", []),
                    ("bicep/abc/food/bar", "d2", "contoso.com/help2", []),
                    ("bicep/abc/bar/bar", "d3", "contoso.com/help3", []),
@@ -4307,7 +4304,6 @@ var file = " + functionName + @"(templ|)
 
         //asdfg if a different base path is specified for an alias in bicepconfig.json, should we add it automaticaly to filter?
 
-        //asdfg
         [TestMethod]
         [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
@@ -4321,7 +4317,6 @@ var file = " + functionName + @"(templ|)
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
             var baseFolder = $"{Guid.NewGuid():D}";
             var fileUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/main.{extension}");
-            //asdfgvar bicepConfigUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/bicepconfig.json");
 
             var configurationManager = StrictMock.Of<IConfigurationManager>();
             var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
@@ -4345,9 +4340,9 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var indexer = RegistryIndexerMocks.CreateRegistryIndexer(
+            var indexer = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(
                 null,
-                RegistryIndexerMocks.MockPrivateMetadataProvider(
+                RegistryCatalogMocks.MockPrivateMetadataProvider(
                     "registry.contoso.io",
                     [
                         ("bicep/whatever/abc/foo/bar", "d1", "contoso.com/help1", []),

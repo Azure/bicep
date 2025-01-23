@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Configuration;
 using Microsoft.Win32;
 
-namespace Bicep.Core.Registry.Indexing;
+namespace Bicep.Core.Registry.Catalog;
 
 /// <summary>
 /// Creates IRegistryModuleMetadataProvider instances

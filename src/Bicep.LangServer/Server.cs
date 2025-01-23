@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Net;
 using System.ServiceProcess;
 using Bicep.Core.Features;
-using Bicep.Core.Registry.Indexing;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Tracing;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Options;

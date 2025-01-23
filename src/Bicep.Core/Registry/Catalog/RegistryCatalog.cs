@@ -4,9 +4,9 @@
 using Bicep.Core.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.Indexing;
+namespace Bicep.Core.Registry.Catalog;
 
-public class RegistryIndexer : IRegistryIndexer
+public class RegistryCatalog : IRegistryCatalog //asdfg better name?
 {
     private readonly IPrivateAcrModuleMetadataProviderFactory providerFactory;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
@@ -14,13 +14,12 @@ public class RegistryIndexer : IRegistryIndexer
 
     private readonly Dictionary<string, IRegistryModuleMetadataProvider> registryProviders = new();
 
-    public RegistryIndexer(
+    public RegistryCatalog(
         IPublicModuleMetadataProvider publicModuleMetadataProvider,
         IPrivateAcrModuleMetadataProviderFactory privateProviderFactory,
         IContainerRegistryClientFactory containerRegistryClientFactory,
         IConfigurationManager configurationManager
-        )
-    {
+    ) {
         this.providerFactory = privateProviderFactory;
         this.containerRegistryClientFactory = containerRegistryClientFactory;
         this.configurationManager = configurationManager;
@@ -28,7 +27,7 @@ public class RegistryIndexer : IRegistryIndexer
         registryProviders["mcr.microsoft.com"] = publicModuleMetadataProvider;
     }
 
-    public IRegistryModuleMetadataProvider GetRegistry(CloudConfiguration cloud, string registry)
+    public IRegistryModuleMetadataProvider GetProviderForRegistry(CloudConfiguration cloud, string registry)
     {
         if (registryProviders.TryGetValue(registry, out var provider))
         {

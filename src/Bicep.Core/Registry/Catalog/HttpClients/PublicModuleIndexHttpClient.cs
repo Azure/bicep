@@ -5,10 +5,11 @@ using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry.Oci;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Semver;
 using Semver.Comparers;
 
-namespace Bicep.Core.Registry.Indexing.HttpClients;
+namespace Bicep.Core.Registry.Catalog.HttpClients;
 
 /// <summary>
 /// This is the DTO for modules listed in the public bicep registry
@@ -21,7 +22,6 @@ public record PublicModuleIndexEntry(
 {
     private static readonly SemVersion DefaultVersion = new(0);
 
-    // Sort tags by version numbers in descending order.
     public ImmutableArray<string> Versions
     {
         get
@@ -31,7 +31,8 @@ public record PublicModuleIndexEntry(
                 var parsedVersions = Tags.Select(x => //asdfg this to indexer so private and public use it
                     (@string: x, version: SemVersion.TryParse(x, SemVersionStyles.AllowV, out var version) ? version : DefaultVersion))
                     .ToArray();
-                return [.. parsedVersions.OrderByDescending(x => x.version, SemVersion.SortOrderComparer).Select(x => x.@string)];
+                // Sort by ascending version number here, the completion provider will reverse it to show the most recent version first
+                return [.. parsedVersions.OrderByAscending(x => x.version, SemVersion.SortOrderComparer).Select(x => x.@string)];
             }
         }
     }

@@ -3,17 +3,17 @@
 
 using System.Net;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry.Indexing.HttpClients;
+using Bicep.Core.Registry.Catalog.HttpClients;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.Indexing;
+namespace Bicep.Core.Registry.Catalog;
 
-public static class RegistryIndexerExtensionsForIServiceCollection
+public static class RegistryCatalogExtensionsForIServiceCollection
 {
-    public static IServiceCollection AddRegistryIndexerServices(this IServiceCollection services)
+    public static IServiceCollection AddRegistryCatalogServices(this IServiceCollection services)
     {
         services.AddSingleton<IPublicModuleMetadataProvider, PublicModuleMetadataProvider>();
-        services.AddSingleton<IRegistryIndexer, RegistryIndexer>();
+        services.AddSingleton<IRegistryCatalog, RegistryCatalog>();
         services.AddSingleton<IPrivateAcrModuleMetadataProviderFactory, PrivateAcrModuleMetadataProviderFactory>();
 
         // using type based registration for Http clients so dependencies can be injected automatically
