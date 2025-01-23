@@ -4205,7 +4205,7 @@ var file = " + functionName + @"(templ|)
                     new("v100", "d100", "contoso.com/help/d100.html"),
                     new("v101", "d101", "contoso.com/help/d101.html")])
                 ]);
-            var indexer = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(
+            var indexer = RegistryCatalogMocks.CreateCatalogWithMocks(
                 null,
                 privateModuleMetadataProvider);
 
@@ -4340,7 +4340,7 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var indexer = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(
+            var indexer = RegistryCatalogMocks.CreateCatalogWithMocks(
                 null,
                 RegistryCatalogMocks.MockPrivateMetadataProvider(
                     "registry.contoso.io",

@@ -35,50 +35,7 @@ namespace Bicep.Core.Registry
             this.clientFactory = clientFactory;
         }
 
-        public async Task<string[]> GetRepositoryTags(//asdfg2
-            CloudConfiguration cloud,
-            string registry,
-            string repository)
-        {
-            var registryUri = GetRegistryUri(registry);
-
-            try
-            {
-                // Try authenticated client first.
-                Trace.WriteLine($"Attempting to list repository tags for module {registryUri}/{repository} using authentication.");
-                return await GetTagsInternalAsync(anonymousAccess: false);
-            }
-            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
-            {
-                // Fall back to anonymous client.
-                Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed, received code {exception.Status}. Falling back to anonymous.");
-                return await GetTagsInternalAsync(anonymousAccess: true);
-            }
-            catch (CredentialUnavailableException)
-            {
-                // Fall back to anonymous client.
-                Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed due to missing login step. Falling back to anonymous.");
-                return await GetTagsInternalAsync(anonymousAccess: true);
-            }
-
-            async Task<string[]> GetTagsInternalAsync(bool anonymousAccess)
-            {
-                var client = CreateContainerClient(cloud, registryUri, anonymousAccess);
-
-                var tags = new List<string>();
-                await foreach (var manifestProps in client.GetRepository(repository).GetAllManifestPropertiesAsync())
-                {
-                    foreach (var tag in manifestProps.Tags) //asdfg? - don't list if not a bicep module
-                    {
-                        tags.Add(tag);
-                    }
-                }
-
-                return [.. tags];
-            }
-        }
-
-        public async Task<string[]> GetCatalogAsync(
+        public async Task<string[]> GetRepositoryNamesAsync(
             CloudConfiguration cloud,
             string registry)
         {
@@ -120,6 +77,49 @@ namespace Bicep.Core.Registry
             {
                 var client = CreateContainerClient(cloud, registryUri, anonymousAccess);
                 return await GetCatalogAsync(client);
+            }
+        }
+
+        public async Task<string[]> GetRepositoryTagsAsync(
+            CloudConfiguration cloud,
+            string registry,
+            string repository)
+        {
+            var registryUri = GetRegistryUri(registry);
+
+            try
+            {
+                // Try authenticated client first.
+                Trace.WriteLine($"Attempting to list repository tags for module {registryUri}/{repository} using authentication.");
+                return await GetTagsInternalAsync(anonymousAccess: false);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed, received code {exception.Status}. Falling back to anonymous.");
+                return await GetTagsInternalAsync(anonymousAccess: true);
+            }
+            catch (CredentialUnavailableException)
+            {
+                // Fall back to anonymous client.
+                Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed due to missing login step. Falling back to anonymous.");
+                return await GetTagsInternalAsync(anonymousAccess: true);
+            }
+
+            async Task<string[]> GetTagsInternalAsync(bool anonymousAccess)
+            {
+                var client = CreateContainerClient(cloud, registryUri, anonymousAccess);
+
+                var tags = new List<string>();
+                await foreach (var manifestProps in client.GetRepository(repository).GetAllManifestPropertiesAsync())
+                {
+                    foreach (var tag in manifestProps.Tags) //asdfg? - don't list if not a bicep module
+                    {
+                        tags.Add(tag);
+                    }
+                }
+
+                return [.. tags];
             }
         }
 

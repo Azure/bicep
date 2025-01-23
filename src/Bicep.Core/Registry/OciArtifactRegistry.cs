@@ -371,7 +371,7 @@ namespace Bicep.Core.Registry
         // media types are case-insensitive (they are lowercase by convention only)
         public static readonly StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
 
-        protected override void WriteArtifactContentToCache(OciArtifactReference reference, OciArtifactResult result) //asdfg2
+        protected override void WriteArtifactContentToCache(OciArtifactReference reference, OciArtifactResult result)
         {
             /*
                 * this should be kept in sync with the IsModuleRestoreRequired() implementation

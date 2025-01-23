@@ -304,7 +304,7 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
         [TestMethod]
         public async Task GetDetails()
         {
-            var containerClient = new FakeContainerRegistryClient();//asdfg2
+            var containerClient = new FakeContainerRegistryClient();
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 new MockFileSystem(),
                 containerClient,

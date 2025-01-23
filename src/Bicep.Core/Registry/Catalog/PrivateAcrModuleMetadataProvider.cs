@@ -44,7 +44,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
 
         // For this part we want to throw on errors
-        var tags = await acrManager.GetRepositoryTags(cloud, registry, repository);
+        var tags = await acrManager.GetRepositoryTagsAsync(cloud, registry, repository);
 
         // For the rest, we'll be resilient
         return [.. await Task.WhenAll(
@@ -86,7 +86,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         Trace.WriteLine($"Retrieving catalog for registry {Registry}...");
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
-        var catalog = await acrManager.GetCatalogAsync(cloud, Registry);
+        var catalog = await acrManager.GetRepositoryNamesAsync(cloud, Registry);
         var filteredCatalog = catalog.Where(m => filterRegex.IsMatch(m)).ToImmutableArray(); //asdfg limit?
 
         Trace.WriteLine($"Found {catalog.Length} repositories, of which {filteredCatalog.Length} matched the filter (\"{filterExpression}\")");

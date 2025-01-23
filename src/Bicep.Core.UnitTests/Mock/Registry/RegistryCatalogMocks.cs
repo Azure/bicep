@@ -101,7 +101,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             return privateProvider;
         }
 
-        public static IRegistryCatalog CreateRegistryCatalogWithMocks(
+        public static IRegistryCatalog CreateCatalogWithMocks(
             Mock<IPublicModuleMetadataProvider>? publicProvider = null,
             params Mock<IRegistryModuleMetadataProvider>[] privateProviders
         )

@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
         [TestMethod]
         public void GetRegistry_ShouldReturnSameObjectEachTime()
         {
-            var indexer = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(null,
+            var indexer = RegistryCatalogMocks.CreateCatalogWithMocks(null,
                 RegistryCatalogMocks.MockPrivateMetadataProvider(
                     "private.contoso.io",
                     [
@@ -72,7 +72,7 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
         public void GetRegistry_ForMcrMicrosoftCom_ShouldReturnPublicRegistry()
         {
             var publicProvider = RegistryCatalogMocks.MockPublicMetadataProvider([]);
-            var indexer = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(
+            var indexer = RegistryCatalogMocks.CreateCatalogWithMocks(
                 publicProvider,
                 RegistryCatalogMocks.MockPrivateMetadataProvider(
                     "private.contoso.io",
@@ -92,7 +92,7 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
         public void TryGetCachedRegistry()
         {
             var publicProvider = RegistryCatalogMocks.MockPublicMetadataProvider([]);
-            var indexer = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(publicProvider);
+            var indexer = RegistryCatalogMocks.CreateCatalogWithMocks(publicProvider);
 
             indexer.TryGetCachedRegistry("mcr.microsoft.com").Should().NotBeNull();
             indexer.TryGetCachedRegistry("private.contoso.io").Should().BeNull();

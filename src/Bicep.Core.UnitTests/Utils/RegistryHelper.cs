@@ -28,67 +28,66 @@ namespace Bicep.Core.UnitTests.Utils;
 
 public static class RegistryHelper //asdfg turn into an instance class?
 {
-    //asdfg useful to keep this tuple?  public static IContainerRegistryClientFactory CreateMockRegistryClient(string registry, string repository, string[] tags)
+    public record class RepoDescriptor(
+        string Registry, // e.g. "registry.contoso.io"
+        string Repository, // e.g. "test/module1"
+        List<RepoTagDescriptor> Tags)
+    {
+        public RepoDescriptor(
+            string Registry, // e.g. "registry.contoso.io"
+            string Repository, // e.g. "test/module1"
+            IEnumerable<string> Tags) : this(Registry, Repository, ToTagDescriptors(Tags)) { }
+    }
+
+    public record RepoTagDescriptor(
+        string Tag,
+        string? Description = null,
+        string? DocumentationUri = null
+    );
+
+    public record class ModuleToPublish(
+        string PublishTarget, // e.g. "br:registry.contoso.io/test/module1:v1"
+        string BicepSource,
+        bool WithSource = false, // whether to publish the source with the module
+        string? DocumentationUri = null)
+    {
+        public static string ToTarget(string registry, string repo, string tag) => $"br:{registry}/{repo}:{tag}";
+
+        private string TargetWithoutScheme
+        {
+            get
+            {
+                PublishTarget.Should().StartWith("br:");
+                return PublishTarget.Substring("br:".Length);
+            }
+        }
+
+        private IArtifactAddressComponents ParsedTarget
+        {
+            get
+            {
+                if (OciArtifactReference.TryParseFullyQualifiedComponents(TargetWithoutScheme).IsSuccess(out var parsedTarget, out var errorBuilder))
+                {
+                    return parsedTarget;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Failed to parse target '{errorBuilder(DiagnosticBuilder.ForPosition(new(0, 0))).Message}'.");
+                }
+            }
+        }
+
+        public string Registry => ParsedTarget.Registry;
+        public string Repository => ParsedTarget.Repository;
+        public string Tag => ParsedTarget.Tag!;
+        //asdfg        public static RepoDescriptor ToDescriptor(ModuleToPublish module) => new(module.Registry, module.Repository, [new(module.Tag)]/*asdfg??*/, module.DocumentationUri);
+    }
+
     public static IContainerRegistryClientFactory CreateMockRegistryClient(RepoDescriptor repo)
     {
         return new TestContainerRegistryClientFactoryBuilder()
             .WithRepository(repo)
             .Build().clientFactory;
-    }
-
-    //asdfg move/rename
-    public static class RepoDescriptorsBuilder //asdfg2
-    {
-        public static List<RepoTagDescriptor> ToRepoTags(IEnumerable<string> tags)
-        {
-            return [.. tags.Select(tag => new RepoTagDescriptor(tag))];
-        }
-
-        public static ModuleToPublish[] ToModulesToPublish(IEnumerable<RepoDescriptor> descriptors, bool withSource = false)
-        {
-            return [.. descriptors.SelectMany(
-                descriptor => descriptor.Tags.Select(
-                    tag => new ModuleToPublish(
-                        ModuleToPublish.ToTarget(descriptor.Registry, descriptor.Repository, tag.Tag),
-                        BicepSource: "// bicep source",
-                        WithSource: withSource,
-                        DocumentationUri: tag.DocumentationUri)
-                )
-            )];
-        }
-
-        public static RepoDescriptor[] ToRepoDescriptors(IEnumerable<ModuleToPublish> modules)
-        {
-            var descriptors = new List<RepoDescriptor>();
-
-            foreach (var module in modules)
-            {
-                var found = descriptors.SingleOrDefault(d => d.Registry == module.Registry && d.Repository == module.Repository);
-                if (found is { })
-                {
-                    found.Tags.Add(new RepoTagDescriptor(module.Tag));
-                }
-                else
-                {
-                    descriptors.Add(new(module.Registry, module.Repository, [.. ToRepoTags([module.Tag])]));
-                }
-            }
-
-            return [.. descriptors];
-        }
-
-        //private readonly List<RepoDescriptor> repos = new();
-        //public RepoDescriptorsBuilder Add(string registry, string repository, params RepoTag[] tags)
-        //{
-        //    repos.Add(new(registry, repository, tags));
-        //    return this;
-        //}
-        //public RepoDescriptorsBuilder Add(string registry, string repository, string tag, string? description = null, string? documentationUri = null)
-        //{
-        //    repos.Add(new(registry, repository, [new(tag, description, documentationUri)]);
-        //    return this;
-        //}
-        //public RepoDescriptor[] Build() => repos.ToArray();
     }
 
     public static
@@ -108,7 +107,7 @@ public static class RegistryHelper //asdfg turn into an instance class?
 
         containerRegistryFactoryBuilder.WithFakeContainerRegistryClient(containerRegistryClient);
 
-        var modules = RepoDescriptorsBuilder.ToModulesToPublish(repos);
+        var modules = DescriptorsToModulesToPublish(repos);
 
         foreach (var repo in repos)
         {
@@ -118,33 +117,6 @@ public static class RegistryHelper //asdfg turn into an instance class?
         return containerRegistryFactoryBuilder.Build();
     }
 
-#if false//asdfg shoud jus have one overload with tags?
-    //public static
-    ///* asdfg create type */ (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient>, FakeContainerRegistryClient containerRegistryClient/*asdfg don't return?*/)
-    //CreateMockRegistryClients(
-    //    FakeContainerRegistryClient containerRegistryClient,
-    //    params (string registry, string repo, string[] tags)[] clients)
-    //{
-    //    var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
-
-    //    containerRegistryFactoryBuilder.WithFakeContainerRegistryClient(containerRegistryClient);
-    //    var repos = new Dictionary<string, FakeContainerRegistryClient.FakeRepository>();
-
-    //    foreach (var (registryHost, repository, tags) in clients)
-    //    {
-    //        repos[repository] = new(registryHost, repository, [.. tags]);
-    //    }
-
-    //    foreach (var (registryHost, repository, tags) in repos.Values)
-    //    {
-    //        containerRegistryFactoryBuilder.WithRepository(registryHost, repository, [.. tags]);
-    //    }
-
-    //    return containerRegistryFactoryBuilder.Build();
-    //}
-#endif
-
-    // Example target: br:mockregistry.io/test/module1:v1
     public static async Task PublishModuleToRegistryAsync(
         IContainerRegistryClientFactory clientFactory,
         IFileSystem fileSystem,
@@ -189,63 +161,6 @@ public static class RegistryHelper //asdfg turn into an instance class?
               module);
     }
 
-    public record RepoTagDescriptor(
-        string Tag,
-        string? Description = null,
-        string? DocumentationUri = null);
-
-    //asdfg move? rename?
-    public record class RepoDescriptor(
-        string Registry, // e.g. "registry.contoso.io"
-        string Repository, // e.g. "test/module1"
-        List<RepoTagDescriptor> Tags)
-    {
-        public RepoDescriptor(
-            string Registry, // e.g. "registry.contoso.io"
-            string Repository, // e.g. "test/module1"
-            IEnumerable<string> Tags) : this(Registry, Repository, RepoDescriptorsBuilder.ToRepoTags(Tags)) { }
-    }
-
-    //asdfg move?
-    public record class ModuleToPublish(
-        string PublishTarget, // e.g. "br:registry.contoso.io/test/module1:v1"
-        string BicepSource,
-        bool WithSource = false, // whether to publish the source with the module
-        string? DocumentationUri = null)
-    {
-        public static string ToTarget(string registry, string repo, string tag) => $"br:{registry}/{repo}:{tag}";
-
-        private string TargetWithoutScheme
-        {
-            get
-            {
-                PublishTarget.Should().StartWith("br:");
-                return PublishTarget.Substring("br:".Length);
-            }
-        }
-
-        private IArtifactAddressComponents ParsedTarget
-        {
-            get
-            {
-                if (OciArtifactReference.TryParseFullyQualifiedComponents(TargetWithoutScheme).IsSuccess(out var parsedTarget, out var errorBuilder))
-                {
-                    return parsedTarget;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Failed to parse target '{errorBuilder(DiagnosticBuilder.ForPosition(new(0, 0))).Message}'.");
-                }
-            }
-        }
-
-        public string Registry => ParsedTarget.Registry;
-        public string Repository => ParsedTarget.Repository;
-        public string Tag => ParsedTarget.Tag!;
-
-        //asdfg        public static RepoDescriptor ToDescriptor(ModuleToPublish module) => new(module.Registry, module.Repository, [new(module.Tag)]/*asdfg??*/, module.DocumentationUri);
-    }
-
     // Creates a new registry client factory and publishes the specified modules to the registry.
     // Example usage:
     //   var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
@@ -261,7 +176,7 @@ public static class RegistryHelper //asdfg turn into an instance class?
         params ModuleToPublish[] modules
     )
     {
-        var repos = RepoDescriptorsBuilder.ToRepoDescriptors(modules);
+        var repos = ModulesToPublishToDescriptors(modules);
 
         var clientFactory = CreateMockRegistryClients(containerRegistryClient, repos).factoryMock;
 
@@ -311,6 +226,44 @@ public static class RegistryHelper //asdfg turn into an instance class?
         }
 
         await dispatcher.PublishExtension(targetReference, new(tgzData, false, []));
+    }
+
+    private static List<RepoTagDescriptor> ToTagDescriptors(IEnumerable<string> tags)
+    {
+        return [.. tags.Select(tag => new RepoTagDescriptor(tag))];
+    }
+
+    private static ModuleToPublish[] DescriptorsToModulesToPublish(IEnumerable<RepoDescriptor> descriptors, bool withSource = false)
+    {
+        return [.. descriptors.SelectMany(
+                descriptor => descriptor.Tags.Select(
+                    tag => new ModuleToPublish(
+                        ModuleToPublish.ToTarget(descriptor.Registry, descriptor.Repository, tag.Tag),
+                        BicepSource: "// bicep source",
+                        WithSource: withSource,
+                        DocumentationUri: tag.DocumentationUri)
+                )
+            )];
+    }
+
+    private static RepoDescriptor[] ModulesToPublishToDescriptors(IEnumerable<ModuleToPublish> modules)
+    {
+        var descriptors = new List<RepoDescriptor>();
+
+        foreach (var module in modules)
+        {
+            var found = descriptors.SingleOrDefault(d => d.Registry == module.Registry && d.Repository == module.Repository);
+            if (found is { })
+            {
+                found.Tags.Add(new RepoTagDescriptor(module.Tag));
+            }
+            else
+            {
+                descriptors.Add(new(module.Registry, module.Repository, [.. ToTagDescriptors([module.Tag])]));
+            }
+        }
+
+        return [.. descriptors];
     }
 
     private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());

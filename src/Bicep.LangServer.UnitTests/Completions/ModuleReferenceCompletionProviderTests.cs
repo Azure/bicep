@@ -65,7 +65,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
                 configMgr,
-                RegistryCatalogMocks.CreateRegistryCatalogWithMocks(),
+                RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
@@ -145,7 +145,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
                 configMgr,
-                RegistryCatalogMocks.CreateRegistryCatalogWithMocks(),
+                RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
@@ -213,7 +213,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
                 configMgr,
-                RegistryCatalogMocks.CreateRegistryCatalogWithMocks(),
+                RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
@@ -237,7 +237,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("module test 'br:contoso.com/app/dapr-containerapp:1.0.1'|")]
         public async Task GetFilteredCompletions_WithInvalidCompletionContext_ReturnsEmptyList(string inputWithCursors)
         {
-            var catalog = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 RegistryCatalogMocks.MockPublicMetadataProvider([
                     ("bicep/app/dapr-containerapp", null, null, [ new("1.0.1", null, null), new ("1.0.2", null, null) ])
                 ])
@@ -277,7 +277,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
                 configMgr,
-                RegistryCatalogMocks.CreateRegistryCatalogWithMocks(),
+                RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
@@ -353,7 +353,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
                 configMgr,
-                RegistryCatalogMocks.CreateRegistryCatalogWithMocks(),
+                RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
@@ -418,7 +418,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
                 configMgr,
-                RegistryCatalogMocks.CreateRegistryCatalogWithMocks(),
+                RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
@@ -471,7 +471,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
                 configMgr,
-                RegistryCatalogMocks.CreateRegistryCatalogWithMocks(),
+                RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
@@ -501,7 +501,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             string expectedCompletionText2,
             int expectedEnd)
         {
-            var catalog = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 RegistryCatalogMocks.MockPublicMetadataProvider([
                     new("bicep/app/dapr-cntrapp1", null, null, []),
                     new("bicep/app/dapr-cntrapp2", "description2", "contoso.com/help2", []),
@@ -574,7 +574,7 @@ namespace Bicep.LangServer.UnitTests.Completions
               }
             }";
 
-            var catalog = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 null);
 
             //asdfg test if also have access to the registry metadata - duplicate completions?  Or is that expected?
@@ -640,7 +640,7 @@ namespace Bicep.LangServer.UnitTests.Completions
     }
   }
 }";
-            var catalog = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 RegistryCatalogMocks.MockPublicMetadataProvider([
                     new("bicep/app/dapr-containerapp", null, null, [new("1.0.1", "d2", "contoso.com/help%20page.html"), new("1.0.2", null, null)]),
                     new("bicep/app/dapr-containerappapp", null, null, [new("1.0.1", "d2", "contoso.com/help%20page.html"), new("1.0.2", null, null)])
@@ -737,7 +737,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
                 configMgr,
-                RegistryCatalogMocks.CreateRegistryCatalogWithMocks(),
+                RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
@@ -781,9 +781,7 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
 
-            //asdfg2 getting module descriptions fails because it tries to do It by getting last version's metadata, which is not available in the mock'
-
-            var catalog = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 RegistryCatalogMocks.MockPublicMetadataProvider([
                     new("bicep/app/dapr-containerapp", "dapr description", "contoso.com/help", []),
                 ])
@@ -845,7 +843,7 @@ namespace Bicep.LangServer.UnitTests.Completions
 }";
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
 
-            var catalog = RegistryCatalogMocks.CreateRegistryCatalogWithMocks(
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 RegistryCatalogMocks.MockPublicMetadataProvider([
                     new("bicep/app/dapr-cntrapp1", "description1", null, []),
                     new("bicep/app/dapr-cntrapp2", null, "contoso.com/help2", [])
@@ -908,7 +906,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
                 configMgr,
-                RegistryCatalogMocks.CreateRegistryCatalogWithMocks(),
+                RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
 
