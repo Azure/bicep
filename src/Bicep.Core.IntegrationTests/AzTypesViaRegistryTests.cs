@@ -15,6 +15,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 
 namespace Bicep.Core.IntegrationTests
@@ -73,7 +74,7 @@ namespace Bicep.Core.IntegrationTests
             // ARRANGE
             var fsMock = new MockFileSystem();
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/extensions/az", "0.2.661");
-            var clientFactory = RegistryHelper.CreateMockRegistryClients(new(testArtifact.RegistryAddress, testArtifact.RepositoryPath, ["v1"])).factoryMock;
+            var clientFactory = RegistryHelper.CreateMockRegistryClients(new RepoDescriptor(testArtifact.RegistryAddress, testArtifact.RepositoryPath, ["v1"])).factoryMock;
             var services = new ServiceBuilder()
                 .WithFileSystem(fsMock)
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true))
@@ -125,7 +126,7 @@ namespace Bicep.Core.IntegrationTests
         {
             public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ExtensionVersion}";
 
-            public (string registry, string repo, string tag) ClientDescriptor() => (RegistryAddress, RepositoryPath, ExtensionVersion);
+            public RepoDescriptor ClientDescriptor() => new(RegistryAddress, RepositoryPath, [ExtensionVersion]);
         }
 
         [TestMethod]
@@ -143,9 +144,8 @@ namespace Bicep.Core.IntegrationTests
             // mock the registry client to return the mock blob client
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
             containerRegistryFactoryBuilder.WithRepository(
-                artifactRegistryAddress.RegistryAddress,
-                artifactRegistryAddress.RepositoryPath,
-                [],
+                new RepoDescriptor(
+                    artifactRegistryAddress.RegistryAddress, artifactRegistryAddress.RepositoryPath, ["tag"]),
                 mockBlobClient.Object);
 
             var services = new ServiceBuilder()

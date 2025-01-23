@@ -16,6 +16,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 
 namespace Bicep.Core.IntegrationTests
@@ -110,7 +111,7 @@ namespace Bicep.Core.IntegrationTests
         {
             public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ExtensionVersion}";
 
-            public (string, string, string) ClientDescriptor() => (RegistryAddress, RepositoryPath, "tag");
+            public RepoDescriptor/*asdfg?*/ ClientDescriptor() => new(RegistryAddress, RepositoryPath, [ExtensionVersion]);
         }
 
         [TestMethod]
@@ -128,10 +129,7 @@ namespace Bicep.Core.IntegrationTests
             // mock the registry client to return the mock blob client
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
             containerRegistryFactoryBuilder.WithRepository(
-                artifactRegistryAddress.RegistryAddress,
-                artifactRegistryAddress.RepositoryPath,
-                [],
-                mockBlobClient.Object);
+                new RepoDescriptor(artifactRegistryAddress.RegistryAddress, artifactRegistryAddress.RepositoryPath, [artifactRegistryAddress.ExtensionVersion]), mockBlobClient.Object);
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true))
