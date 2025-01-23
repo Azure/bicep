@@ -46,10 +46,6 @@ body {
   grid-auto-flow: row;
 }
 
-vscode-collapsible > * {
-  margin: 0.5rem;
-}
-
 vscode-badge {
   white-space: nowrap;
 }
