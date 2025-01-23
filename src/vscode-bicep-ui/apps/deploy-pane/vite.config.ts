@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import path from "path";
 import react from "@vitejs/plugin-react";
 import { coverageConfigDefaults, defineConfig } from "vitest/config";
 import { ViteEjsPlugin } from "vite-plugin-ejs";
@@ -30,9 +29,6 @@ export default defineConfig({
     setupFiles: ["src/__tests__/setupGlobals.ts"],
     deps: {
       inline: ['@vscode-elements/react-elements'],
-    },
-    alias: {
-      '@vscode-bicep-ui/components': path.resolve(__dirname, '../../packages/components/src/index.ts')
     }
   }
 });

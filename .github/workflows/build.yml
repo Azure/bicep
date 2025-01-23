@@ -178,6 +178,10 @@ jobs:
         run: npm run lint
         working-directory: ./src/vscode-bicep-ui
 
+      - name: Run build
+        run: npm run build
+        working-directory: ./src/vscode-bicep-ui
+
       - name: Run tests
         run: npm run test
         working-directory: ./src/vscode-bicep-ui
