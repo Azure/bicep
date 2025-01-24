@@ -19,7 +19,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using static Bicep.Core.UnitTests.Utils.RegistryHelper;
+using static Bicep.Core.UnitTests.Utils.RegistryTestHelper;
 using DataSet = Bicep.Core.Samples.DataSet;
 
 namespace Bicep.Cli.IntegrationTests
@@ -451,11 +451,11 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{moduleName}".ToLowerInvariant();
 
-            var (clientFactory, blobClients, _) = RegistryHelper.CreateMockRegistryClients(new RepoDescriptor(registryStr, repository, ["v1"]));
+            var (clientFactory, blobClients, _) = RegistryTestHelper.CreateMockRegistryClients(new RepoDescriptor(registryStr, repository, ["v1"]));
 
             var blobClient = blobClients[(registryUri, repository)];
 
-            await RegistryHelper.PublishModuleToRegistryAsync(
+            await RegistryTestHelper.PublishModuleToRegistryAsync(
                 clientFactory,
                 BicepTestConstants.FileSystem,
                 new($"br:example.com/test/{moduleName}:v1", bicepModuleContents, WithSource: false, documentationUri));

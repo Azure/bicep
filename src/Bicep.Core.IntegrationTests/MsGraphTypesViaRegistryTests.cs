@@ -16,7 +16,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using static Bicep.Core.UnitTests.Utils.RegistryHelper;
+using static Bicep.Core.UnitTests.Utils.RegistryTestHelper;
 using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 
 namespace Bicep.Core.IntegrationTests
@@ -59,10 +59,10 @@ namespace Bicep.Core.IntegrationTests
             var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForMsGraphExtension());
+                .WithContainerRegistryClientFactory(RegistryTestHelper.CreateOciClientForMsGraphExtension());
 
-            await RegistryHelper.PublishMsGraphExtension(services.Build(), indexJsonBeta, "beta", versionBeta);
-            await RegistryHelper.PublishMsGraphExtension(services.Build(), indexJsonV10, "v1", versionV10);
+            await RegistryTestHelper.PublishMsGraphExtension(services.Build(), indexJsonBeta, "beta", versionBeta);
+            await RegistryTestHelper.PublishMsGraphExtension(services.Build(), indexJsonV10, "v1", versionV10);
 
             return services;
         }

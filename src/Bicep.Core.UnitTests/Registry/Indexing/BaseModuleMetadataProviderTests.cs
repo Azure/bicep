@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.Core.UnitTests.Registry.Indexing
+namespace Bicep.Core.UnitTests.Registry.Catalog
 {
     [TestClass]
     public class BaseModuleMetadataProviderTests

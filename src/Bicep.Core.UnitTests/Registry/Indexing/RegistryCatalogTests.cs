@@ -20,7 +20,7 @@ using Microsoft.Win32;
 using Moq;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.Core.UnitTests.Registry.Indexing
+namespace Bicep.Core.UnitTests.Registry.Catalog
 {
     [TestClass]
     public class RegistryCatalogTests //asdfg2

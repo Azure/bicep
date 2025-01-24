@@ -221,7 +221,7 @@ namespace Bicep.Core.Registry
             ? this.clientFactory.CreateAnonymousContainerClient(cloud, registryUri)
             : this.clientFactory.CreateAuthenticatedContainerClient(cloud, registryUri);
 
-        private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactReference artifactReference, ContainerRegistryContentClient client) //asdfg
+        private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactReference artifactReference, ContainerRegistryContentClient client)
         {
             Response<GetManifestResult> manifestResponse;
             try

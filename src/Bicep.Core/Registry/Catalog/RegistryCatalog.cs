@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry.Catalog;
 
-public class RegistryCatalog : IRegistryCatalog //asdfg better name?
+public class RegistryCatalog : IRegistryCatalog
 {
     private readonly IPrivateAcrModuleMetadataProviderFactory providerFactory;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;

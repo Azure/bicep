@@ -26,7 +26,7 @@ using static Bicep.Core.UnitTests.Registry.FakeContainerRegistryClient;
 
 namespace Bicep.Core.UnitTests.Utils;
 
-public static class RegistryHelper //asdfg turn into an instance class?
+public static class RegistryTestHelper //asdfg turn into an instance class?
 {
     public record class RepoDescriptor(
         string Registry, // e.g. "registry.contoso.io"
@@ -156,7 +156,7 @@ public static class RegistryHelper //asdfg turn into an instance class?
     //      [
     //        new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
     //        new("br:mockregistry.io/test/module2:v1", "param p2 string", WithSource: true),
-    //        new("br:mockregistry.io/test/module1:v2", "param p12 string", WithSource: false),
+    //        new("br:mockregistry.io/test/module1:v2", "param p12 string"),
     //      ]);
     public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientWithPublishedModulesAsync(
         IFileSystem fileSystem,

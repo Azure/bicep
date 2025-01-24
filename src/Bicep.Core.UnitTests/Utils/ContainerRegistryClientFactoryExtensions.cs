@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests.Registry;
-using static Bicep.Core.UnitTests.Utils.RegistryHelper;
+using static Bicep.Core.UnitTests.Utils.RegistryTestHelper;
 
 namespace Bicep.Core.UnitTests.Utils;
 

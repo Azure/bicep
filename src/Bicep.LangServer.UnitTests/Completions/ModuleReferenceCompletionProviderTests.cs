@@ -413,7 +413,7 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             var azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
             var cloud = configMgr.GetConfiguration(documentUri.ToUriEncoded()).Cloud;
-            azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(cloud, CancellationToken.None)).Returns(new List<string> { "testacr3.azurecr.io", "testacr4.azurecr.io" }.ToAsyncEnumerable());
+            azureContainerRegistriesProvider.Setup(x => x.GetContainerRegistriesAccessibleFromAzure(cloud, CancellationToken.None)).Returns(new List<string> { "testacr3.azurecr.io", "testacr4.azurecr.io" }.ToAsyncEnumerable());
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
@@ -466,7 +466,7 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             var azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
             var cloud = configMgr.GetConfiguration(documentUri.ToUriEncoded()).Cloud;
-            azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(cloud, CancellationToken.None)).Returns(new List<string>().ToAsyncEnumerable());
+            azureContainerRegistriesProvider.Setup(x => x.GetContainerRegistriesAccessibleFromAzure(cloud, CancellationToken.None)).Returns(new List<string>().ToAsyncEnumerable());
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
@@ -900,7 +900,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 secondItemReturned = true;
                 yield return "testacr4.azurecr.io";
             }
-            azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(It.IsAny<CloudConfiguration>(), It.IsAny<CancellationToken>()))
+            azureContainerRegistriesProvider.Setup(x => x.GetContainerRegistriesAccessibleFromAzure(It.IsAny<CloudConfiguration>(), It.IsAny<CancellationToken>()))
                 .Returns((CloudConfiguration _, CancellationToken ct) => GetUris(ct));
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(

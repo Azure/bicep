@@ -67,7 +67,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             AllCommitCharacters = new Container<string>(),
-            ResolveProvider = true, //asdfg
+            ResolveProvider = true,
             TriggerCharacters = new Container<string>(":", " ", ".", "/", "'", "@", "{", "#", "?")
         };
     }

@@ -83,7 +83,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForLocalModules_ShouldBeNull()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(MockFileSystem, []);
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(MockFileSystem, []);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
@@ -117,7 +117,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForExternalModulesWithoutSource_ShouldBeNull()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: false),
@@ -145,7 +145,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForExternalModulesWithSource_ShouldBeTheArtifactId()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
@@ -174,7 +174,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ShouldHandleMultipleRefsToSameModule()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
@@ -252,7 +252,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ShouldIgnoreModuleRefsWithErrors()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-//asdfg sort modules/registries
 using System.Collections.Immutable;
 using System.Configuration;
 using System.Diagnostics;
@@ -51,7 +50,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Direct reference to a full registry login server URI via br:<registry>
-        private static readonly Regex ModulePrefixWithFullPath = new(@"^br:(?<registry>(.*?))/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase); //asdfg remove?
+        private static readonly Regex ModulePrefixWithFullPath = new(@"^br:(?<registry>(.*?))/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         //asdfg bug:
         //  module automation_account 'br:sawbicep.azurecr.io/nginx|' = {
@@ -789,7 +788,7 @@ namespace Bicep.LanguageServer.Completions
 
             try
             {
-                await foreach (string registryName in azureContainerRegistriesProvider.GetRegistryUrisAccessibleFromAzure(rootConfiguration.Cloud, cancellationToken)
+                await foreach (string registryName in azureContainerRegistriesProvider.GetContainerRegistriesAccessibleFromAzure(rootConfiguration.Cloud, cancellationToken)
                     .WithCancellation(cancellationToken))
                 {
                     var insertText = $"'{trimmedText}{registryName}/$0'";

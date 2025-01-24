@@ -15,7 +15,7 @@ using Bicep.Core.UnitTests.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using static Bicep.Core.UnitTests.Utils.RegistryHelper;
+using static Bicep.Core.UnitTests.Utils.RegistryTestHelper;
 
 namespace Bicep.Core.Samples
 {
@@ -75,7 +75,7 @@ namespace Bicep.Core.Samples
                 clients.Add(new(targetReference.Registry, targetReference.Repository, [targetReference.Tag ?? "tagasdfg"]));
             }
 
-            return RegistryHelper.CreateMockRegistryClients([.. clients, .. additionalClients]).factoryMock;
+            return RegistryTestHelper.CreateMockRegistryClients([.. clients, .. additionalClients]).factoryMock;
         }
 
         public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory()
@@ -123,7 +123,7 @@ namespace Bicep.Core.Samples
         {
             foreach (var (moduleName, publishInfo) in registryModules)
             {
-                await RegistryHelper.PublishModuleToRegistryAsync(
+                await RegistryTestHelper.PublishModuleToRegistryAsync(
                     clientFactory,
                     BicepTestConstants.FileSystem,
                     new(publishInfo.Metadata.Target, publishInfo.ModuleSource, WithSource: publishSource, DocumentationUri: null));

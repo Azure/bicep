@@ -27,8 +27,7 @@ public record PublicModuleIndexEntry(
         get
         {
             {
-                //asdfg remove
-                var parsedVersions = Tags.Select(x => //asdfg this to indexer so private and public use it
+                var parsedVersions = Tags.Select(x =>
                     (@string: x, version: SemVersion.TryParse(x, SemVersionStyles.AllowV, out var version) ? version : DefaultVersion))
                     .ToArray();
                 // Sort by ascending version number here, the completion provider will reverse it to show the most recent version first
@@ -46,7 +45,7 @@ public record PublicModuleIndexEntry(
         if (version is null)
         {
             // Get description for most recent version with a description
-            foreach (var tag in Versions)
+            foreach (var tag in Versions.Reverse())
             {
                 if (PropertiesByTag.TryGetValue(tag, out var propertiesEntry))
                 {

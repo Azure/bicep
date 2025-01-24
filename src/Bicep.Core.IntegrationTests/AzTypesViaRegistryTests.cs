@@ -15,7 +15,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using static Bicep.Core.UnitTests.Utils.RegistryHelper;
+using static Bicep.Core.UnitTests.Utils.RegistryTestHelper;
 using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 
 namespace Bicep.Core.IntegrationTests
@@ -44,9 +44,9 @@ namespace Bicep.Core.IntegrationTests
             var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzExtension());
+                .WithContainerRegistryClientFactory(RegistryTestHelper.CreateOciClientForAzExtension());
 
-            await RegistryHelper.PublishAzExtension(services.Build(), indexJson);
+            await RegistryTestHelper.PublishAzExtension(services.Build(), indexJson);
 
             return services;
         }
@@ -74,13 +74,13 @@ namespace Bicep.Core.IntegrationTests
             // ARRANGE
             var fsMock = new MockFileSystem();
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/extensions/az", "0.2.661");
-            var clientFactory = RegistryHelper.CreateMockRegistryClients(new RepoDescriptor(testArtifact.RegistryAddress, testArtifact.RepositoryPath, ["v1"])).factoryMock;
+            var clientFactory = RegistryTestHelper.CreateMockRegistryClients(new RepoDescriptor(testArtifact.RegistryAddress, testArtifact.RepositoryPath, ["v1"])).factoryMock;
             var services = new ServiceBuilder()
                 .WithFileSystem(fsMock)
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
-            await RegistryHelper.PublishModuleToRegistryAsync(
+            await RegistryTestHelper.PublishModuleToRegistryAsync(
                 clientFactory,
                 fsMock,
                 new(testArtifact.ToSpecificationString(':'), BicepSource: "", WithSource: false, DocumentationUri: "mydocs.org/abc"));

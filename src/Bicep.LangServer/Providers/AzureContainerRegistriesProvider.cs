@@ -31,7 +31,7 @@ namespace Bicep.LanguageServer.Providers
         }
 
         // Used for completions after typing "'br:"
-        public async IAsyncEnumerable<string> GetRegistryUrisAccessibleFromAzure(CloudConfiguration cloud, [EnumeratorCancellation] CancellationToken cancellationToken)
+        public async IAsyncEnumerable<string> GetContainerRegistriesAccessibleFromAzure(CloudConfiguration cloud, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

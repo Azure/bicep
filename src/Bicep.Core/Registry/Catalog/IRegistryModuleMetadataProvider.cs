@@ -9,7 +9,6 @@ using static Bicep.Core.Registry.Catalog.IRegistryModuleMetadata;
 
 namespace Bicep.Core.Registry.Catalog;
 
-//asdfg move?
 public interface IRegistryModuleMetadata
 { //asdfg better name?   asdfg combine    asdfg interface?
     public string Registry { get; init; } // e.g. "mcr.microsoft.com"

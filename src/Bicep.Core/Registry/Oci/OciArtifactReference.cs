@@ -69,7 +69,7 @@ namespace Bicep.Core.Registry.Oci
         public override bool IsExternal => true;
 
         // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
-        // The configuration and parentModuleUri are needed to resolve aliases and experimental features asdfg
+        // The configuration and parentModuleUri are needed to resolve aliases and experimental features
         public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseModuleAndAlias(string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
             => TryParse(ArtifactType.Module, aliasName, unqualifiedReference, configuration, parentModuleUri);
 

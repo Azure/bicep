@@ -33,7 +33,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using static System.Net.Mime.MediaTypeNames;
-using static Bicep.Core.UnitTests.Utils.RegistryHelper;
+using static Bicep.Core.UnitTests.Utils.RegistryTestHelper;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -145,7 +145,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //   module1 is published with source
             //   module2 references module1 and is published with source
             //   module3 references module1 and module2 and is published with source
-            return await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            return await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", module1WithSource),
                     new("br:mockregistry.io/test/module1:v2", """
@@ -180,7 +180,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public async Task IfNotShowingExternalModuleSourceCode_ThenReturnNoLinks()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
                     new("br:mockregistry.io/test/module1:v1", "metadata m = ''", WithSource: true)
                 ]);
@@ -199,7 +199,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             // Setup:
             //   module1 is published with source
             //   module2 references module1 and is published with source
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource : true),
                     new("br:mockregistry.io/test/module2:v2", """
@@ -239,7 +239,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //   module1 is published with source
             //   module2 references module1 and is published with source
             //   module3 references module1 and module2 and is published with source
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
                     new ("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                     new ("br:mockregistry.io/test/module1:v2", """
@@ -314,7 +314,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //   module1 is published with source
             //   module2 references module1 and is published with source
             //   module3 references module1 and module2 and is published with source
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                     new("br:mockregistry.io/test/module1:v2", """
@@ -400,7 +400,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var module3Uri = GetDocumentIdForExternalModuleSource("mockregistry.io/test/module1:v3");
 
             // Unregister module1:v2 so that it can't be restored
-            clientFactory = RegistryHelper.CreateMockRegistryClients(new RepoDescriptor("mockregistry.io", "test/module1", ["tag"])).factoryMock;
+            clientFactory = RegistryTestHelper.CreateMockRegistryClients(new RepoDescriptor("mockregistry.io", "test/module1", ["tag"])).factoryMock;
 
             // Compile some code to force restoration of module1:v3 (which should always be the case if we're displaying its source)
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);

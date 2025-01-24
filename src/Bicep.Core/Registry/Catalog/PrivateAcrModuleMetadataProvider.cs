@@ -23,9 +23,6 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     private readonly CloudConfiguration cloud;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
 
-    // CONSIDER: Allow configuration
-    private string filterExpression = "";
-
     public PrivateAcrModuleMetadataProvider(
         CloudConfiguration cloud,
         string registry,
@@ -81,17 +78,14 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
 
     protected override async Task<ImmutableArray<IRegistryModuleMetadata>> GetLiveDataCoreAsync()
     {
-        var filterRegex = new Regex(filterExpression, RegexOptions.IgnoreCase, matchTimeout: TimeSpan.FromMilliseconds(1));
-
         Trace.WriteLine($"Retrieving catalog for registry {Registry}...");
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
-        var catalog = await acrManager.GetRepositoryNamesAsync(cloud, Registry);
-        var filteredCatalog = catalog.Where(m => filterRegex.IsMatch(m)).ToImmutableArray(); //asdfg limit?
+        var catalog = await acrManager.GetRepositoryNamesAsync(cloud, Registry); //asdfg limit?
 
-        Trace.WriteLine($"Found {catalog.Length} repositories, of which {filteredCatalog.Length} matched the filter (\"{filterExpression}\")");
+        Trace.WriteLine($"Found {catalog.Length} repositories");
 
-        var modules = filteredCatalog
+        var modules = catalog
             .Reverse() // Reverse to get the latest modules first
             .Select(m =>
             {
@@ -104,29 +98,14 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         return [.. modules.Cast<IRegistryModuleMetadata>()];
     }
 
-    //asdfg
-    //public async Task<RegistryModuleMetadata> TryGetModuleMetadataAsync(string modulePath)
-    //{
-    //    // OCI modules don't have a description or documentation URI, we use the first (latest) version's metadata
-
-    //    if (await TryGetModuleVersionsAsync(modulePath) is { } versions
-    //        && versions.FirstOrDefault() is { } firstVersion)
-    //    {
-    //        return new(Registry, modulePath, firstVersion.Description, firstVersionMetadata.DocumentationUri);
-    //    }
-
-    //    return new(Registry, modulePath, null, null);
-    //}
-
-    //asdfg
     private async Task<RegistryMetadataDetails> GetLiveModuleDetails(
         Func<Task<ImmutableArray<RegistryModuleVersionMetadata>>> getVersionsAsyncFunc)
     {
-        // OCI modules don't have a description or documentation URI, we just use the first (latest) version's metadata
+        // OCI modules don't have a description or documentation URI, we just use the most recent version's metadata
         var versions = await getVersionsAsyncFunc();
-        if (versions.FirstOrDefault() is { } firstVersion)
+        if (versions.LastOrDefault() is { } lastVersion)
         {
-            return firstVersion.Details;
+            return lastVersion.Details;
         }
 
         return new RegistryMetadataDetails(null, null);

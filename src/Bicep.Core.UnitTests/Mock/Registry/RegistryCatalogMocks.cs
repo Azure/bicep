@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
 
             publicProvider.Setup(x => x.TryGetModulesAsync())
                 .ReturnsAsync([.. modules
-                    .Select(m => new DefaultRegistryModuleMetadata( //asdfg would be nice to mock the http client instead
+                    .Select(m => new DefaultRegistryModuleMetadata(
                         PublicRegistry,
                         m.moduleName,
                         getDetailsAsyncFunc: () => Task.FromResult(new RegistryMetadataDetails(m.description, m.documentationUri)),
@@ -48,13 +48,6 @@ namespace Bicep.Core.UnitTests.Mock.Registry
                                 .versions
                                 .Select(v => new RegistryModuleVersionMetadata(v.version,new(v.description,v.documentUri)))])
                         ))]);
-            //asdfg
-            //publicProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
-            //    [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.Select(v => v.Version)]);
-
-            //publicProvider.Setup(x => x.TryGetModuleVersionMetadataAsync(It.IsAny<string>(), It.IsAny<string>()))
-            //    .ReturnsAsync((string modulePath, string version) =>
-            //        modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.SingleOrDefault(v => v.Version.EqualsOrdinally(version)));
 
             return publicProvider;
         }
@@ -73,17 +66,20 @@ namespace Bicep.Core.UnitTests.Mock.Registry
                     modules.Select(m => new DefaultRegistryModuleMetadata(
                         registry,
                         m.moduleName,
-                        getDetailsAsyncFunc: () => /*asdfg delay?*/Task.FromResult(new RegistryMetadataDetails( m.description, m.documentationUri)),
-                        getVersionsAsyncFunc: () => Task.FromResult<ImmutableArray<RegistryModuleVersionMetadata>>(
+                        getDetailsAsyncFunc: async () => await DelayedValue(new RegistryMetadataDetails( m.description, m.documentationUri)),
+                        getVersionsAsyncFunc: async () => await DelayedValue<ImmutableArray<RegistryModuleVersionMetadata>>(
                             [.. modules.Single(m => m.moduleName.EqualsOrdinally(m.moduleName))
                                 .versions
                                     .Select(v => new RegistryModuleVersionMetadata(v.version, new( v.description, v.documentUri)))])
                         ))]);
-            //asdfg
-            //privateProvider.Setup(x => x.TryGetModuleVersionsAsync(It.IsAny<string>())).ReturnsAsync((string modulePath) =>
-            //    [.. modules.Single(m => m.moduleName.EqualsOrdinally(modulePath)).versions.Select(v => v.Version)]);
 
             return privateProvider;
+        }
+
+        private static async Task<T> DelayedValue<T>(T value)
+        {
+            await Task.Delay(1);
+            return value;
         }
 
         public static Mock<IRegistryModuleMetadataProvider> MockFailingPrivateMetadataProvider(
@@ -140,19 +136,19 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             return ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(moduleAliasesJson), null);
         }
 
-        public static Mock<IConfigurationManager> MockConfigurationManager(RootConfiguration rootConfiguration)
-        {
-            var configurationManager = StrictMock.Of<IConfigurationManager>();
-            configurationManager.Setup(x => x.GetConfiguration(It.IsAny<Uri>())).Returns(rootConfiguration);
-            return configurationManager;
-        }
+        //public static Mock<IConfigurationManager> MockConfigurationManager(RootConfiguration rootConfiguration)
+        //{
+        //    var configurationManager = StrictMock.Of<IConfigurationManager>();
+        //    configurationManager.Setup(x => x.GetConfiguration(It.IsAny<Uri>())).Returns(rootConfiguration);
+        //    return configurationManager;
+        //}
 
         //asdfg needed?
-        public static ModuleAliasesConfiguration ModuleAliasesConfig( //asdfg extension method?
-            string moduleAliasesJson
-        )
-        {
-            return ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(moduleAliasesJson), null);
-        }
+        //public static ModuleAliasesConfiguration ModuleAliasesConfig2( //asdfg extension method?
+        //    string moduleAliasesJson
+        //)
+        //{
+        //    return ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(moduleAliasesJson), null);
+        //}
     }
 }

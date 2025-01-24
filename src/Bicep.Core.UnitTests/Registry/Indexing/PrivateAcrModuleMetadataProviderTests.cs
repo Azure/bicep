@@ -19,7 +19,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.Core.UnitTests.Registry.Indexing
+namespace Bicep.Core.UnitTests.Registry.Catalog
 {
     [TestClass]
     public class PrivateAcrModuleMetadataProviderTests //asdfg2
@@ -230,7 +230,7 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
         public async Task TryGetModulesAsync()
         {
             FakeContainerRegistryClient containerRegistryClient = new();
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 new MockFileSystem(),
                 containerRegistryClient,
                 [
@@ -252,7 +252,7 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
         public async Task GetCachedModules()
         {
             var containerClient = new FakeContainerRegistryClient();
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 new MockFileSystem(),
                 containerClient,
                 [
@@ -279,7 +279,7 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
         public async Task TryGetModulesAsync_ShouldCacheResult()
         {
             var containerClient = new FakeContainerRegistryClient();
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 new MockFileSystem(),
                 containerClient,
                 [
@@ -305,7 +305,7 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
         public async Task GetDetails()
         {
             var containerClient = new FakeContainerRegistryClient();
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 new MockFileSystem(),
                 containerClient,
                 [

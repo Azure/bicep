@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.Core.UnitTests.Registry.Indexing
+namespace Bicep.Core.UnitTests.Registry.Catalog
 {
     [TestClass]
     public class PublicModuleMetadataProviderTests
@@ -565,31 +565,31 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
                 ],
                 "properties": {
                   "1.1.1": {
-                    "description": "These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
+                    "description": "v1.1.1: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.1.1/modules/lz/sub-vending/README.md"
                   },
                   "1.1.2": {
-                    "description": "These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
+                    "description": "v1.1.2: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.1.2/modules/lz/sub-vending/README.md"
                   },
                   "1.2.1": {
-                    "description": "These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
+                    "description": "v1.2.1: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.2.1/modules/lz/sub-vending/README.md"
                   },
                   "1.2.2": {
-                    "description": "These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
+                    "description": "v1.2.2: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.2.2/modules/lz/sub-vending/README.md"
                   },
                   "1.3.1": {
-                    "description": "These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
+                    "description": "v1.3.1: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.3.1/modules/lz/sub-vending/README.md"
                   },
                   "1.4.1": {
-                    "description": "This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.",
+                    "description": "v1.4.1: This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.1/modules/lz/sub-vending/README.md"
                   },
                   "1.4.2": {
-                    "description": "This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.",
+                    "description": "v1.4.2: This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.2/modules/lz/sub-vending/README.md"
                   }
                 }
@@ -772,11 +772,11 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/samples/array-loop/1.0.1/modules/samples/array-loop/README.md"
                   },
                   "1.0.2": {
-                    "description": "A sample Bicep registry module demonstrating array iterations.",
+                    "description": "v1.0.1: A sample Bicep registry module demonstrating array iterations.",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/samples/array-loop/1.0.2/modules/samples/array-loop/README.md"
                   },
                   "1.0.3": {
-                    "description": "A sample Bicep registry module demonstrating array iterations.",
+                    "description": "v1.0.3: A sample Bicep registry module demonstrating array iterations.",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/samples/array-loop/1.0.3/modules/samples/array-loop/README.md"
                   }
                 }
@@ -1200,23 +1200,22 @@ namespace Bicep.Core.UnitTests.Registry.Indexing
             var m = modules.Should().Contain(m => m.ModuleName == "bicep/lz/sub-vending")
                 .Which;
             var details = await m.TryGetDetailsAsync();
-            details.Description.Should().Be("This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.");
+            details.Description.Should().Be("v1.4.2: This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.");
             details.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.2/modules/lz/sub-vending/README.md");
         }
 
-        //asdfg
-        //[TestMethod]
-        //public async Task GetModuleVersions_SortsBySemver() //asdfg test for private
-        //{
-        //    PublicModuleMetadataProvider provider = new(CreateTypedClient());
-        //    var versions = (await provider.TryGetModuleVersionsAsync("bicep/samples/array-loop"));//asdfg test
+        [TestMethod]
+        public async Task GetModuleVersions_SortsBySemver()
+        {
+            PublicModuleMetadataProvider provider = new(CreateTypedClient());
+            var versions = await (await provider.TryGetModuleAsync("bicep/samples/array-loop"))!.TryGetVersionsAsync();
 
-        //    versions.Should().Equal(
-        //          "1.10.1",
-        //          "1.0.3",
-        //          "1.0.2",
-        //          "1.0.2-preview",
-        //          "1.0.1");
-        //}
+            versions.Select(v => v.Version).Should().Equal(
+                "1.0.1",
+                "1.0.2-preview",
+                "1.0.2",
+                "1.0.3",
+                "1.10.1");
+        }
     }
 }

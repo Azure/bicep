@@ -9,7 +9,7 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
 using Moq;
-using static Bicep.Core.UnitTests.Utils.RegistryHelper;
+using static Bicep.Core.UnitTests.Utils.RegistryTestHelper;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -29,36 +29,6 @@ namespace Bicep.Core.UnitTests.Utils
 
             return this;
         }
-
-        //asdfg
-        //public TestContainerRegistryClientFactoryBuilder WithRepository(string registryHost, string repository, string tag)
-        //{
-        //    blobClientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), new MockRegistryBlobClient());
-
-        //    if (containerClient.FakeRepositories.ContainsKey(repository))
-        //    {
-        //        containerClient.FakeRepositories[repository].Tags.Add(tag);
-        //    }
-        //    else
-        //    {
-        //        containerClient.FakeRepositories.Add(repository, new(registryHost, repository, [tag]));
-        //    }
-
-        //    return this;
-        //}
-
-        ////public TestContainerRegistryClientFactoryBuilder WithRepository(string registryHost, string repository, string[] tags, MockRegistryBlobClient client)
-        ////{
-        ////    blobClientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), client);
-
-        ////    if (!containerClient.FakeRepositories.ContainsKey(repository))
-        ////    {
-        ////        containerClient.FakeRepositories.Add(repository, new(registryHost, repository, [.. tags]));
-        ////    }
-
-        ////    return this;
-        ////}
-
         public TestContainerRegistryClientFactoryBuilder WithRepository(RepoDescriptor repo, MockRegistryBlobClient client) //asdfg combine with above
         {
             blobClientsBuilder.TryAdd((new Uri($"https://{repo.Registry}"), repo.Repository), client);
