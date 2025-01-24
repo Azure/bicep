@@ -91,14 +91,14 @@ public static class RegistryHelper
     }
 
     public static
-        (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient>, FakeContainerRegistryClient containerRegistryClient/*asdfg don't return?*/)
+        (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient>, FakeContainerRegistryClient containerRegistryClient)
         CreateMockRegistryClients(params RepoDescriptor[] clients)
     {
         return CreateMockRegistryClients(new FakeContainerRegistryClient(), clients);
     }
 
     public static
-    /* create type */ (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient>, FakeContainerRegistryClient containerRegistryClient/*asdfg don't return?*/)
+    /* create type */ (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient>, FakeContainerRegistryClient containerRegistryClient)
     CreateMockRegistryClients(
         FakeContainerRegistryClient containerRegistryClient,
         params RepoDescriptor[] repos)

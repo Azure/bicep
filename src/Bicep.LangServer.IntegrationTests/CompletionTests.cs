@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-//asdfg make sure public versions still sorted correctly
-
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;

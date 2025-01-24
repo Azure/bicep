@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-//asdfg testpoint
 using System.Collections.Immutable;
 using System.Configuration;
 using System.Diagnostics;

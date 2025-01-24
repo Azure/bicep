@@ -55,7 +55,7 @@ namespace Bicep.LanguageServer.Handlers
                 this.logger.LogError("Error with Completion in file {Uri} with {Context}. Underlying exception is: {Exception}", request.TextDocument.Uri, completionContext, e.ToString());
             }
 
-            return new CompletionList(completions, isIncomplete: false/*asdfg*/);
+            return new CompletionList(completions, isIncomplete: false);
         }
 
         public override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)

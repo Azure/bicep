@@ -25,8 +25,6 @@ public class MightBeLazyAsync<T> where T : class
 
     private bool IsLazy => lazy is not null;
 
-    //asdfg public bool HasValue => lazy is null || lazy.IsValueFactoryCompleted;
-
     public bool TryGetValue([NotNullWhen(true)] out T? value)
     {
         if (IsLazy)

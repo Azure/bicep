@@ -18,19 +18,9 @@ namespace Bicep.Core.UnitTests.Utils
         private readonly ImmutableDictionary<(Uri registryUri, string repository), MockRegistryBlobClient>.Builder blobClientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
         private FakeContainerRegistryClient containerClient = new();
 
-        public TestContainerRegistryClientFactoryBuilder WithRepository(RepoDescriptor repo)
+        public TestContainerRegistryClientFactoryBuilder WithRepository(RepoDescriptor repo, MockRegistryBlobClient? client = null) //asdfg combine with above
         {
-            blobClientsBuilder.TryAdd((new Uri($"https://{repo.Registry}"), repo.Repository), new MockRegistryBlobClient());
-
-            if (!containerClient.FakeRepositories.ContainsKey(repo.Repository))
-            {
-                containerClient.FakeRepositories.Add(repo.Repository, new(repo.Registry, repo.Repository, [.. repo.Tags.Select(t => t.Tag)]));
-            }
-
-            return this;
-        }
-        public TestContainerRegistryClientFactoryBuilder WithRepository(RepoDescriptor repo, MockRegistryBlobClient client) //asdfg combine with above
-        {
+            client ??= new MockRegistryBlobClient();
             blobClientsBuilder.TryAdd((new Uri($"https://{repo.Registry}"), repo.Repository), client);
 
             if (!containerClient.FakeRepositories.ContainsKey(repo.Repository))

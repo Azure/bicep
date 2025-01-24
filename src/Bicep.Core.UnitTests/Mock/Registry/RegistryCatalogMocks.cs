@@ -18,7 +18,6 @@ using Moq;
 
 namespace Bicep.Core.UnitTests.Mock.Registry
 {
-    //asdfg refactor?
     public static class RegistryCatalogMocks
     {
         private const string PublicRegistry = "mcr.microsoft.com";
@@ -143,20 +142,5 @@ namespace Bicep.Core.UnitTests.Mock.Registry
         {
             return ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(moduleAliasesJson), null);
         }
-
-        //public static Mock<IConfigurationManager> MockConfigurationManager(RootConfiguration rootConfiguration)
-        //{
-        //    var configurationManager = StrictMock.Of<IConfigurationManager>();
-        //    configurationManager.Setup(x => x.GetConfiguration(It.IsAny<Uri>())).Returns(rootConfiguration);
-        //    return configurationManager;
-        //}
-
-        //asdfg needed?
-        //public static ModuleAliasesConfiguration ModuleAliasesConfig2( //asdfg extension method?
-        //    string moduleAliasesJson
-        //)
-        //{
-        //    return ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(moduleAliasesJson), null);
-        //}
     }
 }

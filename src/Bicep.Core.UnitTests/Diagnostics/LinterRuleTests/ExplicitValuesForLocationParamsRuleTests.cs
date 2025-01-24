@@ -331,7 +331,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             });
         }
 
-        [TestMethod] //asdfg null ref?
+        [TestMethod]
         public void If_Module_HasErrors_LocationParam_WithDefault_AndValuePassedIn_CaseInsensitive_ShouldPass()
         {
             var result = CompilationHelper.Compile(

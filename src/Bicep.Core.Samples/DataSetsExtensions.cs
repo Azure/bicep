@@ -72,7 +72,7 @@ namespace Bicep.Core.Samples
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
 
-                clients.Add(new(targetReference.Registry, targetReference.Repository, [targetReference.Tag ?? "tagasdfg"]));
+                clients.Add(new(targetReference.Registry, targetReference.Repository, ["tag"]));
             }
 
             return RegistryHelper.CreateMockRegistryClients([.. clients, .. additionalClients]).factoryMock;
