@@ -83,7 +83,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForLocalModules_ShouldBeNull()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(MockFileSystem, []);
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(MockFileSystem, []);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
@@ -117,10 +117,10 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForExternalModulesWithoutSource_ShouldBeNull()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
-                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: false),
+                    new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: false),
                 ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
@@ -145,10 +145,10 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForExternalModulesWithSource_ShouldBeTheArtifactId()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
-                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                    new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                 ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
@@ -174,12 +174,12 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ShouldHandleMultipleRefsToSameModule()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
-                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-                    ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
-                    ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: true),
+                    new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
+                    new("br:mockregistry.io/test/module2:v1", "param p2 string", WithSource: true),
+                    new("br:mockregistry.io/test/module1:v2", "param p12 string", WithSource: true),
                 ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
@@ -252,10 +252,10 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ShouldIgnoreModuleRefsWithErrors()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+            var clientFactory = await RegistryTestHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
-                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                    new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                 ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(

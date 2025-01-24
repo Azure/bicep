@@ -16,6 +16,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using static Bicep.Core.UnitTests.Utils.RegistryTestHelper;
 using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 
 namespace Bicep.Core.IntegrationTests
@@ -58,17 +59,17 @@ namespace Bicep.Core.IntegrationTests
             var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForMsGraphExtension());
+                .WithContainerRegistryClientFactory(RegistryTestHelper.CreateOciClientForMsGraphExtension());
 
-            await RegistryHelper.PublishMsGraphExtension(services.Build(), indexJsonBeta, "beta", versionBeta);
-            await RegistryHelper.PublishMsGraphExtension(services.Build(), indexJsonV10, "v1", versionV10);
+            await RegistryTestHelper.PublishMsGraphExtension(services.Build(), indexJsonBeta, "beta", versionBeta);
+            await RegistryTestHelper.PublishMsGraphExtension(services.Build(), indexJsonV10, "v1", versionV10);
 
             return services;
         }
 
         private async Task<ServiceBuilder> ServicesWithTestExtensionArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
         {
-            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
+            (var clientFactory, var blobClients, _) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
 
             (_, var client) = blobClients.First();
             var configResult = await client.UploadBlobAsync(BinaryData.FromString("{}"));
@@ -110,7 +111,7 @@ namespace Bicep.Core.IntegrationTests
         {
             public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ExtensionVersion}";
 
-            public (string, string) ClientDescriptor() => (RegistryAddress, RepositoryPath);
+            public RepoDescriptor/*asdfg?*/ ClientDescriptor() => new(RegistryAddress, RepositoryPath, [ExtensionVersion]);
         }
 
         [TestMethod]
@@ -127,10 +128,8 @@ namespace Bicep.Core.IntegrationTests
 
             // mock the registry client to return the mock blob client
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
-            containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(
-                artifactRegistryAddress.RegistryAddress,
-                artifactRegistryAddress.RepositoryPath,
-                mockBlobClient.Object);
+            containerRegistryFactoryBuilder.WithRepository(
+                new RepoDescriptor(artifactRegistryAddress.RegistryAddress, artifactRegistryAddress.RepositoryPath, [artifactRegistryAddress.ExtensionVersion]), mockBlobClient.Object);
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true))

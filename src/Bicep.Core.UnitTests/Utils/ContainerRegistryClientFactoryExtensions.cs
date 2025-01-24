@@ -4,19 +4,20 @@
 using System.Collections.Immutable;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests.Registry;
+using static Bicep.Core.UnitTests.Utils.RegistryTestHelper;
 
 namespace Bicep.Core.UnitTests.Utils;
 
 public class ContainerRegistryClientFactoryExtensions
 {
-    public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(params (string, string)[] clients)
+    public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks, FakeContainerRegistryClient containerRegistryClient)
+        CreateMockRegistryClients(params RepoDescriptor[] repos)
     {
         var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
 
-        foreach (var (registryHost, repository) in clients)
+        foreach (var repo in repos)
         {
-            containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryHost, repository);
-
+            containerRegistryFactoryBuilder.WithRepository(repo);
         }
 
         return containerRegistryFactoryBuilder.Build();

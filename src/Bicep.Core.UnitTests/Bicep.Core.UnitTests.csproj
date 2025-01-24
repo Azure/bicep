@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <Folder Include="Configuration\Links\" />
+    <Folder Include="Mock\Registry\NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>

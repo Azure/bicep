@@ -39,11 +39,11 @@ namespace Bicep.Core.IntegrationTests
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzExtension())
+                .WithContainerRegistryClientFactory(RegistryTestHelper.CreateOciClientForAzExtension())
                 .WithMockFileSystem(fileSystem)
                 .WithAzResourceTypeLoader(azTypeLoaderLazy.Value);
 
-            await RegistryHelper.PublishAzExtension(services.Build(), "/types/index.json");
+            await RegistryTestHelper.PublishAzExtension(services.Build(), "/types/index.json");
 
             return services;
         }

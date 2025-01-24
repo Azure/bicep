@@ -57,7 +57,7 @@ public class ExtensionRegistryTests : TestBase
 
         var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, AllFeaturesEnabled);
 
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryTestHelper.PublishExtensionToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
 extension 'br:example.azurecr.io/test/extension/http:1.2.3'
@@ -86,7 +86,7 @@ output joke string = dadJoke.body.joke
         Directory.CreateDirectory(tempDirectory);
 
         var extensionPath = Path.Combine(tempDirectory, "extension.tgz");
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), Path.Combine(tempDirectory, extensionPath), typesTgz);
+        await RegistryTestHelper.PublishExtensionToRegistryAsync(services.Build(), Path.Combine(tempDirectory, extensionPath), typesTgz);
 
         var bicepPath = Path.Combine(tempDirectory, "main.bicep");
         await File.WriteAllTextAsync(bicepPath, """
@@ -256,7 +256,7 @@ resource fooRes 'fooType@v1' existing = {
 
         var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, AllFeaturesEnabled);
 
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryTestHelper.PublishExtensionToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
 extension 'br:example.azurecr.io/test/extension/http:1.2.3' with {}
@@ -337,7 +337,7 @@ output baz string = fooRes.convertBarToBaz('bar')
 
         var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, AllFeaturesEnabled);
 
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryTestHelper.PublishExtensionToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, @$"
 extension 'br:example.azurecr.io/test/extension/http:1.2.3'

@@ -7,6 +7,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static Bicep.Core.UnitTests.Utils.RegistryTestHelper;
 
 namespace Bicep.Core.IntegrationTests;
 
@@ -28,7 +29,7 @@ public class ResourceTypeProviderFactoryTests
         var repositoryPath = $"test/extension";
         var repositoryNames = new[] { "foo", "bar" };
 
-        var (clientFactory, _) = RegistryHelper.CreateMockRegistryClients(repositoryNames.Select(name => (registry, $"{repositoryPath}/{name}")).ToArray());
+        var (clientFactory, _, _) = RegistryTestHelper.CreateMockRegistryClients([.. repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["tag"]))]);
 
         var services = new ServiceBuilder()
             .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
@@ -37,7 +38,7 @@ public class ResourceTypeProviderFactoryTests
         foreach (var repoName in repositoryNames)
         {
             var indexJsonPath = Path.Combine(outputDirectory, "types", "index.json");
-            await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), indexJsonPath, $"br:{registry}/{repositoryPath}/{repoName}:1.2.3");
+            await RegistryTestHelper.PublishExtensionToRegistryAsync(services.Build(), indexJsonPath, $"br:{registry}/{repositoryPath}/{repoName}:1.2.3");
         }
 
         var result = await CompilationHelper.RestoreAndCompile(
