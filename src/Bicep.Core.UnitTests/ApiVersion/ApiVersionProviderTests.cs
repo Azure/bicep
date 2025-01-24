@@ -58,7 +58,7 @@ namespace Bicep.Core.UnitTests.ApiVersions
         }
 
         [DataTestMethod]
-        public void GetResourceTypeNames_SeparateScopes()
+        public void GetResourceTypeNames_SeparateScopes() //asdfg very slow, why?
         {
             var apiVersionProvider = CreateDefaultApiVersionProvider();
             apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
