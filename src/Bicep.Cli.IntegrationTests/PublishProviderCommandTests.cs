@@ -12,6 +12,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Cli.IntegrationTests;
 
@@ -31,7 +32,7 @@ public class PublishExtensionCommandTests : TestBase
         var repository = $"test/extension";
         var version = "0.0.1";
 
-        var (clientFactory, blobClientMocks) = RegistryHelper.CreateMockRegistryClients((registryStr, repository));
+        var (clientFactory, blobClientMocks, _) = RegistryHelper.CreateMockRegistryClients(new RepoDescriptor(registryStr, repository, ["tag"]));
         var mockBlobClient = blobClientMocks[(registryUri, repository)];
 
         var indexPath = Path.Combine(outputDirectory, "index.json");
