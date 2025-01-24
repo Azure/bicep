@@ -42,7 +42,7 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
             }
 
             provider = providerFactory.Create(cloud, registry, containerRegistryClientFactory);
-            registryProviders[registry] = provider; //asdfg threading
+            registryProviders[registry] = provider;
 
             return provider;
         }

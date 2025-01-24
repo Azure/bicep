@@ -111,7 +111,7 @@ namespace Bicep.Core.IntegrationTests
         {
             public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ExtensionVersion}";
 
-            public RepoDescriptor/*asdfg?*/ ClientDescriptor() => new(RegistryAddress, RepositoryPath, [ExtensionVersion]);
+            public RepoDescriptor ClientDescriptor() => new(RegistryAddress, RepositoryPath, [ExtensionVersion]);
         }
 
         [TestMethod]

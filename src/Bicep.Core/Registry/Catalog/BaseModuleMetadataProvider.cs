@@ -177,7 +177,7 @@ public abstract class BaseModuleMetadataProvider(
         }
     }
 
-    private bool IsCacheExpired() //asdfg test
+    private bool IsCacheExpired()
     {
         var expired = this.lastSuccessfulQuery.HasValue && this.lastSuccessfulQuery.Value + this.CacheValidFor < DateTime.Now;
         if (expired)

@@ -25,7 +25,7 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
     public PublicModuleMetadataProvider(IPublicModuleIndexHttpClient publicModuleIndexClient)
         : base(LanguageConstants.BicepPublicMcrRegistry)
     {
-        this.client = publicModuleIndexClient; //asdfg lifetime
+        this.client = publicModuleIndexClient;
     }
 
     protected override async Task<ImmutableArray<IRegistryModuleMetadata>> GetLiveDataCoreAsync()
@@ -45,7 +45,7 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
                     )]);
             return new RegistryModuleMetadata(
                 Registry,
-                $"{LanguageConstants.BicepPublicMcrPathPrefix}{m.ModulePath}", //asdfg remove prefix and get tests to fail
+                $"{LanguageConstants.BicepPublicMcrPathPrefix}{m.ModulePath}",
                 new ComputedData(moduleDetails, versions));
         })];
     }

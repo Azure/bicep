@@ -146,6 +146,11 @@ namespace Bicep.Core.Registry
                 Trace.WriteLine($"Attempting to pull artifact for module {artifactReference.FullyQualifiedReference} with anonymous authentication.");
                 return await DownloadManifestInternalAsync(anonymousAccess: true);
             }
+            catch (InvalidArtifactException invalidArtifactException)
+            {
+                Trace.WriteLine($"Anonymous authentication failed with invalid artifact exception: {invalidArtifactException.Message}. Not retrying.");
+                throw;
+            }
             catch (RequestFailedException requestedFailedException) when (requestedFailedException.Status is 401 or 403)
             {
                 Trace.WriteLine($"Anonymous authentication failed with status code {requestedFailedException.Status}. Retrying with authenticated client.");

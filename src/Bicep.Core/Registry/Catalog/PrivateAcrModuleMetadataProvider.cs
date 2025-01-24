@@ -21,7 +21,7 @@ namespace Bicep.Core.Registry.Catalog;
 /// </summary>
 public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IRegistryModuleMetadataProvider
 {
-    private const int MaxReturnedModules = 10; //asdfg?
+    private const int MaxReturnedModules = 10000; //asdfg?
 
     private readonly CloudConfiguration cloud;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
@@ -57,7 +57,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         try
         {
             AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
-            var artifactResult = await acrManager.PullArtifactAsync(cloud, new OciArtifactReference(ArtifactType.Module, Registry, modulePath, version, null, new Uri("file://asdfg")));
+            var artifactResult = await acrManager.PullArtifactAsync(cloud, new OciArtifactReference(ArtifactType.Module, Registry, modulePath, version, null, new Uri("file://noparent")));
             var manifest = artifactResult.Manifest;
             string? description = null;
             string? documentationUri = null;
@@ -82,7 +82,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         Trace.WriteLine($"Retrieving catalog for registry {Registry}...");
 
         AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
-        var catalog = await acrManager.GetRepositoryNamesAsync(cloud, Registry, MaxReturnedModules); //asdfg limit?
+        var catalog = await acrManager.GetRepositoryNamesAsync(cloud, Registry, MaxReturnedModules);
 
         Trace.WriteLine($"Found {catalog.Length} repositories");
 
@@ -113,6 +113,6 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
             return lastVersion.Details;
         }
 
-        return new RegistryMetadataDetails(null, null);//asdfg testpoint
+        return new RegistryMetadataDetails(null, null);
     }
 }
