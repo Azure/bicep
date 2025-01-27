@@ -17,7 +17,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
-using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -69,7 +68,7 @@ namespace Bicep.Core.IntegrationTests
 
         private async Task<ServiceBuilder> ServicesWithTestExtensionArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
         {
-            (var clientFactory, var blobClients, _) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
+            (var clientFactory, var blobClients, _) = RegistryHelper.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
 
             (_, var client) = blobClients.First();
             var configResult = await client.UploadBlobAsync(BinaryData.FromString("{}"));

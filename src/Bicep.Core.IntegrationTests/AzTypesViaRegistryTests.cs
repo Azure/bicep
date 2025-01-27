@@ -16,7 +16,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
-using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -53,7 +52,7 @@ namespace Bicep.Core.IntegrationTests
 
         private async Task<ServiceBuilder> ServicesWithTestExtensionArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
         {
-            (var clientFactory, var blobClients, _) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
+            (var clientFactory, var blobClients, _) = RegistryHelper.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
 
             (_, var client) = blobClients.First();
             var configResult = await client.UploadBlobAsync(BinaryData.FromString("{}"));
@@ -74,7 +73,7 @@ namespace Bicep.Core.IntegrationTests
             // ARRANGE
             var fsMock = new MockFileSystem();
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/extensions/az", "0.2.661");
-            var clientFactory = RegistryHelper.CreateMockRegistryClients(new RepoDescriptor(testArtifact.RegistryAddress, testArtifact.RepositoryPath, ["v1"])).factoryMock;
+            var clientFactory = RegistryHelper.CreateMockRegistryClients(new RepoDescriptor(testArtifact.RegistryAddress, testArtifact.RepositoryPath, ["v1"])).clientFactory;
             var services = new ServiceBuilder()
                 .WithFileSystem(fsMock)
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true))

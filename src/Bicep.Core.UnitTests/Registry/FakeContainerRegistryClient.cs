@@ -32,7 +32,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         public SortedList<string, FakeRepository> FakeRepositories { get; } = new();
 
-        public override AsyncPageable<string> GetRepositoryNamesAsync(CancellationToken cancellationToken = default) //asdfg test with lots and lots
+        public override AsyncPageable<string> GetRepositoryNamesAsync(CancellationToken cancellationToken = default)
         {
             CallsToGetRepositoryNamesAsync++;
 
