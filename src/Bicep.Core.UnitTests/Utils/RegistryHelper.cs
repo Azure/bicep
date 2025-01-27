@@ -23,6 +23,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.UnitTests.Registry.FakeContainerRegistryClient;
+using static Bicep.Core.UnitTests.Utils.TestContainerRegistryClientFactoryBuilder;
 
 namespace Bicep.Core.UnitTests.Utils;
 
@@ -90,16 +91,19 @@ public static class RegistryHelper
             .Build().clientFactory;
     }
 
-    public static
-        (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient>, FakeContainerRegistryClient containerRegistryClient)
-        CreateMockRegistryClients(params RepoDescriptor[] clients)
+    public static BuiltClients CreateMockRegistryClients(params RepoDescriptor[] repos)
     {
-        return CreateMockRegistryClients(new FakeContainerRegistryClient(), clients);
+        var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
+
+        foreach (var repo in repos)
+        {
+            containerRegistryFactoryBuilder.WithRepository(repo);
+        }
+
+        return containerRegistryFactoryBuilder.Build();
     }
 
-    public static
-    /* create type */ (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient>, FakeContainerRegistryClient containerRegistryClient)
-    CreateMockRegistryClients(
+    public static BuiltClients CreateMockRegistryClients(
         FakeContainerRegistryClient containerRegistryClient,
         params RepoDescriptor[] repos)
     {
@@ -166,7 +170,7 @@ public static class RegistryHelper
     {
         var repos = ModulesToPublishToDescriptors(modules);
 
-        var clientFactory = CreateMockRegistryClients(containerRegistryClient, repos).factoryMock;
+        var clientFactory = CreateMockRegistryClients(containerRegistryClient, repos).clientFactory;
 
         foreach (var module in modules)
         {
@@ -274,11 +278,11 @@ public static class RegistryHelper
             LanguageConstants.BicepPublicMcrRegistry,
             "bicep/extensions/az",
             new List<RepoTagDescriptor> { new("tag") }
-        )).factoryMock;
+        )).clientFactory;
 
     public static IContainerRegistryClientFactory CreateOciClientForMsGraphExtension()
         => CreateMockRegistryClients(
             new RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/beta", ["tag"]),
             new RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/v1", ["tag"])
-            ).factoryMock;
+            ).clientFactory;
 }

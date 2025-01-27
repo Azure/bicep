@@ -15,6 +15,11 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public class TestContainerRegistryClientFactoryBuilder
     {
+        public record BuiltClients(
+            IContainerRegistryClientFactory clientFactory,
+            ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks,
+            FakeContainerRegistryClient containerRegistryClient);
+
         private readonly ImmutableDictionary<(Uri registryUri, string repository), MockRegistryBlobClient>.Builder blobClientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
         private FakeContainerRegistryClient containerClient = new();
 
@@ -38,7 +43,7 @@ namespace Bicep.Core.UnitTests.Utils
             return this;
         }
 
-        public (IContainerRegistryClientFactory clientFactory, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks, FakeContainerRegistryClient containerRegistryClient) Build()
+        public BuiltClients Build()
         {
             var blobClientsByRepository = blobClientsBuilder.ToImmutable();
 
@@ -58,7 +63,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Setup(m => m.CreateAuthenticatedContainerClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>()))
                 .Returns<CloudConfiguration, Uri>((_, registryUri) => containerClient);
 
-            return (clientFactory.Object, blobClientsByRepository, containerClient);
+            return new  (clientFactory.Object, blobClientsByRepository, containerClient);
 
             MockRegistryBlobClient GetBlobClient(Uri registryUri, string repository)
             {

@@ -218,7 +218,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // pass
             },
             DisplayName = "_var passes for non-variable names")]
-        public void VariableNameFluff(string bicep, string[] expectedFailingResourceNames) //asdfg null ref?
+        public void VariableNameFluff(string bicep, string[] expectedFailingResourceNames)
         {
             AssertLinterRuleDiagnostics(
                 DecompilerCleanupRule.Code,
