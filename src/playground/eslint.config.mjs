@@ -1,52 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// @ts-check
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
+import pluginJest from 'eslint-plugin-jest';
 import notice from "eslint-plugin-notice";
-import tsParser from "@typescript-eslint/parser";
-import globals from "globals";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+export default tseslint.config({
+  files: ["src/**/*.ts", "test/**/*.ts", "test-live/**/*.ts"],
+  extends: [
+    eslint.configs.recommended,
+    pluginJest.configs['flat/recommended'],
+    eslintPluginPrettierRecommended,
+    ...tseslint.configs.recommended,
+  ],
+  languageOptions: {
+    ecmaVersion: 2020,
+  },
+  plugins: { notice },
+  rules: {
+    "notice/notice": [
+      "error",
+      {
+        templateFile: "../copyright-template.js",
+      },
+    ],
+  },
 });
-
-export default [{
-    ignores: ["out/**/*"],
-}, ...compat.extends("eslint:recommended"), {
-    plugins: {
-        notice,
-    },
-
-    languageOptions: {
-        parser: tsParser,
-        ecmaVersion: 2020,
-        sourceType: "module",
-    },
-
-    rules: {
-        "notice/notice": [
-            2,
-            {
-                "templateFile": "../copyright-template.js",
-            }
-        ]
-    }
-}, ...compat.extends("plugin:@typescript-eslint/recommended").map(config => ({
-    ...config,
-    files: ["**/*.ts", "**/*.tsx"],
-})), {
-    files: ["**/*.js"],
-
-    languageOptions: {
-        globals: {
-            ...globals.node,
-        },
-    },
-}];
