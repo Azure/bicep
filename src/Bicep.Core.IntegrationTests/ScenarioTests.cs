@@ -2802,11 +2802,11 @@ var myValue = 2147483647
         {
             new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
-                new TypeProperty("tags", LanguageConstants.Array, TypePropertyFlags.ReadOnly, "tags property"),
-                new TypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new[]
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                new NamedTypeProperty("tags", LanguageConstants.Array, TypePropertyFlags.ReadOnly, "tags property"),
+                new NamedTypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new[]
                 {
-                    new TypeProperty("prop1", LanguageConstants.String, TypePropertyFlags.ReadOnly, "prop1")
+                    new NamedTypeProperty("prop1", LanguageConstants.String, TypePropertyFlags.ReadOnly, "prop1")
                 }, null), TypePropertyFlags.ReadOnly, "properties property"),
             }, null))
         });

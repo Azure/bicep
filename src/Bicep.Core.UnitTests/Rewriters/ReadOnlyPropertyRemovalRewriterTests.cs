@@ -51,9 +51,9 @@ resource resA 'My.Rp/resA@2020-01-01' = {
                 """;
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/resA", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
+                new NamedTypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
+                new NamedTypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             var (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", bicepFile));

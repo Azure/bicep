@@ -372,7 +372,7 @@ internal static class TypeCollapser
                 }
 
                 ObjectTypeNameBuilder structuralNameBuilder = new();
-                List<TypeProperty> properties = new();
+                List<NamedTypeProperty> properties = new();
                 foreach (var declaredPropertyName in members.SelectMany(m => m.Properties.Keys).Distinct()
                     .OrderBy(x => x, LanguageConstants.IdentifierComparer))
                 {
@@ -391,12 +391,12 @@ internal static class TypeCollapser
                             // value. Make sure it is not flagged as required.
                             propertyFlags &= ~TypePropertyFlags.Required;
 
-                            if (member.AdditionalPropertiesType?.Type is { } addlPropertiesType)
+                            if (member.AdditionalProperties?.TypeReference.Type is { } addlPropertiesType)
                             {
                                 possibleTypes.Add(addlPropertiesType);
                             }
-                            propertyFlags &= member.AdditionalPropertiesType is not null
-                                ? member.AdditionalPropertiesFlags
+                            propertyFlags &= member.AdditionalProperties is { } additionalProperties
+                                ? additionalProperties.Flags
                                 : TypePropertyFlags.FallbackProperty;
                         }
                     }
@@ -421,9 +421,8 @@ internal static class TypeCollapser
                     structuralNameBuilder.ToString(),
                     flags,
                     properties,
-                    additionalPropertiesType,
-                    additionalPropertiesFlags,
-                    additionalPropertiesDescription);
+                    additionalPropertiesType is null ? null : new(additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription)
+                );
             }
 
             private static (TypeSymbol? type, TypePropertyFlags flags, string? description) GetAdditionalPropertiesType(
@@ -438,21 +437,24 @@ internal static class TypeCollapser
                 string? propertyDescription = null;
                 foreach (var @object in objects)
                 {
-                    noneHaveAdditionalPropertiesType &= @object.AdditionalPropertiesType is null;
-                    anyHaveNullAdditionalPropertiesType |= @object.AdditionalPropertiesType is null;
-                    allHaveImplicitAnyAdditionalPropertiesType &= @object.AdditionalPropertiesType is not null &&
+                    noneHaveAdditionalPropertiesType &= @object.AdditionalProperties is null;
+                    anyHaveNullAdditionalPropertiesType |= @object.AdditionalProperties is null;
+                    allHaveImplicitAnyAdditionalPropertiesType &= @object.AdditionalProperties is not null &&
                         @object.HasExplicitAdditionalPropertiesType;
 
-                    if (@object.AdditionalPropertiesType?.Type is { } addlPropertiesType)
+                    if (@object.AdditionalProperties?.TypeReference.Type is { } addlPropertiesType)
                     {
                         possibleTypes.Add(addlPropertiesType);
                     }
 
-                    propertyFlags &= @object.AdditionalPropertiesFlags;
-
-                    if (@object.AdditionalPropertiesDescription is not null)
+                    if (@object.AdditionalProperties is { } addlProperties)
                     {
-                        propertyDescription = @object.AdditionalPropertiesDescription;
+                        propertyFlags &= addlProperties.Flags;
+                    }
+                    
+                    if (@object.AdditionalProperties?.Description is { } addlPropertiesDescription)
+                    {
+                        propertyDescription = addlPropertiesDescription;
                     }
                 }
 

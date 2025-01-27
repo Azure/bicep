@@ -27,9 +27,9 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new ObjectType("configuration", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("namespace", LanguageConstants.String, TypePropertyFlags.Required, "The default Kubernetes namespace to deploy resources to."),
-                new TypeProperty("kubeConfig", LanguageConstants.String, TypePropertyFlags.Required, "The Kubernetes configuration file, base-64 encoded."),
-                new TypeProperty("context", LanguageConstants.String),
+                new NamedTypeProperty("namespace", LanguageConstants.String, TypePropertyFlags.Required, "The default Kubernetes namespace to deploy resources to."),
+                new NamedTypeProperty("kubeConfig", LanguageConstants.String, TypePropertyFlags.Required, "The Kubernetes configuration file, base-64 encoded."),
+                new NamedTypeProperty("context", LanguageConstants.String),
             }, null);
         }
 
@@ -38,7 +38,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new NamespaceType(
                 aliasName,
                 Settings,
-                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<NamedTypeProperty>.Empty,
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,

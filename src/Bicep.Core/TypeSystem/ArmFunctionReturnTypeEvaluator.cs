@@ -78,7 +78,7 @@ public static class ArmFunctionReturnTypeEvaluator
     private static JToken? ToJToken(ObjectType objectType)
     {
         // If an object allows additional properties, then it cannot be cast to a literal
-        if (objectType.AdditionalPropertiesType is not null)
+        if (objectType.AdditionalProperties is not null)
         {
             return null;
         }

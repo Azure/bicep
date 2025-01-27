@@ -938,7 +938,7 @@ namespace Bicep.Core.TypeSystem
                 // if the expression type allows additional properties, the provided value may include the discriminator; otherwise, it certainly does not
                 if (!expressionObjectType.HasExplicitAdditionalPropertiesType)
                 {
-                    var shouldWarn = (expressionObjectType.AdditionalPropertiesType?.Type is { } addlPropertiesType && AreTypesAssignable(addlPropertiesType, LanguageConstants.String)) ||
+                    var shouldWarn = (expressionObjectType.AdditionalProperties?.TypeReference.Type is { } addlPropertiesType && AreTypesAssignable(addlPropertiesType, LanguageConstants.String)) ||
                         ShouldWarnForPropertyMismatch(targetType);
                     diagnosticWriter.Write(config.OriginSyntax ?? expression, x => x.MissingRequiredProperty(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
 
@@ -1054,7 +1054,7 @@ namespace Bicep.Core.TypeSystem
 
             if (expressionType is ObjectType expressionObjectType)
             {
-                var missingRequiredProperties = expressionObjectType.AdditionalPropertiesType is not null
+                var missingRequiredProperties = expressionObjectType.AdditionalProperties is not null
                     // if the assigned value allows additional properties, we can't know if it's missing any
                     ? []
                     // otherwise, look for required properties on the target for which there is no declared counterpart on the assigned value
@@ -1082,7 +1082,7 @@ namespace Bicep.Core.TypeSystem
                             parsingErrorLookup));
                 }
 
-                var narrowedProperties = new List<TypeProperty>();
+                var narrowedProperties = new List<NamedTypeProperty>();
                 foreach (var declaredProperty in targetType.Properties.Values)
                 {
                     if (expressionObjectType.Properties.TryGetValue(declaredProperty.Name, out var expressionTypeProperty))
@@ -1122,7 +1122,7 @@ namespace Bicep.Core.TypeSystem
                                 diagnosticWriter.Write(diagnosticTarget, x => x.CannotAssignToReadOnlyProperty(resourceTypeInaccuracy || ShouldWarnForPropertyMismatch(targetType), declaredProperty.Name, resourceTypeInaccuracy));
                             }
 
-                            narrowedProperties.Add(new TypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));
+                            narrowedProperties.Add(new NamedTypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));
                             continue;
                         }
 
@@ -1149,7 +1149,7 @@ namespace Bicep.Core.TypeSystem
                         var narrowedType = NarrowType(newConfig, declaredPropertySyntax?.Value ?? expression, expressionTypeProperty.TypeReference.Type, propertyAssignmentType);
                         narrowedType = RemoveImplicitNull(narrowedType, typeWasPreserved);
 
-                        narrowedProperties.Add(new TypeProperty(declaredProperty.Name, narrowedType, declaredProperty.Flags));
+                        narrowedProperties.Add(new NamedTypeProperty(declaredProperty.Name, narrowedType, declaredProperty.Flags));
                     }
                     else
                     {
@@ -1164,9 +1164,9 @@ namespace Bicep.Core.TypeSystem
 
                 // extra properties should raise a diagnostic if the target does not allow additional properties OR the additional properties schema on the target is a "fallback"
                 // No diagnostic should be raised if the receiver accepts but discourages additional properties and the assigned value is not an object literal
-                if (targetType.AdditionalPropertiesType is null || (expression is ObjectSyntax && targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)))
+                if (targetType.AdditionalProperties is null || (expression is ObjectSyntax && targetType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.FallbackProperty)))
                 {
-                    var shouldWarn = targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty) || ShouldWarnForPropertyMismatch(targetType);
+                    var shouldWarn = (targetType.AdditionalProperties is not null && targetType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.FallbackProperty)) || ShouldWarnForPropertyMismatch(targetType);
                     var validUnspecifiedProperties = targetType.Properties.Values
                         .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) &&
                             !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty) &&
@@ -1209,7 +1209,7 @@ namespace Bicep.Core.TypeSystem
                         var extraPropertySyntax = (expression as ObjectSyntax)?.TryGetPropertyByName(extraProperty.Key);
 
                         // is the property marked as requiring compile-time constants and has the parent already validated this?
-                        if (skipConstantCheckForProperty == false && targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.Constant))
+                        if (skipConstantCheckForProperty == false && targetType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.Constant))
                         {
                             // validate that values are compile-time constants
                             GetCompileTimeConstantViolation(extraPropertySyntax?.Value ?? expression, diagnosticWriter);
@@ -1221,13 +1221,13 @@ namespace Bicep.Core.TypeSystem
                         var newConfig = new TypeValidatorConfig(
                             SkipConstantCheck: skipConstantCheckForProperty,
                             SkipTypeErrors: true,
-                            DisallowAny: targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.DisallowAny),
+                            DisallowAny: targetType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.DisallowAny),
                             OriginSyntax: config.OriginSyntax,
-                            OnTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType.AdditionalPropertiesType.Type), extraProperty.Key, false),
+                            OnTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType.AdditionalProperties.TypeReference.Type), extraProperty.Key, false),
                             IsResourceDeclaration: config.IsResourceDeclaration);
 
                         // append "| null" to the type on non-required properties
-                        var (additionalPropertiesAssignmentType, _) = AddImplicitNull(targetType.AdditionalPropertiesType.Type, targetType.AdditionalPropertiesFlags);
+                        var (additionalPropertiesAssignmentType, _) = AddImplicitNull(targetType.AdditionalProperties.TypeReference.Type, targetType.AdditionalProperties.Flags);
 
                         // although we don't use the result here, it's important to call NarrowType to collect diagnostics
                         var narrowedType = NarrowType(newConfig, extraPropertySyntax?.Value ?? expression, extraProperty.Value.TypeReference.Type, additionalPropertiesAssignmentType);
@@ -1236,7 +1236,7 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                var narrowedObject = new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.AdditionalPropertiesDescription, targetType.MethodResolver.CopyToObject);
+                var narrowedObject = new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalProperties, targetType.MethodResolver.CopyToObject);
 
                 return config.IsResourceDeclaration
                     ? TypeHelper.RemovePropertyFlagsRecursively(narrowedObject, TypePropertyFlags.ReadOnly)

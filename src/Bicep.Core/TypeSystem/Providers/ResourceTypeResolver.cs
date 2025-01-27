@@ -149,7 +149,7 @@ namespace Bicep.Core.TypeSystem.Providers
         {
             if (existingResourceBodyType.Properties.TryGetValue(propertyName, out var propertyType))
             {
-                propertyType = propertyType.With(propertyType.Flags & ~TypePropertyFlags.ReadableAtDeployTime);
+                propertyType = propertyType with { Flags = propertyType.Flags & ~TypePropertyFlags.ReadableAtDeployTime };
 
                 existingResourceBodyType = existingResourceBodyType.With(
                     properties: existingResourceBodyType.Properties.SetItem(propertyName, propertyType).Values);
@@ -165,7 +165,7 @@ namespace Bicep.Core.TypeSystem.Providers
                 if (existingResourceBodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
                     !propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
                 {
-                    propertyType = propertyType.With(propertyType.Flags & ~TypePropertyFlags.DeployTimeConstant);
+                    propertyType = propertyType with { Flags = propertyType.Flags & ~TypePropertyFlags.DeployTimeConstant };
 
                     existingResourceBodyType = existingResourceBodyType.With(
                         properties: existingResourceBodyType.Properties.SetItem(propertyName, propertyType).Values);

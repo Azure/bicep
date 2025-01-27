@@ -96,7 +96,7 @@ namespace Bicep.Core.TypeSystem
             //
             // The lattermost condition is identified by the object type either not defining an AdditionalPropertiesType
             // or explicitly flagging the AdditionalPropertiesType as a fallback (the default for non-sealed user-defined types)
-            ObjectType objectType => (objectType.AdditionalPropertiesType is null || objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)) &&
+            ObjectType objectType => (objectType.AdditionalProperties is null || objectType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.FallbackProperty)) &&
                 objectType.Properties.All(kvp => kvp.Value.Flags.HasFlag(TypePropertyFlags.Required) && IsLiteralType(kvp.Value.TypeReference.Type)),
 
             _ => false,
@@ -123,7 +123,7 @@ namespace Bicep.Core.TypeSystem
 
         private static TypeSymbol? TryCreateTypeLiteral(JObject jObject)
         {
-            List<TypeProperty> convertedProperties = new();
+            List<NamedTypeProperty> convertedProperties = new();
             ObjectTypeNameBuilder nameBuilder = new();
             foreach (var prop in jObject.Properties())
             {
@@ -138,7 +138,7 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            return new ObjectType(nameBuilder.ToString(), TypeSymbolValidationFlags.Default, convertedProperties, additionalPropertiesType: default);
+            return new ObjectType(nameBuilder.ToString(), TypeSymbolValidationFlags.Default, convertedProperties, additionalProperties: default);
         }
 
         private static TypeSymbol? TryCreateTypeLiteral(JArray jArray)
@@ -212,11 +212,11 @@ namespace Bicep.Core.TypeSystem
                     propertyTypes.Add(memberProperty.TypeReference.Type);
                     flags |= memberProperty.Flags;
                 }
-                else if (member.AdditionalPropertiesType is not null)
+                else if (member.AdditionalProperties is { } addlProperties)
                 {
                     declaredOnAny = true;
-                    propertyTypes.Add(member.AdditionalPropertiesType.Type);
-                    flags |= member.AdditionalPropertiesFlags;
+                    propertyTypes.Add(addlProperties.TypeReference.Type);
+                    flags |= addlProperties.Flags;
                 }
                 else
                 {
@@ -302,11 +302,11 @@ namespace Bicep.Core.TypeSystem
 
             // the property is not declared
             // check additional properties
-            if (baseType.AdditionalPropertiesType != null)
+            if (baseType.AdditionalProperties is { } addlProperties)
             {
                 // yes - return the additional property type or any error raised by its use
-                return GenerateAccessError(baseType.AdditionalPropertiesFlags, baseType, propertyExpressionPositionable, propertyName, isSafeAccess, shouldWarn, diagnostics)
-                    ?? baseType.AdditionalPropertiesType.Type;
+                return GenerateAccessError(addlProperties.Flags, baseType, propertyExpressionPositionable, propertyName, isSafeAccess, shouldWarn, diagnostics)
+                    ?? addlProperties.TypeReference.Type;
             }
 
             return GetUnknownPropertyType(
@@ -320,7 +320,7 @@ namespace Bicep.Core.TypeSystem
 
         private static TypeSymbol GetUnknownPropertyType(
             TypeSymbol baseType,
-            IEnumerable<TypeProperty> properties,
+            IEnumerable<NamedTypeProperty> properties,
             IPositionable propertyExpressionPositionable,
             string propertyName,
             bool shouldWarn,
@@ -339,7 +339,7 @@ namespace Bicep.Core.TypeSystem
 
         public static DiagnosticBuilder.DiagnosticBuilderDelegate GetUnknownPropertyDiagnostic(
             TypeSymbol baseType,
-            IEnumerable<TypeProperty> properties,
+            IEnumerable<NamedTypeProperty> properties,
             string propertyName,
             bool shouldWarn)
         {
@@ -612,7 +612,7 @@ namespace Bicep.Core.TypeSystem
 
         public static ObjectType CreateDictionaryType(string name, TypeSymbolValidationFlags validationFlags, ITypeReference valueType)
         {
-            return new(name, validationFlags, ImmutableArray<TypeProperty>.Empty, valueType);
+            return new(name, validationFlags, ImmutableArray<NamedTypeProperty>.Empty, new(valueType));
         }
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
@@ -680,20 +680,18 @@ namespace Bicep.Core.TypeSystem
             return new(ResourceTypeReference.Combine(parentResourceType.TypeReference, typeReference));
         }
 
-        private static ObjectType TransformProperties(ObjectType input, Func<TypeProperty, TypeProperty> transformFunc)
+        private static ObjectType TransformProperties(ObjectType input, Func<NamedTypeProperty, NamedTypeProperty> transformFunc)
         {
             return new ObjectType(
                 input.Name,
                 input.ValidationFlags,
                 input.Properties.Values.Select(transformFunc),
-                input.AdditionalPropertiesType,
-                input.AdditionalPropertiesFlags,
-                input.AdditionalPropertiesDescription,
+                input.AdditionalProperties,
                 input.MethodResolver.functionOverloads);
         }
 
         public static ObjectType MakeRequiredPropertiesOptional(ObjectType input)
-            => TransformProperties(input, p => p.With(p.Flags & ~TypePropertyFlags.Required));
+            => TransformProperties(input, p => p with { Flags = p.Flags & ~TypePropertyFlags.Required });
 
         public static TypeSymbol RemovePropertyFlagsRecursively(TypeSymbol type, TypePropertyFlags flagsToRemove) => type switch
         {

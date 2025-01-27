@@ -1279,7 +1279,7 @@ namespace Bicep.LanguageServer.Completions
                 .Select(p => CreatePropertyNameCompletion(p, includeColon, context.ReplacementRange));
         }
 
-        private static IEnumerable<TypeProperty> GetProperties(TypeSymbol? type)
+        private static IEnumerable<NamedTypeProperty> GetProperties(TypeSymbol? type)
         {
             return (type switch
             {
@@ -1293,7 +1293,7 @@ namespace Bicep.LanguageServer.Completions
             }).Where(p => !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty));
         }
 
-        private static IEnumerable<TypeProperty> GetPropertiesFromUnionType(UnionType unionType)
+        private static IEnumerable<NamedTypeProperty> GetPropertiesFromUnionType(UnionType unionType)
         {
             var potentiallyCollapsedType = TypeHelper.TryCollapseTypes(unionType.Members);
             if (potentiallyCollapsedType is UnionType)
@@ -1311,8 +1311,8 @@ namespace Bicep.LanguageServer.Completions
             ResourceType resourceType => GetAdditionalPropertiesType(resourceType.Body.Type),
             ModuleType moduleType => GetAdditionalPropertiesType(moduleType.Body.Type),
             TestType testType => GetAdditionalPropertiesType(testType.Body.Type),
-            ObjectType objectType when objectType.AdditionalPropertiesType is not null && !objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)
-                => objectType.AdditionalPropertiesType.Type,
+            ObjectType objectType when objectType.AdditionalProperties is not null && !objectType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.FallbackProperty)
+                => objectType.AdditionalProperties.TypeReference.Type,
             _ => null,
         };
 
@@ -1691,7 +1691,7 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange)
+        private static CompletionItem CreatePropertyNameCompletion(NamedTypeProperty property, bool includeColon, Range replacementRange)
         {
             var required = TypeHelper.IsRequired(property);
 
@@ -1707,7 +1707,7 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private static CompletionItem CreatePropertyIndexCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyIndexCompletion(NamedTypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
             var escaped = StringUtils.EscapeBicepString(property.Name);
             return CompletionItemBuilder.Create(CompletionItemKind.Property, escaped)
@@ -1718,7 +1718,7 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, BicepSourceFile tree, bool isSafeAccess, Token dot, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyAccessCompletion(NamedTypeProperty property, BicepSourceFile tree, bool isSafeAccess, Token dot, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
             var item = CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
                 .WithCommitCharacters(PropertyAccessCommitChars)
@@ -2162,10 +2162,10 @@ namespace Bicep.LanguageServer.Completions
                 _ => CompletionItemKind.Text
             };
 
-        private static bool IsPropertyNameEscapingRequired(TypeProperty property) =>
+        private static bool IsPropertyNameEscapingRequired(NamedTypeProperty property) =>
             StringUtils.IsPropertyNameEscapingRequired(property.Name);
 
-        private static string FormatPropertyDetail(TypeProperty property) =>
+        private static string FormatPropertyDetail(NamedTypeProperty property) =>
             TypeHelper.IsRequired(property)
                 ? $"{property.Name} (Required)"
                 : property.Name;

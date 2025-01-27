@@ -102,8 +102,7 @@ namespace Bicep.Core
 
         public static readonly ImmutableSortedSet<string> DeclarationKeywords = ImmutableSortedSet.Create(
             StringComparer.Ordinal,
-            new[]
-            {
+            [
                 AssertKeyword,
                 ImportKeyword,
                 MetadataKeyword,
@@ -113,7 +112,7 @@ namespace Bicep.Core
                 OutputKeyword,
                 ModuleKeyword,
                 TypeKeyword
-            });
+            ]);
 
         public static readonly ImmutableSortedSet<string> ContextualKeywords = DeclarationKeywords
             .Add(TargetScopeKeyword)
@@ -228,8 +227,8 @@ namespace Bicep.Core
         public static readonly TypeSymbol LooseString = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment);
         // SecureString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol SecureString = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment | TypeSymbolValidationFlags.IsSecure);
-        public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, [], LanguageConstants.Any);
-        public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, [], LanguageConstants.Any);
+        public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.Any));
+        public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, [], new TypeProperty(LanguageConstants.Any));
         public static readonly TypeSymbol Int = TypeFactory.CreateIntegerType();
         // LooseInt should be regarded as equal to the 'int' type, but with different validation behavior
         public static readonly TypeSymbol LooseInt = TypeFactory.CreateIntegerType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment);
@@ -260,7 +259,7 @@ namespace Bicep.Core
         public static readonly TypeSymbol LoadTextContentEncodings = TypeHelper.CreateTypeUnion(SupportedEncodings.Keys.Select(s => TypeFactory.CreateStringLiteralType(s)));
 
         // declares the description property but also allows any other property of any type
-        public static readonly TypeSymbol ParameterModifierMetadata = new ObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);
+        public static readonly TypeSymbol ParameterModifierMetadata = new ObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), new TypeProperty(Any, TypePropertyFlags.Constant));
 
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] { String, Object, Int, Bool, Array }.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
@@ -269,9 +268,9 @@ namespace Bicep.Core
 
         public static readonly ImmutableArray<string> DiscriminatorPreferenceOrder = ["type", "kind"];
 
-        private static IEnumerable<TypeProperty> CreateParameterModifierMetadataProperties()
+        private static IEnumerable<NamedTypeProperty> CreateParameterModifierMetadataProperties()
         {
-            yield return new TypeProperty("description", String, TypePropertyFlags.Constant);
+            yield return new NamedTypeProperty("description", String, TypePropertyFlags.Constant);
         }
 
         public static IEnumerable<string> GetResourceScopeDescriptions(ResourceScope resourceScope)
@@ -314,7 +313,7 @@ namespace Bicep.Core
             return new ResourceScopeType(scopeDescriptions, resourceScope);
         }
 
-        public static TypeSymbol CreateModuleType(IFeatureProvider features, IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, ResourceScope moduleScope, ResourceScope containingScope, string typeName)
+        public static TypeSymbol CreateModuleType(IFeatureProvider features, IEnumerable<NamedTypeProperty> paramsProperties, IEnumerable<NamedTypeProperty> outputProperties, ResourceScope moduleScope, ResourceScope containingScope, string typeName)
         {
             var paramsType = new ObjectType(ModuleParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
             // If none of the params are required, we can allow the 'params' declaration to be omitted entirely
@@ -336,11 +335,11 @@ namespace Bicep.Core
                 TypeSymbolValidationFlags.Default,
                 new[]
                 {
-                    new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
-                    new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
-                    new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
-                    new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
-                    new TypeProperty(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny),
+                    new NamedTypeProperty(ModuleNamePropertyName, LanguageConstants.String, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
+                    new NamedTypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
+                    new NamedTypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
+                    new NamedTypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
+                    new NamedTypeProperty(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny),
                 },
                 null);
 
