@@ -21,7 +21,7 @@ namespace Bicep.Core.Registry.Catalog;
 /// </summary>
 public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IRegistryModuleMetadataProvider
 {
-    private const int MaxReturnedModules = 10000; //asdfg?
+    private const int MaxReturnedModules = 20000; //asdfg?
 
     private readonly CloudConfiguration cloud;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;

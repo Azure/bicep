@@ -671,7 +671,8 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            var modules = await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry)
+            var modules = await registryModuleCatalog
+                .GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry)
                 .TryGetModulesAsync();
             foreach (var module in modules)
             {

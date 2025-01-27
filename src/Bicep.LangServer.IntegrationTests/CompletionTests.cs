@@ -4252,7 +4252,6 @@ var file = " + functionName + @"(templ|)
             );
         }
 
-        //asdfg2
         [TestMethod]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/abc/foo|'", "bicep/abc/foo/bar", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/abc/foo|", "bicep/abc/foo/bar", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
@@ -4300,8 +4299,6 @@ var file = " + functionName + @"(templ|)
                 }
             );
         }
-
-        //asdfg if a different base path is specified for an alias in bicepconfig.json, should we add it automaticaly to filter?
 
         [TestMethod]
         [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]

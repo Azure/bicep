@@ -49,6 +49,11 @@ namespace Bicep.Core.Registry
 
                 await foreach (var repository in client.GetRepositoryNamesAsync())
                 {
+                    // CONSIDER: Allow user to configure a filter for repository names
+                    //   Question: If the user has a module alias set up in bicepconfig.json that doesn't match
+                    //     the filter, should we still show it in the list?
+                    //   Question: What if the user specifically presses CTRL+ENTER on a path that doesn't match the filter?
+
                     if (catalog.Count >= maxResults)
                     {
                         Trace.WriteLine($"Stopping catalog enumeration after reaching {maxResults} repositories.");
