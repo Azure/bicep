@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Templates.Export;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -216,12 +217,14 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
-            => AssignType(syntax, () =>
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 if (typeManager.GetDeclaredType(syntax) is not { } declaredType)
                 {
                     return ErrorType.Empty();
                 }
+
+                diagnostics.WriteMultiple(ValidateTypeAssignability(syntax.Type, declaredType));
 
                 base.VisitTypedLocalVariableSyntax(syntax);
 
@@ -521,9 +524,10 @@ namespace Bicep.Core.TypeSystem
 
                 if (declaredType is not null)
                 {
-                    ValidateDecorators(syntax.Decorators,
-                        declaredType is TypeType wrapped ? wrapped.Unwrapped : declaredType,
-                        diagnostics);
+                    var unwrapped = declaredType is TypeType wrapped ? wrapped.Unwrapped : declaredType;
+                    ValidateDecorators(syntax.Decorators, unwrapped, diagnostics);
+
+                    diagnostics.WriteMultiple(ValidateTypeAssignability(syntax.Value, unwrapped));
                 }
 
                 return declaredType ?? ErrorType.Empty();
@@ -599,6 +603,8 @@ namespace Bicep.Core.TypeSystem
                 diagnostics.WriteMultiple(declaredType.GetDiagnostics());
 
                 base.VisitArrayTypeMemberSyntax(syntax);
+
+                diagnostics.WriteMultiple(ValidateTypeAssignability(syntax.Value, declaredType));
 
                 return declaredType;
             });
@@ -878,6 +884,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             this.ValidateDecorators(targetSyntax.Decorators, declaredType, diagnostics);
+            diagnostics.WriteMultiple(ValidateTypeAssignability(typeSyntax, declaredType));
 
             return declaredType;
         }
@@ -889,12 +896,6 @@ namespace Bicep.Core.TypeSystem
                 {
                     // We have syntax or binding errors, which should have already been handled.
                     return ErrorType.Empty();
-                }
-
-                if (syntax.Keyword.IsKeyword(LanguageConstants.ImportKeyword) ||
-                    syntax.Keyword.IsKeyword(LanguageConstants.ProviderKeyword))
-                {
-                    diagnostics.Write(syntax.Keyword, x => x.ExtensionDeclarationKeywordIsDeprecated(syntax));
                 }
 
                 if (namespaceSymbol.DeclaredType is not NamespaceType namespaceType)
@@ -1920,7 +1921,9 @@ namespace Bicep.Core.TypeSystem
                     case ImportedFunctionSymbol importedFunction:
                         return GetFunctionSymbolType(importedFunction, syntax, errors, diagnostics);
 
-                    case Symbol symbolInfo when binder.NamespaceResolver.GetKnownFunctions(symbolInfo.Name).FirstOrDefault() is { } knownFunction:
+                    case Symbol symbolInfo when binder.NamespaceResolver
+                            .GetKnownFunctions(symbolInfo.Name, binder.GetParent(syntax) is DecoratorSyntax)
+                            .FirstOrDefault() is { } knownFunction:
                         // A function exists, but it's being shadowed by another symbol in the file
                         return ErrorType.Create(
                             errors.Append(
@@ -1957,6 +1960,8 @@ namespace Bicep.Core.TypeSystem
                 {
                     CollectErrors(errors, argumentType.Type);
                 }
+
+                diagnostics.WriteMultiple(ValidateTypeAssignability(syntax.ReturnType, declaredLambdaType.ReturnType.Type));
 
                 var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, declaredLambdaType.ReturnType.Type);
                 CollectErrors(errors, returnType);
@@ -2395,6 +2400,43 @@ namespace Bicep.Core.TypeSystem
 
             return diagnosticWriter.GetDiagnostics();
         }
+
+        private IEnumerable<IDiagnostic> ValidateTypeAssignability(SyntaxBase typeSyntax, TypeSymbol assignedType)
+        {
+            if (typeSyntax is not SkippedTriviaSyntax &&
+                assignedType is not ErrorType &&
+                TryGetArmPrimitiveType(assignedType, typeSyntax) is null)
+            {
+                yield return DiagnosticBuilder.ForPosition(typeSyntax)
+                    .TypeExpressionResolvesToUnassignableType(assignedType);
+            }
+        }
+
+        private TypeSymbol? TryGetArmPrimitiveType(TypeSymbol type, SyntaxBase syntax) => type switch
+        {
+            BooleanLiteralType or BooleanType => LanguageConstants.Bool,
+            IntegerLiteralType or IntegerType => LanguageConstants.Int,
+            StringLiteralType or StringType => LanguageConstants.String,
+            ResourceType when features.ResourceTypedParamsAndOutputsEnabled => LanguageConstants.String,
+            ObjectType or DiscriminatedObjectType => LanguageConstants.Object,
+            TupleType or ArrayType => LanguageConstants.Array,
+            UnionType when TypeHelper.TryRemoveNullability(type) is { } nonNull => TryGetArmPrimitiveType(nonNull, syntax),
+            UnionType when IsExplicitUnion(syntax) => LanguageConstants.Any,
+            UnionType union when union.Members.Select(m => TryGetArmPrimitiveType(m.Type, syntax)).ToArray() is { } mTypes &&
+                !mTypes.Any(t => t is null) &&
+                mTypes.ToHashSet() is { } mUniqueTypes &&
+                mUniqueTypes.Count == 1 => mUniqueTypes.Single(),
+            _ => null,
+        };
+
+        private static bool IsExplicitUnion(SyntaxBase syntax) => syntax switch
+        {
+            UnionTypeSyntax => true,
+            ParenthesizedTypeSyntax parenthesized => IsExplicitUnion(parenthesized.Expression),
+            NonNullableTypeSyntax nonNullable => IsExplicitUnion(nonNullable.Base),
+            NullableTypeSyntax nullable => IsExplicitUnion(nullable.Base),
+            _ => false,
+        };
 
         private IEnumerable<IDiagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
         {

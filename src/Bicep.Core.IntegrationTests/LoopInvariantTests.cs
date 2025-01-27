@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -256,6 +257,26 @@ module mod 'mod.bicep' = [for a in []: {
 {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"module\" declaration is missing the following required properties: \"name\".")
             });
+        }
+
+        [TestMethod]
+        public void OptionalModuleNameShouldNotProduceWarning()
+        {
+            const string text = @"
+module mod 'mod.bicep' = [for a in []: {
+  scope: resourceGroup()
+  params: {
+    foo: 's'
+  }
+}]
+";
+            var serviceBuilder = new ServiceBuilder().WithFeatureOverrides(new(OptionalModuleNamesEnabled: true));
+            var result = CompilationHelper.Compile(
+                serviceBuilder,
+                ("main.bicep", text),
+                ("mod.bicep", "param foo string"));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]

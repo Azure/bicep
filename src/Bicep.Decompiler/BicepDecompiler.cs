@@ -57,41 +57,46 @@ public class BicepDecompiler
             bicepUri,
             this.PrintFiles(workspace));
     }
-    public DecompileResult DecompileParameters(string contents, Uri entryBicepparamUri, Uri? bicepFileUri)
+    public DecompileResult DecompileParameters(string contents, Uri entryBicepparamUri, Uri? bicepFileUri, DecompileParamOptions? options = null)
     {
+        options ??= new();
+
         var workspace = new Workspace();
 
-        var program = DecompileParametersFile(contents, entryBicepparamUri, bicepFileUri);
+        var program = DecompileParametersFile(contents, entryBicepparamUri, bicepFileUri, options);
 
         var bicepparamFile = SourceFileFactory.CreateBicepParamFile(entryBicepparamUri, program.ToString());
 
         workspace.UpsertSourceFile(bicepparamFile);
 
-        return new DecompileResult(entryBicepparamUri, this.PrintFiles(workspace));
+        return new(entryBicepparamUri, this.PrintFiles(workspace));
     }
 
-    private ProgramSyntax DecompileParametersFile(string jsonInput, Uri entryBicepparamUri, Uri? bicepFileUri)
+    private ProgramSyntax DecompileParametersFile(string jsonInput, Uri entryBicepparamUri, Uri? bicepFileUri, DecompileParamOptions options)
     {
         var statements = new List<SyntaxBase>();
 
-        var jsonObject = JTokenHelpers.LoadJson(jsonInput, JObject.Load, ignoreTrailingContent: false);
-        var bicepPath = bicepFileUri is { } ? PathHelper.GetRelativePath(entryBicepparamUri, bicepFileUri) : null;
+        var jsonObject = JTokenHelpers.LoadJson(jsonInput, JObject.Load, ignoreTrailingContent: options.IgnoreTrailingInput);
 
-        statements.Add(new UsingDeclarationSyntax(
-            SyntaxFactory.UsingKeywordToken,
-            bicepPath is { } ?
-            SyntaxFactory.CreateStringLiteral(bicepPath) :
-            SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template")));
+        if (options.IncludeUsingDeclaration)
+        {
+            var bicepPath = bicepFileUri is not null ? PathHelper.GetRelativePath(entryBicepparamUri, bicepFileUri) : null;
+            statements.Add(new UsingDeclarationSyntax(
+                SyntaxFactory.UsingKeywordToken,
+                bicepPath is not null
+                    ? SyntaxFactory.CreateStringLiteral(bicepPath)
+                    : SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template")));
 
-        statements.Add(SyntaxFactory.DoubleNewlineToken);
+            statements.Add(SyntaxFactory.DoubleNewlineToken);
+        }
 
         var parameters = (TemplateHelpers.GetProperty(jsonObject, "parameters")?.Value as JObject ?? new JObject()).Properties();
 
         foreach (var parameter in parameters)
         {
-            var metadata = parameter.Value?["metadata"];
+            var metadata = parameter.Value["metadata"];
 
-            if (metadata is { })
+            if (metadata is not null)
             {
                 statements.Add(ParseParameterWithComment(metadata));
                 statements.Add(SyntaxFactory.NewlineToken);

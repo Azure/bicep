@@ -1838,4 +1838,28 @@ param myParam string
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
         });
     }
+
+    // https://www.github.com/Azure/bicep/issues/15277
+    [DataTestMethod]
+    [DataRow("type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings")]
+    [DataRow("param resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings")]
+    [DataRow("output resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings = 'foo'")]
+    [DataRow("type t = { property: resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings }")]
+    [DataRow("type t = { *: resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings }")]
+    [DataRow("type t = [ resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings ]")]
+    [DataRow("type t = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings[]")]
+    [DataRow("func f() resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings => 'foo'")]
+    [DataRow("func f(p resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings) string => 'foo'")]
+    public void Type_expressions_that_will_become_ARM_schema_nodes_are_checked_for_ARM_type_system_compatibility_prior_to_compilation(string template)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            template);
+
+        result.Template.Should().BeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP411", DiagnosticLevel.Error, """The type "any" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object). If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+        });
+    }
 }

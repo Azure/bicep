@@ -247,7 +247,7 @@ public static class TypeStringifier
             // Anything else we don't know about (e.g. a type from a resource's swagger)
             default:
                 return $"object? /* {type.Name} */";
-        };
+        }
     }
 
     private static TypeSymbol WidenType(TypeSymbol type, Strictness strictness)

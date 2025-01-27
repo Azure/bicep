@@ -9,11 +9,6 @@ namespace Bicep.Cli.Arguments
     {
         public PublishExtensionArguments(string[] args, string commandName, IOContext io) : base(commandName)
         {
-            if (commandName.Equals(Constants.Command.PublishProvider, StringComparison.Ordinal))
-            {
-                io.WriteCommandDeprecationWarning(commandName, Constants.Command.PublishExtension);
-            }
-
             for (int i = 0; i < args.Length; i++)
             {
                 var isLast = args.Length == i + 1;

@@ -19,34 +19,6 @@ namespace Bicep.Cli.IntegrationTests;
 public class PublishExtensionCommandTests : TestBase
 {
     [TestMethod]
-    public async Task Publish_provider_prints_deprecation_warning()
-    {
-        var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
-            TestContext,
-            typeof(PublishExtensionCommandTests).Assembly,
-            "Files/PublishExtensionCommandTests/TestExtension");
-
-        var registryStr = "example.com";
-        var registryUri = new Uri($"https://{registryStr}");
-        var repository = $"test/extension";
-        var version = "0.0.1";
-
-        var (clientFactory, blobClientMocks) = RegistryHelper.CreateMockRegistryClients((registryStr, repository));
-        var mockBlobClient = blobClientMocks[(registryUri, repository)];
-
-        var indexPath = Path.Combine(outputDirectory, "index.json");
-        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
-
-        List<string> requiredArgs = ["publish-provider", indexPath, "--target", $"br:{registryStr}/{repository}:{version}"];
-
-        string[] args = [.. requiredArgs];
-
-        var result = await Bicep(settings, args);
-        result.Should().Succeed();
-        result.Should().HaveStderrMatch("*DEPRECATED: The command publish-provider is deprecated and will be removed in a future version of Bicep CLI. Use publish-extension instead.*");
-    }
-
-    [TestMethod]
     public async Task Publish_extension_should_succeed()
     {
         var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
