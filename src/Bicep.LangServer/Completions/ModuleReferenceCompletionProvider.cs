@@ -52,12 +52,6 @@ namespace Bicep.LanguageServer.Completions
         // Direct reference to a full registry login server URI via br:<registry>
         private static readonly Regex ModulePrefixWithFullPath = new(@"^br:(?<registry>(.*?))/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
-        //asdfg bug:
-        //  module automation_account 'br:sawbicep.azurecr.io/nginx|' = {
-        // suggests demo, if you select it, it becomes:
-        // module automation_account 'br:sawbicep.azurecr.io/nginxdemo:' = {
-
-        //asdfg test?
         [GeneratedRegex(
             """
                 (?x) # Extended mode (allow comments and whitespace)
@@ -88,7 +82,7 @@ namespace Bicep.LanguageServer.Completions
         )]
         private static partial Regex PartialModuleReferenceRegex();
 
-        // Examples: asdfg move?
+        // Examples:
         //   br:contoso.io/path1/path2/module:2.0.1 =>
         //     SpecifiedRegistry: "contoso.io"
         //     ResolvedRegistry: "contoso.io"
@@ -267,7 +261,7 @@ namespace Bicep.LanguageServer.Completions
             AddCompletionItem("ts:", null, "Template spec", ModuleCompletionPriority.FullPath, "template spec completion");
             if (templateSpecModuleAliases.Any())
             {
-                // ts/<alias>//asdfg testpoint
+                // ts/<alias>
                 foreach (var kvp in templateSpecModuleAliases)
                 {
                     AddCompletionItem("ts/", kvp.Key, "Template spec", ModuleCompletionPriority.Alias, "template spec alias completion");
@@ -463,7 +457,7 @@ namespace Bicep.LanguageServer.Completions
                     if (!inputRegistry.Equals(PublicMcrRegistry, StringComparison.Ordinal) && //asdfg?
                         trimmedText.Equals($"br/{kvp.Key}:"))
                     {
-                        telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));//asdfg testpoint
+                        telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
                         break;
                     }
 
@@ -471,7 +465,7 @@ namespace Bicep.LanguageServer.Completions
                     if (inputRegistry.Equals(PublicMcrRegistry, StringComparison.Ordinal) &&
                         trimmedText.Equals($"br/{kvp.Key}:"))
                     {
-                        var modulePath = kvp.Value.ModulePath;//asdfg testpoint
+                        var modulePath = kvp.Value.ModulePath;
 
                         if (modulePath is null)
                         {
@@ -486,14 +480,12 @@ namespace Bicep.LanguageServer.Completions
                             //   }
                             // }
 
-                            if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal)) //asdfg?
+                            if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal))
                             {
                                 var modules = await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, PublicMcrRegistry).TryGetModulesAsync();//asdfg testpoint
                                 foreach (var module in modules)
                                 {
-                                    //asdfg make sure registry is inputRegistry?
-
-                                    var label = $"bicep/{module.ModuleName}";//asdfg??//asdfg testpoint
+                                    var label = $"bicep/{module.ModuleName}";
                                     var insertText = $"'{trimmedText}bicep/{module.ModuleName}:$0'";
                                     var details = await module.TryGetDetailsAsync();
                                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
@@ -522,7 +514,6 @@ namespace Bicep.LanguageServer.Completions
                             //     }
                             //   }
                             // }
-                            //asdfg testpoint
                             if (modulePath.Equals(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal) || !modulePath.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal))
                             {
                                 continue;
@@ -563,7 +554,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             if (completions.Any())
-            {//asdfg testpoint
+            {
                 telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.MCR));
             }
 
@@ -583,7 +574,7 @@ namespace Bicep.LanguageServer.Completions
             string? value = matches[0].Groups[group].Value;
             if (!allowEmpty && string.IsNullOrWhiteSpace(value))
             {
-                return null;//asdfg testpoint
+                return null;
             }
 
             return value;
@@ -633,7 +624,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (!IsPrivateRegistryReference(trimmedText, out string? registry) || string.IsNullOrWhiteSpace(registry))
             {
-                return completions;//asdfg testpoint
+                return completions;
             }
 
             telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
@@ -656,7 +647,7 @@ namespace Bicep.LanguageServer.Completions
                        .WithResolveData(ModuleResolutionKey, new { Registry = registry, Module = modulePath }) //asdfg test
                        .WithFollowupCompletion("module path completion")
                        .Build();
-                    completions.Add(completionItem);//asdfg testpoint
+                    completions.Add(completionItem);
                 }
             }
 
@@ -747,7 +738,7 @@ namespace Bicep.LanguageServer.Completions
             }
             else if (trimmedText == "br:")
             {
-                var label = $"{PublicMcrRegistry}/bicep";//asdfg testpoint
+                var label = $"{PublicMcrRegistry}/bicep";
                 var insertText = $"'{trimmedText}{label}/$0'";
                 var mcrCompletionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                     .WithFilterText(insertText)
@@ -769,12 +760,12 @@ namespace Bicep.LanguageServer.Completions
         {
             if (settingsProvider.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting))
             {
-                return await GetACRModuleRegistriesCompletionsFromAzure(trimmedText, context, rootConfiguration, cancellationToken); //asdfg testpoint
+                return await GetACRModuleRegistriesCompletionsFromAzure(trimmedText, context, rootConfiguration, cancellationToken);
             }
             else
             {
                 // CONSIDER: Somehow indicate in the completion list that users can get more completions by setting GetAllAzureContainerRegistriesForCompletionsSetting
-                return GetPartialACRModuleRegistriesCompletionsFromBicepConfig(trimmedText, context, rootConfiguration); //asdfg testpoint
+                return GetPartialACRModuleRegistriesCompletionsFromBicepConfig(trimmedText, context, rootConfiguration);
             }
         }
 
@@ -799,7 +790,7 @@ namespace Bicep.LanguageServer.Completions
                         .WithSortText(GetSortText(registryName, ModuleCompletionPriority.FullPath))
                         .WithFollowupCompletion("module path completion")
                         .Build();
-                    completions.Add(completionItem);//asdfg testpoint
+                    completions.Add(completionItem);
                 }
 
                 return completions;
@@ -885,7 +876,7 @@ namespace Bicep.LanguageServer.Completions
                 {
                     if (!aliases.TryGetValue(label, out _))
                     {
-                        var insertText = $"'{trimmedText}{label}/$0'";//asdfg testpoint
+                        var insertText = $"'{trimmedText}{label}/$0'";
                         var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                             .WithFilterText(insertText)
                             .WithSnippetEdit(context.ReplacementRange, insertText)
