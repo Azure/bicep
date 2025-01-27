@@ -1175,11 +1175,11 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "21.1.7",
-        "contentHash": "Zr81yQIKGi4D8DomTChuv0NlJwiZhyNGaPactEMYsqybQAoa1peV+ywyMUDT6RiRhRGNMhpTopz7W9E1HTmTow==",
+        "resolved": "21.2.8",
+        "contentHash": "kgu2kRfPVf50c0Tp5EMEiY6NtbNOIZlNgWW83LIKFCbo+d0WXPygAF+1fjBzmWjebKiIF5KClIXlA7qTOfZBDg==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.1.7",
-          "TestableIO.System.IO.Abstractions.Wrappers": "21.1.7"
+          "TestableIO.System.IO.Abstractions": "21.2.8",
+          "TestableIO.System.IO.Abstractions.Wrappers": "21.2.8"
         }
       },
       "System.IO.Abstractions.TestingHelpers": {
@@ -1554,8 +1554,8 @@
       },
       "TestableIO.System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "21.1.7",
-        "contentHash": "qsaIAF06PJiFUp1jH2y5NP3IcJILUYtcdGgx25p3D9G4QrFz4Cs3frGp8njX+zQWeb/tHBS+CTMHZtU7Nqa1lg=="
+        "resolved": "21.2.8",
+        "contentHash": "YCf4D/Jp9JDaCmrAvVOuQjNUc/vqE3jagvlkv1I4lX6fUZZMWjjuh2PXFBomLFvUbHCGXeC2RR8/7tGx7xDLYw=="
       },
       "TestableIO.System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
@@ -1568,10 +1568,10 @@
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
-        "resolved": "21.1.7",
-        "contentHash": "UcQ+kdN0Ibqbhp6uAMAbc06ri7FeQskQFJX+xZD6siVI5Dg7GaeY4dQYqSfbDA5ZPITtXX9Si4E8XhE6Hhufhg==",
+        "resolved": "21.2.8",
+        "contentHash": "hvB1myOVVJVCWz2z3IthtJv3R48k3HHZKQqisy6ZNBNz6s8ziJS7JAzCeBFmTyzTQjamELprKk6R9TLFzsCZ5Q==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.1.7"
+          "TestableIO.System.IO.Abstractions": "21.2.8"
         }
       },
       "Azure.Bicep.Core": {
@@ -1597,7 +1597,7 @@
           "Newtonsoft.Json": "[13.0.3, )",
           "Semver": "[3.0.0, )",
           "SharpYaml": "[2.1.1, )",
-          "System.IO.Abstractions": "[21.1.7, )",
+          "System.IO.Abstractions": "[21.2.8, )",
           "System.Private.Uri": "[4.3.2, )"
         }
       },
@@ -1610,7 +1610,7 @@
       "Azure.Bicep.IO": {
         "type": "Project",
         "dependencies": {
-          "System.IO.Abstractions": "[21.1.7, )",
+          "System.IO.Abstractions": "[21.2.8, )",
           "System.Memory.Data": "[6.0.0, )"
         }
       },
