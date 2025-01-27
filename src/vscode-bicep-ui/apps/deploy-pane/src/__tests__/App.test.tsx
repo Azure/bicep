@@ -1,5 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import type { VscodeMessage } from "../messages";
 
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
