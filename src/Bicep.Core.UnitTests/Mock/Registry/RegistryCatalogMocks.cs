@@ -72,7 +72,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
                         getDataAsyncFunc: async () =>
                             new RegistryModuleMetadata.ComputedData(
                                 await DelayedValue(new RegistryMetadataDetails( m.description, m.documentationUri)),
-                                [.. modules.Single(m => m.moduleName.EqualsOrdinally(m.moduleName))
+                                [.. modules.Single(m2 => m2.moduleName.EqualsOrdinally(m.moduleName))
                                     .versions
                                         .Select(v => new RegistryModuleVersionMetadata(v.version, new(v.description, v.documentUri))
                                 )]

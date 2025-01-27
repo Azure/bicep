@@ -28,6 +28,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using ConfigurationManager = Bicep.Core.Configuration.ConfigurationManager;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
+
+//asdfg keeps trying after failures: module test 'br:registry.contoso.io/bicep/'
+//   'Retry failed after 4 tries. Retry settings can be adjusted in ClientOptions.Retry or by configuring a custom retry policy in ClientOptions.RetryPolicy.
+// Also trying to delay exponentially
+
 namespace Bicep.LangServer.UnitTests.Completions
 {
     [TestClass]
@@ -511,7 +516,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider,
-                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                configMgr,
                 catalog,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
@@ -549,9 +554,65 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
+        [DataRow("module test 'br:registry.contoso.io/bicep/|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
+        [DataRow("module test 'br:registry.contoso.io/bicep/|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
+        [DataRow("module test 'br/myRegistry:|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'")]
+        [DataRow("module test 'br/myRegistry_noPath:|'", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'")]
+        public async Task GetFilteredCompletions_WithPrivateModulePathCompletions_ReturnsCompletionItems(
+            string inputWithCursors,
+            string expectedLabel,
+            string expectedCompletionText)
+        {
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+                null,
+                RegistryCatalogMocks.MockPrivateMetadataProvider(
+                    "registry.contoso.io",
+                    [
+                        ("bicep/whatever/abc/foo/bar", "d1", "contoso.com/help1", []),
+                    ])
+                );
+
+            var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(
+                inputWithCursors,
+                """
+                    {
+                        "moduleAliases": {
+                            "br": {
+                                "myRegistry": {
+                                    "registry": "registry.contoso.io",
+                                    "modulePath": "bicep/whatever"
+                                },
+                                "myRegistry_noPath": {
+                                    "registry": "registry.contoso.io"
+                                }
+                            }
+                        }
+                    }
+                """);
+
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                configMgr,
+                catalog,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
+            var completions = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be(expectedLabel);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.Detail.Should().Be("d1");
+                    c.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help1)");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText);
+                });
+        }
+
+        [DataTestMethod]
         [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
         [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
-        public async Task GetFilteredCompletions_IfAliasesInBicepConfig_AndRegistriesNotAvailable_GetPartialCompletionsBasedOnConfigOnly(
+        public async Task GetFilteredCompletions_IfAliasesInBicepConfig_AndRegistriesNotAvailable_GetPartialCompletionsBasedOnConfigOnly( //asdfg
             string inputWithCursors,
             string expectedLabel,
             string expectedCompletionText,
@@ -574,8 +635,7 @@ namespace Bicep.LangServer.UnitTests.Completions
               }
             }";
 
-            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
-                null);
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(null);
 
             //asdfg test if also have access to the registry metadata - duplicate completions?  Or is that expected?
             //var catalog = RegistryIndexerMocks.CreateRegistryIndexer(

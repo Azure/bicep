@@ -4203,7 +4203,7 @@ var file = " + functionName + @"(templ|)
                     new("v100", "d100", "contoso.com/help/d100.html"),
                     new("v101", "d101", "contoso.com/help/d101.html")])
                 ]);
-            var indexer = RegistryCatalogMocks.CreateCatalogWithMocks(
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 null,
                 privateModuleMetadataProvider);
 
@@ -4226,7 +4226,7 @@ var file = " + functionName + @"(templ|)
                 services => services
                 .AddSingleton(settingsProvider.Object)
                 .AddSingleton(configurationManager.Object)
-                .AddSingleton(indexer));
+                .AddSingleton(catalog));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
             var completions = await file.RequestCompletion(cursor);
@@ -4339,7 +4339,7 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var indexer = RegistryCatalogMocks.CreateCatalogWithMocks(
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 null,
                 RegistryCatalogMocks.MockPrivateMetadataProvider(
                     "registry.contoso.io",
@@ -4355,7 +4355,7 @@ var file = " + functionName + @"(templ|)
                 TestContext,
                 services => services
                     .AddSingleton(settingsProvider.Object)
-                    .AddSingleton(indexer)
+                    .AddSingleton(catalog)
                     .AddSingleton(configurationManager.Object)
             );
 
