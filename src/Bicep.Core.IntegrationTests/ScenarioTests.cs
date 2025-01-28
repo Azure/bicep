@@ -6749,6 +6749,36 @@ var subnetId = vNet::subnets[0].id
     }
 
     [TestMethod]
+    public void Test_Issue16219()
+    {
+        // https://www.github.com/Azure/bicep/issues/16219
+        var result = CompilationHelper.Compile("""
+            @description('Required. The name of the Public IP Address.')
+            param name string
+
+            resource publicIpAddress 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
+              name: name
+              location: resourceGroup().location
+              sku: {
+                name: 'Basic'
+                tier: 'Regional'
+              }
+              properties: {
+                publicIPAddressVersion: 'IPv4'
+                publicIPAllocationMethod: 'Static'
+                idleTimeoutInMinutes: 4
+                ipTags: []
+              }
+            }
+
+            @description('The public IP address of the public IP address resource.')
+            output ipAddress string = contains(publicIpAddress.properties, 'ipAddress') ? publicIpAddress.properties.ipAddress : ''
+            """);
+
+        result.ExcludingDiagnostics("use-safe-access").Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
     public void Test_Issue16230()
     {
         var result = CompilationHelper.Compile("""
