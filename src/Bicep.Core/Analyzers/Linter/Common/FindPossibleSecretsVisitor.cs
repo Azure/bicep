@@ -17,6 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         private readonly SemanticModel semanticModel;
         private readonly List<PossibleSecret> possibleSecrets = new();
+        private readonly HashSet<TypeSymbol> currentlyProcessing = new();
         private uint trailingAccessExpressions = 0;
 
         /// <summary>
@@ -70,17 +71,15 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         private static string PossibleSecretMessage(string possibleSecretName) => string.Format(CoreResources.PossibleSecretMessageSecureParam, possibleSecretName);
 
-        private IEnumerable<string> FindPathsToSecureTypeComponents(TypeSymbol type) => FindPathsToSecureTypeComponents(type, "", new());
+        private IEnumerable<string> FindPathsToSecureTypeComponents(TypeSymbol type) => FindPathsToSecureTypeComponents(type, "");
 
-        private IEnumerable<string> FindPathsToSecureTypeComponents(TypeSymbol type, string path, HashSet<TypeSymbol> visited)
+        private IEnumerable<string> FindPathsToSecureTypeComponents(TypeSymbol type, string path)
         {
             // types can be recursive. cut out early if we've already seen this type
-            if (visited.Contains(type))
+            if (!currentlyProcessing.Add(type))
             {
                 yield break;
             }
-
-            visited.Add(type);
 
             if (type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
             {
@@ -89,7 +88,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
             if (type is UnionType union)
             {
-                foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureTypeComponents(m.Type, path, visited)))
+                foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureTypeComponents(m.Type, path)))
                 {
                     yield return variantPath;
                 }
@@ -118,25 +117,25 @@ namespace Bicep.Core.Analyzers.Linter.Common
                     case ObjectType obj:
                         if (obj.AdditionalProperties?.TypeReference.Type is TypeSymbol addlPropsType)
                         {
-                            foreach (var dictMemberPath in FindPathsToSecureTypeComponents(addlPropsType, $"{path}.*", visited))
+                            foreach (var dictMemberPath in FindPathsToSecureTypeComponents(addlPropsType, $"{path}.*"))
                             {
                                 yield return dictMemberPath;
                             }
                         }
 
-                        foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureTypeComponents(p.Value.TypeReference.Type, $"{path}.{p.Key}", visited)))
+                        foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureTypeComponents(p.Value.TypeReference.Type, $"{path}.{p.Key}")))
                         {
                             yield return propertyPath;
                         }
                         break;
                     case TupleType tuple:
-                        foreach (var pathFromIndex in tuple.Items.SelectMany((ITypeReference typeAtIndex, int index) => FindPathsToSecureTypeComponents(typeAtIndex.Type, $"{path}[{index}]", visited)))
+                        foreach (var pathFromIndex in tuple.Items.SelectMany((ITypeReference typeAtIndex, int index) => FindPathsToSecureTypeComponents(typeAtIndex.Type, $"{path}[{index}]")))
                         {
                             yield return pathFromIndex;
                         }
                         break;
                     case ArrayType array:
-                        foreach (var pathFromElement in FindPathsToSecureTypeComponents(array.Item.Type, $"{path}[*]", visited))
+                        foreach (var pathFromElement in FindPathsToSecureTypeComponents(array.Item.Type, $"{path}[*]"))
                         {
                             yield return pathFromElement;
                         }
@@ -144,7 +143,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
                 }
             }
 
-            visited.Remove(type);
+            currentlyProcessing.Remove(type);
         }
 
 

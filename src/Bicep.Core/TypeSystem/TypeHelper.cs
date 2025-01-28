@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -693,14 +694,30 @@ namespace Bicep.Core.TypeSystem
         public static ObjectType MakeRequiredPropertiesOptional(ObjectType input)
             => TransformProperties(input, p => p with { Flags = p.Flags & ~TypePropertyFlags.Required });
 
-        public static TypeSymbol RemovePropertyFlagsRecursively(TypeSymbol type, TypePropertyFlags flagsToRemove) => type switch
-        {
-            ObjectType @object => TransformProperties(@object, property => new(
+        public static TypeSymbol RemovePropertyFlagsRecursively(TypeSymbol type, TypePropertyFlags flagsToRemove)
+            => RemovePropertyFlagsRecursively(type, flagsToRemove, new());
+
+        private static TypeSymbol RemovePropertyFlagsRecursively(
+            TypeSymbol type,
+            TypePropertyFlags flagsToRemove,
+            ConcurrentDictionary<ObjectType, ObjectType> transformedObjectCache) => type switch
+            {
+                ObjectType @object => transformedObjectCache.GetOrAdd(
+                    @object,
+                    obj => RemovePropertyFlagsRecursively(obj, flagsToRemove, transformedObjectCache)),
+                _ => type,
+            };
+
+        private static ObjectType RemovePropertyFlagsRecursively(
+            ObjectType @object,
+            TypePropertyFlags flagsToRemove,
+            ConcurrentDictionary<ObjectType, ObjectType> cache) => TransformProperties(@object, property => new(
                 property.Name,
-                new DeferredTypeReference(() => RemovePropertyFlagsRecursively(property.TypeReference.Type, flagsToRemove)),
+                new DeferredTypeReference(() => RemovePropertyFlagsRecursively(
+                    property.TypeReference.Type,
+                    flagsToRemove,
+                    cache)),
                 property.Flags & ~flagsToRemove,
-                property.Description)),
-            _ => type,
-        };
+                property.Description));
     }
 }
