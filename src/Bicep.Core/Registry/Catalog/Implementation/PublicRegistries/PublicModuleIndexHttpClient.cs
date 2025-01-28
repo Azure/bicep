@@ -9,7 +9,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Semver;
 using Semver.Comparers;
 
-namespace Bicep.Core.Registry.Catalog.HttpClients;
+namespace Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 
 /// <summary>
 /// This is the DTO for modules listed in the public bicep registry

@@ -10,7 +10,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -23,6 +22,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Semver;
 using Semver.Comparers;
 using System.Collections.Immutable;
+using Bicep.Core.Registry.Catalog;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {

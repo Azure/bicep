@@ -4,8 +4,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Catalog.HttpClients;
+using Bicep.Core.Registry.Catalog.Implementation;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
+using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.Catalog;
+namespace Bicep.Core.Registry.Catalog.Implementation;
 
 /// <summary>
 /// Provides a list of modules from a registry (public or private)
@@ -25,7 +26,7 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
         IConfigurationManager configurationManager
     )
     {
-        this.providerFactory = privateProviderFactory;
+        providerFactory = privateProviderFactory;
         this.containerRegistryClientFactory = containerRegistryClientFactory;
         this.configurationManager = configurationManager;
 

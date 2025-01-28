@@ -13,9 +13,8 @@ using Microsoft.Win32;
 using System.Threading.Tasks;
 using Bicep.Core.Registry.Oci;
 using System.Security.Cryptography.Xml;
-using Bicep.Core.Registry.Catalog;
 
-namespace Bicep.Core.Registry.Catalog; //asdfg split into PublicRegistry/PrivateRegistry
+namespace Bicep.Core.Registry.Catalog.Implementation;
 
 
 /// <summary>
@@ -62,8 +61,8 @@ public abstract class BaseModuleMetadataProvider(
     {
         if (await TryGetLiveDataAsync() is { } modules)
         {
-            this.cachedModules = modules;
-            this.lastSuccessfulQuery = DateTime.Now;
+            cachedModules = modules;
+            lastSuccessfulQuery = DateTime.Now;
             return true;
         }
         else
@@ -74,7 +73,7 @@ public abstract class BaseModuleMetadataProvider(
 
     protected IRegistryModuleMetadata? GetCachedModule(string modulePath, bool throwIfNotFound)
     {
-        var found = this.cachedModules.FirstOrDefault(x =>
+        var found = cachedModules.FirstOrDefault(x =>
             x.Registry.Equals(Registry, StringComparison.Ordinal)
                 && x.ModuleName.Equals(modulePath, StringComparison.Ordinal));
         if (found != null && throwIfNotFound)
@@ -101,35 +100,35 @@ public abstract class BaseModuleMetadataProvider(
 
     private Task UpdateCacheIfNeededAsync(bool forceUpdate, bool initialDelay)
     {
-        if (this.DownloadError is not null)
+        if (DownloadError is not null)
         {
-            Trace.WriteLine($"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Last cache load failed, trying again...");
+            Trace.WriteLine($"{nameof(BaseModuleMetadataProvider)}: [{Registry}] Last cache load failed, trying again...");
         }
-        else if (this.lastSuccessfulQuery is null)
+        else if (lastSuccessfulQuery is null)
         {
-            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicModuleMetadataProvider)}: [{Registry}] First data retrieval...");
+            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(BaseModuleMetadataProvider)}: [{Registry}] First data retrieval...");
         }
         else if (forceUpdate)
         {
-            Trace.WriteLine($"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Force updating cache...");
+            Trace.WriteLine($"{nameof(BaseModuleMetadataProvider)}: [{Registry}] Force updating cache...");
         }
         else if (IsCacheExpired())
         {
-            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Cache expired, updating...");
+            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(BaseModuleMetadataProvider)}: [{Registry}] Cache expired, updating...");
         }
         else
         {
             return Task.CompletedTask;
         }
 
-        lock (this.queryingLiveSyncObject)
+        lock (queryingLiveSyncObject)
         {
-            if (this.queryLiveDataTask is { })
+            if (queryLiveDataTask is { })
             {
-                return this.queryLiveDataTask;
+                return queryLiveDataTask;
             }
 
-            return this.queryLiveDataTask = QueryData(initialDelay);
+            return queryLiveDataTask = QueryData(initialDelay);
         }
 
         Task QueryData(bool initialDelay)
@@ -147,30 +146,30 @@ public abstract class BaseModuleMetadataProvider(
                     if (consecutiveFailures > 0)
                     {
                         // Throttle requests to avoid spamming the endpoint with unsuccessful requests
-                        delay = int.Max(delay, GetExponentialDelay(InitialThrottleDelay, this.consecutiveFailures, MaxThrottleDelay).Milliseconds/*asdfg should be TotalMilliseconds, but don't want to delay here*/); // make second try fast
+                        delay = int.Max(delay, GetExponentialDelay(InitialThrottleDelay, consecutiveFailures, MaxThrottleDelay).Milliseconds/*asdfg should be TotalMilliseconds, but don't want to delay here*/); // make second try fast
                     }
 
                     if (delay > 0)
                     {
-                        Trace.WriteLine($"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Delaying {delay} before retry...");
+                        Trace.WriteLine($"{nameof(BaseModuleMetadataProvider)}: [{Registry}] Delaying {delay} before retry...");
                         await Task.Delay(delay);
                     }
 
                     if (await TryUpdateCacheAsync())
                     {
-                        this.consecutiveFailures = 0;
+                        consecutiveFailures = 0;
                     }
                     else
                     {
-                        this.consecutiveFailures++;
+                        consecutiveFailures++;
                     }
                 }
                 finally
                 {
-                    lock (this.queryingLiveSyncObject)
+                    lock (queryingLiveSyncObject)
                     {
-                        Trace.Assert(this.queryLiveDataTask is { }, $"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Should be querying live data");
-                        this.queryLiveDataTask = null;
+                        Trace.Assert(queryLiveDataTask is { }, $"{nameof(BaseModuleMetadataProvider)}: [{Registry}] Should be querying live data");
+                        queryLiveDataTask = null;
                     }
                 }
             });
@@ -179,10 +178,10 @@ public abstract class BaseModuleMetadataProvider(
 
     private bool IsCacheExpired()
     {
-        var expired = this.lastSuccessfulQuery.HasValue && this.lastSuccessfulQuery.Value + this.CacheValidFor < DateTime.Now;
+        var expired = lastSuccessfulQuery.HasValue && lastSuccessfulQuery.Value + CacheValidFor < DateTime.Now;
         if (expired)
         {
-            Trace.TraceInformation($"{nameof(PublicModuleMetadataProvider)}: [{Registry}] Cache has expired.");
+            Trace.TraceInformation($"{nameof(BaseModuleMetadataProvider)}: [{Registry}] Cache has expired.");
         }
 
         return expired;
@@ -196,7 +195,7 @@ public abstract class BaseModuleMetadataProvider(
         }
         catch (Exception ex)
         {
-            this.lastDownloadError = ex.Message;
+            lastDownloadError = ex.Message;
             return null;
         }
     }

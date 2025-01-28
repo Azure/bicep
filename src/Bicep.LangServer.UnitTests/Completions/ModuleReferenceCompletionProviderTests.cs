@@ -8,6 +8,8 @@ using System.Runtime.CompilerServices;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
+using Bicep.Core.Registry.Catalog.Implementation;
+using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;

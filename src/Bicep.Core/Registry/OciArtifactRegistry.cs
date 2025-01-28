@@ -14,13 +14,13 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using Bicep.Core.Registry.Catalog;
 
 namespace Bicep.Core.Registry
 {

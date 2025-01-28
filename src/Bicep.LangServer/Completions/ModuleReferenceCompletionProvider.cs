@@ -23,6 +23,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Bicep.Core.Registry.Catalog.Implementation;
 
 namespace Bicep.LanguageServer.Completions
 {

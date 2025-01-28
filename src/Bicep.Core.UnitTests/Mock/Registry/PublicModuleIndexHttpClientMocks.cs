@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Immutable;
-using Bicep.Core.Registry.Catalog.HttpClients;
+using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Moq;
 
 namespace Bicep.Core.UnitTests.Mock.Registry.Catalog;

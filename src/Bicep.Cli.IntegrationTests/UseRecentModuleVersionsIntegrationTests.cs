@@ -15,7 +15,6 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Catalog.HttpClients;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -29,6 +28,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
+using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 
 namespace Bicep.Cli.IntegrationTests;
 
