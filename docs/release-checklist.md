@@ -33,13 +33,13 @@
 1. Upload copyleft dependency source to 3rd party disclosure site. See [instructions](https://msazure.visualstudio.com/One/_wiki/wikis/Azure%20Deployments%20Team%20Wiki/369910/Bicep-release-step-Upload-copyleft-source-to-3rd-party-disclosure-site).
 1. Upload vscode-bicep.VSIX to the VS marketplace [here](https://marketplace.visualstudio.com/manage). You may need access permissions, request help in the team channel.
     1. Click on the ... for Bicep, then Update, then upload the .vsix file. The site will verify it then the version number should be updated to the right one.
-1. ⚠️ **[READ THIS BEFORE PROCEED] Copy/paste the text from the current version of src\vs-bicep\README.md over the existing text in the "Overview" field (this can only be changed on the marketplace when publishing a new version)**
+1. ⚠️ **[READ THIS BEFORE PROCEED] Copy/paste the text from the current version of [src\vs-bicep\README.md](https://github.com/Azure/bicep/blob/main/src/vs-bicep/README.md) over the existing text in the "Overview" field for the next step of uploading vs-bicep.vsix to the VS marketplace (this can only be changed on the marketplace when publishing a new version)**
 1. Upload vs-bicep.VSIX to VS marketplace
     1. Click on the ... for Bicep for Visual Studio, then Edit.
     1. Upload the new vs-bicep.VSIX file at the top. This should update the Version number automatically for you. Verify that it does.
     1. Scroll to the bottom and hit Save and Upload.
-1. Upload NuGet packages to nuget.org via `BicepMirror/scripts/PublishPackages.ps1`. This is an almost identical process to publishing the BicepMirror-Types-Az nuget packages so look at that previous step above. (Make sure to include CLI packages.) This can be done one of two ways:
-    1. Easiest is to use the `__assets` directory created by the `UploadSignedReleaseArtifacts.ps1` script.
+1. Upload NuGet packages to nuget.org via `BicepMirror/scripts/UploadPackages.ps1`. This is an almost identical process to publishing the BicepMirror-Types-Az nuget packages so look at that previous step above. (Make sure to include CLI packages.) This can be done one of two ways:
+    1. Easiest is to use the `__assets` directory created by the `UploadSignedReleaseArtifacts.ps1` script. This will be in the temporary folder you created before. (Example command: `.\scripts\UploadPackages.ps1 -PackageDirectory .\temporary\__assets\ -NuGetPath C:\NugetTool\`)
     2. You can also download all the files from the published release into a separate folder and run the script using that folder. (The script looks for files ending in *.nupkg)
 1. Update homebrew by going here [here](https://github.com/Azure/homebrew-bicep/actions/workflows/update-homebrew.yml) and clicking on `Run workflow`
     - A PR will be auto created by this action (example [here](https://github.com/Azure/homebrew-bicep/pull/40)). Approve and merge it.
