@@ -30,7 +30,7 @@ namespace Bicep.Core.Emit
 
             var result = filteredParameterDeclarations
                             .OfType<ParameterDeclarationSyntax>()
-                            .Select(e => new ParameterAssignmentSyntax(e.Keyword, e.Name, SyntaxFactory.AssignmentToken, this.GetValueForParameter(e)))
+                            .Select(e => new ParameterAssignmentSyntax(e.Keyword, e.Name, SyntaxFactory.AssignmentToken, GetValueForParameter(e)))
                             .SelectMany(e => new List<SyntaxBase>() { e, SyntaxFactory.NewlineToken });
 
             var processedSyntaxList = new List<SyntaxBase>()
@@ -47,7 +47,47 @@ namespace Bicep.Core.Emit
             writer.WriteLine(output);
         }
 
-        private SyntaxBase GetValueForParameter(ParameterDeclarationSyntax syntax)
+        private static SyntaxBase CheckFunctionCallsInObjectSyntax(ObjectSyntax objectSyntax)
+        {
+            var value = objectSyntax.Properties.Select(e =>
+            {
+                if (e.Value is FunctionCallSyntax valueAsFunctionCallSyntax)
+                {
+                    return SyntaxFactory.CreateObjectProperty((e.Key as IdentifierSyntax)?.IdentifierName ?? "", CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCallSyntax.Name.IdentifierName));
+                }
+                else if (e.Value is ArraySyntax valueAsFunctionArraySyntax)
+                {
+                    var value = valueAsFunctionArraySyntax.Items.Select(f =>
+                    {
+                        if (f.Value is FunctionCallSyntax valueAsFunctionCallSyntax)
+                        {
+                            return SyntaxFactory.CreateArrayItem(CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCallSyntax.Name.IdentifierName));
+                        }
+
+                        return f;
+                    }).ToList();
+
+                    return SyntaxFactory.CreateObjectProperty((e.Key as IdentifierSyntax)?.IdentifierName ?? "", SyntaxFactory.CreateArray(value));
+                }
+                else if (e.Value is ObjectSyntax valueAsObjectSyntax)
+                {
+                    var syntax = CheckFunctionCallsInObjectSyntax(valueAsObjectSyntax);
+                    var item = SyntaxFactory.CreateObjectProperty((e.Key as IdentifierSyntax)?.IdentifierName ?? "", syntax);
+                    return item;
+                }
+
+                return e;
+            }).ToList();
+
+            return SyntaxFactory.CreateObject(value);
+        }
+
+        private static SyntaxBase CreateCommentSyntaxForFunctionCallSyntax(string functionName)
+        {
+            return SyntaxFactory.CreateInvalidSyntaxWithComment($" TODO : please fix the value assigned to this parameter `{functionName}()` ");
+        }
+
+        public static SyntaxBase GetValueForParameter(ParameterDeclarationSyntax syntax)
         {
             var defaultValue = SyntaxHelper.TryGetDefaultValue(syntax);
             if (defaultValue != null)
@@ -101,46 +141,6 @@ namespace Bicep.Core.Emit
             }
 
             return SyntaxFactory.NewlineToken;
-        }
-
-        private SyntaxBase CheckFunctionCallsInObjectSyntax(ObjectSyntax objectSyntax)
-        {
-            var value = objectSyntax.Properties.Select(e =>
-            {
-                if (e.Value is FunctionCallSyntax valueAsFunctionCallSyntax)
-                {
-                    return SyntaxFactory.CreateObjectProperty((e.Key as IdentifierSyntax)?.IdentifierName ?? "", CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCallSyntax.Name.IdentifierName));
-                }
-                else if (e.Value is ArraySyntax valueAsFunctionArraySyntax)
-                {
-                    var value = valueAsFunctionArraySyntax.Items.Select(f =>
-                    {
-                        if (f.Value is FunctionCallSyntax valueAsFunctionCallSyntax)
-                        {
-                            return SyntaxFactory.CreateArrayItem(CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCallSyntax.Name.IdentifierName));
-                        }
-
-                        return f;
-                    }).ToList();
-
-                    return SyntaxFactory.CreateObjectProperty((e.Key as IdentifierSyntax)?.IdentifierName ?? "", SyntaxFactory.CreateArray(value));
-                }
-                else if (e.Value is ObjectSyntax valueAsObjectSyntax)
-                {
-                    var syntax = CheckFunctionCallsInObjectSyntax(valueAsObjectSyntax);
-                    var item = SyntaxFactory.CreateObjectProperty((e.Key as IdentifierSyntax)?.IdentifierName ?? "", syntax);
-                    return item;
-                }
-
-                return e;
-            }).ToList();
-
-            return SyntaxFactory.CreateObject(value);
-        }
-
-        private SyntaxBase CreateCommentSyntaxForFunctionCallSyntax(string functionName)
-        {
-            return SyntaxFactory.CreateInvalidSyntaxWithComment($" TODO : please fix the value assigned to this parameter `{functionName}()` ");
         }
     }
 }

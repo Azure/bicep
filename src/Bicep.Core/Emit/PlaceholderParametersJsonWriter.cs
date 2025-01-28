@@ -97,25 +97,12 @@ namespace Bicep.Core.Emit
                 {
                     jsonWriter.WritePropertyName(parameterSymbol.Name);
 
+                    var value = PlaceholderParametersBicepParamWriter.GetValueForParameter(parameterSymbol.DeclaringParameter);
+
                     jsonWriter.WriteStartObject();
-                    switch (parameterSymbol.Type.Name)
-                    {
-                        case "string":
-                            emitter.EmitProperty("value", "");
-                            break;
-                        case "int":
-                            emitter.EmitProperty("value", () => jsonWriter.WriteValue(0));
-                            break;
-                        case "bool":
-                            emitter.EmitProperty("value", () => jsonWriter.WriteValue(false));
-                            break;
-                        case "object":
-                            emitter.EmitProperty("value", () => { jsonWriter.WriteStartObject(); jsonWriter.WriteEndObject(); });
-                            break;
-                        case "array":
-                            emitter.EmitProperty("value", () => { jsonWriter.WriteStartArray(); jsonWriter.WriteEndArray(); });
-                            break;
-                    }
+
+                    emitter.EmitProperty("value", value);
+
                     jsonWriter.WriteEndObject();
                 }
 
