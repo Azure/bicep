@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Registry.Catalog.Implementation;
 
-namespace Bicep.Core.Registry.Catalog; //asdfg split into PublicRegistry/PrivateRegistry
+namespace Bicep.Core.Registry.Catalog;
 
 public class RegistryModuleMetadata : IRegistryModuleMetadata
 {

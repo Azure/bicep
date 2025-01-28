@@ -160,7 +160,7 @@ namespace Bicep.Core.Registry
             {
                 Trace.WriteLine($"Anonymous authentication failed with status code {requestedFailedException.Status}. Retrying with authenticated client.");
             }
-            catch (Exception exception) //asdfg shouldn't fall back if InvalidArtifactException
+            catch (Exception exception)
             {
                 Trace.WriteLine($"Anonymous authentication failed with unexpected exception {exception.Message}. Retrying with authenticated client.");
             }
