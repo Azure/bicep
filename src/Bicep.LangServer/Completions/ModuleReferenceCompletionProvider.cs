@@ -212,13 +212,13 @@ namespace Bicep.LanguageServer.Completions
             else if (NullIfEmpty(match.Groups["alias"].Value) is string alias)
             {
                 // Reference with alias
-                if (TryGetModuleAlias(rootConfiguration, alias) is OciArtifactModuleAlias aliasConfig)
+                if (TryGetValidModuleAlias(rootConfiguration, alias, out var aliasRegistry, out var aliasModulePath))
                 {
                     return new Parts(//asdfg testpoint
                         SpecifiedRegistry: null,
-                        ResolvedRegistry: aliasConfig.Registry!,
+                        ResolvedRegistry: aliasRegistry,
                         SpecifiedAlias: alias,
-                        ModulePathPrefix: aliasConfig.ModulePath,
+                        ModulePathPrefix: aliasModulePath,
                         SpecifiedModulePath: path,
                         Version: version,
                         HasVersionSeparator: hasVersionSeparator
@@ -416,15 +416,24 @@ namespace Bicep.LanguageServer.Completions
             return configuration.ModuleAliases.GetOciArtifactModuleAliases();
         }
 
-        private static OciArtifactModuleAlias? TryGetModuleAlias(RootConfiguration configuration, string aliasName)
+        private static bool TryGetValidModuleAlias(
+            RootConfiguration configuration,
+            string aliasName,
+            [NotNullWhen(true)] out string? registry,
+            out string? modulePath)
         {
+            registry = null;
+            modulePath = null;
+
             if (configuration.ModuleAliases.GetOciArtifactModuleAliases().TryGetValue(aliasName, out var aliasConfig)
                 && !string.IsNullOrWhiteSpace(aliasConfig.Registry))
             {
-                return aliasConfig;
+                registry = aliasConfig.Registry;
+                modulePath = aliasConfig.ModulePath;
+                return true;
             }
 
-            return null;
+            return false;
         }
 
         // Handles remote (OCI) module path completions, e.g. br: and br/
