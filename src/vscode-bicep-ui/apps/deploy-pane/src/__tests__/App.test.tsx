@@ -1,17 +1,37 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, waitFor, fireEvent, screen, act } from '@testing-library/react'
-import { App } from '../components/App'
-import { vscode } from '../vscode'
-import { createDeploymentDataMessage, createGetAccessTokenMessage, createGetAccessTokenResultMessage, createGetDeploymentScopeMessage, createGetDeploymentScopeResultMessage, createGetStateMessage, createGetStateResultMessage, createReadyMessage, type VscodeMessage } from '../messages';
-import { fileUri, getDeploymentOperations, getDeployResponse, getValidateResponse, getWhatIfResponse, parametersJson, scope, templateJson } from './mockData';
+import type { VscodeMessage } from "../messages";
+
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { App } from "../components/App";
+import {
+  createDeploymentDataMessage,
+  createGetAccessTokenMessage,
+  createGetAccessTokenResultMessage,
+  createGetDeploymentScopeMessage,
+  createGetDeploymentScopeResultMessage,
+  createGetStateMessage,
+  createGetStateResultMessage,
+  createReadyMessage,
+} from "../messages";
+import { vscode } from "../vscode";
+import {
+  fileUri,
+  getDeploymentOperations,
+  getDeployResponse,
+  getValidateResponse,
+  getWhatIfResponse,
+  parametersJson,
+  scope,
+  templateJson,
+} from "./mockData";
 
 const mockClient = {
   deployments: {
     beginCreateOrUpdateAtScope: vi.fn(async () => {
-      return { 
+      return {
         isDone: vi.fn(() => true),
         getResult: vi.fn(getDeployResponse),
       };
@@ -21,106 +41,108 @@ const mockClient = {
   },
   deploymentOperations: {
     listAtScope: vi.fn(getDeploymentOperations),
-  }
-}
+  },
+};
 
 beforeEach(() => {
-  vi.mock('@azure/arm-resources', async (importOriginal) => {
+  vi.mock("@azure/arm-resources", async (importOriginal) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mod: any = await importOriginal();
     return {
       ...mod,
       ResourceManagementClient: vi.fn(() => mockClient),
     };
-  })
-  vi.mock('../components/hooks/time', () => ({
-    getDate: () => '1737601964200',
+  });
+  vi.mock("../components/hooks/time", () => ({
+    getDate: () => "1737601964200",
   }));
 });
 
-describe('App', () => {
-  it('renders the loading spinner before initialization', async () => {
+describe("App", () => {
+  it("renders the loading spinner before initialization", async () => {
     const { container } = render(<App />);
     expect(container).toMatchSnapshot();
   });
 
-  it('renders the App component with deployment state', async () => {
+  it("renders the App component with deployment state", async () => {
     const { container } = render(<App />);
-    
+
     await initialize();
 
     expect(container).toMatchSnapshot();
   });
 
-  it('runs a deployment', async () => {
+  it("runs a deployment", async () => {
     const { container } = render(<App />);
-    
+
     const scope = await initialize();
 
-    const deployButton = screen.getByText('Deploy');
+    const deployButton = screen.getByText("Deploy");
     fireEvent.click(deployButton);
 
     await act(async () => {
       await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
       sendMessage(getAccessTokenResultMessage());
-    })
-    
+    });
+
     expect(container).toMatchSnapshot();
   });
 
-  it('validates a deployment', async () => {
+  it("validates a deployment", async () => {
     const { container } = render(<App />);
-    
+
     const scope = await initialize();
 
-    const validateButton = screen.getByText('Validate');
+    const validateButton = screen.getByText("Validate");
     fireEvent.click(validateButton);
 
     await act(async () => {
       await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
       sendMessage(getAccessTokenResultMessage());
-    })
-    
+    });
+
     expect(container).toMatchSnapshot();
   });
 
-  it('what-ifs a deployment', async () => {
+  it("what-ifs a deployment", async () => {
     const { container } = render(<App />);
 
     const scope = await initialize();
 
-    const whatIfButton = screen.getByText('What-If');
+    const whatIfButton = screen.getByText("What-If");
     fireEvent.click(whatIfButton);
 
     await act(async () => {
       await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
       sendMessage(getAccessTokenResultMessage());
-    })
-    
+    });
+
     expect(container).toMatchSnapshot();
   });
 
-  it('supports the scope picker', async () => {
+  it("supports the scope picker", async () => {
     const { container } = render(<App />);
-    
+
     const scope = await initialize();
 
-    const changeScopeButton = screen.getByText('Change Scope');
+    const changeScopeButton = screen.getByText("Change Scope");
     fireEvent.click(changeScopeButton);
 
     await act(async () => {
       await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetDeploymentScopeMessage("resourceGroup")));
-      sendMessage(createGetDeploymentScopeResultMessage({
-        ...scope,
-        tenantId: 'newTenantId',
-        subscriptionId: 'newSubscriptionId',
-        resourceGroup: 'newResourceGroup',
-      }));
-    })
-    
+      sendMessage(
+        createGetDeploymentScopeResultMessage({
+          ...scope,
+          tenantId: "newTenantId",
+          subscriptionId: "newSubscriptionId",
+          resourceGroup: "newResourceGroup",
+        }),
+      );
+    });
+
     expect(container).toMatchSnapshot();
   });
-})
+});
 
 async function initialize() {
   const stateResult = getStateResultMessage();
@@ -130,23 +152,17 @@ async function initialize() {
 
     await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetStateMessage()));
     sendMessage(stateResult);
-  })
+  });
 
   return scope;
 }
 
 function sendMessage(message: VscodeMessage) {
-  fireEvent(
-    window,
-    new MessageEvent<VscodeMessage>("message", { data: message }));
+  fireEvent(window, new MessageEvent<VscodeMessage>("message", { data: message }));
 }
 
 function getDeploymentDataMessage() {
-  return createDeploymentDataMessage(
-    fileUri,
-    false,
-    templateJson,
-    parametersJson);
+  return createDeploymentDataMessage(fileUri, false, templateJson, parametersJson);
 }
 
 function getStateResultMessage() {
@@ -158,6 +174,6 @@ function getStateResultMessage() {
 function getAccessTokenResultMessage() {
   return createGetAccessTokenResultMessage({
     expiresOnTimestamp: 1737601964200,
-    token: 'mockAccessToken'
+    token: "mockAccessToken",
   });
 }
