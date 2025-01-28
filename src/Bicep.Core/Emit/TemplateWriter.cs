@@ -1565,8 +1565,8 @@ namespace Bicep.Core.Emit
                     if (resource.Symbol.IsCollection && reference.IndexContext?.Index is null)
                     {
                         // dependency is on the entire resource collection
-                        // write the name of the resource collection as the dependency
-                        emitter.EmitExpression(new StringLiteralExpression(null, resource.Symbol.DeclaringResource.Name.IdentifierName));
+                        // write the fully qualified name of the resource collection (this is the name of the copy loop) as the dependency
+                        emitter.EmitSymbolReference(resource);
 
                         break;
                     }
