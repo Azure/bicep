@@ -24,11 +24,6 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
-//asdfg test documentationUri shows up
-//asdfg registry should be case-insensitive
-//asdfg bug: module m1 'br/demo:|' = {   -> gets nothing
-//   should be module m1 'br/demo:avm/key-vault:' = {
-
 namespace Bicep.LanguageServer.Completions
 {
     /// <summary>
@@ -120,7 +115,7 @@ namespace Bicep.LanguageServer.Completions
 
             public string ResolvedModulePath => $"{ModulePathPrefixWithSeparator}{SpecifiedModulePath}";
 
-            public Parts WithModulePath(string newResolvedModulePath) //asdfg test?
+            public Parts WithModulePath(string newResolvedModulePath)
             {
                 if (!string.IsNullOrWhiteSpace(ModulePathPrefix) && newResolvedModulePath.StartsWith(ModulePathPrefixWithSeparator, StringComparison.Ordinal))
                 {
@@ -217,12 +212,11 @@ namespace Bicep.LanguageServer.Completions
             else if (NullIfEmpty(match.Groups["alias"].Value) is string alias)
             {
                 // Reference with alias
-                var aliases = GetModuleAliases(rootConfiguration);
-                if (aliases.TryGetValue(alias, out OciArtifactModuleAlias? aliasConfig) && !string.IsNullOrWhiteSpace(aliasConfig.Registry)) //asdfg extract
+                if (TryGetModuleAlias(rootConfiguration, alias) is OciArtifactModuleAlias aliasConfig)
                 {
                     return new Parts(//asdfg testpoint
                         SpecifiedRegistry: null,
-                        ResolvedRegistry: aliasConfig.Registry,
+                        ResolvedRegistry: aliasConfig.Registry!,
                         SpecifiedAlias: alias,
                         ModulePathPrefix: aliasConfig.ModulePath,
                         SpecifiedModulePath: path,
@@ -417,9 +411,20 @@ namespace Bicep.LanguageServer.Completions
             //}
         }
 
-        private ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(RootConfiguration configuration)
+        private static ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(RootConfiguration configuration)
         {
             return configuration.ModuleAliases.GetOciArtifactModuleAliases();
+        }
+
+        private static OciArtifactModuleAlias? TryGetModuleAlias(RootConfiguration configuration, string aliasName)
+        {
+            if (configuration.ModuleAliases.GetOciArtifactModuleAliases().TryGetValue(aliasName, out var aliasConfig)
+                && !string.IsNullOrWhiteSpace(aliasConfig.Registry))
+            {
+                return aliasConfig;
+            }
+
+            return null;
         }
 
         // Handles remote (OCI) module path completions, e.g. br: and br/
