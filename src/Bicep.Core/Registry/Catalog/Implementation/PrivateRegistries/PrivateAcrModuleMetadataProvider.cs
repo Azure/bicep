@@ -14,14 +14,14 @@ using Bicep.Core.Registry.Oci;
 using Microsoft.Extensions.DependencyInjection;
 using static Bicep.Core.Registry.Catalog.RegistryModuleMetadata;
 
-namespace Bicep.Core.Registry.Catalog;
+namespace Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
 
 /// <summary>
 /// Provider to get modules metadata from a private ACR registry
 /// </summary>
 public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IRegistryModuleMetadataProvider
 {
-    private const int MaxReturnedModules = 20000; //asdfg?
+    private const int MaxReturnedModules = 10000;
 
     private readonly CloudConfiguration cloud;
     private readonly IContainerRegistryClientFactory containerRegistryClientFactory;

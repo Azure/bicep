@@ -12,6 +12,8 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
+using Bicep.Core.Registry.Catalog.Implementation;
+using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
 using FluentAssertions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;

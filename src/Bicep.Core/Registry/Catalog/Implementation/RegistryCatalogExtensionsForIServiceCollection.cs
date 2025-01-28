@@ -3,10 +3,11 @@
 
 using System.Net;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry.Catalog.HttpClients;
+using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bicep.Core.Registry.Catalog;
+namespace Bicep.Core.Registry.Catalog.Implementation;
 
 public static class RegistryCatalogExtensionsForIServiceCollection
 {

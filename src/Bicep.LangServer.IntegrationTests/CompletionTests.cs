@@ -13,7 +13,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
@@ -47,6 +46,7 @@ using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using Bicep.Core.UnitTests.Mock.Registry;
+using Bicep.Core.Registry.Catalog;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
 {

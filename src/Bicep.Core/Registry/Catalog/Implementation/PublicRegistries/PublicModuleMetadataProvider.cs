@@ -9,11 +9,10 @@ using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry.Catalog.HttpClients;
 using Microsoft.Extensions.DependencyInjection;
 using static Bicep.Core.Registry.Catalog.RegistryModuleMetadata;
 
-namespace Bicep.Core.Registry.Catalog;
+namespace Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 
 /// <summary>
 /// Provider to get modules metadata that we store at the public mcr.microsoft.com/bicep registry.
@@ -25,7 +24,7 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
     public PublicModuleMetadataProvider(IPublicModuleIndexHttpClient publicModuleIndexClient)
         : base(LanguageConstants.BicepPublicMcrRegistry)
     {
-        this.client = publicModuleIndexClient;
+        client = publicModuleIndexClient;
     }
 
     protected override async Task<ImmutableArray<IRegistryModuleMetadata>> GetLiveDataCoreAsync()
@@ -35,7 +34,7 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
         return [.. modules.Select(m =>
         {
             var moduleDetails = new RegistryMetadataDetails(m.GetDescription(), m.GetDocumentationUri());
-            var versions = ImmutableArray.Create<RegistryModuleVersionMetadata>([.. m.Versions.Select(
+            var versions = ImmutableArray.Create([.. m.Versions.Select(
                         t => new RegistryModuleVersionMetadata(
                             t,
                             new RegistryMetadataDetails(

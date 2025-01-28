@@ -3,7 +3,7 @@
 
 using System.Collections.Immutable;
 
-namespace Bicep.Core.Registry.Catalog.HttpClients;
+namespace Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 
 public interface IPublicModuleIndexHttpClient
 {

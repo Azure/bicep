@@ -4,7 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.VisualStudio.Threading;
 
-namespace Bicep.Core.Registry.Catalog;
+namespace Bicep.Core.Registry.Catalog.Implementation;
 
 public class MightBeLazyAsync<T> where T : class
 {
@@ -13,14 +13,14 @@ public class MightBeLazyAsync<T> where T : class
 
     public MightBeLazyAsync(T value)
     {
-        this.lazy = null;
+        lazy = null;
         this.value = value;
     }
 
     public MightBeLazyAsync(Func<Task<T>> initializer)
     {
-        this.lazy = new AsyncLazy<T>(initializer, new(new JoinableTaskContext()));
-        this.value = default;
+        lazy = new AsyncLazy<T>(initializer, new(new JoinableTaskContext()));
+        value = default;
     }
 
     private bool IsLazy => lazy is not null;
