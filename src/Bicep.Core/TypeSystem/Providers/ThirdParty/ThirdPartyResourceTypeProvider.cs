@@ -8,7 +8,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 {
     public class ThirdPartyResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
-        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], LanguageConstants.String, TypePropertyFlags.None);
+        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.String));
 
         private readonly ThirdPartyResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
@@ -51,16 +51,16 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             if (!isExistingResource)
             {
                 // TODO: Support "dependsOn" for "existing" resources
-                properties = properties.Add(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
+                properties = properties.Add(LanguageConstants.ResourceDependsOnPropertyName, new NamedTypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
             }
 
             return new ObjectType(
                 objectType.Name,
                 objectType.ValidationFlags,
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
-                objectType.AdditionalPropertiesType,
-                isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
-                objectType.AdditionalPropertiesDescription,
+                isExistingResource && objectType.AdditionalProperties is not null 
+                    ? objectType.AdditionalProperties with { Flags = ConvertToReadOnly(objectType.AdditionalProperties.Flags) } 
+                    : objectType.AdditionalProperties,
                 functions: objectType.MethodResolver.functionOverloads);
         }
 
@@ -76,14 +76,14 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 unionMembersByKey.Values);
         }
 
-        private static IEnumerable<TypeProperty> ConvertToReadOnly(IEnumerable<TypeProperty> properties)
+        private static IEnumerable<NamedTypeProperty> ConvertToReadOnly(IEnumerable<NamedTypeProperty> properties)
         {
             foreach (var property in properties)
             {
                 if (!property.Flags.HasFlag(TypePropertyFlags.ResourceIdentifier))
                 {
                     // this property should be read-only for an "existing" resource
-                    yield return new TypeProperty(property.Name, property.TypeReference, ConvertToReadOnly(property.Flags), property.Description);
+                    yield return new NamedTypeProperty(property.Name, property.TypeReference, ConvertToReadOnly(property.Flags), property.Description);
                     continue;
                 }
 
@@ -94,12 +94,10 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                         objectType.Name,
                         objectType.ValidationFlags,
                         ConvertToReadOnly(objectType.Properties.Values),
-                        objectType.AdditionalPropertiesType,
-                        ConvertToReadOnly(objectType.AdditionalPropertiesFlags),
-                        objectType.AdditionalPropertiesDescription,
+                        objectType.AdditionalProperties is not null ? objectType.AdditionalProperties with { Flags = ConvertToReadOnly(objectType.AdditionalProperties.Flags) } : null,
                         functions: null);
 
-                    yield return new TypeProperty(property.Name, objectType, property.Flags, property.Description);
+                    yield return new NamedTypeProperty(property.Name, objectType, property.Flags, property.Description);
                     continue;
                 }
 

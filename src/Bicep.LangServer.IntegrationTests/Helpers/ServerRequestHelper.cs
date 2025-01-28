@@ -148,6 +148,14 @@ namespace Bicep.LangServer.IntegrationTests
             return SourceFileFactory.CreateBicepFile(bicepFile.Uri, replaced);
         }
 
+        public async Task<BicepFile> RequestAndApplyCompletion(int cursor, string label)
+        {
+            var completionList = await RequestCompletion(cursor);
+            var completion = completionList.Should().ContainSingle(x => x.Label == label).Subject;
+
+            return ApplyCompletion(completion);
+        }
+
         public BicepFile ApplyWorkspaceEdit(WorkspaceEdit? edit)
         {
             // not yet supported by this logic

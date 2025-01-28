@@ -95,8 +95,8 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.727",
-        "contentHash": "qgjmuu+6S15paLyFyFw9UXWMXKaS64tcNmKBT7b8NQ/smnP2FEgMN7A+CyZ7iP/ogTpjBRCry96wJfiMnuQ6aw==",
+        "resolved": "0.2.737",
+        "contentHash": "6ENkO9Y2+Qrlr+zPeErY/OVXc97tY3IL+4OAwQEbr06nW5F5+032QIXWj1ATrbruqbJ0tlE4BseH6ruM7zg8/A==",
         "dependencies": {
           "Azure.Bicep.Types": "0.5.110"
         }
@@ -1343,14 +1343,14 @@
       "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
+          "Azure.Bicep.IO": "[1.0.0, )",
           "Azure.Bicep.Types": "[0.5.110, )",
-          "Azure.Bicep.Types.Az": "[0.2.727, )",
+          "Azure.Bicep.Types.Az": "[0.2.737, )",
           "Azure.Bicep.Types.K8s": "[0.1.644, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
           "Azure.Deployments.Templates": "[1.224.0, )",
           "Azure.Identity": "[1.13.1, )",
           "Azure.ResourceManager.Resources": "[1.9.0, )",
-          "Bicep.IO": "[1.0.0, )",
           "JsonPatch.Net": "[3.3.0, )",
           "JsonPath.Net": "[2.0.1, )",
           "Microsoft.Extensions.Configuration": "[9.0.0, )",
@@ -1373,6 +1373,13 @@
           "Azure.Bicep.Core": "[1.0.0, )"
         }
       },
+      "Azure.Bicep.IO": {
+        "type": "Project",
+        "dependencies": {
+          "System.IO.Abstractions": "[21.1.7, )",
+          "System.Memory.Data": "[6.0.0, )"
+        }
+      },
       "Azure.Bicep.Local.Deploy": {
         "type": "Project",
         "dependencies": {
@@ -1389,13 +1396,6 @@
           "CommandLineParser": "[2.9.1, )",
           "Google.Protobuf": "[3.29.2, )",
           "Grpc.Net.Client": "[2.67.0, )"
-        }
-      },
-      "bicep.io": {
-        "type": "Project",
-        "dependencies": {
-          "System.IO.Abstractions": "[21.1.7, )",
-          "System.Memory.Data": "[6.0.0, )"
         }
       }
     },

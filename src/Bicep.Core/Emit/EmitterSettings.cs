@@ -20,6 +20,8 @@ namespace Bicep.Core.Emit
                 UseExperimentalTemplateLanguageVersion ||
                 // symbolic name codegen has been explicitly enabled
                 model.Features.SymbolicNameCodegenEnabled ||
+                // resourceinfo codegen has been enabled
+                model.Features.ResourceInfoCodegenEnabled ||
                 // there are any user-defined type declarations
                 model.Root.TypeDeclarations.Any() ||
                 // there are any user-defined function declarations
@@ -38,7 +40,9 @@ namespace Bicep.Core.Emit
                         syntax is UnionTypeSyntax ||
                         syntax is NullableTypeSyntax,
                     resultSelector: result => result,
-                    continuationFunction: (result, syntax) => !result);
+                    continuationFunction: (result, syntax) => !result) ||
+                // there are optional module names
+                model.Root.ModuleDeclarations.Any(module => module.TryGetBodyProperty(LanguageConstants.ModuleNamePropertyName) is null);
         }
 
         /// <summary>

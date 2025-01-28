@@ -24,7 +24,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         ConfigurationType: namespaceConfig.ConfigurationObject,
                         TemplateExtensionName: namespaceConfig.Name,
                         TemplateExtensionVersion: namespaceConfig.Version),
-                    ImmutableArray<TypeProperty>.Empty,
+                    ImmutableArray<NamedTypeProperty>.Empty,
                     ImmutableArray<FunctionOverload>.Empty,
                     ImmutableArray<BannedFunction>.Empty,
                     ImmutableArray<Decorator>.Empty,

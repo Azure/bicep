@@ -2802,11 +2802,11 @@ var myValue = 2147483647
         {
             new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
-                new TypeProperty("tags", LanguageConstants.Array, TypePropertyFlags.ReadOnly, "tags property"),
-                new TypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new[]
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                new NamedTypeProperty("tags", LanguageConstants.Array, TypePropertyFlags.ReadOnly, "tags property"),
+                new NamedTypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new[]
                 {
-                    new TypeProperty("prop1", LanguageConstants.String, TypePropertyFlags.ReadOnly, "prop1")
+                    new NamedTypeProperty("prop1", LanguageConstants.String, TypePropertyFlags.ReadOnly, "prop1")
                 }, null), TypePropertyFlags.ReadOnly, "properties property"),
             }, null))
         });
@@ -4216,6 +4216,37 @@ output fooAccess object = {
 ("main.bicep", @"
 module mymodule 'test.bicep' = {
   name: 'mymodule'
+}
+
+resource myresource 'Microsoft.Sql/servers@2021-08-01-preview' = {
+  name: 'myothersql'
+  location: resourceGroup().location
+  properties: {
+    administratorLogin: mymodule.outputs.sql.properties.administratorLogin
+  }
+}
+"),
+("test.bicep", @"
+resource sql 'Microsoft.Sql/servers@2021-08-01-preview' existing = {
+  name: 'mysql'
+}
+
+output sql resource = sql
+"));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP320", DiagnosticLevel.Error, "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein."),
+        });
+    }
+
+    [TestMethod]
+    public void Test_Issue12895()
+    {
+
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true, OptionalModuleNamesEnabled: true)),
+("main.bicep", @"
+module mymodule 'test.bicep' = {
 }
 
 resource myresource 'Microsoft.Sql/servers@2021-08-01-preview' = {
@@ -6699,6 +6730,78 @@ var subnetId = vNet::subnets[0].id
         {
             ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"module[] | (resource | module) | resource[]\", but the provided item was of type \"never\"."),
         });
+    }
+
+    [TestMethod]
+    public void Test_Issue16112()
+    {
+        var result = CompilationHelper.Compile("""
+            @description('A description of this resource is required to document the purpose for which it was created.')
+            param descriptionParam string
+
+            var description = 'foo'
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"description\" is not a function. Did you mean \"sys.description\"?"),
+        });
+    }
+
+    [TestMethod]
+    public void Test_Issue16219()
+    {
+        // https://www.github.com/Azure/bicep/issues/16219
+        var result = CompilationHelper.Compile("""
+            @description('Required. The name of the Public IP Address.')
+            param name string
+
+            resource publicIpAddress 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
+              name: name
+              location: resourceGroup().location
+              sku: {
+                name: 'Basic'
+                tier: 'Regional'
+              }
+              properties: {
+                publicIPAddressVersion: 'IPv4'
+                publicIPAllocationMethod: 'Static'
+                idleTimeoutInMinutes: 4
+                ipTags: []
+              }
+            }
+
+            @description('The public IP address of the public IP address resource.')
+            output ipAddress string = contains(publicIpAddress.properties, 'ipAddress') ? publicIpAddress.properties.ipAddress : ''
+            """);
+
+        result.ExcludingDiagnostics("use-safe-access").Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue16230()
+    {
+        var result = CompilationHelper.Compile("""
+            resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+              name: 'foo'
+
+              resource federation 'federatedIdentityCredentials' = [for i in range(0, 10): {
+                name: 'fed_${i}'
+              }]
+            }
+
+            resource otherIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+              name: 'bar'
+              location: resourceGroup().location
+              dependsOn: [
+                identity::federation
+              ]
+            }
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.resources[?(@.name == 'bar')].dependsOn", "[\"identity::federation\"]");
     }
 
     // https://github.com/azure/bicep/issues/1410

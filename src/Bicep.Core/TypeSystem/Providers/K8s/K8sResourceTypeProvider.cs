@@ -12,7 +12,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
         public const string MetadataPropertyName = "metadata";
         public const string NamespaceProperty = "namespace";
 
-        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], LanguageConstants.String, TypePropertyFlags.None);
+        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.String));
 
         private readonly K8sResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
@@ -47,10 +47,8 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
                         bodyObjectType = new ObjectType(
                             bodyObjectType.Name,
                             bodyObjectType.ValidationFlags,
-                            bodyObjectType.Properties.SetItem(NamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
-                            bodyObjectType.AdditionalPropertiesType,
-                            bodyObjectType.AdditionalPropertiesFlags,
-                            bodyObjectType.AdditionalPropertiesDescription,
+                            bodyObjectType.Properties.SetItem(NamePropertyName, new NamedTypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
+                            bodyObjectType.AdditionalProperties,
                             bodyObjectType.MethodResolver.CopyToObject);
 
                         bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
@@ -71,7 +69,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
         private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
             // Local function.
-            static TypeProperty UpdateFlags(TypeProperty typeProperty, TypePropertyFlags flags) =>
+            static NamedTypeProperty UpdateFlags(NamedTypeProperty typeProperty, TypePropertyFlags flags) =>
                 new(typeProperty.Name, typeProperty.TypeReference, flags, typeProperty.Description);
 
             var properties = objectType.Properties;
@@ -83,7 +81,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
             else
             {
                 // TODO: remove 'dependsOn' from the type library
-                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
+                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new NamedTypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
             }
 
             // add the loop variant flag to the name property (if it exists)
@@ -97,13 +95,13 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
                 objectType.Name,
                 objectType.ValidationFlags,
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
-                objectType.AdditionalPropertiesType,
-                isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
-                objectType.AdditionalPropertiesDescription,
+                isExistingResource && objectType.AdditionalProperties is not null 
+                    ? objectType.AdditionalProperties with { Flags = ConvertToReadOnly(objectType.AdditionalProperties.Flags) } 
+                    : objectType.AdditionalProperties,
                 functions: null);
         }
 
-        private static IEnumerable<TypeProperty> ConvertToReadOnly(IEnumerable<TypeProperty> properties)
+        private static IEnumerable<NamedTypeProperty> ConvertToReadOnly(IEnumerable<NamedTypeProperty> properties)
         {
             foreach (var property in properties)
             {
@@ -111,7 +109,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
                 // existing Kubernetes resources can also declare "metadata.name" and "metadata.namespace"
                 if (property.Name == MetadataPropertyName && property.TypeReference.Type is ObjectType metadataType)
                 {
-                    var updatedProperties = new List<TypeProperty>();
+                    var updatedProperties = new List<NamedTypeProperty>();
 
                     foreach (var metadataProperty in metadataType.Properties.Values)
                     {
@@ -121,7 +119,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
                         }
                         else
                         {
-                            updatedProperties.Add(new TypeProperty(metadataProperty.Name, metadataProperty.TypeReference, ConvertToReadOnly(metadataProperty.Flags), metadataProperty.Description));
+                            updatedProperties.Add(new NamedTypeProperty(metadataProperty.Name, metadataProperty.TypeReference, ConvertToReadOnly(metadataProperty.Flags), metadataProperty.Description));
                         }
                     }
 
@@ -129,16 +127,14 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
                         metadataType.Name,
                         metadataType.ValidationFlags,
                         updatedProperties,
-                        metadataType.AdditionalPropertiesType,
-                        ConvertToReadOnly(metadataType.AdditionalPropertiesFlags),
-                        metadataType.AdditionalPropertiesDescription,
+                        metadataType.AdditionalProperties is not null ? metadataType.AdditionalProperties with { Flags = ConvertToReadOnly(metadataType.AdditionalProperties.Flags) } : null,
                         functions: null);
 
-                    yield return new TypeProperty(property.Name, updatedMetadataType, property.Flags, property.Description);
+                    yield return new NamedTypeProperty(property.Name, updatedMetadataType, property.Flags, property.Description);
                 }
                 else
                 {
-                    yield return new TypeProperty(property.Name, property.TypeReference, ConvertToReadOnly(property.Flags), property.Description);
+                    yield return new NamedTypeProperty(property.Name, property.TypeReference, ConvertToReadOnly(property.Flags), property.Description);
                 }
             }
         }
@@ -180,7 +176,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
                     ResourceScope.None,
                     ResourceFlags.None,
-                    new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [], LanguageConstants.Any));
+                    new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.Any)));
 
                 return SetBicepResourceProperties(resourceType, flags);
             });

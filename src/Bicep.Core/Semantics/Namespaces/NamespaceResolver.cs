@@ -75,9 +75,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 : null)
             .WhereNotNull();
 
-        public IEnumerable<FunctionSymbol> GetKnownFunctions(string functionName)
+        public IEnumerable<FunctionSymbol> GetKnownFunctions(string functionName, bool includeDecorators)
             => this.namespaceTypes.Values
-                .Select(type => type.MethodResolver.TryGetFunctionSymbol(functionName))
+                .Select(type => type.MethodResolver.TryGetFunctionSymbol(functionName) ??
+                    (includeDecorators ? type.DecoratorResolver.TryGetDecoratorFunctionSymbol(functionName) : null))
                 .OfType<FunctionSymbol>();
 
         public IEnumerable<string> GetKnownFunctionNames(bool includeDecorators)

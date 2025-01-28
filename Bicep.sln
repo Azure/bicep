@@ -54,7 +54,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_SolutionItems", "_Solution
 		src\Directory.Build.targets = src\Directory.Build.targets
 		global.json = global.json
 		LICENSE = LICENSE
-		NuGet.config = NuGet.config
 		README.md = README.md
 		SECURITY.md = SECURITY.md
 	EndProjectSection

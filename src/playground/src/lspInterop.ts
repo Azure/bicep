@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api';
+import { editor, languages } from "monaco-editor/esm/vs/editor/editor.api";
 
 let interop: any; /* eslint-disable-line */
 

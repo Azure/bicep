@@ -89,8 +89,8 @@ namespace Bicep.LanguageServer.Completions
                     .Concat(await GetAllRegistryNameAndAliasCompletions(context, trimmedReplacementText, sourceFileUri, cancellationToken));
 
                 completions = [
-                    ..completions,
-                    ..replacementsRequiringStartingQuote,
+                    .. completions,
+                    .. replacementsRequiringStartingQuote,
                 ];
             }
 

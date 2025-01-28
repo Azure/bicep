@@ -8,7 +8,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 {
     public class SubscriptionScopeType : ObjectType, IScopeReference
     {
-        public SubscriptionScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties)
+        public SubscriptionScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<NamedTypeProperty> properties)
             : base("subscription", TypeSymbolValidationFlags.Default, properties, null)
         {
             Arguments = arguments.ToImmutableArray();

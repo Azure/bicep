@@ -55,14 +55,14 @@ resource resA 'My.Rp/resA@2020-01-01' = {
                 """;
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/resA", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("lowercaseprop", LanguageConstants.String),
-                new TypeProperty("camelCaseProp", LanguageConstants.String),
-                new TypeProperty("lowercasequoted=+.prop", LanguageConstants.String),
-                new TypeProperty("camelCaseQuoted=+.Prop", LanguageConstants.String),
-                new TypeProperty("lowerCaseEnumProp", TypeFactory.CreateStringLiteralType("myenum")),
-                new TypeProperty("pascalCaseEnumProp", TypeFactory.CreateStringLiteralType("MyEnum")),
-                new TypeProperty("lowerCaseEnumUnionProp", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("myenum"), TypeFactory.CreateStringLiteralType("blahblah"))),
-                new TypeProperty("pascalCaseEnumUnionProp", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("MyEnum"), TypeFactory.CreateStringLiteralType("BlahBlah"))));
+                new NamedTypeProperty("lowercaseprop", LanguageConstants.String),
+                new NamedTypeProperty("camelCaseProp", LanguageConstants.String),
+                new NamedTypeProperty("lowercasequoted=+.prop", LanguageConstants.String),
+                new NamedTypeProperty("camelCaseQuoted=+.Prop", LanguageConstants.String),
+                new NamedTypeProperty("lowerCaseEnumProp", TypeFactory.CreateStringLiteralType("myenum")),
+                new NamedTypeProperty("pascalCaseEnumProp", TypeFactory.CreateStringLiteralType("MyEnum")),
+                new NamedTypeProperty("lowerCaseEnumUnionProp", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("myenum"), TypeFactory.CreateStringLiteralType("blahblah"))),
+                new NamedTypeProperty("pascalCaseEnumUnionProp", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("MyEnum"), TypeFactory.CreateStringLiteralType("BlahBlah"))));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             var (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", bicepFile));
@@ -112,8 +112,8 @@ resource resA 'My.Rp/resA@2020-01-01' = {
                 """;
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/resA", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("lowercaseobj", new ObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, new[] {
-                  new TypeProperty("lowercasestr", LanguageConstants.String)
+                new NamedTypeProperty("lowercaseobj", new ObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, new[] {
+                  new NamedTypeProperty("lowercasestr", LanguageConstants.String)
                 }, null)));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 

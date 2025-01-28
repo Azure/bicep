@@ -9,7 +9,6 @@ namespace Bicep.Core.Semantics.Metadata
     public record ModuleOutputResourceMetadata(
         ResourceType Type,
         ModuleSymbol Module,
-        SyntaxBase NameSyntax,
         string OutputName)
         : ResourceMetadata(Type, IsExistingResource: true)
     {

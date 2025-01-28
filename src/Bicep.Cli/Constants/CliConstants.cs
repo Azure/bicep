@@ -15,7 +15,6 @@ namespace Bicep.Cli.Constants
         public const string Decompile = "decompile";
         public const string DecompileParams = "decompile-params";
         public const string Publish = "publish";
-        public const string PublishProvider = "publish-provider";
         public const string PublishExtension = "publish-extension";
         public const string Restore = "restore";
         public const string Lint = "lint";
