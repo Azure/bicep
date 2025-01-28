@@ -6777,4 +6777,30 @@ var subnetId = vNet::subnets[0].id
 
         result.ExcludingDiagnostics("use-safe-access").Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Test_Issue16230()
+    {
+        var result = CompilationHelper.Compile("""
+            resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+              name: 'foo'
+
+              resource federation 'federatedIdentityCredentials' = [for i in range(0, 10): {
+                name: 'fed_${i}'
+              }]
+            }
+
+            resource otherIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+              name: 'bar'
+              location: resourceGroup().location
+              dependsOn: [
+                identity::federation
+              ]
+            }
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.resources[?(@.name == 'bar')].dependsOn", "[\"identity::federation\"]");
+    }
 }
