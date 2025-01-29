@@ -52,7 +52,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         new RegistryModuleMetadata.ComputedData(
                             new RegistryMetadataDetails(null, null),                        
                             [.. availableVersions
-                                .Select(v => new RegistryModuleVersionMetadata(v, new("det", "doc.html")))]
+                                .Select(v => new RegistryModuleVersionMetadata(v, IsBicepModule: true, new("det", "doc.html")))]
                         )))
                 ]);
 

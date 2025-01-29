@@ -340,7 +340,9 @@ namespace Bicep.LanguageServer.Completions
             if (await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry)
                 .TryGetModuleAsync($"{parts.ResolvedModulePath}") is { } module)
             {
-                var versions = await module.TryGetVersionsAsync();
+                var versions = (await module.TryGetVersionsAsync())
+                    .Where(v => v.IsBicepModule != false) //asdfg test
+                    .ToArray();
 
                 for (int i = 0; i < versions.Length; ++i)
                 {

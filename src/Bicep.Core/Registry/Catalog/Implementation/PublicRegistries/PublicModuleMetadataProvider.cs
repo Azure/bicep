@@ -37,6 +37,7 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
             var versions = ImmutableArray.Create([.. m.Versions.Select(
                         t => new RegistryModuleVersionMetadata(
                             t,
+                            IsBicepModule: true,
                             new RegistryMetadataDetails(
                                 m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].Description:null,
                                 m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].DocumentationUri:null)

@@ -5,6 +5,7 @@ namespace Bicep.Core.Registry.Catalog;
 
 public record RegistryModuleVersionMetadata(
     string Version,
+    bool? IsBicepModule,
     RegistryMetadataDetails Details
 );
 

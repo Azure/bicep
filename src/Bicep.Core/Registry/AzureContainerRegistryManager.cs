@@ -256,7 +256,11 @@ namespace Bicep.Core.Registry
                 Trace.WriteLine($"Manifest for module {artifactReference.FullyQualifiedReference} could not be found in the registry.");
                 throw new OciArtifactRegistryException("The artifact does not exist in the registry.", exception);
             }
-            Debug.Assert(manifestResponse.Value.Manifest.ToArray().Length > 0);
+
+            if (manifestResponse.Value.Manifest.ToArray().Length == 0)
+            {
+                throw new InvalidArtifactException("Invalid manifest");
+            }
 
             // the Value is disposable, but we are not calling it because we need to pass the stream outside of this scope (and it will GC correctly)
             using var stream = manifestResponse.Value.Manifest.ToStream();

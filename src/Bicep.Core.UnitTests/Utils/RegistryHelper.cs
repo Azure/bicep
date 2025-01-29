@@ -43,7 +43,8 @@ public static class RegistryHelper
     public record RepoTagDescriptor(
         string Tag,
         string? Description = null,
-        string? DocumentationUri = null
+        string? DocumentationUri = null,
+        bool IsBicepModule = true
     );
 
     public record class ModuleToPublish(
