@@ -215,7 +215,7 @@ namespace Bicep.LanguageServer.Completions
                 // Reference with alias
                 if (TryGetValidModuleAlias(rootConfiguration, alias, out var aliasRegistry, out var aliasModulePath))
                 {
-                    return new Parts(//asdfg testpoint
+                    return new Parts(
                         SpecifiedRegistry: null,
                         ResolvedRegistry: aliasRegistry,
                         SpecifiedAlias: alias,
