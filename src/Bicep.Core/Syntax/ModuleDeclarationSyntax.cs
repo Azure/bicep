@@ -69,7 +69,15 @@ namespace Bicep.Core.Syntax
         public ObjectSyntax GetBody() =>
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid module body is not available on this module due to errors. Use {nameof(TryGetBody)}() instead.");
 
-        public bool HasCondition() => this.Value is IfConditionSyntax or ForSyntax { Body: IfConditionSyntax };
+        public bool HasCondition() => TryGetCondition() is not null;
+
+        public SyntaxBase? TryGetCondition() => Value switch
+        {
+            IfConditionSyntax ifCondition => ifCondition.ConditionExpression,
+            ForSyntax { Body: IfConditionSyntax ifCondition } => ifCondition.ConditionExpression,
+            _ => null,
+        };
+
 
         public ArtifactType GetArtifactType() => ArtifactType.Module;
     }
