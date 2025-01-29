@@ -7,6 +7,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
@@ -133,7 +134,10 @@ namespace Bicep.Core.Workspaces
                 return new(failureBuilder);
             }
 
-            sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents, moduleReference);
+
+            sourceFile = moduleReference is TemplateSpecModuleReference
+                ? SourceFileFactory.CreateSourceFile(fileUri, fileContents, typeof(TemplateSpecFile))
+                : SourceFileFactory.CreateSourceFile(fileUri, fileContents);
 
             return new(sourceFile);
         }
