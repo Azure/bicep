@@ -9,6 +9,7 @@ using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
@@ -374,8 +375,7 @@ namespace Bicep.Core.Registry
             // write manifest
             // it's important to write the original stream here rather than serialize the manifest object
             // this way we guarantee the manifest hash will match
-            var manifestFile = this.GetArtifactFile(reference, ArtifactFileType.Manifest);
-            result.ManifestData.WriteTo(manifestFile);
+            this.GetArtifactFile(reference, ArtifactFileType.Manifest).Write(result.ManifestData);
 
             // write data file
             var mainLayer = result.GetMainLayer();
@@ -392,9 +392,9 @@ namespace Bicep.Core.Registry
                 _ => throw new InvalidOperationException($"Unexpected artifact type \"{result.GetType().Name}\"."),
             };
 
-            mainLayer.Data.WriteTo(this.GetArtifactFile(reference, moduleFileType));
+            this.GetArtifactFile(reference, moduleFileType).Write(mainLayer.Data);
 
-            if (result is OciModuleArtifactResult moduleArtifact)
+            if (result is OciModuleArtifactResult)
             {
                 // write source archive file
                 if (result.TryGetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
@@ -406,7 +406,7 @@ namespace Bicep.Core.Registry
                     //   info on disk and can handle the layer data as they want to.
                     // The manifest can be used to determine what's in each layer file.
                     //  (https://github.com/Azure/bicep/issues/11900)
-                    sourceData.WriteTo(this.GetArtifactFile(reference, ArtifactFileType.Source));
+                    this.GetArtifactFile(reference, ArtifactFileType.Source).Write(sourceData);
                 }
             }
 
@@ -432,7 +432,7 @@ namespace Bicep.Core.Registry
                     }
 
                     var file = this.GetArtifactFile(reference, ArtifactFileType.ExtensionBinary);
-                    sourceData.WriteTo(file);
+                    file.Write(sourceData);
                     file.MakeExecutable();
                 }
             }
@@ -443,7 +443,7 @@ namespace Bicep.Core.Registry
             OciSerialization.Serialize(metadataStream, metadata);
             metadataStream.Position = 0;
 
-            metadataStream.WriteTo(this.GetArtifactFile(reference, ArtifactFileType.Metadata));
+            this.GetArtifactFile(reference, ArtifactFileType.Metadata).Write(metadataStream);
         }
 
         protected override IDirectoryHandle GetArtifactDirectory(OciArtifactReference reference)

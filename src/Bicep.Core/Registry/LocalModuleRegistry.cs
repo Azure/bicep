@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
@@ -112,7 +113,6 @@ namespace Bicep.Core.Registry
         public override async Task PublishExtension(LocalModuleReference reference, ExtensionPackage package)
         {
             var archive = await ExtensionV1Archive.Build(package);
-
             var fileUri = PathHelper.TryResolveFilePath(reference.ParentModuleUri, reference.Path)!;
             FileResolver.Write(fileUri, archive.ToStream());
         }
@@ -160,12 +160,11 @@ namespace Bicep.Core.Registry
 
                 var binaryFile = GetExtensionBinaryFile(reference);
 
-                binary.Data.WriteTo(binaryFile);
+                binaryFile.Write(binary.Data);
                 binaryFile.MakeExecutable();
             }
 
-            var typesTgzFile = this.GetTypesTgzFile(reference);
-            entity.Package.Types.WriteTo(typesTgzFile);
+            this.GetTypesTgzFile(reference).Write(entity.Package.Types);
         }
 
         private IDirectoryHandle? TryGetArtifactDirectory(LocalModuleReference reference)

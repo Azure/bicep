@@ -82,7 +82,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{C6CAFEE8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Tools.Benchmark", "src\Bicep.Tools.Benchmark\Bicep.Tools.Benchmark.csproj", "{A4127F6F-A282-47F3-BAFE-6A154F994B4E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8F8DCFBC-A0DC-4E40-93C8-B4FB99FBD757}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Local", "Local", "{8F8DCFBC-A0DC-4E40-93C8-B4FB99FBD757}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Local.Extension", "src\Bicep.Local.Extension\Bicep.Local.Extension.csproj", "{E84C0368-0D02-4284-A3CB-110B14FA8314}"
 EndProject

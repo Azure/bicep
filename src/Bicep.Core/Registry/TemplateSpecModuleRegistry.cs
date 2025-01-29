@@ -4,6 +4,7 @@
 using System.IO.Abstractions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
@@ -110,7 +111,7 @@ namespace Bicep.Core.Registry
         }
 
         protected override void WriteArtifactContentToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
-            this.GetModuleEntryPointFile(reference).WriteAllText(entity.Content);
+            this.GetModuleEntryPointFile(reference).Write(entity.Content);
 
         protected override IDirectoryHandle GetArtifactDirectory(TemplateSpecModuleReference reference) => this.featureProvider.CacheRootDirectory.GetDirectory(
             $"{this.Scheme}/{reference.SubscriptionId}/{reference.ResourceGroupName}/{reference.TemplateSpecName}/{reference.Version}".ToLowerInvariant());
