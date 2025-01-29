@@ -23,7 +23,7 @@ namespace Bicep.Core.Extensions
 
         public static bool IsBicepFile(this IFileHandle fileHandle) => fileHandle.Uri.HasExtension(LanguageConstants.LanguageFileExtension);
 
-        public static bool IsBicepParamsFile(this IFileHandle fileHandle) => fileHandle.Uri.HasExtension(LanguageConstants.ParamsFileExtension);
+        public static bool IsBicepParamFile(this IFileHandle fileHandle) => fileHandle.Uri.HasExtension(LanguageConstants.ParamsFileExtension);
 
         public static ResultWithDiagnosticBuilder<Encoding> TryDetectEncoding(this IFileHandle fileHandle) => HandleFileReadError(() =>
         {
