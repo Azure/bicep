@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -58,15 +59,15 @@ namespace Bicep.Core.UnitTests.Extensions
         }
 
         [DataTestMethod]
-        [DataRow("main.json", true)]
-        [DataRow("main.jsonc", true)]
-        [DataRow("main.arm", true)]
-        [DataRow("main.txt", false)]
-        public void IsArmTemplateLikeFile_VariousExtensions_ReturnsExpectedResult(string fileName, bool expectedResult)
+        [DataRow("/main.json", true)]
+        [DataRow("/main.jsonc", true)]
+        [DataRow("/main.arm", true)]
+        [DataRow("/main.txt", false)]
+        public void IsArmTemplateLikeFile_VariousExtensions_ReturnsExpectedResult(string filePath, bool expectedResult)
         {
             // Arrange
             var sut = StrictMock.Of<IFileHandle>();
-            sut.Setup(fh => fh.Uri).Returns(new IOUri("file", "", fileName));
+            sut.Setup(fh => fh.Uri).Returns(new IOUri("file", "", filePath));
 
             // Act
             var result = sut.Object.IsArmTemplateLikeFile();
@@ -76,13 +77,13 @@ namespace Bicep.Core.UnitTests.Extensions
         }
 
         [DataTestMethod]
-        [DataRow("main.bicep", true)]
-        [DataRow("main.txt", false)]
-        public void IsBicepFile_VariousExtensions_ReturnsExpectedResult(string fileName, bool expectedResult)
+        [DataRow("/main.bicep", true)]
+        [DataRow("/main.txt", false)]
+        public void IsBicepFile_VariousExtensions_ReturnsExpectedResult(string filePath, bool expectedResult)
         {
             // Arrange
             var sut = StrictMock.Of<IFileHandle>();
-            sut.Setup(fh => fh.Uri).Returns(new IOUri("file", "", fileName));
+            sut.Setup(fh => fh.Uri).Returns(new IOUri("file", "", filePath));
 
             // Act
             var result = sut.Object.IsBicepFile();
@@ -92,16 +93,16 @@ namespace Bicep.Core.UnitTests.Extensions
         }
 
         [DataTestMethod]
-        [DataRow("main.bicepparams", true)]
-        [DataRow("main.txt", false)]
-        public void IsBicepParamsFile_VariousExtensions_ReturnsExpectedResult(string fileName, bool expectedResult)
+        [DataRow("/main.bicepparam", true)]
+        [DataRow("/main.txt", false)]
+        public void IsBicepParamsFile_VariousExtensions_ReturnsExpectedResult(string filePath, bool expectedResult)
         {
             // Arrange
             var sut = StrictMock.Of<IFileHandle>();
-            sut.Setup(fh => fh.Uri).Returns(new IOUri("file", "", fileName));
+            sut.Setup(fh => fh.Uri).Returns(new IOUri("file", "", filePath));
 
             // Act
-            var result = sut.Object.IsBicepParamsFile();
+            var result = sut.Object.IsBicepParamFile();
 
             // Assert
             result.Should().Be(expectedResult);
@@ -143,7 +144,7 @@ namespace Bicep.Core.UnitTests.Extensions
         [DataTestMethod]
         [DataRow("This is a test string", 100, "This is a test string")]
         [DataRow("Short", 5, "Short")]
-        public void TryRead_LengthLimitNoExceeded_ReturnsAllContents(string contents, int lengthLimit, string expectedContents)
+        public void TryRead_LengthLimitNotExceeded_ReturnsAllContents(string contents, int lengthLimit, string expectedContents)
         {
             // Arrange
             var mockStream = new MemoryStream(Encoding.UTF8.GetBytes(contents));
@@ -167,6 +168,7 @@ namespace Bicep.Core.UnitTests.Extensions
             var mockStream = new MemoryStream(Encoding.UTF8.GetBytes(contents));
             var sut = StrictMock.Of<IFileHandle>();
             sut.Setup(fh => fh.OpenRead()).Returns(mockStream);
+            sut.Setup(fh => fh.Uri).Returns(new IOUri("file", "", "/foo.bicep"));
 
             // Act
             var result = sut.Object.TryRead(lengthLimit);
@@ -181,18 +183,16 @@ namespace Bicep.Core.UnitTests.Extensions
         {
             // Arrange
             var data = new BinaryData(Encoding.UTF8.GetBytes("file contents"));
+            var mockFileSystem = new MockFileSystem();
+            var mockStream = mockFileSystem.FileStream.New("test.txt", FileMode.Create);
             var mockFileHandle = StrictMock.Of<IFileHandle>();
-            var mockStream = new MemoryStream();
             mockFileHandle.Setup(fh => fh.OpenWrite()).Returns(mockStream);
 
             // Act
             mockFileHandle.Object.Write(data);
 
             // Assert
-            mockStream.Position = 0;
-            using var reader = new StreamReader(mockStream);
-            var contents = reader.ReadToEnd();
-            contents.Should().Be("file contents");
+            mockFileSystem.File.ReadAllText("test.txt").Should().Be("file contents");
         }
 
         [TestMethod]
@@ -200,18 +200,16 @@ namespace Bicep.Core.UnitTests.Extensions
         {
             // Arrange
             var inputStream = new MemoryStream(Encoding.UTF8.GetBytes("file contents"));
+            var mockFileSystem = new MockFileSystem();
+            var mockStream = mockFileSystem.FileStream.New("test.txt", FileMode.Create);
             var mockFileHandle = StrictMock.Of<IFileHandle>();
-            var mockStream = new MemoryStream();
             mockFileHandle.Setup(fh => fh.OpenWrite()).Returns(mockStream);
 
             // Act
             mockFileHandle.Object.Write(inputStream);
 
             // Assert
-            mockStream.Position = 0;
-            using var reader = new StreamReader(mockStream);
-            var contents = reader.ReadToEnd();
-            contents.Should().Be("file contents");
+            mockFileSystem.File.ReadAllText("test.txt").Should().Be("file contents");
         }
 
         [TestMethod]
@@ -219,18 +217,16 @@ namespace Bicep.Core.UnitTests.Extensions
         {
             // Arrange
             var text = "file contents";
+            var mockFileSystem = new MockFileSystem();
+            var mockStream = mockFileSystem.FileStream.New("test.txt", FileMode.Create);
             var mockFileHandle = StrictMock.Of<IFileHandle>();
-            var mockStream = new MemoryStream();
             mockFileHandle.Setup(fh => fh.OpenWrite()).Returns(mockStream);
 
             // Act
             mockFileHandle.Object.Write(text);
 
             // Assert
-            mockStream.Position = 0;
-            using var reader = new StreamReader(mockStream);
-            var contents = reader.ReadToEnd();
-            contents.Should().Be(text);
+            mockFileSystem.File.ReadAllText("test.txt").Should().Be("file contents");
         }
     }
 }
