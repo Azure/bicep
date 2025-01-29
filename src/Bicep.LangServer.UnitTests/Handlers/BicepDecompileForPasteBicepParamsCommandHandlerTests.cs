@@ -455,6 +455,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     expectedBicep: expectedBicep);
         }
 
+        [DataTestMethod]
         [DataRow(
             """
             {

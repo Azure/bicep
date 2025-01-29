@@ -7,6 +7,7 @@ using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
@@ -193,7 +194,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 ";
 
             var restoredFile = cacheRootDirectory.GetFile("restored.bicep");
-            restoredFile.WriteAllText(bicep);
+            restoredFile.Write(bicep);
 
             var restoredFilePath = restoredFile.Uri.GetLocalFilePath();
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
@@ -273,7 +274,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             ";
 
             var restoredFile = cacheRootDirectory.GetFile("restored.bicep");
-            restoredFile.WriteAllText(bicep);
+            restoredFile.Write(bicep);
 
             var restoredFilePath = restoredFile.Uri.GetLocalFilePath();
 
