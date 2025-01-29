@@ -363,55 +363,6 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return completions;
-
-            //asdfg test
-            //// Handles scenario where the user has configured an alias for MCR in bicepconfig.json.
-            //string? GetAliasedMCRModulePath(string trimmedText, Uri sourceFileUri)
-            //{
-            //    foreach (var kvp in GetModuleAliases(sourceFileUri))
-            //    {
-            //        if (kvp.Value.Registry is string registry &&
-            //            registry.Equals(PublicMcrRegistry, StringComparison.Ordinal))
-            //        {
-            //            var aliasFromBicepConfig = $"br/{kvp.Key}:";
-
-            //            if (trimmedText.StartsWith(aliasFromBicepConfig, StringComparison.Ordinal))
-            //            {
-            //                var matches = ModuleWithAliasAndVersionSeparator.Matches(trimmedText);
-            //                if (!matches.Any())
-            //                {
-            //                    continue;
-            //                }
-
-            //                string subpath = matches[0].Groups["path"].Value;
-            //                if (subpath is null)
-            //                {
-            //                    continue;
-            //                }
-
-            //                var modulePath = kvp.Value.ModulePath;
-
-            //                if (modulePath is not null)
-            //                {
-            //                    if (modulePath.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix)) //asdfg
-            //                    {
-            //                        modulePath = modulePath.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length);
-            //                        return $"{modulePath}/{subpath}";
-            //                    }
-            //                }
-            //                else
-            //                {
-            //                    if (subpath.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix))
-            //                    {
-            //                        return subpath.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length); //asdfg
-            //                    }
-            //                }
-            //            }
-            //        }
-            //    }
-
-            //    return null;
-            //}
         }
 
         private static ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(RootConfiguration configuration)
