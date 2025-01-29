@@ -200,7 +200,7 @@ namespace Bicep.LanguageServer.Completions
             if (NullIfEmpty(match.Groups["registry"].Value) is string registry)
             {
                 // Reference with fully-specified registry
-                return new Parts(//asdfg testpoint
+                return new Parts(
                     SpecifiedRegistry: registry,
                     ResolvedRegistry: registry,
                     SpecifiedAlias: null,

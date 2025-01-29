@@ -20,7 +20,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.Core.UnitTests.Registry.Catalog
+namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
 {
     [TestClass]
     public class PrivateAcrModuleMetadataProviderTests
