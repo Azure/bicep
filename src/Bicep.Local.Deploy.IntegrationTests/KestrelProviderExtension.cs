@@ -35,9 +35,11 @@ public class KestrelProviderExtension : ProviderExtension
 
         builder.Services.AddGrpc();
         builder.Services.AddSingleton(dispatcher);
-        var app = builder.Build();
+        using var app = builder.Build();
         app.MapGrpcService<BicepExtensionImpl>();
 
-        await app.RunAsync();
+        await Task.WhenAll(
+            Task.Delay(Timeout.Infinite, cancellationToken),
+            app.RunAsync());
     }
 }
