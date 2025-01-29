@@ -4374,6 +4374,71 @@ var file = " + functionName + @"(templ|)
             );
         }
 
+        [TestMethod]
+        [DataRow("module test 'br/ms:bicep/app/|'", "bicep/app/dapr-containerapp", "'br/ms:bicep/app/dapr-containerapp:$0'")]
+        [DataRow("module test 'br/ms_empty:bicep/app/|'", "bicep/app/dapr-containerapp", "'br/ms_empty:bicep/app/dapr-containerapp:$0'")]
+        [DataRow("module test 'br/ms_bicep:app/|'", "app/dapr-containerapp", "'br/ms_bicep:app/dapr-containerapp:$0'")]
+        public async Task Public_registry_via_alias_supports_completions_asdfg2(string text, string expectedLabel, string expectedInsertText)
+        {
+            var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
+            var baseFolder = $"{Guid.NewGuid():D}";
+            var fileUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/main.bicep");
+
+            var configurationManager = StrictMock.Of<IConfigurationManager>();
+            var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
+                moduleAliases: ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(
+                """
+                    {
+                        "br": {
+                          "ms": {
+                            "registry": "mcr.microsoft.com",
+                            "modulePath": ""
+                          },
+                          "ms_empty": {
+                            "registry": "mcr.microsoft.com"
+                          },
+                          "ms_bicep": {
+                            "registry": "mcr.microsoft.com",
+                            "modulePath": "bicep"
+                          }
+                        }
+                      }
+                    """),
+                null));
+            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(moduleAliasesConfiguration);
+
+            var settingsProvider = StrictMock.Of<ISettingsProvider>();
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+              RegistryCatalogMocks.MockPublicMetadataProvider(
+                [("bicep/app/dapr-containerapp", "d1", "contoso.com/help1", [
+                    new("1.0.1", null, null),
+                    new("1.0.2", "d1", "contoso.com/help1")
+                ])]
+              ));
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                services => services
+                    .AddSingleton(settingsProvider.Object)
+                    .AddSingleton(catalog)
+                    .AddSingleton(configurationManager.Object)
+            );
+
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
+            var completions = await file.RequestCompletion(cursor);
+
+            completions.Count().Should().Be(1);
+            completions.Select(x => (Label: x.Label, InsertText: x.TextEdit!.TextEdit!.NewText)).Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be(expectedLabel);
+                    c.InsertText.Should().Be(expectedInsertText);
+                }
+            );
+        }
+        
         [DataTestMethod]
         [DataRow("var arr1 = [|]")]
         [DataRow("param arr array = [|]")]
