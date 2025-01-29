@@ -67,13 +67,20 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
             manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDocumentationAnnotation, out documentationUri);
             manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageTitleAnnotation, out title);
 
-            return new RegistryModuleVersionMetadata(version,
+            return new RegistryModuleVersionMetadata(
+                version,
+                IsBicepModule: true,
                 new RegistryMetadataDetails(description ?? title, documentationUri));
+        }
+        catch (InvalidArtifactException ex)
+        {
+            Trace.WriteLine($"Invalid Bicep module {modulePath}, version {version}: {ex.Message}");
+            return new RegistryModuleVersionMetadata(version, IsBicepModule: false, new RegistryMetadataDetails("Not a valid Bicep module", null)); //asdfg2
         }
         catch (Exception ex)
         {
             Trace.WriteLine($"Failed to get version details for module {modulePath} version {version}: {ex.Message}");
-            return new RegistryModuleVersionMetadata(version, new RegistryMetadataDetails(null, null));
+            return new RegistryModuleVersionMetadata(version, IsBicepModule: null, new RegistryMetadataDetails(ex.Message/*asdfg2?*/, null));
         }
     }
 
@@ -107,8 +114,15 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
 
     private RegistryMetadataDetails GetModuleDetails(ImmutableArray<RegistryModuleVersionMetadata> versions)
     {
-        // OCI modules don't have a description or documentation URI, we just use the most recent version's metadata
-        if (versions.LastOrDefault() is { } lastVersion)
+        // OCI modules don't have a description or documentation URI, we just use the most recent version with valid metadata
+        var lastVersion = versions.LastOrDefault(x =>
+            x.IsBicepModule == true
+            && (!string.IsNullOrWhiteSpace(x.Details.Description) || !string.IsNullOrWhiteSpace(x.Details.DocumentationUri)));
+        lastVersion ??= versions.LastOrDefault(x => x.IsBicepModule == true && !string.IsNullOrWhiteSpace(x.Details.DocumentationUri)); //asdfg test
+        lastVersion ??= versions.LastOrDefault(x => x.IsBicepModule == true); //asdfg test
+        lastVersion ??= versions.LastOrDefault();
+
+        if (lastVersion is { })
         {
             return lastVersion.Details;
         }

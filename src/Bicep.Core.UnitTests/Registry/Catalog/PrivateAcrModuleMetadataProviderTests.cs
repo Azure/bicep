@@ -206,7 +206,36 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
         }
 
         [TestMethod]
-        public async Task ModuleWithNoVersionsThatHaveDetails()
+        public async Task Module_WithNoVersionsHavingDetails()
+        {
+            var containerClient = new FakeContainerRegistryClient();
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                new MockFileSystem(),
+                containerClient,
+                [
+                    new("br:registry.contoso.io/test/module1:v1", "metadata hello = 'this is module 1 version 1'\nparam p1 bool", WithSource: true),
+                    new("br:registry.contoso.io/test/module2:v1", "metadata hello = 'this is module 2 version 1'\nparam p2 string", WithSource: true),
+                    new("br:registry.contoso.io/test/module1:v2", "metadata hello = 'this is module 1 version 2'\nparam p12 string", WithSource: false),
+                ]);
+
+            var provider = new PrivateAcrModuleMetadataProvider(
+                BicepTestConstants.BuiltInConfiguration.Cloud,
+                "registry.contoso.io",
+                clientFactory);
+
+            var module = await provider.TryGetModuleAsync("test/module1");
+            module.Should().NotBeNull();
+            module!.GetCachedVersions().Should().BeEmpty();
+
+            var details = await module!.TryGetDetailsAsync();
+            details.Description.Should().BeNull();
+            details.DocumentationUri.Should().BeNull();
+        }
+
+        //asdfg test when loading fails
+
+        [TestMethod]
+        public async Task asdfg()
         {
             var containerClient = new FakeContainerRegistryClient();
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(

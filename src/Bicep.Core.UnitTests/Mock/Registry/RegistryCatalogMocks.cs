@@ -17,6 +17,7 @@ using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
 using FluentAssertions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Core.UnitTests.Mock.Registry
 {
@@ -48,7 +49,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
                             new RegistryMetadataDetails(m.description, m.documentationUri),
                             [.. modules.Single(m2 => m2.moduleName.EqualsOrdinally(m.moduleName))
                                 .versions
-                                .Select(v => new RegistryModuleVersionMetadata(v.version,new(v.description,v.documentUri)))
+                                .Select(v => new RegistryModuleVersionMetadata(v.version, IsBicepModule: true, new(v.description,v.documentUri)))
                             ]
                         )
                 ))]
@@ -59,7 +60,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
 
         public static Mock<IRegistryModuleMetadataProvider> MockPrivateMetadataProvider(
             string registry,
-            IEnumerable<(string moduleName, string? description, string? documentationUri, IEnumerable<(string version, string? description, string? documentUri)> versions)> modules
+            IEnumerable<(string moduleName, string? description, string? documentationUri, IEnumerable<RepoTagDescriptor> versions)> modules
         )
         {
             var privateProvider = StrictMock.Of<IRegistryModuleMetadataProvider>();
@@ -76,7 +77,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
                                 await DelayedValue(new RegistryMetadataDetails( m.description, m.documentationUri)),
                                 [.. modules.Single(m2 => m2.moduleName.EqualsOrdinally(m.moduleName))
                                     .versions
-                                        .Select(v => new RegistryModuleVersionMetadata(v.version, new(v.description, v.documentUri))
+                                        .Select(v => new RegistryModuleVersionMetadata(v.Tag, v.IsBicepModule, new(v.Description, v.DocumentationUri))
                                 )]
                             )
                     ))
@@ -138,7 +139,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
             return indexer;
         }
 
-        public static ModuleAliasesConfiguration ModuleAliases( //asdfg extension method?
+        public static ModuleAliasesConfiguration ModuleAliases(
             string moduleAliasesJson
         )
         {
