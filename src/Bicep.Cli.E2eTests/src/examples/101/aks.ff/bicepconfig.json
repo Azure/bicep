@@ -10,7 +10,7 @@
   "moduleAliases": {
     "br": {
       "publish-alias": {
-        "registry": "biceptestff.azurecr.us",
+        "registry": "biceptestff2.azurecr.us",
         "modulePath": "publish"
       }
     }
