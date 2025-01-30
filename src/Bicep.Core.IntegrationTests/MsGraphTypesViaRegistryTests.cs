@@ -122,7 +122,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // ARRANGE
             // mock the blob client to throw the expected exception
-            var mockBlobClient = StrictMock.Of<MockRegistryBlobClient>();
+            var mockBlobClient = StrictMock.Of<FakeRegistryBlobClient>();
             mockBlobClient.Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ThrowsAsync(exceptionToThrow);
 
             // mock the registry client to return the mock blob client

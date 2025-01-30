@@ -190,7 +190,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
 
-            var client = new MockRegistryBlobClient();
+            var client = new FakeRegistryBlobClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);

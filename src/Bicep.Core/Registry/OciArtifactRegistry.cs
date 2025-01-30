@@ -26,7 +26,7 @@ namespace Bicep.Core.Registry
 {
     public sealed class OciArtifactRegistry : ExternalArtifactRegistry<OciArtifactReference, OciArtifactResult>
     {
-        private readonly AzureContainerRegistryManager client;
+        private readonly AzureContainerRegistryManager containerRegistryManager;
 
         private readonly IDirectoryHandle cacheDirectory;
 
@@ -48,7 +48,7 @@ namespace Bicep.Core.Registry
             : base(FileResolver)
         {
             this.cacheDirectory = features.CacheRootDirectory.GetDirectory(ArtifactReferenceSchemes.Oci);
-            this.client = new AzureContainerRegistryManager(clientFactory);
+            this.containerRegistryManager = new AzureContainerRegistryManager(clientFactory);
             this.configuration = configuration;
             this.features = features;
             this.parentModuleUri = parentModuleUri;
@@ -106,7 +106,7 @@ namespace Bicep.Core.Registry
             try
             {
                 // Get module
-                await this.client.PullArtifactAsync(configuration.Cloud, reference);
+                await this.containerRegistryManager.PullArtifactAsync(configuration.Cloud, reference);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
@@ -292,7 +292,7 @@ namespace Bicep.Core.Registry
 
             try
             {
-                await this.client.PushArtifactAsync(
+                await this.containerRegistryManager.PushArtifactAsync(
                     configuration.Cloud,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
@@ -347,7 +347,7 @@ namespace Bicep.Core.Registry
 
             try
             {
-                await this.client.PushArtifactAsync(
+                await this.containerRegistryManager.PushArtifactAsync(
                     configuration.Cloud,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
@@ -500,7 +500,7 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                var result = await client.PullArtifactAsync(configuration.Cloud, reference);
+                var result = await containerRegistryManager.PullArtifactAsync(configuration.Cloud, reference);
 
                 await WriteArtifactContentToCacheAsync(reference, result);
 

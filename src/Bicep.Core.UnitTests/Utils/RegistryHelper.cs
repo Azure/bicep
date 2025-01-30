@@ -123,7 +123,8 @@ public static class RegistryHelper
         return containerRegistryFactoryBuilder.Build();
     }
 
-    public static async Task PublishModuleToRegistryAsync( //asdfg separate this into pieces
+    public static async Task PublishModuleToRegistryAsync( //asdfg separate this into pieces using builder pattern
+        ServiceBuilder services,
         IContainerRegistryClientFactory clientFactory,
         IFileSystem fileSystem,
         ModuleToPublish module)
@@ -132,7 +133,7 @@ public static class RegistryHelper
         var configurationManager = new ConfigurationManager(fileExplorer);
         var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
-        var services = new ServiceBuilder()
+        services = services
             .WithDisabledAnalyzersConfiguration()
             .WithContainerRegistryClientFactory(clientFactory)
             .WithFileSystem(fileSystem)
@@ -177,9 +178,10 @@ public static class RegistryHelper
         foreach (var module in modules)
         {
             await PublishModuleToRegistryAsync(
-                  clientFactory,
-                  fileSystem,
-                  module);
+                new ServiceBuilder(),
+                clientFactory,
+                fileSystem,
+                module);
         }
 
         return clientFactory;

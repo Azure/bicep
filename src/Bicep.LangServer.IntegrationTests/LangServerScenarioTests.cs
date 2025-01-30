@@ -70,6 +70,7 @@ param foo: string
         var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor("mockregistry.io", "test/foo", ["v1"]));
         async Task publish(string source)
             => await RegistryHelper.PublishModuleToRegistryAsync(
+                new ServiceBuilder(), //asdfg?
                 clientFactory,
                 BicepTestConstants.FileSystem,
                 new("br:mockregistry.io/test/foo:1.1", source, WithSource: false));
