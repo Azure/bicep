@@ -253,7 +253,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
             var repositoryPath = $"test";
             var repositoryNames = new[] { "repo1", "repo2" };
 
-            var clientFactory = RegistryHelper.CreateMockRegistryClients([.. repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1"]))]);
+            var clientFactory = RegistryHelper.CreateMockRegistryClient([.. repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1"]))]);
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
@@ -290,7 +290,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
             var repositoryPath = $"test";
             var repositoryNames = new[] { "repo1" };
 
-            var clientFactory = RegistryHelper.CreateMockRegistryClients([..
+            var clientFactory = RegistryHelper.CreateMockRegistryClient([..
                 repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1", "v2", "v3"]))]); //asdfg3 make this easier
 
             var services = new ServiceBuilder()

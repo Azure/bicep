@@ -400,7 +400,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var module3Uri = GetDocumentIdForExternalModuleSource("mockregistry.io/test/module1:v3");
 
             // Unregister module1:v2 so that it can't be restored
-            clientFactory = RegistryHelper.CreateMockRegistryClients(new RepoDescriptor("mockregistry.io", "test/module1", ["tag"]));
+            clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor("mockregistry.io", "test/module1", ["tag"]));
 
             // Compile some code to force restoration of module1:v3 (which should always be the case if we're displaying its source)
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);

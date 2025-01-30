@@ -86,14 +86,7 @@ public static class RegistryHelper
         public string ModuleName => Repository.Split('/').Last();
     }
 
-    public static IContainerRegistryClientFactory CreateMockRegistryClient(RepoDescriptor repo)
-    {
-        return new TestContainerRegistryClientFactoryBuilder()
-            .WithRepository(repo)
-            .Build();
-    }
-
-    public static IContainerRegistryClientFactory CreateMockRegistryClients(params RepoDescriptor[] repos)//asdfg3
+    public static IContainerRegistryClientFactory CreateMockRegistryClient(params RepoDescriptor[] repos)
     {
         var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
 
@@ -310,14 +303,14 @@ public static class RegistryHelper
     }
 
     public static IContainerRegistryClientFactory CreateOciClientForAzExtension()
-       => CreateMockRegistryClients(new RepoDescriptor(
+       => CreateMockRegistryClient(new RepoDescriptor(
             LanguageConstants.BicepPublicMcrRegistry,
             "bicep/extensions/az",
             new List<RepoTagDescriptor> { new("tag") }
         ));
 
     public static IContainerRegistryClientFactory CreateOciClientForMsGraphExtension()
-        => CreateMockRegistryClients(
+        => CreateMockRegistryClient(
             new RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/beta", ["tag"]),
             new RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/v1", ["tag"])
             );
