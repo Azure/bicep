@@ -237,7 +237,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetTopLevelCompletions(BicepCompletionContext context, string untrimmedReplacementText, RootConfiguration rootConfiguration)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
-                !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath)) //asdfg?
+                !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
             {
                 return [];
             }
@@ -287,7 +287,7 @@ namespace Bicep.LanguageServer.Completions
             }
             else
             {
-                // "br/"//asdfg testpoint
+                // "br/"
                 AddCompletionItem("br/", null, "Bicep registry (alias)", ModuleCompletionPriority.Alias, "module registry alias completion");
             }
 
@@ -341,7 +341,7 @@ namespace Bicep.LanguageServer.Completions
                 .TryGetModuleAsync($"{parts.ResolvedModulePath}") is { } module)
             {
                 var versions = (await module.TryGetVersionsAsync())
-                    .Where(v => v.IsBicepModule != false) //asdfg test
+                    .Where(v => v.IsBicepModule != false)
                     .ToArray();
 
                 for (int i = 0; i < versions.Length; ++i)
@@ -351,7 +351,7 @@ namespace Bicep.LanguageServer.Completions
 
                     // Module version is last completion, no follow-up completions triggered
                     // Note: Description and documentation will be resolved later
-                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version) //asdfg
+                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version)
                         .WithSnippetEdit(context.ReplacementRange, insertText)
                         .WithFilterText(insertText)
                         .WithSortText(GetSortText(i))
@@ -420,7 +420,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 if (kvp.Value.Registry is string inputRegistry)
                 {
-                    //asdfg ntoe: breaks VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion
+                    //asdfg note: breaks VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion
                     // We currently don't support path completion for private modules, but we'll go ahead and log telemetry to track usage. asdfg
                     if (!inputRegistry.Equals(PublicMcrRegistry, StringComparison.Ordinal) && //asdfg?
                         trimmedText.Equals($"br/{kvp.Key}:"))
@@ -622,12 +622,10 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
-        //asdfg make sure sorted by version
-
-        // Handles module path completions for MCR:
-        //   br/public:<CURSOR>
+        // Handles module path completions for public or private OCI modules
+        //   br/alias:<CURSOR>
         // or
-        //   br:mcr.microsoft.com/bicep/:<CURSOR>
+        //   br:registry.contoso.io/bicep/:<CURSOR>
         private async Task<IEnumerable<CompletionItem>> GetModuleCompletions(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)//asdfgasdfgasdfg
         {
             if (ParseParts(trimmedText, rootConfiguration) is not Parts parts

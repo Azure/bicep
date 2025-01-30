@@ -101,18 +101,15 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
 
         var modules = catalog
             .Reverse() // Reverse to inspect the latest modules first
-            .Select(m =>
-            {
-                return new RegistryModuleMetadata( //asdfg simplify
-                    Registry,
-                    m,
-                    async () =>
-                    {
-                        var versions = await GetLiveModuleVersionsAsync(m);
-                        var moduleDetails = GetModuleDetails(versions);
-                        return new ComputedData(moduleDetails, versions);
-                    });
-            }
+            .Select(m => new RegistryModuleMetadata(
+                Registry,
+                m,
+                async () =>
+                {
+                    var versions = await GetLiveModuleVersionsAsync(m);
+                    var moduleDetails = GetModuleDetails(versions);
+                    return new ComputedData(moduleDetails, versions);
+                })
         ).ToImmutableArray();
 
         return [.. modules.Cast<IRegistryModuleMetadata>()];
@@ -124,8 +121,8 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         var lastVersion = versions.LastOrDefault(x =>
             x.IsBicepModule == true
             && (!string.IsNullOrWhiteSpace(x.Details.Description) || !string.IsNullOrWhiteSpace(x.Details.DocumentationUri)));
-        lastVersion ??= versions.LastOrDefault(x => x.IsBicepModule == true && !string.IsNullOrWhiteSpace(x.Details.DocumentationUri)); //asdfg test
-        lastVersion ??= versions.LastOrDefault(x => x.IsBicepModule == true); //asdfg test
+        lastVersion ??= versions.LastOrDefault(x => x.IsBicepModule == true && !string.IsNullOrWhiteSpace(x.Details.DocumentationUri));
+        lastVersion ??= versions.LastOrDefault(x => x.IsBicepModule == true);
         lastVersion ??= versions.LastOrDefault();
 
         if (lastVersion is { })

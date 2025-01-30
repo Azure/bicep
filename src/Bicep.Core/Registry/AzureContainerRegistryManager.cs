@@ -125,7 +125,7 @@ namespace Bicep.Core.Registry
                 var tags = new List<string>();
                 await foreach (var manifestProps in client.GetRepository(repository).GetAllManifestPropertiesAsync())
                 {
-                    foreach (var tag in manifestProps.Tags) //asdfg? - don't list if not a bicep module
+                    foreach (var tag in manifestProps.Tags)
                     {
                         tags.Add(tag);
                     }
@@ -278,7 +278,7 @@ namespace Bicep.Core.Registry
                 new OciArtifactLayer(deserializedManifest.Config.Digest, deserializedManifest.Config.MediaType, await PullLayerAsync(client, deserializedManifest.Config)) :
                 null;
 
-            return deserializedManifest.ArtifactType switch //asdfg type not compared against expected
+            return deserializedManifest.ArtifactType switch
             {
                 BicepMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
                 BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers, config),

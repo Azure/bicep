@@ -115,7 +115,7 @@ public static class RegistryHelper
         return containerRegistryFactoryBuilder.Build();
     }
 
-    public static async Task PublishModuleToRegistryAsync( //asdfg separate this into pieces using builder pattern
+    public static async Task PublishModuleToRegistryAsync(
         ServiceBuilder services,
         IContainerRegistryClientFactory clientFactory,
         IFileSystem fileSystem,

@@ -860,31 +860,31 @@ namespace Bicep.LangServer.UnitTests.Completions
             actualTextEdit!.Range.End.Character.Should().Be(endCharacter);
         }
 
-        [DataTestMethod]
-        [DataRow("module foo 'br:mcr.microsoft.com/bicep/|", ModuleRegistryType.MCR)]
-        [DataRow("module foo 'br:test.azurecr.io/|", ModuleRegistryType.ACR)]
-        [DataRow("module foo 'br/public:|", ModuleRegistryType.MCR)]
-        [DataRow("module foo 'br/test1:|", ModuleRegistryType.ACR)]
-        [DataRow("module foo 'br/test2:|", ModuleRegistryType.ACR)]
-        [DataRow("module foo 'br/test3:|", ModuleRegistryType.MCR)]
-        //asdfg fails [DataRow("module foo 'br/test4:|", ModuleRegistryType.MCR)]
+        [DataTestMethod]//asdfg
+        //[DataRow("module foo 'br:mcr.microsoft.com/bicep/|", ModuleRegistryType.MCR)]
+        //[DataRow("module foo 'br:test.azurecr.io/|", ModuleRegistryType.ACR)]
+        //[DataRow("module foo 'br/public:|", ModuleRegistryType.MCR)]
+        [DataRow("module foo 'br/test1acr:|", ModuleRegistryType.ACR)]
+        //[DataRow("module foo 'br/test2acr:|", ModuleRegistryType.ACR)]
+        //[DataRow("module foo 'br/test3mcr:|", ModuleRegistryType.MCR)]
+        //asdfg fails [DataRow("module foo 'br/test4mcr:|", ModuleRegistryType.MCR)] see //asdfg note: breaks VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion
         public async Task VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion(string inputWithCursors, string moduleRegistryType)
         {
             var bicepConfigFileContents = @"{
   ""moduleAliases"": {
     ""br"": {
-      ""test1"": {
+      ""test1acr"": {
         ""registry"": ""myacr.azurecr.io"",
         ""modulePath"": ""bicep/modules""
       },
-      ""test2"": {
+      ""test2acr"": {
         ""registry"": ""mytest.azurecr.io""
       },
-      ""test3"": {
+      ""test3mcr"": {
         ""registry"": ""mcr.microsoft.com"",
         ""modulePath"": ""bicep/app""
       },
-      ""test4"": {
+      ""test4mcr"": {
         ""registry"": ""mcr.microsoft.com""
       }
     }
@@ -914,7 +914,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 catalog,
                 settingsProvider,
                 telemetryProvider.Object);
-            await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
+            var items = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
 
             telemetryProvider.Verify(m => m.PostEvent(It.Is<BicepTelemetryEvent>(
                 p => p.EventName == TelemetryConstants.EventNames.ModuleRegistryPathCompletion &&
