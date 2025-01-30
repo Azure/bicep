@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.LangServer.IntegrationTests;
 
@@ -66,15 +67,13 @@ param foo: string
         // * The module is re-published with different contents. The module cache (on disk) is not aware of this change
         // * The user forces a module restore to fetch the latest contents
 
-        var clientFactory = RegistryHelper.CreateMockRegistryClient("mockregistry.io", "test/foo");
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor("mockregistry.io", "test/foo", ["v1"]));
         async Task publish(string source)
             => await RegistryHelper.PublishModuleToRegistryAsync(
+                new ServiceBuilder(),
                 clientFactory,
                 BicepTestConstants.FileSystem,
-                "modulename",
-                "br:mockregistry.io/test/foo:1.1",
-                source,
-                publishSource: false);
+                new("br:mockregistry.io/test/foo:1.1", source, WithSource: false));
 
         var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext);
         var helper = await MultiFileLanguageServerHelper.StartLanguageServer(

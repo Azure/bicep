@@ -7,6 +7,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Core.UnitTests.Utils;
 
@@ -18,7 +19,7 @@ public static class ExtensionTestHelper
         string repositoryPath,
         FeatureProviderOverrides featureOverrides)
     {
-        var clientFactory = RegistryHelper.CreateMockRegistryClient(registryHost, repositoryPath);
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor(registryHost, repositoryPath, ["tag"]));
 
         return new ServiceBuilder()
             .WithFeatureOverrides(featureOverrides)

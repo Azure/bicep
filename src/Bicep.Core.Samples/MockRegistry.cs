@@ -14,12 +14,14 @@ namespace Bicep.Core.Samples;
 
 public class MockRegistry
 {
-    private record MockRegistryIndex(
-        ImmutableDictionary<string, string> modules);
+    private record MockRegistryCatalog(
+        ImmutableDictionary<string, string> modules
+    );
 
     public record ClientFactories(
         IContainerRegistryClientFactory ContainerRegistry,
-        ITemplateSpecRepositoryFactory TemplateSpec);
+        ITemplateSpecRepositoryFactory TemplateSpec
+    );
 
     public static async Task<ClientFactories> Build(bool publishSource = false)
         => new(
@@ -29,7 +31,7 @@ public class MockRegistry
     private static async Task<IContainerRegistryClientFactory> CreateMockBicepRegistry(bool publishSource)
     {
         var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
-        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryIndex>();
+        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryCatalog>();
 
         var modules = new Dictionary<string, DataSet.ExternalModuleInfo>();
         foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith(OciArtifactReferenceFacts.SchemeWithColon)))
@@ -48,7 +50,7 @@ public class MockRegistry
     private static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRegistry()
     {
         var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
-        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryIndex>();
+        var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryCatalog>();
 
         var modules = new Dictionary<string, DataSet.ExternalModuleInfo>();
         foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith("ts:")))

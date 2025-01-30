@@ -19,25 +19,23 @@ namespace Bicep.LanguageServer.Providers
     /// </summary>
     public class AzureContainerRegistriesProvider : IAzureContainerRegistriesProvider
     {
-        private readonly IConfigurationManager configurationManager;
         private readonly ITokenCredentialFactory tokenCredentialFactory;
 
         private const string queryToGetRegistryNames = @"Resources
 | where type == ""microsoft.containerregistry/registries""
 | project properties[""loginServer""]";
 
-        public AzureContainerRegistriesProvider(IConfigurationManager configurationManager, ITokenCredentialFactory tokenCredentialFactory)
+        public AzureContainerRegistriesProvider(ITokenCredentialFactory tokenCredentialFactory)
         {
-            this.configurationManager = configurationManager;
             this.tokenCredentialFactory = tokenCredentialFactory;
         }
 
         // Used for completions after typing "'br:"
-        public async IAsyncEnumerable<string> GetRegistryUrisAccessibleFromAzure(Uri templateUri, [EnumeratorCancellation] CancellationToken cancellationToken)
+        public async IAsyncEnumerable<string> GetContainerRegistriesAccessibleFromAzure(CloudConfiguration cloud, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var armClient = GetArmClient(templateUri);
+            var armClient = GetArmClient(cloud);
             TenantCollection tenants = armClient.GetTenants();
 
             await foreach (TenantResource tenant in tenants)
@@ -67,14 +65,13 @@ namespace Bicep.LanguageServer.Providers
             }
         }
 
-        private ArmClient GetArmClient(Uri templateUri)
+        private ArmClient GetArmClient(CloudConfiguration cloud)
         {
-            var rootConfiguration = configurationManager.GetConfiguration(templateUri);
-            var credential = tokenCredentialFactory.CreateChain(rootConfiguration.Cloud.CredentialPrecedence, rootConfiguration.Cloud.CredentialOptions, rootConfiguration.Cloud.ActiveDirectoryAuthorityUri);
+            var credential = tokenCredentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
 
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
-            options.Environment = new ArmEnvironment(rootConfiguration.Cloud.ResourceManagerEndpointUri, rootConfiguration.Cloud.AuthenticationScope);
+            options.Environment = new ArmEnvironment(cloud.ResourceManagerEndpointUri, cloud.AuthenticationScope);
 
             return new ArmClient(credential);
         }

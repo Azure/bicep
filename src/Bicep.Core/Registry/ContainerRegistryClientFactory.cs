@@ -17,24 +17,44 @@ namespace Bicep.Core.Registry
             this.credentialFactory = credentialFactory;
         }
 
-        public ContainerRegistryContentClient CreateAuthenticatedBlobClient(RootConfiguration configuration, Uri registryUri, string repository)
+        public ContainerRegistryContentClient CreateAuthenticatedBlobClient(CloudConfiguration cloud, Uri registryUri, string repository)
         {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
-            options.Audience = new ContainerRegistryAudience(configuration.Cloud.ResourceManagerAudience);
+            options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
 
-            var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.CredentialOptions, configuration.Cloud.ActiveDirectoryAuthorityUri);
+            var credential = this.credentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
 
             return new(registryUri, repository, credential, options);
         }
 
-        public ContainerRegistryContentClient CreateAnonymousBlobClient(RootConfiguration configuration, Uri registryUri, string repository)
+        public ContainerRegistryContentClient CreateAnonymousBlobClient(CloudConfiguration cloud, Uri registryUri, string repository)
         {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
-            options.Audience = new ContainerRegistryAudience(configuration.Cloud.ResourceManagerAudience);
+            options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
 
             return new(registryUri, repository, options);
+        }
+
+        public ContainerRegistryClient CreateAuthenticatedContainerClient(CloudConfiguration cloud, Uri registryUri)
+        {
+            var options = new ContainerRegistryClientOptions();
+            options.Diagnostics.ApplySharedContainerRegistrySettings();
+            options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
+
+            var credential = this.credentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
+
+            return new(registryUri, credential, options);
+        }
+
+        public ContainerRegistryClient CreateAnonymousContainerClient(CloudConfiguration cloud, Uri registryUri)
+        {
+            var options = new ContainerRegistryClientOptions();
+            options.Diagnostics.ApplySharedContainerRegistrySettings();
+            options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
+
+            return new(registryUri, options);
         }
     }
 }
