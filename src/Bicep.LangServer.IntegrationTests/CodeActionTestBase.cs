@@ -86,15 +86,15 @@ namespace Bicep.LangServer.IntegrationTests
             await ServerWithNamespaceProvider.DisposeAsync();
         }
 
-        protected async Task<(CodeAction[] codeActions, BicepFile bicepFile)> GetCodeActionsForSyntaxTest(string fileWithCursors, char emptyCursor = '|', string escapedCursor = "||", MultiFileLanguageServerHelper? server = null)
+        protected async Task<(CodeAction[] codeActions, LanguageClientFile bicepFile)> GetCodeActionsForSyntaxTest(string fileWithCursors, char emptyCursor = '|', string escapedCursor = "||", MultiFileLanguageServerHelper? server = null)
         {
             Trace.WriteLine("Input bicep:\n" + fileWithCursors + "\n");
 
-            var (file, selection) = ParserHelper.GetFileWithSingleSelection(fileWithCursors, emptyCursor.ToString(), escapedCursor);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
+            var (fileText, selection) = ParserHelper.GetFileWithSingleSelection(fileWithCursors, emptyCursor.ToString(), escapedCursor);
+            var bicepFile = new LanguageClientFile(DocumentUri.From($"file:///{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), fileText);
 
             server ??= await DefaultServer.GetAsync();
-            await server.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
+            await server.OpenFileOnceAsync(TestContext, fileText, bicepFile.Uri);
 
             var codeActions = await RequestCodeActions(server.Client, bicepFile, selection);
             return (codeActions.ToArray(), bicepFile);
@@ -122,29 +122,25 @@ namespace Bicep.LangServer.IntegrationTests
             yield return new TextSpan(startOffset, span.Length + 1);
         }
 
-        protected static async Task<IEnumerable<CodeAction>> RequestCodeActions(ILanguageClient client, BicepFile bicepFile, TextSpan span)
+        protected static async Task<IEnumerable<CodeAction>> RequestCodeActions(ILanguageClient client, LanguageClientFile bicepFile, TextSpan span)
         {
-            var startPosition = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, span.Position);
-            var endPosition = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, span.Position + span.Length);
-            endPosition.Should().BeGreaterThanOrEqualTo(startPosition);
-
             var result = await client.RequestCodeAction(new CodeActionParams
             {
-                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
-                Range = new Range(startPosition, endPosition),
+                TextDocument = bicepFile.Uri,
+                Range = bicepFile.GetRange(span),
             });
 
             return result!.Select(x => x.CodeAction).WhereNotNull();
         }
 
-        protected static BicepFile ApplyCodeAction(BicepFile bicepFile, CodeAction codeAction)
+        protected static LanguageClientFile ApplyCodeAction(LanguageClientFile bicepFile, CodeAction codeAction)
         {
             // only support a small subset of possible edits for now - can always expand this later on
             codeAction.Edit!.Changes.Should().NotBeNull();
             codeAction.Edit.Changes.Should().HaveCount(1);
             codeAction.Edit.Changes.Should().ContainKey(bicepFile.Uri);
 
-            var bicepText = bicepFile.ProgramSyntax.ToString();
+            var bicepText = bicepFile.Text;
             var changes = codeAction.Edit.Changes![bicepFile.Uri].ToArray();
 
             for (int i = 0; i < changes.Length; ++i)
@@ -204,7 +200,7 @@ namespace Bicep.LangServer.IntegrationTests
                     "Rename should be positioned on the new identifier right after 'var ' or 'param ' or 'type '");
             }
 
-            return SourceFileFactory.CreateBicepFile(bicepFile.Uri, bicepText);
+            return new LanguageClientFile(bicepFile.Uri, bicepText);
         }
     }
 }

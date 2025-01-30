@@ -48,8 +48,8 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Overlapping_tokens_are_not_returned(DataSet dataSet)
         {
-            var uri = DocumentUri.From($"/{dataSet.Name}");
-            var bicepFile = SourceFileFactory.CreateBicepFile(uri.ToUriEncoded(), dataSet.Bicep);
+            var uri = DocumentUri.From($"{dataSet.Name}");
+            var bicepFile = new LanguageClientFile(uri, dataSet.Bicep);
 
             var helper = await DefaultServer.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
@@ -83,10 +83,10 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task Correct_semantic_tokens_are_returned_for_params_file(string paramFileText, TextSpan[] spans, SemanticTokenType[] tokenType)
         {
             var baseFilePath = $"file:///{TestContext.TestName}_{Guid.NewGuid():D}";
-            var paramFileUri = new Uri($"{baseFilePath}/main.bicepparam");
-            var bicepFileUri = new Uri($"{baseFilePath}/main.bicep");
+            var paramFileUri = $"{baseFilePath}/main.bicepparam";
+            var bicepFileUri = $"{baseFilePath}/main.bicep";
 
-            var fileTextsByUri = new Dictionary<Uri, string>
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
             {
                 [paramFileUri] = paramFileText,
                 [bicepFileUri] = ""

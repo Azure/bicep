@@ -73,7 +73,7 @@ namespace Bicep.LangServer.IntegrationTests
             );
         }
 
-        private static async Task<string> ApplyWorkspaceEdit(Listeners listeners, Uri fileUri, string fileContents)
+        private static async Task<string> ApplyWorkspaceEdit(Listeners listeners, DocumentUri fileUri, string fileContents)
         {
             var edit = await listeners.ApplyWorkspaceEdit.WaitNext();
 
@@ -88,17 +88,17 @@ namespace Bicep.LangServer.IntegrationTests
             return fileContents.Substring(0, startOffset) + test.NewText + fileContents.Substring(endOffset);
         }
 
-        private async Task<string> InvokeInsertResource(ILanguageClient client, Listeners listeners, Uri fileUri, string fileWithCursor, string resourceId)
+        private async Task<string> InvokeInsertResource(ILanguageClient client, Listeners listeners, DocumentUri fileUri, string fileWithCursor, string resourceId)
         {
             var (fileContents, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursor, '|');
-            var file = SourceFileFactory.CreateBicepFile(fileUri, fileContents);
+            var file = new LanguageClientFile(fileUri, fileContents);
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(file.Uri, fileContents, 0));
             await listeners.Diagnostics.WaitNext();
 
             var result = await client.SendRequest(new InsertResourceParams
             {
-                TextDocument = DocumentUri.From(file.Uri),
+                TextDocument = file.Uri,
                 Position = PositionHelper.GetPosition(file.LineStarts, cursor),
                 ResourceId = resourceId,
             }, default);
@@ -143,7 +143,7 @@ namespace Bicep.LangServer.IntegrationTests
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
-            var fileUri = new Uri("file:///template.bicep");
+            var fileUri = "template.bicep";
             var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
                 param myParam string = 'test'
                 resource myRes 'myRp/provider@2019-01-01' = {
@@ -212,7 +212,7 @@ namespace Bicep.LangServer.IntegrationTests
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
-            var fileUri = new Uri("file:///template.bicep");
+            var fileUri = "template.bicep";
             var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"|", resourceId.FullyQualifiedId);
 
             var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
@@ -263,7 +263,7 @@ namespace Bicep.LangServer.IntegrationTests
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
-            var fileUri = new Uri("file:///template.bicep");
+            var fileUri = "template.bicep";
             var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
                 param myParam string = 'test'
                 resource myRes 'myRp/provider@2019-01-01' = {
@@ -335,7 +335,7 @@ namespace Bicep.LangServer.IntegrationTests
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
-            var fileUri = new Uri("file:///template.bicep");
+            var fileUri = "template.bicep";
             var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
                 param myParam string = 'test'
                 resource myRes 'myRp/provider@2019-01-01' = {
@@ -390,7 +390,7 @@ namespace Bicep.LangServer.IntegrationTests
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
 
-            var fileUri = new Uri("file:///template.bicep");
+            var fileUri = "template.bicep";
             var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
                 param myParam string = 'test'
                 resource myRes 'myRp/provider@2019-01-01' = {
@@ -427,7 +427,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "MadeUp.Rp", new[] { "madeUpTypes" }, new[] { "myName" });
 
-            var fileUri = new Uri("file:///template.bicep");
+            var fileUri = "template.bicep";
             var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
@@ -487,7 +487,7 @@ output myOutput string = 'myOutput'
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), null, It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
-            var fileUri = new Uri("file:///template.bicep");
+            var fileUri = "template.bicep";
             var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
                 param myParam string = 'test'
                 resource myRes 'myRp/provider@2019-01-01' = {
@@ -550,7 +550,7 @@ output myOutput string = 'myOutput'
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), null, It.IsAny<CancellationToken>()))
                 .Throws(new InvalidOperationException("And something went wrong again!"));
 
-            var fileUri = new Uri("file:///template.bicep");
+            var fileUri = "template.bicep";
             var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
                 param myParam string = 'test'
                 resource myRes 'myRp/provider@2019-01-01' = {

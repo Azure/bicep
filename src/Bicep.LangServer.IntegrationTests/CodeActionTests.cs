@@ -15,6 +15,7 @@ using Bicep.Core.UnitTests.PrettyPrintV2;
 using Bicep.Core.UnitTests.Serialization;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
@@ -76,7 +77,7 @@ namespace Bicep.LangServer.IntegrationTests
                         // Assert.
                         quickFixes.Should().NotBeNull();
 
-                        var spansOverlapOrAbut = (IFixable f) =>
+                        bool SpansOverlapOrAbut(IFixable f)
                         {
                             if (span.Position <= f.Span.Position)
                             {
@@ -84,9 +85,9 @@ namespace Bicep.LangServer.IntegrationTests
                             }
 
                             return f.Span.GetEndPosition() >= span.Position;
-                        };
+                        }
 
-                        var bicepFixes = allFixables.Where(spansOverlapOrAbut).SelectMany(f => f.Fixes).ToHashSet();
+                        var bicepFixes = allFixables.Where(SpansOverlapOrAbut).SelectMany(f => f.Fixes).ToHashSet();
                         var quickFixList = quickFixes!.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
 
                         var bicepFixTitles = bicepFixes.Select(f => f.Title);
@@ -372,10 +373,12 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
             codeActions.First(x => x.Title == title).Kind.Should().Be(CodeActionKind.Refactor);
 
             var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == title));
-            updatedFile.Should().HaveSourceText($@"
-{decorator}
-param foo {type}
-");
+            updatedFile.Should().HaveSourceText($"""
+
+                {decorator}
+                param foo {type}
+
+                """);
         }
 
         [DataRow("string", "@secure()", SecureTitle)]
@@ -532,7 +535,7 @@ param foo2 string", "param foo2 string")]
             codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedParameterTitle));
         }
 
-        private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunParameterSyntaxTest(string paramType, string? decorator = null)
+        private async Task<(IEnumerable<CodeAction> codeActions, LanguageClientFile bicepFile)> RunParameterSyntaxTest(string paramType, string? decorator = null)
         {
             string fileWithCursors = @$"
 param fo|o {paramType}
@@ -552,22 +555,6 @@ param fo|o {paramType}
         private static IEnumerable<object[]> GetData()
         {
             return DataSets.NonStressDataSets.ToDynamicTestData();
-        }
-
-        private static async Task<BicepFile> FormatDocument(ILanguageClient client, BicepFile bicepFile)
-        {
-            var textEditContainer = await client.TextDocument.RequestDocumentFormatting(new DocumentFormattingParams
-            {
-                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
-                Options = new FormattingOptions
-                {
-                    TabSize = 2,
-                    InsertSpaces = true,
-                    InsertFinalNewline = true,
-                },
-            });
-
-            return SourceFileFactory.CreateBicepFile(bicepFile.Uri, textEditContainer!.Single().NewText);
         }
     }
 }

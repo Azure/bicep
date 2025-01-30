@@ -21,11 +21,9 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
 
         public DocumentUri Uri { get; }
 
-        public TextDocumentIdentifier DocumentIdentifier => new(this.Uri);
-
         public string Text { get; }
 
-        ImmutableArray<int> LineStarts { get; }
+        public ImmutableArray<int> LineStarts { get; }
 
         public Position GetPosition(int offset) => TextCoordinateConverter.GetPosition(this.LineStarts, offset);
 
@@ -34,5 +32,15 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
             Start = GetPosition(span.Position),
             End = GetPosition(span.Position + span.Length),
         };
+
+        public int GetOffset(Position position) => TextCoordinateConverter.GetOffset(this.LineStarts, position.Line, position.Character);
+
+        public TextSpan GetSpan(Range range)
+        {
+            var start = this.GetOffset(range.Start);
+            var end = this.GetOffset(range.End);
+
+            return new TextSpan(start, end - start);
+        }
     }
 }
