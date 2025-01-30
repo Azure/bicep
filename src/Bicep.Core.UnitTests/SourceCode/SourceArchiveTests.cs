@@ -154,7 +154,7 @@ public class SourceArchiveTests
             sourceKind switch
             {
                 SourceArchive.SourceKind.ArmTemplate => SourceFileFactory.CreateArmTemplateFile(uri, actualContents),
-                SourceArchive.SourceKind.Bicep => SourceFileFactory.CreateSourceFile(uri, actualContents),
+                SourceArchive.SourceKind.Bicep => SourceFileFactory.CreateBicepFile(uri, actualContents),
                 SourceArchive.SourceKind.TemplateSpec => SourceFileFactory.CreateTemplateSpecFile(uri, actualContents),
                 _ => throw new Exception($"Unrecognized source kind: {sourceKind}")
             },

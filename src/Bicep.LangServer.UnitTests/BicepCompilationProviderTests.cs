@@ -30,10 +30,10 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void Create_ShouldReturnValidCompilation()
         {
-            var fileUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
+            var fileUri = DocumentUri.From($"{DataSets.Parameters_LF.Name}.bicep");
             var provider = Create();
 
-            var sourceFile = SourceFileFactory.CreateSourceFile(fileUri.ToUriEncoded(), DataSets.Parameters_LF.Bicep);
+            var sourceFile = SourceFileFactory.CreateBicepFile(fileUri.ToUriEncoded(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
             workspace.UpsertSourceFile(sourceFile);
 

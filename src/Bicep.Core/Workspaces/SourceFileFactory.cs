@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CodeDom;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
@@ -23,29 +24,37 @@ namespace Bicep.Core.Workspaces
             LineInfoHandling = LineInfoHandling.Ignore,
         };
 
-        public static BicepSourceFile? TryCreateSourceFileByBicepLanguageId(Uri fileUri, string fileContents, string languageId) => languageId switch
-        {
-            LanguageConstants.LanguageId => CreateBicepFile(fileUri, fileContents),
-            LanguageConstants.ParamsLanguageId => CreateBicepParamFile(fileUri, fileContents),
-            _ => null
-        };
 
-
-        public static BicepSourceFile? TryCreateSourceFileByFileKind(Uri fileUri, string fileContents, BicepSourceFileKind? fileKind) => fileKind switch
+        public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, Type? sourceFileType = null)
         {
-            BicepSourceFileKind.BicepFile => CreateBicepFile(fileUri, fileContents),
-            BicepSourceFileKind.ParamsFile => CreateBicepParamFile(fileUri, fileContents),
-            null => null,
-            _ => throw new NotImplementedException($"Unexpected file kind '{fileKind}'.")
-        };
+            if (sourceFileType == typeof(BicepFile))
+            {
+                return CreateBicepFile(fileUri, fileContents);
+            }
 
-        public static ISourceFile? TryCreateSourceFile(Uri fileUri, string fileContents, ArtifactReference? moduleReference = null)
-        {
+            if (sourceFileType == typeof(BicepParamFile))
+            {
+                return CreateBicepParamFile(fileUri, fileContents);
+            }
+
+            if (sourceFileType == typeof(ArmTemplateFile))
+            {
+                return CreateArmTemplateFile(fileUri, fileContents);
+            }
+
+            if (sourceFileType == typeof(TemplateSpecFile))
+            {
+                return CreateTemplateSpecFile(fileUri, fileContents);
+            }
+
+            if (sourceFileType is not null)
+            {
+                throw new ArgumentException($"Unexpected source file type {sourceFileType.Name}");
+            }
+
             if (PathHelper.HasArmTemplateLikeExtension(fileUri))
             {
-                return moduleReference is TemplateSpecModuleReference
-                    ? CreateTemplateSpecFile(fileUri, fileContents)
-                    : CreateArmTemplateFile(fileUri, fileContents);
+                return CreateArmTemplateFile(fileUri, fileContents);
             }
 
             if (PathHelper.HasBicepExtension(fileUri))
@@ -58,11 +67,12 @@ namespace Bicep.Core.Workspaces
                 return CreateBicepParamFile(fileUri, fileContents);
             }
 
-            return null;
+            // The file does not have an extension. Assuming it is a Bicep file. Note that
+            // this is only possible when a module reference path is provided without an
+            // extension. When an untilted file (whose URI has no extension) in VS Code,
+            // sourceFileType will be set by BicepCompilationManager.
+            return CreateBicepFile(fileUri, fileContents);
         }
-
-        public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, ArtifactReference? moduleReference = null) =>
-            TryCreateSourceFile(fileUri, fileContents, moduleReference) ?? CreateBicepFile(fileUri, fileContents);
 
         public static BicepParamFile CreateBicepParamFile(Uri fileUri, string fileContents)
         {

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
@@ -108,47 +109,20 @@ namespace Bicep.LanguageServer
 
         public void OpenCompilation(DocumentUri documentUri, int? version, string fileContents, string languageId)
         {
-            if (this.ShouldUpsertCompilation(documentUri, languageId))
+            if (this.ShouldUpsertCompilation(documentUri, languageId, out var sourceFileType))
             {
-                var newFile = CreateSourceFile(documentUri, fileContents, languageId);
+                var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUriEncoded(), fileContents, sourceFileType);
                 UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: true);
             }
         }
 
         public void UpdateCompilation(DocumentUri documentUri, int? version, string fileContents)
         {
-            if (this.ShouldUpsertCompilation(documentUri, languageId: null))
+            if (this.ShouldUpsertCompilation(documentUri, languageId: null, out var sourceFileType))
             {
-                var newFile = CreateSourceFile(documentUri, fileContents, languageId: null);
+                var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUriEncoded(), fileContents, sourceFileType);
                 UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: false);
             }
-        }
-
-        private ISourceFile CreateSourceFile(DocumentUri documentUri, string fileContents, string? languageId)
-        {
-            if (languageId is not null &&
-                SourceFileFactory.TryCreateSourceFileByBicepLanguageId(documentUri.ToUriEncoded(), fileContents, languageId) is { } sourceFileViaLanguageId)
-            {
-                return sourceFileViaLanguageId;
-            }
-
-            // try creating the file using the URI (like in the SourceFileGroupingBuilder)
-            if (SourceFileFactory.TryCreateSourceFile(documentUri.ToUriEncoded(), fileContents) is { } sourceFileViaUri)
-            {
-                // this handles *.bicep, *.bicepparam, *.jsonc, *.json, and *.arm files
-                return sourceFileViaUri;
-            }
-
-            // we failed to create new file by URI
-            // this means we're dealing with an untitled file
-            // however the language ID was made available to us on file open
-            if (this.GetCompilationUnsafe(documentUri) is { } potentiallyUnsafeContext &&
-                SourceFileFactory.TryCreateSourceFileByFileKind(documentUri.ToUriEncoded(), fileContents, potentiallyUnsafeContext.SourceFileKind) is { } sourceFileViaFileKind)
-            {
-                return sourceFileViaFileKind;
-            }
-
-            throw new InvalidOperationException($"Unable to create source file for uri '{documentUri.ToUriEncoded()}'.");
         }
 
         private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool triggeredByFileOpenEvent = false, bool clearAuxiliaryFileCache = false)
@@ -252,31 +226,45 @@ namespace Bicep.LanguageServer
             }
         }
 
-        public CompilationContext? GetCompilation(DocumentUri uri) => GetCompilationUnsafe(uri) as CompilationContext;
-
-        private CompilationContextBase? GetCompilationUnsafe(DocumentUri uri)
-        {
-            this.activeContexts.TryGetValue(uri, out var context);
-            return context;
-        }
+        public CompilationContext? GetCompilation(DocumentUri uri) => this.activeContexts.GetValueOrDefault(uri) as CompilationContext;
 
         private IEnumerable<KeyValuePair<DocumentUri, CompilationContext>> GetAllSafeActiveContexts() =>
             this.activeContexts
                 .Where(pair => pair.Value is CompilationContext)
                 .Select(pair => new KeyValuePair<DocumentUri, CompilationContext>(pair.Key, (CompilationContext)pair.Value));
 
-        private bool ShouldUpsertCompilation(DocumentUri documentUri, string? languageId = null)
+        private bool ShouldUpsertCompilation(DocumentUri documentUri, string? languageId, [NotNullWhen(true)] out Type? sourceFileType)
         {
             if (documentUri.Scheme == LangServerConstants.ExternalSourceFileScheme)
             {
                 // Don't compile source code from external modules (and therefore also don't show compiler/linter warnings etc.)
+                sourceFileType = null;
                 return false;
             }
 
             // We should only upsert compilation when languageId is bicep or the file is already tracked in workspace.
             // When the file is in workspace but languageId is null, the file can be a bicep file or a JSON template
             // being referenced as a bicep module.
-            return LanguageConstants.IsBicepOrParamsLanguage(languageId) || this.workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out var _);
+            if (LanguageConstants.IsBicepLanguage(languageId))
+            {
+                sourceFileType = typeof(BicepFile);
+                return true;
+            }
+
+            if (LanguageConstants.IsParamsLanguage(languageId))
+            {
+                sourceFileType = typeof(BicepParamFile);
+                return true;
+            }
+
+            if (this.workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out var sourceFile))
+            {
+                sourceFileType = sourceFile.GetType();
+                return true;
+            }
+
+            sourceFileType = null;
+            return false;
         }
 
         private ImmutableArray<ISourceFile> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)

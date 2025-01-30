@@ -16,7 +16,6 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
@@ -208,7 +207,7 @@ output string test = testRes.prop|erties.rea|donly
 ",
                 '|');
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+            var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}-path/to/main.bicep", file);
 
             var helper = await ServerWithBuiltInTypes.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
@@ -243,7 +242,7 @@ output string test = testRes[3].prop|erties.rea|donly
 ",
                 '|');
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+            var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}-path/to/main.bicep", file);
 
             var helper = await ServerWithBuiltInTypes.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
@@ -277,7 +276,7 @@ output string test = testRes.prop|erties.rea|donly
 ",
                 '|');
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+            var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}-path/to/main.bicep", file);
 
             var helper = await ServerWithBuiltInTypes.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
@@ -319,7 +318,7 @@ resource test|Output string = 'str'
 ",
                 '|');
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+            var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}-path/to/main.bicep", file);
 
             var helper = await ServerWithBuiltInTypes.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
@@ -345,7 +344,7 @@ param constrainedSe|cureString string
 ",
                 '|');
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+            var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}-path/to/main.bicep", file);
 
             var helper = await ServerWithBuiltInTypes.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
@@ -387,10 +386,10 @@ output moduleOutput string = '${var|1}-${mod1.outputs.o|ut2}'
 ",
                 '|');
 
-            var moduleFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/mod.bicep"), modFile);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var moduleFile = new LanguageClientFile("file:///path/to/mod.bicep", modFile);
+            var bicepFile = new LanguageClientFile("file:///path/to/main.bicep", file);
 
-            var files = new Dictionary<Uri, string>
+            var files = new Dictionary<DocumentUri, string>
             {
                 [bicepFile.Uri] = file,
                 [moduleFile.Uri] = modFile
@@ -430,10 +429,10 @@ output o1 string = mod|1.name
 ",
                 '|');
 
-            var moduleFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/mod.bicep"), modFile);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var moduleFile = new LanguageClientFile("file:///path/to/mod.bicep", modFile);
+            var bicepFile = new LanguageClientFile("file:///path/to/main.bicep", file);
 
-            var files = new Dictionary<Uri, string>
+            var files = new Dictionary<DocumentUri, string>
             {
                 [bicepFile.Uri] = file,
                 [moduleFile.Uri] = modFile
@@ -478,10 +477,10 @@ output o1 string = mod|1.name
             template!.Should().NotBeNull();
             diags.Should().BeEmpty();
 
-            var moduleTemplateFile = SourceFileFactory.CreateArmTemplateFile(new Uri($"file:///path/to/mod.{extension}"), template!.ToString());
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var moduleTemplateFile = new LanguageClientFile($"file:///path/to/mod.{extension}", template!.ToString());
+            var bicepFile = new LanguageClientFile("file:///path/to/main.bicep", file);
 
-            var files = new Dictionary<Uri, string>
+            var files = new Dictionary<DocumentUri, string>
             {
                 [bicepFile.Uri] = file,
                 [moduleTemplateFile.Uri] = template!.ToString()
@@ -611,10 +610,10 @@ output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
             template!.Should().NotBeNull();
             diags.Should().BeEmpty();
 
-            var moduleTemplateFile = SourceFileFactory.CreateArmTemplateFile(new Uri("file:///path/to/mod.json"), template!.ToString());
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var moduleTemplateFile = new LanguageClientFile("file:///path/to/mod.json", template!.ToString());
+            var bicepFile = new LanguageClientFile("file:///path/to/main.bicep", file);
 
-            var files = new Dictionary<Uri, string>
+            var files = new Dictionary<DocumentUri, string>
             {
                 [bicepFile.Uri] = file,
                 [moduleTemplateFile.Uri] = template!.ToString()
@@ -683,7 +682,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 }
 ",
                 '|');
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+            var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}-path/to/main.bicep", file);
 
             var helper = await ServerWithBuiltInTypes.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
@@ -821,7 +820,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
                 repository,
                 digest,
                 tag);
-            var bicepFile = SourceFileFactory.CreateBicepFile(parentModuleUri, bicepFileContents);
+            var bicepFile = new LanguageClientFile(documentUri, bicepFileContents);
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Single()!.Contents.MarkupContent!.Value.Should().Be(expectedHoverContent);
@@ -864,10 +863,10 @@ param foo|bar = true
 
             var (bicepparamText, cursors) = ParserHelper.GetFileWithCursors(bicepparamTextWithCursor, '|');
 
-            var paramsFile = SourceFileFactory.CreateBicepParamFile(new Uri("file:///path/to/params.bicepparam"), bicepparamText);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), bicepText);
+            var paramsFile = new LanguageClientFile("file:///path/to/params.bicepparam", bicepparamText);
+            var bicepFile = new LanguageClientFile("file:///path/to/main.bicep", bicepText);
 
-            var files = new Dictionary<Uri, string>
+            var files = new Dictionary<DocumentUri, string>
             {
                 [paramsFile.Uri] = bicepparamText,
                 [bicepFile.Uri] = bicepText
@@ -904,10 +903,10 @@ param foo|bar = true
 
             var (mainText, cursors) = ParserHelper.GetFileWithCursors(mainTextWithCursor, '|');
 
-            var mainFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), mainText);
-            var moduleFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/mod.bicep"), moduleText);
+            var mainFile = new LanguageClientFile("file:///path/to/main.bicep", mainText);
+            var moduleFile = new LanguageClientFile("file:///path/to/mod.bicep", moduleText);
 
-            var files = new Dictionary<Uri, string>
+            var files = new Dictionary<DocumentUri, string>
             {
                 [mainFile.Uri] = mainText,
                 [moduleFile.Uri] = moduleText
@@ -1052,7 +1051,7 @@ There might also be a link to something [link](www.google.com)
                 output b ing = foo.another|Property
                 """);
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), text);
+            var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}-path/to/main.bicep", text);
 
             var helper = await ServerWithBuiltInTypes.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, text, bicepFile.Uri);
@@ -1094,10 +1093,10 @@ param foo = {
 }
 """);
 
-            var jsonUri = new Uri("file:///path/to/main.json");
-            var paramsUri = new Uri("file:///path/to/params.bicepparam");
+            var jsonUri = "file:///path/to/main.json";
+            var paramsUri = "file:///path/to/params.bicepparam";
 
-            var files = new Dictionary<Uri, string>
+            var files = new Dictionary<DocumentUri, string>
             {
                 [jsonUri] = jsonContents.Template.ToJson(),
                 [paramsUri] = bicepparamText,
@@ -1106,7 +1105,7 @@ param foo = {
             using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, paramsUri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
             var client = helper.Client;
 
-            var hover = await RequestHover(client, SourceFileFactory.CreateBicepFile(paramsUri, bicepparamText), cursor);
+            var hover = await RequestHover(client, new LanguageClientFile(paramsUri, bicepparamText), cursor);
             hover!.Contents!.MarkupContent!.Value
                 .Should().BeEquivalentToIgnoringTrailingWhitespace("""
 ```bicep
@@ -1227,7 +1226,6 @@ AzureMetrics
             string? digest,
             string? tag)
         {
-            var file = SourceFileFactory.CreateBicepFile(parentModuleUri, bicepFileContents);
             var moduleDeclarationSyntax = programSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
 
             OciRegistryHelper.SaveManifestFileToModuleRegistryCache(
@@ -1370,32 +1368,22 @@ AzureMetrics
             return DataSets.NonStressDataSets.ToDynamicTestData();
         }
 
-        private static async Task<Hover?> RequestHover(ILanguageClient client, BicepFile bicepFile, int cursor)
+        private static async Task<Hover?> RequestHover(ILanguageClient client, LanguageClientFile bicepFile, int cursor)
         {
             var hovers = await RequestHovers(client, bicepFile, [cursor]);
 
             return hovers.Single();
         }
 
-        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
-        {
-            return await RequestHovers(client, bicepFile.Uri, bicepFile.LineStarts, cursors);
-        }
-
-        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, BicepParamFile paramFile, IEnumerable<int> cursors)
-        {
-            return await RequestHovers(client, paramFile.Uri, paramFile.LineStarts, cursors);
-        }
-
-        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, Uri fileUri, IReadOnlyList<int> lineStarts, IEnumerable<int> cursors)
+        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, LanguageClientFile bicepFile, IEnumerable<int> cursors)
         {
             var hovers = new List<Hover?>();
             foreach (var cursor in cursors)
             {
                 var hover = await client.RequestHover(new HoverParams
                 {
-                    TextDocument = new TextDocumentIdentifier(fileUri),
-                    Position = TextCoordinateConverter.GetPosition(lineStarts, cursor),
+                    TextDocument = bicepFile.Uri,
+                    Position = bicepFile.GetPosition(cursor),
                 });
 
                 hovers.Add(hover);
@@ -1408,7 +1396,7 @@ AzureMetrics
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, cursor);
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+            var bicepFile = new LanguageClientFile($"file:///{TestContext.TestName}-path/to/main.bicep", file);
 
             var helper = await ServerWithBuiltInTypes.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, file, bicepFile.Uri);
