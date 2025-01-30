@@ -1874,7 +1874,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic NegativeRetryCount() => CoreError(
                    "BCP412",
-                   $"Invalid retry count. It must be a non-negative integer.");
+                   $"Retry count must be a non-negative integer.");
 
             public Diagnostic InvalidRetryCount(long value, long limit) => CoreError(
                 "BCP413",

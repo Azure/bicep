@@ -162,7 +162,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 template.Should().NotHaveValue();
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP412", DiagnosticLevel.Error, "Invalid retry count. It must be a non-negative integer."),
+                    ("BCP412", DiagnosticLevel.Error, "Retry count must be a non-negative integer."),
                     ("BCP413", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"-5\".")
                 });
             }
