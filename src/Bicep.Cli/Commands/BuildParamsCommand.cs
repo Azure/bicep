@@ -66,7 +66,7 @@ namespace Bicep.Cli.Commands
             if (bicepFileUri is not null &&
                 compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
             {
-                if (usingModel is not EmptySemanticModel)
+                if (usingModel is not null)
                 {
                     if (usingModel is not SemanticModel bicepSemanticModel)
                     {

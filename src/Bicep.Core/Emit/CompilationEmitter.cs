@@ -78,7 +78,7 @@ public class CompilationEmitter : ICompilationEmitter
                 {
                     return new ParametersResult(true, diagnostics, parametersData, templateSpecModel.SourceFile.TemplateSpecId, null);
                 }
-            case EmptySemanticModel _:
+            case null: 
                 {
                     return new ParametersResult(true, diagnostics, parametersData, null, null);
                 }
