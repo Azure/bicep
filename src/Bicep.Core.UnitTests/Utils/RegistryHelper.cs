@@ -44,14 +44,15 @@ public static class RegistryHelper
         string Tag,
         string? Description = null,
         string? DocumentationUri = null,
-        bool IsBicepModule = true
+        bool IsBicepModule = true //asdfg needed?
     );
 
     public record class ModuleToPublish(
         string PublishTarget, // e.g. "br:registry.contoso.io/test/module1:v1"
         string BicepSource,
         bool WithSource = false, // whether to publish the source with the module
-        string? DocumentationUri = null)
+        string? DocumentationUri = null,
+        bool IsBicepModule = true) //asdfg remove
     {
         public static string ToTarget(string registry, string repo, string tag) => $"br:{registry}/{repo}:{tag}";
 
@@ -122,7 +123,7 @@ public static class RegistryHelper
         return containerRegistryFactoryBuilder.Build();
     }
 
-    public static async Task PublishModuleToRegistryAsync(
+    public static async Task PublishModuleToRegistryAsync( //asdfg separate this into pieces
         IContainerRegistryClientFactory clientFactory,
         IFileSystem fileSystem,
         ModuleToPublish module)
@@ -182,6 +183,38 @@ public static class RegistryHelper
         }
 
         return clientFactory;
+    }
+
+    public static async Task PublishNonBicepRepoToRegistryAsync(//asdfg2
+        IContainerRegistryClientFactory clientFactory,
+        IFileSystem fileSystem,
+        ModuleToPublish module) //asdfg2
+    {
+        var fileExplorer = new FileSystemFileExplorer(fileSystem);
+        var configurationManager = new ConfigurationManager(fileExplorer);
+        var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
+
+        var services = new ServiceBuilder()
+            .WithDisabledAnalyzersConfiguration()
+            .WithContainerRegistryClientFactory(clientFactory)
+            .WithFileSystem(fileSystem)
+            .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
+            .WithFeatureProviderFactory(featureProviderFactory);
+
+        var dispatcher = services.Build().Construct<IModuleDispatcher>();
+
+        var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Module, module.PublishTarget, RandomFileUri()).IsSuccess(out var @ref) ? @ref
+            : throw new InvalidOperationException($"Module '{module.ModuleName}' has an invalid target reference '{module.PublishTarget}'. Specify a reference to an OCI artifact.");
+
+        var result = await CompilationHelper.RestoreAndCompile(services, module.BicepSource);
+        if (result.Template is null)
+        {
+            throw new InvalidOperationException($"Module {module.ModuleName} failed to produce a template.");
+        }
+
+        var features = featureProviderFactory.GetFeatureProvider(result.BicepFile.Uri);
+        BinaryData? sourcesStream = module.WithSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(dispatcher, result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
+        await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri);
     }
 
     public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientWithPublishedModulesAsync(

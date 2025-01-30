@@ -14,7 +14,7 @@ namespace Bicep.Core.UnitTests.Registry
     /// <summary>
     /// Mock OCI registry blob client. This client is intended to represent a single repository within a specific registry Uri.
     /// </summary>
-    public class MockRegistryBlobClient : ContainerRegistryContentClient //adsfg rename to match base class
+    public class MockRegistryBlobClient : ContainerRegistryContentClient //adsfg rename to match base class  //adsfg rename to fake
     {
         public MockRegistryBlobClient() : base()
         {
@@ -72,7 +72,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             if (!this.Manifests.TryGetValue(digest, out var data))
             {
-                throw new RequestFailedException(404, "Mock manifest does not exist.");
+                throw new RequestFailedException(404, "Mock manifest does not exist."); //asdfg this is throwing
             }
 
             return CreateResult(ContainerRegistryModelFactory.GetManifestResult(
@@ -103,7 +103,7 @@ namespace Bicep.Core.UnitTests.Registry
             return SetManifest(manifest, tag, mediaType, cancellationToken);
         }
 
-        public override Response<SetManifestResult> SetManifest(BinaryData manifest, string? tag = default, ManifestMediaType? mediaType = default, CancellationToken cancellationToken = default)
+        public override Response<SetManifestResult> SetManifest/*asdfg2*/(BinaryData manifest, string? tag = default, ManifestMediaType? mediaType = default, CancellationToken cancellationToken = default)
         {
             var (copy, digest) = ReadStream(manifest.ToStream());
             Manifests.TryAdd(digest, copy);

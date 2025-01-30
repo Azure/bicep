@@ -248,7 +248,7 @@ namespace Bicep.Core.Registry
                     ?? artifactReference.Digest
                     ?? throw new ArgumentNullException(nameof(artifactReference), $"The specified artifact reference has both {nameof(artifactReference.Tag)} and {nameof(artifactReference.Digest)} set to null.");
 
-                manifestResponse = await client.GetManifestAsync(tagOrDigest);
+                manifestResponse = await client.GetManifestAsync(tagOrDigest); //asdfg2
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
@@ -278,7 +278,7 @@ namespace Bicep.Core.Registry
                 new OciArtifactLayer(deserializedManifest.Config.Digest, deserializedManifest.Config.MediaType, await PullLayerAsync(client, deserializedManifest.Config)) :
                 null;
 
-            return deserializedManifest.ArtifactType switch
+            return deserializedManifest.ArtifactType switch //asdfg type not compared against expected
             {
                 BicepMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
                 BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers, config),
