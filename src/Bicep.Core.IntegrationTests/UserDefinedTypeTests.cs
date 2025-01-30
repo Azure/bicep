@@ -1862,4 +1862,46 @@ param myParam string
             ("BCP411", DiagnosticLevel.Error, """The type "any" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object). If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
         });
     }
+
+    [TestMethod]
+    public void FromEnd_indexing_of_tuple_resolves_correct_type()
+    {
+        var result = CompilationHelper.Compile("""
+            param foo [int, string]
+            output foo int = foo[^2]
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        result = CompilationHelper.Compile("""
+            param foo [int, string]
+            output foo int = foo[^1]
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int\" but the provided value is of type \"string\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Safe_FromEnd_indexing_of_tuple_resolves_correct_type()
+    {
+        var result = CompilationHelper.Compile("""
+            param foo [int, string]?
+            output foo int? = foo[?^2]
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        result = CompilationHelper.Compile("""
+            param foo [int, string]?
+            output foo int? = foo[?^1]
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int | null\" but the provided value is of type \"null | string\"."),
+        });
+    }
 }
