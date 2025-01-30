@@ -101,7 +101,11 @@ namespace Bicep.Core.Emit
 
                     jsonWriter.WriteStartObject();
 
-                    emitter.EmitProperty("value", value);
+                    // emit value property only if the text is not null
+                    if (value.ToString() != "\r\n")
+                    {
+                        emitter.EmitProperty("value", value);
+                    }
 
                     jsonWriter.WriteEndObject();
                 }
