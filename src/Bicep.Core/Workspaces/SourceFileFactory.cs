@@ -89,16 +89,20 @@ namespace Bicep.Core.Workspaces
         {
             var parser = new ParamsParser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
+            var configuration = this.configurationManager.GetConfiguration(fileUri);
+            var featureProvider = this.featureProviderFactory.GetFeatureProvider(fileUri);
 
-            return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);
+            return new(fileUri, lineStarts, parser.Program(), configuration, featureProvider, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
         public BicepFile CreateBicepFile(Uri fileUri, string fileContents)
         {
             var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
+            var configuration = this.configurationManager.GetConfiguration(fileUri);
+            var featureProvider = this.featureProviderFactory.GetFeatureProvider(fileUri);
 
-            return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);
+            return new(fileUri, lineStarts, parser.Program(), configuration, featureProvider, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
         public ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents)
