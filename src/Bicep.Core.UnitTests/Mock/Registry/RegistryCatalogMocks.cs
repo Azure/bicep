@@ -77,7 +77,7 @@ namespace Bicep.Core.UnitTests.Mock.Registry
                                 await DelayedValue(new RegistryMetadataDetails( m.description, m.documentationUri)),
                                 [.. modules.Single(m2 => m2.moduleName.EqualsOrdinally(m.moduleName))
                                     .versions
-                                        .Select(v => new RegistryModuleVersionMetadata(v.Tag, v.IsBicepModule, new(v.Description, v.DocumentationUri))
+                                        .Select(v => new RegistryModuleVersionMetadata(v.Tag, true, new(v.Description, v.DocumentationUri))
                                 )]
                             )
                     ))

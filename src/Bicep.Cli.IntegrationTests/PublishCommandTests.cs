@@ -455,7 +455,7 @@ namespace Bicep.Cli.IntegrationTests
             var blobClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
 
             await RegistryHelper.PublishModuleToRegistryAsync(
-                new ServiceBuilder(), //asdfg?
+                new ServiceBuilder(),
                 clientFactory,
                 BicepTestConstants.FileSystem,
                 new($"br:example.com/test/{moduleName}:v1", bicepModuleContents, WithSource: false, documentationUri));

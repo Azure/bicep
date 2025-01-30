@@ -614,7 +614,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataTestMethod]
         [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
         [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
-        public async Task GetFilteredCompletions_IfAliasesInBicepConfig_AndRegistriesNotAvailable_GetPartialCompletionsBasedOnConfigOnly( //asdfg
+        public async Task GetFilteredCompletions_IfAliasesInBicepConfig_AndRegistriesNotAvailable_GetPartialCompletionsBasedOnConfigOnly(
             string inputWithCursors,
             string expectedLabel,
             string expectedCompletionText,
@@ -638,19 +638,6 @@ namespace Bicep.LangServer.UnitTests.Completions
             }";
 
             var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(null);
-
-            //asdfg test if also have access to the registry metadata - duplicate completions?  Or is that expected?
-            //var catalog = RegistryIndexerMocks.CreateRegistryIndexer(
-            //    null,
-            //    RegistryIndexerMocks.MockPrivateMetadataProvider(
-            //        "testacr1.azurecr.io", [
-            //            ("bicep/modules/module", null, null, [])
-            //        ]),
-            //    RegistryIndexerMocks.MockPrivateMetadataProvider(
-            //        "testacr2.azurecr.io", [
-            //            ("bicep/modules/module", null, null, []),
-            //        ])
-            //);
 
             var (completionContext, configMgr, documentUri) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -880,7 +867,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("module foo 'br/test1:|", ModuleRegistryType.ACR)]
         [DataRow("module foo 'br/test2:|", ModuleRegistryType.ACR)]
         [DataRow("module foo 'br/test3:|", ModuleRegistryType.MCR)]
-        //asdfg [DataRow("module foo 'br/test4:|", ModuleRegistryType.MCR)]
+        //asdfg fails [DataRow("module foo 'br/test4:|", ModuleRegistryType.MCR)]
         public async Task VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion(string inputWithCursors, string moduleRegistryType)
         {
             var bicepConfigFileContents = @"{

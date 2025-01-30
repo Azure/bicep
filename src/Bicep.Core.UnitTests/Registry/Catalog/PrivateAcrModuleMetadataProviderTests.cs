@@ -29,7 +29,7 @@ using RichardSzalay.MockHttp;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
-namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
+namespace Bicep.Core.UnitTests.Registry.Catalog
 {
     [TestClass]
     public class PrivateAcrModuleMetadataProviderTests
@@ -275,7 +275,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
             module.Should().NotBeNull();
             module!.GetCachedVersions().Should().BeEmpty();
 
-            var details = await module!.TryGetDetailsAsync(); //asdfg2 - this is calling PrivateAcrModuleMetadataProvider.TryGetLiveModuleVersionMetadataAsync
+            var details = await module!.TryGetDetailsAsync();
             details.Description.Should().Be("Not a valid Bicep module. Found artifact type application/vnd.ms.bicep.provider.artifact");
             details.DocumentationUri.Should().BeNull();
         }
@@ -291,7 +291,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
             var repositoryNames = new[] { "repo1" };
 
             var clientFactory = RegistryHelper.CreateMockRegistryClient([..
-                repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1", "v2", "v3"]))]); //asdfg3 make this easier
+                repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1", "v2", "v3"]))]);
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
@@ -321,7 +321,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
                 ("v1", false, new RegistryMetadataDetails("Not a valid Bicep module. Found artifact type application/vnd.ms.bicep.provider.artifact", null)),
                 ("v2", true, new RegistryMetadataDetails("this is module 1 version 2", "https://docs/m1v2")),
                 ("v3", false, new RegistryMetadataDetails("Not a valid Bicep module. Found artifact type application/vnd.ms.bicep.provider.artifact", null)),
-                ]);
+            ]);
 
             // Module details (should pull from v2 since that's the only valid Bicep module)
             var details = await module!.TryGetDetailsAsync();

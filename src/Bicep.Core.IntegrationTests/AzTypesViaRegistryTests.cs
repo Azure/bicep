@@ -80,7 +80,7 @@ namespace Bicep.Core.IntegrationTests
                 .WithContainerRegistryClientFactory(clientFactory);
 
             await RegistryHelper.PublishModuleToRegistryAsync(
-                new ServiceBuilder(), //asdfg?
+                new ServiceBuilder(),
                 clientFactory,
                 fsMock,
                 new(testArtifact.ToSpecificationString(':'), BicepSource: "", WithSource: false, DocumentationUri: "mydocs.org/abc"));

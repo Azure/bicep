@@ -248,7 +248,7 @@ namespace Bicep.Core.Registry
                     ?? artifactReference.Digest
                     ?? throw new ArgumentNullException(nameof(artifactReference), $"The specified artifact reference has both {nameof(artifactReference.Tag)} and {nameof(artifactReference.Digest)} set to null.");
 
-                manifestResponse = await client.GetManifestAsync(tagOrDigest); //asdfg2
+                manifestResponse = await client.GetManifestAsync(tagOrDigest);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {

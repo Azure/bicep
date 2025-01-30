@@ -4207,7 +4207,7 @@ var file = " + functionName + @"(templ|)
                 null,
                 privateModuleMetadataProvider);
 
-            var configurationManager = StrictMock.Of<IConfigurationManager>(); //asdfg extract
+            var configurationManager = StrictMock.Of<IConfigurationManager>();
             var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
                     moduleAliases: RegistryCatalogMocks.ModuleAliases(
                         """
@@ -4309,7 +4309,7 @@ var file = " + functionName + @"(templ|)
         [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
         public async Task Private_registry_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
         {
-            var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";//asdfg2
+            var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
             var baseFolder = $"{Guid.NewGuid():D}";
             var fileUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/main.{extension}");
