@@ -39,6 +39,7 @@ namespace Bicep.LanguageServer
         private readonly IModuleRestoreScheduler scheduler;
         private readonly ITelemetryProvider TelemetryProvider;
         private readonly ILinterRulesProvider LinterRulesProvider;
+        private readonly ISourceFileFactory sourceFileFactory;
 
         // represents compilations of open bicep or param files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContextBase> activeContexts = new();
@@ -50,7 +51,8 @@ namespace Bicep.LanguageServer
             IModuleRestoreScheduler scheduler,
             ITelemetryProvider telemetryProvider,
             ILinterRulesProvider LinterRulesProvider,
-            IFileResolver fileResolver)
+            IFileResolver fileResolver,
+            ISourceFileFactory sourceFileFactory)
         {
             this.fileCache = new(fileResolver);
             this.server = server;
@@ -59,6 +61,7 @@ namespace Bicep.LanguageServer
             this.scheduler = scheduler;
             this.TelemetryProvider = telemetryProvider;
             this.LinterRulesProvider = LinterRulesProvider;
+            this.sourceFileFactory = sourceFileFactory;
         }
 
         public void RefreshCompilation(DocumentUri documentUri, bool forceReloadAuxiliaryFiles)
@@ -111,7 +114,7 @@ namespace Bicep.LanguageServer
         {
             if (this.ShouldUpsertCompilation(documentUri, languageId, out var sourceFileType))
             {
-                var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUriEncoded(), fileContents, sourceFileType);
+                var newFile = this.sourceFileFactory.CreateSourceFile(documentUri.ToUriEncoded(), fileContents, sourceFileType);
                 UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: true);
             }
         }
@@ -120,7 +123,7 @@ namespace Bicep.LanguageServer
         {
             if (this.ShouldUpsertCompilation(documentUri, languageId: null, out var sourceFileType))
             {
-                var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUriEncoded(), fileContents, sourceFileType);
+                var newFile = this.sourceFileFactory.CreateSourceFile(documentUri.ToUriEncoded(), fileContents, sourceFileType);
                 UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: false);
             }
         }

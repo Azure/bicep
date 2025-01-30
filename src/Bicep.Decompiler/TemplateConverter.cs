@@ -25,6 +25,7 @@ namespace Bicep.Decompiler
         private const string ResourceCopyLoopIndexVar = "i";
         private const string PropertyCopyLoopIndexVar = "j";
 
+        private ISourceFileFactory sourceFileFactory;
         private INamingResolver nameResolver;
         private readonly Workspace workspace;
         private readonly Uri bicepFileUri;
@@ -32,8 +33,9 @@ namespace Bicep.Decompiler
         private readonly Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule;
         private readonly DecompileOptions options;
 
-        private TemplateConverter(Workspace workspace, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule, DecompileOptions options)
+        private TemplateConverter(ISourceFileFactory sourceFileFactory, Workspace workspace, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule, DecompileOptions options)
         {
+            this.sourceFileFactory = sourceFileFactory;
             this.workspace = workspace;
             this.bicepFileUri = bicepFileUri;
             this.template = template;
@@ -43,6 +45,7 @@ namespace Bicep.Decompiler
         }
 
         public static (ProgramSyntax programSyntax, IReadOnlyDictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule) DecompileTemplate(
+            ISourceFileFactory sourceFileFactory,
             Workspace workspace,
             Uri bicepFileUri,
             string content,
@@ -51,6 +54,7 @@ namespace Bicep.Decompiler
             JObject templateObject = JTokenHelpers.LoadJson(content, JObject.Load, options.IgnoreTrailingInput);
 
             var instance = new TemplateConverter(
+                sourceFileFactory,
                 workspace,
                 bicepFileUri,
                 templateObject,
@@ -61,6 +65,7 @@ namespace Bicep.Decompiler
         }
 
         public static SyntaxBase? DecompileJsonValue(
+            ISourceFileFactory sourceFileFactory,
             Workspace workspace,
             Uri bicepFileUri,
             string jsonInput,
@@ -69,6 +74,7 @@ namespace Bicep.Decompiler
             JToken jToken = JTokenHelpers.LoadJson(jsonInput, JToken.Load, options.IgnoreTrailingInput);
 
             var instance = new TemplateConverter(
+                sourceFileFactory,
                 workspace,
                 bicepFileUri,
                 new JObject(),
@@ -1344,8 +1350,8 @@ namespace Bicep.Decompiler
                 }
 
                 var nestedOptions = this.options with { AllowMissingParamsAndVars = this.options.AllowMissingParamsAndVarsInNestedTemplates };
-                var nestedConverter = new TemplateConverter(workspace, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule, nestedOptions);
-                var nestedBicepFile = SourceFileFactory.CreateBicepFile(nestedModuleUri, nestedConverter.Parse().ToString());
+                var nestedConverter = new TemplateConverter(this.sourceFileFactory, workspace, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule, nestedOptions);
+                var nestedBicepFile = this.sourceFileFactory.CreateBicepFile(nestedModuleUri, nestedConverter.Parse().ToString());
                 workspace.UpsertSourceFile(nestedBicepFile);
 
                 return new ModuleDeclarationSyntax(

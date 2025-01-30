@@ -662,7 +662,7 @@ namespace Bicep.Core.UnitTests.Registry
             if (publishSource)
             {
                 var uri = new Uri("file://path/to/bicep.bicep", UriKind.Absolute);
-                sources = new SourceArchiveBuilder()
+                sources = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory)
                     .WithBicepFile(uri, "// contents")
                     .BuildBinaryData();
             }

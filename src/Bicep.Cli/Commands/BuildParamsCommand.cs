@@ -26,6 +26,7 @@ namespace Bicep.Cli.Commands
         private readonly BicepCompiler compiler;
         private readonly OutputWriter writer;
         private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly ISourceFileFactory sourceFileFactory;
 
         public BuildParamsCommand(
             ILogger logger,
@@ -33,7 +34,8 @@ namespace Bicep.Cli.Commands
             DiagnosticLogger diagnosticLogger,
             BicepCompiler compiler,
             OutputWriter writer,
-            IFeatureProviderFactory featureProviderFactory)
+            IFeatureProviderFactory featureProviderFactory,
+            ISourceFileFactory sourceFileFactory)
         {
             this.logger = logger;
             this.environment = environment;
@@ -41,6 +43,7 @@ namespace Bicep.Cli.Commands
             this.compiler = compiler;
             this.writer = writer;
             this.featureProviderFactory = featureProviderFactory;
+            this.sourceFileFactory = sourceFileFactory;
         }
 
         public async Task<int> RunAsync(BuildParamsArguments args)
@@ -108,7 +111,7 @@ namespace Bicep.Cli.Commands
         private async Task<Workspace> CreateWorkspaceWithParamOverrides(Uri paramsFileUri)
         {
             var fileContents = await File.ReadAllTextAsync(paramsFileUri.LocalPath);
-            var sourceFile = SourceFileFactory.CreateBicepParamFile(paramsFileUri, fileContents);
+            var sourceFile = this.sourceFileFactory.CreateBicepParamFile(paramsFileUri, fileContents);
             var paramsOverridesJson = environment.GetVariable("BICEP_PARAMETERS_OVERRIDES") ?? "";
 
             var parameters = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(
@@ -118,7 +121,7 @@ namespace Bicep.Cli.Commands
                     DateParseHandling = DateParseHandling.None,
                 });
 
-            sourceFile = ParamsFileHelper.ApplyParameterOverrides(sourceFile, parameters ?? new());
+            sourceFile = ParamsFileHelper.ApplyParameterOverrides(this.sourceFileFactory, sourceFile, parameters ?? []);
 
             var workspace = new Workspace();
             workspace.UpsertSourceFile(sourceFile);

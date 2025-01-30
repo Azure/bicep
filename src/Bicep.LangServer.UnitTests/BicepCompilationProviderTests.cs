@@ -33,7 +33,7 @@ namespace Bicep.LangServer.UnitTests
             var fileUri = DocumentUri.From($"{DataSets.Parameters_LF.Name}.bicep");
             var provider = Create();
 
-            var sourceFile = SourceFileFactory.CreateBicepFile(fileUri.ToUriEncoded(), DataSets.Parameters_LF.Bicep);
+            var sourceFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(fileUri.ToUriEncoded(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
             workspace.UpsertSourceFile(sourceFile);
 

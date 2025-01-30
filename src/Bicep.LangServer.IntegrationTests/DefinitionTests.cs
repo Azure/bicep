@@ -779,7 +779,7 @@ param |foo| string
         private static async Task RunDefinitionScenarioTest(TestContext testContext, string fileWithCursors, char cursor, Action<List<LocationOrLocationLinks>> assertAction)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, cursor);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new($"file:///{testContext.TestName}/path/to/main.bicep"), file);
+            var bicepFile = new LanguageClientFile($"{testContext.TestName}/path/to/main.bicep", file);
 
             var helper = await DefaultServer.GetAsync();
             await helper.OpenFileOnceAsync(testContext, file, bicepFile.Uri);
@@ -797,7 +797,7 @@ param |foo| string
             IEnumerable<(string fileName, string fileBody)> additionalFiles)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, cursor);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new($"file:///{testContext.TestName}/path/to/main.bicep"), file);
+            var bicepFile = new LanguageClientFile($"{testContext.TestName}/path/to/main.bicep", file);
 
             var server = new SharedLanguageHelperManager();
             var fileResolver = new InMemoryFileResolver(additionalFiles.ToDictionary(x => new Uri($"file:///{testContext.TestName}/path/to/{x.fileName}"), x => x.fileBody));
@@ -814,15 +814,15 @@ param |foo| string
             await server.DisposeAsync();
         }
 
-        private static async Task<List<LocationOrLocationLinks>> RequestDefinitions(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
+        private static async Task<List<LocationOrLocationLinks>> RequestDefinitions(ILanguageClient client, LanguageClientFile bicepFile, IEnumerable<int> cursors)
         {
             var results = new List<LocationOrLocationLinks>();
             foreach (var cursor in cursors)
             {
                 var result = await client.RequestDefinition(new DefinitionParams()
                 {
-                    TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
-                    Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
+                    TextDocument = bicepFile.Uri,
+                    Position = bicepFile.GetPosition(cursor),
                 });
 
                 results.Add(result!);

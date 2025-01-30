@@ -15,6 +15,7 @@ using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
@@ -75,6 +76,7 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
+        .AddSingleton<ISourceFileFactory, SourceFileFactory>()
         .AddPublicRegistryModuleMetadataProviderServices()
         .AddSingleton<BicepCompiler>();
 

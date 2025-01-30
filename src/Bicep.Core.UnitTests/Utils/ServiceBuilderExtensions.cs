@@ -88,7 +88,7 @@ public static class ServiceBuilderExtensions
     public static Compilation BuildCompilation(this ServiceBuilder services, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri)
     {
         var compiler = services.Build().GetCompiler();
-        var workspace = CompilationHelper.CreateWorkspace(fileContentsByUri);
+        var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri);
 
         return compiler.CreateCompilationWithoutRestore(entryFileUri, workspace);
     }

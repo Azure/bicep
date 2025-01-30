@@ -51,6 +51,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
+        .AddSingleton<ISourceFileFactory, SourceFileFactory>()
         .AddPublicRegistryModuleMetadataProviderServices()
         .AddSingleton<BicepCompiler>();
 

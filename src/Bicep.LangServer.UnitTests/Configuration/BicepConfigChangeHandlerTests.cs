@@ -233,7 +233,16 @@ namespace Bicep.LangServer.UnitTests.Configuration
 
             var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
             var configurationManager = new ConfigurationManager(fileExplorer);
-            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager), workspace, BicepCompilationManagerHelper.CreateMockScheduler().Object, BicepTestConstants.CreateMockTelemetryProvider().Object, new LinterRulesProvider(), BicepTestConstants.FileResolver);
+            var sourceFileFactory = new SourceFileFactory(configurationManager, BicepTestConstants.FeatureProviderFactory);
+            var bicepCompilationManager = new BicepCompilationManager(
+                server,
+                BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager),
+                workspace,
+                BicepCompilationManagerHelper.CreateMockScheduler().Object,
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                new LinterRulesProvider(),
+                BicepTestConstants.FileResolver,
+                sourceFileFactory);
             bicepCompilationManager.OpenCompilation(DocumentUri.From(bicepFilePath), null, bicepFileContents, LanguageConstants.LanguageId);
 
             var bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepFilePath);

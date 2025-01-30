@@ -29,6 +29,7 @@ namespace Bicep.LanguageServer.Providers
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly ISourceFileFactory sourceFileFactory;
 
         public BicepCompilationProvider(
             IFeatureProviderFactory featureProviderFactory,
@@ -37,7 +38,8 @@ namespace Bicep.LanguageServer.Providers
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager,
-            IBicepAnalyzer bicepAnalyzer)
+            IBicepAnalyzer bicepAnalyzer,
+            ISourceFileFactory sourceFileFactory)
         {
             this.environment = environment;
             this.featureProviderFactory = featureProviderFactory;
@@ -46,6 +48,7 @@ namespace Bicep.LanguageServer.Providers
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
             this.bicepAnalyzer = bicepAnalyzer;
+            this.sourceFileFactory = sourceFileFactory;
         }
 
         public CompilationContext Create(
@@ -59,8 +62,8 @@ namespace Bicep.LanguageServer.Providers
                 moduleDispatcher,
                 configurationManager,
                 workspace,
-                documentUri.ToUriEncoded(),
-                featureProviderFactory);
+                sourceFileFactory,
+                documentUri.ToUriEncoded());
             return this.CreateContext(fileCache, sourceFileGrouping, modelLookup);
         }
 
@@ -72,10 +75,10 @@ namespace Bicep.LanguageServer.Providers
         {
             var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(
                 fileResolver,
-                featureProviderFactory,
                 moduleDispatcher,
                 configurationManager,
                 workspace,
+                sourceFileFactory,
                 current.Compilation.SourceFileGrouping);
             return this.CreateContext(fileCache, sourceFileGrouping, modelLookup);
         }
@@ -93,6 +96,7 @@ namespace Bicep.LanguageServer.Providers
                 configurationManager,
                 bicepAnalyzer,
                 moduleDispatcher,
+                sourceFileFactory,
                 fileCache,
                 modelLookup);
 

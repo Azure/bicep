@@ -153,9 +153,9 @@ public class SourceArchiveTests
         return new SourceFileWithArtifactReference(
             sourceKind switch
             {
-                SourceArchive.SourceKind.ArmTemplate => SourceFileFactory.CreateArmTemplateFile(uri, actualContents),
-                SourceArchive.SourceKind.Bicep => SourceFileFactory.CreateBicepFile(uri, actualContents),
-                SourceArchive.SourceKind.TemplateSpec => SourceFileFactory.CreateTemplateSpecFile(uri, actualContents),
+                SourceArchive.SourceKind.ArmTemplate => BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(uri, actualContents),
+                SourceArchive.SourceKind.Bicep => BicepTestConstants.SourceFileFactory.CreateBicepFile(uri, actualContents),
+                SourceArchive.SourceKind.TemplateSpec => BicepTestConstants.SourceFileFactory.CreateTemplateSpecFile(uri, actualContents),
                 _ => throw new Exception($"Unrecognized source kind: {sourceKind}")
             },
             artifactReference);

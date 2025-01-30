@@ -27,6 +27,7 @@ namespace Bicep.Core.Semantics
             IConfigurationManager configurationManager,
             IBicepAnalyzer linterAnalyzer,
             IArtifactReferenceFactory artifactReferenceFactory,
+            ISourceFileFactory sourceFileFactory,
             IReadableFileCache fileCache,
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
@@ -38,6 +39,7 @@ namespace Bicep.Core.Semantics
             this.ConfigurationManager = configurationManager;
             this.LinterAnalyzer = linterAnalyzer;
             this.ArtifactReferenceFactory = artifactReferenceFactory;
+            this.SourceFileFactory = sourceFileFactory;
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
@@ -69,6 +71,8 @@ namespace Bicep.Core.Semantics
         public IConfigurationManager ConfigurationManager { get; }
 
         public IFeatureProviderFactory FeatureProviderFactory { get; }
+
+        public ISourceFileFactory SourceFileFactory { get; }
 
         public ICompilationEmitter Emitter { get; }
 

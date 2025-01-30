@@ -328,7 +328,7 @@ public class ArmTemplateSemanticModelTests
         }
         ";
 
-        ArmTemplateSemanticModel model = new(SourceFileFactory.CreateArmTemplateFile(new("inmemory://template.json"), jsonTemplate));
+        ArmTemplateSemanticModel model = LoadModel(jsonTemplate);
         model.Parameters.TryGetValue("refParam", out var refParam).Should().BeTrue();
         refParam!.Description.Should().Be("Description on #/parameters/refParam");
         model.Parameters.TryGetValue("undescribedParam", out var undescribedParam).Should().BeTrue();
@@ -364,7 +364,7 @@ public class ArmTemplateSemanticModelTests
         }
         ";
 
-        ArmTemplateSemanticModel model = new(SourceFileFactory.CreateArmTemplateFile(new("inmemory://template.json"), jsonTemplate));
+        ArmTemplateSemanticModel model = LoadModel(jsonTemplate);
 
         model.Parameters.TryGetValue("stringLiteral", out var stringLiteral).Should().BeTrue();
         stringLiteral!.TypeReference.Type.Should().Be(TypeFactory.CreateStringLiteralType("foo"));
@@ -586,5 +586,5 @@ public class ArmTemplateSemanticModelTests
     }
 
     private static ArmTemplateSemanticModel LoadModel(string jsonTemplate)
-        => new(SourceFileFactory.CreateArmTemplateFile(new("inmemory://template.json"), jsonTemplate));
+        => new(BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(new("inmemory://template.json"), jsonTemplate));
 }
