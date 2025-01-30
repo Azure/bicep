@@ -47,6 +47,11 @@ namespace Bicep.Core.Workspaces
                 return CreateTemplateSpecFile(fileUri, fileContents);
             }
 
+            if (sourceFileType is not null)
+            {
+                throw new ArgumentException($"Unexpected source file type {sourceFileType.Name}");
+            }
+
             if (PathHelper.HasArmTemplateLikeExtension(fileUri))
             {
                 return CreateArmTemplateFile(fileUri, fileContents);
