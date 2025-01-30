@@ -59,11 +59,17 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
             AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
             var artifactResult = await acrManager.PullArtifactAsync(cloud, new OciArtifactReference(ArtifactType.Module, Registry, modulePath, version, null, new Uri("file://noparent")));
             var manifest = artifactResult.Manifest;
+
+            if (manifest.ArtifactType != BicepMediaTypes.BicepModuleArtifactType)
+            {
+                return RegistryModuleVersionMetadata.UnexpectedArtifactType(version, manifest.ArtifactType ?? "(null)");
+            }
+
             string? description = null;
             string? documentationUri = null;
             string? title = null;
 
-            manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDescriptionAnnotation, out description);
+            manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDescriptionAnnotation, out description);//asdfg2
             manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDocumentationAnnotation, out documentationUri);
             manifest.Annotations?.TryGetValue(OciAnnotationKeys.OciOpenContainerImageTitleAnnotation, out title);
 
@@ -75,12 +81,12 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         catch (InvalidArtifactException ex)
         {
             Trace.WriteLine($"Invalid Bicep module {modulePath}, version {version}: {ex.Message}");
-            return new RegistryModuleVersionMetadata(version, IsBicepModule: false, new RegistryMetadataDetails("Not a valid Bicep module", null)); //asdfg2
+            return RegistryModuleVersionMetadata.InvalidModule(version, ex); //asdfg testpoint
         }
         catch (Exception ex)
         {
             Trace.WriteLine($"Failed to get version details for module {modulePath} version {version}: {ex.Message}");
-            return new RegistryModuleVersionMetadata(version, IsBicepModule: null, new RegistryMetadataDetails(ex.Message/*asdfg2?*/, null));
+            return RegistryModuleVersionMetadata.DownloadError(version, ex); //asdfg testpoint
         }
     }
 
@@ -97,7 +103,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
             .Reverse() // Reverse to inspect the latest modules first
             .Select(m =>
             {
-                return new RegistryModuleMetadata(
+                return new RegistryModuleMetadata( //asdfg simplify
                     Registry,
                     m,
                     async () =>

@@ -4309,7 +4309,7 @@ var file = " + functionName + @"(templ|)
         [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
         public async Task Private_registry_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
         {
-            var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
+            var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";//asdfg2
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
             var baseFolder = $"{Guid.NewGuid():D}";
             var fileUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/main.{extension}");
@@ -4378,7 +4378,7 @@ var file = " + functionName + @"(templ|)
         [DataRow("module test 'br/ms:bicep/app/|'", "bicep/app/dapr-containerapp", "'br/ms:bicep/app/dapr-containerapp:$0'")]
         [DataRow("module test 'br/ms_empty:bicep/app/|'", "bicep/app/dapr-containerapp", "'br/ms_empty:bicep/app/dapr-containerapp:$0'")]
         [DataRow("module test 'br/ms_bicep:app/|'", "app/dapr-containerapp", "'br/ms_bicep:app/dapr-containerapp:$0'")]
-        public async Task Public_registry_via_alias_supports_completions_asdfg2(string text, string expectedLabel, string expectedInsertText)
+        public async Task Public_registry_via_alias_supports_completions(string text, string expectedLabel, string expectedInsertText)
         {
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
             var baseFolder = $"{Guid.NewGuid():D}";
