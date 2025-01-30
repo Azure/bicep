@@ -1810,7 +1810,49 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Object, LanguageConstants.Bool), "The predicate applied to the resource.")
                     .WithRequiredParameter("maxWaitTime", LanguageConstants.String, "Maximum time used to wait until the predicate is true. Please be cautious as max wait time adds to total deployment time. It cannot be a negative value. Use [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations).")
                     .WithFlags(FunctionFlags.ResourceDecorator)
+                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, _, diagnosticWriter) =>
+                    {
+                        /*var maxWaitTimeArgument = functionCall.Arguments.ElementAtOrDefault(1);
+                        if (maxWaitTimeArgument?.Expression is not StringLiteralSyntax)
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(maxWaitTimeArgument).CompileTimeConstantRequired());
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(maxWaitTimeArgument).CompileTimeConstantRequired()));
+                        }*/
+                    })
+                    .WithEvaluator((functionCall, decorated) =>
+                    {
+                        if (decorated is DeclaredResourceExpression declaredResourceExpression)
+                        {
+                            var waitUntilProperties = new List<ObjectPropertyExpression>
+                                    {
+                                        new
+                                        (
+                                            null,
+                                            new StringLiteralExpression(null, "expression"),
+                                            functionCall.Parameters[0]
+                                        ),
+                                        new
+                                        (
+                                            null,
+                                            new StringLiteralExpression(null, "maxWaitTime"),
+                                            functionCall.Parameters[1]
+                                        )
+
+                                    };
+
+                            var waitUntilObjectProperty = new ObjectPropertyExpression(
+                                null,
+                                new StringLiteralExpression(null, "waitUntil"),
+                                new ObjectExpression(null, [.. waitUntilProperties])
+                            );
+
+                            declaredResourceExpression = declaredResourceExpression with { WaitUntil = waitUntilObjectProperty };
+                        }
+
+                        return decorated;
+                    })
                     .Build();
+
 
                     yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
                     .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")

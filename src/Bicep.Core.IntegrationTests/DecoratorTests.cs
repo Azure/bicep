@@ -241,6 +241,27 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
+
+        [TestMethod]
+        public void WaitUntilDecorator_ValidScenario()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+            @waitUntil(x => x.ProvisionStatus == 'Succeeded', 'PT20S')
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+                name: 'sql-server-name'
+                location: 'polandcentral'
+            }");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
+                });
+            }
+        }
+
+
         [TestMethod]
         public void ParameterDecorator_AttachedToOtherKindsOfDeclarations_CannotBeUsedAsDecoratorSpecificToTheDeclarations()
         {
