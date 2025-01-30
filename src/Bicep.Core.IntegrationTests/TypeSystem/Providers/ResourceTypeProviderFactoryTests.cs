@@ -29,7 +29,7 @@ public class ResourceTypeProviderFactoryTests
         var repositoryPath = $"test/extension";
         var repositoryNames = new[] { "foo", "bar" };
 
-        var (clientFactory, _, _) = RegistryHelper.CreateMockRegistryClients([.. repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1"/*asdfg?*/]))]);
+        var clientFactory = RegistryHelper.CreateMockRegistryClients([.. repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1"]))]);
 
         var services = new ServiceBuilder()
             .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
