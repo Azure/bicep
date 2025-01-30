@@ -1527,7 +1527,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
-            static FunctionArgumentSyntax? GetArgumentByPosition(DecoratorSyntax decoratorSyntax, int position)
+            static FunctionArgumentSyntax? TryGetArgumentByPosition(DecoratorSyntax decoratorSyntax, int position)
             {
                 return decoratorSyntax.Arguments.ElementAtOrDefault(position);
             }
@@ -1814,17 +1814,17 @@ namespace Bicep.Core.Semantics.Namespaces
 
                     yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
                     .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
-                    .WithRequiredParameter("list of exceptions", LanguageConstants.Array, "List of exceptions.")
-                    .WithOptionalParameter("retry count", LanguageConstants.Int, "Maximum number if retries on the exception.")
+                    .WithRequiredParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.")
+                    .WithOptionalParameter("retryCount", LanguageConstants.Int, "Maximum number if retries on the exception.")
                     .WithFlags(FunctionFlags.ResourceDecorator)
                     // the decorator is constrained to resources
                     .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, _, diagnosticWriter) =>
                     {
                         //validate retry count
-                        var retryCountSyntax = GetArgumentByPosition(decoratorSyntax, 1);
+                        var retryCountSyntax = TryGetArgumentByPosition(decoratorSyntax, 1);
                         if (retryCountSyntax != null)
                         {
-                            if (retryCountSyntax.Expression is not IntegerLiteralSyntax)
+                            if (retryCountSyntax.Expression is UnaryOperationSyntax)
                             {
                                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(retryCountSyntax).NegativeRetryCount());
                             }
@@ -1836,7 +1836,6 @@ namespace Bicep.Core.Semantics.Namespaces
                                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(retryCountSyntax).InvalidRetryCount(retryCount.Value, minimumRetryLimit));
                             }
                         }
-                        //TODO: validate list of exceptions are string value
                     })
                     .WithEvaluator((functionCall, decorated) =>
                     {
@@ -1846,7 +1845,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                                     {
                                                         new (
                                                             null,
-                                                            new StringLiteralExpression(null, "errorMessages"),
+                                                            new StringLiteralExpression(null, "exceptionCodes"),
                                                             functionCall.Parameters[0]
                                                         )
                                                     };
@@ -1862,23 +1861,13 @@ namespace Bicep.Core.Semantics.Namespaces
                                 );
                             }
 
-                            var optionProperties = new List<ObjectPropertyExpression>
-                                                   {
-                                                         new
-                                                         (
-                                                              null,
-                                                              new StringLiteralExpression(null, "retryOn"),
-                                                              new ObjectExpression(null, [.. retryOnProperties])
-                                                         )
-                                                    };
-
-                            var options = new ObjectPropertyExpression(
+                            var retryOnObjectPropertyExpression = new ObjectPropertyExpression(
                                 null,
-                                new StringLiteralExpression(null, "options"),
-                                new ObjectExpression(null, [.. optionProperties])
+                                new StringLiteralExpression(null, "retryOn"),
+                                new ObjectExpression(null, [.. retryOnProperties])
                             );
 
-                            return declaredResourceExpression with { Options = options };
+                            return declaredResourceExpression with { RetryOn = retryOnObjectPropertyExpression };
                         }
 
                         return decorated;

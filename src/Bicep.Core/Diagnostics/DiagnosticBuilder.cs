@@ -1873,11 +1873,11 @@ namespace Bicep.Core.Diagnostics
                 $"The type \"{type}\" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object).{TypeInaccuracyClause}");
 
             public Diagnostic NegativeRetryCount() => CoreError(
-                   "BCP410",
+                   "BCP412",
                    $"Invalid retry count. It must be a non-negative integer.");
 
             public Diagnostic InvalidRetryCount(long value, long limit) => CoreError(
-                "BCP411",
+                "BCP413",
                 $"Expected a retry count of at least {limit} but the specified value was \"{value}\".");
 
         }

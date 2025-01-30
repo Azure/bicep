@@ -1254,15 +1254,32 @@ namespace Bicep.Core.Emit
                         emitter.EmitProperty("import", extensionSymbol.Name);
                     }
                 }
-                //TODO: Add options editor here
-                // Emit the options property if it is not null
-                if (resource.Options is not null)
+
+                // Emit the options property 
+                if (resource.RetryOn is not null || resource.WaitUntil is not null)
                 {
                     emitter.EmitObjectProperty("options", () =>
                     {
-                        emitter.EmitObjectProperties((ObjectExpression)resource.Options.Value);
+                        if(resource.RetryOn is not null)
+                        {
+                            emitter.EmitObjectProperty("retryOn", () =>
+                            {
+                                emitter.EmitObjectProperties((ObjectExpression)resource.RetryOn.Value);
+                            });
+                        }
+
+                        if (resource.WaitUntil is not null)
+                        {
+                            emitter.EmitObjectProperty("waitUntil", () =>
+                            {
+                                emitter.EmitObjectProperties((ObjectExpression)resource.WaitUntil.Value);
+                            });
+                        }
+
                     });
+                    
                 }
+
                 if (metadata.IsAzResource ||
                     this.Context.SemanticModel.Features.LocalDeployEnabled ||
                     this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)

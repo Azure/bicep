@@ -142,7 +142,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 template.Should().NotHaveValue();
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP411", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"0\"."),
+                    ("BCP413", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"0\"."),
                 });
             }
         }
@@ -162,9 +162,54 @@ namespace Bicep.Core.IntegrationTests
             {
                 template.Should().NotHaveValue();
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP410", DiagnosticLevel.Error, "Invalid retry count. It must be a non-negative integer."),
-                    ("BCP411", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"-5\".")
+                    ("BCP412", DiagnosticLevel.Error, "Invalid retry count. It must be a non-negative integer."),
+                    ("BCP413", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"-5\".")
                 });
+            }
+        }
+
+        [TestMethod]
+        public void RetryOnDecorator_NonIntegerRetryCountValue()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+            @retryOn(['ResourceNotFound'], 'randomString')
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+                name: 'sql-server-name'
+                location: 'polandcentral'
+            }
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP070", DiagnosticLevel.Error, "Argument of type \"'randomString'\" is not assignable to parameter of type \"int\"."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void RetryOnDecorator_InvalidErrorMessageItemType()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+            @retryOn(['ResourceNotFound', 1010])
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+                name: 'sql-server-name'
+                location: 'polandcentral'
+            }
+            ");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+
+                diagnostics.ExcludingLinterDiagnostics().Should().NotBeEmpty();
+
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"string\" but the provided value is of type \"'ResourceNotFound' | 1010\".")
+                });
+
             }
         }
 
@@ -173,7 +218,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-            @retryOn(['ResourceNotFound'], 1)
+            @retryOn(['ResourceNotFound', 'ServerError'], 1)
             resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
                 name: 'sql-server-name'
                 location: 'polandcentral'
@@ -182,9 +227,10 @@ namespace Bicep.Core.IntegrationTests
 
             var retryOnJObject = new JObject
             {
-            ["errorMessages"] = new JArray("ResourceNotFound"),
+            ["exceptionCodes"] = new JArray("ResourceNotFound", "ServerError"),
             ["retryCount"] = 1
             };
+
             using (new AssertionScope())
             {
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();

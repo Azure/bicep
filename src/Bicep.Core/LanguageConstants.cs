@@ -244,6 +244,7 @@ namespace Bicep.Core
         public static readonly TypeSymbol False = TypeFactory.CreateBooleanLiteralType(false);
         public static readonly TypeSymbol Null = new NullType();
         public static readonly TypeSymbol Array = TypeFactory.CreateArrayType();
+        public static readonly TypeSymbol StringArray = TypeFactory.CreateStringArrayType();
 
         public static readonly TypeSymbol StringFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath);
         public static readonly TypeSymbol StringJsonFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringJsonFilePath);
