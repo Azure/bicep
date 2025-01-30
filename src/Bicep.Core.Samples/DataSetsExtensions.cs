@@ -124,6 +124,7 @@ namespace Bicep.Core.Samples
             foreach (var (moduleName, publishInfo) in registryModules)
             {
                 await RegistryHelper.PublishModuleToRegistryAsync(
+                    new ServiceBuilder(), //asdfg?
                     clientFactory,
                     BicepTestConstants.FileSystem,
                     new(publishInfo.Metadata.Target, publishInfo.ModuleSource, WithSource: publishSource, DocumentationUri: null));

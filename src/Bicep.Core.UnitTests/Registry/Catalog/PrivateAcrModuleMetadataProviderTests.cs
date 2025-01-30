@@ -243,10 +243,8 @@ namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
             details.DocumentationUri.Should().BeNull();
         }
 
-        //asdfg test when loading fails
-
         [TestMethod]
-        public async Task asdfg()
+        public async Task NoVersionsWhichAreValidBicepModules()
         {
             var containerClient = new FakeContainerRegistryClient();
             var fileSystem = new MockFileSystem();
@@ -261,79 +259,17 @@ namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
                 .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
-
-            //var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(//asdfg2
-            //    fileSystem,
-            //    containerClient,
-            //    [
-            //        //new("br:registry.contoso.io/test/module1:v1", "metadata hello = 'this is module 1 version 1'\nparam p1 bool", WithSource: true),
-            //        //new("br:registry.contoso.io/test/module2:v1", "metadata hello = 'this is module 2 version 1'\nparam p2 string", WithSource: true),
-            //        //new("br:registry.contoso.io/test/module1:v2", "metadata hello = 'this is module 1 version 2'\nparam p12 string", WithSource: false),
-            //    ]);
-
-            //asdfg try to remove as much as possible
             var fileExplorer = new FileSystemFileExplorer(fileSystem);
             var configurationManager = new ConfigurationManager(fileExplorer);
             var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
-            //var services = new ServiceBuilder()
-            //    .WithDisabledAnalyzersConfiguration()
-            //    .WithContainerRegistryClientFactory(clientFactory)
-            //    .WithFileSystem(fileSystem)
-            //    .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
-            //    .WithFeatureProviderFactory(featureProviderFactory);
 
             await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "br:registry.contoso.io/test/repo1:v1", new BinaryData(""));
+            await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "br:registry.contoso.io/test/repo1:v2", new BinaryData(""));
 
-            //PublishExtension
-            //var config = new Core.Registry.Oci.OciDescriptor("{}", BicepMediaTypes.BicepModuleConfigV1);
-
-            //List<Oci.OciDescriptor> layers = new()
-            //{
-            //    new(compiledArmTemplate, BicepMediaTypes.BicepModuleLayerV1Json, new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
-            //};
-
-            //if (bicepSources is { })
-            //{
-            //    layers.Add(
-            //        new(
-            //            bicepSources,
-            //            BicepMediaTypes.BicepSourceV1Layer,
-            //            new OciManifestAnnotationsBuilder().WithTitle("Source files").Build()));
-            //}
-
-            //var annotations = new OciManifestAnnotationsBuilder()
-            //    .WithDescription(description)
-            //    .WithDocumentationUri(documentationUri)
-            //    .WithCreatedTime(DateTime.Now);
-
-            //try
-            //{
-            //    await this.client.PushArtifactAsync(
-            //        configuration.Cloud,
-            //        reference,
-            //        // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
-            //        ManifestMediaType.OciImageManifest.ToString(),
-            //        BicepMediaTypes.BicepModuleArtifactType,
-            //        config,
-            //        layers,
-            //        annotations);
-            //}
-            //catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
-            //{
-            //    // will include several retry messages, but likely the best we can do
-            //    throw new ExternalArtifactException(exception.Message, exception);
-            //}
-            //catch (RequestFailedException exception)
-            //{
-            //    // can only happen if client retries are disabled
-            //    throw new ExternalArtifactException(exception.Message, exception);
-            //}
-
-
-        var provider = new PrivateAcrModuleMetadataProvider(
-                BicepTestConstants.BuiltInConfiguration.Cloud,
-                "registry.contoso.io",
-                clientFactory);
+            var provider = new PrivateAcrModuleMetadataProvider(
+                    BicepTestConstants.BuiltInConfiguration.Cloud,
+                    "registry.contoso.io",
+                    clientFactory);
 
             var module = await provider.TryGetModuleAsync("test/repo1");
             module.Should().NotBeNull();
@@ -342,6 +278,54 @@ namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
             var details = await module!.TryGetDetailsAsync(); //asdfg2 - this is calling PrivateAcrModuleMetadataProvider.TryGetLiveModuleVersionMetadataAsync
             details.Description.Should().Be("Not a valid Bicep module. Found artifact type application/vnd.ms.bicep.provider.artifact");
             details.DocumentationUri.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task IgnoreVersionsWhichAreNotValidBicepModules()
+        {
+            var containerClient = new FakeContainerRegistryClient();
+            var fileSystem = new MockFileSystem();
+
+            var registry = "registry.contoso.io";
+            var repositoryPath = $"test";
+            var repositoryNames = new[] { "repo1" };
+
+            var (clientFactory, _, _) = RegistryHelper.CreateMockRegistryClients([..
+                repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1", "v2", "v3"/*asdfg*/]))]);
+
+            var services = new ServiceBuilder()
+                .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
+                .WithContainerRegistryClientFactory(clientFactory);
+
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
+            var configurationManager = new ConfigurationManager(fileExplorer);
+            var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
+
+            await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "br:registry.contoso.io/test/repo1:v1", new BinaryData(""));
+            await RegistryHelper.PublishModuleToRegistryAsync(services, clientFactory, fileSystem, new ModuleToPublish("br:registry.contoso.io/test/repo1:v2", "metadata description = 'this is module 1 version 2'", WithSource: true, "https://docs/m1v2"));
+            await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "br:registry.contoso.io/test/repo1:v3", new BinaryData(""));
+
+            var provider = new PrivateAcrModuleMetadataProvider(
+                    BicepTestConstants.BuiltInConfiguration.Cloud,
+                    "registry.contoso.io",
+                    clientFactory);
+
+            var module = await provider.TryGetModuleAsync("test/repo1");
+            module.Should().NotBeNull();
+            module!.GetCachedVersions().Should().BeEmpty();
+
+            // Version details
+            var versions = await module.TryGetVersionsAsync();
+            versions.Select(v => (v.Version, v.IsBicepModule, v.Details)).Should().BeEquivalentTo([
+                ("v1", false, new RegistryMetadataDetails("Not a valid Bicep module. Found artifact type application/vnd.ms.bicep.provider.artifact", null)),
+                ("v2", true, new RegistryMetadataDetails("this is module 1 version 2", "https://docs/m1v2")),
+                ("v3", false, new RegistryMetadataDetails("Not a valid Bicep module. Found artifact type application/vnd.ms.bicep.provider.artifact", null)),
+                ]);
+
+            // Module details (should pull from v2 since that's the only valid Bicep module)
+            var details = await module!.TryGetDetailsAsync();
+            details.Description.Should().Be("this is module 1 version 2");
+            details.DocumentationUri.Should().Be("https://docs/m1v2");
         }
     }
 }

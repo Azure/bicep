@@ -80,6 +80,7 @@ namespace Bicep.Core.IntegrationTests
                 .WithContainerRegistryClientFactory(clientFactory);
 
             await RegistryHelper.PublishModuleToRegistryAsync(
+                new ServiceBuilder(), //asdfg?
                 clientFactory,
                 fsMock,
                 new(testArtifact.ToSpecificationString(':'), BicepSource: "", WithSource: false, DocumentationUri: "mydocs.org/abc"));
@@ -136,7 +137,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // ARRANGE
             // mock the blob client to throw the expected exception
-            var mockBlobClient = StrictMock.Of<MockRegistryBlobClient>();
+            var mockBlobClient = StrictMock.Of<FakeRegistryBlobClient>();
             mockBlobClient.Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ThrowsAsync(exceptionToThrow);
 
             // mock the registry client to return the mock blob client

@@ -15,17 +15,17 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public class TestContainerRegistryClientFactoryBuilder
     {
-        public record BuiltClients(
+        public record BuiltClients(//asdfg can get rid of this?
             IContainerRegistryClientFactory clientFactory,
-            ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks,
+            ImmutableDictionary<(Uri, string), FakeRegistryBlobClient> blobClientMocks,
             FakeContainerRegistryClient containerRegistryClient);
 
-        private readonly ImmutableDictionary<(Uri registryUri, string repository), MockRegistryBlobClient>.Builder blobClientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
+        private readonly ImmutableDictionary<(Uri registryUri, string repository), FakeRegistryBlobClient>.Builder blobClientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), FakeRegistryBlobClient>();
         private FakeContainerRegistryClient containerClient = new();
 
-        public TestContainerRegistryClientFactoryBuilder WithRepository(RepoDescriptor repo, MockRegistryBlobClient? client = null)
+        public TestContainerRegistryClientFactoryBuilder WithRepository(RepoDescriptor repo, FakeRegistryBlobClient? client = null)
         {
-            client ??= new MockRegistryBlobClient();
+            client ??= new FakeRegistryBlobClient();
             blobClientsBuilder.TryAdd((new Uri($"https://{repo.Registry}"), repo.Repository), client);
 
             if (!containerClient.FakeRepositories.ContainsKey(repo.Repository))
@@ -65,7 +65,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             return new  (clientFactory.Object, blobClientsByRepository, containerClient);
 
-            MockRegistryBlobClient GetBlobClient(Uri registryUri, string repository)
+            FakeRegistryBlobClient GetBlobClient(Uri registryUri, string repository)
             {
                 if (blobClientsByRepository.TryGetValue((registryUri, repository), out var client))
                 {
