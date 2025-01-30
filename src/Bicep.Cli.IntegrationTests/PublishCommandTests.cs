@@ -451,9 +451,8 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{moduleName}".ToLowerInvariant();
 
-            var (clientFactory, blobClients, _) = RegistryHelper.CreateMockRegistryClients(new RepoDescriptor(registryStr, repository, ["v1"]));
-
-            var blobClient = blobClients[(registryUri, repository)];
+            var clientFactory = RegistryHelper.CreateMockRegistryClients(new RepoDescriptor(registryStr, repository, ["v1"]));
+            var blobClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
 
             await RegistryHelper.PublishModuleToRegistryAsync(
                 new ServiceBuilder(), //asdfg?

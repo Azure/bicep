@@ -15,11 +15,6 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public class TestContainerRegistryClientFactoryBuilder
     {
-        public record BuiltClients(//asdfg can get rid of this?
-            IContainerRegistryClientFactory clientFactory,
-            ImmutableDictionary<(Uri, string), FakeRegistryBlobClient> blobClientMocks,
-            FakeContainerRegistryClient containerRegistryClient);
-
         private readonly ImmutableDictionary<(Uri registryUri, string repository), FakeRegistryBlobClient>.Builder blobClientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), FakeRegistryBlobClient>();
         private FakeContainerRegistryClient containerClient = new();
 
@@ -43,7 +38,7 @@ namespace Bicep.Core.UnitTests.Utils
             return this;
         }
 
-        public BuiltClients Build()
+        public IContainerRegistryClientFactory Build()
         {
             var blobClientsByRepository = blobClientsBuilder.ToImmutable();
 
@@ -63,7 +58,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Setup(m => m.CreateAuthenticatedContainerClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>()))
                 .Returns<CloudConfiguration, Uri>((_, registryUri) => containerClient);
 
-            return new  (clientFactory.Object, blobClientsByRepository, containerClient);
+            return clientFactory.Object;
 
             FakeRegistryBlobClient GetBlobClient(Uri registryUri, string repository)
             {

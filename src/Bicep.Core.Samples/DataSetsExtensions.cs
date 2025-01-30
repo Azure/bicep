@@ -75,7 +75,7 @@ namespace Bicep.Core.Samples
                 clients.Add(new(targetReference.Registry, targetReference.Repository, ["tag"]));
             }
 
-            return RegistryHelper.CreateMockRegistryClients([.. clients, .. additionalClients]).clientFactory;
+            return RegistryHelper.CreateMockRegistryClients([.. clients, .. additionalClients]);
         }
 
         public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory()
