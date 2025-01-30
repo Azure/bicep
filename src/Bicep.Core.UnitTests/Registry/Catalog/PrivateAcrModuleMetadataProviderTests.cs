@@ -291,7 +291,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
             var repositoryNames = new[] { "repo1" };
 
             var (clientFactory, _, _) = RegistryHelper.CreateMockRegistryClients([..
-                repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1", "v2", "v3"/*asdfg*/]))]);
+                repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1", "v2", "v3"]))]); //asdfg make this easier
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
@@ -301,14 +301,15 @@ namespace Bicep.Core.UnitTests.Registry.Catalog //asdfg2
             var configurationManager = new ConfigurationManager(fileExplorer);
             var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
+            // Only v2 is a module
             await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "br:registry.contoso.io/test/repo1:v1", new BinaryData(""));
             await RegistryHelper.PublishModuleToRegistryAsync(services, clientFactory, fileSystem, new ModuleToPublish("br:registry.contoso.io/test/repo1:v2", "metadata description = 'this is module 1 version 2'", WithSource: true, "https://docs/m1v2"));
             await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "br:registry.contoso.io/test/repo1:v3", new BinaryData(""));
 
             var provider = new PrivateAcrModuleMetadataProvider(
-                    BicepTestConstants.BuiltInConfiguration.Cloud,
-                    "registry.contoso.io",
-                    clientFactory);
+                BicepTestConstants.BuiltInConfiguration.Cloud,
+                "registry.contoso.io",
+                clientFactory);
 
             var module = await provider.TryGetModuleAsync("test/repo1");
             module.Should().NotBeNull();
