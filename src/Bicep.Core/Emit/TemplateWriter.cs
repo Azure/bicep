@@ -1021,7 +1021,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
+        private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions)
         {
             if (!extensions.Any())
             {
@@ -1043,7 +1043,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
+        private static void EmitProviders(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions)
         {
             emitter.EmitObjectProperty("imports", () =>
             {
@@ -1064,7 +1064,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private static void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
+        private static void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions)
         {
             emitter.EmitObjectProperty("extensions", () =>
             {
@@ -1084,7 +1084,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private static void EmitExtensionConfig(DeclaredExtensionExpression extension, ExpressionEmitter emitter)
+        private static void EmitExtensionConfig(ExtensionExpression extension, ExpressionEmitter emitter)
         {
             if (extension.Config is null)
             {
@@ -1159,7 +1159,7 @@ namespace Bicep.Core.Emit
             throw new UnreachableException($"Configuration name: '{configName}' does not exist as part of extension configuration.");
         }
 
-        private DeclaredExtensionExpression GetExtensionForLocalDeploy()
+        private ExtensionExpression GetExtensionForLocalDeploy()
         {
             return new(
                 null,

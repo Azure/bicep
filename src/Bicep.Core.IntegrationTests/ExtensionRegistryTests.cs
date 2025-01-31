@@ -722,4 +722,42 @@ resource fooRes 'fooType@v1' = {
 
         result.Should().GenerateATemplate();
     }
+
+    [TestMethod]
+    public async Task Implicit_extensions_are_included_in_output()
+    {
+        // https://github.com/Azure/bicep/issues/15395
+        var fileSystem = new MockFileSystem();
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetTestTypesTgz(), AllFeaturesEnabled, fileSystem);
+
+        fileSystem.File.WriteAllText("/bicepconfig.json", """
+{
+  "extensions": {
+    "foo": "br:example.azurecr.io/extensions/foo:1.2.3"
+  },
+  "implicitExtensions": ["foo"],
+  "experimentalFeaturesEnabled": {
+    "extensibility": true
+  }
+}
+""");
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+resource fooRes 'fooType@v1' = {
+  identifier: 'foo'
+  properties: {
+    required: 'bar'
+  }
+}
+""");
+
+        result.Should().GenerateATemplate();
+        result.Template.Should().HaveJsonAtPath("$.imports", """
+{
+  "foo": {
+    "provider": "ThirdPartyExtension",
+    "version": "1.0.0"
+  }
+}
+""");
+    }
 }
