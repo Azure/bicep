@@ -1527,11 +1527,6 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
-            static FunctionArgumentSyntax? TryGetArgumentByPosition(DecoratorSyntax decoratorSyntax, int position)
-            {
-                return decoratorSyntax.Arguments.ElementAtOrDefault(position);
-            }
-
             static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
             {
                 // if integerLiteralSyntax.Value is within the 64 bit integer range, negate it after casting to a long type
@@ -1815,28 +1810,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
                     .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
                     .WithRequiredParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.")
-                    .WithOptionalParameter("retryCount", LanguageConstants.Int, "Maximum number if retries on the exception.")
-                    .WithFlags(FunctionFlags.ResourceDecorator)
-                    // the decorator is constrained to resources
-                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, _, diagnosticWriter) =>
-                    {
-                        //validate retry count
-                        var retryCountSyntax = TryGetArgumentByPosition(decoratorSyntax, 1);
-                        if (retryCountSyntax != null)
-                        {
-                            if (retryCountSyntax.Expression is UnaryOperationSyntax)
-                            {
-                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(retryCountSyntax).NegativeRetryCount());
-                            }
-
-                            const long minimumRetryLimit = 1;
-                            long? retryCount = TryGetIntegerLiteralValue(retryCountSyntax.Expression);
-                            if (retryCount is not null and < minimumRetryLimit)
-                            {
-                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(retryCountSyntax).InvalidRetryCount(retryCount.Value, minimumRetryLimit));
-                            }
-                        }
-                    })
+                    .WithOptionalParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.")
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
                     .WithEvaluator((functionCall, decorated) =>
                     {
                         if (decorated is DeclaredResourceExpression declaredResourceExpression)
@@ -1861,13 +1836,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                 );
                             }
 
-                            var retryOnObjectPropertyExpression = new ObjectPropertyExpression(
-                                null,
-                                new StringLiteralExpression(null, "retryOn"),
-                                new ObjectExpression(null, [.. retryOnProperties])
-                            );
-
-                            return declaredResourceExpression with { RetryOn = retryOnObjectPropertyExpression };
+                            return declaredResourceExpression with { RetryOn = new ObjectExpression(null, [.. retryOnProperties]) };
                         }
 
                         return decorated;

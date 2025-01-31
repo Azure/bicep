@@ -142,7 +142,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 template.Should().NotHaveValue();
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP413", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"0\"."),
+                    ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 0) is too small to assign to a target for which the minimum allowable value is 1.")
                 });
             }
         }
@@ -162,8 +162,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 template.Should().NotHaveValue();
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP412", DiagnosticLevel.Error, "Retry count must be a non-negative integer."),
-                    ("BCP413", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"-5\".")
+                    ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to -5) is too small to assign to a target for which the minimum allowable value is 1."),
                 });
             }
         }

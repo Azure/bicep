@@ -492,8 +492,8 @@ public record DeclaredResourceExpression(
     Expression Body,
     ImmutableArray<ResourceDependencyExpression> DependsOn,
     Expression? Description = null,
-    ObjectPropertyExpression? RetryOn = null,
-    ObjectPropertyExpression? WaitUntil = null
+    ObjectExpression? RetryOn = null,
+    ObjectExpression? WaitUntil = null
 ) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)

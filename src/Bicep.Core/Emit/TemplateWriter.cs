@@ -1264,7 +1264,7 @@ namespace Bicep.Core.Emit
                         {
                             emitter.EmitObjectProperty("retryOn", () =>
                             {
-                                emitter.EmitObjectProperties((ObjectExpression)resource.RetryOn.Value);
+                                emitter.EmitObjectProperties(resource.RetryOn);
                             });
                         }
 
@@ -1272,7 +1272,7 @@ namespace Bicep.Core.Emit
                         {
                             emitter.EmitObjectProperty("waitUntil", () =>
                             {
-                                emitter.EmitObjectProperties((ObjectExpression)resource.WaitUntil.Value);
+                                emitter.EmitObjectProperties(resource.WaitUntil);
                             });
                         }
 
