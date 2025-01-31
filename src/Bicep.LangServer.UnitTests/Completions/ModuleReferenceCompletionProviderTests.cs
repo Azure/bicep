@@ -804,14 +804,9 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
         }
 
-        [DataTestMethod] //asdfg3 asdfg11  br/[alias-that-points-to-mcr.microsoft.com]:<cursor>
-                         //asdfg3 asdfg14
-
-        //asdfg13 Completions are e.g. br/[alias]/[module]
+        [DataTestMethod]
         [DataRow("module test 'br/test1:|'", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 23)]
         [DataRow("module test 'br/test1:|", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 22)]
-
-        ////asdfg11 if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal))
         [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
         [DataRow("module test 'br/test2:|", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 22)]
         public async Task GetFilteredCompletions_WithAliasForMCRInBicepConfigAndModulePath_ReturnsCompletionItems(
