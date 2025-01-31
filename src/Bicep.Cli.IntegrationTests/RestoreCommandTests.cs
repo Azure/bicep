@@ -72,7 +72,7 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                CachedModules.GetCachedRegistryModules(BicepTestConstants.FileSystem, settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                CachedModules.GetCachedModules(BicepTestConstants.FileSystem, settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                     .And.AllSatisfy(m => m.Should().HaveSource(publishSource));
             }
         }
@@ -91,7 +91,7 @@ namespace Bicep.Cli.IntegrationTests
             result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
 
             // ensure something got restored
-            CachedModules.GetCachedRegistryModules(BicepTestConstants.FileSystem, settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+            CachedModules.GetCachedModules(BicepTestConstants.FileSystem, settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                 .And.AllSatisfy(m => m.Should().NotHaveSource());
         }
 
@@ -118,13 +118,13 @@ namespace Bicep.Cli.IntegrationTests
             // this will force fallback to the anonymous client
             var clientFactoryForRestore = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactoryForRestore
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns(clientWithCredentialUnavailable.Object);
 
             // anonymous client creation will redirect to the working client factory containing mock published modules
             clientFactoryForRestore
-                .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
-                .Returns<RootConfiguration, Uri, string>(clientFactory.CreateAnonymousBlobClient);
+                .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Returns<CloudConfiguration, Uri, string>(clientFactory.CreateAnonymousBlobClient);
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactoryForRestore.Object, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
@@ -140,7 +140,7 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                CachedModules.GetCachedRegistryModules(BicepTestConstants.FileSystem, settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                CachedModules.GetCachedModules(BicepTestConstants.FileSystem, settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                     .And.AllSatisfy(m => m.Should().HaveSource(publishSource));
             }
         }
@@ -307,10 +307,10 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
 
-            var client = new MockRegistryBlobClient();
+            var client = new FakeRegistryBlobClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
-            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
+            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
@@ -428,10 +428,10 @@ output o1 string = '${p1}${p2}'");
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
 
-            var client = new MockRegistryBlobClient();
+            var client = new FakeRegistryBlobClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
-            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
+            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
@@ -518,7 +518,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), new Uri("https://fake"), "fake"))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://fake"), "fake"))
                 .Returns(client.Object);
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
@@ -550,7 +550,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), new Uri("https://fake"), "fake"))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://fake"), "fake"))
                 .Returns(client.Object);
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
@@ -579,7 +579,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), new Uri("https://mockregistry.io"), "parameters/basic"))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://mockregistry.io"), "parameters/basic"))
                 .Returns(client.Object);
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
