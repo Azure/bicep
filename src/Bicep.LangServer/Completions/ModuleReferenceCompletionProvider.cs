@@ -356,7 +356,7 @@ namespace Bicep.LanguageServer.Completions
                         .WithSnippetEdit(context.ReplacementRange, insertText)
                         .WithFilterText(insertText)
                         .WithSortText(GetSortText(i))
-                        .WithResolveData(ModuleVersionResolutionKey, new { Registry = parts.ResolvedRegistry, Module = parts.ResolvedModulePath, Version = version }) //asdfg test
+                        .WithResolveData(ModuleVersionResolutionKey, new { Registry = parts.ResolvedRegistry, Module = parts.ResolvedModulePath, Version = version })
                         .Build();
 
                     completions.Add(completionItem);
@@ -658,9 +658,9 @@ namespace Bicep.LanguageServer.Completions
             if (registryModuleCatalog.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
                 && await cachedRegistry.TryGetModuleAsync(modulePath) is { } module
                 && await module.TryGetVersionsAsync() is { } versions
-                &&/*extract?*/ versions.FirstOrDefault(v => v.Version.Equals(version, StringComparison.Ordinal)) is RegistryModuleVersionMetadata metadata/*asdfg does this work if not found?*/)
+                &&/* asdfg extract?*/ versions.FirstOrDefault(v => v.Version.Equals(version, StringComparison.Ordinal)) is RegistryModuleVersionMetadata metadata/*asdfg does this work if not found?*/)
             {
-                return (completionItem with //asdfg extract
+                return (completionItem with
                 {
                     Detail = metadata.Details.Description,
                 })
