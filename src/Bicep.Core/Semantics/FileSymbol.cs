@@ -9,7 +9,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Semantics
 {
@@ -236,7 +235,7 @@ namespace Bicep.Core.Semantics
         /// Tries to get the semantic module of the Bicep File referenced via a using declaration from the current file.
         /// If current file is not a parameter file, the method will return false.
         /// </summary>
-        public ResultWithDiagnostic<ISemanticModel?> TryGetBicepFileSemanticModelViaUsing()
+        public ResultWithDiagnostic<ISemanticModel> TryGetBicepFileSemanticModelViaUsing()
         {
             var usingDeclaration = this.UsingDeclarationSyntax;
             if (usingDeclaration is null)
@@ -247,12 +246,10 @@ namespace Bicep.Core.Semantics
 
             if (usingDeclaration.Path is NoneLiteralSyntax)
             {
-                return new((ISemanticModel?)null);
+                return new(new EmptySemanticModel());
             }
 
-            return usingDeclaration
-                .TryGetReferencedModel(Context.SourceFileLookup, Context.ModelLookup, b => b.UsingDeclarationMustReferenceBicepFile())
-                .Cast<ResultWithDiagnostic<ISemanticModel?>>();
+            return usingDeclaration.TryGetReferencedModel(Context.SourceFileLookup, Context.ModelLookup, b => b.UsingDeclarationMustReferenceBicepFile());
         }
 
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor
