@@ -18,20 +18,17 @@ namespace Bicep.Cli.Commands
         private readonly DiagnosticLogger diagnosticLogger;
         private readonly BicepCompiler compiler;
         private readonly OutputWriter writer;
-        private readonly IFeatureProviderFactory featureProviderFactory;
 
         public BuildCommand(
             ILogger logger,
             DiagnosticLogger diagnosticLogger,
             BicepCompiler compiler,
-            OutputWriter writer,
-            IFeatureProviderFactory featureProviderFactory)
+            OutputWriter writer)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
             this.compiler = compiler;
             this.writer = writer;
-            this.featureProviderFactory = featureProviderFactory;
         }
 
         public async Task<int> RunAsync(BuildArguments args)
@@ -41,7 +38,7 @@ namespace Bicep.Cli.Commands
 
             var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
 
-            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is { } warningMessage)
+            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping) is { } warningMessage)
             {
                 logger.LogWarning(warningMessage);
             }

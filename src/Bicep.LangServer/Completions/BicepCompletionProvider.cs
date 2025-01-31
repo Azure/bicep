@@ -93,7 +93,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetAssertValueCompletions(model, context))
                 .Concat(GetTypeArgumentCompletions(model, context))
-                .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.Uri, context, cancellationToken));
+                .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(context, cancellationToken));
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)

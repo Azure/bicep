@@ -66,7 +66,7 @@ namespace Bicep.LangServer.UnitTests
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var completionProvider = CreateProvider();
-            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, 0), CancellationToken.None);
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, 0), CancellationToken.None);
 
             var keywordCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Keyword)
@@ -171,7 +171,7 @@ output o int = 42
 ");
             var offset = compilation.GetEntrypointSemanticModel().Root.VariableDeclarations.Select(x => x.DeclaringVariable).Single().Value.Span.Position;
 
-            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
+            var context = BicepCompletionContext.Create(compilation, offset);
             var completionProvider = CreateProvider();
             var completions = (await completionProvider.GetFilteredCompletions(compilation, context, CancellationToken.None)).ToList();
 
@@ -213,7 +213,7 @@ output o int = 42
             var completionProvider = CreateProvider();
             var completions = (await completionProvider.GetFilteredCompletions(
                 compilation,
-                BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset),
+                BicepCompletionContext.Create(compilation, offset),
                 CancellationToken.None)).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
@@ -244,7 +244,7 @@ output length int =
 ");
             var offset = compilation.GetEntrypointSemanticModel().Root.OutputDeclarations.Select(x => x.DeclaringOutput).Single().Value.Span.Position;
 
-            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
+            var context = BicepCompletionContext.Create(compilation, offset);
             var completionProvider = CreateProvider();
             var completions = (await completionProvider.GetFilteredCompletions(compilation, context, CancellationToken.None)).ToList();
 
@@ -290,7 +290,7 @@ output length int =
             var offset = compilation.GetEntrypointSemanticModel().Root.OutputDeclarations.Select(x => x.DeclaringOutput).Single().Type.Span.Position;
 
             var completionProvider = CreateProvider();
-            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset), CancellationToken.None);
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, offset), CancellationToken.None);
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -306,7 +306,7 @@ output length int =
             var offset = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Type.Span.Position;
 
             var completionProvider = CreateProvider();
-            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset), CancellationToken.None);
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, offset), CancellationToken.None);
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -352,7 +352,7 @@ output length int =
             var offset = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Type.Span.Position;
 
             var completionProvider = CreateProvider();
-            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset), CancellationToken.None);
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, offset), CancellationToken.None);
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -409,7 +409,7 @@ output length int =
             var offset = codeFragment.IndexOf('|');
 
             var completionProvider = CreateProvider();
-            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset), CancellationToken.None);
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(compilation, offset), CancellationToken.None);
 
             completions.Should().BeEmpty();
         }
@@ -424,8 +424,7 @@ output length int =
             var serviceWithGraph = new ServiceBuilder().WithFeatureOverrides(featureOverrides);
 
             var compilationWithMSGraph = serviceWithGraph.BuildCompilation(contents);
-            var features = new OverriddenFeatureProvider(new FeatureProvider(BicepTestConstants.BuiltInConfiguration, BicepTestConstants.FileExplorer), featureOverrides);
-            var completionsWithMSGraph = await completionProvider.GetFilteredCompletions(compilationWithMSGraph, BicepCompletionContext.Create(features, compilationWithMSGraph, cursor), CancellationToken.None);
+            var completionsWithMSGraph = await completionProvider.GetFilteredCompletions(compilationWithMSGraph, BicepCompletionContext.Create(compilationWithMSGraph, cursor), CancellationToken.None);
 
             completionsWithMSGraph.Should().Contain(c => c.Label.Contains("microsoftGraph"));
         }

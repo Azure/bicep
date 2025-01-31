@@ -25,14 +25,12 @@ namespace Bicep.LanguageServer.Providers
         private readonly IConfigurationManager configurationManager;
         private readonly IBicepAnalyzer bicepAnalyzer;
         private readonly IEnvironment environment;
-        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly ISourceFileFactory sourceFileFactory;
 
         public BicepCompilationProvider(
-            IFeatureProviderFactory featureProviderFactory,
             IEnvironment environment,
             INamespaceProvider namespaceProvider,
             IFileResolver fileResolver,
@@ -42,7 +40,6 @@ namespace Bicep.LanguageServer.Providers
             ISourceFileFactory sourceFileFactory)
         {
             this.environment = environment;
-            this.featureProviderFactory = featureProviderFactory;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
@@ -89,7 +86,6 @@ namespace Bicep.LanguageServer.Providers
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             var compilation = new Compilation(
-                featureProviderFactory,
                 environment,
                 namespaceProvider,
                 syntaxTreeGrouping,

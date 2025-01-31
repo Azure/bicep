@@ -19,7 +19,6 @@ namespace Bicep.Core;
 
 public class BicepCompiler
 {
-    private readonly IFeatureProviderFactory featureProviderFactory;
     private readonly IEnvironment environment;
     private readonly INamespaceProvider namespaceProvider;
     private readonly IBicepAnalyzer bicepAnalyzer;
@@ -27,7 +26,6 @@ public class BicepCompiler
     private readonly IModuleDispatcher moduleDispatcher;
 
     public BicepCompiler(
-        IFeatureProviderFactory featureProviderFactory,
         IEnvironment environment,
         INamespaceProvider namespaceProvider,
         IConfigurationManager configurationManager,
@@ -36,7 +34,6 @@ public class BicepCompiler
         IModuleDispatcher moduleDispatcher,
         ISourceFileFactory sourceFileFactory)
     {
-        this.featureProviderFactory = featureProviderFactory;
         this.environment = environment;
         this.namespaceProvider = namespaceProvider;
         this.ConfigurationManager = configurationManager;
@@ -100,7 +97,6 @@ public class BicepCompiler
 
     private Compilation Create(SourceFileGrouping sourceFileGrouping)
         => new(
-            featureProviderFactory,
             environment,
             namespaceProvider,
             sourceFileGrouping,

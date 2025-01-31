@@ -25,7 +25,6 @@ namespace Bicep.Cli.Commands
         private readonly DiagnosticLogger diagnosticLogger;
         private readonly BicepCompiler compiler;
         private readonly OutputWriter writer;
-        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly ISourceFileFactory sourceFileFactory;
 
         public BuildParamsCommand(
@@ -34,7 +33,6 @@ namespace Bicep.Cli.Commands
             DiagnosticLogger diagnosticLogger,
             BicepCompiler compiler,
             OutputWriter writer,
-            IFeatureProviderFactory featureProviderFactory,
             ISourceFileFactory sourceFileFactory)
         {
             this.logger = logger;
@@ -42,7 +40,6 @@ namespace Bicep.Cli.Commands
             this.diagnosticLogger = diagnosticLogger;
             this.compiler = compiler;
             this.writer = writer;
-            this.featureProviderFactory = featureProviderFactory;
             this.sourceFileFactory = sourceFileFactory;
         }
 
@@ -80,7 +77,7 @@ namespace Bicep.Cli.Commands
                 }
             }
 
-            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is { } message)
+            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping) is { } message)
             {
                 logger.LogWarning(message);
             }

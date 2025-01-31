@@ -7,6 +7,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
@@ -661,7 +662,7 @@ namespace Bicep.Core.UnitTests.Registry
             BinaryData? sources = null;
             if (publishSource)
             {
-                var uri = new Uri("file://path/to/bicep.bicep", UriKind.Absolute);
+                var uri = InMemoryFileResolver.GetFileUri("/path/to/bicep.bicep");
                 sources = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory)
                     .WithBicepFile(uri, "// contents")
                     .BuildBinaryData();

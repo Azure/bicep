@@ -523,7 +523,6 @@ module moduleB './moduleB.bicep' = {
                 .Build();
 
             var compilationProvider = new BicepCompilationProvider(
-                BicepTestConstants.FeatureProviderFactory,
                 BicepTestConstants.EmptyEnvironment,
                 TestTypeHelper.CreateEmptyNamespaceProvider(),
                 fileResolver,
