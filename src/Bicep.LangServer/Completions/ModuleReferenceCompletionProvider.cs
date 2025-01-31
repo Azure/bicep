@@ -172,7 +172,8 @@ namespace Bicep.LanguageServer.Completions
                 var trimmedReplacementText = replacementText.Trim('\'');
 
                 var replacementsRequiringStartingQuote =
-                    (await GetOciModuleCompletions(context, trimmedReplacementText, rootConfiguration))
+                    (await GetModuleCompletions(trimmedReplacementText, context, rootConfiguration))
+                    .Concat(GetPartialPrivatePathCompletionsFromAliases(trimmedReplacementText, context, rootConfiguration))
                     .Concat(await GetVersionCompletions(context, trimmedReplacementText, rootConfiguration))
                     .Concat(await GetAllRegistryNameAndAliasCompletions(context, trimmedReplacementText, rootConfiguration, cancellationToken));
 
@@ -390,146 +391,150 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
-        // Handles remote (OCI) module path completions, e.g. br: and br/
-        private async Task<IEnumerable<CompletionItem>> GetOciModuleCompletions(BicepCompletionContext context, string trimmedText, RootConfiguration rootConfiguration) //asdfg rename?
-        {
-            if (!IsOciArtifactRegistryReference(trimmedText))
-            {
-                return [];
-            }
+        //// Handles remote (OCI) module path completions, e.g. br: and br/
+        //private async Task<IEnumerable<CompletionItem>> GetOciModuleCompletions(BicepCompletionContext context, string trimmedText, RootConfiguration rootConfiguration) //asdfg rename?
+        //{
+        //    //asdfg
+        //    //if (!IsOciArtifactRegistryReference(trimmedText))
+        //    //{
+        //    //    return [];
+        //    //}
 
-            return [
-                .. await GetModuleCompletions(trimmedText, context, rootConfiguration),
-                .. GetPartialPrivatePathCompletionsFromAliases(trimmedText, context, rootConfiguration),
-                .. await GetPublicPathCompletionFromAliases(trimmedText, context, rootConfiguration),
-            ];
-        }
+        //    return [
+        //        .. await GetModuleCompletions(trimmedText, context, rootConfiguration),
+        //        .. GetPartialPrivatePathCompletionsFromAliases(trimmedText, context, rootConfiguration),
+        //    ];
+        //}
 
-        // Handles path completions for case where user has specified an alias in bicepconfig.json with registry set to "mcr.microsoft.com".
-        //asdfg combine
-        private async Task<IEnumerable<CompletionItem>> GetPublicPathCompletionFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration) //asdfg rewrite or remove
-        {
-            List<CompletionItem> completions = new();
+        //// Handles path completions for case where user has specified an alias in bicepconfig.json with registry set to "mcr.microsoft.com".
+        ////asdfg combine
+        //private async Task<IEnumerable<CompletionItem>> GetPublicPathCompletionFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration) //asdfg rewrite or remove
+        //{
+        //    List<CompletionItem> completions = new();
 
-            if (IsPrivateRegistryReference(trimmedText, out _))
-            {
-                return completions;
-            }
+        //    if (IsPrivateRegistryReference(trimmedText, out _))
+        //    {
+        //        return completions;
+        //    }
 
-            foreach (var kvp in GetModuleAliases(rootConfiguration)) //asdfg test
-            {
-                if (kvp.Value.Registry is string inputRegistry)
-                {
-                    //asdfg note: breaks VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion
-                    // We currently don't support path completion for private modules, but we'll go ahead and log telemetry to track usage. asdfg
-                    if (!inputRegistry.Equals(PublicMcrRegistry, StringComparison.Ordinal) && //asdfg?
-                        trimmedText.Equals($"br/{kvp.Key}:"))
-                    {
-                        telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
-                        break;
-                    }
+        //    foreach (var kvp in GetModuleAliases(rootConfiguration)) //asdfg test
+        //    {
+        //        if (kvp.Value.Registry is string inputRegistry)
+        //        {
+        //            if (!trimmedText.Equals($"br/{kvp.Key}:"))
+        //            {
+        //                continue;
+        //            }
 
-                    // br/[alias-that-points-to-mcr.microsoft.com]:<cursor>
-                    if (inputRegistry.Equals(PublicMcrRegistry, StringComparison.Ordinal) &&
-                        trimmedText.Equals($"br/{kvp.Key}:"))
-                    {
-                        var modulePath = kvp.Value.ModulePath;
+        //            //asdfg note: breaks VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion
+        //            // We currently don't support path completion for private modules, but we'll go ahead and log telemetry to track usage. asdfg
+        //            if (!inputRegistry.Equals(PublicMcrRegistry, StringComparison.Ordinal)) //asdfg?
+        //            {
+        //                telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
+        //                break;
+        //            }
 
-                        if (modulePath is null)
-                        {
-                            // E.g bicepconfig.json
-                            // {
-                            //   "moduleAliases": {
-                            //     "br": {
-                            //       "test": {
-                            //         "registry": "mcr.microsoft.com"
-                            //       }
-                            //     }
-                            //   }
-                            // }
+        //            // br/[alias-that-points-to-mcr.microsoft.com]:<cursor>
+        //            if (inputRegistry.Equals(PublicMcrRegistry, StringComparison.Ordinal))
+        //            {
+        //                var modulePath = kvp.Value.ModulePath;
 
-                            if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal))
-                            {
-                                var modules = await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, PublicMcrRegistry).TryGetModulesAsync();//asdfg testpoint
-                                foreach (var module in modules)
-                                {
-                                    var label = $"bicep/{module.ModuleName}";
-                                    var insertText = $"'{trimmedText}bicep/{module.ModuleName}:$0'";
-                                    var details = await module.TryGetDetailsAsync();
-                                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
-                                        .WithSnippetEdit(context.ReplacementRange, insertText)
-                                        .WithFilterText(insertText)
-                                        .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
-                                        .WithDetail(details.Description)
-                                        .WithDocumentation(MarkdownHelper.GetDocumentationLink(details.DocumentationUri))
-                                        .WithFollowupCompletion("module version completion")
-                                        .Build();
+        //                if (modulePath is null)
+        //                {
+        //                    // E.g bicepconfig.json
+        //                    // {
+        //                    //   "moduleAliases": {
+        //                    //     "br": {
+        //                    //       "test": {
+        //                    //         "registry": "mcr.microsoft.com"
+        //                    //       }
+        //                    //     }
+        //                    //   }
+        //                    // }
 
-                                    completions.Add(completionItem);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // E.g bicepconfig.json
-                            // {
-                            //   "moduleAliases": {
-                            //     "br": {
-                            //       "test": {
-                            //         "registry": "mcr.microsoft.com",
-                            //         "modulePath": "bicep/app"
-                            //       }
-                            //     }
-                            //   }
-                            // }
-                            if (modulePath.Equals(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal) || !modulePath.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal))
-                            {
-                                continue;
-                            }
+        //                    if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal))
+        //                    {//asdfg11
+        //                    //    var modules = await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, PublicMcrRegistry).TryGetModulesAsync();//asdfg testpoint
+        //                    //    foreach (var module in modules)
+        //                    //    {
+        //                    //        var label = $"bicep/{module.ModuleName}";
+        //                    //        var insertText = $"'{trimmedText}bicep/{module.ModuleName}:$0'";
+        //                    //        var details = await module.TryGetDetailsAsync();
+        //                    //        var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+        //                    //            .WithSnippetEdit(context.ReplacementRange, insertText)
+        //                    //            .WithFilterText(insertText)
+        //                    //            .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
+        //                    //            .WithDetail(details.Description)
+        //                    //            .WithDocumentation(MarkdownHelper.GetDocumentationLink(details.DocumentationUri))
+        //                    //            .WithFollowupCompletion("module version completion")
+        //                    //            .Build();
 
-                            // Completions are e.g. br/[alias]/[module]
-                            var modulePathWithoutBicepKeyword = TrimStart(modulePath, LanguageConstants.BicepPublicMcrPathPrefix);
-                            var modules = await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, PublicMcrRegistry).TryGetModulesAsync(); //asdfg testpoint
+        //                    //        completions.Add(completionItem);
+        //                    //    }
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    // E.g bicepconfig.json
+        //                    // {
+        //                    //   "moduleAliases": {
+        //                    //     "br": {
+        //                    //       "test": {
+        //                    //         "registry": "mcr.microsoft.com",
+        //                    //         "modulePath": "bicep/app"
+        //                    //       }
+        //                    //     }
+        //                    //   }
+        //                    // }
+        //                    if (modulePath.Equals(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal) || !modulePath.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal))
+        //                    {
+        //                        continue;// asdfg12
+        //                    }
 
-                            var matchingModules = modules.Where(x => x.ModuleName.StartsWith($"{modulePathWithoutBicepKeyword}/"));
+        //                    // asdfg13 Completions are e.g. br/[alias]/[module]
+        //                    var modulePathWithoutBicepKeyword = TrimStart(modulePath, LanguageConstants.BicepPublicMcrPathPrefix);
+        //                    var modules = await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, PublicMcrRegistry).TryGetModulesAsync(); //asdfg testpoint
 
-                            foreach (var module in matchingModules)
-                            {//asdfg testpoint
-                                var label = module.ModuleName.Substring($"{modulePathWithoutBicepKeyword}/".Length);
+        //                    var matchingModules = modules.Where(x => x.ModuleName.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
-                                StringBuilder sb = new($"'{trimmedText}");
-                                if (!trimmedText.EndsWith(':'))
-                                {
-                                    sb.Append(":");
-                                }
-                                sb.Append($"{label}:$0'");
-                                var insertText = sb.ToString();
-                                var details = await module.TryGetDetailsAsync();
+        //                    foreach (var module in matchingModules)
+        //                    {
+        //                        //asdfg
+        //                        //var label = module.ModuleName.Substring($"{modulePathWithoutBicepKeyword}/".Length);
 
-                                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
-                                    .WithSnippetEdit(context.ReplacementRange, insertText)
-                                    .WithFilterText(insertText)
-                                    .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
-                                    .WithDetail(details.Description)
-                                    .WithDocumentation(MarkdownHelper.GetDocumentationLink(details.DocumentationUri))
-                                    .WithFollowupCompletion("module version completion")
-                                    .Build();
-                                completions.Add(completionItem);
-                            }
-                        }
-                    }
-                }
-            }
+        //                        //StringBuilder sb = new($"'{trimmedText}");
+        //                        //if (!trimmedText.EndsWith(':'))
+        //                        //{
+        //                        //    sb.Append(":");
+        //                        //}
+        //                        //sb.Append($"{label}:$0'");
+        //                        //var insertText = sb.ToString();
+        //                        //var details = await module.TryGetDetailsAsync();
 
-            if (completions.Any())
-            {
-                telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.MCR));
-            }
+        //                        //var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+        //                        //    .WithSnippetEdit(context.ReplacementRange, insertText)
+        //                        //    .WithFilterText(insertText)
+        //                        //    .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
+        //                        //    .WithDetail(details.Description)
+        //                        //    .WithDocumentation(MarkdownHelper.GetDocumentationLink(details.DocumentationUri))
+        //                        //    .WithFollowupCompletion("module version completion")
+        //                        //    .Build();
+        //                        //completions.Add(completionItem);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
 
-            return completions;
-        }
+        //    if (completions.Any())
+        //    {
+        //        telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.MCR));
+        //    }
 
-        private string TrimStart(string text, string prefixToTrim) => text.StartsWith(prefixToTrim) ? text.Substring(prefixToTrim.Length) : text;
+        //    return completions;
+        //}
+
+        //private string TrimStart(string text, string prefixToTrim) => text.StartsWith(prefixToTrim) ? text.Substring(prefixToTrim.Length) : text;
 
         private string? GetFirstMatch(Regex regex, string text, string group, bool allowEmpty)
         {
@@ -562,9 +567,7 @@ namespace Bicep.LanguageServer.Completions
             return registry is not null && !registry.Equals(PublicMcrRegistry, StringComparison.Ordinal);
         }
 
-        // We only support partial path completions for ACR using module paths listed in bicepconfig.json
-
-        // Handles ACR path completions for full paths, but only for the case where the user has configured an alias in bicepconfig.json.
+        // Automatically adds completions for the path portion of a private registry from an alias in bicepconfig.json.
         // Example:
         //   bicepconfig.json:
         //   {
@@ -572,13 +575,12 @@ namespace Bicep.LanguageServer.Completions
         //       "br": {
         //         "whatever": {
         //           "registry": "privateacr.azurecr.io",
-        //           "modulePath": "bicep/app"
+        //           "modulePath": "bicep/app"    => we'll automatically complete this part
         //    ...
         //
         //   br:privateacr.azurecr.io/<CURSOR>
         //      =>
         //   br:privateacr.azurecr.io/bicep/app:<CURSOR>
-        //asdfg make sure tested, then remove
         private IEnumerable<CompletionItem> GetPartialPrivatePathCompletionsFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration) //asdfg test
         {
             if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
@@ -590,7 +592,7 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            if (!IsPrivateRegistryReference(trimmedText, out string? registry) || string.IsNullOrWhiteSpace(registry))
+            if (!IsPrivateRegistryReference(trimmedText, out string? registry) || string.IsNullOrWhiteSpace(registry))//asdfg3
             {
                 return completions;
             }
@@ -602,9 +604,9 @@ namespace Bicep.LanguageServer.Completions
                 {
                     var modulePath = kvp.Value.ModulePath;
 
-                    if (modulePath is null)
+                    if (modulePath is null) // No module path to complete
                     {
-                        continue;//asdfg testpoint
+                        continue;
                     }
 
                     var insertText = $"'{trimmedText}{modulePath}:$0'";
@@ -612,7 +614,7 @@ namespace Bicep.LanguageServer.Completions
                        .WithSnippetEdit(context.ReplacementRange, insertText)
                        .WithFilterText(insertText)
                        .WithSortText(GetSortText(modulePath))
-                       .WithResolveData(ModuleResolutionKey, new { Registry = registry, Module = modulePath }) //asdfg test
+                       .WithResolveData(ModuleResolutionKey, new { Registry = registry, Module = modulePath })
                        .WithFollowupCompletion("module path completion")
                        .Build();
                     completions.Add(completionItem);
@@ -626,7 +628,7 @@ namespace Bicep.LanguageServer.Completions
         //   br/alias:<CURSOR>
         // or
         //   br:registry.contoso.io/bicep/:<CURSOR>
-        private async Task<IEnumerable<CompletionItem>> GetModuleCompletions(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)//asdfgasdfgasdfg
+        private async Task<IEnumerable<CompletionItem>> GetModuleCompletions(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)
         {
             if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
                 || parts.ResolvedModulePath is null

@@ -648,15 +648,17 @@ namespace Bicep.LangServer.UnitTests.Completions
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
 
-            completions.Should().Contain(
-                x => x.Label == expectedLabel &&
-                x.Kind == CompletionItemKind.Reference &&
-                x.InsertText == null &&
-                x.TextEdit!.TextEdit!.NewText == expectedCompletionText &&
-                x.TextEdit!.TextEdit!.Range.Start.Line == startLine &&
-                x.TextEdit!.TextEdit!.Range.Start.Character == startCharacter &&
-                x.TextEdit!.TextEdit!.Range.End.Line == endLine &&
-                x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
+            completions.Should().SatisfyRespectively(
+                x => {
+                    x.Label.Should().Be(expectedLabel);
+                    x.Kind.Should().Be(CompletionItemKind.Reference);
+                    x.InsertText.Should().BeNull();
+                    x.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText);
+                    x.TextEdit!.TextEdit!.Range.Start.Line.Should().Be(startLine);
+                    x.TextEdit!.TextEdit!.Range.Start.Character.Should().Be(startCharacter);
+                    x.TextEdit!.TextEdit!.Range.End.Line.Should().Be(endLine);
+                    x.TextEdit!.TextEdit!.Range.End.Character.Should().Be(endCharacter);
+                });
         }
 
         [DataTestMethod]
@@ -802,9 +804,14 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
         }
 
-        [DataTestMethod]
+        [DataTestMethod] //asdfg3 asdfg11  br/[alias-that-points-to-mcr.microsoft.com]:<cursor>
+                         //asdfg3 asdfg14
+
+        //asdfg13 Completions are e.g. br/[alias]/[module]
         [DataRow("module test 'br/test1:|'", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 23)]
         [DataRow("module test 'br/test1:|", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 22)]
+
+        ////asdfg11 if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal))
         [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
         [DataRow("module test 'br/test2:|", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 22)]
         public async Task GetFilteredCompletions_WithAliasForMCRInBicepConfigAndModulePath_ReturnsCompletionItems(
@@ -845,26 +852,30 @@ namespace Bicep.LangServer.UnitTests.Completions
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             IEnumerable<CompletionItem> completions = await GetAndResolveCompletionItems(documentUri, completionContext, moduleReferenceCompletionProvider);
 
-            CompletionItem actualCompletionItem = completions.First(x => x.Label == expectedLabel);
-            actualCompletionItem.Kind.Should().Be(CompletionItemKind.Snippet);
-            actualCompletionItem.InsertText.Should().BeNull();
-            actualCompletionItem.Detail.Should().Be("dapr description");
-            actualCompletionItem.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help)");
+            completions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be(expectedLabel);
+                    x.Kind.Should().Be(CompletionItemKind.Snippet);
+                    x.InsertText.Should().BeNull();
+                    x.Detail.Should().Be("dapr description");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help)");
 
-            var actualTextEdit = actualCompletionItem.TextEdit!.TextEdit;
-            actualTextEdit.Should().NotBeNull();
-            actualTextEdit!.NewText.Should().Be(expectedCompletionText);
-            actualTextEdit!.Range.Start.Line.Should().Be(startLine);
-            actualTextEdit!.Range.Start.Character.Should().Be(startCharacter);
-            actualTextEdit!.Range.End.Line.Should().Be(endLine);
-            actualTextEdit!.Range.End.Character.Should().Be(endCharacter);
+                    var actualTextEdit = x.TextEdit!.TextEdit;
+                    actualTextEdit.Should().NotBeNull();
+                    actualTextEdit!.NewText.Should().Be(expectedCompletionText);
+                    actualTextEdit!.Range.Start.Line.Should().Be(startLine);
+                    actualTextEdit!.Range.Start.Character.Should().Be(startCharacter);
+                    actualTextEdit!.Range.End.Line.Should().Be(endLine);
+                    actualTextEdit!.Range.End.Character.Should().Be(endCharacter);
+                });
         }
 
         [DataTestMethod]//asdfg
         //[DataRow("module foo 'br:mcr.microsoft.com/bicep/|", ModuleRegistryType.MCR)]
         //[DataRow("module foo 'br:test.azurecr.io/|", ModuleRegistryType.ACR)]
-        //[DataRow("module foo 'br/public:|", ModuleRegistryType.MCR)]
-        [DataRow("module foo 'br/test1acr:|", ModuleRegistryType.ACR)]
+        [DataRow("module foo 'br/public:|", ModuleRegistryType.MCR)]
+        //[DataRow("module foo 'br/test1acr:|", ModuleRegistryType.ACR)]
         //[DataRow("module foo 'br/test2acr:|", ModuleRegistryType.ACR)]
         //[DataRow("module foo 'br/test3mcr:|", ModuleRegistryType.MCR)]
         //asdfg fails [DataRow("module foo 'br/test4mcr:|", ModuleRegistryType.MCR)] see //asdfg note: breaks VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion
@@ -915,6 +926,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 settingsProvider,
                 telemetryProvider.Object);
             var items = await GetAndResolveCompletionItems(documentUri.ToUriEncoded(), completionContext, moduleReferenceCompletionProvider);
+            items.Should().HaveCount(2, "asdfg?");
 
             telemetryProvider.Verify(m => m.PostEvent(It.Is<BicepTelemetryEvent>(
                 p => p.EventName == TelemetryConstants.EventNames.ModuleRegistryPathCompletion &&
