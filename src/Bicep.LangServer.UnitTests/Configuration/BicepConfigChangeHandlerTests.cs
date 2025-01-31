@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.IO.FileSystem;
@@ -126,19 +128,21 @@ namespace Bicep.LangServer.UnitTests.Configuration
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
-            var bicepConfigFileContents = @"{
-              ""analyzers"": {
-                ""core"": {
-                  ""verbose"": false,
-                  ""enabled"": true,
-                  ""rules"": {
-                    ""no-unused-params"": {
-                      ""level"": ""abcdef""
+            var bicepConfigFileContents = """
+                {
+                  "analyzers": {
+                    "core": {
+                      "verbose": false,
+                      "enabled": true,
+                      "rules": {
+                        "no-unused-params": {
+                          "level": "abcdef"
+                        }
+                      }
                     }
                   }
                 }
-              }
-            }";
+                """;
 
             RefreshCompilationOfSourceFilesInWorkspace(bicepFileContents,
                                                        bicepConfigFileContents,
@@ -226,12 +230,23 @@ namespace Bicep.LangServer.UnitTests.Configuration
             document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             ILanguageServerFacade server = BicepCompilationManagerHelper.CreateMockServer(document).Object;
 
-            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var mockFileSystem = new MockFileSystem();
 
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
+            var bicepFilePath = "/input.bicep";
+            mockFileSystem.AddFile(bicepFilePath, bicepFileContents);
+
+            if (saveBicepConfigFile)
+            {
+                bicepConfigFilePath = mockFileSystem.Path.GetFullPath("/bicepconfig.json");
+                mockFileSystem.AddFile(bicepConfigFilePath, bicepConfigFileContents);
+            }
+            else
+            {
+                bicepConfigFilePath = null;
+            }
+
             var workspace = new Workspace();
-
-            var fileExplorer = new FileSystemFileExplorer(new LocalFileSystem());
+            var fileExplorer = new FileSystemFileExplorer(mockFileSystem);
             var configurationManager = new ConfigurationManager(fileExplorer);
             var sourceFileFactory = new SourceFileFactory(configurationManager, BicepTestConstants.FeatureProviderFactory);
             var bicepCompilationManager = new BicepCompilationManager(
@@ -243,20 +258,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 new LinterRulesProvider(),
                 BicepTestConstants.FileResolver,
                 sourceFileFactory);
-            bicepCompilationManager.OpenCompilation(DocumentUri.From(bicepFilePath), null, bicepFileContents, LanguageConstants.LanguageId);
-
-            var bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-
-            if (saveBicepConfigFile)
-            {
-                bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
-                configurationManager.PurgeLookupCache();
-                bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
-            }
-            else
-            {
-                bicepConfigFilePath = null;
-            }
+            bicepCompilationManager.OpenCompilation(DocumentUri.From(InMemoryFileResolver.GetFileUri(bicepFilePath)), null, bicepFileContents, LanguageConstants.LanguageId);
 
             var bicepConfigChangeHandler = new BicepConfigChangeHandler(bicepCompilationManager,
                                                                         configurationManager,

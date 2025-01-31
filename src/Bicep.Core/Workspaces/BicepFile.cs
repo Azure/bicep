@@ -15,16 +15,16 @@ namespace Bicep.Core.Workspaces
             Uri fileUri,
             ImmutableArray<int> lineStarts,
             ProgramSyntax programSyntax,
-            RootConfiguration configuration,
-            IFeatureProvider featureProvider,
+            IConfigurationManager configurationManager,
+            IFeatureProviderFactory featureProviderFactory,
             IDiagnosticLookup lexingErrorLookup,
             IDiagnosticLookup parsingErrorLookup)
             : base(
                   fileUri,
                   lineStarts,
                   programSyntax,
-                  configuration,
-                  featureProvider,
+                  configurationManager,
+                  featureProviderFactory,
                   lexingErrorLookup,
                   parsingErrorLookup)
         {

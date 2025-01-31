@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions.TestingHelpers;
 using System.Runtime.CompilerServices;
+using Bicep.Core.Configuration;
 using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
@@ -822,7 +823,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 yield return "testacr4.azurecr.io";
             }
             azureContainerRegistriesProvider.Setup(x => x.GetRegistryUrisAccessibleFromAzure(completionContext.Configuration.Cloud, It.IsAny<CancellationToken>()))
-                .Returns((Uri uri, CancellationToken ct) => GetUris(ct));
+                .Returns((CloudConfiguration _, CancellationToken ct) => GetUris(ct));
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistriesProvider.Object,
@@ -841,9 +842,8 @@ namespace Bicep.LangServer.UnitTests.Completions
             string inputWithCursors,
             string? bicepConfigFileContents = null)
         {
-            var documentUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            var documentUri = DocumentUri.From(InMemoryFileResolver.GetFileUri("/path/to/main.bicep"));
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
-
             var files = new Dictionary<string, MockFileData>
             {
                 ["/path/to/main.bicep"] = bicepFileContents,
@@ -854,7 +854,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 files["/path/to/bicepconfig.json"] = bicepConfigFileContents;
             }
 
-            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var configurationManager = new ConfigurationManager(new FileSystemFileExplorer(new MockFileSystem(files)));
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true, configurationManager: configurationManager);
             var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
 
             return (BicepCompletionContext.Create(compilation, cursors[0]), documentUri);

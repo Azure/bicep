@@ -11,12 +11,15 @@ namespace Bicep.Core.Workspaces
 {
     public abstract class BicepSourceFile : ISourceFile
     {
+        private readonly IConfigurationManager configurationManager;
+        private readonly IFeatureProviderFactory featureProviderFactory;
+
         protected BicepSourceFile(
             Uri fileUri,
             ImmutableArray<int> lineStarts,
             ProgramSyntax programSyntax,
-            RootConfiguration configuration,
-            IFeatureProvider features,
+            IConfigurationManager configurationManager,
+            IFeatureProviderFactory featureProviderFactory,
             IDiagnosticLookup lexingErrorLookup,
             IDiagnosticLookup parsingErrorLookup)
         {
@@ -24,8 +27,8 @@ namespace Bicep.Core.Workspaces
             this.LineStarts = lineStarts;
             this.ProgramSyntax = programSyntax;
             this.Hierarchy = SyntaxHierarchy.Build(ProgramSyntax);
-            this.Configuration = configuration;
-            this.Features = features;
+            this.configurationManager = configurationManager;
+            this.featureProviderFactory = featureProviderFactory;
             this.LexingErrorLookup = lexingErrorLookup;
             this.ParsingErrorLookup = parsingErrorLookup;
             this.DisabledDiagnosticsCache = new DisabledDiagnosticsCache(ProgramSyntax, lineStarts);
@@ -37,8 +40,8 @@ namespace Bicep.Core.Workspaces
             this.LineStarts = original.LineStarts;
             this.ProgramSyntax = original.ProgramSyntax;
             this.Hierarchy = original.Hierarchy;
-            this.Configuration = original.Configuration;
-            this.Features = original.Features;
+            this.configurationManager = original.configurationManager;
+            this.featureProviderFactory = original.featureProviderFactory;
             this.LexingErrorLookup = original.LexingErrorLookup;
             this.ParsingErrorLookup = original.ParsingErrorLookup;
             this.DisabledDiagnosticsCache = original.DisabledDiagnosticsCache;
@@ -56,9 +59,9 @@ namespace Bicep.Core.Workspaces
 
         public ISyntaxHierarchy Hierarchy { get; }
 
-        public RootConfiguration Configuration { get; }
+        public RootConfiguration Configuration => this.configurationManager.GetConfiguration(this.Uri);
 
-        public IFeatureProvider Features { get; }
+        public IFeatureProvider Features => this.featureProviderFactory.GetFeatureProvider(this.Uri);
 
         public IDiagnosticLookup LexingErrorLookup { get; }
 
