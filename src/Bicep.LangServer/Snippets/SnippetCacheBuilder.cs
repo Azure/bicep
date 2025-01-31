@@ -178,7 +178,7 @@ public class SnippetCacheBuilder
 
         // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid
         // cross platform issues, we'll provide a placeholder uri.
-        var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}"), template);
+        var bicepFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}"), template);
         var workspace = new Workspace();
         workspace.UpsertSourceFiles(bicepFile.AsEnumerable());
 

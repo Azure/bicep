@@ -44,7 +44,6 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IFileExplorer fileExplorer;
         private readonly ILanguageServerFacade languageServer;
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly DocumentSelectorFactory documentSelectorFactory;
 
         public BicepDefinitionHandler(
@@ -54,7 +53,6 @@ namespace Bicep.LanguageServer.Handlers
             IFileExplorer fileExplorer,
             ILanguageServerFacade languageServer,
             IModuleDispatcher moduleDispatcher,
-            IFeatureProviderFactory featureProviderFactory,
             DocumentSelectorFactory documentSelectorFactory) : base()
         {
             this.symbolResolver = symbolResolver;
@@ -63,7 +61,6 @@ namespace Bicep.LanguageServer.Handlers
             this.fileExplorer = fileExplorer;
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
-            this.featureProviderFactory = featureProviderFactory;
             this.documentSelectorFactory = documentSelectorFactory;
         }
 

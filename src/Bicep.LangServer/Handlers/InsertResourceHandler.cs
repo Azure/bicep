@@ -52,7 +52,8 @@ namespace Bicep.LanguageServer.Handlers
             ILanguageServerFacade server,
             ICompilationManager compilationManager,
             IAzResourceProvider azResourceProvider,
-            ITelemetryProvider telemetryProvider)
+            ITelemetryProvider telemetryProvider,
+            ISourceFileFactory sourceFileFactory)
         {
             this.compiler = compiler;
             this.server = server;
@@ -193,7 +194,7 @@ namespace Bicep.LanguageServer.Handlers
                 [resourceDeclaration],
                 SyntaxFactory.EndOfFileToken);
 
-            BicepSourceFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri("inmemory:///generated.bicep"), program.ToString());
+            BicepSourceFile bicepFile = compiler.SourceFileFactory.CreateBicepFile(new Uri("inmemory:///generated.bicep"), program.ToString());
 
             var workspace = new Workspace();
             workspace.UpsertSourceFile(bicepFile);

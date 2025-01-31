@@ -6,6 +6,8 @@ using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Templates.Engines;
+using Bicep.Core.Configuration;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
@@ -15,7 +17,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Workspaces
 {
-    public static class SourceFileFactory
+    public class SourceFileFactory : ISourceFileFactory
     {
         private static readonly Uri InMemoryMainTemplateUri = new("inmemory:///main.json");
 
@@ -24,8 +26,17 @@ namespace Bicep.Core.Workspaces
             LineInfoHandling = LineInfoHandling.Ignore,
         };
 
+        private readonly IConfigurationManager configurationManager;
 
-        public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, Type? sourceFileType = null)
+        private readonly IFeatureProviderFactory featureProviderFactory;
+
+        public SourceFileFactory(IConfigurationManager configurationManager, IFeatureProviderFactory featureProviderFactory)
+        {
+            this.configurationManager = configurationManager;
+            this.featureProviderFactory = featureProviderFactory;
+        }
+
+        public ISourceFile CreateSourceFile(Uri fileUri, string fileContents, Type? sourceFileType = null)
         {
             if (sourceFileType == typeof(BicepFile))
             {
@@ -74,23 +85,23 @@ namespace Bicep.Core.Workspaces
             return CreateBicepFile(fileUri, fileContents);
         }
 
-        public static BicepParamFile CreateBicepParamFile(Uri fileUri, string fileContents)
+        public BicepParamFile CreateBicepParamFile(Uri fileUri, string fileContents)
         {
             var parser = new ParamsParser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 
-            return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);
+            return new(fileUri, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
-        public static BicepFile CreateBicepFile(Uri fileUri, string fileContents)
+        public BicepFile CreateBicepFile(Uri fileUri, string fileContents)
         {
             var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 
-            return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);
+            return new(fileUri, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
-        public static ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents)
+        public ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents)
         {
             try
             {
@@ -108,7 +119,7 @@ namespace Bicep.Core.Workspaces
             }
         }
 
-        public static TemplateSpecFile CreateTemplateSpecFile(Uri fileUri, string fileContents)
+        public TemplateSpecFile CreateTemplateSpecFile(Uri fileUri, string fileContents)
         {
             TemplateSpecFile CreateErrorFile() => new(fileUri, fileContents, null, new ArmTemplateFile(InMemoryMainTemplateUri, fileContents, null, null));
 

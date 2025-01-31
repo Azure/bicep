@@ -26,10 +26,10 @@ namespace Bicep.Core.UnitTests.Emit
             var compilation = Services.BuildCompilation(Text);
             var parameterSymbol = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.First();
 
-            var rawSourceMap = new RawSourceMap(new List<RawSourceMapFileEntry>());
+            var rawSourceMap = new RawSourceMap([]);
             var jsonWriter = new PositionTrackingJsonTextWriter(
                 new StringWriter(),
-                SourceFileFactory.CreateBicepFile(FileUri, Text),
+                compilation.SourceFileFactory.CreateBicepFile(FileUri, Text),
                 rawSourceMap);
             jsonWriter.WritePropertyWithPosition(parameterSymbol.DeclaringParameter, parameterSymbol.Name, () => { });
 
@@ -41,9 +41,9 @@ namespace Bicep.Core.UnitTests.Emit
         [TestMethod]
         public void SourceMapShouldAccountForNestedTemplateOffset()
         {
-            var sourceFile = SourceFileFactory.CreateBicepFile(FileUri, String.Empty);
+            var sourceFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(FileUri, String.Empty);
 
-            var parentRawSourceMap = new RawSourceMap(new List<RawSourceMapFileEntry>());
+            var parentRawSourceMap = new RawSourceMap([]);
             var parentJsonWriter = new PositionTrackingJsonTextWriter(
                 new StringWriter(),
                 sourceFile,
@@ -53,9 +53,9 @@ namespace Bicep.Core.UnitTests.Emit
             // create raw source map with single entry with known target position
             var nestedStartPosition = 10;
             var nestedRawSourceMap = new RawSourceMap(
-                new List<RawSourceMapFileEntry>(){ new (sourceFile,
-                new List<SourceMapRawEntry>() { new (new (0, 0),
-                new List<TextSpan>() { new (nestedStartPosition, 0) })}) }
+                [new(sourceFile,
+                    [new(new (0, 0),
+                        [new(nestedStartPosition, 0)])])]
             );
             var nestedJsonWriter = new PositionTrackingJsonTextWriter(
                 new StringWriter(),

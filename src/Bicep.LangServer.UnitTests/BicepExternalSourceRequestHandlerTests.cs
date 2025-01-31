@@ -143,7 +143,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = PathHelper.FilePathToFileUrl(Root("foo/bar/entrypoint.bicep"));
-            var sourceArchive = new SourceArchiveBuilder().WithBicepFile(bicepUri, bicepSource).Build();
+            var sourceArchive = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepUri, bicepSource).Build();
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new ResultWithException<SourceArchive>(sourceArchive));
 
             var resolver = StrictMock.Of<IFileResolver>();
@@ -318,7 +318,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = PathHelper.FilePathToFileUrl(Root("foo/bar/entrypoint.bicep"));
-            var sourceArchive = new SourceArchiveBuilder().WithBicepFile(bicepUri, bicepSource).Build();
+            var sourceArchive = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepUri, bicepSource).Build();
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new ResultWithException<SourceArchive>(sourceArchive));
 
             var resolver = StrictMock.Of<IFileResolver>();
@@ -369,7 +369,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = PathHelper.FilePathToFileUrl(Root("foo/bar/entrypoint.bicep"));
-            var sourceArchive = new SourceArchiveBuilder().WithBicepFile(bicepUri, bicepSource).Build();
+            var sourceArchive = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepUri, bicepSource).Build();
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new ResultWithException<SourceArchive>(sourceArchive));
 
             var resolver = StrictMock.Of<IFileResolver>();
@@ -433,7 +433,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.BuiltInConfiguration,
                 new Uri("http://no-parent", UriKind.Absolute))
             .Unwrap();
-            var ext = new ExternalSourceReference(reference, new SourceArchiveBuilder().Build())
+            var ext = new ExternalSourceReference(reference, new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).Build())
                 .WithRequestForSourceFile("<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json");
 
             ext.GetShortTitle().Should().Be("main.json (module1:v1->storage-account:1.0.1)");
@@ -522,7 +522,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new Uri("file:///parent.bicep", UriKind.Absolute));
 
             SourceArchive? sourceArchive = entrypointUri is { } ?
-                new SourceArchiveBuilder().WithBicepFile(entrypointUri, "metadata description = 'bicep module'").Build()
+                new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(entrypointUri, "metadata description = 'bicep module'").Build()
                 : null;
 
             return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(reference, sourceArchive);

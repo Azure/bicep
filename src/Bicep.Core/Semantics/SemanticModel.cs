@@ -50,14 +50,12 @@ namespace Bicep.Core.Semantics
         private readonly ConcurrentDictionary<Uri, ResultWithDiagnosticBuilder<AuxiliaryFile>> auxiliaryFileCache = new();
         private readonly IReadableFileCache fileCache;
 
-        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, IFeatureProvider features, IEnvironment environment, IReadableFileCache fileCache, BicepSourceFile sourceFile)
+        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, IReadableFileCache fileCache, BicepSourceFile sourceFile)
         {
             this.ArtifactReferenceFactory = artifactReferenceFactory;
             this.ModelLookup = modelLookup;
             this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
-            this.Configuration = configuration;
-            this.Features = features;
             this.Environment = environment;
             this.fileCache = fileCache;
             TraceBuildOperation(sourceFile, Features, Configuration);
@@ -71,14 +69,7 @@ namespace Bicep.Core.Semantics
             // This allows the binder to create the right kind of symbol for compile-time imports.
             var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(modelLookup, sourceFile);
             this.SymbolContext = symbolContext;
-            this.Binder = new Binder(
-                namespaceProvider,
-                Configuration,
-                Features,
-                sourceFileGrouping,
-                cycleBlockingModelLookup,
-                sourceFile,
-                this.SymbolContext);
+            this.Binder = new Binder(namespaceProvider, sourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext);
 
             // TODO(#13239): ApiVersionProvider is only used by UseRecentApiVersionRule. Coupling the linter with the semantic model is suboptimal. A better approach would be to integrate ApiVersionProvider into IResourceTypeProvider.
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(Features, this.Binder.NamespaceResolver.GetAvailableAzureResourceTypes()));
@@ -218,9 +209,9 @@ namespace Bicep.Core.Semantics
 
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
-        public RootConfiguration Configuration { get; }
+        public RootConfiguration Configuration => this.SourceFile.Configuration ;
 
-        public IFeatureProvider Features { get; }
+        public IFeatureProvider Features => this.SourceFile.Features;
 
         public IApiVersionProvider ApiVersionProvider =>
             this.apiVersionProviderLazy.Value;

@@ -18,25 +18,20 @@ namespace Bicep.LangServer.UnitTests
     [TestClass]
     public class BicepCompilationProviderTests
     {
-        private static BicepCompilationProvider Create()
-        {
-            var helper = ServiceBuilder.Create(services => services
-                .WithDisabledAnalyzersConfiguration()
-                .AddSingleton<BicepCompilationProvider>());
-
-            return helper.Construct<BicepCompilationProvider>();
-        }
-
         [TestMethod]
         public void Create_ShouldReturnValidCompilation()
         {
             var fileUri = DocumentUri.From($"{DataSets.Parameters_LF.Name}.bicep");
-            var provider = Create();
+            var services = ServiceBuilder.Create(services => services
+                .WithDisabledAnalyzersConfiguration()
+                .AddSingleton<BicepCompilationProvider>());
 
-            var sourceFile = SourceFileFactory.CreateBicepFile(fileUri.ToUriEncoded(), DataSets.Parameters_LF.Bicep);
+            var sourceFileFactory = services.Construct<ISourceFileFactory>();
+            var sourceFile = sourceFileFactory.CreateBicepFile(fileUri.ToUriEncoded(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
             workspace.UpsertSourceFile(sourceFile);
 
+            var provider = services.Construct<BicepCompilationProvider>();
             var context = provider.Create(workspace, new AuxiliaryFileCache(BicepTestConstants.FileResolver), fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty);
 
             context.Compilation.Should().NotBeNull();

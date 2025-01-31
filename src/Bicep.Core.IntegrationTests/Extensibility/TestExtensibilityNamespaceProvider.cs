@@ -38,7 +38,7 @@ public class TestExtensibilityNamespaceProvider : NamespaceProvider
 
     private readonly NamespaceTypeCreator namespaceCreatorFunc;
 
-    protected override TypeSymbol GetNamespaceTypeForConfigManagedExtension(RootConfiguration rootConfig, IFeatureProvider features, BicepSourceFile sourceFile, ResourceScope targetScope, ArtifactResolutionInfo? artifact, ExtensionDeclarationSyntax? syntax, string extensionName)
+    protected override TypeSymbol GetNamespaceTypeForConfigManagedExtension(BicepSourceFile sourceFile, ResourceScope targetScope, ArtifactResolutionInfo? artifact, ExtensionDeclarationSyntax? syntax, string extensionName)
     {
         var aliasName = syntax?.Alias?.IdentifierName ?? extensionName;
         if (namespaceCreatorFunc(extensionName, aliasName) is { } namespaceType)
@@ -46,6 +46,6 @@ public class TestExtensibilityNamespaceProvider : NamespaceProvider
             return namespaceType;
         }
 
-        return base.GetNamespaceTypeForConfigManagedExtension(rootConfig, features, sourceFile, targetScope, artifact, syntax, extensionName);
+        return base.GetNamespaceTypeForConfigManagedExtension(sourceFile, targetScope, artifact, syntax, extensionName);
     }
 }

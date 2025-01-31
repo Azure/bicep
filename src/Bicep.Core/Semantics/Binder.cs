@@ -25,8 +25,6 @@ namespace Bicep.Core.Semantics
 
         public Binder(
             INamespaceProvider namespaceProvider,
-            RootConfiguration configuration,
-            IFeatureProvider features,
             IArtifactFileLookup sourceFileLookup,
             ISemanticModelLookup modelLookup,
             BicepSourceFile sourceFile,
@@ -37,7 +35,7 @@ namespace Bicep.Core.Semantics
             this.TargetScope = SyntaxHelper.GetTargetScope(sourceFile);
 
             var namespaceResults = namespaceProvider
-                .GetNamespaces(configuration, features, sourceFileLookup, sourceFile, TargetScope)
+                .GetNamespaces(sourceFileLookup, sourceFile, TargetScope)
                 .ToImmutableArray();
             this.NamespaceResolver = NamespaceResolver.Create(namespaceResults);
 

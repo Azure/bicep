@@ -54,7 +54,7 @@ namespace Bicep.LangServer.IntegrationTests
             var moduleRegistry = StrictMock.Of<IArtifactRegistry>();
             if (bicepModuleEntrypoint is not null && entrypointSource is not null)
             {
-                sourceArchiveResult ??= new(new SourceArchiveBuilder().WithBicepFile(bicepModuleEntrypoint, entrypointSource).Build());
+                sourceArchiveResult ??= new(new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepModuleEntrypoint, entrypointSource).Build());
             }
             sourceArchiveResult ??= new(new SourceNotAvailableException());
             moduleRegistry.Setup(m => m.TryGetSource(It.IsAny<ArtifactReference>())).Returns(sourceArchiveResult);

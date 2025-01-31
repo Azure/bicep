@@ -19,14 +19,21 @@ namespace Bicep.Core.UnitTests.Utils
         private static string Rooted(string path) => $"/{path}";
 #endif
 
+        private readonly ISourceFileFactory sourceFileFactory;
+
         // First will be entrypoint, must be a bicep file
         private List<ISourceFile> SourceFiles = new();
 
         private ISourceFile EntrypointFile => SourceFiles[0];
 
+        public SourceArchiveBuilder(ISourceFileFactory sourceFileFactory)
+        {
+            this.sourceFileFactory = sourceFileFactory;
+        }
+
         public SourceArchiveBuilder WithBicepFile(Uri fileUri, string contents)
         {
-            SourceFiles.Add(SourceFileFactory.CreateBicepFile(fileUri, contents));
+            SourceFiles.Add(this.sourceFileFactory.CreateBicepFile(fileUri, contents));
             return this;
         }
 

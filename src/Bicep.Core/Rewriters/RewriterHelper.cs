@@ -20,7 +20,7 @@ public static class RewriterHelper
             return (bicepFile, false);
         }
 
-        bicepFile = SourceFileFactory.CreateBicepFile(bicepFile.Uri, newProgramSyntax.ToString());
+        bicepFile = compilation.SourceFileFactory.CreateBicepFile(bicepFile.Uri, newProgramSyntax.ToString());
         return (bicepFile, true);
     }
 

@@ -10,6 +10,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Bicep.LanguageServer.Telemetry;
 using Newtonsoft.Json;
@@ -47,6 +48,7 @@ namespace Bicep.LanguageServer.Handlers
         ISerializer serializer,
         ILanguageServerFacade server,
         ITelemetryProvider telemetryProvider,
+        ISourceFileFactory sourceFileFactory,
         BicepCompiler bicepCompiler)
         : ExecuteTypedResponseCommandHandlerBase<BicepDecompileForPasteCommandParams, BicepDecompileForPasteCommandResult>(LangServerConstants.DecompileForPasteCommand, serializer)
     {
@@ -385,7 +387,7 @@ namespace Bicep.LanguageServer.Handlers
             // Is it valid JSON that we can convert into Bicep?
             var pasteType = PasteType.JsonValue;
             var options = GetDecompileOptions(pasteType);
-            var bicep = BicepDecompiler.DecompileJsonValue(json, options);
+            var bicep = BicepDecompiler.DecompileJsonValue(sourceFileFactory, json, options);
             if (bicep is null)
             {
                 return null;

@@ -51,6 +51,7 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
             .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
             .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
+            .AddSingleton<ISourceFileFactory, SourceFileFactory>()
             .AddPublicRegistryModuleMetadataProviderServices()
             .AddSingleton<BicepCompiler>();
 
@@ -103,6 +104,9 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)
         => Register(services, compilationManager);
+
+    public static IServiceCollection WithConfigurationManager(this IServiceCollection services, IConfigurationManager configurationManager)
+        => Register(services, configurationManager);
 
     public static IServiceCollection WithConfigurationPatch(this IServiceCollection services, Func<RootConfiguration, RootConfiguration> patchFunc)
         => Register(services, patchFunc)
