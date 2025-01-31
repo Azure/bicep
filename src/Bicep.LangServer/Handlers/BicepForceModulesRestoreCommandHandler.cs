@@ -65,7 +65,6 @@ namespace Bicep.LanguageServer.Handlers
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 this.fileResolver,
                 this.moduleDispatcher,
-                this.configurationManager,
                 this.workspace,
                 this.sourceFileFactory,
                 fileUri);

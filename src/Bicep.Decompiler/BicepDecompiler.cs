@@ -55,7 +55,7 @@ public class BicepDecompiler
 
         return new DecompileResult(
             bicepUri,
-            this.PrintFiles(workspace));
+            PrintFiles(workspace));
     }
     public DecompileResult DecompileParameters(string contents, Uri entryBicepparamUri, Uri? bicepFileUri, DecompileParamOptions? options = null)
     {
@@ -69,7 +69,7 @@ public class BicepDecompiler
 
         workspace.UpsertSourceFile(bicepparamFile);
 
-        return new(entryBicepparamUri, this.PrintFiles(workspace));
+        return new(entryBicepparamUri, PrintFiles(workspace));
     }
 
     private ProgramSyntax DecompileParametersFile(string jsonInput, Uri entryBicepparamUri, Uri? bicepFileUri, DecompileParamOptions options)
@@ -210,7 +210,7 @@ Following metadata was not decompiled:
         }
     }
 
-    private ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)
+    private static ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)
     {
         var filesToSave = new Dictionary<Uri, string>();
         foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
@@ -220,7 +220,7 @@ Following metadata was not decompiled:
                 continue;
             }
 
-            var options = this.bicepCompiler.ConfigurationManager.GetConfiguration(fileUri).Formatting.Data;
+            var options = bicepFile.Configuration.Formatting.Data;
             var context = PrettyPrinterV2Context.Create(options, bicepFile.LexingErrorLookup, bicepFile.ParsingErrorLookup);
             filesToSave[fileUri] = PrettyPrinterV2.Print(bicepFile.ProgramSyntax, context);
         }

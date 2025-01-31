@@ -22,7 +22,6 @@ namespace Bicep.LanguageServer.Providers
     /// <remarks>This class exists only so we can mock fatal exceptions in tests.</remarks>
     public class BicepCompilationProvider : ICompilationProvider
     {
-        private readonly IConfigurationManager configurationManager;
         private readonly IBicepAnalyzer bicepAnalyzer;
         private readonly IEnvironment environment;
         private readonly INamespaceProvider namespaceProvider;
@@ -35,7 +34,6 @@ namespace Bicep.LanguageServer.Providers
             INamespaceProvider namespaceProvider,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
-            IConfigurationManager configurationManager,
             IBicepAnalyzer bicepAnalyzer,
             ISourceFileFactory sourceFileFactory)
         {
@@ -43,7 +41,6 @@ namespace Bicep.LanguageServer.Providers
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
-            this.configurationManager = configurationManager;
             this.bicepAnalyzer = bicepAnalyzer;
             this.sourceFileFactory = sourceFileFactory;
         }
@@ -57,7 +54,6 @@ namespace Bicep.LanguageServer.Providers
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 fileResolver,
                 moduleDispatcher,
-                configurationManager,
                 workspace,
                 sourceFileFactory,
                 documentUri.ToUriEncoded());
@@ -73,7 +69,6 @@ namespace Bicep.LanguageServer.Providers
             var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(
                 fileResolver,
                 moduleDispatcher,
-                configurationManager,
                 workspace,
                 sourceFileFactory,
                 current.Compilation.SourceFileGrouping);
@@ -89,7 +84,6 @@ namespace Bicep.LanguageServer.Providers
                 environment,
                 namespaceProvider,
                 syntaxTreeGrouping,
-                configurationManager,
                 bicepAnalyzer,
                 moduleDispatcher,
                 sourceFileFactory,

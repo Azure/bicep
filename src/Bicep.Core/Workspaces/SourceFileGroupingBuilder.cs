@@ -65,14 +65,14 @@ namespace Bicep.Core.Workspaces
             this.forceRestore = forceArtifactRestore;
         }
 
-        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IReadOnlyWorkspace workspace, ISourceFileFactory sourceFileFactory, Uri entryFileUri, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, ISourceFileFactory sourceFileFactory, Uri entryFileUri, bool forceModulesRestore = false)
         {
             var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, sourceFileFactory, forceModulesRestore);
 
-            return builder.Build(entryFileUri, configurationManager);
+            return builder.Build(entryFileUri);
         }
 
-        public static SourceFileGrouping Rebuild(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IReadOnlyWorkspace workspace, ISourceFileFactory sourceFileFactory, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, ISourceFileFactory sourceFileFactory, SourceFileGrouping current)
         {
             var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, sourceFileFactory, current);
 
@@ -97,12 +97,12 @@ namespace Bicep.Core.Workspaces
                 .SelectMany(current.GetFilesDependingOn)
                 .ToImmutableHashSet();
 
-            return builder.Build(current.EntryPoint.Uri, configurationManager, sourcefileExplorerbuild);
+            return builder.Build(current.EntryPoint.Uri, sourcefileExplorerbuild);
         }
 
-        private SourceFileGrouping Build(Uri entryFileUri, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild = null)
+        private SourceFileGrouping Build(Uri entryFileUri, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild = null)
         {
-            var fileResult = this.PopulateRecursive(entryFileUri, null, sourcefileExplorerbuild, configurationManager);
+            var fileResult = this.PopulateRecursive(entryFileUri, null, sourcefileExplorerbuild);
 
             if (!fileResult.IsSuccess(out var entryFile, out var errorBuilder))
             {
@@ -158,20 +158,20 @@ namespace Bicep.Core.Workspaces
             return resolutionResult;
         }
 
-        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild, IConfigurationManager configurationManager)
+        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, reference);
             if (fileResult.TryUnwrap() is BicepSourceFile bicepSource)
             {
-                PopulateRecursive(bicepSource, configurationManager, sourcefileExplorerbuild);
+                PopulateRecursive(bicepSource, sourcefileExplorerbuild);
             }
 
             return fileResult;
         }
 
-        private void PopulateRecursive(BicepSourceFile file, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild)
+        private void PopulateRecursive(BicepSourceFile file, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild)
         {
-            var config = configurationManager.GetConfiguration(file.Uri);
+            var config = file.Configuration;
             implicitExtensions[file] = [];
 
             // process "implicit" extensions (extensions defined in bicepconfig.json)
@@ -222,7 +222,7 @@ namespace Bicep.Core.Workspaces
                     (childResult.IsSuccess(out var childFile) && sourcefileExplorerbuild is not null && sourcefileExplorerbuild.Contains(childFile)))
                 {
                     // only recurse if we've not seen this file before - to avoid infinite loops
-                    childResult = PopulateRecursive(artifactUri, resolutionInfo.Reference, sourcefileExplorerbuild, configurationManager);
+                    childResult = PopulateRecursive(artifactUri, resolutionInfo.Reference, sourcefileExplorerbuild);
                 }
                 fileResultByUri[artifactUri] = childResult;
             }

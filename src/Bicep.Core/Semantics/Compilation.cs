@@ -23,7 +23,6 @@ namespace Bicep.Core.Semantics
             IEnvironment environment,
             INamespaceProvider namespaceProvider,
             SourceFileGrouping sourceFileGrouping,
-            IConfigurationManager configurationManager,
             IBicepAnalyzer linterAnalyzer,
             IArtifactReferenceFactory artifactReferenceFactory,
             ISourceFileFactory sourceFileFactory,

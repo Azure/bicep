@@ -527,7 +527,6 @@ module moduleB './moduleB.bicep' = {
                 TestTypeHelper.CreateEmptyNamespaceProvider(),
                 fileResolver,
                 services.Construct<IModuleDispatcher>(),
-                BicepTestConstants.BuiltInOnlyConfigurationManager,
                 BicepTestConstants.LinterAnalyzer,
                 BicepTestConstants.SourceFileFactory);
 
