@@ -90,23 +90,39 @@ namespace Bicep.Core.IntegrationTests
         public void RetryOnDecorator_WithModuleDeclaration_ShouldFail()
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
-            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-            @retryOn(['ResourceNotFound'])
-            module myModule 'module.bicep' = {
-            name: 'moduleb'
-             params: {
-                inputa: 'foo'
-                inputb: 'bar'
-                }
-            }
-            ");
+
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleUri = new Uri("file:///module.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [mainUri] = @"
+                    @retryOn(['ResourceNotFound'])
+                    module myModule 'module.bicep' = {
+                      name: 'moduleb'
+                      params: {
+                        inputa: 'foo'
+                        inputb: 'bar'
+                      }
+                    }
+                    "
+                ,
+                [moduleUri] = @"
+                    param inputa string
+                    param inputb string
+                    "
+            };
+
+            var compilation = services.BuildCompilation(files, mainUri);
+            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
+            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
+
             using (new AssertionScope())
             {
-                template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP128", DiagnosticLevel.Error, "Function \"retryOn\" cannot be used as a module decorator."),
-                    ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find file 'C:\\path\\to\\module.bicep'.")
+                diagnosticsByFile[mainUri].ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                    ("BCP128", DiagnosticLevel.Error, "Function \"retryOn\" cannot be used as a module decorator.")
                 });
+                success.Should().BeFalse();
             }
         }
 
