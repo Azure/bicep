@@ -90,7 +90,6 @@ namespace Bicep.Core.IntegrationTests
         public void RetryOnDecorator_WithModuleDeclaration_ShouldFail()
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
-            var moduleUri = new Uri("file:///module.bicep");
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @retryOn(['ResourceNotFound'])
             module myModule 'module.bicep' = {

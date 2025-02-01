@@ -827,7 +827,7 @@
         },
         "waitAndRetry": {
           "type": "boolean",
-          "description": "Allows to enable wait and retry feature on resource type."
+          "description": "Allows to enable wait and retry feature on resource type. See https://aka.ms/bicep/experimental-features#waitandretry"
         },
         "resourceDerivedTypes": {
           "type": "boolean",
