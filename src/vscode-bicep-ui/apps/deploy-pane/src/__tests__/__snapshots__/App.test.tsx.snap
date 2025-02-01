@@ -1,5 +1,294 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`App > handles synchronous deployment failures correctly 1`] = `
+<div>
+  <main
+    id="webview-body"
+  >
+    <section
+      class="form-section"
+    >
+      <vscode-divider
+        role="separator"
+      />
+      <div
+        class="form-title"
+      >
+        <div
+          aria-hidden="true"
+          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          data-testid="chevron-up-codicon"
+        />
+        <h3>
+          Deployment Scope
+        </h3>
+      </div>
+      <div
+        class="form-content"
+      >
+        <vscode-table
+          role="table"
+        >
+          <vscode-table-body
+            role="rowgroup"
+          >
+            <vscode-table-row
+              role="row"
+            >
+              <vscode-table-cell
+                role="cell"
+              >
+                Subscription Id
+              </vscode-table-cell>
+              <vscode-table-cell
+                role="cell"
+              >
+                <vscode-badge
+                  variant="default"
+                >
+                  a790367f-228f-43fd-a660-ed9abb7258ef
+                </vscode-badge>
+              </vscode-table-cell>
+            </vscode-table-row>
+            <vscode-table-row
+              role="row"
+            >
+              <vscode-table-cell
+                role="cell"
+              >
+                Resource Group
+              </vscode-table-cell>
+              <vscode-table-cell
+                role="cell"
+              >
+                <vscode-badge
+                  variant="default"
+                >
+                  mockRg
+                </vscode-badge>
+              </vscode-table-cell>
+            </vscode-table-row>
+          </vscode-table-body>
+        </vscode-table>
+        <div
+          class="controls"
+        >
+          <vscode-button
+            role="button"
+            tabindex="0"
+            type="button"
+          >
+            Change Scope
+          </vscode-button>
+        </div>
+      </div>
+    </section>
+    <section
+      class="form-section"
+    >
+      <vscode-divider
+        role="separator"
+      />
+      <div
+        class="form-title"
+      >
+        <div
+          aria-hidden="true"
+          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          data-testid="chevron-up-codicon"
+        />
+        <h3>
+          Parameters
+        </h3>
+      </div>
+      <div
+        class="form-content"
+      >
+        <vscode-button
+          role="button"
+          tabindex="0"
+          type="button"
+        >
+          Pick JSON Parameters File
+        </vscode-button>
+        <span
+          class="input-row"
+        >
+          <vscode-label
+            for=""
+            id="vscode-label-3"
+          >
+            fooParam
+          </vscode-label>
+          <vscode-textfield
+            aria-invalid="false"
+            internals-valid=""
+            type="text"
+          />
+        </span>
+      </div>
+    </section>
+    <section
+      class="form-section"
+    >
+      <vscode-divider
+        role="separator"
+      />
+      <div
+        class="form-title"
+      >
+        <div
+          aria-hidden="true"
+          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          data-testid="chevron-up-codicon"
+        />
+        <h3>
+          Actions
+        </h3>
+      </div>
+      <div
+        class="form-content"
+      >
+        <div
+          class="controls"
+        >
+          <vscode-button
+            role="button"
+            tabindex="0"
+            type="button"
+          >
+            Deploy
+          </vscode-button>
+          <vscode-button
+            role="button"
+            tabindex="0"
+            type="button"
+          >
+            Validate
+          </vscode-button>
+          <vscode-button
+            role="button"
+            tabindex="0"
+            type="button"
+          >
+            What-If
+          </vscode-button>
+        </div>
+      </div>
+    </section>
+    <section
+      class="form-section"
+    >
+      <vscode-divider
+        role="separator"
+      />
+      <div
+        class="form-title"
+      >
+        <div
+          aria-hidden="true"
+          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          data-testid="chevron-up-codicon"
+        />
+        <h3>
+          Result
+        </h3>
+      </div>
+      <div
+        class="form-content"
+      >
+        <vscode-table
+          role="table"
+        >
+          <vscode-table-body
+            role="rowgroup"
+          >
+            <vscode-table-row
+              role="row"
+            >
+              <vscode-table-cell
+                role="cell"
+              >
+                Deployment Name
+              </vscode-table-cell>
+              <vscode-table-cell
+                role="cell"
+              >
+                <vscode-badge
+                  variant="default"
+                >
+                  bicep-deploy-1737601964200
+                  <a
+                    href="https://portal.azure.com/#@9eeeb42f-40a5-4229-849f-a71fae26c89f/blade/HubsExtension/DeploymentDetailsBlade/overview/id/%2Fsubscriptions%2Fa790367f-228f-43fd-a660-ed9abb7258ef%2FresourceGroups%2FmockRg%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2Fbicep-deploy-1737601964200"
+                    style="vertical-align: middle;"
+                    title="Open in Portal"
+                  >
+                    <div
+                      aria-hidden="true"
+                      class="sc-gtLWhw dxZIxj codicon codicon-globe"
+                      data-testid="globe-codicon"
+                    />
+                  </a>
+                </vscode-badge>
+              </vscode-table-cell>
+            </vscode-table-row>
+            <vscode-table-row
+              role="row"
+            >
+              <vscode-table-cell
+                role="cell"
+              >
+                Status
+              </vscode-table-cell>
+              <vscode-table-cell
+                role="cell"
+              >
+                <vscode-badge
+                  variant="default"
+                >
+                  Failed
+                </vscode-badge>
+              </vscode-table-cell>
+            </vscode-table-row>
+          </vscode-table-body>
+        </vscode-table>
+        <vscode-checkbox
+          aria-checked="false"
+          aria-invalid="false"
+          aria-label="Show JSON?"
+          internals-valid=""
+          role="checkbox"
+        >
+          Show JSON?
+        </vscode-checkbox>
+        <vscode-table
+          role="table"
+        >
+          <vscode-table-body
+            role="rowgroup"
+          >
+            <vscode-table-row
+              role="row"
+            >
+              <vscode-table-cell
+                role="cell"
+              >
+                Message
+              </vscode-table-cell>
+              <vscode-table-cell
+                role="cell"
+              >
+                Error: Deployment failed
+              </vscode-table-cell>
+            </vscode-table-row>
+          </vscode-table-body>
+        </vscode-table>
+      </div>
+    </section>
+  </main>
+</div>
+`;
+
 exports[`App > renders the App component with deployment state 1`] = `
 <div>
   <main
@@ -725,7 +1014,7 @@ exports[`App > supports the scope picker 1`] = `
         >
           <vscode-label
             for=""
-            id="vscode-label-5"
+            id="vscode-label-6"
           >
             fooParam
           </vscode-label>
@@ -905,7 +1194,7 @@ exports[`App > validates a deployment 1`] = `
         >
           <vscode-label
             for=""
-            id="vscode-label-3"
+            id="vscode-label-4"
           >
             fooParam
           </vscode-label>
@@ -1179,7 +1468,7 @@ exports[`App > what-ifs a deployment 1`] = `
         >
           <vscode-label
             for=""
-            id="vscode-label-4"
+            id="vscode-label-5"
           >
             fooParam
           </vscode-label>

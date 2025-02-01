@@ -4,7 +4,7 @@
 import type { VscodeMessage } from "../messages";
 
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../components/App";
 import {
   createDeploymentDataMessage,
@@ -58,6 +58,8 @@ beforeEach(() => {
   }));
 });
 
+afterEach(() => vi.resetAllMocks());
+
 describe("App", () => {
   it("renders the loading spinner before initialization", async () => {
     const { container } = render(<App />);
@@ -85,6 +87,27 @@ describe("App", () => {
       sendMessage(getAccessTokenResultMessage());
     });
 
+    expect(container).toMatchSnapshot();
+  });
+
+  it("handles synchronous deployment failures correctly", async () => {
+    const { container } = render(<App />);
+
+    const scope = await initialize();
+
+    mockClient.deployments.beginCreateOrUpdateAtScope.mockImplementation(async () => {
+      throw new Error("Deployment failed");
+    });
+
+    const deployButton = screen.getByText("Deploy");
+    fireEvent.click(deployButton);
+
+    await act(async () => {
+      await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
+      sendMessage(getAccessTokenResultMessage());
+    });
+
+    expect(mockClient.deploymentOperations.listAtScope).not.toHaveBeenCalled();
     expect(container).toMatchSnapshot();
   });
 

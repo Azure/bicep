@@ -94,7 +94,7 @@ export function useAzure(props: UseAzureProps) {
         }
         setOperations(operations);
       };
-
+      
       let poller;
       try {
         poller = await client.deployments.beginCreateOrUpdateAtScope(getScopeId(scope), deploymentName, deployment);
@@ -107,7 +107,11 @@ export function useAzure(props: UseAzureProps) {
       } catch (e) {
         return { success: false, error: parseError(e) };
       } finally {
-        await updateOperations();
+        if (poller) {
+          // only attempt to fetch operations if the deployment ran asynchronously.
+          // if it failed synchronously, then the operations API will return 404.
+          await updateOperations();
+        }
       }
 
       const finalResult = poller.getResult();
