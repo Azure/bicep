@@ -39,6 +39,10 @@ public static class TypeFactory
     public static ArrayType CreateArrayType(long? minLength = null, long? maxLength = null, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
         => CreateArrayType(LanguageConstants.Any, minLength, maxLength, validationFlags);
 
+    public static ArrayType CreateStringArrayType(long? minLength = null, long? maxLength = null, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
+        => CreateArrayType(LanguageConstants.String, minLength, maxLength, validationFlags);
+
+
     public static ArrayType CreateArrayType(ITypeReference itemType, long? minLength = null, long? maxLength = null, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
     {
         if (maxLength.HasValue && maxLength.Value == 0)

@@ -825,6 +825,10 @@
           "type": "boolean",
           "description": "Enabling this feature makes the name property in the body of module declarations optional. See https://aka.ms/bicep/experimental-features#optionalmodulenames"
         },
+        "waitAndRetry": {
+          "type": "boolean",
+          "description": "Allows to enable wait and retry feature on resource type. See https://aka.ms/bicep/experimental-features#waitandretry"
+        },
         "resourceDerivedTypes": {
           "type": "boolean",
           "description": "If enabled, templates can reuse resource types wherever a type is expected. See https://aka.ms/bicep/experimental-features#resourcederivedtypes"
