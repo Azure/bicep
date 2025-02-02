@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Deployments.Engine" Version="1.224.0" />
+    <PackageReference Include="Azure.Deployments.Engine" Version="1.241.0" />
     <PackageReference Include="Azure.Deployments.Extensibility.Core" Version="0.1.55" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
   </ItemGroup>
