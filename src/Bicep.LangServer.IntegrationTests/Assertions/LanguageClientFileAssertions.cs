@@ -22,12 +22,12 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
         }
     }
 
-    public class LanguageClientFileAssertions : ReferenceTypeAssertions<LanguageClientFile,  LanguageClientFileAssertions>
+    public class LanguageClientFileAssertions : ReferenceTypeAssertions<LanguageClientFile, LanguageClientFileAssertions>
     {
         public LanguageClientFileAssertions(LanguageClientFile file)
             : base(file)
         {
-            
+
         }
 
         protected override string Identifier => nameof(LanguageClientFile);

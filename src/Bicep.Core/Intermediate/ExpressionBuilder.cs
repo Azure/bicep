@@ -456,7 +456,7 @@ public class ExpressionBuilder
         var implicitExtension = Context.SemanticModel.Binder.NamespaceResolver.ImplicitNamespaces
             .Select(x => x.Value.TryGetNamespaceType())
             .WhereNotNull()
-            .Where(x => 
+            .Where(x =>
                 // The 'az' and 'sys' namespaces do not utilize the extensibility contract and do not need to be emitted in the template
                 !LanguageConstants.IdentifierComparer.Equals(x.Settings.BicepExtensionName, SystemNamespaceType.BuiltInName) &&
                 !LanguageConstants.IdentifierComparer.Equals(x.Settings.BicepExtensionName, AzNamespaceType.BuiltInName))

@@ -95,8 +95,8 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
                 objectType.Name,
                 objectType.ValidationFlags,
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
-                isExistingResource && objectType.AdditionalProperties is not null 
-                    ? objectType.AdditionalProperties with { Flags = ConvertToReadOnly(objectType.AdditionalProperties.Flags) } 
+                isExistingResource && objectType.AdditionalProperties is not null
+                    ? objectType.AdditionalProperties with { Flags = ConvertToReadOnly(objectType.AdditionalProperties.Flags) }
                     : objectType.AdditionalProperties,
                 functions: null);
         }
