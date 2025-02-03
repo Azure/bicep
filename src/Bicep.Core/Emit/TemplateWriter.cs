@@ -1255,6 +1255,31 @@ namespace Bicep.Core.Emit
                     }
                 }
 
+                // Emit the options property 
+                if (resource.RetryOn is not null || resource.WaitUntil is not null)
+                {
+                    emitter.EmitObjectProperty("options", () =>
+                    {
+                        if(resource.RetryOn is not null)
+                        {
+                            emitter.EmitObjectProperty("retryOn", () =>
+                            {
+                                emitter.EmitObjectProperties(resource.RetryOn);
+                            });
+                        }
+
+                        if (resource.WaitUntil is not null)
+                        {
+                            emitter.EmitObjectProperty("waitUntil", () =>
+                            {
+                                emitter.EmitObjectProperties(resource.WaitUntil);
+                            });
+                        }
+
+                    });
+                    
+                }
+
                 if (metadata.IsAzResource ||
                     this.Context.SemanticModel.Features.LocalDeployEnabled ||
                     this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)

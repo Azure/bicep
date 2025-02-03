@@ -194,6 +194,12 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ExperimentalFeatureNames_OptionalModuleNames", resourceCulture);
             }
         }
+
+        internal static string ExperimentalFeatureNames_WaitAndRetry {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_WaitAndRetry", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Resource-derived types.
