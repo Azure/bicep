@@ -28,7 +28,7 @@ namespace Bicep.LanguageServer.Completions
     {
         private readonly IAzureContainerRegistriesProvider azureContainerRegistriesProvider;
 
-        private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
+        private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
 
@@ -55,12 +55,12 @@ namespace Bicep.LanguageServer.Completions
 
         public ModuleReferenceCompletionProvider(
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
-            IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
+            IPublicModuleMetadataProvider publicModuleMetadataProvider,
             ISettingsProvider settingsProvider,
             ITelemetryProvider telemetryProvider)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
-            this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
+            this.publicModuleMetadataProvider = publicModuleMetadataProvider;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
         }
@@ -224,7 +224,7 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            var versionsMetadata = publicRegistryModuleMetadataProvider.GetModuleVersionsMetadata(modulePath);
+            var versionsMetadata = publicModuleMetadataProvider.GetModuleVersionsMetadata(modulePath);
 
             for (int i = versionsMetadata.Length - 1; i >= 0; i--)
             {
@@ -358,7 +358,7 @@ namespace Bicep.LanguageServer.Completions
 
                             if (trimmedText.Equals($"br/{kvp.Key}:", StringComparison.Ordinal))
                             {
-                                var modules = publicRegistryModuleMetadataProvider.GetModulesMetadata();
+                                var modules = publicModuleMetadataProvider.GetModulesMetadata();
                                 foreach (var (moduleName, description, documentationUri) in modules)
                                 {
                                     var label = $"bicep/{moduleName}";
@@ -397,7 +397,7 @@ namespace Bicep.LanguageServer.Completions
 
                             // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = TrimStart(modulePath, "bicep/");
-                            var modules = publicRegistryModuleMetadataProvider.GetModulesMetadata();
+                            var modules = publicModuleMetadataProvider.GetModulesMetadata();
 
                             var matchingModules = modules.Where(x => x.Name.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -532,7 +532,7 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new();
 
-            var modules = publicRegistryModuleMetadataProvider.GetModulesMetadata();
+            var modules = publicModuleMetadataProvider.GetModulesMetadata();
             foreach (var (moduleName, description, documentationUri) in modules)
             {
                 if (!moduleName.StartsWith(suffix, StringComparison.Ordinal))
@@ -630,7 +630,7 @@ namespace Bicep.LanguageServer.Completions
 
             try
             {
-                await foreach (string registryName in azureContainerRegistriesProvider.GetRegistryUrisAccessibleFromAzure(context.Configuration.Cloud, cancellationToken)
+                await foreach (string registryName in azureContainerRegistriesProvider.GetContainerRegistriesAccessibleFromAzure(context.Configuration.Cloud, cancellationToken)
                     .WithCancellation(cancellationToken))
                 {
                     var insertText = $"'{trimmedText}{registryName}/$0'";

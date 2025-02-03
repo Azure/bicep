@@ -52,7 +52,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
         .AddSingleton<ISourceFileFactory, SourceFileFactory>()
-        .AddPublicRegistryModuleMetadataProviderServices()
+        .AddPublicModuleMetadataProviderServices()
         .AddSingleton<BicepCompiler>();
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services

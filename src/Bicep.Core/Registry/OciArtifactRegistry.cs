@@ -26,7 +26,7 @@ namespace Bicep.Core.Registry
 {
     public sealed class OciArtifactRegistry : ExternalArtifactRegistry<OciArtifactReference, OciArtifactResult>
     {
-        private readonly AzureContainerRegistryManager client;
+        private readonly AzureContainerRegistryManager containerRegistryManager;
 
         private readonly IDirectoryHandle cacheDirectory;
 
@@ -36,23 +36,23 @@ namespace Bicep.Core.Registry
 
         private readonly IFeatureProvider features;
 
-        private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
+        private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
         public OciArtifactRegistry(
             IFileResolver FileResolver,
             IContainerRegistryClientFactory clientFactory,
             IFeatureProvider features,
             RootConfiguration configuration,
-            IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
+            IPublicModuleMetadataProvider publicModuleMetadataProvider,
             Uri parentModuleUri)
             : base(FileResolver)
         {
             this.cacheDirectory = features.CacheRootDirectory.GetDirectory(ArtifactReferenceSchemes.Oci);
-            this.client = new AzureContainerRegistryManager(clientFactory);
+            this.containerRegistryManager = new AzureContainerRegistryManager(clientFactory);
             this.configuration = configuration;
             this.features = features;
             this.parentModuleUri = parentModuleUri;
-            this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
+            this.publicModuleMetadataProvider = publicModuleMetadataProvider;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.Oci;
@@ -106,7 +106,7 @@ namespace Bicep.Core.Registry
             try
             {
                 // Get module
-                await this.client.PullArtifactAsync(configuration, reference);
+                await this.containerRegistryManager.PullArtifactAsync(configuration, reference);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
@@ -159,9 +159,9 @@ namespace Bicep.Core.Registry
                 || string.IsNullOrWhiteSpace(documentationUri))
             {
                 // Automatically generate a help URI for public MCR modules
-                if (ociArtifactModuleReference.Registry == LanguageConstants.BicepPublicMcrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.McrRepositoryPrefix, StringComparison.Ordinal))
+                if (ociArtifactModuleReference.Registry == LanguageConstants.BicepPublicMcrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal))
                 {
-                    var moduleName = ociArtifactModuleReference.Repository.Substring(LanguageConstants.McrRepositoryPrefix.Length);
+                    var moduleName = ociArtifactModuleReference.Repository.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length);
                     return ociArtifactModuleReference.Tag is null ? null : GetPublicBicepModuleDocumentationUri(moduleName, ociArtifactModuleReference.Tag);
                 }
 
@@ -219,7 +219,15 @@ namespace Bicep.Core.Registry
 
         public override async Task OnRestoreArtifacts(bool forceRestore)
         {
-            await publicRegistryModuleMetadataProvider.TryAwaitCache(forceRestore);
+            // We don't want linter tests to download anything during analysis.  So we are downloading
+            //   metadata here to avoid downloading during analysis, and tests can use cached data if it
+            //   exists (e.g. IRegistryModuleMetadataProvider.GetCached* methods).
+            // If --no-restore has been specified on the command ine, we don't want to download anything at all.
+            // Therefore we do the cache download here so that lint rules can have access to the cached metadata.
+            // CONSIDER: Revisit if it's okay to download metadata during analysis?  This will be more of a problem
+            //   when we extend the linter rules to include private registry modules.
+
+            await publicModuleMetadataProvider.TryAwaitCache(forceRestore);
         }
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
@@ -284,7 +292,7 @@ namespace Bicep.Core.Registry
 
             try
             {
-                await this.client.PushArtifactAsync(
+                await this.containerRegistryManager.PushArtifactAsync(
                     configuration,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
@@ -339,7 +347,7 @@ namespace Bicep.Core.Registry
 
             try
             {
-                await this.client.PushArtifactAsync(
+                await this.containerRegistryManager.PushArtifactAsync(
                     configuration,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
@@ -492,7 +500,7 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                var result = await client.PullArtifactAsync(configuration, reference);
+                var result = await containerRegistryManager.PullArtifactAsync(configuration, reference);
 
                 await WriteArtifactContentToCacheAsync(reference, result);
 

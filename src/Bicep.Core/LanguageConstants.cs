@@ -36,6 +36,7 @@ namespace Bicep.Core
         public const string ArmTemplateFileExtension = ".arm";
 
         public const string BicepPublicMcrRegistry = "mcr.microsoft.com";
+        public const string BicepPublicMcrPathPrefix = "bicep/"; // All modules in the public bicep registry start with this prefix
 
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
@@ -130,8 +131,6 @@ namespace Bicep.Core
         public const string VoidKeyword = "void";
 
         public const string ListFunctionPrefix = "list";
-
-        public const string McrRepositoryPrefix = "bicep/";
 
         public static readonly ImmutableDictionary<string, TokenType> NonContextualKeywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {

@@ -719,14 +719,14 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         // Creates a new (real) OciArtifactRegistry instance with an empty on-disk cache that can push and pull modules
-        private (OciArtifactRegistry, MockRegistryBlobClient) CreateModuleRegistry(
+        private (OciArtifactRegistry, FakeRegistryBlobClient) CreateModuleRegistry(
             Uri parentModuleUri,
             string cacheRootDirectory)
         {
             return OciRegistryHelper.CreateModuleRegistry(parentModuleUri, GetFeatures(cacheRootDirectory));
         }
 
-        private (OciArtifactRegistry, MockRegistryBlobClient, Uri parentModuleUri) CreateModuleRegistryAndBicepFile(
+        private (OciArtifactRegistry, FakeRegistryBlobClient, Uri parentModuleUri) CreateModuleRegistryAndBicepFile(
             string? parentBicepFileContents // The bicep file which references a module
         )
         {
