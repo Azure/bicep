@@ -10,6 +10,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
@@ -116,19 +117,25 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var nodesInRange = SyntaxMatcher.FindNodesSpanningRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
-            var codeFixes = GetDecoratorCodeFixProviders(semanticModel)
-                .SelectMany(provider => provider.GetFixes(semanticModel, nodesInRange))
-                .Select(fix => CreateCodeActionFromFix(request.TextDocument.Uri, compilationContext, fix));
-            commandOrCodeActions.AddRange(codeFixes);
-
-            var extractionActions = new ExpressionAndTypeExtractor(compilationContext, semanticModel, request.TextDocument.Uri.ToUriEncoded()).GetExtractionCodeFixes(nodesInRange)
-                .Select(fix => CreateCodeActionFromFix(documentUri, compilationContext, fix));
-            commandOrCodeActions.AddRange(extractionActions);
+            var codeFixes = GetCodeFixes(semanticModel, nodesInRange);
+            commandOrCodeActions.AddRange(codeFixes.Select(fix => CreateCodeActionFromFix(documentUri, compilationContext, fix)));
 
             return new(commandOrCodeActions);
         }
 
-        private IEnumerable<DecoratorCodeFixProvider> GetDecoratorCodeFixProviders(SemanticModel semanticModel)
+        private static IEnumerable<CodeFix> GetCodeFixes(SemanticModel model, IReadOnlyList<SyntaxBase> matchingNodes)
+        {
+            ICodeFixProvider[] providers = [
+                ..GetDecoratorCodeFixProviders(model),
+                new ExpressionAndTypeExtractor(model),
+                new MultilineStringCodeFixProvider(),
+            ];
+
+            return providers
+                .SelectMany(provider => provider.GetFixes(model, matchingNodes));
+        }
+
+        private static IEnumerable<DecoratorCodeFixProvider> GetDecoratorCodeFixProviders(SemanticModel semanticModel)
         {
             var nsResolver = semanticModel.Binder.NamespaceResolver;
             return nsResolver.GetNamespaceNames().Select(nsResolver.TryGetNamespace).WhereNotNull()
