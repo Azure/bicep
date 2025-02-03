@@ -8,6 +8,6 @@ namespace Bicep.LanguageServer.Providers
     public interface IAzureContainerRegistriesProvider
     {
         // Returns login server URIs, e.g. "contoso.azurecr.io"
-        IAsyncEnumerable<string> GetRegistryUrisAccessibleFromAzure(CloudConfiguration cloudConfiguration, CancellationToken cancellation);
+        IAsyncEnumerable<string> GetContainerRegistriesAccessibleFromAzure(CloudConfiguration cloudConfiguration, CancellationToken cancellation);
     }
 }

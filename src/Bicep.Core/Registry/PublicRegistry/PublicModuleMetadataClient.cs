@@ -15,7 +15,7 @@ namespace Bicep.Core.Registry.PublicRegistry;
 /// <summary>
 /// Typed http client to get modules metadata that we store at a public endpoint (currently https://github.com/Azure/bicep-registry-modules)
 /// </summary>
-public class PublicRegistryModuleMetadataClient(HttpClient httpClient) : IPublicRegistryModuleIndexClient
+public class PublicModuleMetadataClient(HttpClient httpClient) : IPublicModuleIndexClient
 {
     private const string LiveDataEndpoint = "https://aka.ms/br-module-index-data";
 
@@ -25,17 +25,17 @@ public class PublicRegistryModuleMetadataClient(HttpClient httpClient) : IPublic
     };
 
     [SuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Relying on references to required properties of the generic type elsewhere in the codebase.")]
-    public async Task<ImmutableArray<PublicRegistryModuleIndexEntry>> GetModuleIndexAsync()
+    public async Task<ImmutableArray<PublicModuleIndexEntry>> GetModuleIndexAsync()
     {
-        Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataClient)}: Retrieving list of public registry modules...");
+        Trace.WriteLine($"{nameof(PublicModuleMetadataClient)}: Retrieving list of public registry modules...");
 
         try
         {
-            var metadata = await httpClient.GetFromJsonAsync<PublicRegistryModuleIndexEntry[]>(LiveDataEndpoint, JsonSerializerOptions);
+            var metadata = await httpClient.GetFromJsonAsync<PublicModuleIndexEntry[]>(LiveDataEndpoint, JsonSerializerOptions);
 
             if (metadata is not null)
             {
-                Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataClient)}: Retrieved info on {metadata.Length} public registry modules.");
+                Trace.WriteLine($"{nameof(PublicModuleMetadataClient)}: Retrieved info on {metadata.Length} public registry modules.");
                 return [.. metadata];
             }
             else

@@ -16,7 +16,7 @@ using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
@@ -52,10 +52,10 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
             .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
             .AddSingleton<ISourceFileFactory, SourceFileFactory>()
-            .AddPublicRegistryModuleMetadataProviderServices()
+            .AddPublicModuleMetadataProviderServices()
             .AddSingleton<BicepCompiler>();
 
-        AddMockHttpClient(services, PublicRegistryModuleIndexClientMock.Create([]).Object);
+        AddMockHttpClient(services, PublicModuleIndexHttpClientMocks.Create([]).Object);
 
         return services;
     }

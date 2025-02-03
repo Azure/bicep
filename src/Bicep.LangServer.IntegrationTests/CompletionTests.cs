@@ -4135,13 +4135,13 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-containerapp", "d1", "contoso.com/help1"), new("app/dapr-containerapp-env", "d2", "contoso.com/help2")]);
+            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            publicModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-containerapp", "d1", "contoso.com/help1"), new("app/dapr-containerapp-env", "d2", "contoso.com/help2")]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                .AddSingleton(publicRegistryModuleMetadataProvider.Object)
+                .AddSingleton(publicModuleMetadataProvider.Object)
                 .AddSingleton(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
@@ -4169,15 +4169,15 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-containerapp", "d1", "contoso.com/help1")]);
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
+            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            publicModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("app/dapr-containerapp", "d1", "contoso.com/help1")]);
+            publicModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
+            publicModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata("app/dapr-containerapp")).Returns([new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null)]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                .AddSingleton(publicRegistryModuleMetadataProvider.Object)
+                .AddSingleton(publicModuleMetadataProvider.Object)
                 .AddSingleton(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
@@ -4205,13 +4205,13 @@ var file = " + functionName + @"(templ|)
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("foo/bar", "d1", "contoso.com/help1"), new("food/bar", "d2", "contoso.com/help2"), new("bar/bar", "d2", "contoso.com/help2")]);
+            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            publicModuleMetadataProvider.Setup(x => x.GetModulesMetadata()).Returns([new("foo/bar", "d1", "contoso.com/help1"), new("food/bar", "d2", "contoso.com/help2"), new("bar/bar", "d2", "contoso.com/help2")]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                .AddSingleton(publicRegistryModuleMetadataProvider.Object)
+                .AddSingleton(publicModuleMetadataProvider.Object)
                 .AddSingleton(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, fileText);
