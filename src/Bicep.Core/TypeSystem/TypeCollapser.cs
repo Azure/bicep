@@ -451,7 +451,7 @@ internal static class TypeCollapser
                     {
                         propertyFlags &= addlProperties.Flags;
                     }
-                    
+
                     if (@object.AdditionalProperties?.Description is { } addlPropertiesDescription)
                     {
                         propertyDescription = addlPropertiesDescription;

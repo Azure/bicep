@@ -44,7 +44,7 @@ namespace Bicep.Core.Extensions
 
             var buffer = new char[length];
             length = reader.Read(buffer, 0, length);
-        
+
             return new string(buffer, 0, length);
         });
 

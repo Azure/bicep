@@ -209,7 +209,7 @@ namespace Bicep.Core.Semantics
 
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
-        public RootConfiguration Configuration => this.SourceFile.Configuration ;
+        public RootConfiguration Configuration => this.SourceFile.Configuration;
 
         public IFeatureProvider Features => this.SourceFile.Features;
 

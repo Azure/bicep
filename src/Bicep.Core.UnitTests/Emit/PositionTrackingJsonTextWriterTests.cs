@@ -54,7 +54,7 @@ namespace Bicep.Core.UnitTests.Emit
             var nestedStartPosition = 10;
             var nestedRawSourceMap = new RawSourceMap(
                 [new(sourceFile,
-                    [new(new (0, 0),
+                    [new(new(0, 0),
                         [new(nestedStartPosition, 0)])])]
             );
             var nestedJsonWriter = new PositionTrackingJsonTextWriter(
