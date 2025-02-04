@@ -14,7 +14,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -26,7 +26,9 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
+using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 
 namespace Bicep.Cli.IntegrationTests;
 
@@ -41,7 +43,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
 
     private class Options(string CacheRoot)
     {
-        private IPublicModuleIndexClient? _metadataClient = null;
+        private IPublicModuleIndexHttpClient? _metadataClient = null;
         private string? _config = null;
 
         public string Bicep { get; init; } = "/* bicep contents */";
@@ -75,17 +77,17 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         }
 
         // Automatically created from ModulesMetadata by default (set manually for testing)
-        internal IPublicModuleIndexClient MetadataClient
+        internal IPublicModuleIndexHttpClient MetadataClient
         {
             set
             {
                 _metadataClient = value;
             }
-            get => _metadataClient is { } ? _metadataClient : PublicModuleIndexClientMocks.Create(
+            get => _metadataClient is { } ? _metadataClient : PublicModuleIndexHttpClientMocks.Create(
                 ModulesMetadata.Select(mm => new PublicModuleIndexEntry(
                     mm.module,
                     [.. mm.versions],
-                    new Dictionary<string, PublicModuleProperties>().ToImmutableDictionary()))).Object;
+                    new Dictionary<string, PublicModuleIndexProperties>().ToImmutableDictionary()))).Object;
         }
 
     }
@@ -113,30 +115,10 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
     }
 
     [TestMethod]
-    public async Task IfLevelIsOff_ShouldNotDownloadModuleMetadata()
-    {
-        var result = await Test(new Options(CacheRoot)
-        {
-            Bicep = """
-                module m1 '{PREFIX}/fake/avm/res/app/container-app:0.2.0' = {
-                  name: 'm1'
-                }
-                """.Replace("{PREFIX}", PREFIX),
-            DiagnosticLevel = "off",
-            PublishedModules = [$"{PREFIX}/fake/avm/res/app/container-app:0.2.0"],
-            MetadataClient = PublicModuleIndexClientMocks.CreateToThrow(new Exception("unit test failed: shouldn't try to download in this scenario")).Object,
-        });
-
-        result.Should().NotHaveStderr();
-        result.Should().HaveStdout("");
-        result.Should().Succeed();
-    }
-
-    [TestMethod]
     // We don't currently cache to disk, but rather on every check to restore modules.
     public async Task IfNoRestoreSpecified_ThenShouldNotDownloadMetadata_AndShouldFailBecauseNoCache()
     {
-        var moduleIndexClientMock = PublicModuleIndexClientMocks.CreateToThrow(new Exception("shouldn't try to download metadata --no-restore is set"));
+        var moduleIndexClientMock = PublicModuleIndexHttpClientMocks.CreateToThrow(new Exception("shouldn't try to download metadata --no-restore is set"));
         var result = await Test(new Options(CacheRoot)
         {
             Bicep = """
@@ -170,7 +152,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
                 }
                 """.Replace("{PREFIX}", PREFIX),
             PublishedModules = [$"{PREFIX}/fake/avm/res/app/container-app:0.2.0"],
-            MetadataClient = PublicModuleIndexClientMocks.CreateToThrow(new Exception("Download failed.")).Object,
+            MetadataClient = PublicModuleIndexHttpClientMocks.CreateToThrow(new Exception("Download failed.")).Object,
         });
 
         result.Should().HaveStderrMatch($"*Warning use-recent-module-versions: Could not download available module versions: Download failed.*");

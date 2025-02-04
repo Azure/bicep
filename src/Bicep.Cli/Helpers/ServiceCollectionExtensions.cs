@@ -11,7 +11,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
@@ -28,7 +28,7 @@ namespace Bicep.Cli.Helpers;
 /// <summary>
 /// Contains the collection extensions for adding the CLI commands and configuration of those commands.
 /// </summary>
-public static class ServiceCollectionExtensions
+public static class ServiceCollectionExtensionsAsdfgAmIUsed
 {
     /// <summary>
     /// Adds the CLI commands to the DI container. These are resolved when the commands are registered with the
@@ -77,7 +77,7 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
         .AddSingleton<ISourceFileFactory, SourceFileFactory>()
-        .AddPublicModuleMetadataProviderServices()
+        .AddRegistryCatalogServices()
         .AddSingleton<BicepCompiler>();
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
