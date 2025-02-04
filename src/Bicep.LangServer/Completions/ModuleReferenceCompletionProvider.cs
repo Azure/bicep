@@ -351,11 +351,11 @@ namespace Bicep.LanguageServer.Completions
                     var insertText = $"'{trimmedText}{version}'$0";
 
                     // Module version is last completion, no follow-up completions triggered
-                    // Note: Description and documentation will be resolved later
                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version)
                         .WithSnippetEdit(context.ReplacementRange, insertText)
                         .WithFilterText(insertText)
                         .WithSortText(GetSortText(i))
+                        // Description and documentation will be resolved later as needed
                         .WithResolveData(ModuleVersionResolutionKey, new { Registry = parts.ResolvedRegistry, Module = parts.ResolvedModulePath, Version = version })
                         .Build();
 
