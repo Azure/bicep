@@ -979,7 +979,8 @@ namespace Bicep.Core.Diagnostics
                 "BCP186",
                 $"Unable to parse literal JSON value. Please ensure that it is well-formed.");
 
-            public Diagnostic FallbackPropertyUsed(string property) => CoreWarning(
+            public Diagnostic FallbackPropertyUsed(bool shouldDowngrade, string property) => CoreDiagnostic(
+                shouldDowngrade ? DiagnosticLevel.Info : DiagnosticLevel.Warning,
                 "BCP187",
                 $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid.{TypeInaccuracyClause}");
 
