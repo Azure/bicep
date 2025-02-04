@@ -28,7 +28,7 @@ namespace Bicep.LanguageServer.Handlers
         public string FullTitle { get; init; }
 
         // Fully qualified module reference, e.g. "myregistry.azurecr.io/myrepo/module:v1"
-        public IArtifactAddressComponents Components { get; init; }
+        public IOciArtifactAddressComponents Components { get; init; }
 
         // File being requested from the source, relative to the module root.
         //   e.g. main.bicep or myPath/module.bicep
@@ -64,7 +64,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             DiagnosticBuilderDelegate? error = null;
             if (!fullyQualifiedModuleReference.StartsWith($"{OciArtifactReferenceFacts.Scheme}:", StringComparison.Ordinal) ||
-                !OciArtifactReference.TryParseFullyQualifiedComponents(fullyQualifiedModuleReference[(OciArtifactReferenceFacts.Scheme.Length + 1)..]).IsSuccess(out var components, out error))
+                !OciArtifactAddressComponents.TryParse(fullyQualifiedModuleReference[(OciArtifactReferenceFacts.Scheme.Length + 1)..]).IsSuccess(out var components, out error))
             {
                 string? innerMessage = null;
                 if (error is { })
@@ -89,10 +89,9 @@ namespace Bicep.LanguageServer.Handlers
             return new ExternalSourceReference(Components, requestedSourceFile); // recalculate title
         }
 
-        public ExternalSourceReference(OciArtifactReference moduleReference, SourceArchive? sourceArchive)
+        public ExternalSourceReference(IOciArtifactAddressComponents moduleReferenceComponents, SourceArchive? sourceArchive)
         {
-            Debug.Assert(moduleReference.Type == ArtifactType.Module && moduleReference.Scheme == OciArtifactReferenceFacts.Scheme, "Expecting a module reference");
-            Components = moduleReference.AddressComponents;
+            Components = moduleReferenceComponents;
 
             if (sourceArchive is { })
             {
@@ -108,7 +107,7 @@ namespace Bicep.LanguageServer.Handlers
             FullTitle = GetFullTitle();
         }
 
-        private ExternalSourceReference(IArtifactAddressComponents module, string? requestedFile, string? fullTitle = null, string? shortTitle = null) // title auto-calculated if not specified
+        private ExternalSourceReference(IOciArtifactAddressComponents module, string? requestedFile, string? fullTitle = null, string? shortTitle = null) // title auto-calculated if not specified
         {
             Components = module;
             RequestedFile = requestedFile;
@@ -141,7 +140,7 @@ namespace Bicep.LanguageServer.Handlers
 
         public Result<OciArtifactReference, string> ToArtifactReference(BicepFile? dummyFile = null)
         {
-            if (OciArtifactReference.TryParseFullyQualifiedComponents(Components.ArtifactId).IsSuccess(out var components, out var failureBuilder))
+            if (OciArtifactAddressComponents.TryParse(Components.ArtifactId).IsSuccess(out var components, out var failureBuilder))
             { // No parent file template is available or needed because these are absolute references
                 return new(new OciArtifactReference(dummyFile ?? BicepFile.Dummy, ArtifactType.Module, components));
             }

@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         public record ValidCase(string Value, string ExpectedRegistry, string ExpectedRepository, string? ExpectedTag, string? ExpectedDigest);
 
-        private static void VerifyEqual(ArtifactAddressComponents first, ArtifactAddressComponents second)
+        private static void VerifyEqual(OciArtifactAddressComponents first, OciArtifactAddressComponents second)
         {
             first.Equals(second).Should().BeTrue();
             second.Equals(first).Should().BeTrue();
@@ -44,7 +44,7 @@ namespace Bicep.Core.UnitTests.Modules
             first.GetHashCode().Should().Be(secondAsObject.GetHashCode());
         }
 
-        private static void VerifyNotEqual(ArtifactAddressComponents first, ArtifactAddressComponents second)
+        private static void VerifyNotEqual(OciArtifactAddressComponents first, OciArtifactAddressComponents second)
         {
             first.Equals(second).Should().BeFalse();
             second.Equals(first).Should().BeFalse();
@@ -70,8 +70,8 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void ValidReferenceShouldBeEqualToItself(ValidCase @case)
         {
-            ArtifactAddressComponents first = Parse(@case.Value);
-            ArtifactAddressComponents second = Parse(@case.Value);
+            OciArtifactAddressComponents first = Parse(@case.Value);
+            OciArtifactAddressComponents second = Parse(@case.Value);
             VerifyEqual(first, second);
         }
 
@@ -79,9 +79,9 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void ValidReferenceShouldBeEqualWithCaseChanged(ValidCase @case)
         {
-            ArtifactAddressComponents first = Parse(@case.Value);
-            ArtifactAddressComponents firstLower = Parse((@case with { ExpectedDigest = @case.Value.ToLower() }).Value);
-            ArtifactAddressComponents firstUpper = Parse((@case with { ExpectedDigest = @case.Value.ToUpper() }).Value);
+            OciArtifactAddressComponents first = Parse(@case.Value);
+            OciArtifactAddressComponents firstLower = Parse((@case with { ExpectedDigest = @case.Value.ToLower() }).Value);
+            OciArtifactAddressComponents firstUpper = Parse((@case with { ExpectedDigest = @case.Value.ToUpper() }).Value);
 
             VerifyEqual(first, firstLower);
             VerifyEqual(first, firstUpper);
@@ -100,11 +100,11 @@ namespace Bicep.Core.UnitTests.Modules
 
             for (int i = 0; i < @case.Value.Length - 1; ++i)
             {
-                ArtifactAddressComponents first = Parse(@case.Value);
+                OciArtifactAddressComponents first = Parse(@case.Value);
                 var modified = ModifyCharAt(@case.Value, i);
                 if (IsValid(modified))
                 {
-                    ArtifactAddressComponents second = Parse(modified);
+                    OciArtifactAddressComponents second = Parse(modified);
                     VerifyNotEqual(first, second);
                 }
             }
@@ -116,13 +116,13 @@ namespace Bicep.Core.UnitTests.Modules
             return OciArtifactReference.TryParse(CreateBicepFile(), ArtifactType.Module, null, package).IsSuccess(out var _, out var _);
         }
 
-        private static ArtifactAddressComponents Parse(string package)
+        private static OciArtifactAddressComponents Parse(string package)
         {
             // NOTE: ArtifactAddressComponents doesn't currently have a parser separate from OciArtifactReference.
             OciArtifactReference.TryParse(CreateBicepFile(), ArtifactType.Module, null, package).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
-            return (ArtifactAddressComponents)parsed!.AddressComponents;
+            return (OciArtifactAddressComponents)parsed!.AddressComponents;
         }
 
         private static BicepFile CreateBicepFile() => new(

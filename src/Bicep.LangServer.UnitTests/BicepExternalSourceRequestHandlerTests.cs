@@ -132,7 +132,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            OciArtifactReference.TryParseModuleAndAlias(BicepFile.Dummy, null, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
+            TryParseOciArtifactReference(BicepTestConstants.DummyBicepFile, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -177,7 +177,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            OciArtifactReference.TryParseModuleAndAlias(BicepFile.Dummy, null, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
+            TryParseOciArtifactReference(BicepTestConstants.DummyBicepFile, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -215,7 +215,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            OciArtifactReference.TryParseModuleAndAlias(BicepFile.Dummy, null, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
+            TryParseOciArtifactReference(BicepTestConstants.DummyBicepFile, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -257,7 +257,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var referencingFile = SourceFileFactory.CreateBicepFile(bicepFileUri, "");
 
-            OciArtifactReference.TryParseModuleAndAlias(referencingFile, null, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
+            TryParseOciArtifactReference(referencingFile, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -307,7 +307,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var referencingFile = SourceFileFactory.CreateBicepFile(bicepFileUri, "");
 
-            OciArtifactReference.TryParseModuleAndAlias(referencingFile, null, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
+            TryParseOciArtifactReference(referencingFile, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -359,7 +359,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var referencingFile = SourceFileFactory.CreateBicepFile(bicepFileUri, "");
 
-            OciArtifactReference.TryParseModuleAndAlias(referencingFile, null, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
+            TryParseOciArtifactReference(referencingFile, UnqualifiedModuleRefStr).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -426,13 +426,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void GetExternalSourceLinkUri_WithExternalModuleFromCache_TitlesShouldBeCorrect()
         {
-            var reference = OciArtifactReference.TryParse(
-                BicepFile.Dummy,
-                ArtifactType.Module,
-                null,
-                "myregistry.azurecr.io/myrepo/bicep/module1:v1")
+            var components = OciArtifactAddressComponents.TryParse("myregistry.azurecr.io/myrepo/bicep/module1:v1")
             .Unwrap();
-            var ext = new ExternalSourceReference(reference, new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).Build())
+            var ext = new ExternalSourceReference(components, new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).Build())
                 .WithRequestForSourceFile("<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json");
 
             ext.GetShortTitle().Should().Be("main.json (module1:v1->storage-account:1.0.1)");
@@ -607,5 +603,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         #endregion
+
+        private static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseOciArtifactReference(BicepFile referencingFile, string value, string? aliasName = null) =>
+            OciArtifactReference.TryParse(referencingFile, ArtifactType.Module, aliasName, value);
+
     }
 }

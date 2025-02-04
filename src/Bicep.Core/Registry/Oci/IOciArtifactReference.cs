@@ -3,7 +3,7 @@
 
 namespace Bicep.Core.Registry.Oci;
 
-public interface IOciArtifactReference : IArtifactAddressComponents
+public interface IOciArtifactReference : IOciArtifactAddressComponents
 {
     /// <summary>
     /// Gets the fully qualified artifact reference, which includes the scheme.

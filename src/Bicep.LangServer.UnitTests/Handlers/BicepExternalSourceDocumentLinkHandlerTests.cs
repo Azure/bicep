@@ -128,10 +128,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         /// <param name="displayedModuleTarget">E.g. mockregistry.io/test/module1:v1</param>
-        private TextDocumentIdentifier GetDocumentIdForExternalModuleSource(string displayedModuleTarget)
+        private static TextDocumentIdentifier GetDocumentIdForExternalModuleSource(string displayedModuleTarget)
         {
-            var moduleRef = OciArtifactReference.TryParseModule(displayedModuleTarget).Unwrap();
-            var moduleExtRef = new ExternalSourceReference(moduleRef, null).WithRequestForSourceFile("main.bicep");
+            var moduleReferenceComponents = OciArtifactAddressComponents.TryParse(displayedModuleTarget).Unwrap();
+            var moduleExtRef = new ExternalSourceReference(moduleReferenceComponents, null).WithRequestForSourceFile("main.bicep");
             var moduleId = new TextDocumentIdentifier(moduleExtRef.ToUri());
             return moduleId;
         }

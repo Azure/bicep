@@ -8,6 +8,7 @@ using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -16,6 +17,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.UnitTests.Features;
@@ -54,7 +56,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly ISourceFileFactory SourceFileFactory = new SourceFileFactory(ConfigurationManager, FeatureProviderFactory);
 
-        public static readonly BicepFile DummyBicepFile = SourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
+        public static readonly BicepFile DummyBicepFile = CreateDummyBicepFile();
 
         public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory(FileSystem);
 
@@ -94,7 +96,7 @@ namespace Bicep.Core.UnitTests
         // By default turns off only problematic analyzers
         public static readonly LinterAnalyzer LinterAnalyzer = new(EmptyServiceProvider);
 
-        public static IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
+        public static readonly IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
 
@@ -181,6 +183,15 @@ namespace Bicep.Core.UnitTests
         }
         """);
 
-        public static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.TemplateExtensionVersion;
+        public static BicepFile CreateDummyBicepFile(RootConfiguration? configuration = null, FeatureProviderOverrides? featureOverrides = null) => new(
+            new Uri("inmemory:///main.bicep"),
+            [],
+            SyntaxFactory.EmptyProgram,
+            IConfigurationManager.WithStaticConfiguration(configuration ?? BuiltInConfiguration),
+            new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager, FileExplorer), featureOverrides ?? FeatureOverrides),
+            EmptyDiagnosticLookup.Instance,
+            EmptyDiagnosticLookup.Instance);
+
+        public readonly static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.TemplateExtensionVersion;
     }
 }

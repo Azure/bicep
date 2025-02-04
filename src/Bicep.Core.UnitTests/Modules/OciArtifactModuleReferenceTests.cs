@@ -30,8 +30,6 @@ namespace Bicep.Core.UnitTests.Modules
 
         public const string ExamplePathSegment2 = "a.b-0_1";
 
-        private static readonly BicepFile DummyReferencingFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
-
         private static void VerifyEqual(OciArtifactReference first, OciArtifactReference second)
         {
             first.Equals(second).Should().BeTrue();
@@ -157,7 +155,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void InvalidReferencesShouldProduceExpectedError(string value, string expectedCode, string expectedError)
         {
-            OciArtifactReference.TryParseModuleAndAlias(CreateBicepFile(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled), null, value).IsSuccess(out var @ref, out var failureBuilder).Should().BeFalse();
+            TryParseOciArtifactReference(value).IsSuccess(out var @ref, out var failureBuilder).Should().BeFalse();
             @ref.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 
@@ -199,7 +197,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("foo bar ÄÄÄ")]
         public void TryParse_InvalidAliasName_ReturnsFalseAndSetsErrorDiagnostic(string aliasName)
         {
-            OciArtifactReference.TryParse(DummyReferencingFile, ArtifactType.Module, aliasName, "").IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
+            TryParseOciArtifactReference("", aliasName).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().HaveCode("BCP211");
@@ -213,7 +211,7 @@ namespace Bicep.Core.UnitTests.Modules
         {
             var configuration = BicepTestConstants.CreateMockConfiguration(configFilePath: configurationPath);
 
-            OciArtifactReference.TryParse(CreateBicepFile(configuration), ArtifactType.Module, aliasName, referenceValue).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
+            TryParseOciArtifactReference(referenceValue, aliasName, configuration).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().NotBeNull();
@@ -225,7 +223,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DynamicData(nameof(GetInvalidAliasData), DynamicDataSourceType.Method)]
         public void TryParse_InvalidAlias_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
         {
-            OciArtifactReference.TryParse(CreateBicepFile(configuration), ArtifactType.Module, aliasName, referenceValue).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
+            TryParseOciArtifactReference(referenceValue, aliasName, configuration).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().NotBeNull();
@@ -237,7 +235,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DynamicData(nameof(GetValidAliasData), DynamicDataSourceType.Method)]
         public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
         {
-            OciArtifactReference.TryParse(CreateBicepFile(configuration), ArtifactType.Module, aliasName, referenceValue).IsSuccess(out var reference, out var errorBuilder).Should().BeTrue();
+            TryParseOciArtifactReference(referenceValue, aliasName, configuration).IsSuccess(out var reference, out var errorBuilder).Should().BeTrue();
 
             reference.Should().NotBeNull();
             reference!.FullyQualifiedReference.Should().Be(fullyQualifiedReferenceValue);
@@ -246,12 +244,12 @@ namespace Bicep.Core.UnitTests.Modules
 
         public static bool IsValid(string package)
         {
-            return OciArtifactReference.TryParse(CreateBicepFile(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled), ArtifactType.Module, null, package).IsSuccess(out var _, out var _);
+            return TryParseOciArtifactReference(package).IsSuccess(out var _, out var _);
         }
 
         public static OciArtifactReference Parse(string package)
         {
-            OciArtifactReference.TryParse(CreateBicepFile(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled), ArtifactType.Module, null, package).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
+            TryParseOciArtifactReference(package).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
             return parsed!;
@@ -259,14 +257,8 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static (OciArtifactReference, OciArtifactReference) ParsePair(string first, string second) => (Parse(first), Parse(second));
 
-        private static BicepFile CreateBicepFile(RootConfiguration configuration) => new(
-            RandomFileUri(),
-            [],
-            SyntaxFactory.EmptyProgram,
-            IConfigurationManager.WithStaticConfiguration(configuration),
-            BicepTestConstants.FeatureProviderFactory,
-            EmptyDiagnosticLookup.Instance,
-            EmptyDiagnosticLookup.Instance);
+        private static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseOciArtifactReference(string value, string? aliasName = null, RootConfiguration? configuration = null) =>
+            OciArtifactReference.TryParse(BicepTestConstants.CreateDummyBicepFile(configuration), ArtifactType.Module, aliasName, value);
 
         private static IEnumerable<object[]> GetValidCases()
         {
