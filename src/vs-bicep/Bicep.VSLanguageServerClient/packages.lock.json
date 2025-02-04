@@ -42,9 +42,9 @@
       },
       "Microsoft.Net.Compilers.Toolset": {
         "type": "Direct",
-        "requested": "[4.11.0, )",
-        "resolved": "4.11.0",
-        "contentHash": "arJ0+L3uOu8spoRsKt5clvvxa7kHko80pXb/J4V92VJJZ7NMn8fC27N80W6Ro5CtcdzTDQtLXfBLfISSr6I3Zw=="
+        "requested": "[4.12.0, )",
+        "resolved": "4.12.0",
+        "contentHash": "xXDdIgDfcbMr+2bLzVJHg+/oCHwcYs808TlooX0M9+BVCeHITaROsjdbWSJNdyzeMe/K8iB2NeHmaAOUcqkKWw=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
