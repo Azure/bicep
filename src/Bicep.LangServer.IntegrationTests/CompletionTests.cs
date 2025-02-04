@@ -4200,8 +4200,8 @@ var file = " + functionName + @"(templ|)
             var privateModuleMetadataProvider = RegistryCatalogMocks.MockPrivateMetadataProvider(
                 "private.contoso.com",
                 [("app/private-app", "d1", "contoso.com/help1", [
-                    new("v100", "d100", "contoso.com/help/d100.html"),
-                    new("v101", "d101", "contoso.com/help/d101.html")])
+                    new("v100", "d100", null),
+                    new("v101", null, "contoso.com/help/d101.html")])
                 ]);
             var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 null,
@@ -4238,7 +4238,7 @@ var file = " + functionName + @"(templ|)
                     first.Label.Should().Be("v101");
                     first.SortText.Should().Be("0000");
                     first.Kind.Should().Be(CompletionItemKind.Snippet);
-                    first.Detail.Should().Be("d101");
+                    first.Detail.Should().Be(null);
                     first.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help/d101.html)");
                 },
                 second =>
@@ -4247,7 +4247,7 @@ var file = " + functionName + @"(templ|)
                     second.SortText.Should().Be("0001");
                     second.Kind.Should().Be(CompletionItemKind.Snippet);
                     second.Detail.Should().Be("d100");
-                    second.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help/d100.html)");
+                    second.Documentation.Should().BeNull();
                 }
             );
         }
