@@ -14,13 +14,13 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using Bicep.Core.Registry.Catalog;
 
 namespace Bicep.Core.Registry
 {
@@ -106,7 +106,7 @@ namespace Bicep.Core.Registry
             try
             {
                 // Get module
-                await this.containerRegistryManager.PullArtifactAsync(configuration, reference);
+                await this.containerRegistryManager.PullArtifactAsync(configuration.Cloud, reference);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
@@ -293,7 +293,7 @@ namespace Bicep.Core.Registry
             try
             {
                 await this.containerRegistryManager.PushArtifactAsync(
-                    configuration,
+                    configuration.Cloud,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
@@ -348,7 +348,7 @@ namespace Bicep.Core.Registry
             try
             {
                 await this.containerRegistryManager.PushArtifactAsync(
-                    configuration,
+                    configuration.Cloud,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
@@ -500,7 +500,7 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                var result = await containerRegistryManager.PullArtifactAsync(configuration, reference);
+                var result = await containerRegistryManager.PullArtifactAsync(configuration.Cloud, reference);
 
                 await WriteArtifactContentToCacheAsync(reference, result);
 

@@ -6,7 +6,7 @@ using System.IO.Abstractions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
