@@ -56,10 +56,13 @@ namespace Bicep.Core.Samples
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, params (string registryUri, string repository)[] additionalClients)
         {
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
+            var services = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-            ).Construct<IModuleDispatcher>();
+                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory));
+
+            var dispatcher = services.Construct<IModuleDispatcher>();
+            var sourceFileFactory = services.Construct<ISourceFileFactory>();
+            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
 
             var clients = new List<(string, string)>();
 
@@ -67,7 +70,7 @@ namespace Bicep.Core.Samples
             {
                 var target = publishInfo.Metadata.Target;
 
-                if (!dispatcher.TryGetArtifactReference(BicepFile.Dummy, ArtifactType.Module, target).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
+                if (!dispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, target).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
@@ -86,15 +89,18 @@ namespace Bicep.Core.Samples
 
         public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo> templateSpecs)
         {
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
+            var services = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                ).Construct<IModuleDispatcher>();
+                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory));
+
+            var dispatcher = services.Construct<IModuleDispatcher>();
+            var sourceFileFactory = services.Construct<ISourceFileFactory>();
+            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
             var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 
             foreach (var (moduleName, templateSpecInfo) in templateSpecs)
             {
-                if (!dispatcher.TryGetArtifactReference(BicepFile.Dummy, ArtifactType.Module, templateSpecInfo.Metadata.Target).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
+                if (!dispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, templateSpecInfo.Metadata.Target).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }

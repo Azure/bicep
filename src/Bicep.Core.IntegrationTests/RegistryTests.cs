@@ -166,17 +166,15 @@ namespace Bicep.Core.IntegrationTests
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
-            var sourceFileFactory = services.Construct<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(BicepFile.Dummy.Uri, "");
-
+            var dummyFile = CreateDummyReferencingFile(services);
             var moduleReferences = dataSet.RegistryModules.Values
                 .OrderBy(m => m.Metadata.Target)
-                .Select(m => dispatcher.TryGetModuleReference(dummyFile, m.Metadata.Target).Unwrap())
+                .Select(m => TryGetModuleReference(dispatcher, dummyFile, m.Metadata.Target).Unwrap())
                 .ToImmutableList();
 
             moduleReferences.Should().HaveCount(7);
 
-            // initially the cache should be empty
+            // initially the cache should be empty.
             foreach (var moduleReference in moduleReferences)
             {
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
@@ -223,12 +221,11 @@ namespace Bicep.Core.IntegrationTests
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
-            var sourceFileFactory = services.Construct<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(BicepFile.Dummy.Uri, "");
+            var dummyFile = CreateDummyReferencingFile(services);
 
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
-                .Select(m => dispatcher.TryGetModuleReference(dummyFile, m.Metadata.Target).IsSuccess(out var @ref) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .Select(m => TryGetModuleReference(dispatcher, dummyFile, m.Metadata.Target).IsSuccess(out var @ref) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
                 .ToImmutableList();
 
             moduleReferences.Should().HaveCount(moduleCount);
@@ -291,12 +288,11 @@ namespace Bicep.Core.IntegrationTests
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
-            var sourceFileFactory = services.Construct<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(BicepFile.Dummy.Uri, "");
+            var dummyFile = CreateDummyReferencingFile(services);
 
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
-                .Select(m => dispatcher.TryGetModuleReference(dummyFile, m.Metadata.Target).IsSuccess(out var @ref) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .Select(m => TryGetModuleReference(dispatcher, dummyFile, m.Metadata.Target).IsSuccess(out var @ref) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
                 .ToImmutableList();
 
             moduleReferences.Should().HaveCount(moduleCount);
@@ -366,12 +362,11 @@ namespace Bicep.Core.IntegrationTests
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
-            var sourceFileFactory = services.Construct<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(BicepFile.Dummy.Uri, "");
+            var dummyFile = CreateDummyReferencingFile(services);
 
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
-                .Select(m => dispatcher.TryGetModuleReference(dummyFile, m.Metadata.Target).IsSuccess(out var @ref) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .Select(m => TryGetModuleReference(dispatcher, dummyFile, m.Metadata.Target).IsSuccess(out var @ref) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
                 .ToImmutableList();
 
             moduleReferences.Should().HaveCount(moduleCount);
@@ -406,6 +401,14 @@ namespace Bicep.Core.IntegrationTests
             yield return new object[] { DataSets.Registry_LF.TemplateSpecs.Values, 2, true };
         }
 
-        private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
+        private static BicepFile CreateDummyReferencingFile(IDependencyHelper dependencyHelper)
+        {
+            var sourceFileFactory = dependencyHelper.Construct<ISourceFileFactory>();
+
+            return sourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
+        }
+
+        private static ResultWithDiagnosticBuilder<ArtifactReference> TryGetModuleReference(IModuleDispatcher moduleDispatcher, BicepSourceFile referencingFile, string reference) =>
+            moduleDispatcher.TryGetArtifactReference(referencingFile, ArtifactType.Module, reference);
     }
 }

@@ -54,6 +54,8 @@ namespace Bicep.Core.UnitTests
 
         public static readonly ISourceFileFactory SourceFileFactory = new SourceFileFactory(ConfigurationManager, FeatureProviderFactory);
 
+        public static readonly BicepFile DummyBicepFile = SourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
+
         public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory(FileSystem);
 
         public static readonly INamespaceProvider NamespaceProvider = new NamespaceProvider(ResourceTypeProviderFactory);

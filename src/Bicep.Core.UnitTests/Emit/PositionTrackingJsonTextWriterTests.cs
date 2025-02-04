@@ -41,25 +41,23 @@ namespace Bicep.Core.UnitTests.Emit
         [TestMethod]
         public void SourceMapShouldAccountForNestedTemplateOffset()
         {
-            var sourceFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(FileUri, String.Empty);
-
             var parentRawSourceMap = new RawSourceMap([]);
             var parentJsonWriter = new PositionTrackingJsonTextWriter(
                 new StringWriter(),
-                sourceFile,
+                BicepTestConstants.DummyBicepFile,
                 parentRawSourceMap);
             parentJsonWriter.WriteComment(BicepStatement);
 
             // create raw source map with single entry with known target position
             var nestedStartPosition = 10;
             var nestedRawSourceMap = new RawSourceMap(
-                [new(sourceFile,
+                [new(BicepTestConstants.DummyBicepFile,
                     [new(new(0, 0),
                         [new(nestedStartPosition, 0)])])]
             );
             var nestedJsonWriter = new PositionTrackingJsonTextWriter(
                 new StringWriter(),
-                sourceFile,
+                BicepTestConstants.DummyBicepFile,
                 nestedRawSourceMap);
 
             parentJsonWriter.AddNestedSourceMap(nestedJsonWriter);

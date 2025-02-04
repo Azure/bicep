@@ -29,10 +29,9 @@ namespace Bicep.Core.UnitTests.Utils
         {
             if (moduleId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
             {
-                moduleId = moduleId.Substring(OciArtifactReferenceFacts.SchemeWithColon.Length);
+                moduleId = moduleId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
             }
-
-            OciArtifactReference.TryParse(BicepFile.Dummy, ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 

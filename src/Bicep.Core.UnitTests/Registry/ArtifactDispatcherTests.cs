@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Registry
             var module = CreateModule("fakeScheme:fakeModule");
             var dispatcher = CreateDispatcher();
 
-            dispatcher.TryGetArtifactReference(BicepFile.Dummy, module).IsSuccess(out var reference, out var failureBuilder).Should().BeFalse();
+            dispatcher.TryGetArtifactReference(BicepTestConstants.DummyBicepFile, module).IsSuccess(out var reference, out var failureBuilder).Should().BeFalse();
             reference.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 
@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Registry
             }
 
             var localModule = CreateModule("test.bicep");
-            dispatcher.TryGetArtifactReference(BicepFile.Dummy, localModule).IsSuccess(out var localModuleReference, out var localModuleFailureBuilder).Should().BeFalse();
+            dispatcher.TryGetArtifactReference(BicepTestConstants.DummyBicepFile, localModule).IsSuccess(out var localModuleReference, out var localModuleFailureBuilder).Should().BeFalse();
             localModuleReference.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
             using (new AssertionScope())

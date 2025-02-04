@@ -64,7 +64,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             DiagnosticBuilderDelegate? error = null;
             if (!fullyQualifiedModuleReference.StartsWith($"{OciArtifactReferenceFacts.Scheme}:", StringComparison.Ordinal) ||
-                !OciArtifactReference.TryParseFullyQualifiedComponents(fullyQualifiedModuleReference.Substring(OciArtifactReferenceFacts.Scheme.Length + 1)).IsSuccess(out var components, out error))
+                !OciArtifactReference.TryParseFullyQualifiedComponents(fullyQualifiedModuleReference[(OciArtifactReferenceFacts.Scheme.Length + 1)..]).IsSuccess(out var components, out error))
             {
                 string? innerMessage = null;
                 if (error is { })

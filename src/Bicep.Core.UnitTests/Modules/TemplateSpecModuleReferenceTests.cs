@@ -16,6 +16,8 @@ namespace Bicep.Core.UnitTests.Modules
     [TestClass]
     public class TemplateSpecModuleReferenceTests
     {
+        private static readonly BicepFile DummyReferencingFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
+
         [DataTestMethod]
         [DynamicData(nameof(GetEqualData), DynamicDataSourceType.Method)]
         public void Equals_SameReferences_ReturnsTrue(TemplateSpecModuleReference first, TemplateSpecModuleReference second) =>
@@ -61,7 +63,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void TryParse_InvalidReference_ReturnsFalseAndSetsFailureBuilder(string rawValue)
         {
-            TemplateSpecModuleReference.TryParse(BicepFile.Dummy, null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeFalse();
+            TemplateSpecModuleReference.TryParse(DummyReferencingFile, null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeFalse();
 
             parsed.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
@@ -91,7 +93,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("foo bar ÄÄÄ")]
         public void TryParse_InvalidAliasName_ReturnsFalseAndSetsErrorDiagnostic(string aliasName)
         {
-            TemplateSpecModuleReference.TryParse(BicepFile.Dummy, aliasName, "").IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
+            TemplateSpecModuleReference.TryParse(DummyReferencingFile, aliasName, "").IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().HaveCode("BCP211");
@@ -219,7 +221,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static TemplateSpecModuleReference Parse(string rawValue)
         {
-            TemplateSpecModuleReference.TryParse(BicepFile.Dummy, null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
+            TemplateSpecModuleReference.TryParse(DummyReferencingFile, null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
 
             parsed.Should().NotBeNull();
             failureBuilder!.Should().BeNull();

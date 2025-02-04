@@ -30,6 +30,8 @@ namespace Bicep.Core.UnitTests.Modules
 
         public const string ExamplePathSegment2 = "a.b-0_1";
 
+        private static readonly BicepFile DummyReferencingFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
+
         private static void VerifyEqual(OciArtifactReference first, OciArtifactReference second)
         {
             first.Equals(second).Should().BeTrue();
@@ -197,7 +199,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("foo bar ÄÄÄ")]
         public void TryParse_InvalidAliasName_ReturnsFalseAndSetsErrorDiagnostic(string aliasName)
         {
-            OciArtifactReference.TryParse(BicepFile.Dummy, ArtifactType.Module, aliasName, "").IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
+            OciArtifactReference.TryParse(DummyReferencingFile, ArtifactType.Module, aliasName, "").IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().HaveCode("BCP211");
