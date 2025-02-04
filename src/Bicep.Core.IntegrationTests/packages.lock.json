@@ -124,8 +124,8 @@
       },
       "Azure.Deployments.Core": {
         "type": "Transitive",
-        "resolved": "1.224.0",
-        "contentHash": "Liui1eCyPil/bT8mnlmXBpepieco4a8czmaDZxQtUC1uefxNI+hLIgJXdwpSefNVhpJnyAFng+1JLGQW4+takg==",
+        "resolved": "1.241.0",
+        "contentHash": "ras2E2CErjAb0GUJvHn79W/+ERsRB86nnSxsrv/iXayWQyIyqqOlK5Ebh7NRwYWiSnCn0bqcrXQMZMyq0C3k8g==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.PowerPlatform.ResourceStack": "7.0.0.2070",
@@ -137,19 +137,19 @@
       },
       "Azure.Deployments.DiffEngine": {
         "type": "Transitive",
-        "resolved": "1.224.0",
-        "contentHash": "RVHCA1iS7vsD1tOBHqsFBiOtShpV4qOsXkXrqJgw6yViZfzBBF9FadQrnoQzQj1Qq2n+RLki9A2ATmdb7gweuw=="
+        "resolved": "1.241.0",
+        "contentHash": "nOBRBe/ouiGYmrMPnrGju9s4V83zmSEshGGHme0U8A2OWEocTGhLFBdyIi0v9UJxv5PWqR1oPcIGfFbq6eUXCg=="
       },
       "Azure.Deployments.Engine": {
         "type": "Transitive",
-        "resolved": "1.224.0",
-        "contentHash": "ocB7VsPADZJKTNdZiHb2hMLU/4uawpyKed2MRab0byRzGY/DoSuCHzdHh1SuA1lRBZ9ZKCyQ402dPBD3rnff+A==",
+        "resolved": "1.241.0",
+        "contentHash": "QEwBJtFiIFFeuvimtCIoVlmbQYi9WZlhgAVV9czDWHmN+okFeZsqWHPbW5VUk1j/A90nz6yKwu/lK/z/cPkVEA==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.224.0",
-          "Azure.Deployments.DiffEngine": "1.224.0",
-          "Azure.Deployments.Extensibility": "1.224.0",
+          "Azure.Deployments.Core": "1.241.0",
+          "Azure.Deployments.DiffEngine": "1.241.0",
+          "Azure.Deployments.Extensibility": "1.241.0",
           "Azure.Deployments.ResourceMetadata": "1.17.0",
-          "Azure.Deployments.Templates": "1.224.0",
+          "Azure.Deployments.Templates": "1.241.0",
           "Microsoft.AspNet.WebApi.Client": "5.2.9",
           "Microsoft.Extensions.DependencyInjection": "8.0.1",
           "Newtonsoft.Json": "13.0.3",
@@ -159,20 +159,20 @@
       },
       "Azure.Deployments.Expression": {
         "type": "Transitive",
-        "resolved": "1.224.0",
-        "contentHash": "8qCvBWvT3e4RYG/blHXqL4xx8+LO10bgK8tfAe6koZagDvLkwBaC+BIf4+Tni0u2dZ6Fid4BGMxbashJomPLlA==",
+        "resolved": "1.241.0",
+        "contentHash": "S38SjIXtrkWwerV8jjxbqIFP7TPbIz2PiJiR+IcmfdMq1e558ZFlY2dmI89hoYjHFvJkZOiFDbXjP667i7gNBQ==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.224.0",
+          "Azure.Deployments.Core": "1.241.0",
           "IPNetwork2": "2.6.598",
           "Newtonsoft.Json": "13.0.3"
         }
       },
       "Azure.Deployments.Extensibility": {
         "type": "Transitive",
-        "resolved": "1.224.0",
-        "contentHash": "pxSjw6fQygsmPnTuWcTkj1YspSFOduLaoR6KjldaSAxerZfKvwlCqQuG+Czvawd0NniWfah1lp4YFOziHtTSSg==",
+        "resolved": "1.241.0",
+        "contentHash": "ElZMl+GNs9wivciZJQAYwfgHolojz2oSvBj48TXnP15OJaQh15eONbR0T38a4XaOpUP87j4RBjLjHtVVbH3aeA==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.224.0",
+          "Azure.Deployments.Core": "1.241.0",
           "Microsoft.AspNet.WebApi.Client": "5.2.9",
           "Newtonsoft.Json": "13.0.3",
           "System.Text.Json": "8.0.5"
@@ -213,12 +213,12 @@
       },
       "Azure.Deployments.Templates": {
         "type": "Transitive",
-        "resolved": "1.224.0",
-        "contentHash": "Oosjg9CiEp00XAdZS0OPScAdYjILPFiH6Lpyxhaqmr2dECTiAGkPfByPt2g4ci43Y+HxbBISIXhYJf1fyY0OFA==",
+        "resolved": "1.241.0",
+        "contentHash": "VEX9i8sJDAcaDDXEyAgjOoCht9Zfk3S4encZ2EEko84resT69x4fmhL30PbJkSK1mQYaz4XLnLNHyOttpxER7A==",
         "dependencies": {
           "Azure.Bicep.Types": "0.5.110",
-          "Azure.Deployments.Core": "1.224.0",
-          "Azure.Deployments.Expression": "1.224.0",
+          "Azure.Deployments.Core": "1.241.0",
+          "Azure.Deployments.Expression": "1.241.0",
           "Microsoft.Automata.SRM": "1.2.2",
           "Newtonsoft.Json": "13.0.3"
         }
@@ -1551,7 +1551,7 @@
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Local.Extension": "[1.0.0, )",
-          "Azure.Deployments.Engine": "[1.224.0, )",
+          "Azure.Deployments.Engine": "[1.241.0, )",
           "Azure.Deployments.Extensibility.Core": "[0.1.55, )",
           "Microsoft.AspNet.WebApi.Client": "[6.0.0, )"
         }
