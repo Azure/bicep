@@ -657,8 +657,8 @@ namespace Bicep.LanguageServer.Completions
         {
             if (registryModuleCatalog.TryGetCachedRegistry(registry) is IRegistryModuleMetadataProvider cachedRegistry
                 && await cachedRegistry.TryGetModuleAsync(modulePath) is { } module
-                && await module.TryGetVersionsAsync() is { } versions
-                &&/* asdfg extract?*/ versions.FirstOrDefault(v => v.Version.Equals(version, StringComparison.Ordinal)) is RegistryModuleVersionMetadata metadata/*asdfg does this work if not found?*/)
+                && await module.TryGetVersionsAsync()/*asdfg use cached if available*/ is { } versions
+                && versions.FirstOrDefault(v => v.Version.Equals(version, StringComparison.Ordinal)) is RegistryModuleVersionMetadata metadata/*asdfg does this work if not found?*/)
             {
                 return (completionItem with
                 {
