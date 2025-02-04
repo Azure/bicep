@@ -84,17 +84,17 @@ namespace Bicep.LanguageServer.Handlers
 
                 // Used for the declaration ONLY of a wildcard import. Other syntax that resolves to a wildcard import will be handled by HandleDeclaredDefinitionLocation
                 { Origin: WildcardImportSyntax, Symbol: WildcardImportSymbol wildcardImport }
-                    => HandleWildcardImportDeclaration(context, request, result, wildcardImport),
+                    => HandleWildcardImportDeclaration(context, wildcardImport),
 
-                { Symbol: ImportedSymbol imported } => HandleImportedSymbolLocation(request, result, context, imported),
+                { Symbol: ImportedSymbol imported } => HandleImportedSymbolLocation(result, context, imported),
 
                 { Symbol: WildcardImportInstanceFunctionSymbol instanceFunctionSymbol }
-                    => HandleWildcardImportInstanceFunctionLocation(request, result, context, instanceFunctionSymbol),
+                    => HandleWildcardImportInstanceFunctionLocation(result, context, instanceFunctionSymbol),
 
                 { Symbol: DeclaredSymbol declaration } => HandleDeclaredDefinitionLocation(request, result, declaration),
 
                 // Object property: currently only used for module param goto
-                { Origin: ObjectPropertySyntax } => HandleObjectPropertyLocation(request, result, context),
+                { Origin: ObjectPropertySyntax } => HandleObjectPropertyLocation(request, context),
 
                 // Used for module (name), variable, wildcard import, or resource property access
                 { Symbol: PropertySymbol } => HandlePropertyLocation(request, result, context),
@@ -120,7 +120,7 @@ namespace Bicep.LanguageServer.Handlers
                  && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile)
-                 && this.moduleDispatcher.TryGetArtifactReference(moduleDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
+                 && this.moduleDispatcher.TryGetArtifactReference(context.Compilation.SourceFileGrouping.EntryPoint, moduleDeclarationSyntax).IsSuccess(out var moduleReference))
                 {
                     return HandleModuleReference(context, stringToken, sourceFile, moduleReference);
                 }
@@ -133,7 +133,7 @@ namespace Bicep.LanguageServer.Handlers
                  && matchingNodes[^4] is CompileTimeImportDeclarationSyntax importDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(importDeclarationSyntax).IsSuccess(out var sourceFile)
-                 && this.moduleDispatcher.TryGetArtifactReference(importDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
+                 && this.moduleDispatcher.TryGetArtifactReference(context.Compilation.SourceFileGrouping.EntryPoint, importDeclarationSyntax).IsSuccess(out var moduleReference))
                 {
                     // goto beginning of the module file.
                     return GetFileDefinitionLocation(
@@ -210,10 +210,10 @@ namespace Bicep.LanguageServer.Handlers
             throw new UnreachableException();
         }
 
-        private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, DefinitionParams request, SymbolResolutionResult result, WildcardImportSymbol wildcardImport)
+        private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, WildcardImportSymbol wildcardImport)
         {
             if (context.Compilation.SourceFileGrouping.TryGetSourceFile(wildcardImport.EnclosingDeclaration).IsSuccess(out var sourceFile) &&
-                this.moduleDispatcher.TryGetArtifactReference(wildcardImport.EnclosingDeclaration, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
+                this.moduleDispatcher.TryGetArtifactReference(context.Compilation.SourceFileGrouping.EntryPoint, wildcardImport.EnclosingDeclaration).IsSuccess(out var moduleReference))
             {
                 return GetFileDefinitionLocation(
                     GetModuleSourceLinkUri(sourceFile, moduleReference),
@@ -239,7 +239,7 @@ namespace Bicep.LanguageServer.Handlers
             }));
         }
 
-        private LocationOrLocationLinks HandleObjectPropertyLocation(DefinitionParams request, SymbolResolutionResult result, CompilationContext context)
+        private LocationOrLocationLinks HandleObjectPropertyLocation(DefinitionParams request, CompilationContext context)
         {
             int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
             var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(context.Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax, offset);
@@ -379,10 +379,10 @@ namespace Bicep.LanguageServer.Handlers
             }));
         }
 
-        private static LocationOrLocationLinks HandleImportedSymbolLocation(DefinitionParams request, SymbolResolutionResult result, CompilationContext context, ImportedSymbol imported)
+        private static LocationOrLocationLinks HandleImportedSymbolLocation(SymbolResolutionResult result, CompilationContext context, ImportedSymbol imported)
             => HandleImportedSymbolLocation(result.Origin.ToRange(context.LineStarts), context, imported.SourceModel, imported.OriginalSymbolName, imported.EnclosingDeclaration);
 
-        private static LocationOrLocationLinks HandleWildcardImportInstanceFunctionLocation(DefinitionParams request, SymbolResolutionResult result, CompilationContext context, WildcardImportInstanceFunctionSymbol symbol)
+        private static LocationOrLocationLinks HandleWildcardImportInstanceFunctionLocation(SymbolResolutionResult result, CompilationContext context, WildcardImportInstanceFunctionSymbol symbol)
             => HandleImportedSymbolLocation(result.Origin.ToRange(context.LineStarts), context, symbol.BaseSymbol.SourceModel, symbol.Name, symbol.BaseSymbol.EnclosingDeclaration);
 
         private static LocationOrLocationLinks HandleImportedSymbolLocation(Range originSelectionRange, CompilationContext context, ISemanticModel sourceModel, string? originalSymbolName, IArtifactReferenceSyntax enclosingDeclaration)

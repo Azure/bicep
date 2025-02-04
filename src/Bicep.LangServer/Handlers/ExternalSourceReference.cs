@@ -9,6 +9,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
+using Bicep.Core.Workspaces;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
@@ -138,11 +139,11 @@ namespace Bicep.LanguageServer.Handlers
             return uri.Uri;
         }
 
-        public Result<OciArtifactReference, string> ToArtifactReference()
+        public Result<OciArtifactReference, string> ToArtifactReference(BicepFile? dummyFile = null)
         {
             if (OciArtifactReference.TryParseFullyQualifiedComponents(Components.ArtifactId).IsSuccess(out var components, out var failureBuilder))
             { // No parent file template is available or needed because these are absolute references
-                return new(new OciArtifactReference(ArtifactType.Module, components, new Uri("file:///no-parent-file-is-available.bicep")));
+                return new(new OciArtifactReference(dummyFile ?? BicepFile.Dummy, ArtifactType.Module, components));
             }
             else
             {

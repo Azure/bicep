@@ -1,24 +1,29 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Text;
 using System.Web;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
+using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry.Oci
 {
     public class OciArtifactReference : ArtifactReference, IOciArtifactReference
     {
-        public OciArtifactReference(ArtifactType type, IArtifactAddressComponents artifactIdParts, Uri parentModuleUri) :
-            base(OciArtifactReferenceFacts.Scheme, parentModuleUri)
+        public OciArtifactReference(BicepSourceFile referencingFile, ArtifactType type, IArtifactAddressComponents artifactIdParts) :
+            base(referencingFile, OciArtifactReferenceFacts.Scheme)
         {
             Type = type;
             AddressComponents = artifactIdParts;
         }
 
-        public OciArtifactReference(ArtifactType type, string registry, string repository, string? tag, string? digest, Uri parentModuleUri) :
-            base(OciArtifactReferenceFacts.Scheme, parentModuleUri)
+        public OciArtifactReference(BicepSourceFile referencingFile, ArtifactType type, string registry, string repository, string? tag, string? digest) :
+            base(referencingFile, OciArtifactReferenceFacts.Scheme)
         {
             switch (tag, digest)
             {
@@ -70,17 +75,17 @@ namespace Bicep.Core.Registry.Oci
 
         // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
         // The configuration and parentModuleUri are needed to resolve aliases and experimental features
-        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseModuleAndAlias(string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
-            => TryParse(ArtifactType.Module, aliasName, unqualifiedReference, configuration, parentModuleUri);
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseModuleAndAlias(BicepSourceFile referencingFile, string? aliasName, string unqualifiedReference)
+            => TryParse(referencingFile, ArtifactType.Module, aliasName, unqualifiedReference);
 
         public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseModule(string unqualifiedReference)
-            => TryParse(ArtifactType.Module, null, unqualifiedReference, null, null);
+            => TryParse(BicepFile.Dummy, ArtifactType.Module, null, unqualifiedReference);
 
-        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration, Uri? parentModuleUri)
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(BicepSourceFile referencingFile, ArtifactType type, string? aliasName, string unqualifiedReference)
         {
-            if (TryParseParts(type, aliasName, unqualifiedReference, configuration).IsSuccess(out var parts, out var errorBuilder))
+            if (TryParseParts(referencingFile, type, aliasName, unqualifiedReference).IsSuccess(out var parts, out var errorBuilder))
             {
-                return new(new OciArtifactReference(type, parts.Registry, parts.Repository, parts.Tag, parts.Digest, parentModuleUri ?? new Uri("file:///no-parent-file-is-available.bicep")));
+                return new(new OciArtifactReference(referencingFile, type, parts.Registry, parts.Repository, parts.Tag, parts.Digest));
             }
             else
             {
@@ -91,22 +96,22 @@ namespace Bicep.Core.Registry.Oci
         // Doesn't handle aliases
         public static ResultWithDiagnosticBuilder<IArtifactAddressComponents> TryParseFullyQualifiedComponents(string rawValue)
         {
-            return TryParseParts(ArtifactType.Module, aliasName: null, rawValue, configuration: null);
+            return TryParseParts(BicepFile.Dummy, ArtifactType.Module, aliasName: null, rawValue);
         }
 
         // TODO: Completely remove aliasName and configuration dependencies and move the non-dependent portion to a static method on ArtifactAddressComponents
-        private static ResultWithDiagnosticBuilder<IArtifactAddressComponents> TryParseParts(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration)
+        private static ResultWithDiagnosticBuilder<IArtifactAddressComponents> TryParseParts(BicepSourceFile referencingFile, ArtifactType type, string? aliasName, string unqualifiedReference)
         {
             static string GetBadReference(string referenceValue) => $"{OciArtifactReferenceFacts.Scheme}:{referenceValue}";
 
             static string DecodeSegment(string segment) => HttpUtility.UrlDecode(segment);
 
-            if (configuration is { } && aliasName is { })
+            if (aliasName is { })
             {
                 switch (type)
                 {
                     case ArtifactType.Module:
-                        if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var moduleAlias, out var moduleFailureBuilder))
+                        if (!referencingFile.Configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var moduleAlias, out var moduleFailureBuilder))
                         {
                             return new(moduleFailureBuilder);
                         }

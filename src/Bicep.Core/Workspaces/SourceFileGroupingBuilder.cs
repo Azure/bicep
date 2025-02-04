@@ -228,11 +228,11 @@ namespace Bicep.Core.Workspaces
             }
         }
 
-        private ImplicitExtension GetImplicitExtension(string extensionName, BicepSourceFile file, RootConfiguration config)
+        private ImplicitExtension GetImplicitExtension(string extensionName, BicepSourceFile referencingFile, RootConfiguration config)
         {
             if (!config.Extensions.TryGetExtensionSource(extensionName).IsSuccess(out var extensionEntry, out var errorBuilder))
             {
-                return new(extensionName, null, new(file, null, null, new(errorBuilder), RequiresRestore: false));
+                return new(extensionName, null, new(referencingFile, null, null, new(errorBuilder), RequiresRestore: false));
             }
 
             if (extensionEntry.BuiltIn)
@@ -240,27 +240,27 @@ namespace Bicep.Core.Workspaces
                 return new(extensionName, extensionEntry, null);
             }
 
-            if (!dispatcher.TryGetArtifactReference(ArtifactType.Extension, extensionEntry.Value, file.Uri).IsSuccess(out var artifactReference, out errorBuilder))
+            if (!dispatcher.TryGetArtifactReference(referencingFile, ArtifactType.Extension, extensionEntry.Value).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 // reference is not valid
-                return new(extensionName, extensionEntry, new(file, null, null, new(errorBuilder), RequiresRestore: false));
+                return new(extensionName, extensionEntry, new(referencingFile, null, null, new(errorBuilder), RequiresRestore: false));
             }
 
             var (result, requiresRestore) = GetArtifactRestoreResult(artifactReference);
-            return new(extensionName, extensionEntry, new(file, null, artifactReference, result, RequiresRestore: requiresRestore));
+            return new(extensionName, extensionEntry, new(referencingFile, null, artifactReference, result, RequiresRestore: requiresRestore));
         }
 
-        private ArtifactResolutionInfo GetArtifactRestoreResult(BicepSourceFile sourceFile, IArtifactReferenceSyntax referenceSyntax)
+        private ArtifactResolutionInfo GetArtifactRestoreResult(BicepSourceFile referencingFile, IArtifactReferenceSyntax referenceSyntax)
         {
-            if (!dispatcher.TryGetArtifactReference(referenceSyntax, sourceFile.Uri).IsSuccess(out var artifactReference, out var errorBuilder))
+            if (!dispatcher.TryGetArtifactReference(referencingFile, referenceSyntax).IsSuccess(out var artifactReference, out var errorBuilder))
             {
                 // artifact reference is not valid
-                return new(sourceFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
+                return new(referencingFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
             }
 
             var (result, requiresRestore) = GetArtifactRestoreResult(artifactReference);
 
-            return new(sourceFile, referenceSyntax, artifactReference, result, RequiresRestore: requiresRestore);
+            return new(referencingFile, referenceSyntax, artifactReference, result, RequiresRestore: requiresRestore);
         }
 
         private (ResultWithDiagnosticBuilder<Uri> result, bool requiresRestore) GetArtifactRestoreResult(ArtifactReference artifactReference)

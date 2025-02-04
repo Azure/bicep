@@ -3,15 +3,20 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -62,7 +67,7 @@ namespace Bicep.Core.Samples
             {
                 var target = publishInfo.Metadata.Target;
 
-                if (!dispatcher.TryGetArtifactReference(ArtifactType.Module, target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
+                if (!dispatcher.TryGetArtifactReference(BicepFile.Dummy, ArtifactType.Module, target).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
@@ -89,7 +94,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, templateSpecInfo) in templateSpecs)
             {
-                if (!dispatcher.TryGetArtifactReference(ArtifactType.Module, templateSpecInfo.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
+                if (!dispatcher.TryGetArtifactReference(BicepFile.Dummy, ArtifactType.Module, templateSpecInfo.Metadata.Target).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
@@ -121,7 +126,5 @@ namespace Bicep.Core.Samples
                 await RegistryHelper.PublishModuleToRegistryAsync(clientFactory, BicepTestConstants.FileSystem, moduleName, publishInfo.Metadata.Target, publishInfo.ModuleSource, publishSource, null);
             }
         }
-
-        private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
     }
 }

@@ -6,8 +6,11 @@ using Bicep.Core.Registry;
 
 namespace Bicep.Wasm
 {
-    public class EmptyModuleRegistryProvider : IArtifactRegistryProvider
+    public class EmptyModuleRegistryProvider : ArtifactRegistryProvider
     {
-        public ImmutableArray<IArtifactRegistry> Registries(Uri _) => [];
+        public EmptyModuleRegistryProvider()
+            : base(Array.Empty<IArtifactRegistry>())
+        {
+        }
     }
 }

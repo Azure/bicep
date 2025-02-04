@@ -2,10 +2,14 @@
 // Licensed under the MIT License.
 
 using System.Reflection;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -109,17 +113,26 @@ namespace Bicep.Core.UnitTests.Modules
         private static bool IsValid(string package)
         {
             // NOTE: ArtifactAddressComponents doesn't currently have a parser separate from OciArtifactReference.
-            return OciArtifactReference.TryParse(ArtifactType.Module, null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var _, out var _);
+            return OciArtifactReference.TryParse(CreateBicepFile(), ArtifactType.Module, null, package).IsSuccess(out var _, out var _);
         }
 
         private static ArtifactAddressComponents Parse(string package)
         {
             // NOTE: ArtifactAddressComponents doesn't currently have a parser separate from OciArtifactReference.
-            OciArtifactReference.TryParse(ArtifactType.Module, null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
+            OciArtifactReference.TryParse(CreateBicepFile(), ArtifactType.Module, null, package).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
             return (ArtifactAddressComponents)parsed!.AddressComponents;
         }
+
+        private static BicepFile CreateBicepFile() => new(
+            RandomFileUri(),
+            [],
+            SyntaxFactory.EmptyProgram,
+            IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled),
+            BicepTestConstants.FeatureProviderFactory,
+            EmptyDiagnosticLookup.Instance,
+            EmptyDiagnosticLookup.Instance);
 
         public static IEnumerable<object[]> GetValidCases()
         {

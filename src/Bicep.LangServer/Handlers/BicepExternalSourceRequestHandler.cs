@@ -8,6 +8,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -51,7 +52,7 @@ namespace Bicep.LanguageServer.Handlers
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
 
-            if (!moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, request.Target, new Uri("file:///no-parent-file-is-available.bicep")).IsSuccess(out var moduleReference))
+            if (!moduleDispatcher.TryGetArtifactReference(BicepFile.Dummy, ArtifactType.Module, request.Target).IsSuccess(out var moduleReference))
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetArtifactReference)));
                 return Task.FromResult(new BicepExternalSourceResponse(null,

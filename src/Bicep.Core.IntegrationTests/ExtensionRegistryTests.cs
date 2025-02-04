@@ -85,10 +85,8 @@ output joke string = dadJoke.body.joke
         var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         Directory.CreateDirectory(tempDirectory);
 
-        var extensionPath = Path.Combine(tempDirectory, "extension.tgz");
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), Path.Combine(tempDirectory, extensionPath), typesTgz);
-
         var bicepPath = Path.Combine(tempDirectory, "main.bicep");
+        var bicepUri = PathHelper.FilePathToFileUrl(bicepPath);
         await File.WriteAllTextAsync(bicepPath, """
 extension './extension.tgz'
 
@@ -100,7 +98,8 @@ resource fooRes 'fooType@v1' = {
 }
 """);
 
-        var bicepUri = PathHelper.FilePathToFileUrl(bicepPath);
+        var extensionPath = Path.Combine(tempDirectory, "extension.tgz");
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), Path.Combine(tempDirectory, extensionPath), typesTgz, bicepUri);
 
 
         var compiler = services.Build().GetCompiler();
@@ -209,9 +208,9 @@ extension nonExistent
 }
 """)));
 
-        var sourceUri = InMemoryFileResolver.GetFileUri("/path/bicepconfig.json");
+        var sourceUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
         result.Should().HaveDiagnostics([
-            ("BCP093", DiagnosticLevel.Error, $"File path \"./non_existent.tgz\" could not be resolved relative to \"{sourceUri.LocalPath}\"."),
+            ("BCP093", DiagnosticLevel.Error, $"File path \"../non_existent.tgz\" could not be resolved relative to \"{sourceUri.LocalPath}\"."),
         ]);
     }
 

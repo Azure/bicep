@@ -80,10 +80,9 @@ namespace Bicep.Core.UnitTests
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
         public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services) =>
-            new DefaultArtifactRegistryProvider(services, FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
+            new DefaultArtifactRegistryProvider(services, FileResolver, ClientFactory, TemplateSpecRepositoryFactory);
 
-        public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) =>
-            new ModuleDispatcher(CreateRegistryProvider(services), IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
+        public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
             new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile), null),

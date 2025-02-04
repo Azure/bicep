@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Workspaces;
+
 namespace Bicep.Core.Registry
 {
     /// <summary>
@@ -8,10 +10,10 @@ namespace Bicep.Core.Registry
     /// </summary>
     public abstract class ArtifactReference
     {
-        protected ArtifactReference(string scheme, Uri parentModuleUri)
+        protected ArtifactReference(BicepSourceFile referencingFile, string scheme)
         {
             Scheme = scheme;
-            ParentModuleUri = parentModuleUri;
+            ReferencingFile = referencingFile;
         }
 
         public string Scheme { get; }
@@ -19,7 +21,7 @@ namespace Bicep.Core.Registry
         /// <summary>
         /// The URI of the template in which this artifact reference appears.
         /// </summary>
-        public Uri ParentModuleUri { get; }
+        public BicepSourceFile ReferencingFile { get; }
 
         /// <summary>
         /// Gets the fully qualified artifact reference, which includes the scheme.
