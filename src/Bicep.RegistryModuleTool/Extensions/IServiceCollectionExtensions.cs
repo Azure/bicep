@@ -10,7 +10,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
@@ -41,7 +41,7 @@ namespace Bicep.RegistryModuleTool.Extensions
             .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
             .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
             .AddSingleton<ISourceFileFactory, SourceFileFactory>()
-            .AddPublicModuleMetadataProviderServices()
+            .AddRegistryCatalogServices()
             .AddSingleton<BicepCompiler>();
     }
 }

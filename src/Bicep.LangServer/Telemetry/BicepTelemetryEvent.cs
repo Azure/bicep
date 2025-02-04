@@ -18,6 +18,13 @@ namespace Bicep.LanguageServer.Telemetry
     {
         public const string MCR = "MCR";
         public const string ACR = "ACR";
+        public const string AcrBasePathFromAlias = "base-path-from-alias";
+    }
+
+    public static class ModuleRegistryResolutionType
+    {
+        public const string AcrVersion = "acr-version";
+        public const string AcrModulePath = "acr-path";
     }
 
     public record BicepTelemetryEvent : TelemetryEventParams
@@ -273,12 +280,22 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
-        public static BicepTelemetryEvent ModuleRegistryPathCompletion(string moduleRegistryType)
+        public static BicepTelemetryEvent ModuleRegistryPathCompletion(string moduleRegistryType, bool isAlias)
             => new(
                 eventName: TelemetryConstants.EventNames.ModuleRegistryPathCompletion,
                 properties: new()
                 {
-                    ["moduleRegistryType"] = moduleRegistryType
+                    ["moduleRegistryType"] = moduleRegistryType,
+                    ["isAlias"] = ToTrueFalse(isAlias),
+                }
+            );
+
+        public static BicepTelemetryEvent ModuleRegistryResolution(string resolutionType)
+            => new(
+                eventName: TelemetryConstants.EventNames.ModuleRegistryResolution,
+                properties: new()
+                {
+                    ["type"] = resolutionType,
                 }
             );
 
