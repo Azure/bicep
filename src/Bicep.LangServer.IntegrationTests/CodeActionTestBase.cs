@@ -135,51 +135,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         protected static LanguageClientFile ApplyCodeAction(LanguageClientFile bicepFile, CodeAction codeAction)
         {
-            // only support a small subset of possible edits for now - can always expand this later on
-            codeAction.Edit!.Changes.Should().NotBeNull();
-            codeAction.Edit.Changes.Should().HaveCount(1);
-            codeAction.Edit.Changes.Should().ContainKey(bicepFile.Uri);
-
-            var bicepText = bicepFile.Text;
-            var changes = codeAction.Edit.Changes![bicepFile.Uri].ToArray();
-
-            for (int i = 0; i < changes.Length; ++i)
-            {
-                for (int j = i + 1; j < changes.Length; ++j)
-                {
-                    Range.AreIntersecting(changes[i].Range, changes[j].Range).Should().BeFalse("Edits must be non-overlapping (https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textEdit)");
-                }
-            }
-
-            // Convert to Bicep coordinates
-            var lineStarts = TextCoordinateConverter.GetLineStarts(bicepText);
-            var convertedChanges = changes.Select(c =>
-                (NewText: c.NewText, Span: c.Range.ToTextSpan(lineStarts)))
-                .ToArray();
-
-            for (var i = 0; i < changes.Length; ++i)
-            {
-                var replacement = convertedChanges[i];
-
-                var start = replacement.Span.Position;
-                var end = replacement.Span.Position + replacement.Span.Length;
-                var textToInsert = replacement.NewText;
-
-                // the handler can contain tabs. convert to double space to simplify printing.
-                textToInsert = textToInsert.Replace("\t", "  ");
-
-                bicepText = bicepText.Substring(0, start) + textToInsert + bicepText.Substring(end);
-
-                // Adjust indices for the remaining changes to account for this replacement
-                int replacementOffset = textToInsert.Length - (end - start);
-                for (int j = i + 1; j < changes.Length; ++j)
-                {
-                    if (convertedChanges[j].Span.Position >= replacement.Span.Position)
-                    {
-                        convertedChanges[j].Span = convertedChanges[j].Span.MoveBy(replacementOffset);
-                    }
-                }
-            }
+            var updatedFile = LspRefactoringHelper.ApplyCodeAction(bicepFile, codeAction);
 
             var command = codeAction.Command;
             if (command != null && command.Name == "bicep.internal.postExtraction")
@@ -191,16 +147,16 @@ namespace Bicep.LangServer.IntegrationTests
                 args.Item1.Should().StartWith("file://");
                 var positionObject = (JObject)args.Item2;
                 var (line, character) = (positionObject.GetValue("line")!.Value<int>(), positionObject.GetValue("character")!.Value<int>());
-                var modifiedLineStarts = TextCoordinateConverter.GetLineStarts(bicepText);
+                var modifiedLineStarts = TextCoordinateConverter.GetLineStarts(updatedFile.Text);
                 var renameOffset = TextCoordinateConverter.GetOffset(modifiedLineStarts, line, character);
-                var possibleVarKeyword = renameOffset >= "var ".Length ? bicepText.Substring(renameOffset - "var ".Length, "var ".Length) : null;
-                var possibleParamKeyword = renameOffset >= "param ".Length ? bicepText.Substring(renameOffset - "param ".Length, "param ".Length) : null;
-                var possibleTypeKeyword = renameOffset >= "type ".Length ? bicepText.Substring(renameOffset - "type ".Length, "type ".Length) : null;
+                var possibleVarKeyword = renameOffset >= "var ".Length ? updatedFile.Text.Substring(renameOffset - "var ".Length, "var ".Length) : null;
+                var possibleParamKeyword = renameOffset >= "param ".Length ? updatedFile.Text.Substring(renameOffset - "param ".Length, "param ".Length) : null;
+                var possibleTypeKeyword = renameOffset >= "type ".Length ? updatedFile.Text.Substring(renameOffset - "type ".Length, "type ".Length) : null;
                 (possibleVarKeyword == "var " || possibleParamKeyword == "param " || possibleTypeKeyword == "type ").Should().BeTrue(
                     "Rename should be positioned on the new identifier right after 'var ' or 'param ' or 'type '");
             }
 
-            return new LanguageClientFile(bicepFile.Uri, bicepText);
+            return updatedFile;
         }
     }
 }
