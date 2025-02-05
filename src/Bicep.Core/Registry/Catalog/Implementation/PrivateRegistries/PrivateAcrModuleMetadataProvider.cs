@@ -100,7 +100,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         Trace.WriteLine($"Found {catalog.Length} repositories");
 
         var modules = catalog
-            .Reverse() // Reverse to inspect the latest modules first
+            .Reverse() // Reverse to search the latest modules first
             .Select(m => new RegistryModuleMetadata(
                 Registry,
                 m,

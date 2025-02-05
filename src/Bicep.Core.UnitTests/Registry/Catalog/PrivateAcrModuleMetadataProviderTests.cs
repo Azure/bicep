@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions.TestingHelpers;
 using System.Net.Http;
@@ -327,6 +328,54 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var details = await module!.TryGetDetailsAsync();
             details.Description.Should().Be("this is module 1 version 2");
             details.DocumentationUri.Should().Be("https://docs/m1v2");
+        }
+
+        class PrivateAcrModuleMetadataProviderThatThrows : PrivateAcrModuleMetadataProvider
+        {
+            public PrivateAcrModuleMetadataProviderThatThrows(
+                CloudConfiguration cloud,
+                string registry,
+                IContainerRegistryClientFactory clientFactory)
+                : base(cloud, registry, clientFactory) { }
+
+            protected override Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
+            {
+                throw new Exception("I like throwing");
+            }
+        }
+
+        [TestMethod]
+        public async Task GetCachedVersions_ShouldNotThrowOnErrors()
+        {
+            var containerClient = new FakeContainerRegistryClient();
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+                new MockFileSystem(),
+                containerClient,
+                [
+                    new("br:registry.contoso.io/test/module1:v1", "metadata description = 'this is module 1 version 1'\nparam p1 bool", WithSource: true, DocumentationUri: "http://contoso.com/help11"),
+                ]);
+
+            var provider = new PrivateAcrModuleMetadataProviderThatThrows(
+                BicepTestConstants.BuiltInConfiguration.Cloud,
+                "registry.contoso.io",
+                clientFactory);
+
+            var module = await provider.TryGetModuleAsync("test/module1");
+            module.Should().NotBeNull();
+
+            module!.GetCachedVersions().Should().BeEmpty();
+            (await module!.TryGetVersionsAsync()).Should().BeEmpty();
+            module.GetCachedVersions().Should().BeEmpty();
+
+            var provider2NoThrow = new PrivateAcrModuleMetadataProvider(
+                BicepTestConstants.BuiltInConfiguration.Cloud,
+                "registry.contoso.io",
+                clientFactory);
+            var module2 = await provider2NoThrow.TryGetModuleAsync("test/module1");
+
+            module2!.GetCachedVersions().Should().BeEmpty();
+            (await module2!.TryGetVersionsAsync()).Should().NotBeEmpty();
+            module2.GetCachedVersions().Should().NotBeEmpty();
         }
     }
 }

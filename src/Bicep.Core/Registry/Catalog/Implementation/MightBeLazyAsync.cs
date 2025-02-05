@@ -31,8 +31,18 @@ public class MightBeLazyAsync<T> where T : class
         {
             if (lazy!.IsValueFactoryCompleted)
             {
-                value = lazy.GetValue(); //asdfg can this throw?//asdfg testpoint
-                return true;
+                // Apparently no way to detect if the value factory threw an exception (even though it completed), so guard for it here
+                try
+                {
+                    value = lazy.GetValue();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    value = default;
+                    return false;
+                }
+
             }
             else
             {
