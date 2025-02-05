@@ -47,12 +47,12 @@ namespace Bicep.Core.Registry
             try
             {
                 // Try anonymous auth first.
-                Trace.WriteLine($"Attempt to pull artifact for module {artifactReference.FullyQualifiedReference} with anonymous authentication.");
+                Trace.WriteLine($"Attempting to pull artifact for module {artifactReference.FullyQualifiedReference} with anonymous authentication.");
                 return await DownloadManifestInternalAsync(anonymousAccess: true);
             }
             catch (RequestFailedException requestedFailedException) when (requestedFailedException.Status is 401 or 403)
             {
-                Trace.WriteLine($"Anonymous authetncation failed with status code {requestedFailedException.Status}. Retrying with authenticated client.");
+                Trace.WriteLine($"Anonymous authentication failed with status code {requestedFailedException.Status}. Retrying with authenticated client.");
             }
             catch (Exception exception)
             {
@@ -116,7 +116,8 @@ namespace Bicep.Core.Registry
             _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
         }
 
-        private static Uri GetRegistryUri(IOciArtifactReference artifactReference) => new($"https://{artifactReference.Registry}");
+        private static Uri GetRegistryUri(IOciArtifactReference artifactReference) => GetRegistryUri(artifactReference.Registry);
+        private static Uri GetRegistryUri(string loginServer) => new($"https://{loginServer}");
 
         private ContainerRegistryContentClient CreateBlobClient(
             RootConfiguration configuration,

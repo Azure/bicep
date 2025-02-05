@@ -11,16 +11,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry.PublicRegistry;
 
-public static class PublicRegistryModuleMetadataProviderExtensions
+public static class PublicModuleMetadataProviderExtensions
 {
-    public static IServiceCollection AddPublicRegistryModuleMetadataProviderServices(this IServiceCollection services)
+    public static IServiceCollection AddPublicModuleMetadataProviderServices(this IServiceCollection services)
     {
-        services.AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
+        services.AddSingleton<IPublicModuleMetadataProvider, PublicModuleMetadataProvider>();
 
         // using type based registration for Http clients so dependencies can be injected automatically
         // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
         services
-            .AddHttpClient<IPublicRegistryModuleIndexClient, PublicRegistryModuleMetadataClient>()
+            .AddHttpClient<IPublicModuleIndexClient, PublicModuleMetadataClient>()
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
@@ -34,7 +34,7 @@ public static class PublicRegistryModuleMetadataProviderExtensions
 /// <summary>
 /// Provider to get modules metadata that we store at a public endpoint.
 /// </summary>
-public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadataProvider
+public class PublicModuleMetadataProvider : IPublicModuleMetadataProvider
 {
     private readonly IServiceProvider serviceProvider;
 
@@ -47,14 +47,14 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
     private DateTime? lastSuccessfulQuery;
     private int consecutiveFailures = 0;
 
-    private ImmutableArray<PublicRegistryModuleIndexEntry> cachedIndex = [];
+    private ImmutableArray<PublicModuleIndexEntry> cachedIndex = [];
     private string? lastDownloadError = null;
 
     public bool IsCached => cachedIndex.Length > 0;
 
     public string? DownloadError => IsCached ? null : lastDownloadError;
 
-    public PublicRegistryModuleMetadataProvider(IServiceProvider serviceProvider)
+    public PublicModuleMetadataProvider(IServiceProvider serviceProvider)
     {
         this.serviceProvider = serviceProvider;
     }
@@ -83,25 +83,25 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
     }
 
     // If cache has not yet successfully been updated, returns empty
-    public ImmutableArray<PublicRegistryModuleMetadata> GetModulesMetadata()
+    public ImmutableArray<PublicModuleMetadata> GetModulesMetadata()
     {
         StartCacheUpdateInBackgroundIfNeeded();
 
-        return [.. this.cachedIndex.Select(x => new PublicRegistryModuleMetadata(x.ModulePath, x.GetDescription(), x.GetDocumentationUri()))];
+        return [.. this.cachedIndex.Select(x => new PublicModuleMetadata(x.ModulePath, x.GetDescription(), x.GetDocumentationUri()))];
     }
 
-    public ImmutableArray<PublicRegistryModuleVersionMetadata> GetModuleVersionsMetadata(string modulePath)
+    public ImmutableArray<PublicModuleVersionMetadata> GetModuleVersionsMetadata(string modulePath)
     {
         StartCacheUpdateInBackgroundIfNeeded();
 
-        PublicRegistryModuleIndexEntry? entry = this.cachedIndex.FirstOrDefault(x => x.ModulePath.Equals(modulePath, StringComparison.Ordinal));
+        PublicModuleIndexEntry? entry = this.cachedIndex.FirstOrDefault(x => x.ModulePath.Equals(modulePath, StringComparison.Ordinal));
 
         if (entry == null)
         {
             return [];
         }
 
-        return [.. entry.Versions.Select(version => new PublicRegistryModuleVersionMetadata(version, entry.GetDescription(version), entry.GetDocumentationUri(version)))];
+        return [.. entry.Versions.Select(version => new PublicModuleVersionMetadata(version, entry.GetDescription(version), entry.GetDocumentationUri(version)))];
     }
 
     private void StartCacheUpdateInBackgroundIfNeeded(bool initialDelay = false)
@@ -113,15 +113,15 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
     {
         if (!this.cachedIndex.Any())
         {
-            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: First data retrieval...");
+            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicModuleMetadataProvider)}: First data retrieval...");
         }
         else if (forceUpdate)
         {
-            Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Force updating cache...");
+            Trace.WriteLine($"{nameof(PublicModuleMetadataProvider)}: Force updating cache...");
         }
         else if (IsCacheExpired())
         {
-            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: Cache expired, updating...");
+            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicModuleMetadataProvider)}: Cache expired, updating...");
         }
         else
         {
@@ -158,7 +158,7 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
 
                     if (delay > 0)
                     {
-                        Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Delaying {delay} before retry...");
+                        Trace.WriteLine($"{nameof(PublicModuleMetadataProvider)}: Delaying {delay} before retry...");
                         await Task.Delay(delay);
                     }
 
@@ -175,7 +175,7 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
                 {
                     lock (this.queryingLiveSyncObject)
                     {
-                        Trace.Assert(this.queryLiveDataTask is { }, $"{nameof(PublicRegistryModuleMetadataProvider)}: should be querying live data");
+                        Trace.Assert(this.queryLiveDataTask is { }, $"{nameof(PublicModuleMetadataProvider)}: should be querying live data");
                         this.queryLiveDataTask = null;
                     }
                 }
@@ -188,17 +188,17 @@ public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadat
         var expired = this.lastSuccessfulQuery.HasValue && this.lastSuccessfulQuery.Value + this.CacheValidFor < DateTime.Now;
         if (expired)
         {
-            Trace.TraceInformation($"{nameof(PublicRegistryModuleMetadataProvider)}: Public modules cache is expired.");
+            Trace.TraceInformation($"{nameof(PublicModuleMetadataProvider)}: Public modules cache is expired.");
         }
 
         return expired;
     }
 
-    private async Task<ImmutableArray<PublicRegistryModuleIndexEntry>?> TryGetLiveIndexAsync()
+    private async Task<ImmutableArray<PublicModuleIndexEntry>?> TryGetLiveIndexAsync()
     {
         try
         {
-            var client = serviceProvider.GetRequiredService<IPublicRegistryModuleIndexClient>();
+            var client = serviceProvider.GetRequiredService<IPublicModuleIndexClient>();
             var modules = await client.GetModuleIndexAsync();
 
             return modules;

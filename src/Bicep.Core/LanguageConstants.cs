@@ -36,6 +36,7 @@ namespace Bicep.Core
         public const string ArmTemplateFileExtension = ".arm";
 
         public const string BicepPublicMcrRegistry = "mcr.microsoft.com";
+        public const string BicepPublicMcrPathPrefix = "bicep/"; // All modules in the public bicep registry start with this prefix
 
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
@@ -131,8 +132,6 @@ namespace Bicep.Core
 
         public const string ListFunctionPrefix = "list";
 
-        public const string McrRepositoryPrefix = "bicep/";
-
         public static readonly ImmutableDictionary<string, TokenType> NonContextualKeywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
             [TrueKeyword] = TokenType.TrueKeyword,
@@ -160,6 +159,8 @@ namespace Bicep.Core
         public const string ImportMetadataSourceTemplatePropertyName = "sourceTemplate";
         public const string ImportMetadataOriginalIdentifierPropertyName = "originalIdentifier";
         public const string BatchSizePropertyName = "batchSize";
+        public const string WaitUntilPropertyName = "waitUntil";
+        public const string RetryOnPropertyName = "retryOn";
         public const string ExportPropertyName = "export";
         public const string TypeDiscriminatorDecoratorName = "discriminator";
 
@@ -213,6 +214,8 @@ namespace Bicep.Core
 
         public static readonly TypeSymbol ResourceRef = CreateResourceScopeReference(ResourceScope.Module | ResourceScope.Resource);
 
+        public static readonly TypeSymbol Resource = CreateResourceScopeReference(ResourceScope.Resource);
+
         // type used for the item type in the dependsOn array type
         public static readonly TypeSymbol ResourceOrResourceCollectionRefItem = TypeHelper.CreateTypeUnion(
             ResourceRef,
@@ -239,6 +242,7 @@ namespace Bicep.Core
         public static readonly TypeSymbol False = TypeFactory.CreateBooleanLiteralType(false);
         public static readonly TypeSymbol Null = new NullType();
         public static readonly TypeSymbol Array = TypeFactory.CreateArrayType();
+        public static readonly TypeSymbol StringArray = TypeFactory.CreateStringArrayType();
 
         public static readonly TypeSymbol StringFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath);
         public static readonly TypeSymbol StringJsonFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringJsonFilePath);

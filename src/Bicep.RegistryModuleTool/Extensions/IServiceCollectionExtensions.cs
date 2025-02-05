@@ -41,7 +41,7 @@ namespace Bicep.RegistryModuleTool.Extensions
             .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
             .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
             .AddSingleton<ISourceFileFactory, SourceFileFactory>()
-            .AddPublicRegistryModuleMetadataProviderServices()
+            .AddPublicModuleMetadataProviderServices()
             .AddSingleton<BicepCompiler>();
     }
 }

@@ -105,49 +105,10 @@ namespace Bicep.LangServer.IntegrationTests
             });
 
         public LanguageClientFile ApplyCompletion(CompletionList completions, string label, params string[] tabStops)
-        {
-            // Should().Contain is superfluous here, but it gives a better assertion message when it fails
-            completions.Should().Contain(x => x.Label == label);
-            completions.Should().ContainSingle(x => x.Label == label);
-
-            return ApplyCompletion(completions.Single(x => x.Label == label), tabStops);
-        }
+            => LspRefactoringHelper.ApplyCompletion(bicepFile, completions, label, tabStops);
 
         public LanguageClientFile ApplyCompletion(CompletionItem completion, params string[] tabStops)
-        {
-            var start = PositionHelper.GetOffset(bicepFile.LineStarts, completion.TextEdit!.TextEdit!.Range.Start);
-            var end = PositionHelper.GetOffset(bicepFile.LineStarts, completion.TextEdit!.TextEdit!.Range.End);
-            var textToInsert = completion.TextEdit!.TextEdit!.NewText;
-
-            // the completion handler returns tabs. convert to double space to simplify printing.
-            textToInsert = textToInsert.Replace("\t", "  ");
-
-            // always expect this mode for now
-            completion.InsertTextMode.Should().Be(InsertTextMode.AdjustIndentation);
-
-            switch (completion.InsertTextFormat)
-            {
-                case InsertTextFormat.Snippet:
-                    // replace default tab stop with the custom cursor format we use in this test suite
-                    textToInsert = textToInsert.Replace("$0", "|");
-                    for (var i = 0; i < tabStops.Length; i++)
-                    {
-                        textToInsert = Regex.Replace(textToInsert, $"\\${i + 1}", tabStops[i]);
-                        textToInsert = Regex.Replace(textToInsert, $"\\${{{i + 1}:[^}}]+}}", tabStops[i]);
-                    }
-                    break;
-                case InsertTextFormat.PlainText:
-                    textToInsert = textToInsert + "|";
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-
-            var originalFile = bicepFile.Text;
-            var replaced = string.Concat(originalFile.AsSpan(0, start), textToInsert, originalFile.AsSpan(end));
-
-            return new(bicepFile.Uri, replaced);
-        }
+            => LspRefactoringHelper.ApplyCompletion(bicepFile, completion, tabStops);
 
         public async Task<LanguageClientFile> RequestAndApplyCompletion(int cursor, string label)
         {

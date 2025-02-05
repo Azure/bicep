@@ -7,7 +7,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry.PublicRegistry;
-using Bicep.Core.Workspaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
@@ -18,7 +17,7 @@ namespace Bicep.Core.Registry
             : base(new IArtifactRegistry[]
                 {
                     new LocalModuleRegistry(fileResolver),
-                    new OciArtifactRegistry(fileResolver, clientFactory, serviceProvider.GetRequiredService<IPublicRegistryModuleMetadataProvider>()),
+                    new OciArtifactRegistry(fileResolver, clientFactory, serviceProvider.GetRequiredService<IPublicModuleMetadataProvider>()),
                     new TemplateSpecModuleRegistry(fileResolver, templateSpecRepositoryFactory),
                 })
         {

@@ -687,7 +687,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             await RestoreModule(ociRegistry, moduleReference);
 
-            var modules = CachedModules.GetCachedRegistryModules(BicepTestConstants.FileSystem, bicepFile.Features.CacheRootDirectory);
+            var modules = CachedModules.GetCachedModules(BicepTestConstants.FileSystem, bicepFile.Features.CacheRootDirectory);
             modules.Should().HaveCountGreaterThan(0);
 
             if (publishSource)
@@ -731,7 +731,7 @@ namespace Bicep.Core.UnitTests.Registry
             return moduleReference!;
         }
 
-        private (OciArtifactRegistry, MockRegistryBlobClient, BicepFile parentModuleFile) CreateModuleRegistryAndBicepFile(
+        private (OciArtifactRegistry, FakeRegistryBlobClient, BicepFile parentModuleFile) CreateModuleRegistryAndBicepFile(
             string? parentBicepFileContents // The bicep file which references a module
         )
         {

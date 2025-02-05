@@ -23,14 +23,14 @@ namespace Bicep.Cli.IntegrationTests
 {
     public abstract class TestBase : Bicep.Core.UnitTests.TestBase
     {
-        private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicRegistryModuleIndexClient? moduleMetadataClient)
+        private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicModuleIndexClient? moduleMetadataClient)
             => ServiceBuilder.Create(
                 services =>
                 {
                     services
                         .AddSingleton(clientFactory)
                         .AddSingleton(templateSpecRepositoryFactory)
-                        .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
+                        .AddSingleton<IPublicModuleMetadataProvider, PublicModuleMetadataProvider>();
 
                     IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, moduleMetadataClient);
                 }
@@ -49,21 +49,21 @@ namespace Bicep.Cli.IntegrationTests
             public IContainerRegistryClientFactory ClientFactory { get; init; }
             public ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory { get; init; }
             public IEnvironment? Environment { get; init; }
-            public IPublicRegistryModuleIndexClient ModuleMetadataClient { get; init; }
+            public IPublicModuleIndexClient ModuleMetadataClient { get; init; }
 
             public InvocationSettings(
                 FeatureProviderOverrides? FeatureOverrides = null,
                 IContainerRegistryClientFactory? ClientFactory = null,
                 ITemplateSpecRepositoryFactory? TemplateSpecRepositoryFactory = null,
                 IEnvironment? Environment = null,
-                IPublicRegistryModuleIndexClient? ModuleMetadataClient = null)
+                IPublicModuleIndexClient? ModuleMetadataClient = null)
             {
                 this.FeatureOverrides = FeatureOverrides;
                 this.ClientFactory = ClientFactory ?? Repository.Create<IContainerRegistryClientFactory>().Object;
                 this.TemplateSpecRepositoryFactory = TemplateSpecRepositoryFactory ?? Repository.Create<ITemplateSpecRepositoryFactory>().Object;
                 this.Environment = Environment;
 
-                this.ModuleMetadataClient = ModuleMetadataClient ?? StrictMock.Of<IPublicRegistryModuleIndexClient>().Object;
+                this.ModuleMetadataClient = ModuleMetadataClient ?? StrictMock.Of<IPublicModuleIndexClient>().Object;
             }
         }
 
@@ -109,7 +109,7 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        protected static async Task<IEnumerable<string>> GetAllDiagnostics(string bicepFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicRegistryModuleIndexClient? moduleMetadataClient = null)
+        protected static async Task<IEnumerable<string>> GetAllDiagnostics(string bicepFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicModuleIndexClient? moduleMetadataClient = null)
         {
             var compilation = await CreateCompiler(clientFactory, templateSpecRepositoryFactory, moduleMetadataClient).CreateCompilation(PathHelper.FilePathToFileUrl(bicepFilePath));
 

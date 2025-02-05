@@ -9,9 +9,11 @@ using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Cli.IntegrationTests;
 
@@ -31,8 +33,8 @@ public class PublishExtensionCommandTests : TestBase
         var repository = $"test/extension";
         var version = "0.0.1";
 
-        var (clientFactory, blobClientMocks) = RegistryHelper.CreateMockRegistryClients((registryStr, repository));
-        var mockBlobClient = blobClientMocks[(registryUri, repository)];
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor(registryStr, repository, ["tag"]));
+        var fakeBlobClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
 
         var indexPath = Path.Combine(outputDirectory, "index.json");
         var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
@@ -48,7 +50,7 @@ public class PublishExtensionCommandTests : TestBase
         result.Stderr.Should().Match("WARNING: The 'publish-extension' CLI command group is an experimental feature.*");
 
         // verify the extension was published
-        mockBlobClient.Should().HaveExtension(version, out var tgzStream);
+        fakeBlobClient.Should().HaveExtension(version, out var tgzStream);
 
         var typeLoader = OciTypeLoader.FromStream(tgzStream);
         var azTypeLoader = new AzResourceTypeLoader(typeLoader);
@@ -72,7 +74,7 @@ public class PublishExtensionCommandTests : TestBase
         result2.Should().Succeed().And.NotHaveStdout();
 
         // verify the extension was published
-        mockBlobClient.Should().HaveExtension(version, out var tgzStream2);
+        fakeBlobClient.Should().HaveExtension(version, out var tgzStream2);
 
         var typeLoader2 = OciTypeLoader.FromStream(tgzStream2);
         var azTypeLoader2 = new AzResourceTypeLoader(typeLoader2);

@@ -20,6 +20,7 @@ using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Core.Samples
 {
@@ -51,10 +52,14 @@ namespace Bicep.Core.Samples
             return (compilation, outputDirectory, fileUri);
         }
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, params (string registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(
+            this DataSet dataSet,
+            params RepoDescriptor[] additionalClients)
             => CreateMockRegistryClients(dataSet.RegistryModules, additionalClients);
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, params (string registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(
+            ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules,
+            params RepoDescriptor[] additionalClients)
         {
             var services = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
@@ -64,7 +69,7 @@ namespace Bicep.Core.Samples
             var sourceFileFactory = services.Construct<ISourceFileFactory>();
             var dummyReferencingFile = sourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
 
-            var clients = new List<(string, string)>();
+            var clients = new List<RepoDescriptor>();
 
             foreach (var (moduleName, publishInfo) in registryModules)
             {
@@ -75,10 +80,10 @@ namespace Bicep.Core.Samples
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
 
-                clients.Add((targetReference.Registry, targetReference.Repository));
+                clients.Add(new(targetReference.Registry, targetReference.Repository, ["tag"]));
             }
 
-            return RegistryHelper.CreateMockRegistryClients([.. clients, .. additionalClients]).factoryMock;
+            return RegistryHelper.CreateMockRegistryClient([.. clients, .. additionalClients]);
         }
 
         public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory()
@@ -129,7 +134,11 @@ namespace Bicep.Core.Samples
         {
             foreach (var (moduleName, publishInfo) in registryModules)
             {
-                await RegistryHelper.PublishModuleToRegistryAsync(clientFactory, BicepTestConstants.FileSystem, moduleName, publishInfo.Metadata.Target, publishInfo.ModuleSource, publishSource, null);
+                await RegistryHelper.PublishModuleToRegistryAsync(
+                    new ServiceBuilder(),
+                    clientFactory,
+                    BicepTestConstants.FileSystem,
+                    new(publishInfo.Metadata.Target, publishInfo.ModuleSource, WithSource: publishSource, DocumentationUri: null));
             }
         }
     }
