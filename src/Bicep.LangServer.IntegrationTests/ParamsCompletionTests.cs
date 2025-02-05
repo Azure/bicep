@@ -238,7 +238,7 @@ using |
                 services => services.WithFeatureOverrides(new(ExtendableParamFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
-            var completions = await file.RequestCompletion(cursors[0]);
+            var completions = await file.RequestAndResolveCompletions(cursors[0]);
 
             var updated = file.ApplyCompletion(completions, "none");
             updated.Should().HaveSourceText("""
@@ -522,7 +522,7 @@ param customParam customType[]
 
             var paramFile = new LanguageClientFile(paramUri, paramFileTextNoCursor);
             var file = new FileRequestHelper(helper.Client, paramFile);
-            var completions = await file.RequestCompletion(cursor);
+            var completions = await file.RequestAndResolveCompletions(cursor);
             return completions.OrderBy(completion => completion.SortText);
         }
     }

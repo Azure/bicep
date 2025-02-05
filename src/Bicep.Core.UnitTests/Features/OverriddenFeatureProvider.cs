@@ -3,7 +3,6 @@
 
 using Bicep.Core.Features;
 using Bicep.IO.Abstraction;
-using Bicep.Core.Registry.PublicRegistry;
 
 namespace Bicep.Core.UnitTests.Features;
 

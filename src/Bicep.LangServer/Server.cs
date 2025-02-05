@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Net;
 using System.ServiceProcess;
 using Bicep.Core.Features;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Tracing;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Options;
@@ -97,7 +97,7 @@ namespace Bicep.LanguageServer
             }
 
             var publicModuleMetadataProvider = server.GetRequiredService<IPublicModuleMetadataProvider>();
-            publicModuleMetadataProvider.StartUpdateCache();
+            publicModuleMetadataProvider.StartCache();
         }
 
         public void Dispose()

@@ -53,7 +53,7 @@ namespace Bicep.Core.IntegrationTests
         private async Task<ServiceBuilder> ServicesWithTestExtensionArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
         {
             var clientFactory = RegistryHelper.CreateMockRegistryClient(artifactRegistryAddress.ClientDescriptor());
-            var blobClient = clientFactory.CreateAnonymousBlobClient(BicepTestConstants.BuiltInConfiguration, artifactRegistryAddress.RegistryUri, artifactRegistryAddress.RepositoryPath);
+            var blobClient = clientFactory.CreateAnonymousBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, artifactRegistryAddress.RegistryUri, artifactRegistryAddress.RepositoryPath);
 
             var configResult = await blobClient.UploadBlobAsync(BinaryData.FromString("{}"));
             var blobResult = await blobClient.UploadBlobAsync(artifactPayload);
