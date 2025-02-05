@@ -273,7 +273,7 @@ namespace Bicep.Core.IntegrationTests
             //ASSERT
             result.Should().GenerateATemplate();
             result.Template.Should().NotBeNull();
-            result.Template.Should().HaveValueAtPath("$.imports.MicrosoftGraphBeta.version", versionBeta);
+            result.Template.Should().HaveValueAtPath("$.imports.msGraphBeta.version", versionBeta);
         }
     }
 }
