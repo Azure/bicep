@@ -229,13 +229,6 @@ namespace Bicep.Core.UnitTests.Modules
             return parsed!;
         }
 
-        private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
-
-        private static BicepFile CreateBicepFile(RootConfiguration configuration)
-        {
-            var configurationManager = IConfigurationManager.WithStaticConfiguration(configuration);
-
-            return new BicepFile(RandomFileUri(), [], SyntaxFactory.EmptyProgram, configurationManager, BicepTestConstants.FeatureProviderFactory, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
-        }
+        private static BicepFile CreateBicepFile(RootConfiguration configuration) => BicepTestConstants.CreateDummyBicepFile(configuration);
     }
 }

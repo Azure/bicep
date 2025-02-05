@@ -113,26 +113,17 @@ namespace Bicep.Core.UnitTests.Modules
         private static bool IsValid(string package)
         {
             // NOTE: ArtifactAddressComponents doesn't currently have a parser separate from OciArtifactReference.
-            return OciArtifactReference.TryParse(CreateBicepFile(), ArtifactType.Module, null, package).IsSuccess(out var _, out var _);
+            return OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, package).IsSuccess(out var _, out var _);
         }
 
         private static OciArtifactAddressComponents Parse(string package)
         {
             // NOTE: ArtifactAddressComponents doesn't currently have a parser separate from OciArtifactReference.
-            OciArtifactReference.TryParse(CreateBicepFile(), ArtifactType.Module, null, package).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
+            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, package).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
             return (OciArtifactAddressComponents)parsed!.AddressComponents;
         }
-
-        private static BicepFile CreateBicepFile() => new(
-            RandomFileUri(),
-            [],
-            SyntaxFactory.EmptyProgram,
-            IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled),
-            BicepTestConstants.FeatureProviderFactory,
-            EmptyDiagnosticLookup.Instance,
-            EmptyDiagnosticLookup.Instance);
 
         public static IEnumerable<object[]> GetValidCases()
         {
@@ -149,8 +140,6 @@ namespace Bicep.Core.UnitTests.Modules
             yield return CreateRow(ExampleRegistryOfMaxLength + "/hello/there:1.0", ExampleRegistryOfMaxLength, "hello/there", "1.0", null);
             yield return CreateRow("hello-there.azurecr.io/general/kenobi@sha256:b131a80d6764593360293a4a0a55e6850356c16754c4b5eb9a2286293fddcdfb", "hello-there.azurecr.io", "general/kenobi", null, "sha256:b131a80d6764593360293a4a0a55e6850356c16754c4b5eb9a2286293fddcdfb");
         }
-
-        private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
 
         public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((ValidCase)data[0]).Value}";
     }

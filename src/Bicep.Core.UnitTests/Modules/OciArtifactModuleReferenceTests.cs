@@ -324,8 +324,6 @@ namespace Bicep.Core.UnitTests.Modules
             };
         }
 
-        private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
-
         public static string GetDisplayName(MethodInfo info, object[] data) => ArtifactAddressComponentsTests.GetDisplayName(info, data);
     }
 }
