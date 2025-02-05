@@ -74,13 +74,13 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         // create a new (real) OciArtifactRegistry instance with an empty on-disk cache that can push and pull modules
-        public static (OciArtifactRegistry, MockRegistryBlobClient) CreateModuleRegistry(
+        public static (OciArtifactRegistry, FakeRegistryBlobClient) CreateModuleRegistry(
             Uri parentModuleUri,
             IFeatureProvider featureProvider)
         {
             IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
-            var blobClient = new MockRegistryBlobClient();
+            var blobClient = new FakeRegistryBlobClient();
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
                 .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
@@ -91,15 +91,15 @@ namespace Bicep.Core.UnitTests.Utils
                 clientFactory.Object,
                 featureProvider,
                 BicepTestConstants.BuiltInConfiguration,
-                StrictMock.Of<IPublicRegistryModuleMetadataProvider>().Object,
+                StrictMock.Of<IPublicModuleMetadataProvider>().Object,
                 parentModuleUri);
 
             return (registry, blobClient);
         }
 
-        public static async Task<(MockRegistryBlobClient, Mock<IContainerRegistryClientFactory>)> PublishArtifactLayersToMockClient(string registry, Uri registryUri, string repository, string? mediaType, string? artifactType, string? configContents, IEnumerable<(string mediaType, string contents)> layers)
+        public static async Task<(FakeRegistryBlobClient, Mock<IContainerRegistryClientFactory>)> PublishArtifactLayersToMockClient(string registry, Uri registryUri, string repository, string? mediaType, string? artifactType, string? configContents, IEnumerable<(string mediaType, string contents)> layers)
         {
-            var client = new MockRegistryBlobClient();
+            var client = new FakeRegistryBlobClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
