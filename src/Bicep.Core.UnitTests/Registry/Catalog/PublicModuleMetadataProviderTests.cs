@@ -1116,7 +1116,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
         public async Task GetModules_Count_SanityCheck()
         {
             PublicModuleMetadataProvider provider = new(CreateTypedClient());
-            (await provider.TryUpdateCacheAsync()).Should().BeTrue();
+            await provider.TryAwaitCache(false);
             var modules = await provider.TryGetModulesAsync();
             modules.Should().HaveCount(50);
         }
@@ -1125,7 +1125,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
         public async Task GetModules_IfOnlyLastTagHasDescription()
         {
             PublicModuleMetadataProvider provider = new(CreateTypedClient());
-            (await provider.TryUpdateCacheAsync()).Should().BeTrue();
+            await provider.TryAwaitCache(false);
             var modules = await provider.TryGetModulesAsync();
             var m = modules.Should().Contain(m => m.ModuleName == "bicep/samples/hello-world")
                 .Which;
@@ -1138,7 +1138,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
         public async Task GetModules_IfMultipleTagsHaveDescriptions()
         {
             PublicModuleMetadataProvider provider = new(CreateTypedClient());
-            (await provider.TryUpdateCacheAsync()).Should().BeTrue();
+            await provider.TryAwaitCache(false);
             var modules = await provider.TryGetModulesAsync();
             var m = modules.Should().Contain(m => m.ModuleName == "bicep/lz/sub-vending")
                 .Which;

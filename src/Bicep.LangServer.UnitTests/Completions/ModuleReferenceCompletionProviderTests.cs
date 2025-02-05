@@ -30,11 +30,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using ConfigurationManager = Bicep.Core.Configuration.ConfigurationManager;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
-
-//asdfg keeps trying after failures: module test 'br:registry.contoso.io/bicep/'
-//   'Retry failed after 4 tries. Retry settings can be adjusted in ClientOptions.Retry or by configuring a custom retry policy in ClientOptions.RetryPolicy.
-// Also trying to delay exponentially
-
 namespace Bicep.LangServer.UnitTests.Completions
 {
     [TestClass]

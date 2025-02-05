@@ -57,7 +57,7 @@ public abstract class BaseModuleMetadataProvider(
         _ = TryAwaitCache(false);
     }
 
-    public async Task<bool> TryUpdateCacheAsync()//asdfg implement/test threading
+    private async Task<bool> TryUpdateCacheAsync()
     {
         if (await TryGetLiveDataAsync() is { } modules)
         {
@@ -146,7 +146,7 @@ public abstract class BaseModuleMetadataProvider(
                     if (consecutiveFailures > 0)
                     {
                         // Throttle requests to avoid spamming the endpoint with unsuccessful requests
-                        delay = int.Max(delay, GetExponentialDelay(InitialThrottleDelay, consecutiveFailures, MaxThrottleDelay).Milliseconds/*asdfg should be TotalMilliseconds, but don't want to delay here*/); // make second try fast
+                        delay = int.Max(delay, GetExponentialDelay(InitialThrottleDelay, consecutiveFailures, MaxThrottleDelay).Milliseconds); // make second try fast
                     }
 
                     if (delay > 0)

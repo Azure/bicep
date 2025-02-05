@@ -81,12 +81,12 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         catch (InvalidArtifactException ex)
         {
             Trace.WriteLine($"Invalid Bicep module {modulePath}, version {version}: {ex.Message}");
-            return RegistryModuleVersionMetadata.InvalidModule(version, ex); //asdfg testpoint
+            return RegistryModuleVersionMetadata.InvalidModule(version, ex);
         }
         catch (Exception ex)
         {
             Trace.WriteLine($"Failed to get version details for module {modulePath} version {version}: {ex.Message}");
-            return RegistryModuleVersionMetadata.DownloadError(version, ex); //asdfg testpoint
+            return RegistryModuleVersionMetadata.DownloadError(version, ex);
         }
     }
 
