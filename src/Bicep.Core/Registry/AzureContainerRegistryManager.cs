@@ -137,7 +137,7 @@ namespace Bicep.Core.Registry
 
         public async Task<OciArtifactResult> PullArtifactAsync(
             CloudConfiguration cloud,
-            IOciArtifactReference artifactReference)
+            IOciArtifactAddressComponents artifactReference)
         {
             async Task<OciArtifactResult> DownloadManifestInternalAsync(bool anonymousAccess)
             {
@@ -148,7 +148,7 @@ namespace Bicep.Core.Registry
             try
             {
                 // Try anonymous auth first.
-                Trace.WriteLine($"Attempting to pull artifact for module {artifactReference.FullyQualifiedReference} with anonymous authentication.");
+                Trace.WriteLine($"Attempting to pull artifact for module {artifactReference.ArtifactId} with anonymous authentication.");
                 return await DownloadManifestInternalAsync(anonymousAccess: true);
             }
             catch (InvalidArtifactException invalidArtifactException)
@@ -221,12 +221,12 @@ namespace Bicep.Core.Registry
             _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
         }
 
-        private static Uri GetRegistryUri(IOciArtifactReference artifactReference) => GetRegistryUri(artifactReference.Registry);
+        private static Uri GetRegistryUri(IOciArtifactAddressComponents artifactReference) => GetRegistryUri(artifactReference.Registry);
         private static Uri GetRegistryUri(string loginServer) => new($"https://{loginServer}");
 
         private ContainerRegistryContentClient CreateBlobClient(
             CloudConfiguration cloud,
-            IOciArtifactReference artifactReference,
+            IOciArtifactAddressComponents artifactReference,
             bool anonymousAccess) => anonymousAccess
             ? this.clientFactory.CreateAnonymousBlobClient(cloud, GetRegistryUri(artifactReference), artifactReference.Repository)
             : this.clientFactory.CreateAuthenticatedBlobClient(cloud, GetRegistryUri(artifactReference), artifactReference.Repository);
@@ -238,7 +238,7 @@ namespace Bicep.Core.Registry
             ? this.clientFactory.CreateAnonymousContainerClient(cloud, registryUri)
             : this.clientFactory.CreateAuthenticatedContainerClient(cloud, registryUri);
 
-        private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactReference artifactReference, ContainerRegistryContentClient client)
+        private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactAddressComponents artifactReference, ContainerRegistryContentClient client)
         {
             Response<GetManifestResult> manifestResponse;
             try
@@ -246,14 +246,14 @@ namespace Bicep.Core.Registry
                 // either Tag or Digest is null (enforced by reference parser)
                 var tagOrDigest = artifactReference.Tag
                     ?? artifactReference.Digest
-                    ?? throw new ArgumentNullException(nameof(artifactReference), $"The specified artifact reference has both {nameof(artifactReference.Tag)} and {nameof(artifactReference.Digest)} set to null.");
+                    ?? throw new ArgumentNullException($"The specified artifact reference '{artifactReference.ArtifactId}' has both {nameof(artifactReference.Tag)} and {nameof(artifactReference.Digest)} set to null.");
 
                 manifestResponse = await client.GetManifestAsync(tagOrDigest);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
                 // manifest does not exist
-                Trace.WriteLine($"Manifest for module {artifactReference.FullyQualifiedReference} could not be found in the registry.");
+                Trace.WriteLine($"Manifest for module {artifactReference.ArtifactId} could not be found in the registry.");
                 throw new OciArtifactRegistryException("The artifact does not exist in the registry.", exception);
             }
 

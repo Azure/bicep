@@ -57,7 +57,7 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         try
         {
             AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
-            var artifactResult = await acrManager.PullArtifactAsync(cloud, new OciArtifactReference(ArtifactType.Module, Registry, modulePath, version, null, new Uri("file://noparent")));
+            var artifactResult = await acrManager.PullArtifactAsync(cloud, new OciArtifactAddressComponents(Registry, modulePath, version, null));
             var manifest = artifactResult.Manifest;
 
             if (manifest.ArtifactType != BicepMediaTypes.BicepModuleArtifactType)
