@@ -60,8 +60,7 @@ public class NamespaceProvider : INamespaceProvider
                 assignedProviders.Add(validType.ExtensionName);
             }
 
-            var name = extension.Alias?.IdentifierName ?? type.Name;
-            yield return new(name, type, extension);
+            yield return new(extension.TryGetSymbolName() ?? type.Name, type, extension);
         }
 
         // sys isn't included in the implicit extensions config, because we don't want users to customize it.
@@ -114,8 +113,7 @@ public class NamespaceProvider : INamespaceProvider
 
         if (artifactFileLookup.ArtifactLookup.TryGetValue(syntax, out var artifact))
         {
-            var aliasName = syntax.Alias?.IdentifierName;
-            if (GetNamespaceTypeForArtifact(artifact, sourceFile, targetScope, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
+            if (GetNamespaceTypeForArtifact(artifact, sourceFile, targetScope, syntax.TryGetSymbolName()).IsSuccess(out var namespaceType, out var errorBuilder))
             {
                 return namespaceType;
             }
@@ -139,7 +137,7 @@ public class NamespaceProvider : INamespaceProvider
         ExtensionDeclarationSyntax? syntax,
         string extensionName)
     {
-        var aliasName = syntax?.Alias?.IdentifierName ?? extensionName;
+        var aliasName =  syntax?.TryGetSymbolName() ?? extensionName;
         var diagBuilder = syntax is { } ? DiagnosticBuilder.ForPosition(syntax) : DiagnosticBuilder.ForDocumentStart();
 
         if (artifact is { })

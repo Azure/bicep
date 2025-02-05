@@ -750,11 +750,92 @@ resource fooRes 'fooType@v1' = {
 """);
 
         result.Should().GenerateATemplate();
-        result.Template.Should().HaveJsonAtPath("$.imports", """
+        result.Template.Should().HaveJsonAtPath("$.imports['foo']", """
 {
-  "foo": {
-    "provider": "ThirdPartyExtension",
-    "version": "1.0.0"
+  "provider": "ThirdPartyExtension",
+  "version": "1.0.0"
+}
+""");
+
+        result.Template.Should().HaveJsonAtPath("$.resources['fooRes']", """
+{
+  "import": "foo",
+  "type": "fooType@v1",
+  "properties": {
+    "identifier": "foo",
+    "properties": {
+      "required": "bar"
+    }
+  }
+}
+""");
+    }
+
+    [TestMethod]
+    public async Task Implicit_extensions_generate_correct_symbol_names()
+    {
+        // https://github.com/Azure/bicep/issues/15396
+        var fileSystem = new MockFileSystem();
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetTestTypesTgz(), AllFeaturesEnabled, fileSystem);
+
+        fileSystem.File.WriteAllText("/bicepconfig.json", """
+{
+  "experimentalFeaturesEnabled": {
+    "extensibility": true
+  },
+  "extensions": {
+    "bar": "br:example.azurecr.io/extensions/foo:1.2.3"
+  }
+}
+""");
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+extension bar
+
+resource fooRes 'fooType@v1' = {
+  identifier: 'foo'
+  properties: {
+    required: 'bar'
+  }
+}
+
+resource bazRes 'bar:fooType@v1' = {
+  identifier: 'baz'
+  properties: {
+    required: 'bar'
+  }
+}
+""");
+
+        result.Should().GenerateATemplate();
+        result.Template.Should().HaveJsonAtPath("$.imports['bar']", """
+{
+  "provider": "ThirdPartyExtension",
+  "version": "1.0.0"
+}
+""");
+
+        result.Template.Should().HaveJsonAtPath("$.resources['fooRes']", """
+{
+  "import": "bar",
+  "type": "fooType@v1",
+  "properties": {
+    "identifier": "foo",
+    "properties": {
+      "required": "bar"
+    }
+  }
+}
+""");
+
+        result.Template.Should().HaveJsonAtPath("$.resources['bazRes']", """
+{
+  "import": "bar",
+  "type": "fooType@v1",
+  "properties": {
+    "identifier": "baz",
+    "properties": {
+      "required": "bar"
+    }
   }
 }
 """);

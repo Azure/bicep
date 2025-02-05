@@ -56,7 +56,8 @@ namespace Bicep.Core.IntegrationTests
             extension az
             """);
             result.Should().HaveDiagnostics(new[] {
-                ("BCP203", DiagnosticLevel.Error, "Using extension declaration requires enabling EXPERIMENTAL feature \"Extensibility\"."),
+                ("BCP203", DiagnosticLevel.Error, """Using extension declaration requires enabling EXPERIMENTAL feature "Extensibility"."""),
+                ("BCP084", DiagnosticLevel.Error, """The symbolic name "az" is reserved. Please use a different symbolic name. Reserved namespaces are "az", "sys"."""),
             });
         }
 

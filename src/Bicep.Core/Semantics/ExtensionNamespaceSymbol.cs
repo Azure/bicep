@@ -27,7 +27,7 @@ namespace Bicep.Core.Semantics
         public ExtensionNamespaceSymbol(ISymbolContext context, ExtensionDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
             : base(
                 context,
-                declaringSyntax.Alias?.IdentifierName ?? declaredType.Name,
+                declaringSyntax.TryGetSymbolName() ?? declaredType.Name,
                 declaringSyntax,
                 new ExtensionNameSource(declaringSyntax))
         {

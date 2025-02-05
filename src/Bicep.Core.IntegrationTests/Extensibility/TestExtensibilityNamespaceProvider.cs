@@ -40,7 +40,7 @@ public class TestExtensibilityNamespaceProvider : NamespaceProvider
 
     protected override TypeSymbol GetNamespaceTypeForConfigManagedExtension(BicepSourceFile sourceFile, ResourceScope targetScope, ArtifactResolutionInfo? artifact, ExtensionDeclarationSyntax? syntax, string extensionName)
     {
-        var aliasName = syntax?.Alias?.IdentifierName ?? extensionName;
+        var aliasName = syntax?.TryGetSymbolName() ?? extensionName;
         if (namespaceCreatorFunc(extensionName, aliasName) is { } namespaceType)
         {
             return namespaceType;
