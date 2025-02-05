@@ -82,19 +82,26 @@ namespace Bicep.Core.Emit
             return SyntaxFactory.CreateObject(value);
         }
 
-        private static SyntaxBase CreateCommentSyntaxForFunctionCallSyntax(string functionName)
+        private static SyntaxBase CreateCommentSyntaxForFunctionCallSyntax(string functionName, bool isJsonParamWriter = false)
         {
-            return SyntaxFactory.CreateInvalidSyntaxWithComment($" TODO : please fix the value assigned to this parameter `{functionName}()` ");
+            if (isJsonParamWriter)
+            {
+                return SyntaxFactory.CreateStringLiteral("");
+            }
+            else
+            {
+                return SyntaxFactory.CreateInvalidSyntaxWithComment($" TODO : please fix the value assigned to this parameter `{functionName}()` ");
+            }
         }
 
-        public static SyntaxBase GetValueForParameter(ParameterDeclarationSyntax syntax)
+        public static SyntaxBase GetValueForParameter(ParameterDeclarationSyntax syntax, bool isJsonParamWriter = false)
         {
             var defaultValue = SyntaxHelper.TryGetDefaultValue(syntax);
             if (defaultValue != null)
             {
                 if (defaultValue is FunctionCallSyntax defaultValueAsFunctionCall)
                 {
-                    return CreateCommentSyntaxForFunctionCallSyntax(defaultValueAsFunctionCall.Name.IdentifierName);
+                    return CreateCommentSyntaxForFunctionCallSyntax(defaultValueAsFunctionCall.Name.IdentifierName, isJsonParamWriter);
                 }
                 else if (defaultValue is ArraySyntax defaultValueAsArray)
                 {
@@ -102,7 +109,7 @@ namespace Bicep.Core.Emit
                     {
                         if (e.Value is FunctionCallSyntax valueAsFunctionCall)
                         {
-                            return SyntaxFactory.CreateArrayItem(CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCall.Name.IdentifierName));
+                            return SyntaxFactory.CreateArrayItem(CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCall.Name.IdentifierName, isJsonParamWriter));
                         }
 
                         return e;

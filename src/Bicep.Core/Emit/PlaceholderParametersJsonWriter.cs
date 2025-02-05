@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Emit.Options;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -97,12 +98,12 @@ namespace Bicep.Core.Emit
                 {
                     jsonWriter.WritePropertyName(parameterSymbol.Name);
 
-                    var value = PlaceholderParametersBicepParamWriter.GetValueForParameter(parameterSymbol.DeclaringParameter);
+                    var value = PlaceholderParametersBicepParamWriter.GetValueForParameter(parameterSymbol.DeclaringParameter, true);
 
                     jsonWriter.WriteStartObject();
 
-                    // emit value property only if the text is not null
-                    if (value.ToString() != "\r\n")
+                    // emit value property only if the value is not a newline token
+                    if (value is not Token { Type: TokenType.NewLine})
                     {
                         emitter.EmitProperty("value", value);
                     }
