@@ -12,7 +12,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
