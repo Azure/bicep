@@ -68,7 +68,7 @@ namespace Bicep.IO.Abstraction
 
         public StringComparer PathComparer => this.IsLocalFile ? GlobalSettings.LocalFilePathComparer : StringComparer.Ordinal;
 
-        public static implicit operator string(IOUri identifier) => identifier.ToString();
+        public static implicit operator string(IOUri uri) => uri.ToString();
 
         public static IOUri FromLocalFilePath(string filePath)
         {
