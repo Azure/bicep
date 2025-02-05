@@ -741,7 +741,10 @@ public class ExpressionBuilder
                 }
                 else
                 {
-                    currentChunk.Add(ConvertWithoutLowering(arrayItem));
+                    if (arrayItem.Value is not null)
+                    {
+                        currentChunk.Add(ConvertWithoutLowering(arrayItem.Value));
+                    }
                 }
             }
         }
