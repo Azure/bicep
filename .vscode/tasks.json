@@ -50,7 +50,7 @@
             },
             "dependsOn": [
                 "Build Language Server for VSIX",
-                "Build VSCode UI"
+                //"Build VSCode UI"
             ]
         },
         {

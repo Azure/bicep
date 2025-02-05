@@ -31,11 +31,11 @@ namespace Bicep.LanguageServer.Providers
         }
 
         // Used for completions after typing "'br:"
-        public async IAsyncEnumerable<string> GetContainerRegistriesAccessibleFromAzure(CloudConfiguration cloudConfiguration, [EnumeratorCancellation] CancellationToken cancellationToken)
+        public async IAsyncEnumerable<string> GetContainerRegistriesAccessibleFromAzure(CloudConfiguration cloud, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var armClient = GetArmClient(cloudConfiguration);
+            var armClient = GetArmClient(cloud);
             TenantCollection tenants = armClient.GetTenants();
 
             await foreach (TenantResource tenant in tenants)
@@ -65,13 +65,13 @@ namespace Bicep.LanguageServer.Providers
             }
         }
 
-        private ArmClient GetArmClient(CloudConfiguration cloudConfiguration)
+        private ArmClient GetArmClient(CloudConfiguration cloud)
         {
-            var credential = tokenCredentialFactory.CreateChain(cloudConfiguration.CredentialPrecedence, cloudConfiguration.CredentialOptions, cloudConfiguration.ActiveDirectoryAuthorityUri);
+            var credential = tokenCredentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
 
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
-            options.Environment = new ArmEnvironment(cloudConfiguration.ResourceManagerEndpointUri, cloudConfiguration.AuthenticationScope);
+            options.Environment = new ArmEnvironment(cloud.ResourceManagerEndpointUri, cloud.AuthenticationScope);
 
             return new ArmClient(credential);
         }
