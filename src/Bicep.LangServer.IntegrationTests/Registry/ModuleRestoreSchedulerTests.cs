@@ -13,6 +13,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -149,12 +150,9 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             }
         }
 
-        private static ImmutableArray<ArtifactReference> CreateArtifactReferences(MockRegistry mockRegistry, params string[] references)
-        {
-            return references
-                .Select(x => mockRegistry.TryParseArtifactReference(BicepFile.Dummy, ArtifactType.Module, null, x).Unwrap())
-                .ToImmutableArray<ArtifactReference>();
-        }
+        private static ImmutableArray<ArtifactReference> CreateArtifactReferences(MockRegistry mockRegistry, params string[] references) => references
+            .Select(x => mockRegistry.TryParseArtifactReference(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, x).Unwrap())
+            .ToImmutableArray();
 
         private class MockRegistry : IArtifactRegistry
         {

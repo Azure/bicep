@@ -138,11 +138,11 @@ namespace Bicep.LanguageServer.Handlers
             return uri.Uri;
         }
 
-        public Result<OciArtifactReference, string> ToArtifactReference(BicepFile? dummyFile = null)
+        public Result<OciArtifactReference, string> ToArtifactReference(BicepFile referencingFile)
         {
             if (OciArtifactAddressComponents.TryParse(Components.ArtifactId).IsSuccess(out var components, out var failureBuilder))
             { // No parent file template is available or needed because these are absolute references
-                return new(new OciArtifactReference(dummyFile ?? BicepFile.Dummy, ArtifactType.Module, components));
+                return new(new OciArtifactReference(referencingFile, ArtifactType.Module, components));
             }
             else
             {

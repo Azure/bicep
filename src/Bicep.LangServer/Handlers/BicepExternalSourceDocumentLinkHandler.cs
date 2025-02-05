@@ -10,6 +10,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Workspaces;
+using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
@@ -72,7 +73,6 @@ namespace Bicep.LanguageServer.Handlers
         public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(IModuleDispatcher moduleDispatcher, ISourceFileFactory sourceFileFactory, DocumentLinkParams request, CancellationToken cancellationToken)
         {
             var currentDocument = request.TextDocument;
-
             if (currentDocument.Uri.Scheme == LangServerConstants.ExternalSourceFileScheme)
             {
                 ExternalSourceReference? currentDocumentReference;
@@ -90,7 +90,7 @@ namespace Bicep.LanguageServer.Handlers
                 var currentDocumentRelativeFile = currentDocumentReference.RequestedFile;
                 if (currentDocumentRelativeFile is { })
                 {
-                    var dummyFile = sourceFileFactory.CreateBicepFile(PathHelper.FilePathToFileUrl("main.bicep"), "");
+                    var dummyFile = sourceFileFactory.CreateDummyArtifactReferencingFile();
                     if (!currentDocumentReference.ToArtifactReference(dummyFile).IsSuccess(out var currentDocumentArtifact, out var message))
                     {
                         Trace.WriteLine(message);

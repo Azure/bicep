@@ -183,14 +183,20 @@ namespace Bicep.Core.UnitTests
         }
         """);
 
-        public static BicepFile CreateDummyBicepFile(RootConfiguration? configuration = null, FeatureProviderOverrides? featureOverrides = null) => new(
-            new Uri("inmemory:///main.bicep"),
-            [],
-            SyntaxFactory.EmptyProgram,
-            IConfigurationManager.WithStaticConfiguration(configuration ?? BuiltInConfiguration),
-            new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager, FileExplorer), featureOverrides ?? FeatureOverrides),
-            EmptyDiagnosticLookup.Instance,
-            EmptyDiagnosticLookup.Instance);
+        public static BicepFile CreateDummyBicepFile(RootConfiguration? configuration = null, FeatureProviderOverrides? featureOverrides = null)
+        {
+            var configurationManager = IConfigurationManager.WithStaticConfiguration(configuration ?? IConfigurationManager.GetBuiltInConfiguration());
+            var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, FileExplorer), featureOverrides ?? FeatureOverrides);
+
+            return new(
+                new Uri($"inmemory:///main.bicep"),
+                [],
+                SyntaxFactory.EmptyProgram,
+                configurationManager,
+                featureProviderFactory,
+                EmptyDiagnosticLookup.Instance,
+                EmptyDiagnosticLookup.Instance);
+        }
 
         public readonly static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.TemplateExtensionVersion;
     }

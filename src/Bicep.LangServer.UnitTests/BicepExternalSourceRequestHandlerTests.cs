@@ -73,7 +73,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var resolver = StrictMock.Of<IFileResolver>();
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object, BicepTestConstants.SourceFileFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -96,7 +96,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var telemetryProviderMock = new TelemetryProviderMock();
 
             const string ModuleRefStr = "./hello.bicep";
-            LocalModuleReference.TryParse(BicepFile.Dummy, ArtifactType.Module, ModuleRefStr).IsSuccess(out var localRef).Should().BeTrue();
+            LocalModuleReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, ModuleRefStr).IsSuccess(out var localRef).Should().BeTrue();
             localRef.Should().NotBeNull();
 
             ArtifactReference? outRef = localRef;
@@ -104,7 +104,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var resolver = StrictMock.Of<IFileResolver>();
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object, BicepTestConstants.SourceFileFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -149,7 +149,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object, BicepTestConstants.SourceFileFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -187,7 +187,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var resolver = StrictMock.Of<IFileResolver>();
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object, BicepTestConstants.SourceFileFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -228,7 +228,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create((string?)null, readFailureBuilder));
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, BicepTestConstants.CreateMockTelemetryProvider().Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, BicepTestConstants.CreateMockTelemetryProvider().Object, BicepTestConstants.SourceFileFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -270,7 +270,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object, BicepTestConstants.SourceFileFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -323,7 +323,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object, BicepTestConstants.SourceFileFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr, Path.GetFileName(bicepUri.AbsoluteUri));
@@ -375,7 +375,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object, BicepTestConstants.SourceFileFactory);
 
             // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
@@ -512,7 +512,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             Uri? entrypointUri = testData.sourceEntrypoint is { } ? PathHelper.FilePathToFileUrl(testData.sourceEntrypoint) : null;
             OciArtifactReference reference = new(
-                BicepFile.Dummy,
+                BicepTestConstants.DummyBicepFile,
                 ArtifactType.Module,
                 testData.registry,
                 testData.repository,
