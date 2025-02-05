@@ -35,8 +35,8 @@ public class BicepDecompiler
         var decompileQueue = new Queue<(Uri, Uri)>();
         options ??= new DecompileOptions();
 
-        var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, bicepUri, jsonContent, options);
-        var bicepFile = SourceFileFactory.CreateBicepFile(bicepUri, program.ToString());
+        var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(bicepCompiler.SourceFileFactory, workspace, bicepUri, jsonContent, options);
+        var bicepFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(bicepUri, program.ToString());
         workspace.UpsertSourceFile(bicepFile);
 
         await RewriteSyntax(workspace, bicepUri, semanticModel => new ParentChildResourceNameRewriter(semanticModel));
@@ -55,7 +55,7 @@ public class BicepDecompiler
 
         return new DecompileResult(
             bicepUri,
-            this.PrintFiles(workspace));
+            PrintFiles(workspace));
     }
     public DecompileResult DecompileParameters(string contents, Uri entryBicepparamUri, Uri? bicepFileUri, DecompileParamOptions? options = null)
     {
@@ -65,11 +65,11 @@ public class BicepDecompiler
 
         var program = DecompileParametersFile(contents, entryBicepparamUri, bicepFileUri, options);
 
-        var bicepparamFile = SourceFileFactory.CreateBicepParamFile(entryBicepparamUri, program.ToString());
+        var bicepparamFile = this.bicepCompiler.SourceFileFactory.CreateBicepParamFile(entryBicepparamUri, program.ToString());
 
         workspace.UpsertSourceFile(bicepparamFile);
 
-        return new(entryBicepparamUri, this.PrintFiles(workspace));
+        return new(entryBicepparamUri, PrintFiles(workspace));
     }
 
     private ProgramSyntax DecompileParametersFile(string jsonInput, Uri entryBicepparamUri, Uri? bicepFileUri, DecompileParamOptions options)
@@ -189,7 +189,7 @@ Following metadata was not decompiled:
         return commentSyntax;
     }
 
-    public static string? DecompileJsonValue(string jsonInput, DecompileOptions? options = null)
+    public static string? DecompileJsonValue(ISourceFileFactory sourceFileFactory, string jsonInput, DecompileOptions? options = null)
     {
         var workspace = new Workspace();
         options ??= new DecompileOptions();
@@ -197,7 +197,7 @@ Following metadata was not decompiled:
         var bicepUri = new Uri("file://jsonInput.json", UriKind.Absolute);
         try
         {
-            var syntax = TemplateConverter.DecompileJsonValue(workspace, bicepUri, jsonInput, options);
+            var syntax = TemplateConverter.DecompileJsonValue(sourceFileFactory, workspace, bicepUri, jsonInput, options);
 
             // TODO: Add bicepUri to BicepDecompileForPasteCommandParams to get actual formatting options.
             var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
@@ -210,7 +210,7 @@ Following metadata was not decompiled:
         }
     }
 
-    private ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)
+    private static ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)
     {
         var filesToSave = new Dictionary<Uri, string>();
         foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
@@ -220,7 +220,7 @@ Following metadata was not decompiled:
                 continue;
             }
 
-            var options = this.bicepCompiler.ConfigurationManager.GetConfiguration(fileUri).Formatting.Data;
+            var options = bicepFile.Configuration.Formatting.Data;
             var context = PrettyPrinterV2Context.Create(options, bicepFile.LexingErrorLookup, bicepFile.ParsingErrorLookup);
             filesToSave[fileUri] = PrettyPrinterV2.Print(bicepFile.ProgramSyntax, context);
         }
@@ -242,7 +242,7 @@ Following metadata was not decompiled:
             if (!object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))
             {
                 hasChanges = true;
-                var newFile = SourceFileFactory.CreateBicepFile(bicepFile.Uri, newProgramSyntax.ToString());
+                var newFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(bicepFile.Uri, newProgramSyntax.ToString());
                 workspace.UpsertSourceFile(newFile);
 
                 compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true);

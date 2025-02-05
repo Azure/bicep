@@ -17,6 +17,7 @@ public record ExperimentalFeaturesEnabled(
     bool TestFramework,
     bool Assertions,
     bool OptionalModuleNames,
+    bool WaitAndRetry,
     bool LocalDeploy,
     bool ResourceDerivedTypes,
     bool SecureOutputs,

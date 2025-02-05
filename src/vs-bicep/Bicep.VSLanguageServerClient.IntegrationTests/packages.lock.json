@@ -35,9 +35,9 @@
       },
       "Microsoft.Net.Compilers.Toolset": {
         "type": "Direct",
-        "requested": "[4.11.0, )",
-        "resolved": "4.11.0",
-        "contentHash": "arJ0+L3uOu8spoRsKt5clvvxa7kHko80pXb/J4V92VJJZ7NMn8fC27N80W6Ro5CtcdzTDQtLXfBLfISSr6I3Zw=="
+        "requested": "[4.12.0, )",
+        "resolved": "4.12.0",
+        "contentHash": "xXDdIgDfcbMr+2bLzVJHg+/oCHwcYs808TlooX0M9+BVCeHITaROsjdbWSJNdyzeMe/K8iB2NeHmaAOUcqkKWw=="
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
@@ -276,11 +276,11 @@
       },
       "MessagePack": {
         "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "nC7/arPbdsjcvDwLrdp2aJafk3Y8GbjoomvY1oFCJbODAmgURM9JVKrkIcaZSX1GOLtPSQH4/6rM/TNtSx+U4Q==",
+        "resolved": "3.1.2",
+        "contentHash": "Aw5J6OxDnY8XDDEwtvygHKouhnDS3ltzB/2JGZyamN33y8KesxfdOhdJDxgIEbsD+fmKA4wI5i1qVRPQlmAXeg==",
         "dependencies": {
-          "MessagePack.Annotations": "3.1.1",
-          "MessagePackAnalyzer": "3.1.1",
+          "MessagePack.Annotations": "3.1.2",
+          "MessagePackAnalyzer": "3.1.2",
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.NET.StringTools": "17.11.4",
           "System.Collections.Immutable": "8.0.0",
@@ -291,13 +291,13 @@
       },
       "MessagePack.Annotations": {
         "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "z/qHzXoz+SAw8+MDZV6Woge1fWD27v+Ce+9a3AJU7FF7TmXpIvGmALsS0A83RdM0P1utLuJ8UJlhNmjpDJ4y4A=="
+        "resolved": "3.1.2",
+        "contentHash": "GRnkedUtk3CogYRLyBUQmXKbIyR+IwYS0N3X5Xg5SNw4S5XWL9s2gPUtxxvG9Vutsq7qkwENmfixoGLew+I4rg=="
       },
       "MessagePackAnalyzer": {
         "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "gQeHB5RKo7C033FoUToZsvpabWuBR4ajiDoA0dXVTf7SdrA8sB0EGE04t37dDJ+8jIZ9/rCNYUmE67xKPgPThA=="
+        "resolved": "3.1.2",
+        "contentHash": "J8lvKo1fw1z4xt9E/hRMn/JPbGZtLTRJXb7ocMbM9B72x15H7FLux8vq+SGtr8G3dYO8N1SKjeo2w6HEqOfDeA=="
       },
       "Microsoft.ApplicationInsights": {
         "type": "Transitive",
@@ -1309,7 +1309,7 @@
       "bicep.vslanguageserverclient": {
         "type": "Project",
         "dependencies": {
-          "MessagePack": "[3.1.1, )",
+          "MessagePack": "[3.1.2, )",
           "Microsoft.IO.Redist": "[6.1.0, )",
           "Microsoft.VisualStudio.LanguageServer.Client": "[17.12.48, )",
           "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",

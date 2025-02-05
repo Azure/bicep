@@ -71,7 +71,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             throw new InvalidOperationException($"Expected a .bicepparam file");
         }
 
-        paramFile = ParamsFileHelper.ApplyParameterOverrides(paramFile, request.ParameterOverrides);
+        paramFile = ParamsFileHelper.ApplyParameterOverrides(compilation.SourceFileFactory, paramFile, request.ParameterOverrides);
 
         var workspace = new Workspace();
         workspace.UpsertSourceFile(paramFile);

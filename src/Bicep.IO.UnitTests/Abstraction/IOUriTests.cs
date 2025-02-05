@@ -135,12 +135,14 @@ namespace Bicep.IO.UnitTests.Abstraction
         }
 
         [DataTestMethod]
-        [DataRow("http", "example.com", "/a/b/c", "/a/b", "c")]
-        [DataRow("http", "example.com", "/a/b/c/", "/a/b", "c/")]
+        [DataRow("http", "example.com", "/a/b/c", "/a/b/", "c")]
+        [DataRow("http", "example.com", "/a/b/c/", "/a/b/", "c/")]
         [DataRow("http", "example.com", "/a/b/c", "/a/b/c", "")]
-        [DataRow("http", "example.com", "/a/b/c", "/a/b/d", "../c")]
-        [DataRow("http", "example.com", "/a/b/c/d", "/a/b", "c/d")]
-        [DataRow("http", "example.com", "/a/b/c", "/a/b/c/d", "..")]
+        [DataRow("http", "example.com", "/a/b/c/f", "/a/b/d/", "../c/f")]
+        [DataRow("http", "example.com", "/a/b/c/f", "/a/b/d", "c/f")]
+        [DataRow("http", "example.com", "/a/b/c", "/a/b/d", "c")]
+        [DataRow("http", "example.com", "/a/b/c/d", "/a/b/", "c/d")]
+        [DataRow("http", "example.com", "/a/b/c", "/a/b/e/d", "../c")]
         public void GetPathRelativeTo_ValidPaths_ReturnsCorrectRelativePath(string scheme, string authority, string path, string otherPath, string expectedRelativePath)
         {
             // Arrange.

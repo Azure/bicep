@@ -6,6 +6,7 @@ using Azure.Deployments.Core.Uri;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Modules
 {
@@ -19,8 +20,8 @@ namespace Bicep.Core.Modules
 
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private TemplateSpecModuleReference(string subscriptionId, string resourceGroupName, string templateSpecName, string version, Uri parentModuleUri)
-            : base(ArtifactReferenceSchemes.TemplateSpecs, parentModuleUri)
+        private TemplateSpecModuleReference(BicepSourceFile referencingFile, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
+            : base(referencingFile, ArtifactReferenceSchemes.TemplateSpecs)
         {
             this.SubscriptionId = subscriptionId;
             this.ResourceGroupName = resourceGroupName;
@@ -61,11 +62,11 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(string? aliasName, string referenceValue, RootConfiguration configuration, Uri parentModuleUri)
+        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(BicepSourceFile referencingFile, string? aliasName, string referenceValue)
         {
             if (aliasName is not null)
             {
-                if (!configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName).IsSuccess(out var alias, out var errorBuilder))
+                if (!referencingFile.Configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName).IsSuccess(out var alias, out var errorBuilder))
                 {
                     return new(errorBuilder);
                 }
@@ -124,7 +125,7 @@ namespace Bicep.Core.Modules
                 return new(x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue)));
             }
 
-            return new(new TemplateSpecModuleReference(subscriptionId, resourceGroupName, templateSpecName, version, parentModuleUri));
+            return new(new TemplateSpecModuleReference(referencingFile, subscriptionId, resourceGroupName, templateSpecName, version));
         }
         private static string FullyQualify(string referenceValue) => $"{ArtifactReferenceSchemes.TemplateSpecs}:{referenceValue}";
 

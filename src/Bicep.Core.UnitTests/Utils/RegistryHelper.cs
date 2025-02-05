@@ -3,7 +3,9 @@
 
 using System.Collections.Immutable;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -11,121 +13,167 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Extensions;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.Workspaces;
 using Bicep.IO.FileSystem;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using static Bicep.Core.UnitTests.Utils.TestContainerRegistryClientFactoryBuilder;
 
 namespace Bicep.Core.UnitTests.Utils;
 
 public static class RegistryHelper
 {
-    public static IContainerRegistryClientFactory CreateMockRegistryClient(string registry, string repository)
+    public record class RepoDescriptor(
+        string Registry, // e.g. "registry.contoso.io"
+        string Repository, // e.g. "test/module1"
+        List<RepoTagDescriptor> Tags)
     {
-        return new TestContainerRegistryClientFactoryBuilder()
-            .RegisterMockRepositoryBlobClient(registry, repository)
-            .Build().clientFactory;
+        public RepoDescriptor(
+            string Registry, // e.g. "registry.contoso.io"
+            string Repository, // e.g. "test/module1"
+            IEnumerable<string> Tags) : this(Registry, Repository, ToTagDescriptors(Tags)) { }
     }
 
-    public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(params (string, string)[] clients)
+    public record RepoTagDescriptor(
+        string Tag,
+        string? Description = null,
+        string? DocumentationUri = null
+    );
+
+    public record class ModuleToPublish(
+        string PublishTarget, // e.g. "br:registry.contoso.io/test/module1:v1"
+        string BicepSource,
+        bool WithSource = false, // whether to publish the source with the module
+        string? DocumentationUri = null
+    )
+    {
+        public static string ToTarget(string registry, string repo, string tag) => $"br:{registry}/{repo}:{tag}";
+
+        private string TargetWithoutScheme
+        {
+            get
+            {
+                PublishTarget.Should().StartWith("br:");
+                return PublishTarget.Substring("br:".Length);
+            }
+        }
+
+        private IOciArtifactAddressComponents ParsedTarget
+        {
+            get
+            {
+                if (OciArtifactAddressComponents.TryParse(TargetWithoutScheme).IsSuccess(out var parsedTarget, out var errorBuilder))
+                {
+                    return parsedTarget;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Failed to parse target '{errorBuilder(DiagnosticBuilder.ForPosition(new(0, 0))).Message}'.");
+                }
+            }
+        }
+
+        public string Registry => ParsedTarget.Registry;
+        public string Repository => ParsedTarget.Repository;
+        public string Tag => ParsedTarget.Tag!;
+        public string ModuleName => Repository.Split('/').Last();
+    }
+
+    public static IContainerRegistryClientFactory CreateMockRegistryClient(params RepoDescriptor[] repos)
     {
         var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
 
-        foreach (var (registryHost, repository) in clients)
+        foreach (var repo in repos)
         {
-            containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryHost, repository);
+            containerRegistryFactoryBuilder.WithRepository(repo);
         }
 
         return containerRegistryFactoryBuilder.Build();
     }
 
-    // Example target: br:mockregistry.io/test/module1:v1
+    public static IContainerRegistryClientFactory CreateMockRegistryClients(
+        params RepoDescriptor[] repos)
+    {
+        var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
+
+        var modules = DescriptorsToModulesToPublish(repos);
+
+        foreach (var repo in repos)
+        {
+            containerRegistryFactoryBuilder.WithRepository(repo);
+        }
+
+        return containerRegistryFactoryBuilder.Build();
+    }
+
     public static async Task PublishModuleToRegistryAsync(
+        ServiceBuilder serviceBuilder,
         IContainerRegistryClientFactory clientFactory,
         IFileSystem fileSystem,
-        string moduleName,
-        string target,
-        string moduleSource,
-        bool publishSource,
-        string? documentationUri = null)
+        ModuleToPublish module)
     {
         var fileExplorer = new FileSystemFileExplorer(fileSystem);
         var configurationManager = new ConfigurationManager(fileExplorer);
         var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
-        var services = new ServiceBuilder()
+        serviceBuilder = serviceBuilder
             .WithDisabledAnalyzersConfiguration()
             .WithContainerRegistryClientFactory(clientFactory)
             .WithFileSystem(fileSystem)
             .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
             .WithFeatureProviderFactory(featureProviderFactory);
 
-        var dispatcher = services.Build().Construct<IModuleDispatcher>();
+        var services = serviceBuilder.Build();
+        var dispatcher = services.Construct<IModuleDispatcher>();
+        var sourceFileFactory = services.Construct<ISourceFileFactory>();
+        var dummyFile = sourceFileFactory.CreateBicepFile(PathHelper.FilePathToFileUrl(fileSystem.Path.GetFullPath("main.bicep")), "");
 
-        var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Module, target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
-            : throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
+        var targetReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Module, module.PublishTarget).IsSuccess(out var @ref) ? @ref
+            : throw new InvalidOperationException($"Module '{module.ModuleName}' has an invalid target reference '{module.PublishTarget}'. Specify a reference to an OCI artifact.");
 
-        var result = await CompilationHelper.RestoreAndCompile(services, moduleSource);
+        var result = await CompilationHelper.RestoreAndCompile(serviceBuilder, module.BicepSource);
         if (result.Template is null)
         {
-            throw new InvalidOperationException($"Module {moduleName} failed to produce a template.");
+            throw new InvalidOperationException($"Module {module.ModuleName} failed to produce a template.");
         }
 
         var features = featureProviderFactory.GetFeatureProvider(result.BicepFile.Uri);
-        BinaryData? sourcesStream = publishSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(dispatcher, result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
-        await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, documentationUri);
-    }
-
-    // Example target: br:mockregistry.io/test/module1:v1
-    // Module name is automatically extracted from target (in this case, "module1")
-    public static async Task PublishModuleToRegistryAsync(IContainerRegistryClientFactory clientFactory, IFileSystem fileSystem, string target, string source, bool withSource)
-    {
-        await PublishModuleToRegistryAsync(
-              clientFactory,
-              fileSystem,
-              target.Substring(target.LastIndexOf('/')),
-              target,
-              source,
-              publishSource: withSource);
+        BinaryData? sourcesStream = module.WithSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(dispatcher, result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
+        await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri);
     }
 
     // Creates a new registry client factory and publishes the specified modules to the registry.
     // Example usage:
-    // var clientFactory = await PublishModules([                
-    //    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-    //    ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
-    //    ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: false),
-    // ]);
+    //   var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
+    //      new MockFileSystem(),
+    //      [
+    //        new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
+    //        new("br:mockregistry.io/test/module2:v1", "param p2 string", WithSource: true),
+    //        new("br:mockregistry.io/test/module1:v2", "param p12 string"),
+    //      ]);
     public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientWithPublishedModulesAsync(
         IFileSystem fileSystem,
-        params (string target, string source, bool withSource)[] modules)
+        params ModuleToPublish[] modules
+    )
     {
-        var repos = new List<(string registry, string repo)>();
+        var repos = ModulesToPublishToDescriptors(modules);
 
-        foreach (var module in modules)
-        {
-            var (registry, repo) = module.target.ExtractRegexGroups(
-                "^br:(?<registry>.+?)/(?<repo>.+?)[:@](?<tag>.+?)$",
-                ["registry", "repo"]);
-
-            if (!repos.Contains((registry, repo)))
-            {
-                repos.Add((registry, repo));
-            }
-        }
-
-        var clientFactory = CreateMockRegistryClients([.. repos]).factoryMock;
+        var clientFactory = CreateMockRegistryClients(repos);
 
         foreach (var module in modules)
         {
             await PublishModuleToRegistryAsync(
-                  clientFactory,
-                  fileSystem,
-                  module.target,
-                  module.source,
-                  module.withSource);
+                new ServiceBuilder(),
+                clientFactory,
+                fileSystem,
+                module);
         }
 
         return clientFactory;
@@ -140,19 +188,21 @@ public static class RegistryHelper
         await PublishExtensionToRegistryAsync(services, target, tgzData);
     }
 
-    public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData)
+    public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData, Uri? bicepFileUri = null)
     {
         var dispatcher = services.Construct<IModuleDispatcher>();
 
-        var targetUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath("dummy"));
         if (!target.StartsWith("br:"))
         {
             // convert to a relative path, as this is the only format supported for the local filesystem
-            targetUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(target));
+            var targetUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(target));
             target = Path.GetFileName(targetUri.LocalPath);
         }
 
-        if (!dispatcher.TryGetArtifactReference(ArtifactType.Extension, target, targetUri).IsSuccess(out var targetReference, out var errorBuilder))
+        var sourceFileFactory = services.Construct<ISourceFileFactory>();
+        var bicepFile = sourceFileFactory.CreateBicepFile(bicepFileUri ?? new Uri("inmemory:///main.bicep"), "");
+
+        if (!dispatcher.TryGetArtifactReference(bicepFile, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))
         {
             throw new InvalidOperationException($"Failed to get reference '{errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}'.");
         }
@@ -160,7 +210,43 @@ public static class RegistryHelper
         await dispatcher.PublishExtension(targetReference, new(tgzData, false, []));
     }
 
-    private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
+    private static List<RepoTagDescriptor> ToTagDescriptors(IEnumerable<string> tags)
+    {
+        return [.. tags.Select(tag => new RepoTagDescriptor(tag))];
+    }
+
+    private static ModuleToPublish[] DescriptorsToModulesToPublish(IEnumerable<RepoDescriptor> descriptors, bool withSource = false)
+    {
+        return [.. descriptors.SelectMany(
+                descriptor => descriptor.Tags.Select(
+                    tag => new ModuleToPublish(
+                        ModuleToPublish.ToTarget(descriptor.Registry, descriptor.Repository, tag.Tag),
+                        BicepSource: "// bicep source",
+                        WithSource: withSource,
+                        DocumentationUri: tag.DocumentationUri)
+                )
+            )];
+    }
+
+    private static RepoDescriptor[] ModulesToPublishToDescriptors(IEnumerable<ModuleToPublish> modules)
+    {
+        var descriptors = new List<RepoDescriptor>();
+
+        foreach (var module in modules)
+        {
+            var found = descriptors.SingleOrDefault(d => d.Registry == module.Registry && d.Repository == module.Repository);
+            if (found is { })
+            {
+                found.Tags.Add(new RepoTagDescriptor(module.Tag));
+            }
+            else
+            {
+                descriptors.Add(new(module.Registry, module.Repository, [.. ToTagDescriptors([module.Tag])]));
+            }
+        }
+
+        return [.. descriptors];
+    }
 
     public static async Task PublishAzExtension(IDependencyHelper services, string pathToIndexJson)
     {
@@ -176,11 +262,15 @@ public static class RegistryHelper
     }
 
     public static IContainerRegistryClientFactory CreateOciClientForAzExtension()
-        => CreateMockRegistryClients((LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/az")).factoryMock;
+       => CreateMockRegistryClient(new RepoDescriptor(
+            LanguageConstants.BicepPublicMcrRegistry,
+            "bicep/extensions/az",
+            new List<RepoTagDescriptor> { new("tag") }
+        ));
 
     public static IContainerRegistryClientFactory CreateOciClientForMsGraphExtension()
-        => CreateMockRegistryClients(
-            (LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/beta"),
-            (LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/v1")
-            ).factoryMock;
+        => CreateMockRegistryClient(
+            new RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/beta", ["tag"]),
+            new RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/v1", ["tag"])
+            );
 }

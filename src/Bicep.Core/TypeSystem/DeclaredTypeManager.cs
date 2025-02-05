@@ -1899,7 +1899,7 @@ namespace Bicep.Core.TypeSystem
 
                     // if there are additional properties, try those
                     if (objectType.AdditionalProperties is { } additionalProperties)
-                    
+
                     {
                         return new DeclaredTypeAssignment(additionalProperties.TypeReference.Type, declaringProperty, ConvertFlags(additionalProperties.Flags));
                     }

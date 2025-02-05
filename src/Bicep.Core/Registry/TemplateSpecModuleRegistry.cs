@@ -12,6 +12,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
@@ -22,32 +23,23 @@ namespace Bicep.Core.Registry
     {
         private readonly ITemplateSpecRepositoryFactory repositoryFactory;
 
-        private readonly IFeatureProvider featureProvider;
-
-        private readonly RootConfiguration configuration;
-
-        private readonly Uri parentModuleUri;
-
-        public TemplateSpecModuleRegistry(IFileResolver fileResolver, ITemplateSpecRepositoryFactory repositoryFactory, IFeatureProvider featureProvider, RootConfiguration configuration, Uri parentModuleUri)
+        public TemplateSpecModuleRegistry(IFileResolver fileResolver, ITemplateSpecRepositoryFactory repositoryFactory)
             : base(fileResolver)
         {
             this.repositoryFactory = repositoryFactory;
-            this.featureProvider = featureProvider;
-            this.configuration = configuration;
-            this.parentModuleUri = parentModuleUri;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.TemplateSpecs;
 
         public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, TemplateSpecModuleReference reference) => RegistryCapabilities.Default;
 
-        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference)
+        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
         {
             if (artifactType != ArtifactType.Module)
             {
                 return new(x => x.UnsupportedArtifactType(artifactType));
             }
-            if (!TemplateSpecModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
+            if (!TemplateSpecModuleReference.TryParse(referencingFile, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
@@ -82,7 +74,7 @@ namespace Bicep.Core.Registry
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference)}");
                 try
                 {
-                    var repository = this.repositoryFactory.CreateRepository(configuration, reference.SubscriptionId);
+                    var repository = this.repositoryFactory.CreateRepository(reference.ReferencingFile.Configuration, reference.SubscriptionId);
                     var templateSpecEntity = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
 
                     await this.WriteArtifactContentToCacheAsync(reference, templateSpecEntity);
@@ -113,7 +105,7 @@ namespace Bicep.Core.Registry
         protected override void WriteArtifactContentToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
             this.GetModuleEntryPointFile(reference).Write(entity.Content);
 
-        protected override IDirectoryHandle GetArtifactDirectory(TemplateSpecModuleReference reference) => this.featureProvider.CacheRootDirectory.GetDirectory(
+        protected override IDirectoryHandle GetArtifactDirectory(TemplateSpecModuleReference reference) => reference.ReferencingFile.Features.CacheRootDirectory.GetDirectory(
             $"{this.Scheme}/{reference.SubscriptionId}/{reference.ResourceGroupName}/{reference.TemplateSpecName}/{reference.Version}".ToLowerInvariant());
 
         protected override IFileHandle GetArtifactLockFile(TemplateSpecModuleReference reference) => this.GetArtifactDirectory(reference).GetFile("lock");

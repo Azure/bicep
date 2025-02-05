@@ -43,22 +43,22 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string[] availableVersions, // for simplicity, mock returns these same versions for all available modules
             string? downloadError = null)
         {
-            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModulesMetadata())
-                .Returns(availableModules.Select(m => new PublicRegistryModuleMetadata(m, null, null)).ToImmutableArray());
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata(It.IsAny<string>()))
+            var publicModuleMetadataProvider = StrictMock.Of<IPublicModuleMetadataProvider>();
+            publicModuleMetadataProvider.Setup(x => x.GetModulesMetadata())
+                .Returns(availableModules.Select(m => new PublicModuleMetadata(m, null, null)).ToImmutableArray());
+            publicModuleMetadataProvider.Setup(x => x.GetModuleVersionsMetadata(It.IsAny<string>()))
                 .Returns((string module) =>
                 {
                     return availableModules.Contains(module) ?
-                        availableVersions.Select(v => new PublicRegistryModuleVersionMetadata(v, null, null)).ToImmutableArray() :
+                        availableVersions.Select(v => new PublicModuleVersionMetadata(v, null, null)).ToImmutableArray() :
                         [];
                 });
-            publicRegistryModuleMetadataProvider.Setup(x => x.IsCached)
+            publicModuleMetadataProvider.Setup(x => x.IsCached)
                 .Returns(availableModules.Length > 0);
-            publicRegistryModuleMetadataProvider.Setup(x => x.DownloadError)
+            publicModuleMetadataProvider.Setup(x => x.DownloadError)
                 .Returns(downloadError);
 
-            var services = Services.WithRegistration(x => x.AddSingleton(publicRegistryModuleMetadataProvider.Object));
+            var services = Services.WithRegistration(x => x.AddSingleton(publicModuleMetadataProvider.Object));
             var result = CompilationHelper.Compile(services, [("main.bicep", bicep)]);
             return result;
         }

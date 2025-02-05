@@ -2516,4 +2516,60 @@ INVALID FILE
             }
             """));
     }
+
+    [TestMethod]
+    public void Imported_functions_invoked_in_bicepparam_files_can_refer_to_variables_in_source_template()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                import { diagnosticSettings } from './common.bicep'
+
+                var location = 'uksouth'
+                var locationSlug = substring(location, 0, 3)
+
+                var env = readEnvironmentVariable('ENVIRONMENT', 'dev')
+                var diagSettings = diagnosticSettings(env)
+
+                param keyVaults = {
+                  'key-vault': {
+                    resourceGroupName: 'resource-group'
+                    diagnosticSettings: diagSettings
+                  }
+                }
+                """),
+            ("main.bicep", "param keyVaults object"),
+            ("common.bicep", """
+                @export()
+                func diagnosticSettings(env string) object => {
+                  eventHub: {
+                    namespace: {
+                      subscriptionId: subscriptions.default[env]
+                      resourceGroupName: 'diag-rg'
+                      name: 'diag-ehn'
+                    }
+                    name: 'metrics'
+                  }
+                  metrics: [
+                    {
+                      category: 'AllMetrics'
+                    }
+                  ]
+                }
+
+                @export()
+                var subscriptions = {
+                  default: {
+                    'dev': 'xxx'
+                    'uat': 'yyy'
+                    'prd': 'zzz'
+                  }
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics("no-unused-vars").Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().NotBeNull();
+        result.Parameters.Should().HaveValueAtPath("$.parameters.keyVaults.value['key-vault'].diagnosticSettings.eventHub.namespace.subscriptionId", "xxx");
+    }
 }

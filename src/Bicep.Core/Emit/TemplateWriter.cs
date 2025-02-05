@@ -136,7 +136,7 @@ namespace Bicep.Core.Emit
 
             this.EmitExtensionsIfPresent(emitter, program.Extensions);
 
-            this.EmitResources(jsonWriter, emitter, program.Resources, program.Modules);
+            this.EmitResources(jsonWriter, emitter, program.Extensions, program.Resources, program.Modules);
 
             this.EmitOutputsIfPresent(emitter, program.Outputs);
 
@@ -1021,7 +1021,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
+        private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions)
         {
             if (!extensions.Any())
             {
@@ -1043,7 +1043,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
+        private static void EmitProviders(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions)
         {
             emitter.EmitObjectProperty("imports", () =>
             {
@@ -1064,7 +1064,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private static void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<DeclaredExtensionExpression> extensions)
+        private static void EmitExtensions(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions)
         {
             emitter.EmitObjectProperty("extensions", () =>
             {
@@ -1084,7 +1084,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private static void EmitExtensionConfig(DeclaredExtensionExpression extension, ExpressionEmitter emitter)
+        private static void EmitExtensionConfig(ExtensionExpression extension, ExpressionEmitter emitter)
         {
             if (extension.Config is null)
             {
@@ -1159,7 +1159,7 @@ namespace Bicep.Core.Emit
             throw new UnreachableException($"Configuration name: '{configName}' does not exist as part of extension configuration.");
         }
 
-        private DeclaredExtensionExpression GetExtensionForLocalDeploy()
+        private ExtensionExpression GetExtensionForLocalDeploy()
         {
             return new(
                 null,
@@ -1172,6 +1172,7 @@ namespace Bicep.Core.Emit
         private void EmitResources(
             PositionTrackingJsonTextWriter jsonWriter,
             ExpressionEmitter emitter,
+            ImmutableArray<ExtensionExpression> extensions,
             ImmutableArray<DeclaredResourceExpression> resources,
             ImmutableArray<DeclaredModuleExpression> modules)
         {
@@ -1186,7 +1187,7 @@ namespace Bicep.Core.Emit
                             continue;
                         }
 
-                        this.EmitResource(emitter, resource);
+                        this.EmitResource(emitter, extensions, resource);
                     }
 
                     foreach (var module in modules)
@@ -1203,7 +1204,7 @@ namespace Bicep.Core.Emit
                     {
                         emitter.EmitProperty(
                             emitter.GetSymbolicName(resource.ResourceMetadata),
-                            () => EmitResource(emitter, resource),
+                            () => EmitResource(emitter, extensions, resource),
                             resource.SourceSyntax);
                     }
 
@@ -1218,7 +1219,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private void EmitResource(ExpressionEmitter emitter, DeclaredResourceExpression resource)
+        private void EmitResource(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions, DeclaredResourceExpression resource)
         {
             var metadata = resource.ResourceMetadata;
 
@@ -1241,7 +1242,7 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("existing", new BooleanLiteralExpression(null, true));
                 }
 
-                var extensionSymbol = Context.SemanticModel.Root.ExtensionDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
+                var extensionSymbol = extensions.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
                 if (extensionSymbol is not null)
                 {
                     if (this.Context.SemanticModel.Features.LocalDeployEnabled ||
@@ -1253,6 +1254,31 @@ namespace Bicep.Core.Emit
                     {
                         emitter.EmitProperty("import", extensionSymbol.Name);
                     }
+                }
+
+                // Emit the options property 
+                if (resource.RetryOn is not null || resource.WaitUntil is not null)
+                {
+                    emitter.EmitObjectProperty("options", () =>
+                    {
+                        if(resource.RetryOn is not null)
+                        {
+                            emitter.EmitObjectProperty("retryOn", () =>
+                            {
+                                emitter.EmitObjectProperties(resource.RetryOn);
+                            });
+                        }
+
+                        if (resource.WaitUntil is not null)
+                        {
+                            emitter.EmitObjectProperty("waitUntil", () =>
+                            {
+                                emitter.EmitObjectProperties(resource.WaitUntil);
+                            });
+                        }
+
+                    });
+                    
                 }
 
                 if (metadata.IsAzResource ||

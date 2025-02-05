@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15609368468620239727"
+      "templateHash": "1993574896961692893"
     }
   },
   "parameters": {
@@ -24,18 +24,18 @@
     }
   },
   "imports": {
-    "MicrosoftGraph": {
+    "microsoftGraphV1_0": {
       "provider": "MicrosoftGraph",
       "version": "0.1.8-preview"
     },
-    "MicrosoftGraphBeta": {
+    "microsoftGraphBeta": {
       "provider": "MicrosoftGraph",
       "version": "0.1.8-preview"
     }
   },
   "resources": {
     "appV1::myTestFIC": {
-      "import": "MicrosoftGraph",
+      "import": "microsoftGraphV1_0",
       "type": "Microsoft.Graph/applications/federatedIdentityCredentials@v1.0",
       "properties": {
         "name": "[format('{0}/mytestfic', reference('appV1').uniqueName)]",
@@ -51,7 +51,7 @@
       ]
     },
     "resourceApp": {
-      "import": "MicrosoftGraphBeta",
+      "import": "microsoftGraphBeta",
       "type": "Microsoft.Graph/applications@beta",
       "properties": {
         "uniqueName": "resourceApp",
@@ -84,7 +84,7 @@
       }
     },
     "resourceSp": {
-      "import": "MicrosoftGraphBeta",
+      "import": "microsoftGraphBeta",
       "type": "Microsoft.Graph/servicePrincipals@beta",
       "properties": {
         "appId": "[reference('resourceApp').appId]"
@@ -94,7 +94,7 @@
       ]
     },
     "clientApp": {
-      "import": "MicrosoftGraphBeta",
+      "import": "microsoftGraphBeta",
       "type": "Microsoft.Graph/applications@beta",
       "properties": {
         "uniqueName": "clientApp",
@@ -102,7 +102,7 @@
       }
     },
     "clientSp": {
-      "import": "MicrosoftGraphBeta",
+      "import": "microsoftGraphBeta",
       "type": "Microsoft.Graph/servicePrincipals@beta",
       "properties": {
         "appId": "[reference('clientApp').appId]"
@@ -112,7 +112,7 @@
       ]
     },
     "permissionGrant": {
-      "import": "MicrosoftGraphBeta",
+      "import": "microsoftGraphBeta",
       "type": "Microsoft.Graph/oauth2PermissionGrants@beta",
       "properties": {
         "clientId": "[reference('clientSp').id]",
@@ -126,7 +126,7 @@
       ]
     },
     "appRoleAssignedTo": {
-      "import": "MicrosoftGraphBeta",
+      "import": "microsoftGraphBeta",
       "type": "Microsoft.Graph/appRoleAssignedTo@beta",
       "properties": {
         "appRoleId": "[parameters('appRoleId')]",
@@ -139,7 +139,7 @@
       ]
     },
     "group": {
-      "import": "MicrosoftGraphBeta",
+      "import": "microsoftGraphBeta",
       "type": "Microsoft.Graph/groups@beta",
       "properties": {
         "uniqueName": "myGroup",
@@ -159,7 +159,7 @@
       ]
     },
     "appV1": {
-      "import": "MicrosoftGraph",
+      "import": "microsoftGraphV1_0",
       "type": "Microsoft.Graph/applications@v1.0",
       "properties": {
         "displayName": "TestAppV1",

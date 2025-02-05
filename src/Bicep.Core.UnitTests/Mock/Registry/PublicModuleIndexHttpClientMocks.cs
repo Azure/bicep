@@ -4,27 +4,26 @@
 using System;
 using System.Collections.Immutable;
 using Bicep.Core.Registry.PublicRegistry;
-using Bicep.Core.UnitTests.Mock;
 using Moq;
 
-namespace Bicep.Core.UnitTests.Mock;
+namespace Bicep.Core.UnitTests.Mock.Registry;
 
-public static class PublicRegistryModuleIndexClientMock
+public static class PublicModuleIndexHttpClientMocks
 {
     // CONSIDER: Mock HttpClient rather than the typed client
 
-    public static Mock<IPublicRegistryModuleIndexClient> Create(IEnumerable<PublicRegistryModuleIndexEntry> metadata)
+    public static Mock<IPublicModuleIndexClient> Create(IEnumerable<PublicModuleIndexEntry> metadata)
     {
-        var mock = StrictMock.Of<IPublicRegistryModuleIndexClient>();
+        var mock = StrictMock.Of<IPublicModuleIndexClient>();
         mock
             .Setup(client => client.GetModuleIndexAsync())
             .ReturnsAsync(() => metadata.ToImmutableArray());
         return mock;
     }
 
-    public static Mock<IPublicRegistryModuleIndexClient> CreateToThrow(Exception exception)
+    public static Mock<IPublicModuleIndexClient> CreateToThrow(Exception exception)
     {
-        var mock = StrictMock.Of<IPublicRegistryModuleIndexClient>();
+        var mock = StrictMock.Of<IPublicModuleIndexClient>();
         mock
             .Setup(client => client.GetModuleIndexAsync())
             .ThrowsAsync(exception);

@@ -87,7 +87,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static async Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, IReadOnlyDictionary<Uri, string> uriDictionary, Uri entryUri)
         {
             var compiler = services.Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(entryUri, CreateWorkspace(uriDictionary));
+            var compilation = await compiler.CreateCompilation(entryUri, CreateWorkspace(compiler.SourceFileFactory, uriDictionary));
 
             return GetCompilationResult(compilation);
         }
@@ -110,10 +110,10 @@ namespace Bicep.Core.UnitTests.Utils
             return CompileParams(compilation);
         }
 
-        public static IWorkspace CreateWorkspace(IReadOnlyDictionary<Uri, string> uriDictionary)
+        public static IWorkspace CreateWorkspace(ISourceFileFactory sourceFileFactory, IReadOnlyDictionary<Uri, string> uriDictionary)
         {
             var workspace = new Workspace();
-            var sourceFiles = uriDictionary.Select(kvp => SourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
+            var sourceFiles = uriDictionary.Select(kvp => sourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
             workspace.UpsertSourceFiles(sourceFiles);
 
             return workspace;

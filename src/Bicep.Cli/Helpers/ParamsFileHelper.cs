@@ -32,7 +32,7 @@ public static class ParamsFileHelper
         _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported token: {token.Type}")
     };
 
-    public static BicepParamFile ApplyParameterOverrides(BicepParamFile sourceFile, Dictionary<string, JToken> parameters)
+    public static BicepParamFile ApplyParameterOverrides(ISourceFileFactory sourceFileFactory, BicepParamFile sourceFile, Dictionary<string, JToken> parameters)
     {
         var replacedParameters = new HashSet<string>();
 
@@ -85,6 +85,6 @@ public static class ParamsFileHelper
             return sourceFile;
         }
 
-        return SourceFileFactory.CreateBicepParamFile(sourceFile.Uri, newProgramSyntax.ToString());
+        return sourceFileFactory.CreateBicepParamFile(sourceFile.Uri, newProgramSyntax.ToString());
     }
 }

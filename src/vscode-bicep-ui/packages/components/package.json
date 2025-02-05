@@ -27,9 +27,9 @@
     "styled-components": "^6.1.11"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^8.4.7",
-    "@storybook/addon-interactions": "^8.4.5",
-    "@storybook/addon-links": "^8.4.7",
+    "@storybook/addon-essentials": "^8.5.3",
+    "@storybook/addon-interactions": "^8.5.3",
+    "@storybook/addon-links": "^8.5.3",
     "@storybook/addon-themes": "^8.4.7",
     "@storybook/blocks": "^8.5.0",
     "@storybook/react": "^8.4.7",
@@ -51,6 +51,6 @@
     "vite-plugin-dts": "^4.5.0",
     "vite-plugin-lib-inject-css": "^2.2.1",
     "vite-plugin-svgr": "^4.3.0",
-    "vitest": "^3.0.2"
+    "vitest": "^3.0.5"
   }
 }

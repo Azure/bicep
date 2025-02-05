@@ -10,12 +10,12 @@ using Semver.Comparers;
 
 namespace Bicep.Core.Registry.PublicRegistry;
 
-public readonly record struct PublicRegistryModuleProperties(string Description, string DocumentationUri);
+public readonly record struct PublicModuleProperties(string Description, string DocumentationUri);
 
-public record PublicRegistryModuleIndexEntry(
+public record PublicModuleIndexEntry(
     [property: JsonPropertyName("moduleName")] string ModulePath, // e.g. "avm/app/dapr-containerapp"
     ImmutableArray<string> Tags, // e.g. "1.0.0" (not guaranteed to be in that format, although it currently is for public modules)
-    [property: JsonPropertyName("properties")] ImmutableDictionary<string, PublicRegistryModuleProperties> PropertiesByTag // Module properties per tag
+    [property: JsonPropertyName("properties")] ImmutableDictionary<string, PublicModuleProperties> PropertiesByTag // Module properties per tag
 )
 {
     private static readonly SemVersion DefaultVersion = new(0);
@@ -40,7 +40,7 @@ public record PublicRegistryModuleIndexEntry(
 
     public string? GetDocumentationUri(string? version = null) => this.GetProperty(version, x => x.DocumentationUri);
 
-    private string? GetProperty(string? version, Func<PublicRegistryModuleProperties, string> propertySelector)
+    private string? GetProperty(string? version, Func<PublicModuleProperties, string> propertySelector)
     {
         if (version is null)
         {
@@ -62,7 +62,7 @@ public record PublicRegistryModuleIndexEntry(
     }
 }
 
-public interface IPublicRegistryModuleIndexClient
+public interface IPublicModuleIndexClient
 {
-    Task<ImmutableArray<PublicRegistryModuleIndexEntry>> GetModuleIndexAsync();
+    Task<ImmutableArray<PublicModuleIndexEntry>> GetModuleIndexAsync();
 }

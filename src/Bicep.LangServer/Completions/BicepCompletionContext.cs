@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Navigation;
@@ -54,6 +55,7 @@ namespace Bicep.LanguageServer.Completions
         ];
 
         private BicepCompletionContext(
+            BicepSourceFile sourceFile,
             BicepCompletionContextKind kind,
             Range replacementRange,
             SyntaxBase replacementTarget,
@@ -72,6 +74,7 @@ namespace Bicep.LanguageServer.Completions
             IndexedSyntaxContext<ParameterizedTypeInstantiationSyntaxBase>? typeArgument,
             ImmutableArray<ILanguageScope> activeScopes)
         {
+            this.SourceFile = sourceFile;
             this.Kind = kind;
             this.ReplacementRange = replacementRange;
             this.ReplacementTarget = replacementTarget;
@@ -90,6 +93,8 @@ namespace Bicep.LanguageServer.Completions
             this.TypeArgument = typeArgument;
             this.ActiveScopes = activeScopes;
         }
+
+        public BicepSourceFile SourceFile { get; }
 
         public BicepCompletionContextKind Kind { get; }
 
@@ -125,7 +130,11 @@ namespace Bicep.LanguageServer.Completions
 
         public SyntaxBase ReplacementTarget { get; }
 
-        public static BicepCompletionContext Create(IFeatureProvider featureProvider, Compilation compilation, int offset)
+        public RootConfiguration Configuration => this.SourceFile.Configuration;
+
+        public IFeatureProvider Features => this.SourceFile.Features;
+
+        public static BicepCompletionContext Create(Compilation compilation, int offset)
         {
             var bicepFile = compilation.SourceFileGrouping.EntryPoint;
             var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(bicepFile.ProgramSyntax, offset);
@@ -150,7 +159,7 @@ namespace Bicep.LanguageServer.Completions
 
                         if (previousTrivia is DisableNextLineDiagnosticsSyntaxTrivia)
                         {
-                            return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                            return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                         }
                     }
                     break;
@@ -158,18 +167,18 @@ namespace Bicep.LanguageServer.Completions
                     // This will handle the following case: #disable-next-line |
                     if (triviaMatchingOffset.Text.EndsWith(' '))
                     {
-                        return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                        return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                     }
-                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                    return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
                 case SyntaxTriviaType.MultiLineComment when offset > triviaMatchingOffset.Span.Position && offset < triviaMatchingOffset.Span.Position + triviaMatchingOffset.Span.Length:
                     // we're in a comment, no hints here
-                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                    return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
             }
 
             if (IsDisableNextLineDiagnosticsDirectiveStartContext(bicepFile, offset, matchingNodes))
             {
-                return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
             }
 
             var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelDeclarationSyntax, SyntaxBase>(matchingNodes);
@@ -228,7 +237,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(ExpectingContextualFromKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportFromKeyword) |
                        ConvertFlag(IsAfterSpreadTokenContext(matchingNodes, offset), BicepCompletionContextKind.Expression);
 
-            if (featureProvider.ExtensibilityEnabled)
+            if (bicepFile.Features.ExtensibilityEnabled)
             {
                 var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
 
@@ -238,7 +247,7 @@ namespace Bicep.LanguageServer.Completions
                     ConvertFlag(ExpectingExtensionAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionAsKeyword);
             }
 
-            if (featureProvider.AssertsEnabled)
+            if (bicepFile.Features.AssertsEnabled)
             {
                 kind |= ConvertFlag(IsAssertValueContext(matchingNodes, offset), BicepCompletionContextKind.AssertValue | BicepCompletionContextKind.Expression);
             }
@@ -267,6 +276,7 @@ namespace Bicep.LanguageServer.Completions
             kind |= ConvertFlag(IsResourceDependsOnArrayItemContext(kind, propertyKey, topLevelDeclarationInfo.node), BicepCompletionContextKind.ExpectsResourceSymbolicReference);
 
             return new BicepCompletionContext(
+                bicepFile,
                 kind,
                 replacementRange,
                 replacementTarget,
