@@ -14,6 +14,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
@@ -22,14 +23,9 @@ namespace Bicep.Core.Registry
 
     public class LocalModuleRegistry : ExternalArtifactRegistry<LocalModuleReference, LocalModuleEntity>
     {
-        private readonly IFeatureProvider featureProvider;
-        private readonly Uri parentModuleUri;
-
-        public LocalModuleRegistry(IFileResolver fileResolver, IFeatureProvider featureProvider, Uri parentModuleUri)
+        public LocalModuleRegistry(IFileResolver fileResolver)
             : base(fileResolver)
         {
-            this.featureProvider = featureProvider;
-            this.parentModuleUri = parentModuleUri;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.Local;
@@ -42,14 +38,14 @@ namespace Bicep.Core.Registry
                 _ => throw new UnreachableException(),
             };
 
-        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? alias, string reference)
+        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? alias, string reference)
         {
             if (artifactType != ArtifactType.Module && artifactType != ArtifactType.Extension)
             {
                 return new(x => x.UnsupportedArtifactType(artifactType));
             }
 
-            if (!LocalModuleReference.TryParse(artifactType, reference, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
+            if (!LocalModuleReference.TryParse(referencingFile, artifactType, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
@@ -60,17 +56,17 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(LocalModuleReference reference)
         {
-            var localUri = FileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path);
+            var localUri = FileResolver.TryResolveFilePath(reference.ReferencingFile.Uri, reference.Path);
             if (localUri is null)
             {
-                return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ParentModuleUri.LocalPath));
+                return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ReferencingFile.Uri.LocalPath));
             }
 
             if (reference.ArtifactType == ArtifactType.Extension)
             {
                 if (this.TryGetTypesTgzFile(reference) is not { } tgzFile)
                 {
-                    return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ParentModuleUri.LocalPath));
+                    return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ReferencingFile.Uri.LocalPath));
                 }
 
                 return new(tgzFile.Uri.ToUri());
@@ -113,7 +109,7 @@ namespace Bicep.Core.Registry
         public override async Task PublishExtension(LocalModuleReference reference, ExtensionPackage package)
         {
             var archive = await ExtensionV1Archive.Build(package);
-            var fileUri = PathHelper.TryResolveFilePath(reference.ParentModuleUri, reference.Path)!;
+            var fileUri = PathHelper.TryResolveFilePath(reference.ReferencingFile.Uri, reference.Path)!;
             FileResolver.Write(fileUri, archive.ToStream());
         }
 
@@ -178,7 +174,7 @@ namespace Bicep.Core.Registry
             // We must use '_' as a separator here because Windows does not allow ':' in file paths.
             var digest = OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, binaryData, separator: '_');
 
-            return this.featureProvider.CacheRootDirectory.GetDirectory($"local/{digest}");
+            return reference.ReferencingFile.Features.CacheRootDirectory.GetDirectory($"local/{digest}");
         }
 
         protected override IDirectoryHandle GetArtifactDirectory(LocalModuleReference reference)
@@ -193,7 +189,7 @@ namespace Bicep.Core.Registry
 
         private BinaryData? TryReadContent(LocalModuleReference reference)
         {
-            if (FileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path) is not { } fileUri ||
+            if (FileResolver.TryResolveFilePath(reference.ReferencingFile.Uri, reference.Path) is not { } fileUri ||
                 FileResolver.TryReadAsBinaryData(fileUri).TryUnwrap() is not { } binaryData)
             {
                 return null;

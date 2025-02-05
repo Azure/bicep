@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Registry
 {
@@ -35,7 +36,7 @@ namespace Bicep.Core.Registry
 
         public abstract ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(T reference);
 
-        public abstract ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
+        public abstract ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference);
 
         public abstract string? TryGetDocumentationUri(T reference);
 

@@ -14,6 +14,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -22,14 +23,18 @@ namespace Bicep.Cli.Commands
     {
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFileSystem fileSystem;
+        private readonly ISourceFileFactory sourceFileFactory;
         private readonly IOContext ioContext;
+
         public PublishExtensionCommand(
             IOContext ioContext,
             IModuleDispatcher moduleDispatcher,
+            ISourceFileFactory sourceFileFactory,
             IFileSystem fileSystem)
         {
             this.moduleDispatcher = moduleDispatcher;
             this.fileSystem = fileSystem;
+            this.sourceFileFactory = sourceFileFactory;
             this.ioContext = ioContext;
         }
 
@@ -101,7 +106,10 @@ namespace Bicep.Cli.Commands
                 targetReference = Path.GetFileName(targetUri.LocalPath);
             }
 
-            if (!this.moduleDispatcher.TryGetArtifactReference(ArtifactType.Extension, targetReference, targetUri).IsSuccess(out var extensionReference, out var failureBuilder))
+            var dummyReferencingFile = this.sourceFileFactory.CreateBicepFile(targetUri, "");
+
+
+            if (!this.moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
             {
                 // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;

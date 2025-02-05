@@ -15,9 +15,11 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.Workspaces;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -63,11 +65,11 @@ public static class RegistryHelper
             }
         }
 
-        private IArtifactAddressComponents ParsedTarget
+        private IOciArtifactAddressComponents ParsedTarget
         {
             get
             {
-                if (OciArtifactReference.TryParseFullyQualifiedComponents(TargetWithoutScheme).IsSuccess(out var parsedTarget, out var errorBuilder))
+                if (OciArtifactAddressComponents.TryParse(TargetWithoutScheme).IsSuccess(out var parsedTarget, out var errorBuilder))
                 {
                     return parsedTarget;
                 }
@@ -112,7 +114,7 @@ public static class RegistryHelper
     }
 
     public static async Task PublishModuleToRegistryAsync(
-        ServiceBuilder services,
+        ServiceBuilder serviceBuilder,
         IContainerRegistryClientFactory clientFactory,
         IFileSystem fileSystem,
         ModuleToPublish module)
@@ -121,19 +123,22 @@ public static class RegistryHelper
         var configurationManager = new ConfigurationManager(fileExplorer);
         var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
-        services = services
+        serviceBuilder = serviceBuilder
             .WithDisabledAnalyzersConfiguration()
             .WithContainerRegistryClientFactory(clientFactory)
             .WithFileSystem(fileSystem)
             .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
             .WithFeatureProviderFactory(featureProviderFactory);
 
-        var dispatcher = services.Build().Construct<IModuleDispatcher>();
+        var services = serviceBuilder.Build();
+        var dispatcher = services.Construct<IModuleDispatcher>();
+        var sourceFileFactory = services.Construct<ISourceFileFactory>();
+        var dummyFile = sourceFileFactory.CreateBicepFile(PathHelper.FilePathToFileUrl(fileSystem.Path.GetFullPath("main.bicep")), "");
 
-        var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Module, module.PublishTarget, RandomFileUri()).IsSuccess(out var @ref) ? @ref
+        var targetReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Module, module.PublishTarget).IsSuccess(out var @ref) ? @ref
             : throw new InvalidOperationException($"Module '{module.ModuleName}' has an invalid target reference '{module.PublishTarget}'. Specify a reference to an OCI artifact.");
 
-        var result = await CompilationHelper.RestoreAndCompile(services, module.BicepSource);
+        var result = await CompilationHelper.RestoreAndCompile(serviceBuilder, module.BicepSource);
         if (result.Template is null)
         {
             throw new InvalidOperationException($"Module {module.ModuleName} failed to produce a template.");
@@ -183,19 +188,21 @@ public static class RegistryHelper
         await PublishExtensionToRegistryAsync(services, target, tgzData);
     }
 
-    public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData)
+    public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData, Uri? bicepFileUri = null)
     {
         var dispatcher = services.Construct<IModuleDispatcher>();
 
-        var targetUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath("dummy"));
         if (!target.StartsWith("br:"))
         {
             // convert to a relative path, as this is the only format supported for the local filesystem
-            targetUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(target));
+            var targetUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(target));
             target = Path.GetFileName(targetUri.LocalPath);
         }
 
-        if (!dispatcher.TryGetArtifactReference(ArtifactType.Extension, target, targetUri).IsSuccess(out var targetReference, out var errorBuilder))
+        var sourceFileFactory = services.Construct<ISourceFileFactory>();
+        var bicepFile = sourceFileFactory.CreateBicepFile(bicepFileUri ?? new Uri("inmemory:///main.bicep"), "");
+
+        if (!dispatcher.TryGetArtifactReference(bicepFile, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))
         {
             throw new InvalidOperationException($"Failed to get reference '{errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}'.");
         }
@@ -240,8 +247,6 @@ public static class RegistryHelper
 
         return [.. descriptors];
     }
-
-    private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
 
     public static async Task PublishAzExtension(IDependencyHelper services, string pathToIndexJson)
     {

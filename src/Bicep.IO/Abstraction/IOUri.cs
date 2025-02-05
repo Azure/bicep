@@ -182,38 +182,56 @@ namespace Bicep.IO.Abstraction
 
         public string GetPathRelativeTo(IOUri other)
         {
+            if (this.Equals(other))
+            {
+                return "";
+            }
+
             if (!this.Scheme.Equals(other.Scheme) || !string.Equals(this.Authority, other.Authority, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException("Both ResourceIdentifiers must have the same scheme and authority.");
             }
 
-            var thisPathSegments = this.PathSegments;
-            var otherPathSegments = other.PathSegments;
-            var commonSegmentIndex = 0;
+            var thisIsDirectory = this.Path.EndsWith('/');
+            var otherIsDirectory = other.Path.EndsWith('/');
 
-            while (
-                commonSegmentIndex < thisPathSegments.Length &&
-                commonSegmentIndex < otherPathSegments.Length &&
-                thisPathSegments[commonSegmentIndex].Equals(otherPathSegments[commonSegmentIndex], this.PathComparison))
+            var thisBaseSegments = thisIsDirectory ? this.PathSegments : this.PathSegments[..^1];
+            var otherBaseSegments = otherIsDirectory ? other.PathSegments : other.PathSegments[..^1];
+
+            // Find common prefix
+            int commonSegmentIndex = 0;
+            while (commonSegmentIndex < thisBaseSegments.Length &&
+               commonSegmentIndex < otherBaseSegments.Length &&
+               thisBaseSegments[commonSegmentIndex].Equals(otherBaseSegments[commonSegmentIndex], this.PathComparison))
             {
                 commonSegmentIndex++;
             }
 
+            // Calculate the number of directories to go up from 'other'
+            int segmentsToGoUp = otherBaseSegments.Length - commonSegmentIndex;
+
             var relativePathSegments = new List<string>();
 
-            for (int i = commonSegmentIndex; i < otherPathSegments.Length; i++)
+            for (int i = 0; i < segmentsToGoUp; i++)
             {
                 relativePathSegments.Add("..");
             }
 
-            for (int i = commonSegmentIndex; i < thisPathSegments.Length; i++)
+            // Add the remaining segments from 'this' path
+            for (int i = commonSegmentIndex; i < this.PathSegments.Length; i++)
             {
-                relativePathSegments.Add(thisPathSegments[i]);
+                relativePathSegments.Add(this.PathSegments[i]);
             }
 
             var relativePath = string.Join("/", relativePathSegments);
 
-            return this.Path.EndsWith('/') ? relativePath + '/' : relativePath;
+            // Append '/' if 'this' is a directory
+            if (this.Path.EndsWith('/') && !relativePath.EndsWith('/'))
+            {
+                relativePath += '/';
+            }
+
+            return relativePath;
         }
 
         public IOUri Resolve(string path)

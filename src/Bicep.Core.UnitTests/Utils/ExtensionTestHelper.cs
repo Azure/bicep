@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
@@ -32,7 +33,7 @@ public static class ExtensionTestHelper
 
     public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(BinaryData tgzData, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
     {
-        var reference = OciArtifactReference.TryParseModule(target).Unwrap();
+        var reference = OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, target).Unwrap();
 
         fileSystem ??= new MockFileSystem();
         var services = GetServiceBuilder(fileSystem, reference.Registry, reference.Repository, features);

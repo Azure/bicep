@@ -19,6 +19,8 @@ namespace Bicep.Core.Syntax
 
         public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new(TextSpan.Nil, []);
 
+        public static readonly ProgramSyntax EmptyProgram = new(Array.Empty<SyntaxBase>(), EndOfFileToken);
+
         public static Token CreateToken(TokenType tokenType, IEnumerable<SyntaxTrivia>? leadingTrivia = null, IEnumerable<SyntaxTrivia>? trailingTrivia = null)
         {
             leadingTrivia ??= EmptyTrivia;

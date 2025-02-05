@@ -8,6 +8,8 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Workspaces;
+using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -34,15 +36,18 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFileResolver fileResolver;
         private readonly ITelemetryProvider telemetryProvider;
+        private readonly ISourceFileFactory sourceFileFactory;
 
         public BicepExternalSourceRequestHandler(
             IModuleDispatcher moduleDispatcher,
             IFileResolver fileResolver,
-            ITelemetryProvider telemetryProvider)
+            ITelemetryProvider telemetryProvider,
+            ISourceFileFactory sourceFileFactory)
         {
             this.moduleDispatcher = moduleDispatcher;
             this.fileResolver = fileResolver;
             this.telemetryProvider = telemetryProvider;
+            this.sourceFileFactory = sourceFileFactory;
         }
 
         public Task<BicepExternalSourceResponse> Handle(BicepExternalSourceParams request, CancellationToken cancellationToken)
@@ -50,8 +55,8 @@ namespace Bicep.LanguageServer.Handlers
             // If any of the following paths results in an exception being thrown (and surfaced client-side to the user),
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
-
-            if (!moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, request.Target, new Uri("file:///no-parent-file-is-available.bicep")).IsSuccess(out var moduleReference))
+            var dummyReferencingFile = this.sourceFileFactory.CreateDummyArtifactReferencingFile();
+            if (!moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, request.Target).IsSuccess(out var moduleReference))
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetArtifactReference)));
                 return Task.FromResult(new BicepExternalSourceResponse(null,

@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions.TestingHelpers;
 using System.Text.RegularExpressions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Navigation;
@@ -16,7 +18,9 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
@@ -699,15 +703,15 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
         //
         [DataRow(
             "http://test.com",
-            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
+            "br:test.azurecr.io/bicep/modules/storage:1.0.1",
             "test.azurecr.io",
             "bicep/modules/storage",
-            "sha:12345",
             null,
+            "1.0.1",
             null, // description
 
              // documentationUri passed in, use it
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \n[View Documentation](http://test.com)  \n")]
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:1.0.1'\n```  \n[View Documentation](http://test.com)  \n")]
         [DataRow(
             "http://test.com",
             "br:mcr.microsoft.com/bicep/modules/storage:1.0.1",
@@ -746,84 +750,102 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
         //
         [DataRow(
             null,
-            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
+            "br:test.azurecr.io/bicep/modules/storage@sha256:0000000000000000000000000000000000000000000000000000000000000000",
             "test.azurecr.io",
             "bicep/modules/storage",
-            "sha:12345",
+            "sha256:0000000000000000000000000000000000000000000000000000000000000000",
             null,
             "my description", // description
 
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \nmy description  \n")]
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage@sha256:0000000000000000000000000000000000000000000000000000000000000000'\n```  \nmy description  \n")]
         [DataRow(
             null,
-            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
+            "br:test.azurecr.io/bicep/modules/storage@sha256:0000000000000000000000000000000000000000000000000000000000000000",
             "test.azurecr.io",
             "bicep/modules/storage",
-            "sha:12345",
+            "sha256:0000000000000000000000000000000000000000000000000000000000000000",
             null,
             "my \\\"description\\\"", // description
 
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \nmy \"description\"  \n")]
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage@sha256:0000000000000000000000000000000000000000000000000000000000000000'\n```  \nmy \"description\"  \n")]
         [DataRow(
             null,
-            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
+            "br:test.azurecr.io/bicep/modules/storage@sha256:0000000000000000000000000000000000000000000000000000000000000000",
             "test.azurecr.io",
             "bicep/modules/storage",
-            "sha:12345",
+            "sha256:0000000000000000000000000000000000000000000000000000000000000000",
             null,
             "my [description", // description
 
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \nmy [description  \n")]
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage@sha256:0000000000000000000000000000000000000000000000000000000000000000'\n```  \nmy [description  \n")]
         //
         // Neither documentationUri nor description
         [DataRow(
             null,
-            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
+            "br:test.azurecr.io/bicep/modules/storage@sha256:0000000000000000000000000000000000000000000000000000000000000000",
             "test.azurecr.io",
             "bicep/modules/storage",
-            "sha:12345",
+            "sha256:0000000000000000000000000000000000000000000000000000000000000000",
             null,
             null, // description
-
-            "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \n  \n")]
+            "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage@sha256:0000000000000000000000000000000000000000000000000000000000000000'\n```  \n  \n")]
         //
         // Both documentationUri and description
         //
         [DataRow(
             "http://test.com",
-            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
+            "br:test.azurecr.io/bicep/modules/storage@sha256:0000000000000000000000000000000000000000000000000000000000000000",
             "test.azurecr.io",
             "bicep/modules/storage",
-            "sha:12345",
+            "sha256:0000000000000000000000000000000000000000000000000000000000000000",
             null,
             "my description", // description
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \nmy description  \n[View Documentation](http://test.com)  \n")]
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage@sha256:0000000000000000000000000000000000000000000000000000000000000000'\n```  \nmy description  \n[View Documentation](http://test.com)  \n")]
         public async Task Verify_Hover_ContainerRegistry(string? documentationUri, string repositoryAndTag, string registry, string repository, string? digest, string? tag, string? description, string expectedHoverContent)
         {
-            string manifestFileContents = GetManifestFileContents(documentationUri, description);
-            var fileWithCursors = $@"module |test '{repositoryAndTag}' = {{
-              name: 'abc'
-            }}";
+            var fileWithCursors = $$"""
+                module |test '{{repositoryAndTag}}' = {
+                  name: 'abc'
+                }
+                """;
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
-            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepPath);
-            var parentModuleUri = documentUri.ToUriEncoded();
+            var mockFileSystem = new MockFileSystem();
+            mockFileSystem.AddFile("input.bicep", bicepFileContents);
 
-            var client = await GetLanguageClientAsync(
-                documentUri,
-                parentModuleUri,
-                testOutputPath,
-                bicepFileContents,
-                manifestFileContents,
+            SaveManifestFileToModuleRegistryCache(
+                mockFileSystem,
                 registry,
                 repository,
+                GetManifestFileContents(documentationUri, description),
                 digest,
                 tag);
-            var bicepFile = new LanguageClientFile(documentUri, bicepFileContents);
-            var hovers = await RequestHovers(client, bicepFile, cursors);
+
+            var helper = await GetLanguageClientAsync(mockFileSystem);
+
+            var bicepFile = new LanguageClientFile(mockFileSystem.Path.GetFullPath("input.bicep"), bicepFileContents);
+
+            await helper.OpenFileOnceAsync(TestContext, bicepFile.Text, bicepFile.Uri);
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Single()!.Contents.MarkupContent!.Value.Should().Be(expectedHoverContent);
+        }
+
+        private static void SaveManifestFileToModuleRegistryCache(
+            MockFileSystem mockFileSystem,
+            string registry,
+            string repository,
+            string manifestFileContents,
+            string? digest,
+            string? tag)
+        {
+            var fileExplorer = new FileSystemFileExplorer(mockFileSystem);
+            var featureProvider = new FeatureProvider(BicepTestConstants.BuiltInConfiguration, fileExplorer);
+
+            var cachePath = digest is not null
+                ? $"br/{registry}/{repository.Replace("/", "$")}/{digest.Replace(":", "#")}"
+                : $"br/{registry}/{repository.Replace("/", "$")}/{tag}$";
+
+            featureProvider.CacheRootDirectory.GetDirectory(cachePath)?.GetFile("manifest").Write(manifestFileContents);
         }
 
         [TestMethod]
@@ -1153,46 +1175,16 @@ AzureMetrics
   }";
         }
 
-        private async Task<ILanguageClient> GetLanguageClientAsync(
-            DocumentUri documentUri,
-            Uri parentModuleUri,
-            string testOutputPath,
-            string bicepFileContents,
-            string manifestFileContents,
-            string registry,
-            string repository,
-            string? digest,
-            string? tag)
+        private async Task<MultiFileLanguageServerHelper> GetLanguageClientAsync(MockFileSystem mockFileSystem)
         {
-            var featureProviderFactory = GetFeatureProviderFactory(parentModuleUri, testOutputPath);
-
-            var compiler = ServiceBuilder.Create().GetCompiler();
-            var compilation = await compiler.CreateCompilation(parentModuleUri);
-            var compilationContext = new CompilationContext(compilation);
-            var compilationManager = GetBicepCompilationManager(documentUri, compilationContext);
-
-            var moduleDispatcher = GetModuleDispatcher(
-                compilationContext.ProgramSyntax,
-                parentModuleUri,
-                bicepFileContents,
-                manifestFileContents,
-                testOutputPath,
-                registry,
-                repository,
-                digest,
-                tag);
-
             SharedLanguageHelperManager sharedLanguageHelperManager = new();
             sharedLanguageHelperManager.Initialize(
-                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+                () => MultiFileLanguageServerHelper.StartLanguageServer(
                     TestContext,
-                    services => services
-                        .WithFeatureProviderFactory(featureProviderFactory)
-                        .WithModuleDispatcher(moduleDispatcher)
-                        .WithCompilationManager(compilationManager)));
+                    services => services.WithFileSystem(mockFileSystem)));
 
             var multiFileLanguageServerHelper = await sharedLanguageHelperManager.GetAsync();
-            return multiFileLanguageServerHelper.Client;
+            return multiFileLanguageServerHelper;
         }
 
         private ICompilationManager GetBicepCompilationManager(DocumentUri documentUri, CompilationContext compilationContext)
@@ -1216,9 +1208,7 @@ AzureMetrics
         }
 
         private IModuleDispatcher GetModuleDispatcher(
-            ProgramSyntax programSyntax,
-            Uri parentModuleUri,
-            string bicepFileContents,
+            BicepSourceFile parentModuleFile,
             string manifestFileContents,
             string testOutputPath,
             string registry,
@@ -1226,7 +1216,7 @@ AzureMetrics
             string? digest,
             string? tag)
         {
-            var moduleDeclarationSyntax = programSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
+            var moduleDeclarationSyntax = parentModuleFile.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
 
             OciRegistryHelper.SaveManifestFileToModuleRegistryCache(
                 TestContext,
@@ -1237,14 +1227,14 @@ AzureMetrics
                 digest,
                 tag);
             ArtifactReference? ociArtifactModuleReference = OciRegistryHelper.CreateModuleReferenceMock(
+                parentModuleFile,
                 registry,
                 repository,
-                parentModuleUri,
                 digest,
                 tag);
 
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            moduleDispatcher.Setup(m => m.TryGetArtifactReference(moduleDeclarationSyntax, parentModuleUri)).Returns(ResultHelper.Create(ociArtifactModuleReference, null));
+            moduleDispatcher.Setup(m => m.TryGetArtifactReference(parentModuleFile, moduleDeclarationSyntax)).Returns(ResultHelper.Create(ociArtifactModuleReference, null));
 
             return moduleDispatcher.Object;
         }

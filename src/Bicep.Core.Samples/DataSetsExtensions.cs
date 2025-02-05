@@ -3,15 +3,20 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -56,10 +61,13 @@ namespace Bicep.Core.Samples
             ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules,
             params RepoDescriptor[] additionalClients)
         {
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
+            var services = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-            ).Construct<IModuleDispatcher>();
+                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory));
+
+            var dispatcher = services.Construct<IModuleDispatcher>();
+            var sourceFileFactory = services.Construct<ISourceFileFactory>();
+            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
 
             var clients = new List<RepoDescriptor>();
 
@@ -67,7 +75,7 @@ namespace Bicep.Core.Samples
             {
                 var target = publishInfo.Metadata.Target;
 
-                if (!dispatcher.TryGetArtifactReference(ArtifactType.Module, target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
+                if (!dispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, target).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
@@ -86,15 +94,18 @@ namespace Bicep.Core.Samples
 
         public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo> templateSpecs)
         {
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
+            var services = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                ).Construct<IModuleDispatcher>();
+                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory));
+
+            var dispatcher = services.Construct<IModuleDispatcher>();
+            var sourceFileFactory = services.Construct<ISourceFileFactory>();
+            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
             var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 
             foreach (var (moduleName, templateSpecInfo) in templateSpecs)
             {
-                if (!dispatcher.TryGetArtifactReference(ArtifactType.Module, templateSpecInfo.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
+                if (!dispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, templateSpecInfo.Metadata.Target).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
@@ -130,7 +141,5 @@ namespace Bicep.Core.Samples
                     new(publishInfo.Metadata.Target, publishInfo.ModuleSource, WithSource: publishSource, DocumentationUri: null));
             }
         }
-
-        private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
     }
 }

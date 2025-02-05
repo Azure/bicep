@@ -8,6 +8,7 @@ using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -16,6 +17,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.UnitTests.Features;
@@ -54,6 +56,8 @@ namespace Bicep.Core.UnitTests
 
         public static readonly ISourceFileFactory SourceFileFactory = new SourceFileFactory(ConfigurationManager, FeatureProviderFactory);
 
+        public static readonly BicepFile DummyBicepFile = CreateDummyBicepFile();
+
         public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory(FileSystem);
 
         public static readonly INamespaceProvider NamespaceProvider = new NamespaceProvider(ResourceTypeProviderFactory);
@@ -80,10 +84,9 @@ namespace Bicep.Core.UnitTests
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
         public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services) =>
-            new DefaultArtifactRegistryProvider(services, FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
+            new DefaultArtifactRegistryProvider(services, FileResolver, ClientFactory, TemplateSpecRepositoryFactory);
 
-        public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) =>
-            new ModuleDispatcher(CreateRegistryProvider(services), IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
+        public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
             new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile), null),
@@ -93,7 +96,7 @@ namespace Bicep.Core.UnitTests
         // By default turns off only problematic analyzers
         public static readonly LinterAnalyzer LinterAnalyzer = new(EmptyServiceProvider);
 
-        public static IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
+        public static readonly IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
 
@@ -180,6 +183,21 @@ namespace Bicep.Core.UnitTests
         }
         """);
 
-        public static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.TemplateExtensionVersion;
+        public static BicepFile CreateDummyBicepFile(RootConfiguration? configuration = null, FeatureProviderOverrides? featureOverrides = null)
+        {
+            var configurationManager = IConfigurationManager.WithStaticConfiguration(configuration ?? IConfigurationManager.GetBuiltInConfiguration());
+            var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, FileExplorer), featureOverrides ?? FeatureOverrides);
+
+            return new(
+                new Uri($"inmemory:///main.bicep"),
+                [],
+                SyntaxFactory.EmptyProgram,
+                configurationManager,
+                featureProviderFactory,
+                EmptyDiagnosticLookup.Instance,
+                EmptyDiagnosticLookup.Instance);
+        }
+
+        public readonly static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.TemplateExtensionVersion;
     }
 }

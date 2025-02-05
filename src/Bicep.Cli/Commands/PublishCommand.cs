@@ -13,6 +13,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -23,6 +24,7 @@ namespace Bicep.Cli.Commands
         private readonly BicepCompiler compiler;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFileSystem fileSystem;
+        private readonly ISourceFileFactory sourceFileFactory;
         private readonly IOContext ioContext;
 
         public PublishCommand(
@@ -30,12 +32,14 @@ namespace Bicep.Cli.Commands
             BicepCompiler compiler,
             IOContext ioContext,
             IModuleDispatcher moduleDispatcher,
+            ISourceFileFactory sourceFileFactory,
             IFileSystem fileSystem)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.compiler = compiler;
             this.moduleDispatcher = moduleDispatcher;
             this.fileSystem = fileSystem;
+            this.sourceFileFactory = sourceFileFactory;
             this.ioContext = ioContext;
         }
 
@@ -110,7 +114,9 @@ namespace Bicep.Cli.Commands
 
         private ArtifactReference ValidateReference(string targetModuleReference, Uri targetModuleUri)
         {
-            if (!this.moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, targetModuleReference, targetModuleUri).IsSuccess(out var moduleReference, out var failureBuilder))
+            var dummyReferencingFile = this.sourceFileFactory.CreateBicepFile(targetModuleUri, string.Empty);
+
+            if (!this.moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, targetModuleReference).IsSuccess(out var moduleReference, out var failureBuilder))
             {
                 // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;

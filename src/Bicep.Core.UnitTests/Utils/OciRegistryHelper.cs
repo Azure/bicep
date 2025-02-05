@@ -10,6 +10,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
@@ -21,24 +22,16 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class OciRegistryHelper
     {
-        public static OciArtifactReference CreateModuleReferenceMock(string registry, string repository, Uri parentModuleUri, string? digest, string? tag)
-            => new(ArtifactType.Module, registry, repository, tag, digest, parentModuleUri);
-
+        public static OciArtifactReference CreateModuleReferenceMock(BicepSourceFile referencingFile, string registry, string repository, string? digest, string? tag)
+            => new(referencingFile, ArtifactType.Module, registry, repository, tag, digest);
 
         public static OciArtifactReference ParseModuleReference(string moduleId /* with or without br: */, Uri? parentModuleUri = null)
         {
             if (moduleId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
             {
-                moduleId = moduleId.Substring(OciArtifactReferenceFacts.SchemeWithColon.Length);
+                moduleId = moduleId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
             }
-
-            OciArtifactReference.TryParse(
-                ArtifactType.Module,
-                null,
-                moduleId,
-                BicepTestConstants.BuiltInConfiguration,
-                parentModuleUri ?? new Uri("file:///main.bicep"))
-                    .IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 
@@ -74,9 +67,7 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         // create a new (real) OciArtifactRegistry instance with an empty on-disk cache that can push and pull modules
-        public static (OciArtifactRegistry, FakeRegistryBlobClient) CreateModuleRegistry(
-            Uri parentModuleUri,
-            IFeatureProvider featureProvider)
+        public static (OciArtifactRegistry, FakeRegistryBlobClient) CreateModuleRegistry()
         {
             IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
@@ -89,10 +80,7 @@ namespace Bicep.Core.UnitTests.Utils
             var registry = new OciArtifactRegistry(
                 BicepTestConstants.FileResolver,
                 clientFactory.Object,
-                featureProvider,
-                BicepTestConstants.BuiltInConfiguration,
-                StrictMock.Of<IPublicModuleMetadataProvider>().Object,
-                parentModuleUri);
+                StrictMock.Of<IPublicModuleMetadataProvider>().Object);
 
             return (registry, blobClient);
         }
@@ -105,7 +93,7 @@ namespace Bicep.Core.UnitTests.Utils
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
 
             var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object);
-            var configurationManager = new ConfigurationManager(BicepTestConstants.FileExplorer);
+            var configurationManager = BicepTestConstants.ConfigurationManager;
 
             var parentUri = new Uri("http://test.bicep", UriKind.Absolute);
             var configuration = configurationManager.GetConfiguration(parentUri);
