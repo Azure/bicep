@@ -57,11 +57,11 @@
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Direct",
-        "requested": "[21.1.3, )",
-        "resolved": "21.1.3",
-        "contentHash": "2EcDkDtYXem8IqFrbg/tMIgEiwql7kMeU5ttoE7Au79BIhmpqSUZqEEBJe6B7kJmY9EI6YXOUccx+ce3+wQWMQ==",
+        "requested": "[21.3.1, )",
+        "resolved": "21.3.1",
+        "contentHash": "LsvGSS5XbvVonvWo1fb6X5T3WFAe59A9A+F+KiyXXDEw8FDDEvaoI+IbUzLPyjTZJ1sIFredoJCgppXjEESL4A==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions.TestingHelpers": "21.1.3"
+          "TestableIO.System.IO.Abstractions.TestingHelpers": "21.3.1"
         }
       },
       "Azure.Bicep.Types": {
@@ -1029,11 +1029,11 @@
       },
       "TestableIO.System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
-        "resolved": "21.1.3",
-        "contentHash": "sMRPFcqvmSeocHtb5JVf7heBqvBsaFGiodEOoysIB0KneV4+3Yg0ka1421kzBLjRW+itU3FVjjqAAa9fqvUmhA==",
+        "resolved": "21.3.1",
+        "contentHash": "XP7tiKVtnOP+jXWsRqgc7WCV2tsoolVnxSNUJXwdWmHCpLMsVlZXRag7dMynnNEQQB9XEJx25RteqN5APCnjag==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.1.3",
-          "TestableIO.System.IO.Abstractions.Wrappers": "21.1.3"
+          "TestableIO.System.IO.Abstractions": "21.3.1",
+          "TestableIO.System.IO.Abstractions.Wrappers": "21.3.1"
         }
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
