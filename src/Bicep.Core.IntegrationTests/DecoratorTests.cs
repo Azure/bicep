@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
@@ -106,6 +107,31 @@ namespace Bicep.Core.IntegrationTests
                 template.Should().NotHaveValue();
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP128", DiagnosticLevel.Error, "Function \"retryOn\" cannot be used as a module decorator."),
+                    ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find file 'C:\\path\\to\\module.bicep'.")
+                });
+            }
+        }
+
+        [TestMethod]
+        public void WaitUntilDecorator_WithModuleDeclaration_ShouldFail()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var moduleUri = new Uri("file:///module.bicep");
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+            @waitUntil(x => x.ProvisionStatus == 'Succeeded', 'PT20S')
+            module myModule 'module.bicep' = {
+            name: 'moduleb'
+             params: {
+                inputa: 'foo'
+                inputb: 'bar'
+                }
+            }
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP128", DiagnosticLevel.Error, "Function \"waitUntil\" cannot be used as a module decorator."),
                     ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find file 'C:\\path\\to\\module.bicep'.")
                 });
             }
@@ -243,21 +269,82 @@ namespace Bicep.Core.IntegrationTests
 
 
         [TestMethod]
-        public void WaitUntilDecorator_ValidScenario()
+        [DataRow("@waitUntil(x => x.ProvisionStatus == 'Succeeded', 'PT20S')", "[lambda('x', equals(lambdaVariables('x').ProvisionStatus, 'Succeeded'))]")]
+        [DataRow("@waitUntil(x => x.ProvisionStatus == 'Succeeded' && x.routingState == 'Provisioned', 'PT20S')", "[lambda('x', and(equals(lambdaVariables('x').ProvisionStatus, 'Succeeded'), equals(lambdaVariables('x').routingState, 'Provisioned')))]")]
+        public void WaitUntilDecorator_ValidScenario(string input, string output)
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
-            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-            @waitUntil(x => x.ProvisionStatus == 'Succeeded', 'PT20S')
-            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+            var fileContent = $@"
+            {input}
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {{
                 name: 'sql-server-name'
                 location: 'polandcentral'
-            }");
+            }}";
+
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, fileContent);
+
+            var waitUntilObject = new JObject
+            {
+                ["expression"] = output,
+                ["maxWaitTime"] = "PT20S"
+            };
+
+            using (new AssertionScope())
+            {
+                diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
+
+                template.Should().NotBeNull()
+                    .And.HaveValueAtPath("$.resources[0].options.waitUntil", waitUntilObject);
+            }
+        }
+
+        [TestMethod]
+        public void WaitUntilDecorator_FirstArgumentIsntLambda()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, $@"
+            @waitUntil('PT20S', x => x.ProvisionStatus == 'Succeeded')
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {{
+                name: 'sql-server-name'
+                location: 'polandcentral'
+            }}");
+
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
+
+                diagnostics.ExcludingLinterDiagnostics().Should().NotBeEmpty();
+
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
+                    ("BCP070", DiagnosticLevel.Error, "Argument of type \"'PT20S'\" is not assignable to parameter of type \"object => bool\".")
                 });
+
+            }
+        }
+
+        [TestMethod]
+        public void WaitUntilDecorator_SecondArgumentIsntLambda()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, $@"
+            @waitUntil( x => x.ProvisionStatus == 'Succeeded', 1)
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {{
+                name: 'sql-server-name'
+                location: 'polandcentral'
+            }}");
+
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+
+                diagnostics.ExcludingLinterDiagnostics().Should().NotBeEmpty();
+
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP070", DiagnosticLevel.Error, "Argument of type \"1\" is not assignable to parameter of type \"string\".")
+                });
+
             }
         }
 

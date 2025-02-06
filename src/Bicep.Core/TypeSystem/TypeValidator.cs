@@ -51,6 +51,17 @@ namespace Bicep.Core.TypeSystem
         /// <param name="diagnosticWriter">Diagnostic writer instance</param>
         public static void GetCompileTimeConstantViolation(SyntaxBase expression, IDiagnosticWriter diagnosticWriter)
         {
+            if (expression is FunctionArgumentSyntax functionArgumentSyntax)
+            {
+                if (functionArgumentSyntax.Expression is LambdaSyntax)
+                {
+                    // With introduction of waitUntil() decorator, there is a need to ignore
+                    // lambda expressions at compile-time, as so far decorators always had compile-time constant expressions.
+                    return;
+                }
+
+            }
+
             var visitor = new CompileTimeConstantVisitor(diagnosticWriter);
 
             visitor.Visit(expression);
