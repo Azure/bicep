@@ -42,7 +42,7 @@ public class PublicModuleMetadataHttpClient(HttpClient httpClient) : IPublicModu
         }
         catch (Exception ex)
         {
-            throw new Exception(string.Format($"Error retrieving MCR modules metadata: {0}", ex.Message), ex);
+            throw new Exception($"Error retrieving MCR modules metadata: {ex.Message}", ex);
         }
     }
 }
