@@ -2014,7 +2014,10 @@ var chosenOne = which ? input : default
 
 var p = chosenOne.?foo
 ");
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP187", DiagnosticLevel.Info, "The property \"foo\" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+        });
     }
 
     [TestMethod]
@@ -6284,7 +6287,10 @@ output foo string[] = [for item in items: item.foo]
             output foo string[] = [for item in items: item.?foo]
             """);
 
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP187", DiagnosticLevel.Info, "The property \"foo\" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+        });
     }
 
     [TestMethod]
