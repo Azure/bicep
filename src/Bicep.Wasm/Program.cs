@@ -24,7 +24,7 @@ public class Program
 
         var jsRuntime = serviceProvider.GetRequiredService<IJSRuntime>();
         var interop = new Interop(jsRuntime, serviceProvider);
-        await jsRuntime.InvokeAsync<object>("BicepInitialize", DotNetObjectReference.Create(interop));
+        await jsRuntime.InvokeAsync<object>("InteropInitialize", DotNetObjectReference.Create(interop));
 
         await builder.Build().RunAsync();
     }

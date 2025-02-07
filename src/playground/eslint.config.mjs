@@ -7,6 +7,7 @@ import tseslint from "typescript-eslint";
 import pluginJest from 'eslint-plugin-jest';
 import notice from "eslint-plugin-notice";
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+
 export default tseslint.config({
   files: ["src/**/*.ts", "test/**/*.ts", "test-live/**/*.ts"],
   extends: [

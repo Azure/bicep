@@ -6,12 +6,12 @@ export function handleShareLink(
   onContents: (contents: string | null) => void,
 ): void {
   try {
-    const rawHash = window.location.hash.substr(1);
+    const rawHash = window.location.hash.substring(1);
     if (!rawHash) {
       onContents(null);
     }
 
-    history.replaceState(null, null, " ");
+    history.replaceState(null, "", " ");
     const hashContents = decodeHash(rawHash);
 
     onContents(hashContents);
