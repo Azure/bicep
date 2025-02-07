@@ -1527,7 +1527,6 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
-
             static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
             {
                 // if integerLiteralSyntax.Value is within the 64 bit integer range, negate it after casting to a long type
