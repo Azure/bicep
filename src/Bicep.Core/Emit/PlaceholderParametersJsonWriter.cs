@@ -102,7 +102,8 @@ namespace Bicep.Core.Emit
 
                     jsonWriter.WriteStartObject();
 
-                    // emit value property only if the value is not a newline token
+                    // Emit value property only if the value is not a newline token.
+                    // GetValueForParameter return TokenType.NewLine when syntax of assigning the value is not correct
                     if (value is not Token { Type: TokenType.NewLine})
                     {
                         emitter.EmitProperty("value", value);

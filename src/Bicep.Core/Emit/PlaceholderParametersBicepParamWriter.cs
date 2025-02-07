@@ -109,10 +109,10 @@ namespace Bicep.Core.Emit
                     {
                         if (e.Value is FunctionCallSyntax valueAsFunctionCall)
                         {
-                            return SyntaxFactory.CreateArrayItem(CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCall.Name.IdentifierName, isJsonParamWriter));
+                            return SyntaxFactory.CreateArrayItem(CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCall.Name.IdentifierName, isJsonParamWriter)).Value;
                         }
 
-                        return e;
+                        return e.Value;
                     }).ToList();
 
                     return SyntaxFactory.CreateArray(value);

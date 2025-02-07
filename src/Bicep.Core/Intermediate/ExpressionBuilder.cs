@@ -735,17 +735,7 @@ public class ExpressionBuilder
             }
             else if (child is ArrayItemSyntax arrayItem)
             {
-                if (arrayItem.Value is not null && arrayItem.Value is ArrayItemSyntax arrayItemInside)
-                {
-                    currentChunk.Add(ConvertWithoutLowering(arrayItemInside.Value));
-                }
-                else
-                {
-                    if (arrayItem.Value is not null)
-                    {
-                        currentChunk.Add(ConvertWithoutLowering(arrayItem.Value));
-                    }
-                }
+                currentChunk.Add(ConvertWithoutLowering(arrayItem.Value));
             }
         }
         completePreviousChunk();
