@@ -160,7 +160,9 @@ namespace Bicep.Core
         public const string ImportMetadataOriginalIdentifierPropertyName = "originalIdentifier";
         public const string BatchSizePropertyName = "batchSize";
         public const string WaitUntilPropertyName = "waitUntil";
+        public const string WaitUntilAllPropertyName = "waitUntilAll";
         public const string RetryOnPropertyName = "retryOn";
+        public const string RetryOnAllPropertyName = "retryOnAll";
         public const string ExportPropertyName = "export";
         public const string TypeDiscriminatorDecoratorName = "discriminator";
 

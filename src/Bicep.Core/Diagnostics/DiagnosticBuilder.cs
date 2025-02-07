@@ -1880,6 +1880,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP413",
                 $"Expected a retry count of at least {limit} but the specified value was \"{value}\".");
 
+            public Diagnostic DecoratorNotAllowed(string decoratorName) => CoreError(
+                "BCP414",
+                $"The decorator \"{decoratorName}\" can only be attached to resource collections.");
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
