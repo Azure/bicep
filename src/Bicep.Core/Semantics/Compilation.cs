@@ -20,24 +20,22 @@ namespace Bicep.Core.Semantics
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
         public Compilation(
-            IFeatureProviderFactory featureProviderFactory,
             IEnvironment environment,
             INamespaceProvider namespaceProvider,
             SourceFileGrouping sourceFileGrouping,
-            IConfigurationManager configurationManager,
             IBicepAnalyzer linterAnalyzer,
             IArtifactReferenceFactory artifactReferenceFactory,
+            ISourceFileFactory sourceFileFactory,
             IReadableFileCache fileCache,
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
-            this.FeatureProviderFactory = featureProviderFactory;
             this.Environment = environment;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
             this.FileCache = fileCache;
-            this.ConfigurationManager = configurationManager;
             this.LinterAnalyzer = linterAnalyzer;
             this.ArtifactReferenceFactory = artifactReferenceFactory;
+            this.SourceFileFactory = sourceFileFactory;
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
@@ -66,9 +64,7 @@ namespace Bicep.Core.Semantics
 
         public IBicepAnalyzer LinterAnalyzer;
 
-        public IConfigurationManager ConfigurationManager { get; }
-
-        public IFeatureProviderFactory FeatureProviderFactory { get; }
+        public ISourceFileFactory SourceFileFactory { get; }
 
         public ICompilationEmitter Emitter { get; }
 
@@ -106,8 +102,6 @@ namespace Bicep.Core.Semantics
             this.ArtifactReferenceFactory,
             this,
             this.SourceFileGrouping,
-            this.ConfigurationManager.GetConfiguration(bicepFile.Uri),
-            this.FeatureProviderFactory.GetFeatureProvider(bicepFile.Uri),
             this.Environment,
             this.FileCache,
             bicepFile);

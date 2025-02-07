@@ -47,7 +47,6 @@ export const WhatIfChangesView: FC<WhatIfChangesViewProps> = ({ changes }) => {
 };
 
 function getWhatIfPropertyChanges(changes?: WhatIfPropertyChange[]) {
-  console.log(changes);
   if (!changes) {
     return null;
   }

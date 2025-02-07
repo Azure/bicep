@@ -62,7 +62,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetSystemOverloads().ToImmutableArray();
 
-        private static readonly ImmutableArray<NamespaceValue<TypeProperty>> AmbientSymbols = GetSystemAmbientSymbols().ToImmutableArray();
+        private static readonly ImmutableArray<NamespaceValue<NamedTypeProperty>> AmbientSymbols = GetSystemAmbientSymbols().ToImmutableArray();
 
         private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads()
         {
@@ -219,7 +219,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 static int MinLength(ObjectType @object) =>
                     @object.Properties.Where(kvp => kvp.Value.Flags.HasFlag(TypePropertyFlags.Required) && TypeHelper.TryRemoveNullability(kvp.Value.TypeReference.Type) is null).Count();
 
-                static int? MaxLength(ObjectType @object) => @object.AdditionalPropertiesType is null ? @object.Properties.Count : null;
+                static int? MaxLength(ObjectType @object) => @object.AdditionalProperties is null ? @object.Properties.Count : null;
 
                 yield return new FunctionOverloadBuilder("length")
                     .WithReturnResultBuilder(TryDeriveLiteralReturnType("length", (_, _, _, argumentTypes) => new(argumentTypes.FirstOrDefault() switch
@@ -1108,12 +1108,12 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new ObjectType("parseCidr", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("network", LanguageConstants.String),
-                new TypeProperty("netmask", LanguageConstants.String),
-                new TypeProperty("broadcast", LanguageConstants.String),
-                new TypeProperty("firstUsable", LanguageConstants.String),
-                new TypeProperty("lastUsable", LanguageConstants.String),
-                new TypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
+                new NamedTypeProperty("network", LanguageConstants.String),
+                new NamedTypeProperty("netmask", LanguageConstants.String),
+                new NamedTypeProperty("broadcast", LanguageConstants.String),
+                new NamedTypeProperty("firstUsable", LanguageConstants.String),
+                new NamedTypeProperty("lastUsable", LanguageConstants.String),
+                new NamedTypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
             }, null);
         }
 
@@ -1389,8 +1389,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     "object",
                     TypeSymbolValidationFlags.Default,
                     new[] {
-                        new TypeProperty("key", keyType, description: "The key of the object property being iterated over."),
-                        new TypeProperty("value", valueType, description: "The value of the object property being iterated over."),
+                        new NamedTypeProperty("key", keyType, Description: "The key of the object property being iterated over."),
+                        new NamedTypeProperty("value", valueType, Description: "The value of the object property being iterated over."),
                     },
                     null),
                 TypeSymbolValidationFlags.Default);
@@ -1411,7 +1411,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 valueTypes.Add(property.TypeReference.Type);
             }
 
-            if (objectType.AdditionalPropertiesType?.Type is { } additionalPropertiesType)
+            if (objectType.AdditionalProperties?.TypeReference.Type is { } additionalPropertiesType)
             {
                 keyTypes.Add(LanguageConstants.String);
                 valueTypes.Add(additionalPropertiesType);
@@ -1451,7 +1451,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 JObject @object => new ObjectType(
                     "object",
                     TypeSymbolValidationFlags.Default,
-                    @object.Properties().Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type)).Select(x => new TypeProperty(x.Name, ConvertJsonToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
+                    @object.Properties().Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type)).Select(x => new NamedTypeProperty(x.Name, ConvertJsonToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
                     null),
                 JArray @array => new TypedArrayType(
                     TypeHelper.CreateTypeUnion(@array.Where(x => SupportedJsonTokenTypes.Contains(x.Type)).Select(ConvertJsonToBicepType)),
@@ -1527,10 +1527,6 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
-            static FunctionArgumentSyntax? TryGetArgumentByPosition(DecoratorSyntax decoratorSyntax, int position)
-            {
-                return decoratorSyntax.Arguments.ElementAtOrDefault(position);
-            }
 
             static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
             {
@@ -1831,13 +1827,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                                     };
 
-                            var waitUntilObjectProperty = new ObjectPropertyExpression(
-                                null,
-                                new StringLiteralExpression(null, "waitUntil"),
-                                new ObjectExpression(null, [.. waitUntilProperties])
-                            );
-
-                            return declaredResourceExpression with { WaitUntil = waitUntilObjectProperty };
+                            return declaredResourceExpression with { WaitUntil = new ObjectExpression(null, [.. waitUntilProperties]) };
                         }
 
                         return decorated;
@@ -1848,28 +1838,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
                     .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
                     .WithRequiredParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.")
-                    .WithOptionalParameter("retryCount", LanguageConstants.Int, "Maximum number if retries on the exception.")
-                    .WithFlags(FunctionFlags.ResourceDecorator)
-                    // the decorator is constrained to resources
-                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, _, diagnosticWriter) =>
-                    {
-                        //validate retry count
-                        var retryCountSyntax = TryGetArgumentByPosition(decoratorSyntax, 1);
-                        if (retryCountSyntax != null)
-                        {
-                            if (retryCountSyntax.Expression is UnaryOperationSyntax)
-                            {
-                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(retryCountSyntax).NegativeRetryCount());
-                            }
-
-                            const long minimumRetryLimit = 1;
-                            long? retryCount = TryGetIntegerLiteralValue(retryCountSyntax.Expression);
-                            if (retryCount is not null and < minimumRetryLimit)
-                            {
-                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(retryCountSyntax).InvalidRetryCount(retryCount.Value, minimumRetryLimit));
-                            }
-                        }
-                    })
+                    .WithOptionalParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.")
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
                     .WithEvaluator((functionCall, decorated) =>
                     {
                         if (decorated is DeclaredResourceExpression declaredResourceExpression)
@@ -1894,13 +1864,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                 );
                             }
 
-                            var retryOnObjectPropertyExpression = new ObjectPropertyExpression(
-                                null,
-                                new StringLiteralExpression(null, "retryOn"),
-                                new ObjectExpression(null, [.. retryOnProperties])
-                            );
-
-                            return declaredResourceExpression with { RetryOn = retryOnObjectPropertyExpression };
+                            return declaredResourceExpression with { RetryOn = new ObjectExpression(null, [.. retryOnProperties]) };
                         }
 
                         return decorated;
@@ -2045,12 +2009,12 @@ namespace Bicep.Core.Semantics.Namespaces
             _ => false,
         };
 
-        private static IEnumerable<NamespaceValue<TypeProperty>> GetSystemAmbientSymbols()
+        private static IEnumerable<NamespaceValue<NamedTypeProperty>> GetSystemAmbientSymbols()
         {
-            static IEnumerable<TypeProperty> GetArmPrimitiveTypes()
-                => LanguageConstants.DeclarationTypes.Select(t => new TypeProperty(t.Key, new TypeType(t.Value)));
+            static IEnumerable<NamedTypeProperty> GetArmPrimitiveTypes()
+                => LanguageConstants.DeclarationTypes.Select(t => new NamedTypeProperty(t.Key, new TypeType(t.Value)));
 
-            static IEnumerable<TypeProperty> GetResourceDerivedTypesTypeProperties()
+            static IEnumerable<NamedTypeProperty> GetResourceDerivedTypesTypeProperties()
             {
                 ImmutableArray<TypeParameter> resourceInputParameters = [new TypeParameter(
                     "ResourceTypeIdentifier",
@@ -2082,8 +2046,8 @@ namespace Bicep.Core.Semantics.Namespaces
                         LanguageConstants.TypeNameResource,
                         resourceInputParameters,
                         GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.None)),
-                    flags: TypePropertyFlags.FallbackProperty,
-                    description: $"""
+                    Flags: TypePropertyFlags.FallbackProperty,
+                    Description: $"""
                         Use the type definition of the body of a specific resource rather than a user-defined type.
 
                         {resourceDerivedTypeNotaBene}
@@ -2095,7 +2059,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         LanguageConstants.TypeNameResourceInput,
                         resourceInputParameters,
                         GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.Input)),
-                    description: $"""
+                    Description: $"""
                         Use the type definition of the input for a specific resource rather than a user-defined type.
 
                         {resourceDerivedTypeNotaBene}
@@ -2107,7 +2071,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         LanguageConstants.TypeNameResourceOutput,
                         resourceInputParameters,
                         GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.Output)),
-                    description: $"""
+                    Description: $"""
                         Use the type definition of the return value of a specific resource rather than a user-defined type.
 
                         {resourceDerivedTypeNotaBene}

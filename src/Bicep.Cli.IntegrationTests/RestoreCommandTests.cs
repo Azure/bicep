@@ -7,6 +7,7 @@ using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
@@ -71,7 +72,7 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                CachedModules.GetCachedRegistryModules(BicepTestConstants.FileSystem, settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                CachedModules.GetCachedModules(BicepTestConstants.FileSystem, settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                     .And.AllSatisfy(m => m.Should().HaveSource(publishSource));
             }
         }
@@ -90,7 +91,7 @@ namespace Bicep.Cli.IntegrationTests
             result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
 
             // ensure something got restored
-            CachedModules.GetCachedRegistryModules(BicepTestConstants.FileSystem, settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+            CachedModules.GetCachedModules(BicepTestConstants.FileSystem, settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                 .And.AllSatisfy(m => m.Should().NotHaveSource());
         }
 
@@ -139,7 +140,7 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                CachedModules.GetCachedRegistryModules(BicepTestConstants.FileSystem, settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                CachedModules.GetCachedModules(BicepTestConstants.FileSystem, settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                     .And.AllSatisfy(m => m.Should().HaveSource(publishSource));
             }
         }
@@ -193,7 +194,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 ";
 
             var restoredFile = cacheRootDirectory.GetFile("restored.bicep");
-            restoredFile.WriteAllText(bicep);
+            restoredFile.Write(bicep);
 
             var restoredFilePath = restoredFile.Uri.GetLocalFilePath();
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
@@ -273,7 +274,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             ";
 
             var restoredFile = cacheRootDirectory.GetFile("restored.bicep");
-            restoredFile.WriteAllText(bicep);
+            restoredFile.Write(bicep);
 
             var restoredFilePath = restoredFile.Uri.GetLocalFilePath();
 
@@ -306,7 +307,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
 
-            var client = new MockRegistryBlobClient();
+            var client = new FakeRegistryBlobClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
@@ -427,7 +428,7 @@ output o1 string = '${p1}${p2}'");
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
 
-            var client = new MockRegistryBlobClient();
+            var client = new FakeRegistryBlobClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);

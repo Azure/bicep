@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
@@ -71,46 +70,6 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        [TestMethod]
-        public void RetryOnDecorator_ExpectedResourceDeclaration()
-        {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
-            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-            @retryOn(['ResourceNotFound'])
-            ");
-            using (new AssertionScope())
-            {
-                template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
-                });
-            }
-        }
-
-        [TestMethod]
-        public void RetryOnDecorator_WithModuleDeclaration_ShouldFail()
-        {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
-            var moduleUri = new Uri("file:///module.bicep");
-            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-            @retryOn(['ResourceNotFound'])
-            module myModule 'module.bicep' = {
-            name: 'moduleb'
-             params: {
-                inputa: 'foo'
-                inputb: 'bar'
-                }
-            }
-            ");
-            using (new AssertionScope())
-            {
-                template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP128", DiagnosticLevel.Error, "Function \"retryOn\" cannot be used as a module decorator."),
-                    ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Could not find file 'C:\\path\\to\\module.bicep'.")
-                });
-            }
-        }
 
         [TestMethod]
         public void WaitUntilDecorator_WithModuleDeclaration_ShouldFail()
@@ -137,82 +96,6 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        [TestMethod]
-        public void RetryOnDecorator_WithRetryCountOptionalParameter_ExpectedResourceDeclaration()
-        {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
-            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-            @retryOn(['ResourceNotFound'], 5)
-            ");
-            using (new AssertionScope())
-            {
-                template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
-                });
-            }
-        }
-
-        [TestMethod]
-        public void RetryOnDecorator_InvalidRetryCount()
-        {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
-            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-            @retryOn(['ResourceNotFound'], 0)
-            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-                name: 'sql-server-name'
-                location: 'polandcentral'
-            }
-            ");
-            using (new AssertionScope())
-            {
-                template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP413", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"0\"."),
-                });
-            }
-        }
-
-        [TestMethod]
-        public void RetryOnDecorator_NegativeRetryCount()
-        {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
-            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-            @retryOn(['ResourceNotFound'], -5)
-            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-                name: 'sql-server-name'
-                location: 'polandcentral'
-            }
-            ");
-            using (new AssertionScope())
-            {
-                template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP412", DiagnosticLevel.Error, "Retry count must be a non-negative integer."),
-                    ("BCP413", DiagnosticLevel.Error, "Expected a retry count of at least 1 but the specified value was \"-5\".")
-                });
-            }
-        }
-
-        [TestMethod]
-        public void RetryOnDecorator_NonIntegerRetryCountValue()
-        {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
-            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-            @retryOn(['ResourceNotFound'], 'randomString')
-            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-                name: 'sql-server-name'
-                location: 'polandcentral'
-            }
-            ");
-            using (new AssertionScope())
-            {
-                template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP070", DiagnosticLevel.Error, "Argument of type \"'randomString'\" is not assignable to parameter of type \"int\"."),
-                });
-            }
-        }
 
         [TestMethod]
         public void RetryOnDecorator_InvalidErrorMessageItemType()
@@ -348,6 +231,137 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
+        [TestMethod]
+        public void RetryOnDecorator_ExpectedResourceDeclaration()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+            @retryOn(['ResourceNotFound'])
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void RetryOnDecorator_WithModuleDeclaration_ShouldFail()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleUri = new Uri("file:///module.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [mainUri] = @"
+                    @retryOn(['ResourceNotFound'])
+                    module myModule 'module.bicep' = {
+                      name: 'moduleb'
+                      params: {
+                        inputa: 'foo'
+                        inputb: 'bar'
+                      }
+                    }
+                    "
+                ,
+                [moduleUri] = @"
+                    param inputa string
+                    param inputb string
+                    "
+            };
+
+            var compilation = services.BuildCompilation(files, mainUri);
+            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
+            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
+
+            using (new AssertionScope())
+            {
+                diagnosticsByFile[mainUri].ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                    ("BCP128", DiagnosticLevel.Error, "Function \"retryOn\" cannot be used as a module decorator.")
+                });
+                success.Should().BeFalse();
+            }
+        }
+
+        [TestMethod]
+        public void RetryOnDecorator_WithRetryCountOptionalParameter_ExpectedResourceDeclaration()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+            @retryOn(['ResourceNotFound'], 5)
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP149", DiagnosticLevel.Error, "Expected a resource declaration after the decorator."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void RetryOnDecorator_InvalidRetryCount()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+            @retryOn(['ResourceNotFound'], 0)
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+                name: 'sql-server-name'
+                location: 'polandcentral'
+            }
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 0) is too small to assign to a target for which the minimum allowable value is 1.")
+                });
+            }
+        }
+
+        [TestMethod]
+        public void RetryOnDecorator_NegativeRetryCount()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+            @retryOn(['ResourceNotFound'], -5)
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+                name: 'sql-server-name'
+                location: 'polandcentral'
+            }
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to -5) is too small to assign to a target for which the minimum allowable value is 1."),
+                });
+            }
+        }
+
+        [TestMethod]
+        public void RetryOnDecorator_NonIntegerRetryCountValue()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+            @retryOn(['ResourceNotFound'], 'randomString')
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+                name: 'sql-server-name'
+                location: 'polandcentral'
+            }
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP070", DiagnosticLevel.Error, "Argument of type \"'randomString'\" is not assignable to parameter of type \"int\"."),
+                });
+            }
+        }
 
         [TestMethod]
         public void ParameterDecorator_AttachedToOtherKindsOfDeclarations_CannotBeUsedAsDecoratorSpecificToTheDeclarations()

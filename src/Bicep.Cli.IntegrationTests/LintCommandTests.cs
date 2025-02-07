@@ -10,6 +10,7 @@ using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -109,7 +110,7 @@ public class LintCommandTests : TestBase
         var registryUri = new Uri("https://" + registry);
         var repository = "hello/there";
 
-        var client = new MockRegistryBlobClient();
+        var client = new FakeRegistryBlobClient();
 
         var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
         clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
@@ -178,10 +179,9 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
         var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
         var configurationPath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", string.Empty, testOutputPath);
-        var settings = new InvocationSettings() { ModuleMetadataClient = PublicRegistryModuleIndexClientMock.CreateToThrow(new Exception("unit test failed: shouldn't call this")).Object };
+        var settings = new InvocationSettings() { ModuleMetadataClient = PublicModuleIndexHttpClientMocks.Create([]).Object };
 
         var (output, error, result) = await Bicep(settings, "lint", inputFile);
-
 
         result.Should().Be(1);
         output.Should().BeEmpty();

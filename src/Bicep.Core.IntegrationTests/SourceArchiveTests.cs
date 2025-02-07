@@ -120,7 +120,7 @@ namespace Bicep.Core.IntegrationTests
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
-                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: false),
+                    new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: false),
                 ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
@@ -148,7 +148,7 @@ namespace Bicep.Core.IntegrationTests
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
-                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                    new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                 ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
@@ -166,7 +166,7 @@ namespace Bicep.Core.IntegrationTests
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
             var file = sourceArchive.FindExpectedSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
-            file.SourceArtifact!.FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
+            file.SourceArtifact!.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
             file.Kind.Should().Be("armTemplate");
 
         }
@@ -177,9 +177,9 @@ namespace Bicep.Core.IntegrationTests
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
-                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
-                    ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
-                    ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: true),
+                    new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
+                    new("br:mockregistry.io/test/module2:v1", "param p2 string", WithSource: true),
+                    new("br:mockregistry.io/test/module1:v2", "param p12 string", WithSource: true),
                 ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
@@ -239,12 +239,12 @@ namespace Bicep.Core.IntegrationTests
             // act
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
-            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.FullyQualifiedReference))
+            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.ArtifactId))
                 .Should().BeEquivalentTo(new[] {
                     ("main.bicep", null),
-                    ("<cache>/br/mockregistry.io/test$module1/v1$/main.json", "br:mockregistry.io/test/module1:v1"),
-                    ("<cache>/br/mockregistry.io/test$module1/v2$/main.json", "br:mockregistry.io/test/module1:v2"),
-                    ("<cache>/br/mockregistry.io/test$module2/v1$/main.json", "br:mockregistry.io/test/module2:v1"),
+                    ("<cache>/br/mockregistry.io/test$module1/v1$/main.json", "mockregistry.io/test/module1:v1"),
+                    ("<cache>/br/mockregistry.io/test$module1/v2$/main.json", "mockregistry.io/test/module1:v2"),
+                    ("<cache>/br/mockregistry.io/test$module2/v1$/main.json", "mockregistry.io/test/module2:v1"),
                     ("local.bicep", null)
             });
         }
@@ -255,7 +255,7 @@ namespace Bicep.Core.IntegrationTests
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem,
                 [
-                    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+                    new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                 ]);
             var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
@@ -278,10 +278,10 @@ namespace Bicep.Core.IntegrationTests
             // act
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
-            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.FullyQualifiedReference))
+            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.ArtifactId))
                 .Should().BeEquivalentTo(new[] {
                     ("main.bicep", null),
-                    ("<cache>/br/mockregistry.io/test$module1/v1$/main.json", "br:mockregistry.io/test/module1:v1"),
+                    ("<cache>/br/mockregistry.io/test$module1/v1$/main.json", "mockregistry.io/test/module1:v1"),
             });
         }
     }

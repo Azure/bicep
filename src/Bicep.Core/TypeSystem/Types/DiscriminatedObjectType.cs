@@ -43,7 +43,7 @@ namespace Bicep.Core.TypeSystem.Types
             UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
             ValidationFlags = validationFlags;
             DiscriminatorKeysUnionType = TypeHelper.CreateTypeUnion(unionKeyTypes);
-            DiscriminatorProperty = new TypeProperty(discriminatorKey, DiscriminatorKeysUnionType, discriminatorPropertyFlags);
+            DiscriminatorProperty = new NamedTypeProperty(discriminatorKey, DiscriminatorKeysUnionType, discriminatorPropertyFlags);
         }
 
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
@@ -54,7 +54,7 @@ namespace Bicep.Core.TypeSystem.Types
 
         public override TypeSymbolValidationFlags ValidationFlags { get; }
 
-        public TypeProperty DiscriminatorProperty { get; }
+        public NamedTypeProperty DiscriminatorProperty { get; }
 
         public string DiscriminatorKey => DiscriminatorProperty.Name;
 

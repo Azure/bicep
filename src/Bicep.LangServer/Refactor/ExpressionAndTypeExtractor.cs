@@ -18,6 +18,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Model;
@@ -33,14 +34,12 @@ using Type = System.Type;
 namespace Bicep.LanguageServer.Refactor;
 
 // Provides code actions/fixes for extracting variables, parameters and types in a Bicep document
-public class ExpressionAndTypeExtractor
+public class ExpressionAndTypeExtractor : ICodeFixProvider
 {
     private const int MaxExpressionLengthInCodeAction = 45;
     private static readonly Regex regexCompactWhitespace = new("\\s+", RegexOptions.Compiled);
 
-    private readonly CompilationContext compilationContext;
     private readonly SemanticModel semanticModel;
-    private readonly Uri documentUri;
 
     private record ExtractionContext(
         StatementSyntax ParentStatement, // The statement containing the extraction context
@@ -65,19 +64,16 @@ public class ExpressionAndTypeExtractor
         public bool HasCommentsOnly => !HasContent && HasComments;
     }
 
-    public ExpressionAndTypeExtractor(CompilationContext compilationContext, SemanticModel semanticModel, Uri documentUri)
+    public ExpressionAndTypeExtractor(SemanticModel semanticModel)
     {
-        this.compilationContext = compilationContext;
         this.semanticModel = semanticModel;
-        this.documentUri = documentUri;
     }
 
     private string NewLine => semanticModel.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence();
 
-    public IEnumerable<CodeFixWithCommand> GetExtractionCodeFixes(List<SyntaxBase> nodesInRange)
+    public IEnumerable<CodeFix> GetFixes(SemanticModel semanticModel, IReadOnlyList<SyntaxBase> matchingNodes)
     {
-        var extractionContext = GetExtractionContext(nodesInRange);
-        if (extractionContext is { })
+        if (TryGetExtractionContext(semanticModel, [.. matchingNodes]) is { } extractionContext)
         {
             return CreateAllExtractions(extractionContext);
         }
@@ -87,7 +83,7 @@ public class ExpressionAndTypeExtractor
         }
     }
 
-    private ExtractionContext? GetExtractionContext(List<SyntaxBase> nodesInRange)
+    private static ExtractionContext? TryGetExtractionContext(SemanticModel model, List<SyntaxBase> nodesInRange)
     {
         if (SyntaxMatcher.FindLastNodeOfType<ExpressionSyntax, ExpressionSyntax>(nodesInRange) is not (ExpressionSyntax expressionSyntax, _))
         {
@@ -101,14 +97,14 @@ public class ExpressionAndTypeExtractor
         // Pick a semi-intelligent default name for the new param and variable.
         // Also, adjust the target expression to replace if a property itself has been selected (as opposed to its value)
 
-        if (semanticModel.Binder.GetParent(expressionSyntax) is ObjectPropertySyntax propertySyntax
+        if (model.Binder.GetParent(expressionSyntax) is ObjectPropertySyntax propertySyntax
             && propertySyntax.TryGetKeyText() is string propertyName)
         {
             // `{ objectPropertyName: <<expression>> }` // entire property value expression selected
             //   -> default to the name "objectPropertyName"
             contextDerivedNewName = propertyName;
             containingProperty = propertySyntax;
-            containingTypeProperty = containingProperty.TryGetTypeProperty(semanticModel);
+            containingTypeProperty = containingProperty.TryGetTypeProperty(model);
         }
         else if (expressionSyntax is ObjectPropertySyntax propertySyntax2
             && propertySyntax2.TryGetKeyText() is string propertyName2)
@@ -123,7 +119,7 @@ public class ExpressionAndTypeExtractor
             {
                 expressionSyntax = propertyValueSyntax;
                 containingProperty = propertySyntax2;
-                containingTypeProperty = containingProperty.TryGetTypeProperty(semanticModel);
+                containingTypeProperty = containingProperty.TryGetTypeProperty(model);
             }
             else
             {
@@ -153,7 +149,7 @@ public class ExpressionAndTypeExtractor
             contextDerivedNewName = firstPartName is { } ? firstPartName + lastPartName.UppercaseFirstLetter() : lastPartName;
         }
 
-        if (semanticModel.Binder.GetNearestAncestor<StatementSyntax>(expressionSyntax) is not StatementSyntax parentStatement)
+        if (model.Binder.GetNearestAncestor<StatementSyntax>(expressionSyntax) is not StatementSyntax parentStatement)
         {
             return null;
         }
@@ -269,8 +265,8 @@ public class ExpressionAndTypeExtractor
         }
 
         var parentStatementPosition = extractionContext.ParentStatement.Span.Position;
-        var (declarationInsertionOffset, insertNewlineBefore, insertNewlineAfter) = FindOffsetToInsertNewDeclaration(compilationContext, extractionContext.ParentStatement, parentStatementPosition, declarationStatementSyntaxType);
-        var declarationInsertionPosition = TextCoordinateConverter.GetPosition(compilationContext.LineStarts, declarationInsertionOffset);
+        var (declarationInsertionOffset, insertNewlineBefore, insertNewlineAfter) = FindOffsetToInsertNewDeclaration(semanticModel.SourceFile, extractionContext.ParentStatement, parentStatementPosition, declarationStatementSyntaxType);
+        var declarationInsertionPosition = TextCoordinateConverter.GetPosition(semanticModel.SourceFile.LineStarts, declarationInsertionOffset);
 
         var newName = FindUnusedValidName(extractionContext, defaultNoncontextualName);
         var newNamePlusSentinel = newName + "__NEW_NAME_SENTINEL__";
@@ -325,7 +321,7 @@ public class ExpressionAndTypeExtractor
             isPreferred: false,
             CodeFixKind.RefactorExtract,
             replacements,
-            this.documentUri,
+            semanticModel.Root.FileUri,
             absoluteIdentifierPosition,
             telemetryEvent: BicepTelemetryEvent.ExtractionRefactoring(
                 kind,
@@ -376,7 +372,7 @@ public class ExpressionAndTypeExtractor
 
         string uniqueName = validName;
         int offset = extractionContext.ExpressionSyntax.Span.Position;
-        var activeScopes = ActiveScopesVisitor.GetActiveScopes(compilationContext.Compilation.GetEntrypointSemanticModel().Root, offset);
+        var activeScopes = ActiveScopesVisitor.GetActiveScopes(semanticModel.Root, offset);
         for (int i = 1; i < int.MaxValue; ++i)
         {
             var tryingName = $"{uniqueName}{(i < 2 ? "" : i)}";
@@ -404,13 +400,13 @@ public class ExpressionAndTypeExtractor
 
     // Finds a suitable location to create a new declaration, putting it near existing declarations of that type
     //   *above the extraction point*, if there are any.
-    private (int offset, bool insertNewlineBefore, bool insertNewlineAfter) FindOffsetToInsertNewDeclaration(CompilationContext compilationContext, StatementSyntax extractionStatement, int extractionOffset, Type declarationSyntaxType)
+    private (int offset, bool insertNewlineBefore, bool insertNewlineAfter) FindOffsetToInsertNewDeclaration(BicepSourceFile sourceFile, StatementSyntax extractionStatement, int extractionOffset, Type declarationSyntaxType)
     {
-        ImmutableArray<int> lineStarts = compilationContext.LineStarts;
+        ImmutableArray<int> lineStarts = sourceFile.LineStarts;
 
         var extractionLine = TextCoordinateConverter.GetPosition(lineStarts, extractionOffset).line;
 
-        var existingDeclarationStatement = compilationContext.ProgramSyntax.Children.OfType<StatementSyntax>()
+        var existingDeclarationStatement = sourceFile.ProgramSyntax.Children.OfType<StatementSyntax>()
             .Where(s => s.GetType() == declarationSyntaxType)
             .Where(s => s.Span.Position < extractionOffset)
             .OrderByDescending(s => s.Span.Position)
@@ -428,17 +424,17 @@ public class ExpressionAndTypeExtractor
         }
 
         // If no existing declarations of the desired type, insert right before the statement containing the extraction expression
-        var extractionStatementFirstLine = GetFirstLineOfStatementIncludingComments(compilationContext, extractionStatement);
+        var extractionStatementFirstLine = GetFirstLineOfStatementIncludingComments(semanticModel.SourceFile, extractionStatement);
         var extractionLineHasNewlineBefore = IsFirstLine(extractionStatementFirstLine) || CheckLineContent(extractionStatementFirstLine - 1).IsEmpty;
         return (TextCoordinateConverter.GetOffset(lineStarts, extractionLine, 0), false, extractionLineHasNewlineBefore);
     }
 
     private bool IsFirstLine(int line) => line == 0;
 
-    private bool IsLastLine(int line) => line >= compilationContext.LineStarts.Length - 1;
+    private bool IsLastLine(int line) => line >= semanticModel.SourceFile.LineStarts.Length - 1;
 
     private LineContentType CheckLineContent(int line) =>
-        new(CheckLineContent(compilationContext.LineStarts, compilationContext.ProgramSyntax, line));
+        new(CheckLineContent(semanticModel.SourceFile.LineStarts, semanticModel.SourceFile.ProgramSyntax, line));
 
     public static (bool hasContent, bool hasComments) CheckLineContent(IReadOnlyList<int> lineStarts, SyntaxBase programSyntax, int line)
     {
@@ -448,8 +444,8 @@ public class ExpressionAndTypeExtractor
         return (visitor.HasContent, visitor.HasComments);
     }
 
-    private static int GetFirstLineOfStatementIncludingComments(CompilationContext compilationContext, StatementSyntax statementSyntax) =>
-        GetFirstLineOfStatementIncludingComments(compilationContext.LineStarts, compilationContext.ProgramSyntax, statementSyntax);
+    private static int GetFirstLineOfStatementIncludingComments(BicepSourceFile sourceFile, StatementSyntax statementSyntax) =>
+        GetFirstLineOfStatementIncludingComments(sourceFile.LineStarts, sourceFile.ProgramSyntax, statementSyntax);
 
     public static int GetFirstLineOfStatementIncludingComments(IReadOnlyList<int> lineStarts, ProgramSyntax programSyntax, StatementSyntax statementSyntax)
     {
@@ -471,9 +467,9 @@ public class ExpressionAndTypeExtractor
         return 0;
     }
 
-    private static int GetLastLineOfStatement(CompilationContext compilationContext, StatementSyntax statementSyntax)
+    private static int GetLastLineOfStatement(BicepSourceFile sourceFile, StatementSyntax statementSyntax)
     {
-        return TextCoordinateConverter.GetPosition(compilationContext.LineStarts, statementSyntax.GetEndPosition()).line;
+        return TextCoordinateConverter.GetPosition(sourceFile.LineStarts, statementSyntax.GetEndPosition()).line;
     }
 
     private (bool addBefore, bool addAfter) ShouldAddBlankLines(StatementSyntax statementSyntax)
@@ -481,8 +477,8 @@ public class ExpressionAndTypeExtractor
         bool addBefore = false;
         bool addAfter = false;
 
-        var startingLine = GetFirstLineOfStatementIncludingComments(compilationContext, statementSyntax);
-        var endingLine = GetLastLineOfStatement(compilationContext, statementSyntax);
+        var startingLine = GetFirstLineOfStatementIncludingComments(semanticModel.SourceFile, statementSyntax);
+        var endingLine = GetLastLineOfStatement(semanticModel.SourceFile, statementSyntax);
 
         bool? hasBlankLineBefore = IsFirstLine(startingLine) ? null : CheckLineContent(startingLine - 1).IsEmpty;
         bool? hasBlankLineAfter = IsLastLine(endingLine) ? null : CheckLineContent(endingLine + 1).IsEmpty;

@@ -5,9 +5,12 @@ using System.Diagnostics;
 using System.Reactive;
 using Azure.Deployments.Core.Diagnostics;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Workspaces;
+using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
@@ -43,14 +46,14 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// This handles the case where the document is a source file from an external module, and we've been asked to return nested links within it (to files local to that module or to other external modules)
     /// </summary>
-    public class BicepExternalSourceDocumentLinkHandler(IModuleDispatcher ModuleDispatcher, ILanguageServerFacade Server, ITelemetryProvider TelemetryProvider)
+    public class BicepExternalSourceDocumentLinkHandler(IModuleDispatcher ModuleDispatcher, ILanguageServerFacade Server, ITelemetryProvider TelemetryProvider, ISourceFileFactory sourceFileFactory)
         : DocumentLinkHandlerBase<ExternalSourceDocumentLinkData>
     {
         protected override Task<DocumentLinkContainer<ExternalSourceDocumentLinkData>> HandleParams(DocumentLinkParams request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var links = GetDocumentLinks(ModuleDispatcher, request, cancellationToken);
+            var links = GetDocumentLinks(ModuleDispatcher, sourceFileFactory, request, cancellationToken);
             return Task.FromResult(new DocumentLinkContainer<ExternalSourceDocumentLinkData>(links));
         }
 
@@ -58,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await ResolveDocumentLink(request, ModuleDispatcher, Server, TelemetryProvider);
+            return await ResolveDocumentLink(request, ModuleDispatcher, sourceFileFactory, Server, TelemetryProvider);
         }
 
         protected override DocumentLinkRegistrationOptions CreateRegistrationOptions(DocumentLinkCapability capability, ClientCapabilities clientCapabilities) => new()
@@ -67,10 +70,9 @@ namespace Bicep.LanguageServer.Handlers
             ResolveProvider = true,
         };
 
-        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(IModuleDispatcher moduleDispatcher, DocumentLinkParams request, CancellationToken cancellationToken)
+        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(IModuleDispatcher moduleDispatcher, ISourceFileFactory sourceFileFactory, DocumentLinkParams request, CancellationToken cancellationToken)
         {
             var currentDocument = request.TextDocument;
-
             if (currentDocument.Uri.Scheme == LangServerConstants.ExternalSourceFileScheme)
             {
                 ExternalSourceReference? currentDocumentReference;
@@ -88,7 +90,8 @@ namespace Bicep.LanguageServer.Handlers
                 var currentDocumentRelativeFile = currentDocumentReference.RequestedFile;
                 if (currentDocumentRelativeFile is { })
                 {
-                    if (!currentDocumentReference.ToArtifactReference().IsSuccess(out var currentDocumentArtifact, out var message))
+                    var dummyFile = sourceFileFactory.CreateDummyArtifactReferencingFile();
+                    if (!currentDocumentReference.ToArtifactReference(dummyFile).IsSuccess(out var currentDocumentArtifact, out var message))
                     {
                         Trace.WriteLine(message);
                         yield break;
@@ -137,6 +140,7 @@ namespace Bicep.LanguageServer.Handlers
         public static async Task<DocumentLink<ExternalSourceDocumentLinkData>> ResolveDocumentLink(
             DocumentLink<ExternalSourceDocumentLinkData> request,
             IModuleDispatcher moduleDispatcher,
+            ISourceFileFactory sourceFileFactory,
             ILanguageServerFacade server,
             ITelemetryProvider telemetryProvider)
         {
@@ -144,7 +148,8 @@ namespace Bicep.LanguageServer.Handlers
 
             var data = request.Data;
 
-            if (!OciArtifactReference.TryParseModule(data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
+            var dummyFile = sourceFileFactory.CreateBicepFile(PathHelper.FilePathToFileUrl("main.bicep"), "");
+            if (!OciArtifactReference.TryParse(dummyFile, ArtifactType.Module, null, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
             {
                 server.Window.ShowWarning($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");
                 telemetryProvider.PostEvent(ExternalSourceDocLinkClickFailure("TryParseModule"));

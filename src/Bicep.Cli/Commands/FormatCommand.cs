@@ -11,6 +11,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Cli.Commands;
 
@@ -19,21 +20,18 @@ public class FormatCommand : ICommand
     private readonly IOContext io;
     private readonly IFileResolver fileResolver;
     private readonly IFileSystem fileSystem;
-    private readonly IConfigurationManager configurationManager;
-    private readonly IFeatureProviderFactory featureProviderFactory;
+    private readonly ISourceFileFactory sourceFileFactory;
 
     public FormatCommand(
         IOContext io,
         IFileResolver fileResolver,
         IFileSystem fileSystem,
-        IConfigurationManager configurationManager,
-        IFeatureProviderFactory featureProviderFactory)
+        ISourceFileFactory sourceFileFactory)
     {
         this.io = io;
         this.fileResolver = fileResolver;
         this.fileSystem = fileSystem;
-        this.configurationManager = configurationManager;
-        this.featureProviderFactory = featureProviderFactory;
+        this.sourceFileFactory = sourceFileFactory;
     }
 
     public int Run(FormatArguments args)
@@ -47,15 +45,16 @@ public class FormatCommand : ICommand
             throw new DiagnosticException(diagnostic);
         }
 
-        BaseParser parser = PathHelper.HasBicepExtension(inputUri) ? new Parser(fileContents) : new ParamsParser(fileContents);
-        var program = parser.Program();
-        var featureProvider = this.featureProviderFactory.GetFeatureProvider(inputUri);
-
-        if (featureProvider.LegacyFormatterEnabled)
+        if (this.sourceFileFactory.CreateSourceFile(inputUri, fileContents) is not BicepSourceFile sourceFile)
         {
-            var v2Options = this.GetPrettyPrinterOptions(inputUri, args);
+            throw new InvalidOperationException("Unable to create Bicep source file.");
+        }
+
+        if (sourceFile.Features.LegacyFormatterEnabled)
+        {
+            var v2Options = GetPrettyPrinterOptions(sourceFile, args);
             var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
-            var output = PrettyPrinter.PrintProgram(program, legacyOptions, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+            var output = PrettyPrinter.PrintProgram(sourceFile.ProgramSyntax, legacyOptions, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
 
             if (args.OutputToStdOut)
             {
@@ -72,12 +71,12 @@ public class FormatCommand : ICommand
             return 0;
         }
 
-        var options = GetPrettyPrinterOptions(inputUri, args);
-        var context = PrettyPrinterV2Context.Create(options, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+        var options = GetPrettyPrinterOptions(sourceFile, args);
+        var context = PrettyPrinterV2Context.Create(options, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
 
         if (args.OutputToStdOut)
         {
-            PrettyPrinterV2.PrintTo(this.io.Output, program, context);
+            PrettyPrinterV2.PrintTo(this.io.Output, sourceFile.ProgramSyntax, context);
             this.io.Output.Flush();
         }
         else
@@ -87,15 +86,15 @@ public class FormatCommand : ICommand
             using var writer = new StreamWriter(fileStream);
 
 
-            PrettyPrinterV2.PrintTo(writer, program, context);
+            PrettyPrinterV2.PrintTo(writer, sourceFile.ProgramSyntax, context);
         }
 
         return 0;
     }
 
-    private PrettyPrinterV2Options GetPrettyPrinterOptions(Uri inputUri, FormatArguments args)
+    private static PrettyPrinterV2Options GetPrettyPrinterOptions(BicepSourceFile sourceFile, FormatArguments args)
     {
-        var options = this.configurationManager.GetConfiguration(inputUri).Formatting.Data;
+        var options = sourceFile.Configuration.Formatting.Data;
 
         if (args.NewlineKind is not null)
         {

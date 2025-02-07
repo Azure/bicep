@@ -8,6 +8,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry.PublicRegistry;
@@ -16,6 +18,7 @@ using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
+using Bicep.Core.Workspaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
@@ -28,34 +31,24 @@ namespace Bicep.Core.Registry
 
         private readonly IArtifactRegistryProvider registryProvider;
 
-        private readonly IConfigurationManager configurationManager;
-
-        public ModuleDispatcher(IArtifactRegistryProvider registryProvider, IConfigurationManager configurationManager)
+        public ModuleDispatcher(IArtifactRegistryProvider registryProvider)
         {
             this.registryProvider = registryProvider;
-            this.configurationManager = configurationManager;
         }
 
-        private ImmutableDictionary<string, IArtifactRegistry> Registries(Uri parentModuleUri)
-            => registryProvider.Registries(parentModuleUri).ToImmutableDictionary(r => r.Scheme);
-
-        public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
-            => [.. Registries(parentModuleUri).Keys.OrderBy(s => s)];
-
-        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri)
+        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string reference)
         {
-            var registries = Registries(parentModuleUri);
             var parts = reference.Split(':', 2, StringSplitOptions.None);
             switch (parts.Length)
             {
                 case 1:
                     // local path reference
-                    if (registries.TryGetValue(ArtifactReferenceSchemes.Local, out var localRegistry))
+                    if (this.registryProvider.TryGetRegistry(ArtifactReferenceSchemes.Local) is { } localRegistry)
                     {
-                        return localRegistry.TryParseArtifactReference(artifactType, null, parts[0]);
+                        return localRegistry.TryParseArtifactReference(referencingFile, artifactType, null, parts[0]);
                     }
 
-                    return new(x => x.UnknownModuleReferenceScheme(ArtifactReferenceSchemes.Local, this.AvailableSchemes(parentModuleUri)));
+                    return new(x => x.UnknownModuleReferenceScheme(ArtifactReferenceSchemes.Local, this.registryProvider.SupportedSchemes));
 
                 case 2:
                     string scheme = parts[0];
@@ -69,16 +62,16 @@ namespace Bicep.Core.Registry
                         aliasName = schemeParts[1];
                     }
 
-                    if (!string.IsNullOrEmpty(scheme) && registries.TryGetValue(scheme, out var registry))
+                    if (!string.IsNullOrEmpty(scheme) && this.registryProvider.TryGetRegistry(scheme) is { } registry)
                     {
                         // the scheme is recognized
                         var rawValue = parts[1];
 
-                        return registry.TryParseArtifactReference(artifactType, aliasName, rawValue);
+                        return registry.TryParseArtifactReference(referencingFile, artifactType, aliasName, rawValue);
                     }
 
                     // unknown scheme
-                    return new(x => x.UnknownModuleReferenceScheme(scheme, this.AvailableSchemes(parentModuleUri)));
+                    return new(x => x.UnknownModuleReferenceScheme(scheme, this.registryProvider.SupportedSchemes));
 
                 default:
                     // empty string
@@ -86,20 +79,17 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactReferenceSyntax, Uri parentModuleUri)
+        public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, IArtifactReferenceSyntax artifactReferenceSyntax)
         {
             if (artifactReferenceSyntax is ExtensionDeclarationSyntax extensionSyntax)
             {
-                var artifactAddressResult = TryGetArtifactAddress(extensionSyntax, parentModuleUri);
+                var artifactAddressResult = TryGetArtifactAddress(referencingFile, extensionSyntax);
                 if (!artifactAddressResult.IsSuccess(out var result, out var pathFailureBuilder))
                 {
                     return new(pathFailureBuilder);
                 }
 
-                var sourceUri = result.ConfigSource?.ConfigFileUri is { } configFileIdentifier
-                    ? new UriBuilder { Scheme = configFileIdentifier.Scheme, Host = configFileIdentifier.Authority ?? "", Path = configFileIdentifier.Path }.Uri
-                    : parentModuleUri;
-                return this.TryGetArtifactReference(artifactReferenceSyntax.GetArtifactType(), result.PathValue, sourceUri);
+                return this.TryGetArtifactReference(referencingFile, artifactReferenceSyntax.GetArtifactType(), result);
             }
 
             var artifactPathResult = SyntaxHelper.TryGetForeignTemplatePath(artifactReferenceSyntax, GetErrorBuilderDelegate(artifactReferenceSyntax));
@@ -107,7 +97,7 @@ namespace Bicep.Core.Registry
             {
                 return new(failureBuilder);
             }
-            return this.TryGetArtifactReference(artifactReferenceSyntax.GetArtifactType(), artifactPath, parentModuleUri);
+            return this.TryGetArtifactReference(referencingFile, artifactReferenceSyntax.GetArtifactType(), artifactPath);
         }
 
         private static DiagnosticBuilder.DiagnosticBuilderDelegate GetErrorBuilderDelegate(IArtifactReferenceSyntax artifactReferenceSyntax) => artifactReferenceSyntax switch
@@ -120,11 +110,7 @@ namespace Bicep.Core.Registry
             _ => throw new NotImplementedException($"Unexpected artifact reference syntax type '{artifactReferenceSyntax.GetType().Name}'.")
         };
 
-        private record ArtifactAddressResult(
-            string PathValue,
-            RootConfiguration? ConfigSource);
-
-        private ResultWithDiagnosticBuilder<ArtifactAddressResult> TryGetArtifactAddress(ExtensionDeclarationSyntax extensionSyntax, Uri parentModuleUri)
+        private ResultWithDiagnosticBuilder<string> TryGetArtifactAddress(BicepSourceFile referencingFile, ExtensionDeclarationSyntax extensionSyntax)
         {
             switch (extensionSyntax.SpecificationString)
             {
@@ -134,11 +120,33 @@ namespace Bicep.Core.Registry
                         return new(x => x.ExtensionSpecificationInterpolationUnsupported());
                     }
 
-                    return new(new ArtifactAddressResult(pathValue, null));
+                    return new(pathValue);
                 case IdentifierSyntax configSpec:
-                    var config = configurationManager.GetConfiguration(parentModuleUri);
+                    var config = referencingFile.Configuration;
+                    var extensionPathResult = config.Extensions.TryGetExtensionSource(configSpec.IdentifierName).Transform(x => x.Value);
 
-                    return config.Extensions.TryGetExtensionSource(configSpec.IdentifierName).Transform(x => new ArtifactAddressResult(x.Value, config));
+                    if (extensionPathResult.IsSuccess(out var extensionPath, out var error))
+                    {
+                        if (extensionPath.Contains(':'))
+                        {
+                            // The extension path contains a scheme.
+                            return new(extensionPath);
+                        }
+
+                        // The extension path is a local path.
+                        if (config.ConfigFileUri is null)
+                        {
+                            throw new InvalidOperationException("The configuration file URI must be set when trying to resolve an extension reference.");
+                        }
+
+                        var extensionUri = config.ConfigFileUri.Value.Resolve(extensionPath);
+
+                        return new(extensionUri.GetPathRelativeTo(referencingFile.Uri.ToIOUri()));
+                    }
+
+
+                    return new(error);
+
                 default:
                     return new(x => x.ExpectedExtensionSpecification());
             }
@@ -155,7 +163,7 @@ namespace Bicep.Core.Registry
             out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
         {
             var registry = this.GetRegistry(artifactReference);
-            var configuration = configurationManager.GetConfiguration(artifactReference.ParentModuleUri);
+            var configuration = artifactReference.ReferencingFile.Configuration;
 
             // have we already failed to restore this artifact?
             if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
@@ -177,7 +185,7 @@ namespace Bicep.Core.Registry
 
         public ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference artifactReference)
         {
-            var configuration = configurationManager.GetConfiguration(artifactReference.ParentModuleUri);
+            var configuration = artifactReference.ReferencingFile.Configuration;
             // has restore already failed for this artifact?
             if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
             {
@@ -196,10 +204,11 @@ namespace Bicep.Core.Registry
             var uniqueReferences = references.Distinct().ToArray();
 
             // Call OnRestoreArtifacts on each registry provider. Can (currently at least) be done in parallel to restore.
-            var allRegistries = registryProvider.Registries(new Uri("file:///no-parent-file-is-available.bicep"));
             var onRestoreArtifactsTasks = new List<Task>();
-            foreach (var registry in allRegistries)
+            foreach (var scheme in this.registryProvider.SupportedSchemes)
             {
+                var registry = this.registryProvider.GetRegistry(scheme);
+
                 try
                 {
                     onRestoreArtifactsTasks.Add(registry.OnRestoreArtifacts(forceRestore));
@@ -218,7 +227,7 @@ namespace Bicep.Core.Registry
             }
 
             // split modules refs by registry
-            var referencesByRegistry = uniqueReferences.ToLookup(@ref => Registries(@ref.ParentModuleUri)[@ref.Scheme]);
+            var referencesByRegistry = uniqueReferences.ToLookup(@ref => this.registryProvider.GetRegistry(@ref.Scheme));
 
             // send each set of refs to its own registry
             foreach (var registry in referencesByRegistry.Select(byRegistry => byRegistry.Key))
@@ -231,7 +240,7 @@ namespace Bicep.Core.Registry
                     // update cache invalidation status for each failed module
                     foreach (var (failedReference, failureBuilder) in invalidateFailures)
                     {
-                        this.SetRestoreFailure(failedReference, configurationManager.GetConfiguration(failedReference.ParentModuleUri), failureBuilder);
+                        this.SetRestoreFailure(failedReference, failedReference.ReferencingFile.Configuration, failureBuilder);
                     }
                 }
 
@@ -240,7 +249,7 @@ namespace Bicep.Core.Registry
                 // update restore status for each failed module restore
                 foreach (var (failedReference, failureBuilder) in restoreFailures)
                 {
-                    this.SetRestoreFailure(failedReference, configurationManager.GetConfiguration(failedReference.ParentModuleUri), failureBuilder);
+                    this.SetRestoreFailure(failedReference, failedReference.ReferencingFile.Configuration, failureBuilder);
                 }
 
                 try
@@ -298,8 +307,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private IArtifactRegistry GetRegistry(ArtifactReference reference) =>
-            Registries(reference.ParentModuleUri).TryGetValue(reference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected artifactDeclaration reference scheme '{reference.Scheme}'.");
+        private IArtifactRegistry GetRegistry(ArtifactReference reference) => this.registryProvider.GetRegistry(reference.Scheme);
 
         public ResultWithException<SourceArchive> TryGetModuleSources(ArtifactReference reference)
         {

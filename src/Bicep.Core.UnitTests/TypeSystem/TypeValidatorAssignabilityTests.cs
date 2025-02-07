@@ -695,9 +695,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, new ObjectType(
                 "additionalPropertiesFallbackTypeTest",
                 TypeSymbolValidationFlags.Default,
-                new[] { new TypeProperty("inSchema", LanguageConstants.String) },
-                LanguageConstants.Any,
-                TypePropertyFlags.FallbackProperty));
+                new[] { new NamedTypeProperty("inSchema", LanguageConstants.String) },
+                    new TypeProperty(LanguageConstants.Any, TypePropertyFlags.FallbackProperty)));
 
             diagnostics.Should().HaveCount(1);
             diagnostics.Should().ContainDiagnostic("BCP037", DiagnosticLevel.Warning, "The property \"notInSchema\" is not allowed on objects of type \"additionalPropertiesFallbackTypeTest\". No other properties are allowed.");
@@ -714,13 +713,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 {
                     new ObjectType("typeA", TypeSymbolValidationFlags.Default, new []
                     {
-                        new TypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valA")),
-                        new TypeProperty("fieldA", LanguageConstants.String, TypePropertyFlags.Required),
+                        new NamedTypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valA")),
+                        new NamedTypeProperty("fieldA", LanguageConstants.String, TypePropertyFlags.Required),
                     }, null),
                     new ObjectType("typeB", TypeSymbolValidationFlags.Default, new []
                     {
-                        new TypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valB")),
-                        new TypeProperty("fieldB", LanguageConstants.String, TypePropertyFlags.Required),
+                        new NamedTypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valB")),
+                        new NamedTypeProperty("fieldB", LanguageConstants.String, TypePropertyFlags.Required),
                     }, null),
                 });
 

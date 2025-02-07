@@ -15,18 +15,15 @@ public class LintCommand : ICommand
     private readonly ILogger logger;
     private readonly DiagnosticLogger diagnosticLogger;
     private readonly BicepCompiler compiler;
-    private readonly IFeatureProviderFactory featureProviderFactory;
 
     public LintCommand(
         ILogger logger,
         DiagnosticLogger diagnosticLogger,
-        BicepCompiler compiler,
-        IFeatureProviderFactory featureProviderFactory)
+        BicepCompiler compiler)
     {
         this.logger = logger;
         this.diagnosticLogger = diagnosticLogger;
         this.compiler = compiler;
-        this.featureProviderFactory = featureProviderFactory;
     }
 
     public async Task<int> RunAsync(LintArguments args)
@@ -36,7 +33,7 @@ public class LintCommand : ICommand
 
         var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
 
-        if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is { } warningMessage)
+        if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping) is { } warningMessage)
         {
             logger.LogWarning(warningMessage);
         }

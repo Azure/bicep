@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Utils;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Modules
 {
@@ -15,8 +16,8 @@ namespace Bicep.Core.Modules
     {
         private static readonly IEqualityComparer<string> PathComparer = StringComparer.Ordinal;
 
-        private LocalModuleReference(ArtifactType artifactType, string path, Uri parentModuleUri)
-            : base(ArtifactReferenceSchemes.Local, parentModuleUri)
+        private LocalModuleReference(BicepSourceFile referencingFile, ArtifactType artifactType, string path)
+            : base(referencingFile, ArtifactReferenceSchemes.Local)
         {
             ArtifactType = artifactType;
             this.Path = path;
@@ -47,10 +48,10 @@ namespace Bicep.Core.Modules
 
         public override bool IsExternal => false;
 
-        public static ResultWithDiagnosticBuilder<LocalModuleReference> TryParse(ArtifactType artifactType, string unqualifiedReference, Uri parentModuleUri)
+        public static ResultWithDiagnosticBuilder<LocalModuleReference> TryParse(BicepSourceFile referencingFile, ArtifactType artifactType, string unqualifiedReference)
         {
             return Validate(unqualifiedReference)
-                .Transform(_ => new LocalModuleReference(artifactType, unqualifiedReference, parentModuleUri));
+                .Transform(_ => new LocalModuleReference(referencingFile, artifactType, unqualifiedReference));
         }
 
         public static ResultWithDiagnosticBuilder<bool> Validate(string pathName)

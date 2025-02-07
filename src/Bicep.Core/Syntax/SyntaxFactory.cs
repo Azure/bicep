@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.ServiceModel;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
@@ -17,6 +18,8 @@ namespace Bicep.Core.Syntax
             new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, " "));
 
         public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new(TextSpan.Nil, []);
+
+        public static readonly ProgramSyntax EmptyProgram = new(Array.Empty<SyntaxBase>(), EndOfFileToken);
 
         public static Token CreateToken(TokenType tokenType, IEnumerable<SyntaxTrivia>? leadingTrivia = null, IEnumerable<SyntaxTrivia>? trailingTrivia = null)
         {
@@ -218,6 +221,23 @@ namespace Bicep.Core.Syntax
             {
                 return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)-intValue);
             }
+        }
+
+        public static StringSyntax CreateMultilineString(string value, IEnumerable<SyntaxTrivia>? leadingTrivia = null, IEnumerable<SyntaxTrivia>? trailingTrivia = null)
+        {
+            // It's the responsibility of the caller to have already verified this, to avoid throwing here.
+            if (value.Contains("'''"))
+            {
+                throw new ArgumentException("The value must not contain the sequence '''");
+            }
+
+            // there's intentionally no escaping for a multi-line string
+            var tokenValue = $"'''{value}'''";
+
+            return new(
+                [CreateFreeformToken(TokenType.MultilineString, tokenValue, leadingTrivia, trailingTrivia)],
+                [],
+                [value]);
         }
 
         public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), []);

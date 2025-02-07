@@ -70,6 +70,7 @@ public class ParameterAssignmentEvaluator
             JToken evaluateFunction(Template template, string originalFunctionName)
             {
                 var functionsLookup = template.GetFunctionDefinitions().ToOrdinalInsensitiveDictionary(x => x.Key, x => x.Function);
+                TemplateVariablesEvaluator variablesEvaluator = new(template);
 
                 var rewrittenExpression = new FunctionExpression(
                     $"{EmitConstants.UserDefinedFunctionsNamespace}.{originalFunctionName}",
@@ -81,6 +82,7 @@ public class ParameterAssignmentEvaluator
                 var helper = new TemplateExpressionEvaluationHelper
                 {
                     OnGetFunction = (name, _) => functionsLookup[name],
+                    OnGetVariable = (name, _) => variablesEvaluator.GetEvaluatedVariableValue(name),
                     ValidationContext = SchemaValidationContext.ForTemplate(template),
                 };
 

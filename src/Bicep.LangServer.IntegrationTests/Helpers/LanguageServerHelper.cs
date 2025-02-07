@@ -69,17 +69,17 @@ namespace Bicep.LangServer.IntegrationTests
         /// No further file opening is possible.
         /// </summary>
         public static Task<LanguageServerHelper> StartServerWithText(TestContext testContext, string text, DocumentUri documentUri, Action<IServiceCollection>? onRegisterServices = null)
-            => StartServerWithText(testContext, new Dictionary<Uri, string> { [documentUri.ToUriEncoded()] = text }, documentUri.ToUriEncoded(), onRegisterServices);
+            => StartServerWithText(testContext, new Dictionary<DocumentUri, string> { [documentUri] = text }, documentUri, onRegisterServices);
 
         /// <summary>
         /// Starts a language client/server pair that will load the specified Bicep text and wait for the diagnostics to be published.
         /// No further file opening is possible.
         /// </summary>
-        public static async Task<LanguageServerHelper> StartServerWithText(TestContext testContext, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri, Action<IServiceCollection>? onRegisterServices = null)
+        public static async Task<LanguageServerHelper> StartServerWithText(TestContext testContext, IReadOnlyDictionary<DocumentUri, string> fileContentsByUri, DocumentUri entryFileUri, Action<IServiceCollection>? onRegisterServices = null)
         {
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
-            var fileResolver = new InMemoryFileResolver(fileContentsByUri);
+            var fileResolver = new InMemoryFileResolver(fileContentsByUri.ToDictionary(x => x.Key.ToUriEncoded(), x => x.Value));
             var fileExplorer = new FileSystemFileExplorer(fileResolver.MockFileSystem);
             var helper = await LanguageServerHelper.StartServer(
                 testContext,

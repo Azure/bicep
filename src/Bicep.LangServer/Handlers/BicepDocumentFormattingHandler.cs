@@ -34,9 +34,9 @@ namespace Bicep.LanguageServer.Handlers
             var lexingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.LexingErrorLookup;
             var parsingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.ParsingErrorLookup;
             var printerOptions = context.Compilation.GetEntrypointSemanticModel().Configuration.Formatting.Data;
-            var featureProvider = context.Compilation.FeatureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUriEncoded());
+            var features = context.Compilation.GetEntrypointSemanticModel().Features;
 
-            if (featureProvider.LegacyFormatterEnabled)
+            if (features.LegacyFormatterEnabled)
             {
                 var legacyOptions = PrettyPrintOptions.FromV2Options(printerOptions);
                 var legacyOutput = PrettyPrinter.PrintProgram(context.ProgramSyntax, legacyOptions, lexingErrorLookup, parsingErrorLookup);

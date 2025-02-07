@@ -285,7 +285,7 @@ public static class ArmTemplateTypeLoader
         var requiredProps = requiredProperties is not null ? ImmutableHashSet.CreateRange(requiredProperties) : null;
 
         ObjectTypeNameBuilder nameBuilder = new();
-        List<TypeProperty>? propertyList = null;
+        List<NamedTypeProperty>? propertyList = null;
         ITypeReference? additionalPropertiesType = LanguageConstants.Any;
         string? additionalPropertiesDescription = null;
         TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.FallbackProperty;
@@ -331,7 +331,7 @@ public static class ArmTemplateTypeLoader
             return flags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? LanguageConstants.SecureObject : LanguageConstants.Object;
         }
 
-        return new ObjectType(nameBuilder.ToString(), flags, propertyList.CoalesceEnumerable(), additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription);
+        return new ObjectType(nameBuilder.ToString(), flags, propertyList.CoalesceEnumerable(), additionalPropertiesType is not null ? new(additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription) : null);
     }
 
     private class SansMetadata : ITemplateSchemaNode

@@ -29,8 +29,6 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({
     return null;
   }
 
-  console.log(parameters);
-
   const { parameterDefinitions } = template;
   const { sourceFilePath } = parameters;
 

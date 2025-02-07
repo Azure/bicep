@@ -246,8 +246,8 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { Value = value, Description = description } : expression;
     }
 
-    void IExpressionVisitor.VisitDeclaredExtensionExpression(DeclaredExtensionExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredExtensionExpression);
-    public virtual Expression ReplaceDeclaredExtensionExpression(DeclaredExtensionExpression expression)
+    void IExpressionVisitor.VisitExtensionExpression(ExtensionExpression expression) => ReplaceCurrent(expression, ReplaceExtensionExpression);
+    public virtual Expression ReplaceExtensionExpression(ExtensionExpression expression)
     {
         var hasChanges =
             TryRewrite(expression.Config, out var config) |

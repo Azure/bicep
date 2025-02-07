@@ -46,7 +46,8 @@ namespace Bicep.LangServer.UnitTests
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver);
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.SourceFileFactory);
         }
 
         [NotNull]
@@ -94,7 +95,7 @@ namespace Bicep.LangServer.UnitTests
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUriEncoded();
 
-            var originalFile = SourceFileFactory.CreateArmTemplateFile(uri, "{}");
+            var originalFile = BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(uri, "{}");
             var workspace = new Workspace();
             workspace.UpsertSourceFile(originalFile);
 
@@ -300,7 +301,8 @@ namespace Bicep.LangServer.UnitTests
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver);
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.SourceFileFactory);
 
             var uri = DocumentUri.File($"{TestContext.TestName}.bicep");
 
@@ -360,7 +362,8 @@ namespace Bicep.LangServer.UnitTests
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver);
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.SourceFileFactory);
 
             // upsert should fail because of the mock fatal exception
             manager.OpenCompilation(uri, BaseVersion, "fake", languageId);
@@ -432,7 +435,8 @@ namespace Bicep.LangServer.UnitTests
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver);
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.SourceFileFactory);
 
             // upsert should fail because of the mock fatal exception
             manager.OpenCompilation(uri, version, "fake", languageId);
@@ -519,13 +523,12 @@ module moduleB './moduleB.bicep' = {
                 .Build();
 
             var compilationProvider = new BicepCompilationProvider(
-                BicepTestConstants.FeatureProviderFactory,
                 BicepTestConstants.EmptyEnvironment,
                 TestTypeHelper.CreateEmptyNamespaceProvider(),
                 fileResolver,
                 services.Construct<IModuleDispatcher>(),
-                BicepTestConstants.BuiltInOnlyConfigurationManager,
-                BicepTestConstants.LinterAnalyzer);
+                BicepTestConstants.LinterAnalyzer,
+                BicepTestConstants.SourceFileFactory);
 
             var compilationManager = new BicepCompilationManager(
                 server.Object,
@@ -534,7 +537,8 @@ module moduleB './moduleB.bicep' = {
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver);
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.SourceFileFactory);
 
             diagsReceived.Should().BeEmpty();
 
@@ -919,7 +923,8 @@ param location string = 'testLocation'");
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver);
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.SourceFileFactory);
         }
 
         private DocumentUri CreateUri(string languageId) => DocumentUri.File(this.TestContext.TestName + (languageId switch

@@ -20,9 +20,8 @@ public class UnresolvedResourceDerivedPartialObjectType : ObjectType, IUnresolve
         string discriminatorValue) : base(
             typeReference.FormatType(),
             TypeSymbolValidationFlags.Default,
-            new TypeProperty(discriminatorName, TypeFactory.CreateStringLiteralType(discriminatorValue)).AsEnumerable(),
-            LanguageConstants.Any,
-            TypePropertyFlags.FallbackProperty)
+            new NamedTypeProperty(discriminatorName, TypeFactory.CreateStringLiteralType(discriminatorValue)).AsEnumerable(),
+                new TypeProperty(LanguageConstants.Any, TypePropertyFlags.FallbackProperty))
     {
         TypeReference = typeReference;
         PointerSegments = pointerSegments;

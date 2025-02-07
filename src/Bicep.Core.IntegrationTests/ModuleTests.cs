@@ -193,10 +193,9 @@ module main 'main.bicep' = {
 
             var mockFileResolver = Repository.Create<IFileResolver>();
             var mockDispatcher = Repository.Create<IModuleDispatcher>().Object;
-            var mockConfigurationManager = Repository.Create<IConfigurationManager>().Object;
             SetupFileReaderMock(mockFileResolver, fileUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
 
-            Action buildAction = () => SourceFileGroupingBuilder.Build(mockFileResolver.Object, mockDispatcher, mockConfigurationManager, new Workspace(), fileUri, BicepTestConstants.FeatureProviderFactory);
+            Action buildAction = () => SourceFileGroupingBuilder.Build(mockFileResolver.Object, mockDispatcher, new Workspace(), BicepTestConstants.SourceFileFactory, fileUri);
             buildAction.Should().Throw<DiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }

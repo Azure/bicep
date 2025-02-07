@@ -11,8 +11,6 @@ namespace Bicep.Core.Semantics.Namespaces;
 public interface INamespaceProvider
 {
     IEnumerable<NamespaceResult> GetNamespaces(
-        RootConfiguration rootConfig,
-        IFeatureProvider features,
         IArtifactFileLookup artifactFileLookup,
         BicepSourceFile sourceFile,
         ResourceScope targetScope);

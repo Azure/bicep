@@ -1118,7 +1118,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                List<TypeProperty> nsProperties = new();
+                List<NamedTypeProperty> nsProperties = new();
                 List<FunctionOverload> nsFunctions = new();
                 foreach (var export in importedModel.Exports.Values)
                 {
@@ -1308,7 +1308,7 @@ namespace Bicep.Core.TypeSystem
                 // Discriminated objects should have been resolved by the declared type manager.
                 var declaredType = typeManager.GetDeclaredType(syntax);
 
-                var namedProperties = new Dictionary<string, TypeProperty>(LanguageConstants.IdentifierComparer);
+                var namedProperties = new Dictionary<string, NamedTypeProperty>(LanguageConstants.IdentifierComparer);
                 var additionalProperties = new List<TypeSymbol>();
                 foreach (var child in syntax.Children)
                 {
@@ -1323,7 +1323,7 @@ namespace Bicep.Core.TypeSystem
                                 // we've found a declared object type for the containing object, with a matching property name definition.
                                 // preserve the type property details (name, descriptions etc.), and update the assigned type.
                                 // Since this type corresponds to a value that is being supplied, make sure it has the `Required` flag and does not have the `.ReadOnly` flag
-                                namedProperties[name] = new TypeProperty(
+                                namedProperties[name] = new NamedTypeProperty(
                                     property.Name,
                                     resolvedType,
                                     (property.Flags | TypePropertyFlags.Required) & ~TypePropertyFlags.ReadOnly,
@@ -1333,7 +1333,7 @@ namespace Bicep.Core.TypeSystem
                             {
                                 // we've not been able to find a declared object type for the containing object, or it doesn't contain a property matching this one.
                                 // best we can do is to simply generate a property for the assigned type.
-                                namedProperties[name] = new TypeProperty(name, resolvedType, TypePropertyFlags.Required);
+                                namedProperties[name] = new NamedTypeProperty(name, resolvedType, TypePropertyFlags.Required);
                             }
                         }
                         else
@@ -1352,9 +1352,9 @@ namespace Bicep.Core.TypeSystem
                                 namedProperties[name] = property;
                             }
 
-                            if (spreadType.AdditionalPropertiesType is { })
+                            if (spreadType.AdditionalProperties is { } spreadTypeAdditionalProperties)
                             {
-                                additionalProperties.Add(spreadType.AdditionalPropertiesType.Type);
+                                additionalProperties.Add(spreadTypeAdditionalProperties.TypeReference.Type);
                             }
                         }
                         else
@@ -1367,7 +1367,7 @@ namespace Bicep.Core.TypeSystem
                 var additionalPropertiesType = additionalProperties.Any() ? TypeHelper.CreateTypeUnion(additionalProperties) : null;
 
                 // TODO: Add structural naming?
-                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties.Values, additionalPropertiesType);
+                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties.Values, additionalPropertiesType is null ? null : new(additionalPropertiesType));
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
@@ -2345,7 +2345,7 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            if (baseType.Properties.Any() || baseType.AdditionalPropertiesType != null)
+            if (baseType.Properties.Any() || baseType.AdditionalProperties != null)
             {
                 // the object type allows properties
                 return LanguageConstants.Any;

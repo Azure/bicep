@@ -21,8 +21,8 @@
 
   <ItemGroup>
     <PackageReference Include="JsonPath.Net" Version="2.0.1" />
-    <PackageReference Include="JsonSchema.Net" Version="7.3.0" />
-    <PackageReference Include="Markdig" Version="0.39.1" />
+    <PackageReference Include="JsonSchema.Net" Version="7.3.1" />
+    <PackageReference Include="Markdig" Version="0.40.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
     <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />

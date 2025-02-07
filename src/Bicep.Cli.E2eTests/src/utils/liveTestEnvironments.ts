@@ -21,8 +21,8 @@ export const prod: LiveTestEnvironment = {
 
 export const fairfax: LiveTestEnvironment = {
   suffix: ".ff",
-  registryUri: "biceptestff.azurecr.us",
-  templateSpecSubscriptionId: "e21305d9-eef2-4990-8ed2-e2748236bee3",
+  registryUri: "biceptestff2.azurecr.us",
+  templateSpecSubscriptionId: "d1d65353-7d87-447b-8daa-89e868034b2a",
   resourceSuffix: "ff",
   environmentOverrides: {},
 };
