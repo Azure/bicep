@@ -271,7 +271,7 @@ namespace Bicep.Core.IntegrationTests
                 diagnostics.ExcludingLinterDiagnostics().Should().NotBeEmpty();
 
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP414", DiagnosticLevel.Error, "The decorator \"retryOnAll\" can only be attached to resource collections.")
+                    ("BCP412", DiagnosticLevel.Error, "The decorator \"retryOnAll\" can only be attached to resource collections.")
                 });
             }
         }
@@ -640,7 +640,7 @@ namespace Bicep.Core.IntegrationTests
                 diagnostics.ExcludingLinterDiagnostics().Should().NotBeEmpty();
 
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP414", DiagnosticLevel.Error, "The decorator \"waitUntilAll\" can only be attached to resource collections.")
+                    ("BCP412", DiagnosticLevel.Error, "The decorator \"waitUntilAll\" can only be attached to resource collections.")
                 });
             }
         }

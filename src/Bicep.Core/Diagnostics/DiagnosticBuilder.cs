@@ -1872,16 +1872,8 @@ namespace Bicep.Core.Diagnostics
                 "BCP411",
                 $"The type \"{type}\" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object).{TypeInaccuracyClause}");
 
-            public Diagnostic NegativeRetryCount() => CoreError(
-                   "BCP412",
-                   $"Retry count must be a non-negative integer.");
-
-            public Diagnostic InvalidRetryCount(long value, long limit) => CoreError(
-                "BCP413",
-                $"Expected a retry count of at least {limit} but the specified value was \"{value}\".");
-
             public Diagnostic DecoratorNotAllowed(string decoratorName) => CoreError(
-                "BCP414",
+                "BCP412",
                 $"The decorator \"{decoratorName}\" can only be attached to resource collections.");
 
         }
