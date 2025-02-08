@@ -21,6 +21,15 @@
     <RuntimeIdentifiers Condition=" $(UsingMicrosoftNETSdkBlazorWebAssembly) != 'true' ">win-x64;linux-x64;linux-musl-x64;osx-x64;win-arm64;linux-arm64;osx-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
+  <PropertyGroup Label="Testing">
+    <MSTestVersion>3.8.2</MSTestVersion>
+    <EnableMSTestRunner>true</EnableMSTestRunner>
+
+    <!-- More info about dotnet test integration https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-integration-dotnet-test -->
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
+  </PropertyGroup>
+
   <!-- set default framework - each project can still override -->
   <PropertyGroup Condition=" '$(MSBuildProjectExtension)' == '.csproj' ">
     <TargetFramework>net8.0</TargetFramework>

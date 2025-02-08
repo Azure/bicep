@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
 		<IsPackable>false</IsPackable>
+		<OutputType>Exe</OutputType>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -16,8 +17,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
 		<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
 		<PackageReference Include="Moq" Version="4.20.72" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.7.3" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.6.3" />
+		<PackageReference Include="MSTest" Version="$(MSTestVersion)" />
 	</ItemGroup>
 
 	<ItemGroup>
