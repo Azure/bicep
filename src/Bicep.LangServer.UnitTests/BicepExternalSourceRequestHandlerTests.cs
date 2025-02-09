@@ -495,7 +495,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var referenceValue = $"{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}";
 
             var configurationManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var referencingFile = new BicepFile(new Uri("file:///dummy.bicep"), [], SyntaxFactory.EmptyProgram, configurationManager, BicepTestConstants.FeatureProviderFactory, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance); 
+            var referencingFile = new BicepFile(new Uri("file:///dummy.bicep"), [], SyntaxFactory.EmptyProgram, configurationManager, BicepTestConstants.FeatureProviderFactory, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
 
             TemplateSpecModuleReference
                 .TryParse(referencingFile, null, referenceValue)

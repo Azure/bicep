@@ -241,8 +241,8 @@ namespace Bicep.Core.IntegrationTests
 
             var retryOnJObject = new JObject
             {
-            ["exceptionCodes"] = new JArray("ResourceNotFound", "ServerError"),
-            ["retryCount"] = 1
+                ["exceptionCodes"] = new JArray("ResourceNotFound", "ServerError"),
+                ["retryCount"] = 1
             };
 
             using (new AssertionScope())

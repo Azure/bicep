@@ -694,7 +694,7 @@ namespace Bicep.Core.UnitTests.Registry
             {
                 modules.Should().AllSatisfy(m => m.HasSourceLayer.Should().Be(publishSource));
             }
-            
+
             var actualSourceResult = ociRegistry.TryGetSource(moduleReference);
 
             if (sources is { })
