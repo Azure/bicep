@@ -1261,7 +1261,7 @@ namespace Bicep.Core.Emit
                 {
                     emitter.EmitObjectProperty("options", () =>
                     {
-                        if(resource.RetryOn is not null)
+                        if (resource.RetryOn is not null)
                         {
                             emitter.EmitObjectProperty("retryOn", () =>
                             {
@@ -1278,7 +1278,7 @@ namespace Bicep.Core.Emit
                         }
 
                     });
-                    
+
                 }
 
                 if (metadata.IsAzResource ||

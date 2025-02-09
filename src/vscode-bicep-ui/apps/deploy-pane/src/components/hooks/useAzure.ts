@@ -94,7 +94,7 @@ export function useAzure(props: UseAzureProps) {
         }
         setOperations(operations);
       };
-      
+
       let poller;
       try {
         poller = await client.deployments.beginCreateOrUpdateAtScope(getScopeId(scope), deploymentName, deployment);

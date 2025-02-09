@@ -137,7 +137,7 @@ public class NamespaceProvider : INamespaceProvider
         ExtensionDeclarationSyntax? syntax,
         string extensionName)
     {
-        var aliasName =  syntax?.TryGetSymbolName() ?? extensionName;
+        var aliasName = syntax?.TryGetSymbolName() ?? extensionName;
         var diagBuilder = syntax is { } ? DiagnosticBuilder.ForPosition(syntax) : DiagnosticBuilder.ForDocumentStart();
 
         if (artifact is { })

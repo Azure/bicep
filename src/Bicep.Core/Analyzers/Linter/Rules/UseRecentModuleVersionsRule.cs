@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Data;
 using System.Diagnostics;
 using System.Web.Services.Description;
@@ -22,7 +23,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Semver;
 using Semver.Comparers;
-using System.Collections.Immutable;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {

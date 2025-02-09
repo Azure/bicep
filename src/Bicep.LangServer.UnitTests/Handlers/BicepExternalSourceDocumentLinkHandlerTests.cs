@@ -205,7 +205,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //   module2 references module1 and is published with source
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
-                    new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource : true),
+                    new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                     new("br:mockregistry.io/test/module2:v2", """
                         module m1 'br:mockregistry.io/test/module1:v1' = {
                             name: 'm1'
@@ -245,8 +245,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //   module3 references module1 and module2 and is published with source
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
-                    new ("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
-                    new ("br:mockregistry.io/test/module1:v2", """
+                    new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
+                    new("br:mockregistry.io/test/module1:v2", """
                         module m1 'br:mockregistry.io/test/module1:v1' = {
                             name: 'm1'
                             params: {
@@ -254,7 +254,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                           }
                         }
                         """, WithSource: true),
-                    new ("br:mockregistry.io/test/module1:v3", """
+                    new("br:mockregistry.io/test/module1:v3", """
                         module m1 'br:mockregistry.io/test/module1:v1' = {
                             name: 'm1'
                             params: {
