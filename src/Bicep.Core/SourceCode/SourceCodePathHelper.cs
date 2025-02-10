@@ -70,7 +70,7 @@ namespace Bicep.Core.SourceCode
                 throw new ArgumentException($"Paths should be normalized before calling {nameof(MapPathsToDistinctRoots)}");
             }
 
-            string[] folders = filePaths.Select(path =>
+            string[] folders = [.. filePaths.Select(path =>
             {
                 if (!Path.IsPathFullyQualified(path) || Path.GetDirectoryName(path) is not string folder)
                 {
@@ -79,7 +79,7 @@ namespace Bicep.Core.SourceCode
 
                 return folder;
             })
-            .Select(NormalizeSlashes).ToArray();
+            .Select(NormalizeSlashes)];
 
             var distinctFolders = folders.Distinct(PathHelper.PathComparer).ToArray();
 

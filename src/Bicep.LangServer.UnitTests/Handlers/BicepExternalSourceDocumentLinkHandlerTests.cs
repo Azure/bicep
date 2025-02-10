@@ -231,7 +231,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             link.Range.Should().HaveRange((0, 10), (0, 46));
             link.Target.Should().NotBeNull();
             var target = new ExternalSourceReference(link.Target!);
-            target.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1/main.bicep (module1:v1)");
+            target.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1 -> main.bicep");
             target.RequestedFile.Should().Be("main.bicep");
             target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
         }
@@ -282,7 +282,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             link1.Range.Should().HaveRange((0, 10), (0, 46));
             link1.Target.Should().NotBeNull();
             var target1 = new ExternalSourceReference(link1.Target!);
-            target1.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1/main.bicep (module1:v1)");
+            target1.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1 -> main.bicep");
             target1.RequestedFile.Should().Be("main.bicep");
             target1.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
 
@@ -290,7 +290,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             link2.Range.Should().HaveRange((6, 12), (6, 48));
             link2.Target.Should().NotBeNull();
             var target2 = new ExternalSourceReference(link2.Target!);
-            target2.FullTitle.Should().Be("br:mockregistry.io/test/module1:v2/main.bicep (module1:v2)");
+            target2.FullTitle.Should().Be("br:mockregistry.io/test/module1:v2 -> main.bicep");
             target2.RequestedFile.Should().Be("main.bicep");
             target2.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v2");
 
