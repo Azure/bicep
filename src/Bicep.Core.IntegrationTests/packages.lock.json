@@ -1602,7 +1602,7 @@
           "Azure.Bicep.Local.Deploy": "[1.0.0, )",
           "Azure.ResourceManager.ResourceGraph": "[1.0.1, )",
           "CommandLineParser": "[2.9.1, )",
-          "Microsoft.Extensions.Http": "[8.0.1, )",
+          "Microsoft.Extensions.Http": "[9.0.1, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.9, )",
           "SharpYaml": "[2.1.1, )"
         }
