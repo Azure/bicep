@@ -654,7 +654,7 @@ jobs:
         uses: actions/setup-dotnet@v4
 
       - name: Run Tests
-        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/ci.runsettings --results-directory ./TestResults
+        run: dotnet test --filter '${{ matrix.config.filter }}' --configuration release -- --report-trx --results-directory ${{ github.workspace }}/TestResults
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -663,11 +663,6 @@ jobs:
           name: TestResults-${{ matrix.config.name }}-${{ matrix.os }}
           path: ./TestResults/*.trx
           if-no-files-found: error
-
-      - name: Upload Code Coverage
-        uses: codecov/codecov-action@v5
-        with:
-          flags: dotnet
 
   comment-test-summary:
     name: "PR Comment: Dotnet Tests Summary"

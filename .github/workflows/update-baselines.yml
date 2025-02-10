@@ -29,7 +29,7 @@ jobs:
       
       - name: Test
         continue-on-error: true
-        run: dotnet test --filter "TestCategory=Baseline" -- 'TestRunParameters.Parameter(name="SetBaseLine", value="true")'
+        run: dotnet test --filter "TestCategory=Baseline" -- --test-parameter SetBaseLine=true
       
       - name: Commit baselines
         run: |

@@ -49,6 +49,16 @@
           "Microsoft.SourceLink.Common": "8.0.0"
         }
       },
+      "Microsoft.Testing.Extensions.TrxReport": {
+        "type": "Direct",
+        "requested": "[1.5.3, )",
+        "resolved": "1.5.3",
+        "contentHash": "EWngdkVPKRslrXTFGQ53RbJDb/Si6/Ma+NkWu3Ck8ioiWF7ASsNgCxpXV0IfgGKuFZysEqWD06Z6nInoNtynqg==",
+        "dependencies": {
+          "Microsoft.Testing.Extensions.TrxReport.Abstractions": "1.5.3",
+          "Microsoft.Testing.Platform": "1.5.3"
+        }
+      },
       "Microsoft.VisualStudio.LanguageServer.Protocol": {
         "type": "Direct",
         "requested": "[17.2.8, )",
@@ -125,22 +135,17 @@
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
-      "MSTest.TestAdapter": {
+      "MSTest": {
         "type": "Direct",
         "requested": "[3.7.3, )",
         "resolved": "3.7.3",
-        "contentHash": "Ro3TnkC+TfovOTFd93DnzDF/ickJkkAYVmnzrjvY3FUduRcTJLIOJee9kiP1o3q1aPqmJSK6CobdvyWXubajWw==",
+        "contentHash": "0N2MnLPjoOjp5rhHpjY7VNB3b5Au/88Grg3OzHUtWKnW1XdYr8Y4YgwlSVOexj4IemW/LkzwUXCICD+loeMqaA==",
         "dependencies": {
-          "Microsoft.Testing.Extensions.VSTestBridge": "1.5.3",
-          "Microsoft.Testing.Platform.MSBuild": "1.5.3",
-          "System.Threading.Tasks.Extensions": "4.5.4"
+          "MSTest.Analyzers": "[3.7.3]",
+          "MSTest.TestAdapter": "[3.7.3]",
+          "MSTest.TestFramework": "[3.7.3]",
+          "Microsoft.NET.Test.Sdk": "17.12.0"
         }
-      },
-      "MSTest.TestFramework": {
-        "type": "Direct",
-        "requested": "[3.6.3, )",
-        "resolved": "3.6.3",
-        "contentHash": "jockRcUoLJMeHzLqFcMnZBrWy7tS32JP7shlepDDJuf5A6HO2PwAefXzhvprcWNkfpEwmR0KihSO2HRXwNbTng=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
@@ -224,6 +229,11 @@
         "type": "Transitive",
         "resolved": "8.0.0",
         "contentHash": "bZKfSIKJRXLTuSzLudMFte/8CempWjVamNUR5eHJizsy+iuOuO/k2gnh7W0dHJmYY0tBf+gUErfluCv5mySAOQ=="
+      },
+      "Microsoft.CodeCoverage": {
+        "type": "Transitive",
+        "resolved": "17.12.0",
+        "contentHash": "4svMznBd5JM21JIG2xZKGNanAHNXplxf/kQDFfLHXQ3OnpJkayRK/TjacFjA+EYmoyuNXHo/sOETEfcYtAzIrA=="
       },
       "Microsoft.CSharp": {
         "type": "Transitive",
@@ -338,6 +348,14 @@
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
       },
+      "Microsoft.NET.Test.Sdk": {
+        "type": "Transitive",
+        "resolved": "17.12.0",
+        "contentHash": "kt/PKBZ91rFCWxVIJZSgVLk+YR+4KxTuHf799ho8WNiK5ZQpJNAEZCAWX86vcKrs+DiYjiibpYKdGZP6+/N17w==",
+        "dependencies": {
+          "Microsoft.CodeCoverage": "17.12.0"
+        }
+      },
       "Microsoft.ServiceHub.Analyzers": {
         "type": "Transitive",
         "resolved": "4.7.36",
@@ -420,8 +438,8 @@
       },
       "Microsoft.VisualStudio.ComponentModelHost": {
         "type": "Transitive",
-        "resolved": "17.12.215",
-        "contentHash": "ZKY81l2x9cyBxJMb2oyjHYO62zHda4EMIJ69BINQdrgRXKkJrUmrL+iAxotgfzs+lDLEGIzhK2bgV95tp7xMsQ==",
+        "resolved": "17.12.192",
+        "contentHash": "wvNK4qLU6E1l8JKK2xxkggCP10z5SUrK8Vt1YPdDDmu5Axbfj2w7ZCilN0GrbGVYYC3u0Rf7ngfmrQTytXhhuw==",
         "dependencies": {
           "MessagePack": "2.5.168",
           "MessagePack.Annotations": "2.5.168",
@@ -487,11 +505,11 @@
       },
       "Microsoft.VisualStudio.ImageCatalog": {
         "type": "Transitive",
-        "resolved": "17.12.40391",
-        "contentHash": "ZdEUS1WiH1Ei3ev8rUmJ7ASLQK/Iyq+2XdsbMXkLJKbaxaPgr+SriaS2KMWL1wj9O17H8YMq7OhR6GoBREn2wA==",
+        "resolved": "17.12.40093",
+        "contentHash": "3TRiyeyuk3sryWLkbHikf0ttAYO+rZnW+w8KMSMwWPdU7jTHGV0k/vSnpl84KH56RfVWMcEU3DGza8wys16uzA==",
         "dependencies": {
-          "Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime": "17.12.40390",
-          "Microsoft.VisualStudio.Interop": "17.12.40391"
+          "Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime": "17.12.40088",
+          "Microsoft.VisualStudio.Interop": "17.12.40093"
         }
       },
       "Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime": {
@@ -730,6 +748,29 @@
         "dependencies": {
           "System.Security.AccessControl": "5.0.0",
           "System.Security.Principal.Windows": "5.0.0"
+        }
+      },
+      "MSTest.Analyzers": {
+        "type": "Transitive",
+        "resolved": "3.7.3",
+        "contentHash": "5KcyyxIP0UBRKBs135+S3JQJALc1PmZMzhpR86JIXQ2Dnd/lDiOGNDD8R23X015mWi1K95KQWsGWw+3e7DUrgg=="
+      },
+      "MSTest.TestAdapter": {
+        "type": "Transitive",
+        "resolved": "3.7.3",
+        "contentHash": "Ro3TnkC+TfovOTFd93DnzDF/ickJkkAYVmnzrjvY3FUduRcTJLIOJee9kiP1o3q1aPqmJSK6CobdvyWXubajWw==",
+        "dependencies": {
+          "Microsoft.Testing.Extensions.VSTestBridge": "1.5.3",
+          "Microsoft.Testing.Platform.MSBuild": "1.5.3",
+          "System.Threading.Tasks.Extensions": "4.5.4"
+        }
+      },
+      "MSTest.TestFramework": {
+        "type": "Transitive",
+        "resolved": "3.7.3",
+        "contentHash": "Eg4F4zOsAFKlSiLI3tOJfg6BGXeppLhgdupAfVlnpZBXa3rNqxINIeZDJ5/KpoW5BRZyUSZW76Q8yNNk0GqCEQ==",
+        "dependencies": {
+          "MSTest.Analyzers": "3.7.3"
         }
       },
       "Nerdbank.Streams": {
@@ -1184,6 +1225,30 @@
       }
     },
     ".NETFramework,Version=v4.7.2/win-x64": {
+      "Microsoft.Win32.Registry": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "dDoKi0PnDz31yAyETfRntsLArTlVAVzUzCIvvEDsDsucrl33Dl8pIJG06ePTJTI3tGpeyHS9Cq7Foc/s4EeKcg==",
+        "dependencies": {
+          "System.Security.AccessControl": "5.0.0",
+          "System.Security.Principal.Windows": "5.0.0"
+        }
+      },
+      "System.Security.AccessControl": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "AUADIc0LIEQe7MzC+I0cl0rAT8RrTAKFHl53yHjEUzNVIaUlhFY11vc2ebiVJzVBuOzun6F7FBA+8KAbGTTedQ==",
+        "dependencies": {
+          "System.Security.Principal.Windows": "5.0.0"
+        }
+      },
+      "System.Security.Principal.Windows": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "t0MGLukB5WAVU9bO3MGzvlGnyJPgUlcwerXn1kzBRjwLKixT96XV0Uza41W49gVd8zEMFu9vQEFlv0IOrytICA=="
+      }
+    },
+    ".NETFramework,Version=v4.7.2/win7-x86": {
       "Microsoft.Win32.Registry": {
         "type": "Transitive",
         "resolved": "5.0.0",
