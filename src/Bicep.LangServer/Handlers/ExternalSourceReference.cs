@@ -180,7 +180,11 @@ namespace Bicep.LanguageServer.Handlers
         public string GetShortTitle()
         {
             string filePath = RequestedFile ?? "main.json";
-            filePath = CharsToReplaceInFilePath().Replace(filePath, ">"); // \ or / will mess up the registry info in the title that vscode displays
+            // Our display of "module1:v1 -> <path>.bicep" in vscode depends on vscode interpreting that as the "filename" part of the uri,
+            //   since it's always displays the filename.
+            // If <path> contains / or \, vscode will interpret that as a folder structure and only display the last part of it.
+            filePath = CharsToReplaceInFilePath().Replace(filePath, ">");
+
             var version = GetVersion();
             var repoAndTag = $"{Path.GetFileName(Components.Repository)}{version}";
 
