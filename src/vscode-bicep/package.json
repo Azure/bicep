@@ -778,7 +778,7 @@
     "@vscode/vsce": "^3.2.1",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
-    "esbuild-loader": "^4.2.2",
+    "esbuild-loader": "^4.3.0",
     "eslint": "^9.19.0",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-notice": "^1.0.0",
