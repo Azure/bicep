@@ -14,7 +14,6 @@ interface Props {
 
 const editorOptions: editor.IStandaloneEditorConstructionOptions = {
   language: 'bicep',
-  theme: 'vs-dark',
   scrollBeyondLastLine: false,
   automaticLayout: true,
   minimap: {
