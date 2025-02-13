@@ -74,6 +74,7 @@ namespace Bicep.Core.Syntax
                 LanguageConstants.TargetScopeTypeManagementGroup => ResourceScope.ManagementGroup,
                 LanguageConstants.TargetScopeTypeSubscription => ResourceScope.Subscription,
                 LanguageConstants.TargetScopeTypeResourceGroup => ResourceScope.ResourceGroup,
+                LanguageConstants.TargetScopeTypeDSC => ResourceScope.DSC, // This is what actually lights up the text 'dsc' as a possible value for target scope
                 _ => ResourceScope.None,
             };
         }
