@@ -242,9 +242,10 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
         private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType input)
         {
+            // TODO: Adding DSC here didn't seem to have an effect, maybe it's unnecessary
             if (input == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
             {
-                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource;
+                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource | ResourceScope.DSC;
             }
 
             var output = ResourceScope.None;
@@ -253,7 +254,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             output |= input.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.ManagementGroup) ? ResourceScope.ManagementGroup : ResourceScope.None;
             output |= input.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.Subscription) ? ResourceScope.Subscription : ResourceScope.None;
             output |= input.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.ResourceGroup) ? ResourceScope.ResourceGroup : ResourceScope.None;
-
+            output |= ResourceScope.DSC;
             return output;
         }
 
