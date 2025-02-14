@@ -237,14 +237,36 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public async Task BuiltIn_MsGraph_namespace_can_be_loaded_from_configuration()
+        public async Task MsGraph_namespace_can_be_loaded_from_configuration_if_defined()
+        {
+            var services = await GetServices();
+
+            services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
+            {
+                "az": "builtin:",
+                "microsoftGraph": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/extensions/microsoftgraph/beta:{{versionBeta}}"
+            }
+            """));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
+            extension microsoftGraph
+            "));
+
+            result.Should().GenerateATemplate();
+        }
+
+        [TestMethod]
+        public async Task BuiltIn_MsGraph_namespace_should_show_retired()
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
             extension microsoftGraph
             "));
 
-            result.Should().GenerateATemplate();
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics([
+                ("BCP407", DiagnosticLevel.Error, """Built-in extension "microsoftGraph" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes""")
+            ]);
         }
 
         [TestMethod]

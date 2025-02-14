@@ -6378,13 +6378,24 @@ param p invalidRecursiveObjectType = {}
     }
 
     [TestMethod]
-    public void Test_Issue15513()
+    public async Task Test_Issue15513()
     {
-        var result = CompilationHelper.Compile(
-            new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true)),
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
+           typeof(ExtensionRegistryTests).Assembly,
+           "Files/ExtensionRegistryTests/microsoftgraph");
+
+        var registry = "example.azurecr.io";
+        var repository = "microsoftgraph/v1";
+
+        var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new(ExtensibilityEnabled: true));
+
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/index.json", $"br:{registry}/{repository}:1.2.3");
+
+        var result = await CompilationHelper.RestoreAndCompile(
+            services,
             """
             #disable-next-line BCP407
-            extension microsoftGraph
+            extension 'br:example.azurecr.io/microsoftgraph/v1:1.2.3'
 
             param entraGroup object = {
               name: 'ExampleGroup2'
