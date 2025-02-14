@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Features;
-using Bicep.Core.Registry.PublicRegistry;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.UnitTests.Features;
